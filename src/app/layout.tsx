@@ -1,12 +1,12 @@
-import "@/styles/globals.css";
+import "@/styles/globals.css"
 
-import type { Metadata, Viewport } from "next";
-import Script from "next/script";
+import type { Metadata, Viewport } from "next"
+import Script from "next/script"
 
-import { Providers } from "@/components/providers";
-import { META_THEME_COLORS, SITE_INFO } from "@/config/site";
-import { fontMono, fontSans } from "@/lib/fonts";
-import { cn } from "@/lib/utils";
+import { Providers } from "@/components/providers"
+import { META_THEME_COLORS, SITE_INFO } from "@/config/site"
+import { fontMono, fontSans } from "@/lib/fonts"
+import { cn } from "@/lib/utils"
 
 // Thanks @shadcn-ui, @tailwindcss
 const darkModeScript = String.raw`
@@ -21,7 +21,7 @@ const darkModeScript = String.raw`
       document.documentElement.classList.add('os-macos')
     }
   } catch (_) {}
-`;
+`
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_INFO.url),
@@ -59,19 +59,19 @@ export const metadata: Metadata = {
     creator: "@iamncdai", // Twitter username
     images: [SITE_INFO.ogImage],
   },
-};
+}
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
   themeColor: META_THEME_COLORS.light,
-};
+}
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <html
@@ -95,5 +95,5 @@ export default function RootLayout({
         <Providers>{children}</Providers>
       </body>
     </html>
-  );
+  )
 }
