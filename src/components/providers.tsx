@@ -1,10 +1,10 @@
-"use client";
+"use client"
 
-import { AppProgressProvider } from "@bprogress/next";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Provider as JotaiProvider } from "jotai";
-import { ThemeProvider } from "next-themes";
+import { AppProgressProvider } from "@bprogress/next"
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Provider as JotaiProvider } from "jotai"
+import { ThemeProvider } from "next-themes"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -14,7 +14,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         disableTransitionOnChange
         enableColorScheme
         storageKey="theme"
-        defaultTheme="system"
+        defaultTheme="light"
         attribute="class"
       >
         <AppProgressProvider
@@ -30,5 +30,5 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <SpeedInsights />
       </ThemeProvider>
     </JotaiProvider>
-  );
+  )
 }
