@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { logoutAction } from "@/features/auth/actions"
 import { LinkGoogleButton } from "@/features/auth/components/link-google-button"
-import type { AuthUser } from "@/features/auth/types"
+import type { AuthUser, LinkedProvider } from "@/features/auth/types"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 import { getSession } from "@/lib/session"
 
@@ -11,10 +11,15 @@ export default async function ProfilePage() {
   const sessionUser = session.user!
 
   let user: AuthUser | null = null
+  let linkedProviders: LinkedProvider[] = []
   try {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<AuthUser>("/api/auth/me")
-    user = response.data
+    const [meResponse, linkedResponse] = await Promise.all([
+      axios.get<AuthUser>("/api/auth/me"),
+      axios.get<LinkedProvider[]>("/api/auth/social/linked"),
+    ])
+    user = meResponse.data
+    linkedProviders = linkedResponse.data
   } catch {
     // Fallback to session data if API call fails
   }
@@ -43,7 +48,22 @@ export default async function ProfilePage() {
           <h2 className="mb-3 text-sm font-medium text-gray-500">
             Liên kết tài khoản
           </h2>
-          <LinkGoogleButton />
+          {linkedProviders.length > 0 && (
+            <ul className="mb-3 space-y-1">
+              {linkedProviders.map((lp) => (
+                <li key={lp.provider}>
+                  <span className="font-medium capitalize">{lp.provider}</span>
+                  <span className="ml-2 text-gray-400">
+                    — đã liên kết lúc{" "}
+                    {new Date(lp.linkedAt).toLocaleString("vi-VN")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {!linkedProviders.some((lp) => lp.provider === "google") && (
+            <LinkGoogleButton />
+          )}
         </div>
 
         <div className="border-t pt-4">

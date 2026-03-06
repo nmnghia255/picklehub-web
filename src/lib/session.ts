@@ -17,10 +17,12 @@ export const sessionOptions = {
   cookieName: "picklehub-session",
   password: process.env.SESSION_SECRET as string,
   cookieOptions: {
-    httpOnly: true,
+    // httpOnly: true,
+    // secure only works in `https` environments
+    // if your localhost is not on `https`, then use: `secure: process.env.NODE_ENV === "production"`
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax" as const,
-    path: "/",
+    // sameSite: "lax" as const,
+    // path: "/",
   },
 }
 

@@ -120,6 +120,15 @@ export interface LogoutResponse {
 export type GetMeResponse = AuthUser
 
 // ============================================
+// Social / Linked Providers
+// ============================================
+
+export interface LinkedProvider {
+  provider: string
+  linkedAt: string
+}
+
+// ============================================
 // Link Google Types
 // ============================================
 
@@ -129,4 +138,32 @@ export interface LinkGoogleRequest {
 
 export interface LinkGoogleResponse {
   message: string
+}
+
+// ============================================
+// Accept Invitation Types
+// ============================================
+
+export interface AcceptInvitationResponse {
+  accessToken: string
+  refreshToken: string
+  isNewUser: boolean
+  groupJoined: boolean
+  user: {
+    id: string
+    email: string
+    displayName: string
+  }
+  group: {
+    id: string
+    name: string
+  }
+}
+
+// ============================================
+// Set Password Types
+// ============================================
+
+export interface SetPasswordRequest {
+  password: string
 }

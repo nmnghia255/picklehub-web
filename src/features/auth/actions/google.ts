@@ -21,6 +21,7 @@ export async function loginWithGoogleAction(
     const response = await axios.post(`${API_BASE_URL}/api/auth/google`, {
       idToken,
     })
+    console.log(response)
     const { accessToken, refreshToken, expiresIn, user } = response.data
 
     const session = await getSession()

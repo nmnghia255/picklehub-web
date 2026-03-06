@@ -12,24 +12,24 @@ export async function getAuthenticatedAxios() {
   }
 
   // Refresh token if it expires within the next 60 seconds
-  const now = Date.now()
-  if (
-    session.accessTokenExpiresAt &&
-    session.accessTokenExpiresAt < now + 60_000
-  ) {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/api/auth/refresh`, {
-        refreshToken: session.refreshToken,
-      })
-      const { accessToken, expiresIn } = response.data
-      session.accessToken = accessToken
-      session.accessTokenExpiresAt = now + expiresIn * 1000
-      await session.save()
-    } catch {
-      session.destroy()
-      throw new Error("Session expired")
-    }
-  }
+  // const now = Date.now()
+  // if (
+  //   session.accessTokenExpiresAt &&
+  //   session.accessTokenExpiresAt < now + 60_000
+  // ) {
+  //   try {
+  //     const response = await axios.post(`${API_BASE_URL}/api/auth/refresh`, {
+  //       refreshToken: session.refreshToken,
+  //     })
+  //     const { accessToken, expiresIn } = response.data
+  //     session.accessToken = accessToken
+  //     session.accessTokenExpiresAt = now + expiresIn * 1000
+  //     await session.save()
+  //   } catch {
+  //     session.destroy()
+  //     throw new Error("Session expired")
+  //   }
+  // }
 
   return axios.create({
     baseURL: API_BASE_URL,

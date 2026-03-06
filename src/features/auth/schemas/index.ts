@@ -38,3 +38,18 @@ export const resendVerificationSchema = z.object({
 export type ResendVerificationFormData = z.infer<
   typeof resendVerificationSchema
 >
+
+export const setPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(1, "Mật khẩu không được để trống")
+      .min(8, "Mật khẩu phải có ít nhất 8 ký tự"),
+    confirmPassword: z.string().min(1, "Vui lòng nhập lại mật khẩu"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Mật khẩu không khớp",
+    path: ["confirmPassword"],
+  })
+
+export type SetPasswordFormData = z.infer<typeof setPasswordSchema>

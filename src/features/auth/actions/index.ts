@@ -3,12 +3,14 @@
 import axios from "axios"
 import { redirect } from "next/navigation"
 
+import { getAuthenticatedAxios } from "@/lib/server-api"
 import { getSession } from "@/lib/session"
 
 import {
   loginSchema,
   registerSchema,
   resendVerificationSchema,
+  setPasswordSchema,
   verifyEmailSchema,
 } from "../schemas"
 
@@ -162,6 +164,44 @@ export async function resendVerificationAction(
     }
     return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
   }
+}
+
+// ============================================
+// Set Password
+// ============================================
+
+export async function setPasswordAction(
+  _prevState: AuthActionState,
+  formData: FormData
+): Promise<AuthActionState> {
+  const parsed = setPasswordSchema.safeParse({
+    password: formData.get("password"),
+    confirmPassword: formData.get("confirmPassword"),
+  })
+
+  if (!parsed.success) {
+    return { error: parsed.error.errors[0].message }
+  }
+
+  const groupId = formData.get("groupId") as string | null
+
+  try {
+    const client = await getAuthenticatedAxios()
+    await client.post("/api/auth/set-password", {
+      password: parsed.data.password,
+    })
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        error:
+          error.response?.data?.message ||
+          "Đặt mật khẩu thất bại. Vui lòng thử lại.",
+      }
+    }
+    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+  }
+
+  redirect(groupId ? `/groups/${groupId}` : "/groups")
 }
 
 // ============================================
