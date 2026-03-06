@@ -8,6 +8,7 @@ import { getSession } from "@/lib/session"
 
 import {
   loginSchema,
+  magicLinkSchema,
   registerSchema,
   resendVerificationSchema,
   setPasswordSchema,
@@ -212,4 +213,77 @@ export async function logoutAction() {
   const session = await getSession()
   session.destroy()
   redirect("/login")
+}
+
+// ============================================
+// Magic Link - Send
+// ============================================
+
+export async function sendMagicLinkAction(
+  _prevState: AuthActionState,
+  formData: FormData
+): Promise<AuthActionState> {
+  const parsed = magicLinkSchema.safeParse({
+    email: formData.get("email"),
+  })
+
+  if (!parsed.success) {
+    return { error: parsed.error.errors[0].message }
+  }
+
+  try {
+    await axios.post(`${API_BASE_URL}/api/auth/magic-link`, parsed.data)
+    return {
+      success: true,
+      message:
+        "Nếu tài khoản tồn tại, một link đăng nhập đã được gửi đến email của bạn.",
+    }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        error:
+          error.response?.data?.message ||
+          "Gửi link thất bại. Vui lòng thử lại.",
+      }
+    }
+    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+  }
+}
+
+// ============================================
+// Magic Link - Verify
+// ============================================
+
+export async function verifyMagicLinkAction(magic: string): Promise<{
+  error?: string
+}> {
+  if (!magic) {
+    return { error: "Link đăng nhập không hợp lệ." }
+  }
+
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/api/auth/magic-link/verify`,
+      { magic }
+    )
+    const { accessToken, refreshToken, user } = response.data
+
+    const session = await getSession()
+    session.user = { id: user.id, email: user.email }
+    session.accessToken = accessToken
+    session.refreshToken = refreshToken
+    session.accessTokenExpiresAt = Date.now() + 15 * 60 * 1000
+    await session.save()
+
+    return {}
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        error:
+          error.response?.data?.message ||
+          "Xác thực thất bại. Link có thể đã hết hạn hoặc không hợp lệ.",
+      }
+    }
+    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+  }
 }

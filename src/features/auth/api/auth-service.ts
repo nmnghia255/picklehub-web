@@ -10,8 +10,12 @@ import type {
   RegisterResponse,
   ResendVerificationRequest,
   ResendVerificationResponse,
+  SendMagicLinkRequest,
+  SendMagicLinkResponse,
   VerifyEmailRequest,
   VerifyEmailResponse,
+  VerifyMagicLinkRequest,
+  VerifyMagicLinkResponse,
 } from "../types"
 
 export const authService = {
@@ -63,6 +67,26 @@ export const authService = {
 
   getMe: async (): Promise<GetMeResponse> => {
     const response = await apiClient.get<GetMeResponse>("/api/auth/me")
+    return response.data
+  },
+
+  sendMagicLink: async (
+    data: SendMagicLinkRequest
+  ): Promise<SendMagicLinkResponse> => {
+    const response = await apiClient.post<SendMagicLinkResponse>(
+      "/api/auth/magic-link",
+      data
+    )
+    return response.data
+  },
+
+  verifyMagicLink: async (
+    data: VerifyMagicLinkRequest
+  ): Promise<VerifyMagicLinkResponse> => {
+    const response = await apiClient.post<VerifyMagicLinkResponse>(
+      "/api/auth/magic-link/verify",
+      data
+    )
     return response.data
   },
 }

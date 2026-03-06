@@ -53,3 +53,12 @@ export const setPasswordSchema = z
   })
 
 export type SetPasswordFormData = z.infer<typeof setPasswordSchema>
+
+export const magicLinkSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email không được để trống")
+    .email("Email không hợp lệ"),
+})
+
+export type MagicLinkFormData = z.infer<typeof magicLinkSchema>

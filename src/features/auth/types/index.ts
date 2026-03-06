@@ -167,3 +167,25 @@ export interface AcceptInvitationResponse {
 export interface SetPasswordRequest {
   password: string
 }
+
+// ============================================
+// Magic Link Types
+// ============================================
+
+export interface SendMagicLinkRequest {
+  email: string
+}
+
+export interface SendMagicLinkResponse {
+  message: string
+}
+
+export interface VerifyMagicLinkRequest {
+  magic: string
+}
+
+export interface VerifyMagicLinkResponse {
+  accessToken: string
+  refreshToken: string
+  user: AuthUser
+}
