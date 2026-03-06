@@ -5,7 +5,9 @@ import Script from "next/script"
 
 import { Providers } from "@/components/providers"
 import { META_THEME_COLORS, SITE_INFO } from "@/config/site"
+import { AuthInitializer } from "@/features/auth/components/auth-initializer"
 import { fontMono, fontSans } from "@/lib/fonts"
+import { getSession } from "@/lib/session"
 import { cn } from "@/lib/utils"
 
 // Thanks @shadcn-ui, @tailwindcss
@@ -68,11 +70,13 @@ export const viewport: Viewport = {
   themeColor: META_THEME_COLORS.light,
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const session = await getSession()
+
   return (
     <html
       lang="en"
@@ -92,7 +96,10 @@ export default function RootLayout({
       </head>
 
       <body suppressHydrationWarning>
-        <Providers>{children}</Providers>
+        <Providers>
+          <AuthInitializer user={session.user ?? null} />
+          {children}
+        </Providers>
       </body>
     </html>
   )

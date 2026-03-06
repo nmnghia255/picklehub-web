@@ -1,4 +1,9 @@
+"use client"
+
+import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
+import { startTransition, useActionState } from "react"
+import { useForm } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -9,14 +14,41 @@ import {
   FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { registerAction } from "@/features/auth/actions"
 import { cn } from "@/lib/utils"
+
+import { type RegisterFormData, registerSchema } from "../schemas"
+import { GoogleAuthButton } from "./google-auth-button"
 
 export function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
+  const [state, formAction, isPending] = useActionState(registerAction, {})
+
+  const form = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      name: "",
+    },
+  })
+
+  const onSubmit = form.handleSubmit((data) => {
+    const fd = new FormData()
+    fd.set("email", data.email)
+    fd.set("password", data.password)
+    fd.set("name", data.name)
+    startTransition(() => formAction(fd))
+  })
+
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      className={cn("flex flex-col gap-6", className)}
+      onSubmit={onSubmit}
+      {...props}
+    >
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="text-2xl font-bold">Đăng ký PickleHub</h1>
@@ -25,17 +57,21 @@ export function RegisterForm({
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <Field>
-            <FieldLabel htmlFor="lastName">Họ của bạn</FieldLabel>
-            <Input id="lastName" type="text" placeholder="Nguyen" required />
-          </Field>
-
-          <Field>
-            <FieldLabel htmlFor="firstName">Tên của bạn</FieldLabel>
-            <Input id="firstName" type="text" placeholder="Van A" required />
-          </Field>
-        </div>
+        <Field>
+          <FieldLabel htmlFor="name">Họ và tên</FieldLabel>
+          <Input
+            id="name"
+            type="text"
+            placeholder="Nguyễn Văn A"
+            {...form.register("name")}
+            aria-invalid={!!form.formState.errors.name}
+          />
+          {form.formState.errors.name && (
+            <p className="text-sm text-red-500">
+              {form.formState.errors.name.message}
+            </p>
+          )}
+        </Field>
 
         <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -43,8 +79,14 @@ export function RegisterForm({
             id="email"
             type="email"
             placeholder="hoten@example.com"
-            required
+            {...form.register("email")}
+            aria-invalid={!!form.formState.errors.email}
           />
+          {form.formState.errors.email && (
+            <p className="text-sm text-red-500">
+              {form.formState.errors.email.message}
+            </p>
+          )}
         </Field>
 
         <Field>
@@ -53,30 +95,36 @@ export function RegisterForm({
             id="password"
             type="password"
             placeholder="Nhập mật khẩu"
-            required
+            {...form.register("password")}
+            aria-invalid={!!form.formState.errors.password}
           />
+          {form.formState.errors.password && (
+            <p className="text-sm text-red-500">
+              {form.formState.errors.password.message}
+            </p>
+          )}
         </Field>
 
+        {state.error && (
+          <div className="rounded-md border border-red-200 bg-red-50 p-3">
+            <p className="text-sm text-red-600">{state.error}</p>
+          </div>
+        )}
+
         <Field>
-          <Button type="submit">Đăng ký</Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? "Đang đăng ký..." : "Đăng ký"}
+          </Button>
         </Field>
 
         <FieldSeparator>hoặc tiếp tục với</FieldSeparator>
 
         <Field>
-          <Button variant="outline" type="button">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
-            </svg>
-            Đăng ký với Google
-          </Button>
+          <GoogleAuthButton text="signup_with" />
 
-          <Button variant="outline" type="button">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z" />
-            </svg>
+          {/* <Button variant="outline" type="button">
             Đăng ký với Facebook
-          </Button>
+          </Button> */}
 
           <FieldDescription className="text-center">
             Bạn đã có tài khoản?{" "}
