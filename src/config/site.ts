@@ -4,9 +4,9 @@ export const SITE_INFO = {
   ogImage: "",
   description: "PickleHub for Web",
   keywords: ["picklehub", "pickleball"],
-};
+}
 
 export const META_THEME_COLORS = {
   light: "#ffffff",
   dark: "#09090b",
-};
+}
