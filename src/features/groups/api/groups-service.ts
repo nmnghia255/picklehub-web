@@ -63,6 +63,7 @@ export async function revokeInvitation(
   await axios.delete(`/api/groups/${groupId}/invitations/${invitationId}`)
 }
 
+/** @deprecated */
 export async function createInviteLink(
   groupId: string
 ): Promise<InviteLinkResponse> {
@@ -73,6 +74,7 @@ export async function createInviteLink(
   return response.data
 }
 
+/** @deprecated */
 export async function getInviteLinks(groupId: string): Promise<InviteLink[]> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.get<InviteLink[]>(
@@ -81,6 +83,7 @@ export async function getInviteLinks(groupId: string): Promise<InviteLink[]> {
   return response.data
 }
 
+/** @deprecated */
 export async function revokeInviteLink(
   groupId: string,
   linkId: string

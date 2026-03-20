@@ -105,11 +105,13 @@ export async function inviteToGroupAction(
   }
 }
 
+/** @deprecated */
 export interface InviteLinkActionState {
   data?: InviteLinkResponse
   error?: string
 }
 
+/** @deprecated */
 export async function createInviteLinkAction(
   groupId: string
 ): Promise<InviteLinkActionState> {
@@ -128,11 +130,13 @@ export async function createInviteLinkAction(
   }
 }
 
+/** @deprecated */
 export interface GetInviteLinksActionState {
   data?: InviteLink[]
   error?: string
 }
 
+/** @deprecated */
 export async function getInviteLinksAction(
   groupId: string
 ): Promise<GetInviteLinksActionState> {
@@ -151,11 +155,13 @@ export async function getInviteLinksAction(
   }
 }
 
+/** @deprecated */
 export interface RevokeInviteLinkActionState {
   error?: string
   success?: boolean
 }
 
+/** @deprecated */
 export async function revokeInviteLinkAction(
   groupId: string,
   linkId: string

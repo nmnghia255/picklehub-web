@@ -16,7 +16,6 @@ import {
 } from "@/features/groups/api/groups-service"
 import { InvitationsTable } from "@/features/groups/components/invitations-table"
 import { InviteDialog } from "@/features/groups/components/invite-dialog"
-import { InviteLinksDrawer } from "@/features/groups/components/invite-links-drawer"
 
 interface GroupDetailPageProps {
   params: Promise<{ groupId: string }>
@@ -41,7 +40,6 @@ export default async function GroupDetailPage({
         {isOwner && (
           <div className="flex gap-2">
             <InviteDialog groupId={groupId} />
-            <InviteLinksDrawer groupId={groupId} />
           </div>
         )}
       </div>
