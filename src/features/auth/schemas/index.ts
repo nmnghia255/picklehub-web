@@ -54,6 +54,22 @@ export const setPasswordSchema = z
 
 export type SetPasswordFormData = z.infer<typeof setPasswordSchema>
 
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Mật khẩu hiện tại không được để trống"),
+    newPassword: z
+      .string()
+      .min(1, "Mật khẩu mới không được để trống")
+      .min(8, "Mật khẩu mới phải có ít nhất 8 ký tự"),
+    confirmNewPassword: z.string().min(1, "Vui lòng nhập lại mật khẩu mới"),
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: "Mật khẩu mới không khớp",
+    path: ["confirmNewPassword"],
+  })
+
+export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>
+
 export const magicLinkSchema = z.object({
   email: z
     .string()

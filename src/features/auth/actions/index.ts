@@ -7,6 +7,7 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 import { getSession } from "@/lib/session"
 
 import {
+  changePasswordSchema,
   loginSchema,
   magicLinkSchema,
   registerSchema,
@@ -203,6 +204,43 @@ export async function setPasswordAction(
   }
 
   redirect(groupId ? `/groups/${groupId}` : "/groups")
+}
+
+// ============================================
+// Change Password
+// ============================================
+
+export async function changePasswordAction(
+  _prevState: AuthActionState,
+  formData: FormData
+): Promise<AuthActionState> {
+  const parsed = changePasswordSchema.safeParse({
+    currentPassword: formData.get("currentPassword"),
+    newPassword: formData.get("newPassword"),
+    confirmNewPassword: formData.get("confirmNewPassword"),
+  })
+
+  if (!parsed.success) {
+    return { error: parsed.error.errors[0].message }
+  }
+
+  try {
+    const client = await getAuthenticatedAxios()
+    await client.post("/api/auth/change-password", {
+      currentPassword: parsed.data.currentPassword,
+      newPassword: parsed.data.newPassword,
+    })
+    return { success: true, message: "Đổi mật khẩu thành công." }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        error:
+          error.response?.data?.message ||
+          "Đổi mật khẩu thất bại. Vui lòng thử lại.",
+      }
+    }
+    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+  }
 }
 
 // ============================================
