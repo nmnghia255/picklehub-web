@@ -4,17 +4,27 @@ import axios from "axios"
 import { revalidatePath } from "next/cache"
 
 import {
+  archiveGroup,
+  changeMemberRole,
   createGroup,
   createInviteLink,
   getInviteLinks,
   inviteToGroup,
+  kickMember,
+  leaveGroup,
   revokeInvitation,
   revokeInviteLink,
+  updateGroup,
 } from "@/features/groups/api/groups-service"
 import { getSession } from "@/lib/session"
 
 import { addGroupSchema, inviteSchema } from "../schemas"
-import type { InviteLink, InviteLinkResponse } from "../types"
+import type {
+  GroupMemberRole,
+  InviteLink,
+  InviteLinkResponse,
+  UpdateGroupInput,
+} from "../types"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL || ""
 
@@ -99,6 +109,131 @@ export async function inviteToGroupAction(
         error:
           error.response?.data?.message ||
           "Gửi lời mời thất bại. Vui lòng thử lại.",
+      }
+    }
+    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+  }
+}
+
+export interface GroupMessageActionState extends GroupActionState {
+  message?: string
+}
+
+export async function updateGroupAction(
+  groupId: string,
+  _prevState: GroupActionState,
+  formData: FormData
+): Promise<GroupActionState> {
+  const name = formData.get("name")?.toString().trim()
+  const description = formData.get("description")?.toString().trim()
+  const avatarUrl = formData.get("avatarUrl")?.toString().trim()
+
+  const payload: UpdateGroupInput = {
+    ...(name ? { name } : {}),
+    ...(description !== undefined
+      ? { description: description.length > 0 ? description : null }
+      : {}),
+    ...(avatarUrl !== undefined
+      ? { avatarUrl: avatarUrl.length > 0 ? avatarUrl : null }
+      : {}),
+  }
+
+  if (Object.keys(payload).length === 0) {
+    return { error: "Không có thông tin nào để cập nhật." }
+  }
+
+  try {
+    await updateGroup(groupId, payload)
+    revalidatePath("/groups")
+    revalidatePath(`/groups/${groupId}`)
+    return { success: true }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        error:
+          error.response?.data?.message ||
+          "Cập nhật nhóm thất bại. Vui lòng thử lại.",
+      }
+    }
+    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+  }
+}
+
+export async function changeMemberRoleAction(
+  groupId: string,
+  memberId: string,
+  role: GroupMemberRole
+): Promise<GroupActionState> {
+  try {
+    await changeMemberRole(groupId, memberId, { role })
+    revalidatePath(`/groups/${groupId}`)
+    return { success: true }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        error:
+          error.response?.data?.message ||
+          "Cập nhật vai trò thành viên thất bại. Vui lòng thử lại.",
+      }
+    }
+    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+  }
+}
+
+export async function kickMemberAction(
+  groupId: string,
+  userId: string
+): Promise<GroupMessageActionState> {
+  try {
+    const response = await kickMember(groupId, userId)
+    revalidatePath(`/groups/${groupId}`)
+    return { success: true, message: response.message }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        error:
+          error.response?.data?.message ||
+          "Xóa thành viên thất bại. Vui lòng thử lại.",
+      }
+    }
+    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+  }
+}
+
+export async function leaveGroupAction(
+  groupId: string
+): Promise<GroupMessageActionState> {
+  try {
+    const response = await leaveGroup(groupId)
+    revalidatePath("/groups")
+    revalidatePath(`/groups/${groupId}`)
+    return { success: true, message: response.message }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        error:
+          error.response?.data?.message ||
+          "Rời nhóm thất bại. Vui lòng thử lại.",
+      }
+    }
+    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+  }
+}
+
+export async function archiveGroupAction(
+  groupId: string
+): Promise<GroupActionState> {
+  try {
+    await archiveGroup(groupId)
+    revalidatePath("/groups")
+    revalidatePath(`/groups/${groupId}`)
+    return { success: true }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        error:
+          error.response?.data?.message ||
+          "Lưu trữ nhóm thất bại. Vui lòng thử lại.",
       }
     }
     return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
