@@ -33,10 +33,11 @@ type SidebarItem = {
 
 const sidebarItems: SidebarItem[] = [
   { title: "Home", href: "/home", icon: House },
-  { title: "Profile", href: "/profile", icon: UserRound },
+  { title: "Profile", href: "/settings/profile", icon: UserRound },
   { title: "Sport Center", href: "/sport-center", icon: MapPinned },
   { title: "History", href: "/history", icon: History },
-  { title: "Session", href: "/session", icon: CalendarDays },
+  { title: "Session", href: "/play-sessions", icon: CalendarDays },
+  { title: "Groups", href: "/groups", icon: Users },
   { title: "Friend", href: "/friend", icon: Users },
   { title: "Feed", href: "/feed", icon: Newspaper },
 ]
