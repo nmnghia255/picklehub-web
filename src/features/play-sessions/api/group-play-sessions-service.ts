@@ -3,10 +3,12 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 import type {
   CreateGroupPlaySessionInput,
   GroupPlaySession,
+  ListPlaySessionsParams,
   PlaySessionActionResult,
   PlaySessionParticipant,
   UpdateGroupPlaySessionInput,
 } from "./public-play-sessions-service"
+import { listPlaySessions } from "./public-play-sessions-service"
 
 export type {
   CreateGroupPlaySessionInput,
@@ -187,4 +189,22 @@ export async function cancelGroupPlaySession(
     `/api/events/groups/${groupId}/play-sessions/${playSessionId}/cancel`
   )
   return response.data
+}
+
+export type ListGroupPlaySessionsParams = Omit<
+  ListPlaySessionsParams,
+  "contextType" | "groupId"
+>
+
+export async function listGroupPlaySessions(
+  groupId: string,
+  params: ListGroupPlaySessionsParams = {}
+): Promise<GroupPlaySession[]> {
+  const result = await listPlaySessions({
+    contextType: "INTERNAL_GROUP",
+    groupId,
+    ...params,
+  })
+
+  return Array.isArray(result.sessions) ? result.sessions : []
 }

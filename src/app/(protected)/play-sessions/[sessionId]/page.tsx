@@ -1,6 +1,7 @@
 import { CalendarDays, Clock3, Users } from "lucide-react"
 import Link from "next/link"
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,12 +14,17 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import {
+  getGroupPlaySessionDetail,
+  listGroupPlaySessionParticipants,
+} from "@/features/play-sessions/api/group-play-sessions-service"
+import {
   getPublicPlaySessionDetail,
   listPublicPlaySessionParticipants,
 } from "@/features/play-sessions/api/public-play-sessions-service"
 
 interface PlaySessionDetailPageProps {
   params: Promise<{ sessionId: string }>
+  searchParams?: Promise<{ groupId?: string }>
 }
 
 function normalizeStatus(status: string) {
@@ -38,15 +44,98 @@ function normalizeStatus(status: string) {
 
 export default async function PlaySessionDetailPage({
   params,
+  searchParams,
 }: PlaySessionDetailPageProps) {
   const { sessionId } = await params
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const groupId = resolvedSearchParams?.groupId
+  const backHref = groupId ? `/groups/${groupId}` : "/play-sessions"
 
-  const [playSession, participantsResult] = await Promise.all([
-    getPublicPlaySessionDetail(sessionId),
-    listPublicPlaySessionParticipants(sessionId, { page: 1, limit: 100 }),
-  ])
+  let playSession: Awaited<
+    ReturnType<typeof getPublicPlaySessionDetail>
+  > | null = null
+  let participants: Array<{ userId: string; joinedAt?: string }> = []
+  let participantsError: string | null = null
 
-  const participants = participantsResult.participants
+  try {
+    if (groupId) {
+      const [sessionResult, participantsResult] = await Promise.allSettled([
+        getGroupPlaySessionDetail(groupId, sessionId),
+        listGroupPlaySessionParticipants(groupId, sessionId, {
+          page: 1,
+          limit: 100,
+        }),
+      ])
+
+      if (sessionResult.status === "rejected") {
+        throw sessionResult.reason
+      }
+
+      playSession = sessionResult.value
+
+      if (participantsResult.status === "fulfilled") {
+        participants = participantsResult.value.participants
+      } else {
+        participantsError = "Không thể tải danh sách người tham gia."
+      }
+    } else {
+      const [sessionResult, participantsResult] = await Promise.allSettled([
+        getPublicPlaySessionDetail(sessionId),
+        listPublicPlaySessionParticipants(sessionId, { page: 1, limit: 100 }),
+      ])
+
+      if (sessionResult.status === "rejected") {
+        throw sessionResult.reason
+      }
+
+      playSession = sessionResult.value
+
+      if (participantsResult.status === "fulfilled") {
+        participants = participantsResult.value.participants
+      } else {
+        participantsError = "Không thể tải danh sách người tham gia."
+      }
+    }
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Không thể tải chi tiết buổi chơi."
+
+    return (
+      <div className="container mx-auto max-w-5xl p-6">
+        <div className="mb-6">
+          <Button variant="outline" asChild>
+            <Link href={backHref}>Quay lại</Link>
+          </Button>
+        </div>
+
+        <Alert variant="destructive">
+          <AlertTitle>Tải dữ liệu thất bại</AlertTitle>
+          <AlertDescription>{message}</AlertDescription>
+        </Alert>
+      </div>
+    )
+  }
+
+  if (!playSession) {
+    return (
+      <div className="container mx-auto max-w-5xl p-6">
+        <div className="mb-6">
+          <Button variant="outline" asChild>
+            <Link href={backHref}>Quay lại</Link>
+          </Button>
+        </div>
+
+        <Alert variant="destructive">
+          <AlertTitle>Tải dữ liệu thất bại</AlertTitle>
+          <AlertDescription>
+            Không tìm thấy thông tin buổi chơi.
+          </AlertDescription>
+        </Alert>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto max-w-5xl p-6">
@@ -55,7 +144,7 @@ export default async function PlaySessionDetailPage({
           <h1 className="text-3xl font-bold">{playSession.title}</h1>
         </div>
         <Button variant="outline" asChild>
-          <Link href="/play-sessions">Quay lại</Link>
+          <Link href={backHref}>Quay lại</Link>
         </Button>
       </div>
 
@@ -123,6 +212,12 @@ export default async function PlaySessionDetailPage({
           <CardTitle>Danh sách người tham gia</CardTitle>
         </CardHeader>
         <CardContent>
+          {participantsError && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{participantsError}</AlertDescription>
+            </Alert>
+          )}
+
           {participants.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               Chưa có người tham gia buổi chơi này.

@@ -51,7 +51,15 @@ export function PlaySessionCard({ session }: PlaySessionCardProps) {
             {normalizeStatus(session.status)}
           </Badge>
           <Button variant="outline" asChild>
-            <Link href={`/play-sessions/${session.id}`}>Xem chi tiết</Link>
+            <Link
+              href={
+                session.groupId
+                  ? `/play-sessions/${session.id}?groupId=${session.groupId}`
+                  : `/play-sessions/${session.id}`
+              }
+            >
+              Xem chi tiết
+            </Link>
           </Button>
         </div>
       </CardContent>

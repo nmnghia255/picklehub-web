@@ -1,5 +1,7 @@
-import { CalendarDays, Users } from "lucide-react"
+import { CalendarDays, Plus, Users } from "lucide-react"
+import Link from "next/link"
 
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Table,
@@ -16,6 +18,19 @@ import {
 } from "@/features/groups/api/groups-service"
 import { InvitationsTable } from "@/features/groups/components/invitations-table"
 import { InviteDialog } from "@/features/groups/components/invite-dialog"
+import { UpcomingPlaySessionsSection } from "@/features/groups/components/upcoming-play-sessions-section"
+import { listGroupPlaySessions } from "@/features/play-sessions/api/group-play-sessions-service"
+
+function normalizeRole(role: string | null | undefined) {
+  switch (role) {
+    case "OWNER":
+      return "Chủ nhóm"
+    case "USER":
+      return "Thành viên"
+    default:
+      return role
+  }
+}
 
 interface GroupDetailPageProps {
   params: Promise<{ groupId: string }>
@@ -31,17 +46,31 @@ export default async function GroupDetailPage({
   ])
 
   const isOwner = group.role === "owner"
+  const playSessions = await listGroupPlaySessions(groupId, {
+    status: "SCHEDULED",
+    limit: 10,
+  })
   const invitations = isOwner ? await getGroupInvitations(groupId) : []
+
+  // Filter for upcoming sessions (start time in future)
+  const now = new Date()
+  const upcomingSessions = playSessions.filter(
+    (session) => new Date(session.startTime) > now
+  )
 
   return (
     <div className="container mx-auto max-w-4xl p-6">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold">{group.name}</h1>
-        {isOwner && (
-          <div className="flex gap-2">
-            <InviteDialog groupId={groupId} />
-          </div>
-        )}
+        <div className="flex gap-2">
+          <Link href={`/groups/${groupId}/create-play-session`}>
+            <Button variant="default" size="sm">
+              <Plus className="mr-2 size-4" />
+              Tạo buổi chơi
+            </Button>
+          </Link>
+          {isOwner && <InviteDialog groupId={groupId} />}
+        </div>
       </div>
 
       <Card>
@@ -91,7 +120,9 @@ export default async function GroupDetailPage({
                   <TableCell className="text-muted-foreground">
                     {member.email}
                   </TableCell>
-                  <TableCell className="capitalize">{member.role}</TableCell>
+                  <TableCell className="capitalize">
+                    {normalizeRole(member.role)}
+                  </TableCell>
                   <TableCell className="text-muted-foreground">
                     {new Date(member.joinedAt).toLocaleDateString("vi-VN", {
                       day: "2-digit",
@@ -105,6 +136,8 @@ export default async function GroupDetailPage({
           </Table>
         </CardContent>
       </Card>
+
+      <UpcomingPlaySessionsSection sessions={upcomingSessions} />
 
       {isOwner && (
         <Card className="mt-6">
