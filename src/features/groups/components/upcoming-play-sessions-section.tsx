@@ -1,7 +1,11 @@
+"use client"
+
 import { Clock, Users } from "lucide-react"
 import Link from "next/link"
+import { useMemo, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { GroupPlaySession } from "@/features/play-sessions/api/group-play-sessions-service"
 
@@ -9,9 +13,35 @@ interface UpcomingPlaySessionsSectionProps {
   sessions: GroupPlaySession[]
 }
 
+function normalizeStatus(status: string) {
+  switch (status) {
+    case "SCHEDULED":
+      return "Lên lịch"
+    case "IN_PROGRESS":
+      return "Đang diễn ra"
+    case "COMPLETED":
+      return "Hoàn thành"
+    case "CANCELLED":
+      return "Đã hủy"
+    default:
+      return status
+  }
+}
+
 export function UpcomingPlaySessionsSection({
   sessions,
 }: UpcomingPlaySessionsSectionProps) {
+  const pageSize = 10
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const totalPages = Math.max(1, Math.ceil(sessions.length / pageSize))
+  const effectivePage = Math.min(currentPage, totalPages)
+
+  const pagedSessions = useMemo(() => {
+    const start = (effectivePage - 1) * pageSize
+    return sessions.slice(start, start + pageSize)
+  }, [sessions, effectivePage])
+
   if (sessions.length === 0) {
     return null
   }
@@ -23,7 +53,7 @@ export function UpcomingPlaySessionsSection({
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {sessions.map((session) => (
+          {pagedSessions.map((session) => (
             <Link
               key={session.id}
               href={
@@ -62,15 +92,47 @@ export function UpcomingPlaySessionsSection({
                     </div>
                   )}
                   <Badge variant="outline">
-                    {session.status === "SCHEDULED"
-                      ? "Lên lịch"
-                      : session.status}
+                    {normalizeStatus(session.status)}
                   </Badge>
                 </div>
               </div>
             </Link>
           ))}
         </div>
+
+        {totalPages > 1 && (
+          <div className="mt-4 flex items-center justify-between gap-2 border-t pt-4">
+            <p className="text-sm text-muted-foreground">
+              Trang {effectivePage}/{totalPages} ({sessions.length} buổi chơi)
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={effectivePage === 1}
+                onClick={() =>
+                  setCurrentPage((prev) =>
+                    Math.max(1, Math.min(prev, totalPages) - 1)
+                  )
+                }
+              >
+                Trước
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={effectivePage === totalPages}
+                onClick={() =>
+                  setCurrentPage((prev) =>
+                    Math.min(totalPages, Math.min(prev, totalPages) + 1)
+                  )
+                }
+              >
+                Sau
+              </Button>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

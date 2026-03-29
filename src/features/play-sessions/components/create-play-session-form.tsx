@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -85,6 +86,7 @@ export function CreatePlaySessionForm({ groupId }: CreatePlaySessionFormProps) {
         return
       }
 
+      toast.success("Tạo buổi chơi thành công")
       router.push(`/groups/${groupId}`)
       router.refresh()
     } catch (err) {
