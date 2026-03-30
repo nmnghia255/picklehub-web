@@ -2,6 +2,7 @@
 
 import {
   CalendarDays,
+  Feather,
   History,
   House,
   type LucideIcon,
@@ -32,13 +33,13 @@ type SidebarItem = {
 }
 
 const sidebarItems: SidebarItem[] = [
-  { title: "Home", href: "/home", icon: House },
-  { title: "Profile", href: "/profile", icon: UserRound },
+  { title: "Trang chủ", href: "/home", icon: House },
+  { title: "Hồ sơ", href: "/settings/profile", icon: UserRound },
   { title: "Sport Center", href: "/sport-center", icon: MapPinned },
-  { title: "History", href: "/history", icon: History },
-  { title: "Session", href: "/session", icon: CalendarDays },
-  { title: "Friend", href: "/friend", icon: Users },
-  { title: "Feed", href: "/feed", icon: Newspaper },
+  { title: "Lịch sử", href: "/history", icon: History },
+  { title: "Buổi tập", href: "/session", icon: CalendarDays },
+  { title: "Bạn bè", href: "/friend", icon: Users },
+  { title: "Bảng tin", href: "/feed", icon: Newspaper },
 ]
 
 function isActivePath(pathname: string, href: string) {
@@ -54,12 +55,16 @@ export function AppSidebar() {
 
   return (
     <Sidebar variant="inset" collapsible="icon">
-      <SidebarHeader className="px-3 py-4">
-        <div className="text-sm font-semibold tracking-wide text-sidebar-foreground">
+      <SidebarHeader className="flex flex-row items-center justify-start gap-2 px-3 py-4 text-left">
+        {/* Logo */}
+        <Feather className="size-5 shrink-0 text-primary" />
+        {/* Brand Name */}
+        <span className="text-sm font-semibold tracking-wide whitespace-nowrap text-sidebar-foreground group-data-[state=collapsed]:hidden">
           PickleHub
-        </div>
+        </span>
       </SidebarHeader>
 
+      {/* Sidebar Content */}
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
