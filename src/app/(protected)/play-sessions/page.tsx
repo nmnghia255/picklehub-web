@@ -1,5 +1,6 @@
 import { AlertCircle } from "lucide-react"
 
+import { PageContainer } from "@/components/page-container"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
   getMyPlaySessionSchedule,
@@ -11,7 +12,6 @@ import { PlaySessionsTabs } from "@/features/play-sessions/components/play-sessi
 export default async function SessionsPage() {
   const [mySessionsResult, publicSessionsResult] = await Promise.allSettled([
     getMyPlaySessionSchedule({
-      contextType: "PUBLIC_APP",
       period: "month",
     }),
     listPlaySessions({
@@ -41,11 +41,7 @@ export default async function SessionsPage() {
       : null
 
   return (
-    <div className="container mx-auto max-w-6xl p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Buổi chơi</h1>
-      </div>
-
+    <PageContainer>
       {errorMessage && (
         <Alert variant="destructive" className="mb-4">
           <AlertCircle className="size-4" />
@@ -58,6 +54,6 @@ export default async function SessionsPage() {
         mySessions={mySessions}
         publicSessions={publicSessions}
       />
-    </div>
+    </PageContainer>
   )
 }

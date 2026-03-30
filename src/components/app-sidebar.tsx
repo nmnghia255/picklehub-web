@@ -19,7 +19,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -37,7 +36,8 @@ const sidebarItems: SidebarItem[] = [
   { title: "Hồ sơ", href: "/settings/profile", icon: UserRound },
   { title: "Sân", href: "/sport-center", icon: MapPinned },
   { title: "Lịch sử", href: "/history", icon: History },
-  { title: "Buổi tập", href: "/session", icon: CalendarDays },
+  { title: "Nhóm", href: "/groups", icon: Users },
+  { title: "Buổi chơi", href: "/play-sessions", icon: CalendarDays },
   { title: "Bạn bè", href: "/friend", icon: Users },
   { title: "Bảng tin", href: "/feed", icon: Newspaper },
 ]

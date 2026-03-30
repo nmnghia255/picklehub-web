@@ -1,6 +1,7 @@
 import { CalendarDays, Clock3, Users } from "lucide-react"
 import Link from "next/link"
 
+import { PageContainer } from "@/components/page-container"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -103,7 +104,7 @@ export default async function PlaySessionDetailPage({
         : "Không thể tải chi tiết buổi chơi."
 
     return (
-      <div className="container mx-auto max-w-5xl p-6">
+      <PageContainer>
         <div className="mb-6">
           <Button variant="outline" asChild>
             <Link href={backHref}>Quay lại</Link>
@@ -114,13 +115,13 @@ export default async function PlaySessionDetailPage({
           <AlertTitle>Tải dữ liệu thất bại</AlertTitle>
           <AlertDescription>{message}</AlertDescription>
         </Alert>
-      </div>
+      </PageContainer>
     )
   }
 
   if (!playSession) {
     return (
-      <div className="container mx-auto max-w-5xl p-6">
+      <PageContainer>
         <div className="mb-6">
           <Button variant="outline" asChild>
             <Link href={backHref}>Quay lại</Link>
@@ -133,12 +134,12 @@ export default async function PlaySessionDetailPage({
             Không tìm thấy thông tin buổi chơi.
           </AlertDescription>
         </Alert>
-      </div>
+      </PageContainer>
     )
   }
 
   return (
-    <div className="container mx-auto max-w-5xl p-6">
+    <PageContainer>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold">{playSession.title}</h1>
@@ -250,6 +251,6 @@ export default async function PlaySessionDetailPage({
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageContainer>
   )
 }

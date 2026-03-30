@@ -3,6 +3,7 @@
 import { Search } from "lucide-react"
 import { useMemo, useState } from "react"
 
+import { PageContainer } from "@/components/page-container"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { EmptyState } from "@/features/sport-center/components/empty-state"
@@ -47,7 +48,7 @@ export default function SportCenterPage() {
   const bookedSportCenters = useMemo(() => SPORT_CENTERS.slice(0, 2), [])
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <PageContainer variant="wide">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="mb-6 flex justify-center">
           <TabsList className="w-full max-w-xl">
@@ -117,6 +118,6 @@ export default function SportCenterPage() {
           </div>
         </TabsContent>
       </Tabs>
-    </main>
+    </PageContainer>
   )
 }

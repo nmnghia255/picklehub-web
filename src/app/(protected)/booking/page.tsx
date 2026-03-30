@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 
+import { PageContainer } from "@/components/page-container"
 import { BookingAddOnsCard } from "@/features/booking/components/booking-add-ons-card"
 import { BookingAvailableCourtsCard } from "@/features/booking/components/booking-available-courts-card"
 import { BookingCourtInfoCard } from "@/features/booking/components/booking-court-info-card"
@@ -73,7 +74,7 @@ export default function BookingPage() {
   const total = COURT_PRICE * totalSlots + addOnTotal
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <PageContainer variant="wide" className="flex flex-col">
       <section className="mb-6 space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Đặt sân</h1>
         <p className="text-sm text-muted-foreground">
@@ -114,6 +115,6 @@ export default function BookingPage() {
           />
         </aside>
       </section>
-    </main>
+    </PageContainer>
   )
 }

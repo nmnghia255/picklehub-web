@@ -1,5 +1,6 @@
 import { CalendarDays, MapPin, Trophy, UserRound, Users } from "lucide-react"
 
+import { PageContainer } from "@/components/page-container"
 import { Badge } from "@/components/ui/badge"
 import {
   Card,
@@ -23,7 +24,7 @@ function ResultBadge({ result }: { result: "Thắng" | "Thua" }) {
 
 export default function HistoryPage() {
   return (
-    <div className="container mx-auto max-w-4xl p-6">
+    <PageContainer>
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Lịch sử</h1>
       </div>
@@ -108,6 +109,6 @@ export default function HistoryPage() {
           ))}
         </TabsContent>
       </Tabs>
-    </div>
+    </PageContainer>
   )
 }
