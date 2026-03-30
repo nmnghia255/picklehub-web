@@ -35,7 +35,7 @@ type SidebarItem = {
 const sidebarItems: SidebarItem[] = [
   { title: "Trang chủ", href: "/home", icon: House },
   { title: "Hồ sơ", href: "/settings/profile", icon: UserRound },
-  { title: "Sport Center", href: "/sport-center", icon: MapPinned },
+  { title: "Sân", href: "/sport-center", icon: MapPinned },
   { title: "Lịch sử", href: "/history", icon: History },
   { title: "Buổi tập", href: "/session", icon: CalendarDays },
   { title: "Bạn bè", href: "/friend", icon: Users },
