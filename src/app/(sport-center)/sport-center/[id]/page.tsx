@@ -28,7 +28,7 @@ export default function SportCenterInformationPage() {
                 </h1>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary">Premium Partner</Badge>
-                  <Badge variant="outline">8 courts</Badge>
+                  <Badge variant="outline">8 sân</Badge>
                 </div>
               </div>
             </div>

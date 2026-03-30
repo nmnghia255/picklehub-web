@@ -7,6 +7,7 @@ export interface SportCenter {
   name: string
   address: string
   region: string
+  isFavorite: boolean
   distanceKm: number
   openTime: string
   playTimeTags: string[]

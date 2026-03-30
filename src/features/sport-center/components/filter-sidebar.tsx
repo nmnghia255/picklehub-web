@@ -10,21 +10,21 @@ import {
 } from "@/components/ui/select"
 
 type Props = {
-  addressFilter: string
-  setAddressFilter: (value: string) => void
   distanceFilter: string
   setDistanceFilter: (value: string) => void
   playTimeFilter: string
   setPlayTimeFilter: (value: string) => void
+  favoriteFilter: string
+  setFavoriteFilter: (value: string) => void
 }
 
 export function FilterSidebar({
-  addressFilter,
-  setAddressFilter,
   distanceFilter,
   setDistanceFilter,
   playTimeFilter,
   setPlayTimeFilter,
+  favoriteFilter,
+  setFavoriteFilter,
 }: Props) {
   return (
     <aside className="lg:sticky lg:top-6">
@@ -32,22 +32,6 @@ export function FilterSidebar({
         <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
           Bộ lọc
         </h2>
-
-        <div className="space-y-2">
-          <p className="text-sm font-medium">Địa chỉ</p>
-          <Select value={addressFilter} onValueChange={setAddressFilter}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Địa chỉ" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tất cả</SelectItem>
-              <SelectItem value="bangkok">Bangkok</SelectItem>
-              <SelectItem value="chiang mai">Chiang Mai</SelectItem>
-              <SelectItem value="nonthaburi">Nonthaburi</SelectItem>
-              <SelectItem value="chon buri">Chon Buri</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
 
         <div className="space-y-2">
           <p className="text-sm font-medium">Khoảng cách</p>
@@ -77,6 +61,19 @@ export function FilterSidebar({
               <SelectItem value="afternoon">Chiều</SelectItem>
               <SelectItem value="evening">Tối</SelectItem>
               <SelectItem value="night">Đêm</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <p className="text-sm font-medium">Yêu thích</p>
+          <Select value={favoriteFilter} onValueChange={setFavoriteFilter}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Yêu thích" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả</SelectItem>
+              <SelectItem value="favorite">Chỉ sân yêu thích</SelectItem>
             </SelectContent>
           </Select>
         </div>
