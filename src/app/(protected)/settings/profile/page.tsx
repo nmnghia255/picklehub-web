@@ -1,15 +1,15 @@
+import Link from "next/link"
+
 import { Button } from "@/components/ui/button"
-import { logoutAction } from "@/features/auth/actions"
-import { LinkGoogleButton } from "@/features/auth/components/link-google-button"
 import type { AuthUser, LinkedProvider } from "@/features/auth/types"
+import { MatchHistory } from "@/features/profile/components/match-history-card"
+import { ProfileCard } from "@/features/profile/components/profile-card"
+import { RankingCard } from "@/features/profile/components/ranking-card"
+import { RightPanel } from "@/features/profile/components/right-panel"
+import { StatsCard } from "@/features/profile/components/stats-card"
 import { getAuthenticatedAxios } from "@/lib/server-api"
-import { getSession } from "@/lib/session"
 
 export default async function ProfilePage() {
-  const session = await getSession()
-  // session.user is guaranteed non-null by (protected)/layout.tsx
-  const sessionUser = session.user!
-
   let user: AuthUser | null = null
   let linkedProviders: LinkedProvider[] = []
   try {
@@ -25,53 +25,27 @@ export default async function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl p-6">
-      <h1 className="mb-6 text-3xl font-bold">Profile Settings</h1>
-
-      <div className="space-y-4 rounded-lg border p-6">
-        <div>
-          <label className="text-sm font-medium text-gray-500">ID</label>
-          <p className="mt-1 text-lg">{sessionUser.id}</p>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="mx-auto max-w-6xl space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Hồ sơ người dùng</h1>
+          <Button>
+            <Link href="/settings/edit-profile">Sửa hồ sơ</Link>
+          </Button>
         </div>
 
-        <div>
-          <label className="text-sm font-medium text-gray-500">Name</label>
-          <p className="mt-1 text-lg">{user?.name ?? "—"}</p>
-        </div>
+        <div className="grid grid-cols-3 gap-6">
+          {/* Left */}
+          <div className="col-span-2 space-y-6">
+            <ProfileCard user={user} />
+            <RankingCard />
+            <StatsCard />
+            <MatchHistory />
+          </div>
 
-        <div>
-          <label className="text-sm font-medium text-gray-500">Email</label>
-          <p className="mt-1 text-lg">{sessionUser.email}</p>
-        </div>
-
-        <div className="border-t pt-4">
-          <h2 className="mb-3 text-sm font-medium text-gray-500">
-            Liên kết tài khoản
-          </h2>
-          {linkedProviders.length > 0 && (
-            <ul className="mb-3 space-y-1">
-              {linkedProviders.map((lp) => (
-                <li key={lp.provider}>
-                  <span className="font-medium capitalize">{lp.provider}</span>
-                  <span className="ml-2 text-gray-400">
-                    — đã liên kết lúc{" "}
-                    {new Date(lp.linkedAt).toLocaleString("vi-VN")}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-          {!linkedProviders.some((lp) => lp.provider === "google") && (
-            <LinkGoogleButton />
-          )}
-        </div>
-
-        <div className="border-t pt-4">
-          <form action={logoutAction}>
-            <Button type="submit" variant="destructive" className="w-full">
-              Logout
-            </Button>
-          </form>
+          {/* Right */}
+          <RightPanel />
         </div>
       </div>
     </div>
