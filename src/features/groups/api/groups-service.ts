@@ -1,18 +1,99 @@
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type {
+  ChangeMemberRoleInput,
+  ChangeMemberRoleResponse,
   CreateGroupInput,
   Group,
+  GroupMemberActionResponse,
   Invitation,
   InviteLink,
   InviteLinkResponse,
   Member,
+  UpdateGroupInput,
 } from "../types"
 
-export async function getGroups(): Promise<Group[]> {
+interface GroupsPaginationMeta {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
+
+interface PaginatedGroupsResponse {
+  data: Group[]
+  meta: GroupsPaginationMeta
+}
+
+interface GroupsEnvelopeResponse {
+  data: Group[]
+}
+
+export interface ListAllGroupsParams {
+  page?: number
+  limit?: number
+}
+
+export interface ListAllGroupsResult {
+  groups: Group[]
+  meta?: GroupsPaginationMeta
+}
+
+function normalizeGroupsResponse(
+  payload: Group[] | PaginatedGroupsResponse | GroupsEnvelopeResponse | unknown
+): Group[] {
+  if (Array.isArray(payload)) {
+    return payload
+  }
+
+  if (
+    payload &&
+    typeof payload === "object" &&
+    "data" in payload &&
+    Array.isArray((payload as { data: unknown }).data)
+  ) {
+    return (payload as { data: Group[] }).data
+  }
+
+  return []
+}
+
+export async function getMyGroups(): Promise<Group[]> {
   const axios = await getAuthenticatedAxios()
-  const response = await axios.get<Group[]>("/api/groups")
-  return response.data
+  const response = await axios.get<Group[] | GroupsEnvelopeResponse>(
+    "/api/groups/me"
+  )
+  return normalizeGroupsResponse(response.data)
+}
+
+export async function listAllGroups(
+  params: ListAllGroupsParams = {}
+): Promise<ListAllGroupsResult> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.get<
+    Group[] | PaginatedGroupsResponse | GroupsEnvelopeResponse
+  >("/api/groups", {
+    params,
+  })
+
+  const groups = normalizeGroupsResponse(response.data)
+
+  if (
+    response.data &&
+    typeof response.data === "object" &&
+    "meta" in response.data
+  ) {
+    return {
+      groups,
+      meta: (response.data as PaginatedGroupsResponse).meta,
+    }
+  }
+
+  return { groups }
+}
+
+export async function getGroups(): Promise<Group[]> {
+  return getMyGroups()
 }
 
 export async function getGroup(groupId: string): Promise<Group> {
@@ -24,6 +105,15 @@ export async function getGroup(groupId: string): Promise<Group> {
 export async function createGroup(data: CreateGroupInput): Promise<Group> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<Group>("/api/groups", data)
+  return response.data
+}
+
+export async function updateGroup(
+  groupId: string,
+  data: UpdateGroupInput
+): Promise<Group> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.patch<Group>(`/api/groups/${groupId}`, data)
   return response.data
 }
 
@@ -42,6 +132,46 @@ export async function inviteToGroup(
 export async function getGroupMembers(groupId: string): Promise<Member[]> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.get<Member[]>(`/api/groups/${groupId}/members`)
+  return response.data
+}
+
+export async function changeMemberRole(
+  groupId: string,
+  memberId: string,
+  data: ChangeMemberRoleInput
+): Promise<ChangeMemberRoleResponse> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.patch<ChangeMemberRoleResponse>(
+    `/api/groups/${groupId}/members/${memberId}/role`,
+    data
+  )
+  return response.data
+}
+
+export async function kickMember(
+  groupId: string,
+  userId: string
+): Promise<GroupMemberActionResponse> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.delete<GroupMemberActionResponse>(
+    `/api/groups/${groupId}/members/${userId}`
+  )
+  return response.data
+}
+
+export async function leaveGroup(
+  groupId: string
+): Promise<GroupMemberActionResponse> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.delete<GroupMemberActionResponse>(
+    `/api/groups/${groupId}/members/me`
+  )
+  return response.data
+}
+
+export async function archiveGroup(groupId: string): Promise<Group> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.patch<Group>(`/api/groups/${groupId}/archive`)
   return response.data
 }
 

@@ -1,4 +1,5 @@
-import type { AuthUser, LinkedProvider } from "@/features/auth/types"
+import { PageContainer } from "@/components/page-container"
+import type { LinkedProvider } from "@/features/auth/types"
 import { EditProfileAccountCard } from "@/features/profile/components/edit-profile-account-card"
 import { EditProfileLinkedAccountsCard } from "@/features/profile/components/edit-profile-linked-accounts-card"
 import { EditProfilePlayerInfoCard } from "@/features/profile/components/edit-profile-player-info-card"
@@ -30,7 +31,7 @@ export default async function ProfilePage() {
     user?.name?.trim() || sessionUser.email.split("@")[0] || "Unnamed Player"
 
   return (
-    <div className="container mx-auto max-w-5xl space-y-6 p-6">
+    <PageContainer className="space-y-6">
       <div className="space-y-1">
         <h1 className="text-3xl font-bold">Chỉnh sửa hồ sơ</h1>
         <p className="text-sm text-muted-foreground">
@@ -50,6 +51,6 @@ export default async function ProfilePage() {
 
       <EditProfilePlayerInfoCard user={user} />
       <EditProfileSecurityCard />
-    </div>
+    </PageContainer>
   )
 }

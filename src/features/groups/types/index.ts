@@ -1,16 +1,24 @@
 export interface Group {
   id: string
   name: string
-  description: string
+  description: string | null
+  avatarUrl?: string | null
   maxMembers: number | null
   memberCount: number
   role: string
+  status?: string
   createdAt: string
 }
 
 export interface CreateGroupInput {
   name: string
   description: string
+}
+
+export interface UpdateGroupInput {
+  name?: string
+  description?: string | null
+  avatarUrl?: string | null
 }
 
 export interface Invitation {
@@ -27,6 +35,21 @@ export interface Member {
   email: string
   role: string
   joinedAt: string
+}
+
+export type GroupMemberRole = "ADMIN" | "MEMBER"
+
+export interface ChangeMemberRoleInput {
+  role: GroupMemberRole
+}
+
+export interface ChangeMemberRoleResponse {
+  userId: string
+  role: string
+}
+
+export interface GroupMemberActionResponse {
+  message: string
 }
 
 export interface InviteLink {

@@ -3,6 +3,7 @@
 import { Clock3, Heart, Mail, MapPin, Phone, Star } from "lucide-react"
 import Link from "next/link"
 
+import { PageContainer } from "@/components/page-container"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -11,7 +12,7 @@ import { sportCenterInfo } from "@/features/sport-center/mock-data/sport-center-
 
 export default function SportCenterInformationPage() {
   return (
-    <main className="mx-auto w-full max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+    <PageContainer variant="wide" className="space-y-6">
       <Card className="overflow-hidden py-0">
         <div className="h-48 w-full bg-linear-to-r from-emerald-500 via-teal-500 to-cyan-500" />
         <CardContent className="space-y-5 p-6">
@@ -167,6 +168,6 @@ export default function SportCenterInformationPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </main>
+    </PageContainer>
   )
 }
