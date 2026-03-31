@@ -10,13 +10,15 @@ export async function ProfileCard({ user }: { user: AuthUser | null }) {
     .join("")
 
   return (
-    <div className="flex gap-6 rounded-2xl bg-white p-6 shadow">
-      <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-300 text-xl font-semibold text-gray-700">
+    <div className="flex gap-6 rounded-2xl bg-card p-6 text-card-foreground shadow">
+      <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted text-xl font-semibold text-foreground">
         {initials || "U"}
       </div>
       <div>
         <h2 className="text-xl font-bold">{displayName}</h2>
-        <p className="text-gray-500">{user?.email || "No email available"}</p>
+        <p className="text-muted-foreground">
+          {user?.email || "No email available"}
+        </p>
         {/* <p className="text-gray-500">Role: {user?.role || "N/A"}</p> */}
       </div>
     </div>

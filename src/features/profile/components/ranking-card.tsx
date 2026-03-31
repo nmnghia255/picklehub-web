@@ -27,11 +27,11 @@ const chartConfig = {
 
 export function RankingCard() {
   return (
-    <div className="rounded-2xl bg-white p-6 shadow">
+    <div className="rounded-2xl bg-card p-6 text-card-foreground shadow">
       <h3 className="mb-4 font-semibold">Điểm và xếp hạng</h3>
 
       <div className="mb-6">
-        <p className="mb-2 text-sm text-gray-500">Biến động xếp hạng</p>
+        <p className="mb-2 text-sm text-muted-foreground">Biến động xếp hạng</p>
         <ChartContainer
           config={chartConfig}
           className="aspect-auto h-40 w-full"
@@ -63,15 +63,15 @@ export function RankingCard() {
       <div className="mb-4 grid grid-cols-3 text-center">
         <div>
           <p className="text-2xl font-bold">4.5</p>
-          <p className="text-gray-500">Đánh giá hiện tại</p>
+          <p className="text-muted-foreground">Đánh giá hiện tại</p>
         </div>
         <div>
           <p className="text-2xl font-bold">4.2</p>
-          <p className="text-gray-500">Đánh giá cao nhất</p>
+          <p className="text-muted-foreground">Đánh giá cao nhất</p>
         </div>
         <div>
           <p className="text-2xl font-bold text-green-600">+0.3</p>
-          <p className="text-gray-500">Last 30 Days</p>
+          <p className="text-muted-foreground">Last 30 Days</p>
         </div>
       </div>
     </div>

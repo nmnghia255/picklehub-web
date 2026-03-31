@@ -9,11 +9,11 @@ import {
 
 export function MatchHistory() {
   return (
-    <div className="rounded-2xl bg-white p-6 shadow">
+    <div className="rounded-2xl bg-card p-6 text-card-foreground shadow">
       <h3 className="mb-4 font-semibold">Trận đấu gần đây</h3>
       <Table className="text-left">
         <TableHeader>
-          <TableRow className="text-sm text-gray-500 hover:bg-transparent">
+          <TableRow className="text-sm text-muted-foreground hover:bg-transparent">
             <TableHead>Ngày</TableHead>
             <TableHead>Đối thủ</TableHead>
             <TableHead>Kết quả</TableHead>
