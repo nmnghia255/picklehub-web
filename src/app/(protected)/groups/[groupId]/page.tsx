@@ -10,6 +10,7 @@ import { GroupOverviewCard } from "@/features/groups/components/group-overview-c
 import { InvitationsTable } from "@/features/groups/components/invitations-table"
 import { UpcomingPlaySessionsSection } from "@/features/groups/components/upcoming-play-sessions-section"
 import { listGroupPlaySessions } from "@/features/play-sessions/api/group-play-sessions-service"
+import { getSession } from "@/lib/session"
 
 interface GroupDetailPageProps {
   params: Promise<{ groupId: string }>
@@ -19,9 +20,10 @@ export default async function GroupDetailPage({
   params,
 }: GroupDetailPageProps) {
   const { groupId } = await params
-  const [group, members] = await Promise.all([
+  const [group, members, session] = await Promise.all([
     getGroup(groupId),
     getGroupMembers(groupId),
+    getSession(),
   ])
 
   const isOwner = group.role === "owner"
@@ -49,7 +51,10 @@ export default async function GroupDetailPage({
       <GroupMembersCard members={members} />
 
       {/* Upcoming sessions */}
-      <UpcomingPlaySessionsSection sessions={upcomingSessions} />
+      <UpcomingPlaySessionsSection
+        sessions={upcomingSessions}
+        currentUserId={session.user?.id}
+      />
 
       {/* Invitations */}
       {isOwner && (

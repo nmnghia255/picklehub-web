@@ -15,9 +15,9 @@ interface GroupMembersCardProps {
 
 function normalizeRole(role: string | null | undefined) {
   switch (role) {
-    case "OWNER":
-      return "Chủ nhóm"
-    case "USER":
+    case "owner":
+      return "Trưởng nhóm"
+    case "user":
       return "Thành viên"
     default:
       return role

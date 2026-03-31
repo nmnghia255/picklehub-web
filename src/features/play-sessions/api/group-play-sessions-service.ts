@@ -1,50 +1,26 @@
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type {
+  ApiEnvelope,
   CreateGroupPlaySessionInput,
   GroupPlaySession,
+  ListPlaySessionParticipantsMeta,
+  ListPlaySessionParticipantsParams,
+  ListPlaySessionParticipantsResult,
   ListPlaySessionsParams,
+  ParticipantsEnvelope,
+  ParticipantsResponse,
   PlaySessionActionResult,
   PlaySessionParticipant,
   UpdateGroupPlaySessionInput,
-} from "./public-play-sessions-service"
+} from "../types"
 import { listPlaySessions } from "./public-play-sessions-service"
+//import { Participant, ParticipantsResponse } from "../types"
 
-export type {
-  CreateGroupPlaySessionInput,
-  GroupPlaySession,
-  PlaySessionActionResult,
-  PlaySessionParticipant,
-  UpdateGroupPlaySessionInput,
-} from "./public-play-sessions-service"
-
-export interface ListPlaySessionParticipantsParams {
-  page?: number
-  limit?: number
-  status?: string
-  search?: string
-}
-
-export interface ListPlaySessionParticipantsMeta {
-  total: number
-  page: number
-  limit: number
-}
-
-export interface ListPlaySessionParticipantsResult {
-  participants: PlaySessionParticipant[]
-  meta?: ListPlaySessionParticipantsMeta
-}
-
-interface ApiEnvelope<T> {
-  message?: string
-  data: T
-}
-
-interface ParticipantsEnvelope {
-  participants: PlaySessionParticipant[]
-  meta?: ListPlaySessionParticipantsMeta
-}
+// interface ApiEnvelope<T> {
+//   message?: string
+//   data: T
+// }
 
 function unwrapEnvelope<T>(payload: ApiEnvelope<T> | T): T {
   if (payload && typeof payload === "object" && "data" in payload) {
@@ -141,20 +117,16 @@ export async function listGroupPlaySessionParticipants(
   params: ListPlaySessionParticipantsParams = {}
 ): Promise<ListPlaySessionParticipantsResult> {
   const axios = await getAuthenticatedAxios()
-  const response = await axios.get<ApiEnvelope<ParticipantsEnvelope>>(
+  const response = await axios.get<ParticipantsResponse>(
     `/api/events/groups/${groupId}/play-sessions/${playSessionId}/participants`,
     {
       params,
     }
   )
 
-  const payload = unwrapEnvelope(response.data)
-
   return {
-    participants: Array.isArray(payload.participants)
-      ? payload.participants
-      : [],
-    meta: payload.meta,
+    participants: Array.isArray(response.data.data) ? response.data.data : [],
+    meta: response.data.pagination,
   }
 }
 
