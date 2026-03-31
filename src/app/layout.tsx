@@ -84,13 +84,9 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <script
-          type="text/javascript"
-          dangerouslySetInnerHTML={{ __html: darkModeScript }}
-        />
         {/*
-          Thanks @tailwindcss. We inject the script via the `<Script/>` tag again,
-          since we found the regular `<script>` tag to not execute when rendering a not-found page.
+          Thanks @tailwindcss. We inject the script via the `<Script/>` tag,
+          since regular `<script>` tags are not executed when rendering in React components.
          */}
         <Script src={`data:text/javascript;base64,${btoa(darkModeScript)}`} />
       </head>
