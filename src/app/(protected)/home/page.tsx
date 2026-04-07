@@ -41,7 +41,7 @@ const mockPendingInvites = [
 
 export default async function HomePage() {
   const session = await getSession()
-  const userName = session?.user?.name || "Bạn"
+  const userName = session?.user?.email?.split("@")[0] || "Bạn"
 
   return (
     <div className="container mx-auto max-w-6xl">

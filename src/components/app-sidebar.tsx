@@ -2,11 +2,13 @@
 
 import {
   CalendarDays,
+  ChevronDown,
   History,
   House,
   type LucideIcon,
   MapPinned,
   Newspaper,
+  Shield,
   Users,
 } from "lucide-react"
 import Link from "next/link"
@@ -23,6 +25,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 import { useSidebar } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
@@ -42,6 +47,19 @@ const sidebarItems: SidebarItem[] = [
   { title: "Friend", href: "/friend", icon: Users },
   { title: "Feed", href: "/feed", icon: Newspaper },
 ]
+
+const coachMenuItems = [
+  { title: "Coach Dashboard", href: "/coach" },
+  { title: "Professional Profile", href: "/coach/profile" },
+  { title: "Student List", href: "/coach/students" },
+  { title: "Training Schedule", href: "/coach/schedule" },
+  { title: "Curriculum Management", href: "/coach/curriculum" },
+  { title: "Video Analysis", href: "/coach/video-analysis" },
+  { title: "Learning Roadmap", href: "/coach/roadmap" },
+  { title: "Income Statistics", href: "/coach/income" },
+]
+
+const COACH_MENU_STORAGE_KEY = "isCoachMenuOpen"
 
 function isActivePath(pathname: string, href: string) {
   if (pathname === href) {
@@ -96,6 +114,37 @@ function SidebarLogo() {
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const [isCoachMenuOpen, setIsCoachMenuOpen] = useState(() => {
+    if (typeof window === "undefined") {
+      return false
+    }
+
+    return window.sessionStorage.getItem(COACH_MENU_STORAGE_KEY) === "true"
+  })
+  const isCoachPath = isActivePath(pathname, "/coach")
+  const shouldShowCoachMenu = isCoachPath || isCoachMenuOpen
+
+  const handleCoachMenuToggle = () => {
+    setIsCoachMenuOpen((prev) => {
+      const next = !prev
+
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(COACH_MENU_STORAGE_KEY, String(next))
+      }
+
+      return next
+    })
+  }
+
+  const handlePrimaryItemClick = () => {
+    if (isCoachMenuOpen) {
+      setIsCoachMenuOpen(false)
+
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(COACH_MENU_STORAGE_KEY, "false")
+      }
+    }
+  }
 
   return (
     <Sidebar variant="inset" collapsible="icon">
@@ -114,13 +163,46 @@ export function AppSidebar() {
                     isActive={isActivePath(pathname, item.href)}
                     tooltip={item.title}
                   >
-                    <Link href={item.href}>
+                    <Link href={item.href} onClick={handlePrimaryItemClick}>
                       <item.icon className="size-4" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={shouldShowCoachMenu}
+                  tooltip="Coach"
+                  onClick={handleCoachMenuToggle}
+                >
+                  <Shield className="size-4" />
+                  <span>Coach</span>
+                  <ChevronDown
+                    className={cn(
+                      "ml-auto size-4 transition-transform",
+                      shouldShowCoachMenu && "rotate-180"
+                    )}
+                  />
+                </SidebarMenuButton>
+                {shouldShowCoachMenu && (
+                  <SidebarMenuSub>
+                    {coachMenuItems.map((item) => (
+                      <SidebarMenuSubItem key={item.href}>
+                        <SidebarMenuSubButton
+                          asChild
+                          isActive={isActivePath(pathname, item.href)}
+                        >
+                          <Link href={item.href}>
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                )}
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
