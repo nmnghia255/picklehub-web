@@ -1,12 +1,23 @@
 "use client"
 
-import { LogOut, Moon, Sun, User } from "lucide-react"
+import { useAtom } from "jotai"
+import {
+  BellRing,
+  CheckCheck,
+  CheckCircle2,
+  LogOut,
+  Moon,
+  Sun,
+  User,
+  XCircle,
+} from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
 import { useLayoutEffect, useState } from "react"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -17,6 +28,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { notificationFeedAtom } from "@/features/feed/store/feed-store"
 import type { SessionUser } from "@/lib/session"
 
 export interface HeaderProps {
@@ -28,6 +40,7 @@ export function Header({ user }: HeaderProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [notifications, setNotifications] = useAtom(notificationFeedAtom)
 
   useLayoutEffect(() => {
     setMounted(true)
@@ -43,13 +56,13 @@ export function Header({ user }: HeaderProps) {
         router.push("/login")
       }
     } catch (error) {
-      console.error("Logout failed:", error)
+      console.error("Đăng xuất thất bại:", error)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const displayName = user.email?.split("@")[0] || "User"
+  const displayName = user.email?.split("@")[0] || "Người dùng"
   const initials = displayName
     .split(/[\s._-]+/)
     .filter(Boolean)
@@ -57,8 +70,175 @@ export function Header({ user }: HeaderProps) {
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("")
 
+  const unreadCount = notifications.filter(
+    (notification) => notification.unread
+  ).length
+
+  const handleMarkRead = (notificationId: string) => {
+    setNotifications((current) =>
+      current.map((notification) =>
+        notification.id === notificationId
+          ? { ...notification, unread: false }
+          : notification
+      )
+    )
+  }
+
+  const handleResolveInvitation = (
+    notificationId: string,
+    status: "accepted" | "declined"
+  ) => {
+    setNotifications((current) =>
+      current.map((notification) =>
+        notification.id === notificationId
+          ? { ...notification, unread: false, status }
+          : notification
+      )
+    )
+  }
+
+  const handleMarkAllRead = () => {
+    setNotifications((current) =>
+      current.map((notification) => ({ ...notification, unread: false }))
+    )
+  }
+
   return (
     <div className="flex items-center justify-end gap-4">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Thông báo"
+            className="relative"
+          >
+            <BellRing className="size-4" />
+            {unreadCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-red-500 ring-2 ring-background" />
+            )}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-88 p-0">
+          <div className="border-b px-4 py-3">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold">Thông báo</p>
+                <p className="text-xs text-muted-foreground">
+                  {unreadCount > 0
+                    ? `Có ${unreadCount} thông báo chưa đọc`
+                    : "Không có thông báo chưa đọc"}
+                </p>
+              </div>
+              <Badge variant="secondary" className="rounded-full">
+                {notifications.length}
+              </Badge>
+            </div>
+
+            <div className="mt-3 flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleMarkAllRead}
+                className="flex-1"
+              >
+                <CheckCheck className="size-4" />
+                Đã đọc hết
+              </Button>
+              <Button asChild size="sm" className="flex-1">
+                <Link href="/feed">Xem tất cả</Link>
+              </Button>
+            </div>
+          </div>
+
+          <div className="max-h-96 space-y-2 overflow-auto p-2">
+            {notifications.slice(0, 6).map((notification) => {
+              const isPendingInvitation =
+                notification.type === "invitation" &&
+                notification.status === "pending"
+
+              return (
+                <div
+                  key={notification.id}
+                  className="rounded-2xl border px-3 py-3 transition-colors hover:bg-accent/50"
+                >
+                  <button
+                    type="button"
+                    onClick={() => handleMarkRead(notification.id)}
+                    className="flex w-full items-start gap-3 text-left"
+                  >
+                    <span
+                      className={`mt-1 size-2 rounded-full ${
+                        notification.unread ? "bg-primary" : "bg-transparent"
+                      }`}
+                    />
+                    <span className="min-w-0 flex-1 space-y-1">
+                      <span className="block text-sm leading-5 font-medium text-foreground">
+                        {notification.title}
+                      </span>
+                      <span className="block text-xs leading-5 text-muted-foreground">
+                        {notification.description}
+                      </span>
+                      <span className="block text-[11px] text-muted-foreground">
+                        {notification.timeLabel}
+                      </span>
+                    </span>
+                  </button>
+
+                  {isPendingInvitation ? (
+                    <div className="mt-3 flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() =>
+                          handleResolveInvitation(notification.id, "declined")
+                        }
+                      >
+                        <XCircle className="size-4" />
+                        Từ chối
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="flex-1"
+                        onClick={() =>
+                          handleResolveInvitation(notification.id, "accepted")
+                        }
+                      >
+                        <CheckCircle2 className="size-4" />
+                        Chấp nhận
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="mt-3 flex items-center gap-2">
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                      >
+                        <Link href={notification.actionHref ?? "/feed"}>
+                          Xem
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => handleMarkRead(notification.id)}
+                      >
+                        <CheckCheck className="size-4" />
+                        Đã đọc
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
       {/* Theme Toggle */}
       {mounted ? (
         <Button
@@ -66,7 +246,9 @@ export function Header({ user }: HeaderProps) {
           size="icon"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           title={
-            theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+            theme === "dark"
+              ? "Chuyển sang chế độ sáng"
+              : "Chuyển sang chế độ tối"
           }
         >
           {theme === "dark" ? (
@@ -99,7 +281,7 @@ export function Header({ user }: HeaderProps) {
             <DropdownMenuItem asChild>
               <Link href="/settings/profile">
                 <User className="size-4" />
-                <span>Profile</span>
+                <span>Hồ sơ</span>
               </Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>
@@ -110,7 +292,7 @@ export function Header({ user }: HeaderProps) {
             disabled={isLoading}
           >
             <LogOut className="size-4" />
-            <span>{isLoading ? "Logging out..." : "Logout"}</span>
+            <span>{isLoading ? "Đang đăng xuất..." : "Đăng xuất"}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

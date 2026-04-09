@@ -1,13 +1,14 @@
 "use client"
 
+import { useAtomValue } from "jotai"
 import {
+  BellRing,
   CalendarDays,
   ChevronDown,
   History,
   House,
   type LucideIcon,
   MapPinned,
-  Newspaper,
   Shield,
   Users,
 } from "lucide-react"
@@ -30,6 +31,7 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 import { useSidebar } from "@/components/ui/sidebar"
+import { notificationFeedAtom } from "@/features/feed/store/feed-store"
 import { cn } from "@/lib/utils"
 
 type SidebarItem = {
@@ -39,24 +41,24 @@ type SidebarItem = {
 }
 
 const sidebarItems: SidebarItem[] = [
-  { title: "Home", href: "/home", icon: House },
-  { title: "Sport Center", href: "/sport-center", icon: MapPinned },
-  { title: "History", href: "/history", icon: History },
-  { title: "Session", href: "/play-sessions", icon: CalendarDays },
-  { title: "Groups", href: "/groups", icon: Users },
-  { title: "Friend", href: "/friend", icon: Users },
-  { title: "Feed", href: "/feed", icon: Newspaper },
+  { title: "Trang chủ", href: "/home", icon: House },
+  { title: "Trung tâm thể thao", href: "/sport-center", icon: MapPinned },
+  { title: "Lịch sử", href: "/history", icon: History },
+  { title: "Buổi chơi", href: "/play-sessions", icon: CalendarDays },
+  { title: "Nhóm", href: "/groups", icon: Users },
+  { title: "Bạn bè", href: "/friend", icon: Users },
+  { title: "Thông báo", href: "/feed", icon: BellRing },
 ]
 
 const coachMenuItems = [
-  { title: "Coach Dashboard", href: "/coach" },
-  { title: "Professional Profile", href: "/coach/profile" },
-  { title: "Student List", href: "/coach/students" },
-  { title: "Training Schedule", href: "/coach/schedule" },
-  { title: "Curriculum Management", href: "/coach/curriculum" },
-  { title: "Video Analysis", href: "/coach/video-analysis" },
-  { title: "Learning Roadmap", href: "/coach/roadmap" },
-  { title: "Income Statistics", href: "/coach/income" },
+  { title: "Tổng quan huấn luyện viên", href: "/coach" },
+  { title: "Hồ sơ chuyên nghiệp", href: "/coach/profile" },
+  { title: "Danh sách học viên", href: "/coach/students" },
+  { title: "Lịch tập", href: "/coach/schedule" },
+  { title: "Quản lý giáo trình", href: "/coach/curriculum" },
+  { title: "Phân tích video", href: "/coach/video-analysis" },
+  { title: "Lộ trình học tập", href: "/coach/roadmap" },
+  { title: "Thống kê thu nhập", href: "/coach/income" },
 ]
 
 const COACH_MENU_STORAGE_KEY = "isCoachMenuOpen"
@@ -114,6 +116,7 @@ function SidebarLogo() {
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const notifications = useAtomValue(notificationFeedAtom)
   const [isCoachMenuOpen, setIsCoachMenuOpen] = useState(() => {
     if (typeof window === "undefined") {
       return false
@@ -123,6 +126,9 @@ export function AppSidebar() {
   })
   const isCoachPath = isActivePath(pathname, "/coach")
   const shouldShowCoachMenu = isCoachPath || isCoachMenuOpen
+  const unreadCount = notifications.filter(
+    (notification) => notification.unread
+  ).length
 
   const handleCoachMenuToggle = () => {
     setIsCoachMenuOpen((prev) => {
@@ -164,7 +170,12 @@ export function AppSidebar() {
                     tooltip={item.title}
                   >
                     <Link href={item.href} onClick={handlePrimaryItemClick}>
-                      <item.icon className="size-4" />
+                      <span className="relative inline-flex items-center justify-center">
+                        <item.icon className="size-4" />
+                        {item.href === "/feed" && unreadCount > 0 && (
+                          <span className="ring-sidebar-background absolute -top-1 -right-1 size-2 rounded-full bg-red-500 ring-2" />
+                        )}
+                      </span>
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -174,11 +185,11 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={shouldShowCoachMenu}
-                  tooltip="Coach"
+                  tooltip="Huấn luyện viên"
                   onClick={handleCoachMenuToggle}
                 >
                   <Shield className="size-4" />
-                  <span>Coach</span>
+                  <span>Huấn luyện viên</span>
                   <ChevronDown
                     className={cn(
                       "ml-auto size-4 transition-transform",
