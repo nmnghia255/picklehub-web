@@ -1,3 +1,4 @@
+import { ErrorSection } from "@/components/error-section"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Table,
@@ -7,11 +8,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import type { Member } from "@/features/groups/types"
 
-interface GroupMembersCardProps {
-  members: Member[]
-}
+import { getGroupMembers } from "../api/groups-service"
 
 function normalizeRole(role: string | null | undefined) {
   switch (role) {
@@ -24,7 +22,18 @@ function normalizeRole(role: string | null | undefined) {
   }
 }
 
-export function GroupMembersCard({ members }: GroupMembersCardProps) {
+export async function GroupMembersCard({ groupId }: { groupId: string }) {
+  const members = await getGroupMembers(groupId).catch((error) => {
+    console.error("Error loading group members:", error)
+    return null
+  })
+
+  if (!members) {
+    return (
+      <ErrorSection message="Đã xảy ra lỗi khi tải thông tin thành viên. Vui lòng thử lại sau." />
+    )
+  }
+
   return (
     <Card className="mt-6">
       <CardHeader>

@@ -94,6 +94,8 @@ export interface ListPlaySessionsParams {
   order?: "asc" | "desc"
   page?: number
   limit?: number
+  isHost?: boolean
+  isParticipant?: boolean
 }
 
 export interface PlaySessionsPagination {

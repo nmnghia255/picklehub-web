@@ -110,7 +110,7 @@ export async function listPlaySessions(
   const axios = await getAuthenticatedAxios()
   const response = await axios.get<
     PlaySessionsListEnvelope | GroupPlaySession[]
-  >("/api/events/play-sessions", {
+  >("/api/play-sessions", {
     params,
   })
 
@@ -126,7 +126,7 @@ export async function countPlaySessions(
   const axios = await getAuthenticatedAxios()
   const response = await axios.get<
     CountPlaySessionsEnvelope | ApiEnvelope<CountPlaySessionsResult>
-  >("/api/events/play-sessions/count", {
+  >("/api/play-sessions/count", {
     params,
   })
 
@@ -138,7 +138,7 @@ export async function getMyPlaySessionSchedule(
 ): Promise<GroupPlaySession[]> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.get<MyScheduleEnvelope | GroupPlaySession[]>(
-    "/api/events/play-sessions/my-schedule",
+    "/api/play-sessions/my-schedule",
     {
       params,
     }
@@ -181,7 +181,7 @@ export async function getPublicPlaySessionDetail(
   const axios = await getAuthenticatedAxios()
   const response = await axios.get<
     ApiEnvelope<GroupPlaySession> | GroupPlaySession
-  >(`/api/events/play-sessions/${playSessionId}`)
+  >(`/api/play-sessions/${playSessionId}`)
   return unwrapEnvelope(response.data)
 }
 
@@ -192,7 +192,7 @@ export async function updatePublicPlaySession(
   const axios = await getAuthenticatedAxios()
   const response = await axios.patch<
     ApiEnvelope<GroupPlaySession> | GroupPlaySession
-  >(`/api/events/play-sessions/${playSessionId}`, input)
+  >(`/api/play-sessions/${playSessionId}`, input)
   return unwrapEnvelope(response.data)
 }
 
@@ -201,7 +201,7 @@ export async function deletePublicPlaySession(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.delete<PlaySessionActionResult>(
-    `/api/events/play-sessions/${playSessionId}`
+    `/api/play-sessions/${playSessionId}`
   )
   return response.data
 }
@@ -211,7 +211,7 @@ export async function joinPublicPlaySession(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<PlaySessionActionResult>(
-    `/api/events/play-sessions/${playSessionId}/participants/me`
+    `/api/play-sessions/${playSessionId}/participants/me`
   )
   return response.data
 }
@@ -221,7 +221,7 @@ export async function leavePublicPlaySession(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.delete<PlaySessionActionResult>(
-    `/api/events/play-sessions/${playSessionId}/participants/me`
+    `/api/play-sessions/${playSessionId}/participants/me`
   )
   return response.data
 }
@@ -232,7 +232,7 @@ export async function kickPublicPlaySessionParticipant(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.delete<PlaySessionActionResult>(
-    `/api/events/play-sessions/${playSessionId}/participants/${userId}`
+    `/api/play-sessions/${playSessionId}/participants/${userId}`
   )
   return response.data
 }
@@ -244,7 +244,7 @@ export async function listPublicPlaySessionParticipants(
   const axios = await getAuthenticatedAxios()
   const response = await axios.get<
     PublicParticipantsEnvelope | PublicPlaySessionParticipant[]
-  >(`/api/events/play-sessions/${playSessionId}/participants`, {
+  >(`/api/play-sessions/${playSessionId}/participants`, {
     params,
   })
 
@@ -263,7 +263,7 @@ export async function startPublicPlaySession(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<PlaySessionActionResult>(
-    `/api/events/play-sessions/${playSessionId}/start`
+    `/api/play-sessions/${playSessionId}/start`
   )
   return response.data
 }
@@ -273,7 +273,7 @@ export async function completePublicPlaySession(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<PlaySessionActionResult>(
-    `/api/events/play-sessions/${playSessionId}/complete`
+    `/api/play-sessions/${playSessionId}/complete`
   )
   return response.data
 }
@@ -283,7 +283,7 @@ export async function cancelPublicPlaySession(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<PlaySessionActionResult>(
-    `/api/events/play-sessions/${playSessionId}/cancel`
+    `/api/play-sessions/${playSessionId}/cancel`
   )
   return response.data
 }

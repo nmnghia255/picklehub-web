@@ -1,13 +1,21 @@
 import { CalendarDays, Users } from "lucide-react"
 
+import { ErrorSection } from "@/components/error-section"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { Group } from "@/features/groups/types"
+import { getGroup } from "@/features/groups/api/groups-service"
 
-interface GroupOverviewCardProps {
-  group: Group
-}
+export async function GroupOverviewCard({ groupId }: { groupId: string }) {
+  const group = await getGroup(groupId).catch((error) => {
+    console.error("Error loading group overview:", error)
+    return null
+  })
 
-export function GroupOverviewCard({ group }: GroupOverviewCardProps) {
+  if (!group) {
+    return (
+      <ErrorSection message="Đã xảy ra lỗi khi tải thông tin nhóm. Vui lòng thử lại sau." />
+    )
+  }
+
   return (
     <Card>
       <CardHeader>
