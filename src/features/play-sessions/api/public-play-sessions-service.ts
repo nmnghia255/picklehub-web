@@ -21,7 +21,6 @@ import type {
   PublicPlaySessionParticipant,
   UpdateGroupPlaySessionInput,
 } from "../types"
-//import { Participant, ParticipantsResponse } from "../types"
 
 function unwrapEnvelope<T>(payload: ApiEnvelope<T> | T): T {
   if (payload && typeof payload === "object" && "data" in payload) {
@@ -35,33 +34,32 @@ function normalizePlaySessionsListPayload(
   payload: unknown
 ): ListPlaySessionsResult {
   if (Array.isArray(payload)) {
-    return { sessions: payload as GroupPlaySession[] }
+    return { data: payload as GroupPlaySession[] }
   }
 
   if (!payload || typeof payload !== "object") {
-    return { sessions: [] }
+    return { data: [] }
   }
 
   const value = payload as {
     data?: unknown
-    sessions?: unknown
-    pagination?: PlaySessionsPagination
-    filter?: Record<string, unknown>
+    message?: unknown
+    meta?: PlaySessionsPagination
   }
 
   if (Array.isArray(value.data)) {
     return {
-      sessions: value.data as GroupPlaySession[],
-      pagination: value.pagination,
-      filter: value.filter,
+      message: typeof value.message === "string" ? value.message : undefined,
+      data: value.data as GroupPlaySession[],
+      meta: value.meta,
     }
   }
 
-  if (Array.isArray(value.sessions)) {
+  if (Array.isArray(value.data)) {
     return {
-      sessions: value.sessions as GroupPlaySession[],
-      pagination: value.pagination,
-      filter: value.filter,
+      message: typeof value.message === "string" ? value.message : undefined,
+      data: value.data as GroupPlaySession[],
+      meta: value.meta,
     }
   }
 
@@ -76,22 +74,22 @@ function normalizePlaySessionsListPayload(
 
     if (Array.isArray(nested.data)) {
       return {
-        sessions: nested.data as GroupPlaySession[],
-        pagination: nested.pagination,
-        filter: nested.filter,
+        message: typeof value.message === "string" ? value.message : undefined,
+        data: nested.data as GroupPlaySession[],
+        meta: nested.pagination,
       }
     }
 
     if (Array.isArray(nested.sessions)) {
       return {
-        sessions: nested.sessions as GroupPlaySession[],
-        pagination: nested.pagination,
-        filter: nested.filter,
+        message: typeof value.message === "string" ? value.message : undefined,
+        data: nested.sessions as GroupPlaySession[],
+        meta: nested.pagination,
       }
     }
   }
 
-  return { sessions: [] }
+  return { message: undefined, data: [], meta: undefined }
 }
 
 export async function createPublicPlaySession(
@@ -108,11 +106,12 @@ export async function listPlaySessions(
   params: ListPlaySessionsParams = {}
 ): Promise<ListPlaySessionsResult> {
   const axios = await getAuthenticatedAxios()
-  const response = await axios.get<
-    PlaySessionsListEnvelope | GroupPlaySession[]
-  >("/api/play-sessions", {
-    params,
-  })
+  const response = await axios.get<PlaySessionsListEnvelope>(
+    "/api/play-sessions",
+    {
+      params,
+    }
+  )
 
   return normalizePlaySessionsListPayload(response.data)
 }
@@ -133,7 +132,7 @@ export async function countPlaySessions(
   return unwrapEnvelope(response.data)
 }
 
-export async function getMyPlaySessionSchedule(
+export async function getMyPlaySessions(
   params: GetMyScheduleParams = {}
 ): Promise<GroupPlaySession[]> {
   const axios = await getAuthenticatedAxios()
@@ -157,23 +156,17 @@ export async function getMyPlaySessionSchedule(
   return []
 }
 
-export async function listMySessions(
-  params: ListMySessionsParams = {}
-): Promise<ListMySessionsResult> {
-  const listResult = await listPlaySessions(params)
+// export async function listMySessions(
+//   params: ListMySessionsParams = {}
+// ): Promise<ListMySessionsResult> {
+//   const listResult = await listPlaySessions(params)
 
-  return {
-    sessions: listResult.sessions,
-    meta: listResult.pagination
-      ? {
-          page: listResult.pagination.page,
-          limit: listResult.pagination.limit,
-          total: listResult.pagination.total,
-          totalPages: listResult.pagination.totalPages,
-        }
-      : undefined,
-  }
-}
+//   return {
+//     message: listResult.message,
+//     data: listResult.data,
+//     meta: listResult.meta,
+//   }
+// }
 
 export async function getPublicPlaySessionDetail(
   playSessionId: string

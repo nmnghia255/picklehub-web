@@ -78,6 +78,7 @@ export interface ListMySessionsMeta {
 }
 
 export interface ListMySessionsResult {
+  message?: string
   sessions: GroupPlaySession[]
   meta?: ListMySessionsMeta
 }
@@ -106,9 +107,9 @@ export interface PlaySessionsPagination {
 }
 
 export interface ListPlaySessionsResult {
-  sessions: GroupPlaySession[]
-  pagination?: PlaySessionsPagination
-  filter?: Record<string, unknown>
+  message?: string
+  data: GroupPlaySession[]
+  meta?: PlaySessionsPagination
 }
 
 export interface CountPlaySessionsResult {
@@ -160,8 +161,7 @@ export interface ApiEnvelope<T> {
 export interface PlaySessionsListEnvelope {
   message?: string
   data: GroupPlaySession[]
-  pagination?: PlaySessionsPagination
-  filter?: Record<string, unknown>
+  meta?: PlaySessionsPagination
 }
 
 export interface CountPlaySessionsEnvelope {

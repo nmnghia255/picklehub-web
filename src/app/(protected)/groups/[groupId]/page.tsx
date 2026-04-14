@@ -9,6 +9,11 @@ import { GroupMembersCard } from "@/features/groups/components/group-members-car
 import { GroupOverviewCard } from "@/features/groups/components/group-overview-card"
 import { InvitationsTable } from "@/features/groups/components/invitations-table"
 import { UpcomingPlaySessionsSection } from "@/features/groups/components/upcoming-play-sessions-section"
+import { listPlaySessions } from "@/features/play-sessions/api/public-play-sessions-service"
+import type {
+  GroupPlaySession,
+  ListPlaySessionsParams,
+} from "@/features/play-sessions/types"
 
 interface GroupDetailPageProps {
   params: Promise<{ groupId: string }>
@@ -22,6 +27,8 @@ export default async function GroupDetailPage({
   let group
   let invitations = []
   let isOwner = false
+  let upcomingSessions: GroupPlaySession[] = []
+  let hasUpcomingSessionsError = false
 
   try {
     group = await getGroup(groupId)
@@ -40,6 +47,22 @@ export default async function GroupDetailPage({
     )
   }
 
+  try {
+    const params: ListPlaySessionsParams = {
+      contextType: "INTERNAL_GROUP",
+      groupId,
+      status: "PUBLISHED",
+      sortBy: "startTime",
+      order: "asc",
+    }
+    const sessionsResponse = await listPlaySessions(params)
+    const sessionsPayload = sessionsResponse?.data || []
+    upcomingSessions = sessionsPayload
+  } catch (error) {
+    console.error("Error loading upcoming sessions:", error)
+    hasUpcomingSessionsError = true
+  }
+
   return (
     <div className="container mx-auto max-w-4xl p-6">
       <GroupDetailHeader
@@ -51,7 +74,10 @@ export default async function GroupDetailPage({
       <GroupMembersCard groupId={groupId} />
 
       {/* Upcoming sessions */}
-      <UpcomingPlaySessionsSection groupId={groupId} />
+      <UpcomingPlaySessionsSection
+        sessions={upcomingSessions}
+        hasError={hasUpcomingSessionsError}
+      />
 
       {/* Invitations */}
       {isOwner && (

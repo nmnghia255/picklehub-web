@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { GroupPlaySession } from "@/features/play-sessions/api/public-play-sessions-service"
+import type { GroupPlaySession } from "@/features/play-sessions/types"
 
 interface PlaySessionCardProps {
   session: GroupPlaySession
@@ -12,6 +12,8 @@ interface PlaySessionCardProps {
 
 function normalizeStatus(status: string) {
   switch (status) {
+    case "PUBLISHED":
+      return "Đã xuất bản"
     case "SCHEDULED":
       return "Lên lịch"
     case "IN_PROGRESS":
