@@ -3,7 +3,11 @@ export type Participant = {
   playSessionId: string
   userId: string
   status: "JOINED" | "LEFT" | "KICKED"
+  guestsCount?: number
+  paymentReceiptUrl?: string
+  isCheckedIn?: boolean
   joinedAt: string
+  name?: string
 }
 
 export type ParticipantsResponse = {
@@ -78,6 +82,7 @@ export interface ListMySessionsMeta {
 }
 
 export interface ListMySessionsResult {
+  message?: string
   sessions: GroupPlaySession[]
   meta?: ListMySessionsMeta
 }
@@ -94,6 +99,8 @@ export interface ListPlaySessionsParams {
   order?: "asc" | "desc"
   page?: number
   limit?: number
+  isHost?: boolean
+  isParticipant?: boolean
 }
 
 export interface PlaySessionsPagination {
@@ -104,9 +111,9 @@ export interface PlaySessionsPagination {
 }
 
 export interface ListPlaySessionsResult {
-  sessions: GroupPlaySession[]
-  pagination?: PlaySessionsPagination
-  filter?: Record<string, unknown>
+  message?: string
+  data: GroupPlaySession[]
+  meta?: PlaySessionsPagination
 }
 
 export interface CountPlaySessionsResult {
@@ -150,6 +157,22 @@ export interface PlaySessionActionResult {
   }
 }
 
+export interface JoinPlaySessionReponse {
+  message?: string
+  data: {
+    id?: string
+    playSessionId: string
+    userId: string
+    status: string
+    guestsCount?: number
+    paymentReceiptUrl?: string
+    isCheckedIn?: boolean
+    joinedAt: string
+    requestedSlots: number
+    totalAmount?: number
+  }
+}
+
 export interface ApiEnvelope<T> {
   message?: string
   data: T
@@ -158,8 +181,7 @@ export interface ApiEnvelope<T> {
 export interface PlaySessionsListEnvelope {
   message?: string
   data: GroupPlaySession[]
-  pagination?: PlaySessionsPagination
-  filter?: Record<string, unknown>
+  meta?: PlaySessionsPagination
 }
 
 export interface CountPlaySessionsEnvelope {
@@ -184,7 +206,6 @@ export interface ListPlaySessionParticipantsParams {
   page?: number
   limit?: number
   status?: string
-  search?: string
 }
 
 export interface ListPlaySessionParticipantsMeta {

@@ -3,7 +3,7 @@
 import { useState } from "react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import type { GroupPlaySession } from "@/features/play-sessions/api/public-play-sessions-service"
+import type { GroupPlaySession } from "@/features/play-sessions/types"
 
 import { SessionSearchInput } from "./session-search-input"
 import SessionsFilterBar, {

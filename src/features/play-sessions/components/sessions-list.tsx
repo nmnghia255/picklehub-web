@@ -8,10 +8,27 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty"
-import type { GroupPlaySession } from "@/features/play-sessions/api/public-play-sessions-service"
+import type { GroupPlaySession } from "@/features/play-sessions/types"
 
 import { PlaySessionCard } from "./play-session-card"
 import type { DateTimeFilter, SessionStatusFilter } from "./sessions-filter-bar"
+
+function normalizeStatus(status: string) {
+  switch (status) {
+    case "PUBLISHED":
+      return "Đã xuất bản"
+    case "SCHEDULED":
+      return "Lên lịch"
+    case "IN_PROGRESS":
+      return "Đang diễn ra"
+    case "COMPLETED":
+      return "Hoàn thành"
+    case "CANCELLED":
+      return "Đã hủy"
+    default:
+      return status
+  }
+}
 
 interface SessionsListProps {
   sessions: GroupPlaySession[]

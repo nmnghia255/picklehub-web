@@ -4,23 +4,15 @@ import type {
   ApiEnvelope,
   CreateGroupPlaySessionInput,
   GroupPlaySession,
-  ListPlaySessionParticipantsMeta,
+  JoinPlaySessionReponse,
   ListPlaySessionParticipantsParams,
   ListPlaySessionParticipantsResult,
   ListPlaySessionsParams,
-  ParticipantsEnvelope,
   ParticipantsResponse,
   PlaySessionActionResult,
-  PlaySessionParticipant,
   UpdateGroupPlaySessionInput,
 } from "../types"
 import { listPlaySessions } from "./public-play-sessions-service"
-//import { Participant, ParticipantsResponse } from "../types"
-
-// interface ApiEnvelope<T> {
-//   message?: string
-//   data: T
-// }
 
 function unwrapEnvelope<T>(payload: ApiEnvelope<T> | T): T {
   if (payload && typeof payload === "object" && "data" in payload) {
@@ -36,7 +28,7 @@ export async function createGroupPlaySession(
 ): Promise<GroupPlaySession> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<ApiEnvelope<GroupPlaySession>>(
-    `/api/events/groups/${groupId}/play-sessions`,
+    `/api/groups/${groupId}/play-sessions`,
     input
   )
   return unwrapEnvelope(response.data)
@@ -48,7 +40,7 @@ export async function getGroupPlaySessionDetail(
 ): Promise<GroupPlaySession> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.get<ApiEnvelope<GroupPlaySession>>(
-    `/api/events/groups/${groupId}/play-sessions/${playSessionId}`
+    `/api/groups/${groupId}/play-sessions/${playSessionId}`
   )
   return unwrapEnvelope(response.data)
 }
@@ -60,7 +52,7 @@ export async function updateGroupPlaySession(
 ): Promise<GroupPlaySession> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.patch<ApiEnvelope<GroupPlaySession>>(
-    `/api/events/groups/${groupId}/play-sessions/${playSessionId}`,
+    `/api/groups/${groupId}/play-sessions/${playSessionId}`,
     input
   )
   return unwrapEnvelope(response.data)
@@ -72,18 +64,23 @@ export async function deleteGroupPlaySession(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.delete<PlaySessionActionResult>(
-    `/api/events/groups/${groupId}/play-sessions/${playSessionId}`
+    `/api/groups/${groupId}/play-sessions/${playSessionId}`
   )
   return response.data
 }
 
 export async function joinGroupPlaySession(
   groupId: string,
-  playSessionId: string
-): Promise<PlaySessionActionResult> {
+  playSessionId: string,
+  data: {
+    guestsCount: number
+    paymentReceiptUrl: string
+  }
+): Promise<JoinPlaySessionReponse> {
   const axios = await getAuthenticatedAxios()
-  const response = await axios.post<PlaySessionActionResult>(
-    `/api/events/groups/${groupId}/play-sessions/${playSessionId}/participants/me`
+  const response = await axios.post<JoinPlaySessionReponse>(
+    `/api/groups/${groupId}/play-sessions/${playSessionId}/join`,
+    data
   )
   return response.data
 }
@@ -94,7 +91,7 @@ export async function leaveGroupPlaySession(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.delete<PlaySessionActionResult>(
-    `/api/events/groups/${groupId}/play-sessions/${playSessionId}/participants/me`
+    `/api/groups/${groupId}/play-sessions/${playSessionId}/participants/me`
   )
   return response.data
 }
@@ -106,7 +103,7 @@ export async function kickGroupPlaySessionParticipant(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.delete<PlaySessionActionResult>(
-    `/api/events/groups/${groupId}/play-sessions/${playSessionId}/participants/${userId}`
+    `/api/groups/${groupId}/play-sessions/${playSessionId}/participants/${userId}`
   )
   return response.data
 }
@@ -118,7 +115,7 @@ export async function listGroupPlaySessionParticipants(
 ): Promise<ListPlaySessionParticipantsResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.get<ParticipantsResponse>(
-    `/api/events/groups/${groupId}/play-sessions/${playSessionId}/participants`,
+    `/api/groups/${groupId}/play-sessions/${playSessionId}/participants`,
     {
       params,
     }
@@ -136,7 +133,7 @@ export async function startGroupPlaySession(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<PlaySessionActionResult>(
-    `/api/events/groups/${groupId}/play-sessions/${playSessionId}/start`
+    `/api/groups/${groupId}/play-sessions/${playSessionId}/start`
   )
   return response.data
 }
@@ -147,7 +144,7 @@ export async function completeGroupPlaySession(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<PlaySessionActionResult>(
-    `/api/events/groups/${groupId}/play-sessions/${playSessionId}/complete`
+    `/api/groups/${groupId}/play-sessions/${playSessionId}/complete`
   )
   return response.data
 }
@@ -158,7 +155,7 @@ export async function cancelGroupPlaySession(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<PlaySessionActionResult>(
-    `/api/events/groups/${groupId}/play-sessions/${playSessionId}/cancel`
+    `/api/groups/${groupId}/play-sessions/${playSessionId}/cancel`
   )
   return response.data
 }
@@ -167,16 +164,3 @@ export type ListGroupPlaySessionsParams = Omit<
   ListPlaySessionsParams,
   "contextType" | "groupId"
 >
-
-export async function listGroupPlaySessions(
-  groupId: string,
-  params: ListGroupPlaySessionsParams = {}
-): Promise<GroupPlaySession[]> {
-  const result = await listPlaySessions({
-    contextType: "INTERNAL_GROUP",
-    groupId,
-    ...params,
-  })
-
-  return Array.isArray(result.sessions) ? result.sessions : []
-}

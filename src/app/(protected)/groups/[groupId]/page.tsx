@@ -1,16 +1,19 @@
+import { ErrorSection } from "@/components/error-section"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   getGroup,
   getGroupInvitations,
-  getGroupMembers,
 } from "@/features/groups/api/groups-service"
 import { GroupDetailHeader } from "@/features/groups/components/group-detail-header"
 import { GroupMembersCard } from "@/features/groups/components/group-members-card"
 import { GroupOverviewCard } from "@/features/groups/components/group-overview-card"
 import { InvitationsTable } from "@/features/groups/components/invitations-table"
 import { UpcomingPlaySessionsSection } from "@/features/groups/components/upcoming-play-sessions-section"
-import { listGroupPlaySessions } from "@/features/play-sessions/api/group-play-sessions-service"
-import { getSession } from "@/lib/session"
+import { listPlaySessions } from "@/features/play-sessions/api/public-play-sessions-service"
+import type {
+  GroupPlaySession,
+  ListPlaySessionsParams,
+} from "@/features/play-sessions/types"
 
 interface GroupDetailPageProps {
   params: Promise<{ groupId: string }>
@@ -20,25 +23,45 @@ export default async function GroupDetailPage({
   params,
 }: GroupDetailPageProps) {
   const { groupId } = await params
-  const [group, members, session] = await Promise.all([
-    getGroup(groupId),
-    getGroupMembers(groupId),
-    getSession(),
-  ])
 
-  const isOwner = group.role === "owner"
-  const playSessions = await listGroupPlaySessions(groupId, {
-    status: "SCHEDULED",
-    order: "asc",
-    limit: 10,
-  })
-  const invitations = isOwner ? await getGroupInvitations(groupId) : []
+  let group
+  let invitations = []
+  let isOwner = false
+  let upcomingSessions: GroupPlaySession[] = []
+  let hasUpcomingSessionsError = false
 
-  // Filter for upcoming sessions (start time in future)
-  const now = new Date()
-  const upcomingSessions = playSessions.filter(
-    (session) => new Date(session.startTime) > now
-  )
+  try {
+    group = await getGroup(groupId)
+
+    isOwner = group.role === "owner"
+    invitations = isOwner ? await getGroupInvitations(groupId) : []
+  } catch (error) {
+    console.error("Error loading group details:", error)
+    return (
+      <div className="container mx-auto max-w-4xl p-6">
+        <ErrorSection
+          className="mb-4"
+          message="Đã xảy ra lỗi khi tải thông tin nhóm. Vui lòng thử lại sau."
+        />
+      </div>
+    )
+  }
+
+  try {
+    const params: ListPlaySessionsParams = {
+      contextType: "INTERNAL_GROUP",
+      groupId,
+      status: "PUBLISHED",
+      sortBy: "startTime",
+      order: "asc",
+    }
+    const sessionsResponse = await listPlaySessions(params)
+    const sessionsPayload = sessionsResponse?.data || []
+    upcomingSessions = sessionsPayload
+  } catch (error) {
+    console.error("Error loading upcoming sessions:", error)
+    hasUpcomingSessionsError = true
+  }
 
   return (
     <div className="container mx-auto max-w-4xl p-6">
@@ -47,13 +70,13 @@ export default async function GroupDetailPage({
         groupName={group.name}
         isOwner={isOwner}
       />
-      <GroupOverviewCard group={group} />
-      <GroupMembersCard members={members} />
+      <GroupOverviewCard groupId={groupId} />
+      <GroupMembersCard groupId={groupId} />
 
       {/* Upcoming sessions */}
       <UpcomingPlaySessionsSection
         sessions={upcomingSessions}
-        currentUserId={session.user?.id}
+        hasError={hasUpcomingSessionsError}
       />
 
       {/* Invitations */}

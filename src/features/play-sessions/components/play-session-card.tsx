@@ -1,28 +1,22 @@
-import { CalendarDays } from "lucide-react"
+import { CalendarDays, Clock, Users } from "lucide-react"
 import Link from "next/link"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { GroupPlaySession } from "@/features/play-sessions/api/public-play-sessions-service"
+import type { GroupPlaySession } from "@/features/play-sessions/types"
+import {
+  formatDateTime,
+  getDateOnly,
+  normalizeStatus,
+} from "@/utils/time-helper"
 
 interface PlaySessionCardProps {
   session: GroupPlaySession
 }
 
-function normalizeStatus(status: string) {
-  switch (status) {
-    case "SCHEDULED":
-      return "Lên lịch"
-    case "IN_PROGRESS":
-      return "Đang diễn ra"
-    case "COMPLETED":
-      return "Hoàn thành"
-    case "CANCELLED":
-      return "Đã hủy"
-    default:
-      return status
-  }
+export function isSameDay(dateTimeStr1: string, dateTimeStr2: string) {
+  return getDateOnly(dateTimeStr1) === getDateOnly(dateTimeStr2)
 }
 
 export function PlaySessionCard({ session }: PlaySessionCardProps) {
@@ -38,11 +32,26 @@ export function PlaySessionCard({ session }: PlaySessionCardProps) {
           </p>
         )}
 
+        {/* Date */}
         <div className="flex flex-wrap items-center gap-2 text-muted-foreground">
           <CalendarDays className="size-4" />
+          <span>{getDateOnly(session.startTime)}</span>
+        </div>
+
+        {/* Time */}
+        <div className="flex flex-wrap items-center gap-2 text-muted-foreground">
+          <Clock className="size-4" />
           <span>
-            {new Date(session.startTime).toLocaleString("vi-VN")} -{" "}
-            {new Date(session.endTime).toLocaleString("vi-VN")}
+            {formatDateTime(session.startTime)} -{" "}
+            {formatDateTime(session.endTime)}
+          </span>
+        </div>
+
+        {/* Participant Count */}
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Users className="size-4" />
+          <span className="font-medium">
+            {session.joinedCount}/{session.maxSlots}
           </span>
         </div>
 
@@ -54,7 +63,7 @@ export function PlaySessionCard({ session }: PlaySessionCardProps) {
             <Link
               href={
                 session.groupId
-                  ? `/play-sessions/${session.id}?groupId=${session.groupId}`
+                  ? `/groups/${session.groupId}/${session.id}`
                   : `/play-sessions/${session.id}`
               }
             >
