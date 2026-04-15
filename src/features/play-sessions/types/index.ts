@@ -3,7 +3,11 @@ export type Participant = {
   playSessionId: string
   userId: string
   status: "JOINED" | "LEFT" | "KICKED"
+  guestsCount?: number
+  paymentReceiptUrl?: string
+  isCheckedIn?: boolean
   joinedAt: string
+  name?: string
 }
 
 export type ParticipantsResponse = {
@@ -153,6 +157,22 @@ export interface PlaySessionActionResult {
   }
 }
 
+export interface JoinPlaySessionReponse {
+  message?: string
+  data: {
+    id?: string
+    playSessionId: string
+    userId: string
+    status: string
+    guestsCount?: number
+    paymentReceiptUrl?: string
+    isCheckedIn?: boolean
+    joinedAt: string
+    requestedSlots: number
+    totalAmount?: number
+  }
+}
+
 export interface ApiEnvelope<T> {
   message?: string
   data: T
@@ -186,7 +206,6 @@ export interface ListPlaySessionParticipantsParams {
   page?: number
   limit?: number
   status?: string
-  search?: string
 }
 
 export interface ListPlaySessionParticipantsMeta {

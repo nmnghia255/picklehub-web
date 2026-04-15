@@ -156,18 +156,6 @@ export async function getMyPlaySessions(
   return []
 }
 
-// export async function listMySessions(
-//   params: ListMySessionsParams = {}
-// ): Promise<ListMySessionsResult> {
-//   const listResult = await listPlaySessions(params)
-
-//   return {
-//     message: listResult.message,
-//     data: listResult.data,
-//     meta: listResult.meta,
-//   }
-// }
-
 export async function getPublicPlaySessionDetail(
   playSessionId: string
 ): Promise<GroupPlaySession> {
@@ -199,12 +187,17 @@ export async function deletePublicPlaySession(
   return response.data
 }
 
-export async function joinPublicPlaySession(
-  playSessionId: string
+export async function joinPlaySession(
+  id: string,
+  data: {
+    guestsCount: number
+    paymentReceiptUrl: string
+  }
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<PlaySessionActionResult>(
-    `/api/play-sessions/${playSessionId}/participants/me`
+    `/api/play-sessions/${id}/join`,
+    data
   )
   return response.data
 }

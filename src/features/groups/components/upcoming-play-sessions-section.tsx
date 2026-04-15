@@ -1,31 +1,12 @@
 "use client"
 
-import { Clock, Users } from "lucide-react"
-import Link from "next/link"
 import { useMemo, useState } from "react"
 
 import { ErrorSection } from "@/components/error-section"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { PlaySessionCard } from "@/features/play-sessions/components/play-session-card"
 import type { GroupPlaySession } from "@/features/play-sessions/types"
-
-function normalizeStatus(status: string) {
-  switch (status) {
-    case "PUBLISHED":
-      return "Đã xuất bản"
-    case "SCHEDULED":
-      return "Lên lịch"
-    case "IN_PROGRESS":
-      return "Đang diễn ra"
-    case "COMPLETED":
-      return "Hoàn thành"
-    case "CANCELLED":
-      return "Đã hủy"
-    default:
-      return status
-  }
-}
 
 export function UpcomingPlaySessionsSection({
   sessions,
@@ -76,56 +57,9 @@ export function UpcomingPlaySessionsSection({
         <CardTitle>Buổi chơi sắp tới</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
+        <div className="space-y-4">
           {pagedSessions.map((session) => (
-            <Link
-              key={session.id}
-              href={
-                session.groupId
-                  ? `/play-sessions/${session.id}?groupId=${session.groupId}`
-                  : `/play-sessions/${session.id}`
-              }
-              className="block rounded-lg border p-4 transition-colors hover:bg-muted/50"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <h3 className="font-semibold">{session.title}</h3>
-                  {session.description && (
-                    <p className="text-sm text-muted-foreground">
-                      {session.description}
-                    </p>
-                  )}
-                  <div className="mt-2 flex items-center gap-4">
-                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <Clock className="size-4" />
-                      <span>
-                        {new Date(session.startTime).toLocaleDateString(
-                          "vi-VN",
-                          {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
-                        )}
-                      </span>
-                    </div>
-                    {session.maxSlots && (
-                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                        <Users className="size-4" />
-                        <span>
-                          {session.joinedCount || 0}/{session.maxSlots}
-                        </span>
-                      </div>
-                    )}
-                    <Badge variant="outline">
-                      {normalizeStatus(session.status)}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            </Link>
+            <PlaySessionCard key={session.id} session={session} />
           ))}
         </div>
 

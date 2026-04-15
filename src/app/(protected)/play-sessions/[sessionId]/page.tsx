@@ -1,31 +1,31 @@
+import { redirect } from "next/navigation"
+
 import { PageContainer } from "@/components/page-container"
-import { getGroupMembers } from "@/features/groups/api/groups-service"
-import {
-  getGroupPlaySessionDetail,
-  listGroupPlaySessionParticipants,
-} from "@/features/play-sessions/api/group-play-sessions-service"
+import { Button } from "@/components/ui/button"
 import {
   getPublicPlaySessionDetail,
+  joinPlaySession,
+  leavePublicPlaySession,
   listPublicPlaySessionParticipants,
 } from "@/features/play-sessions/api/public-play-sessions-service"
 import { PlaySessionError } from "@/features/play-sessions/components/play-session-error"
 import { PlaySessionHeader } from "@/features/play-sessions/components/play-session-header"
 import { PlaySessionInfo } from "@/features/play-sessions/components/play-session-info"
 import { PlaySessionParticipants } from "@/features/play-sessions/components/play-session-participants"
+import { getSession } from "@/lib/session"
 
 interface PlaySessionDetailPageProps {
   params: Promise<{ sessionId: string }>
-  searchParams?: Promise<{ groupId?: string }>
 }
 
 export default async function PlaySessionDetailPage({
   params,
-  searchParams,
 }: PlaySessionDetailPageProps) {
   const { sessionId } = await params
-  const resolvedSearchParams = searchParams ? await searchParams : undefined
-  const groupId = resolvedSearchParams?.groupId
-  const backHref = groupId ? `/groups/${groupId}` : "/play-sessions"
+  const backHref = "/play-sessions"
+  const detailHref = `/play-sessions/${sessionId}`
+  const userSession = await getSession()
+  const currentUserId = userSession.user?.id
 
   let playSession: Awaited<
     ReturnType<typeof getPublicPlaySessionDetail>
@@ -34,66 +34,34 @@ export default async function PlaySessionDetailPage({
     userId: string
     joinedAt?: string
     displayName?: string
+    status?: string
   }> = []
   let participantsError: string | null = null
-  let userNameMap: Record<string, string> = {}
+
+  const normalizeUserId = (userId?: string | null) =>
+    typeof userId === "string"
+      ? userId
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-f0-9]/g, "")
+      : ""
 
   try {
-    if (groupId) {
-      const [sessionResult, participantsResult, membersResult] =
-        await Promise.allSettled([
-          getGroupPlaySessionDetail(groupId, sessionId),
-          listGroupPlaySessionParticipants(groupId, sessionId, {
-            page: 1,
-            limit: 20,
-          }),
-          getGroupMembers(groupId),
-        ])
+    const [sessionResult, participantsResult] = await Promise.allSettled([
+      getPublicPlaySessionDetail(sessionId),
+      listPublicPlaySessionParticipants(sessionId, { page: 1, limit: 100 }),
+    ])
 
-      if (sessionResult.status === "rejected") {
-        throw sessionResult.reason
-      }
+    if (sessionResult.status === "rejected") {
+      throw sessionResult.reason
+    }
 
-      playSession = sessionResult.value
+    playSession = sessionResult.value
 
-      if (participantsResult.status === "fulfilled") {
-        participants = participantsResult.value.participants
-      } else {
-        participantsError = "Không thể tải danh sách người tham gia."
-      }
-
-      // Create a mapping of userId to name from group members
-      if (membersResult.status === "fulfilled") {
-        userNameMap = membersResult.value.reduce(
-          (acc, member) => {
-            acc[member.userId] = member.name
-            return acc
-          },
-          {} as Record<string, string>
-        )
-        // Enrich participants with display names
-        participants = participants.map((p) => ({
-          ...p,
-          displayName: userNameMap[p.userId],
-        }))
-      }
+    if (participantsResult.status === "fulfilled") {
+      participants = participantsResult.value.participants
     } else {
-      const [sessionResult, participantsResult] = await Promise.allSettled([
-        getPublicPlaySessionDetail(sessionId),
-        listPublicPlaySessionParticipants(sessionId, { page: 1, limit: 100 }),
-      ])
-
-      if (sessionResult.status === "rejected") {
-        throw sessionResult.reason
-      }
-
-      playSession = sessionResult.value
-
-      if (participantsResult.status === "fulfilled") {
-        participants = participantsResult.value.participants
-      } else {
-        participantsError = "Không thể tải danh sách người tham gia."
-      }
+      participantsError = "Không thể tải danh sách người tham gia."
     }
   } catch (error) {
     const message =
@@ -113,9 +81,51 @@ export default async function PlaySessionDetailPage({
     )
   }
 
+  const hasJoined =
+    !!normalizeUserId(currentUserId) &&
+    participants.some(
+      (participant) =>
+        normalizeUserId(participant.userId) ===
+          normalizeUserId(currentUserId) && participant.status !== "LEFT"
+    )
+
+  async function toggleParticipationAction() {
+    "use server"
+
+    if (!currentUserId) {
+      redirect("/login")
+    }
+
+    try {
+      if (hasJoined) {
+        await leavePublicPlaySession(sessionId)
+      } else {
+        await joinPlaySession(sessionId, {
+          guestsCount: 1,
+          paymentReceiptUrl: "",
+        })
+      }
+
+      redirect(detailHref)
+    } catch (error) {
+      console.error("Error toggling participation:", error)
+      redirect(detailHref + "?error=1")
+    }
+  }
+
   return (
     <PageContainer>
-      <PlaySessionHeader title={playSession.title} backHref={backHref} />
+      <PlaySessionHeader
+        title={playSession.title}
+        backHref={backHref}
+        action={
+          <form action={toggleParticipationAction}>
+            <Button type="submit" variant={hasJoined ? "outline" : "default"}>
+              {hasJoined ? "Rời buổi chơi" : "Tham gia buổi chơi"}
+            </Button>
+          </form>
+        }
+      />
       <PlaySessionInfo
         session={playSession}
         participantCount={participants.length}

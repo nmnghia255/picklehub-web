@@ -4,6 +4,7 @@ import type {
   ApiEnvelope,
   CreateGroupPlaySessionInput,
   GroupPlaySession,
+  JoinPlaySessionReponse,
   ListPlaySessionParticipantsParams,
   ListPlaySessionParticipantsResult,
   ListPlaySessionsParams,
@@ -70,11 +71,16 @@ export async function deleteGroupPlaySession(
 
 export async function joinGroupPlaySession(
   groupId: string,
-  playSessionId: string
-): Promise<PlaySessionActionResult> {
+  playSessionId: string,
+  data: {
+    guestsCount: number
+    paymentReceiptUrl: string
+  }
+): Promise<JoinPlaySessionReponse> {
   const axios = await getAuthenticatedAxios()
-  const response = await axios.post<PlaySessionActionResult>(
-    `/api/groups/${groupId}/play-sessions/${playSessionId}/participants/me`
+  const response = await axios.post<JoinPlaySessionReponse>(
+    `/api/groups/${groupId}/play-sessions/${playSessionId}/join`,
+    data
   )
   return response.data
 }
@@ -158,16 +164,3 @@ export type ListGroupPlaySessionsParams = Omit<
   ListPlaySessionsParams,
   "contextType" | "groupId"
 >
-
-export async function listGroupPlaySessions(
-  groupId: string,
-  params: ListGroupPlaySessionsParams = {}
-): Promise<GroupPlaySession[]> {
-  const result = await listPlaySessions({
-    contextType: "INTERNAL_GROUP",
-    groupId,
-    ...params,
-  })
-
-  return Array.isArray(result.sessions) ? result.sessions : []
-}
