@@ -1,167 +1,26 @@
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
-export interface PlaySessionParticipant {
-  userId: string
-  joinedAt?: string
-  displayName?: string
-  status?: string
-  isHost?: boolean
-}
-
-export interface GroupPlaySession {
-  id: string
-  title: string
-  description?: string | null
-  type: "PUBLIC_APP" | "INTERNAL_GROUP" | string
-  groupId: string | null
-  courtBookingId?: string | null
-  maxSlots?: number | null
-  joinedCount?: number
-  startTime: string
-  endTime: string
-  status: string
-  creatorId: string
-  participants?: PlaySessionParticipant[]
-  createdAt: string
-  updatedAt: string
-}
-
-export interface CreateGroupPlaySessionInput {
-  title: string
-  description?: string
-  startTime: string
-  endTime: string
-  courtBookingId?: string
-  maxSlots?: number
-}
-
-export interface UpdateGroupPlaySessionInput {
-  title?: string
-  description?: string
-  courtBookingId?: string | null
-  location?: string
-  startTime?: string
-  endTime?: string
-  maxSlots?: number
-}
-
-export interface ListMySessionsParams {
-  contextType?: "PUBLIC_APP" | "INTERNAL_GROUP" | string
-  page?: number
-  limit?: number
-  search?: string
-  status?: string
-}
-
-export interface ListMySessionsMeta {
-  total: number
-  page: number
-  limit: number
-  totalPages?: number
-}
-
-export interface ListMySessionsResult {
-  sessions: GroupPlaySession[]
-  meta?: ListMySessionsMeta
-}
-
-export interface ListPlaySessionsParams {
-  contextType?: "PUBLIC_APP" | "INTERNAL_GROUP" | string
-  groupId?: string
-  status?: "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | string
-  search?: string
-  startFrom?: string
-  startTo?: string
-  creatorId?: string
-  sortBy?: "createdAt" | "startTime"
-  order?: "asc" | "desc"
-  page?: number
-  limit?: number
-}
-
-export interface PlaySessionsPagination {
-  page: number
-  limit: number
-  total: number
-  totalPages: number
-}
-
-export interface ListPlaySessionsResult {
-  sessions: GroupPlaySession[]
-  pagination?: PlaySessionsPagination
-  filter?: Record<string, unknown>
-}
-
-export interface CountPlaySessionsResult {
-  type: string
-  groupId?: string
-  total: number
-}
-
-export interface GetMyScheduleParams {
-  contextType?: "PUBLIC_APP" | "INTERNAL_GROUP" | string
-  groupId?: string
-  period?: "week" | "month"
-}
-
-export interface PublicPlaySessionParticipant {
-  userId: string
-  joinedAt: string
-}
-
-export interface ListPublicParticipantsParams {
-  page?: number
-  limit?: number
-}
-
-export interface ListPublicParticipantsResult {
-  participants: PublicPlaySessionParticipant[]
-  pagination?: PlaySessionsPagination
-}
-
-export interface PlaySessionActionResult {
-  message?: string
-  data?: {
-    playSessionId?: string
-    userId?: string
-    status?: string
-    startedAt?: string
-    completedAt?: string
-    cancelledAt?: string
-    cancelledBy?: string
-    id?: string
-  }
-}
-
-interface ApiEnvelope<T> {
-  message?: string
-  data: T
-}
-
-interface PlaySessionsListEnvelope {
-  message?: string
-  data: GroupPlaySession[]
-  pagination?: PlaySessionsPagination
-  filter?: Record<string, unknown>
-}
-
-interface CountPlaySessionsEnvelope {
-  message?: string
-  data: CountPlaySessionsResult
-  filter?: Record<string, unknown>
-}
-
-interface MyScheduleEnvelope {
-  message?: string
-  data: GroupPlaySession[]
-  filter?: Record<string, unknown>
-}
-
-interface PublicParticipantsEnvelope {
-  message?: string
-  data: PublicPlaySessionParticipant[]
-  pagination?: PlaySessionsPagination
-}
+import type {
+  ApiEnvelope,
+  CountPlaySessionsEnvelope,
+  CountPlaySessionsResult,
+  CreateGroupPlaySessionInput,
+  GetMyScheduleParams,
+  GroupPlaySession,
+  ListMySessionsParams,
+  ListMySessionsResult,
+  ListPlaySessionsParams,
+  ListPlaySessionsResult,
+  ListPublicParticipantsParams,
+  ListPublicParticipantsResult,
+  MyScheduleEnvelope,
+  PlaySessionActionResult,
+  PlaySessionsListEnvelope,
+  PlaySessionsPagination,
+  PublicParticipantsEnvelope,
+  PublicPlaySessionParticipant,
+  UpdateGroupPlaySessionInput,
+} from "../types"
 
 function unwrapEnvelope<T>(payload: ApiEnvelope<T> | T): T {
   if (payload && typeof payload === "object" && "data" in payload) {
@@ -175,33 +34,32 @@ function normalizePlaySessionsListPayload(
   payload: unknown
 ): ListPlaySessionsResult {
   if (Array.isArray(payload)) {
-    return { sessions: payload as GroupPlaySession[] }
+    return { data: payload as GroupPlaySession[] }
   }
 
   if (!payload || typeof payload !== "object") {
-    return { sessions: [] }
+    return { data: [] }
   }
 
   const value = payload as {
     data?: unknown
-    sessions?: unknown
-    pagination?: PlaySessionsPagination
-    filter?: Record<string, unknown>
+    message?: unknown
+    meta?: PlaySessionsPagination
   }
 
   if (Array.isArray(value.data)) {
     return {
-      sessions: value.data as GroupPlaySession[],
-      pagination: value.pagination,
-      filter: value.filter,
+      message: typeof value.message === "string" ? value.message : undefined,
+      data: value.data as GroupPlaySession[],
+      meta: value.meta,
     }
   }
 
-  if (Array.isArray(value.sessions)) {
+  if (Array.isArray(value.data)) {
     return {
-      sessions: value.sessions as GroupPlaySession[],
-      pagination: value.pagination,
-      filter: value.filter,
+      message: typeof value.message === "string" ? value.message : undefined,
+      data: value.data as GroupPlaySession[],
+      meta: value.meta,
     }
   }
 
@@ -216,22 +74,22 @@ function normalizePlaySessionsListPayload(
 
     if (Array.isArray(nested.data)) {
       return {
-        sessions: nested.data as GroupPlaySession[],
-        pagination: nested.pagination,
-        filter: nested.filter,
+        message: typeof value.message === "string" ? value.message : undefined,
+        data: nested.data as GroupPlaySession[],
+        meta: nested.pagination,
       }
     }
 
     if (Array.isArray(nested.sessions)) {
       return {
-        sessions: nested.sessions as GroupPlaySession[],
-        pagination: nested.pagination,
-        filter: nested.filter,
+        message: typeof value.message === "string" ? value.message : undefined,
+        data: nested.sessions as GroupPlaySession[],
+        meta: nested.pagination,
       }
     }
   }
 
-  return { sessions: [] }
+  return { message: undefined, data: [], meta: undefined }
 }
 
 export async function createPublicPlaySession(
@@ -248,11 +106,12 @@ export async function listPlaySessions(
   params: ListPlaySessionsParams = {}
 ): Promise<ListPlaySessionsResult> {
   const axios = await getAuthenticatedAxios()
-  const response = await axios.get<
-    PlaySessionsListEnvelope | GroupPlaySession[]
-  >("/api/events/play-sessions", {
-    params,
-  })
+  const response = await axios.get<PlaySessionsListEnvelope>(
+    "/api/play-sessions",
+    {
+      params,
+    }
+  )
 
   return normalizePlaySessionsListPayload(response.data)
 }
@@ -266,19 +125,19 @@ export async function countPlaySessions(
   const axios = await getAuthenticatedAxios()
   const response = await axios.get<
     CountPlaySessionsEnvelope | ApiEnvelope<CountPlaySessionsResult>
-  >("/api/events/play-sessions/count", {
+  >("/api/play-sessions/count", {
     params,
   })
 
   return unwrapEnvelope(response.data)
 }
 
-export async function getMyPlaySessionSchedule(
+export async function getMyPlaySessions(
   params: GetMyScheduleParams = {}
 ): Promise<GroupPlaySession[]> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.get<MyScheduleEnvelope | GroupPlaySession[]>(
-    "/api/events/play-sessions/my-schedule",
+    "/api/play-sessions/my-schedule",
     {
       params,
     }
@@ -297,31 +156,13 @@ export async function getMyPlaySessionSchedule(
   return []
 }
 
-export async function listMySessions(
-  params: ListMySessionsParams = {}
-): Promise<ListMySessionsResult> {
-  const listResult = await listPlaySessions(params)
-
-  return {
-    sessions: listResult.sessions,
-    meta: listResult.pagination
-      ? {
-          page: listResult.pagination.page,
-          limit: listResult.pagination.limit,
-          total: listResult.pagination.total,
-          totalPages: listResult.pagination.totalPages,
-        }
-      : undefined,
-  }
-}
-
 export async function getPublicPlaySessionDetail(
   playSessionId: string
 ): Promise<GroupPlaySession> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.get<
     ApiEnvelope<GroupPlaySession> | GroupPlaySession
-  >(`/api/events/play-sessions/${playSessionId}`)
+  >(`/api/play-sessions/${playSessionId}`)
   return unwrapEnvelope(response.data)
 }
 
@@ -332,7 +173,7 @@ export async function updatePublicPlaySession(
   const axios = await getAuthenticatedAxios()
   const response = await axios.patch<
     ApiEnvelope<GroupPlaySession> | GroupPlaySession
-  >(`/api/events/play-sessions/${playSessionId}`, input)
+  >(`/api/play-sessions/${playSessionId}`, input)
   return unwrapEnvelope(response.data)
 }
 
@@ -341,17 +182,22 @@ export async function deletePublicPlaySession(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.delete<PlaySessionActionResult>(
-    `/api/events/play-sessions/${playSessionId}`
+    `/api/play-sessions/${playSessionId}`
   )
   return response.data
 }
 
-export async function joinPublicPlaySession(
-  playSessionId: string
+export async function joinPlaySession(
+  id: string,
+  data: {
+    guestsCount: number
+    paymentReceiptUrl: string
+  }
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<PlaySessionActionResult>(
-    `/api/events/play-sessions/${playSessionId}/participants/me`
+    `/api/play-sessions/${id}/join`,
+    data
   )
   return response.data
 }
@@ -361,7 +207,7 @@ export async function leavePublicPlaySession(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.delete<PlaySessionActionResult>(
-    `/api/events/play-sessions/${playSessionId}/participants/me`
+    `/api/play-sessions/${playSessionId}/participants/me`
   )
   return response.data
 }
@@ -372,7 +218,7 @@ export async function kickPublicPlaySessionParticipant(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.delete<PlaySessionActionResult>(
-    `/api/events/play-sessions/${playSessionId}/participants/${userId}`
+    `/api/play-sessions/${playSessionId}/participants/${userId}`
   )
   return response.data
 }
@@ -384,7 +230,7 @@ export async function listPublicPlaySessionParticipants(
   const axios = await getAuthenticatedAxios()
   const response = await axios.get<
     PublicParticipantsEnvelope | PublicPlaySessionParticipant[]
-  >(`/api/events/play-sessions/${playSessionId}/participants`, {
+  >(`/api/play-sessions/${playSessionId}/participants`, {
     params,
   })
 
@@ -403,7 +249,7 @@ export async function startPublicPlaySession(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<PlaySessionActionResult>(
-    `/api/events/play-sessions/${playSessionId}/start`
+    `/api/play-sessions/${playSessionId}/start`
   )
   return response.data
 }
@@ -413,7 +259,7 @@ export async function completePublicPlaySession(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<PlaySessionActionResult>(
-    `/api/events/play-sessions/${playSessionId}/complete`
+    `/api/play-sessions/${playSessionId}/complete`
   )
   return response.data
 }
@@ -423,7 +269,7 @@ export async function cancelPublicPlaySession(
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<PlaySessionActionResult>(
-    `/api/events/play-sessions/${playSessionId}/cancel`
+    `/api/play-sessions/${playSessionId}/cancel`
   )
   return response.data
 }

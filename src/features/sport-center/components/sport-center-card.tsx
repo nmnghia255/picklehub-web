@@ -1,8 +1,7 @@
-import { Clock3, MapPin } from "lucide-react"
+import { Clock3, Heart, MapPin } from "lucide-react"
 import Link from "next/link"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { SportCenter } from "@/features/sport-center/types"
 
@@ -16,9 +15,11 @@ export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
             alt={`${sportCenter.name} cover`}
             className="h-full w-full object-cover"
           />
-          <Badge className="absolute top-3 right-3" variant="secondary">
-            {sportCenter.distanceKm.toFixed(1)} km
-          </Badge>
+          {sportCenter.isFavorite ? (
+            <span className="absolute top-3 right-3 inline-flex size-8 items-center justify-center rounded-full border border-white/20 bg-white/30 text-rose-500 shadow-sm backdrop-blur-md">
+              <Heart className="size-4 fill-current" />
+            </span>
+          ) : null}
         </div>
 
         <CardContent className="space-y-4 p-4">

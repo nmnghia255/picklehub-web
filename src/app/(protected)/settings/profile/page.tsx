@@ -1,7 +1,8 @@
 import Link from "next/link"
 
+import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
-import type { AuthUser, LinkedProvider } from "@/features/auth/types"
+import type { AuthUser } from "@/features/auth/types"
 import { MatchHistory } from "@/features/profile/components/match-history-card"
 import { ProfileCard } from "@/features/profile/components/profile-card"
 import { RankingCard } from "@/features/profile/components/ranking-card"
@@ -11,22 +12,17 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 
 export default async function ProfilePage() {
   let user: AuthUser | null = null
-  let linkedProviders: LinkedProvider[] = []
   try {
     const axios = await getAuthenticatedAxios()
-    const [meResponse, linkedResponse] = await Promise.all([
-      axios.get<AuthUser>("/api/auth/me"),
-      axios.get<LinkedProvider[]>("/api/auth/social/linked"),
-    ])
+    const meResponse = await axios.get<AuthUser>("/api/auth/me")
     user = meResponse.data
-    linkedProviders = linkedResponse.data
   } catch {
     // Fallback to session data if API call fails
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="mx-auto max-w-6xl space-y-6">
+    <div className="min-h-screen bg-gray-100 py-6">
+      <PageContainer className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Hồ sơ người dùng</h1>
@@ -47,7 +43,7 @@ export default async function ProfilePage() {
           {/* Right */}
           <RightPanel />
         </div>
-      </div>
+      </PageContainer>
     </div>
   )
 }

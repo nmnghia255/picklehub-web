@@ -10,6 +10,7 @@ import {
   type LucideIcon,
   MapPinned,
   Shield,
+  UserRound,
   Users,
 } from "lucide-react"
 import Link from "next/link"
@@ -42,6 +43,7 @@ type SidebarItem = {
 
 const sidebarItems: SidebarItem[] = [
   { title: "Trang chủ", href: "/home", icon: House },
+  { title: "Hồ sơ", href: "/settings/profile", icon: UserRound },
   { title: "Trung tâm thể thao", href: "/sport-center", icon: MapPinned },
   { title: "Lịch sử", href: "/history", icon: History },
   { title: "Buổi chơi", href: "/play-sessions", icon: CalendarDays },
@@ -158,6 +160,7 @@ export function AppSidebar() {
         <SidebarLogo />
       </SidebarHeader>
 
+      {/* Sidebar Content */}
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>

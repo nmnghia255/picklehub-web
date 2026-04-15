@@ -8,15 +8,33 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty"
-import type { GroupPlaySession } from "@/features/play-sessions/api/public-play-sessions-service"
+import type { GroupPlaySession } from "@/features/play-sessions/types"
 
 import { PlaySessionCard } from "./play-session-card"
 import type { DateTimeFilter, SessionStatusFilter } from "./sessions-filter-bar"
-import SessionsFilterBar from "./sessions-filter-bar"
+
+function normalizeStatus(status: string) {
+  switch (status) {
+    case "PUBLISHED":
+      return "Đã xuất bản"
+    case "SCHEDULED":
+      return "Lên lịch"
+    case "IN_PROGRESS":
+      return "Đang diễn ra"
+    case "COMPLETED":
+      return "Hoàn thành"
+    case "CANCELLED":
+      return "Đã hủy"
+    default:
+      return status
+  }
+}
 
 interface SessionsListProps {
   sessions: GroupPlaySession[]
   defaultDateTimeFilter?: DateTimeFilter
+  nameKeyword?: string
+  statusFilter?: SessionStatusFilter
 }
 
 function isSameDay(target: Date, now: Date) {
@@ -27,19 +45,18 @@ function isSameDay(target: Date, now: Date) {
   )
 }
 
-export function SessionsList({
+export function PlaySessionsList({
   sessions,
   defaultDateTimeFilter = "future",
+  nameKeyword: propNameKeyword,
+  statusFilter: propStatusFilter = "ALL",
 }: SessionsListProps) {
-  const [nameKeyword, setNameKeyword] = useState("")
-  const [dateTimeFilter, setDateTimeFilter] = useState<DateTimeFilter>(
-    defaultDateTimeFilter
-  )
-  const [statusFilter, setStatusFilter] = useState<SessionStatusFilter>("ALL")
-
-  const safeSessions = Array.isArray(sessions) ? sessions : []
+  const nameKeyword = propNameKeyword ?? ""
+  const [dateTimeFilter] = useState<DateTimeFilter>(defaultDateTimeFilter)
+  const statusFilter = propStatusFilter
 
   const filteredSessions = useMemo(() => {
+    const safeSessions = Array.isArray(sessions) ? sessions : []
     const keyword = nameKeyword.trim().toLowerCase()
     const now = new Date()
 
@@ -60,17 +77,10 @@ export function SessionsList({
 
       return matchName && matchDateTime && matchStatus
     })
-  }, [safeSessions, nameKeyword, dateTimeFilter, statusFilter])
+  }, [sessions, nameKeyword, dateTimeFilter, statusFilter])
 
   return (
     <div className="space-y-4">
-      <SessionsFilterBar
-        nameKeyword={nameKeyword}
-        statusFilter={statusFilter}
-        onNameKeywordChange={setNameKeyword}
-        onStatusFilterChange={setStatusFilter}
-      />
-
       {filteredSessions.length === 0 ? (
         <Empty className="rounded-xl border">
           <EmptyHeader>

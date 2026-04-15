@@ -1,21 +1,11 @@
 "use client"
 
-import { Search, Users } from "lucide-react"
-import Link from "next/link"
 import { useMemo, useState } from "react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle,
-} from "@/components/ui/empty"
-import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { GroupCard } from "@/features/groups/components/group-card"
+import { GroupSearchControls } from "@/features/groups/components/group-search-controls"
+import { GroupsEmptyState } from "@/features/groups/components/groups-empty-state"
 import type { Group } from "@/features/groups/types"
 
 interface GroupTabsProps {
@@ -23,27 +13,30 @@ interface GroupTabsProps {
   discoverGroups: Group[]
 }
 
-function formatRole(role: string | null | undefined) {
-  if (!role) return "member"
-  return role.toLowerCase()
-}
-
-function getGroupInitials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("")
-}
-
 export function GroupTabs({ myGroups, discoverGroups }: GroupTabsProps) {
-  const [searchKeyword, setSearchKeyword] = useState("")
-  const safeMyGroups = Array.isArray(myGroups) ? myGroups : []
-  const safeDiscoverGroups = Array.isArray(discoverGroups) ? discoverGroups : []
+  const [myGroupsKeyword, setMyGroupsKeyword] = useState("")
+  const [discoverKeyword, setDiscoverKeyword] = useState("")
+
+  const filteredMyGroups = useMemo(() => {
+    const safeMyGroups = Array.isArray(myGroups) ? myGroups : []
+    const keyword = myGroupsKeyword.trim().toLowerCase()
+
+    if (!keyword) {
+      return safeMyGroups
+    }
+
+    return safeMyGroups.filter((group) => {
+      const name = group.name.toLowerCase()
+      const description = (group.description ?? "").toLowerCase()
+      return name.includes(keyword) || description.includes(keyword)
+    })
+  }, [myGroupsKeyword, myGroups])
 
   const filteredDiscoverGroups = useMemo(() => {
-    const keyword = searchKeyword.trim().toLowerCase()
+    const safeDiscoverGroups = Array.isArray(discoverGroups)
+      ? discoverGroups
+      : []
+    const keyword = discoverKeyword.trim().toLowerCase()
 
     if (!keyword) {
       return safeDiscoverGroups
@@ -54,126 +47,65 @@ export function GroupTabs({ myGroups, discoverGroups }: GroupTabsProps) {
       const description = (group.description ?? "").toLowerCase()
       return name.includes(keyword) || description.includes(keyword)
     })
-  }, [safeDiscoverGroups, searchKeyword])
+  }, [discoverKeyword, discoverGroups])
 
   return (
     <Tabs defaultValue="your-groups" className="gap-6">
-      <TabsList>
-        <TabsTrigger value="your-groups">Nhóm của bạn</TabsTrigger>
-        <TabsTrigger value="discover">Khám phá</TabsTrigger>
-      </TabsList>
+      <div className="flex justify-center">
+        <TabsList className="w-full max-w-xl">
+          <TabsTrigger value="your-groups">Nhóm của bạn</TabsTrigger>
+          <TabsTrigger value="discover">Khám phá</TabsTrigger>
+        </TabsList>
+      </div>
 
-      <TabsContent value="your-groups">
-        {safeMyGroups.length === 0 ? (
-          <Empty className="rounded-xl border">
-            <EmptyHeader>
-              <EmptyTitle>Bạn chưa tham gia nhóm nào</EmptyTitle>
-              <EmptyDescription>
-                Tham gia hoặc tạo một nhóm để xem nó ở đây.
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
+      <TabsContent value="your-groups" className="space-y-4">
+        <GroupSearchControls
+          placeholder="Tìm kiếm nhóm của bạn"
+          value={myGroupsKeyword}
+          onChange={setMyGroupsKeyword}
+          ariaLabel="Tìm kiếm nhóm của bạn"
+        />
+
+        {filteredMyGroups.length === 0 ? (
+          <GroupsEmptyState
+            title="Không có nhóm nào phù hợp"
+            description="Thử một từ khóa khác để tìm trong nhóm của bạn."
+          />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
-            {safeMyGroups.map((group) => (
-              <Card key={group.id}>
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarImage
-                        src={group.avatarUrl ?? undefined}
-                        alt={group.name}
-                      />
-                      <AvatarFallback>
-                        {getGroupInitials(group.name)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <CardTitle className="line-clamp-1 text-lg">
-                      {group.name}
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-3">
-                  {group.description && (
-                    <p className="line-clamp-2 text-sm text-muted-foreground">
-                      {group.description}
-                    </p>
-                  )}
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1.5">
-                      <Users className="size-4" />
-                      <span>{group.memberCount} thành viên</span>
-                    </div>
-                    <Badge variant="secondary" className="capitalize">
-                      {formatRole(group.role)}
-                    </Badge>
-                  </div>
-                  <Button variant="outline" asChild>
-                    <Link href={`/groups/${group.id}`}>Mở</Link>
-                  </Button>
-                </CardContent>
-              </Card>
+            {filteredMyGroups.map((group) => (
+              <GroupCard
+                key={group.id}
+                group={group}
+                actionLabel="Mở"
+                showRole
+              />
             ))}
           </div>
         )}
       </TabsContent>
 
       <TabsContent value="discover" className="space-y-4">
-        <div className="relative">
-          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search groups"
-            className="pl-9"
-            value={searchKeyword}
-            onChange={(event) => setSearchKeyword(event.target.value)}
-            aria-label="Search groups"
-          />
-        </div>
+        <GroupSearchControls
+          placeholder="Tìm kiếm nhóm khám phá"
+          value={discoverKeyword}
+          onChange={setDiscoverKeyword}
+          ariaLabel="Tìm kiếm nhóm khám phá"
+        />
 
         {filteredDiscoverGroups.length === 0 ? (
-          <Empty className="rounded-xl border">
-            <EmptyHeader>
-              <EmptyTitle>Không có nhóm nào phù hợp</EmptyTitle>
-              <EmptyDescription>
-                Thử một từ khóa khác để khám phá các nhóm.
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
+          <GroupsEmptyState
+            title="Không có nhóm nào phù hợp"
+            description="Thử một từ khóa khác để khám phá các nhóm."
+          />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
             {filteredDiscoverGroups.map((group) => (
-              <Card key={group.id}>
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarImage
-                        src={group.avatarUrl ?? undefined}
-                        alt={group.name}
-                      />
-                      <AvatarFallback>
-                        {getGroupInitials(group.name)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <CardTitle className="line-clamp-1 text-lg">
-                      {group.name}
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-3">
-                  {group.description && (
-                    <p className="line-clamp-2 text-sm text-muted-foreground">
-                      {group.description}
-                    </p>
-                  )}
-                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                    <Users className="size-4" />
-                    <span>{group.memberCount} thành viên</span>
-                  </div>
-                  <Button variant="outline" asChild>
-                    <Link href={`/groups/${group.id}`}>Xem chi tiết</Link>
-                  </Button>
-                </CardContent>
-              </Card>
+              <GroupCard
+                key={group.id}
+                group={group}
+                actionLabel="Xem chi tiết"
+              />
             ))}
           </div>
         )}

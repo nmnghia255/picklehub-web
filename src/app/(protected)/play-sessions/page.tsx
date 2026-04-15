@@ -1,17 +1,17 @@
 import { AlertCircle } from "lucide-react"
 
+import { PageContainer } from "@/components/page-container"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
-  getMyPlaySessionSchedule,
-  type GroupPlaySession,
+  getMyPlaySessions,
   listPlaySessions,
 } from "@/features/play-sessions/api/public-play-sessions-service"
 import { PlaySessionsTabs } from "@/features/play-sessions/components/play-sessions-tabs"
+import type { GroupPlaySession } from "@/features/play-sessions/types"
 
 export default async function SessionsPage() {
   const [mySessionsResult, publicSessionsResult] = await Promise.allSettled([
-    getMyPlaySessionSchedule({
-      contextType: "PUBLIC_APP",
+    getMyPlaySessions({
       period: "month",
     }),
     listPlaySessions({
@@ -30,8 +30,8 @@ export default async function SessionsPage() {
       : []
   const publicSessions: GroupPlaySession[] =
     publicSessionsResult.status === "fulfilled" &&
-    Array.isArray(publicSessionsResult.value.sessions)
-      ? publicSessionsResult.value.sessions
+    Array.isArray(publicSessionsResult.value.data)
+      ? publicSessionsResult.value.data
       : []
 
   const errorMessage =
@@ -41,11 +41,7 @@ export default async function SessionsPage() {
       : null
 
   return (
-    <div className="container mx-auto max-w-6xl p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Buổi chơi</h1>
-      </div>
-
+    <PageContainer>
       {errorMessage && (
         <Alert variant="destructive" className="mb-4">
           <AlertCircle className="size-4" />
@@ -58,6 +54,6 @@ export default async function SessionsPage() {
         mySessions={mySessions}
         publicSessions={publicSessions}
       />
-    </div>
+    </PageContainer>
   )
 }

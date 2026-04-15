@@ -3,6 +3,7 @@
 import { Search } from "lucide-react"
 import { useMemo, useState } from "react"
 
+import { PageContainer } from "@/components/page-container"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { EmptyState } from "@/features/sport-center/components/empty-state"
@@ -17,51 +18,49 @@ function getDistanceLabel(distanceKm: number) {
   return "> 20 km"
 }
 
-export default function FindSportCenterPage() {
+export default function SportCenterPage() {
   const [activeTab, setActiveTab] = useState("sport-center")
   const [search, setSearch] = useState("")
-  const [addressFilter, setAddressFilter] = useState("all")
   const [distanceFilter, setDistanceFilter] = useState("all")
   const [playTimeFilter, setPlayTimeFilter] = useState("all")
+  const [favoriteFilter, setFavoriteFilter] = useState("all")
 
   const filteredSportCenters = useMemo(() => {
     return SPORT_CENTERS.filter((sportCenter) => {
       const text = `${sportCenter.name} ${sportCenter.address}`.toLowerCase()
       const matchesSearch = text.includes(search.trim().toLowerCase())
-      const matchesAddress =
-        addressFilter === "all" ||
-        sportCenter.region.toLowerCase() === addressFilter
       const matchesDistance =
         distanceFilter === "all" ||
         getDistanceLabel(sportCenter.distanceKm) === distanceFilter
       const matchesPlayTime =
         playTimeFilter === "all" ||
         sportCenter.playTimeTags.includes(playTimeFilter)
+      const matchesFavorite =
+        favoriteFilter === "all" ||
+        (favoriteFilter === "favorite" && sportCenter.isFavorite)
 
       return (
-        matchesSearch && matchesAddress && matchesDistance && matchesPlayTime
+        matchesSearch && matchesDistance && matchesPlayTime && matchesFavorite
       )
     })
-  }, [search, addressFilter, distanceFilter, playTimeFilter])
+  }, [search, distanceFilter, playTimeFilter, favoriteFilter])
 
   const bookedSportCenters = useMemo(() => SPORT_CENTERS.slice(0, 2), [])
-  const favoriteSportCenters = useMemo(() => SPORT_CENTERS.slice(2, 5), [])
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <PageContainer variant="wide">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="mb-6 flex justify-center">
           <TabsList className="w-full max-w-xl">
             <TabsTrigger value="sport-center">Sân</TabsTrigger>
             <TabsTrigger value="booking">Sân đã đặt</TabsTrigger>
-            <TabsTrigger value="favorite">Sân yêu thích</TabsTrigger>
           </TabsList>
         </div>
 
         <TabsContent value="sport-center" className="space-y-6">
-          <section className="space-y-2">
+          {/* <section className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tight">Sân</h1>
-          </section>
+          </section> */}
 
           <section className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
             <div className="space-y-4">
@@ -99,35 +98,26 @@ export default function FindSportCenterPage() {
             {/* Filter Sidebar */}
             <div>
               <FilterSidebar
-                addressFilter={addressFilter}
-                setAddressFilter={setAddressFilter}
                 distanceFilter={distanceFilter}
                 setDistanceFilter={setDistanceFilter}
                 playTimeFilter={playTimeFilter}
                 setPlayTimeFilter={setPlayTimeFilter}
+                favoriteFilter={favoriteFilter}
+                setFavoriteFilter={setFavoriteFilter}
               />
             </div>
           </section>
         </TabsContent>
 
         <TabsContent value="booking" className="space-y-4">
-          <h1 className="text-3xl font-bold tracking-tight">Sân đã đặt</h1>
+          {/* <h1 className="text-3xl font-bold tracking-tight">Sân đã đặt</h1> */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {bookedSportCenters.map((sportCenter) => (
               <SportCenterCard key={sportCenter.id} sportCenter={sportCenter} />
             ))}
           </div>
         </TabsContent>
-
-        <TabsContent value="favorite" className="space-y-4">
-          <h1 className="text-3xl font-bold tracking-tight">Sân yêu thích</h1>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {favoriteSportCenters.map((sportCenter) => (
-              <SportCenterCard key={sportCenter.id} sportCenter={sportCenter} />
-            ))}
-          </div>
-        </TabsContent>
       </Tabs>
-    </main>
+    </PageContainer>
   )
 }
