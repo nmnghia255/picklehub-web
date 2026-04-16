@@ -1,3 +1,5 @@
+import { number } from "zod"
+
 export type Participant = {
   id: string
   playSessionId: string
@@ -22,11 +24,14 @@ export type ParticipantsResponse = {
 }
 
 export interface PlaySessionParticipant {
+  id: string
+  playSessionId: string
   userId: string
+  status: string
+  guestsCount?: number
+  isCheckedIn?: boolean
   joinedAt?: string
-  displayName?: string
-  status?: string
-  isHost?: boolean
+  name?: string
 }
 
 export interface GroupPlaySession {
@@ -34,17 +39,27 @@ export interface GroupPlaySession {
   title: string
   description?: string | null
   type: "PUBLIC_APP" | "INTERNAL_GROUP" | string
+  alowGuests: boolean
+  fee: number
   groupId: string | null
-  courtBookingId?: string | null
-  maxSlots?: number | null
-  joinedCount?: number
+  sportCenterId?: string | null
+  location?: string | null
+  numberOfCourts?: number | null
+  courtNames?: string[] | null
+  locationNote?: string | null
+  paymentQrUrl?: string | null
+  paymentCode?: string | null
+  paymentNote?: string | null
+  maxSlots: number | null
+  joinedCount: number
   startTime: string
   endTime: string
   status: string
   creatorId: string
-  participants?: PlaySessionParticipant[]
   createdAt: string
   updatedAt: string
+  isHost?: boolean
+  myParticipationStatus?: "PENDING" | "none"
 }
 
 export interface CreateGroupPlaySessionInput {
@@ -52,14 +67,14 @@ export interface CreateGroupPlaySessionInput {
   description?: string
   startTime: string
   endTime: string
-  courtBookingId?: string
+  sportCenterId?: string
   maxSlots?: number
 }
 
 export interface UpdateGroupPlaySessionInput {
   title?: string
   description?: string
-  courtBookingId?: string | null
+  sportCenterId?: string | null
   location?: string
   startTime?: string
   endTime?: string
@@ -123,14 +138,20 @@ export interface CountPlaySessionsResult {
 }
 
 export interface GetMyScheduleParams {
-  contextType?: "PUBLIC_APP" | "INTERNAL_GROUP" | string
-  groupId?: string
-  period?: "week" | "month"
+  timeframe?: "upcoming" | "past"
+  page?: number
+  limit?: number
 }
 
 export interface PublicPlaySessionParticipant {
+  id: string
+  playSessionId: string
   userId: string
+  status: string
+  guestsCount?: number
+  isCheckedIn?: boolean
   joinedAt: string
+  name: string
 }
 
 export interface ListPublicParticipantsParams {
@@ -139,8 +160,8 @@ export interface ListPublicParticipantsParams {
 }
 
 export interface ListPublicParticipantsResult {
-  participants: PublicPlaySessionParticipant[]
-  pagination?: PlaySessionsPagination
+  data: PublicPlaySessionParticipant[]
+  message?: string
 }
 
 export interface PlaySessionActionResult {
@@ -199,12 +220,9 @@ export interface MyScheduleEnvelope {
 export interface PublicParticipantsEnvelope {
   message?: string
   data: PublicPlaySessionParticipant[]
-  pagination?: PlaySessionsPagination
 }
 
 export interface ListPlaySessionParticipantsParams {
-  page?: number
-  limit?: number
   status?: string
 }
 
@@ -215,11 +233,11 @@ export interface ListPlaySessionParticipantsMeta {
 }
 
 export interface ListPlaySessionParticipantsResult {
-  participants: PlaySessionParticipant[]
-  meta?: ListPlaySessionParticipantsMeta
+  message?: string
+  data: PlaySessionParticipant[]
 }
 
 export interface ParticipantsEnvelope {
-  participants: PlaySessionParticipant[]
-  meta?: ListPlaySessionParticipantsMeta
+  message?: string
+  data: PlaySessionParticipant[]
 }

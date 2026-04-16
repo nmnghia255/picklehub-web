@@ -7,8 +7,6 @@ import type {
   CreateGroupPlaySessionInput,
   GetMyScheduleParams,
   GroupPlaySession,
-  ListMySessionsParams,
-  ListMySessionsResult,
   ListPlaySessionsParams,
   ListPlaySessionsResult,
   ListPublicParticipantsParams,
@@ -235,12 +233,12 @@ export async function listPublicPlaySessionParticipants(
   })
 
   if (Array.isArray(response.data)) {
-    return { participants: response.data }
+    return { data: response.data }
   }
 
   return {
-    participants: Array.isArray(response.data.data) ? response.data.data : [],
-    pagination: response.data.pagination,
+    data: Array.isArray(response.data.data) ? response.data.data : [],
+    message: response.data.message,
   }
 }
 
