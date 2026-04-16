@@ -14,11 +14,15 @@ import { PlaySessionsList } from "./sessions-list"
 interface PlaySessionsTabsProps {
   mySessions: GroupPlaySession[]
   publicSessions: GroupPlaySession[]
+  mySessionsError?: boolean
+  publicSessionsError?: boolean
 }
 
 export function PlaySessionsTabs({
   mySessions,
   publicSessions,
+  mySessionsError,
+  publicSessionsError,
 }: PlaySessionsTabsProps) {
   const [mySessionsKeyword, setMySessionsKeyword] = useState("")
   const [publicSessionsKeyword, setPublicSessionsKeyword] = useState("")
@@ -54,6 +58,7 @@ export function PlaySessionsTabs({
           defaultDateTimeFilter="future"
           nameKeyword={mySessionsKeyword}
           statusFilter={mySessionsStatusFilter}
+          hasError={mySessionsError}
         />
       </TabsContent>
 
@@ -75,6 +80,7 @@ export function PlaySessionsTabs({
           defaultDateTimeFilter="all"
           nameKeyword={publicSessionsKeyword}
           statusFilter={publicSessionsStatusFilter}
+          hasError={publicSessionsError}
         />
       </TabsContent>
     </Tabs>

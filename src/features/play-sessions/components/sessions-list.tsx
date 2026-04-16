@@ -35,6 +35,7 @@ interface SessionsListProps {
   defaultDateTimeFilter?: DateTimeFilter
   nameKeyword?: string
   statusFilter?: SessionStatusFilter
+  hasError?: boolean
 }
 
 function isSameDay(target: Date, now: Date) {
@@ -50,6 +51,7 @@ export function PlaySessionsList({
   defaultDateTimeFilter = "future",
   nameKeyword: propNameKeyword,
   statusFilter: propStatusFilter = "ALL",
+  hasError,
 }: SessionsListProps) {
   const nameKeyword = propNameKeyword ?? ""
   const [dateTimeFilter] = useState<DateTimeFilter>(defaultDateTimeFilter)
@@ -81,7 +83,17 @@ export function PlaySessionsList({
 
   return (
     <div className="space-y-4">
-      {filteredSessions.length === 0 ? (
+      {hasError && (
+        <Empty className="rounded-xl border">
+          <EmptyHeader>
+            <EmptyTitle>Không thể tải dữ liệu</EmptyTitle>
+            <EmptyDescription>
+              Đã xảy ra lỗi khi tải danh sách buổi chơi. Vui lòng thử lại sau.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      )}
+      {!hasError && filteredSessions.length === 0 ? (
         <Empty className="rounded-xl border">
           <EmptyHeader>
             <EmptyTitle>Không tìm thấy buổi chơi nào</EmptyTitle>

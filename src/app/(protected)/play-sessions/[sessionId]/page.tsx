@@ -14,6 +14,7 @@ import { PlaySessionError } from "@/features/play-sessions/components/play-sessi
 import { PlaySessionHeader } from "@/features/play-sessions/components/play-session-header"
 import { PlaySessionInfo } from "@/features/play-sessions/components/play-session-info"
 import { PlaySessionParticipants } from "@/features/play-sessions/components/play-session-participants"
+import type { PlaySessionParticipant } from "@/features/play-sessions/types"
 import { getSession } from "@/lib/session"
 
 interface PlaySessionDetailPageProps {
@@ -35,12 +36,7 @@ export default async function PlaySessionDetailPage({
   let playSession: Awaited<
     ReturnType<typeof getPublicPlaySessionDetail>
   > | null = null
-  let participants: Array<{
-    userId: string
-    joinedAt?: string
-    displayName?: string
-    status?: string
-  }> = []
+  let participants: PlaySessionParticipant[] = []
   let participantsError: string | null = null
 
   const normalizeUserId = (userId?: string | null) =>
@@ -64,7 +60,7 @@ export default async function PlaySessionDetailPage({
     playSession = sessionResult.value
 
     if (participantsResult.status === "fulfilled") {
-      participants = participantsResult.value.participants
+      participants = participantsResult.value.data
     } else {
       participantsError = "Không thể tải danh sách người tham gia."
     }

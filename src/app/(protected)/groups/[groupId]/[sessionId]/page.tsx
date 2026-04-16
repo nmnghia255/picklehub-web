@@ -3,7 +3,6 @@ import { redirect } from "next/navigation"
 import { DeleteStatusToast } from "@/components/delete-status-toast"
 import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
-import { getGroupMembers } from "@/features/groups/api/groups-service"
 import {
   deleteGroupPlaySession,
   getGroupPlaySessionDetail,
@@ -15,6 +14,7 @@ import { PlaySessionError } from "@/features/play-sessions/components/play-sessi
 import { PlaySessionHeader } from "@/features/play-sessions/components/play-session-header"
 import { PlaySessionInfo } from "@/features/play-sessions/components/play-session-info"
 import { PlaySessionParticipants } from "@/features/play-sessions/components/play-session-participants"
+import type { PlaySessionParticipant } from "@/features/play-sessions/types"
 import { getSession } from "@/lib/session"
 
 interface PlaySessionDetailPageProps {
@@ -36,14 +36,8 @@ export default async function GroupPlaySessionDetailPage({
   let playSession: Awaited<
     ReturnType<typeof getGroupPlaySessionDetail>
   > | null = null
-  let participants: Array<{
-    userId: string
-    joinedAt?: string
-    displayName?: string
-    status?: string
-  }> = []
+  let participants: PlaySessionParticipant[] = []
   let participantsError: string | null = null
-  let userNameMap: Record<string, string> = {}
 
   const normalizeUserId = (userId?: string | null) =>
     typeof userId === "string"
@@ -54,15 +48,10 @@ export default async function GroupPlaySessionDetailPage({
       : ""
 
   try {
-    const [sessionResult, participantsResult, membersResult] =
-      await Promise.allSettled([
-        getGroupPlaySessionDetail(groupId, sessionId),
-        listGroupPlaySessionParticipants(groupId, sessionId, {
-          page: 1,
-          limit: 20,
-        }),
-        getGroupMembers(groupId),
-      ])
+    const [sessionResult, participantsResult] = await Promise.allSettled([
+      getGroupPlaySessionDetail(groupId, sessionId),
+      listGroupPlaySessionParticipants(groupId, sessionId),
+    ])
 
     if (sessionResult.status === "rejected") {
       throw sessionResult.reason
@@ -71,25 +60,9 @@ export default async function GroupPlaySessionDetailPage({
     playSession = sessionResult.value
 
     if (participantsResult.status === "fulfilled") {
-      participants = participantsResult.value.participants
+      participants = participantsResult.value.data
     } else {
       participantsError = "Không thể tải danh sách người tham gia."
-    }
-
-    // Create a mapping of userId to name from group members
-    if (membersResult.status === "fulfilled") {
-      userNameMap = membersResult.value.reduce(
-        (acc, member) => {
-          acc[member.userId] = member.name
-          return acc
-        },
-        {} as Record<string, string>
-      )
-      // Enrich participants with display names
-      participants = participants.map((p) => ({
-        ...p,
-        displayName: userNameMap[p.userId],
-      }))
     }
   } catch (error) {
     const message =
@@ -150,7 +123,7 @@ export default async function GroupPlaySessionDetailPage({
     <PageContainer>
       <DeleteStatusToast
         status={deleteStatus}
-        errorMessage="Xoa buoi choi that bai. Vui long thu lai sau."
+        errorMessage="Xóa buổi chơi thất bại. Vui lòng thử lại sau."
       />
       <PlaySessionHeader
         title={playSession.title}

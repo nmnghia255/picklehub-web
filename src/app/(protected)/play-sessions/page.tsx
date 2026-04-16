@@ -20,7 +20,7 @@ export default async function SessionsPage({
   const { delete: deleteStatus } = await searchParams
   const [mySessionsResult, publicSessionsResult] = await Promise.allSettled([
     getMyPlaySessions({
-      period: "month",
+      timeframe: "upcoming",
     }),
     listPlaySessions({
       contextType: "PUBLIC_APP",
@@ -42,29 +42,21 @@ export default async function SessionsPage({
       ? publicSessionsResult.value.data
       : []
 
-  const errorMessage =
-    mySessionsResult.status === "rejected" ||
-    publicSessionsResult.status === "rejected"
-      ? "Không thể tải dữ liệu. Vui lòng thử lại sau."
-      : null
+  const mySessionsError = mySessionsResult.status === "rejected"
+  const publicSessionsError = publicSessionsResult.status === "rejected"
 
   return (
     <PageContainer>
       <DeleteStatusToast
         status={deleteStatus}
-        successMessage="Xoa buoi choi thanh cong."
+        successMessage="Xóa thành công."
       />
-      {errorMessage && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertCircle className="size-4" />
-          <AlertTitle>Đã có lỗi xảy ra</AlertTitle>
-          <AlertDescription>{errorMessage}</AlertDescription>
-        </Alert>
-      )}
 
       <PlaySessionsTabs
         mySessions={mySessions}
+        mySessionsError={mySessionsError}
         publicSessions={publicSessions}
+        publicSessionsError={publicSessionsError}
       />
     </PageContainer>
   )

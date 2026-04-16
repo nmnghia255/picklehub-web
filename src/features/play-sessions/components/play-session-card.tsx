@@ -15,15 +15,63 @@ interface PlaySessionCardProps {
   session: GroupPlaySession
 }
 
+function getUserParticipationStatus(
+  session: GroupPlaySession
+): "joined" | "waitlist" | "host" | "not_joined" {
+  // Check if user is waiting (pending approval)
+  if (session.myParticipationStatus === "PENDING") {
+    return "waitlist"
+  }
+
+  // Check if user is the host
+  if (session.isHost) {
+    return "host"
+  }
+
+  // Check if user has confirmed participation status
+  if (
+    session.myParticipationStatus &&
+    session.myParticipationStatus !== "none"
+  ) {
+    return "joined"
+  }
+
+  return "not_joined"
+}
+
 export function isSameDay(dateTimeStr1: string, dateTimeStr2: string) {
   return getDateOnly(dateTimeStr1) === getDateOnly(dateTimeStr2)
 }
 
 export function PlaySessionCard({ session }: PlaySessionCardProps) {
+  const userParticipationStatus = getUserParticipationStatus(session)
+
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-start justify-between gap-4">
         <CardTitle className="line-clamp-1">{session.title}</CardTitle>
+        {userParticipationStatus && (
+          <Badge
+            variant={
+              userParticipationStatus === "joined"
+                ? "default"
+                : userParticipationStatus === "host"
+                  ? "default"
+                  : userParticipationStatus === "not_joined"
+                    ? "secondary"
+                    : "outline"
+            }
+            className="shrink-0 p-1.5 text-xs"
+          >
+            {userParticipationStatus === "joined"
+              ? "Đã tham gia"
+              : userParticipationStatus === "host"
+                ? "Người tổ chức"
+                : userParticipationStatus === "not_joined"
+                  ? "Chưa tham gia"
+                  : "Chờ xác nhận"}
+          </Badge>
+        )}
       </CardHeader>
       <CardContent className="flex flex-col gap-3 text-sm">
         {session.description && (
@@ -55,7 +103,7 @@ export function PlaySessionCard({ session }: PlaySessionCardProps) {
           </span>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <Badge variant="secondary" className="uppercase">
             {normalizeStatus(session.status)}
           </Badge>
