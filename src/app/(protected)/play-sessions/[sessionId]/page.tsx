@@ -1,15 +1,13 @@
 import { redirect } from "next/navigation"
 
-import { DeleteStatusToast } from "@/components/delete-status-toast"
 import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
 import {
-  deletePublicPlaySession,
   getPublicPlaySessionDetail,
-  joinPlaySession,
   leavePublicPlaySession,
   listPublicPlaySessionParticipants,
 } from "@/features/play-sessions/api/public-play-sessions-service"
+import { JoinPlaySessionDialog } from "@/features/play-sessions/components"
 import { PlaySessionError } from "@/features/play-sessions/components/play-session-error"
 import { PlaySessionHeader } from "@/features/play-sessions/components/play-session-header"
 import { PlaySessionInfo } from "@/features/play-sessions/components/play-session-info"
@@ -19,15 +17,12 @@ import { getSession } from "@/lib/session"
 
 interface PlaySessionDetailPageProps {
   params: Promise<{ sessionId: string }>
-  searchParams: Promise<{ delete?: string }>
 }
 
 export default async function PlaySessionDetailPage({
   params,
-  searchParams,
 }: PlaySessionDetailPageProps) {
   const { sessionId } = await params
-  const { delete: deleteStatus } = await searchParams
   const backHref = "/play-sessions"
   const detailHref = `/play-sessions/${sessionId}`
   const userSession = await getSession()
@@ -89,11 +84,8 @@ export default async function PlaySessionDetailPage({
         normalizeUserId(participant.userId) ===
           normalizeUserId(currentUserId) && participant.status !== "LEFT"
     )
-  const isCreator =
-    !!normalizeUserId(currentUserId) &&
-    normalizeUserId(currentUserId) === normalizeUserId(playSession.creatorId)
 
-  async function toggleParticipationAction() {
+  async function leaveParticipationAction() {
     "use server"
 
     if (!currentUserId) {
@@ -101,50 +93,30 @@ export default async function PlaySessionDetailPage({
     }
 
     try {
-      if (hasJoined) {
-        await leavePublicPlaySession(sessionId)
-      } else {
-        await joinPlaySession(sessionId, {
-          guestsCount: 1,
-          paymentReceiptUrl: "",
-        })
-      }
+      await leavePublicPlaySession(sessionId)
 
       redirect(detailHref)
     } catch (error) {
-      console.error("Error toggling participation:", error)
+      console.error("Error leaving participation:", error)
       redirect(detailHref + "?error=1")
     }
   }
 
-  async function deletePlaySessionAction() {
-    "use server"
-
-    try {
-      await deletePublicPlaySession(sessionId)
-    } catch (error) {
-      console.error("Error deleting play session:", error)
-      redirect(detailHref + "?delete=error")
-    }
-
-    redirect(backHref + "?delete=success")
-  }
-
   return (
     <PageContainer>
-      <DeleteStatusToast
-        status={deleteStatus}
-        errorMessage="Xoa buoi choi that bai. Vui long thu lai sau."
-      />
       <PlaySessionHeader
         title={playSession.title}
         backHref={backHref}
         action={
-          <form action={toggleParticipationAction}>
-            <Button type="submit" variant={hasJoined ? "outline" : "default"}>
-              {hasJoined ? "Rời buổi chơi" : "Tham gia buổi chơi"}
-            </Button>
-          </form>
+          hasJoined ? (
+            <form action={leaveParticipationAction}>
+              <Button type="submit" variant="outline">
+                Rời buổi chơi
+              </Button>
+            </form>
+          ) : (
+            <JoinPlaySessionDialog sessionId={sessionId} />
+          )
         }
       />
       <PlaySessionInfo
@@ -155,15 +127,6 @@ export default async function PlaySessionDetailPage({
         participants={participants}
         error={participantsError}
       />
-      {isCreator ? (
-        <div className="mt-4 flex justify-end">
-          <form action={deletePlaySessionAction}>
-            <Button type="submit" variant="destructive">
-              Xóa buổi chơi
-            </Button>
-          </form>
-        </div>
-      ) : null}
     </PageContainer>
   )
 }

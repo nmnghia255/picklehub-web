@@ -1,6 +1,7 @@
 "use server"
 
 import { joinGroupPlaySession } from "@/features/play-sessions/api/group-play-sessions-service"
+import { joinPlaySession } from "@/features/play-sessions/api/public-play-sessions-service"
 
 export type JoinPlaySessionActionState = {
   success?: boolean
@@ -10,7 +11,7 @@ export type JoinPlaySessionActionState = {
 const MAX_GUESTS_COUNT = 5
 
 export async function joinPlaySessionAction(
-  groupId: string,
+  groupId: string | undefined,
   playSessionId: string,
   _state: JoinPlaySessionActionState,
   formData: FormData
@@ -39,10 +40,15 @@ export async function joinPlaySessionAction(
       }
     }
 
-    const result = await joinGroupPlaySession(groupId, playSessionId, {
-      guestsCount,
-      paymentReceiptUrl,
-    })
+    const result = groupId
+      ? await joinGroupPlaySession(groupId, playSessionId, {
+          guestsCount,
+          paymentReceiptUrl,
+        })
+      : await joinPlaySession(playSessionId, {
+          guestsCount,
+          paymentReceiptUrl,
+        })
     return { success: true, data: result }
   } catch (error) {
     const errorMessage =

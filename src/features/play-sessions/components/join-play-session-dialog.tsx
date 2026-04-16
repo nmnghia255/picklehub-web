@@ -32,8 +32,8 @@ import {
 } from "../actions/join-play-session"
 
 interface JoinPlaySessionDialogProps {
-  groupId: string
   sessionId: string
+  groupId?: string
 }
 
 const initialState: JoinPlaySessionActionState = {}
