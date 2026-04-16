@@ -33,7 +33,6 @@ export function GoogleAuthButton({
       }}
       useOneTap={false}
       text={text}
-      width="100%"
     />
   )
 }
