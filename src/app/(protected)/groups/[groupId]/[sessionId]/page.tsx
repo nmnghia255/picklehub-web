@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation"
 
+import { DeleteStatusToast } from "@/components/delete-status-toast"
 import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
-import { getGroupMembers } from "@/features/groups/api/groups-service"
 import {
+  deleteGroupPlaySession,
   getGroupPlaySessionDetail,
   leaveGroupPlaySession,
   listGroupPlaySessionParticipants,
@@ -13,16 +14,20 @@ import { PlaySessionError } from "@/features/play-sessions/components/play-sessi
 import { PlaySessionHeader } from "@/features/play-sessions/components/play-session-header"
 import { PlaySessionInfo } from "@/features/play-sessions/components/play-session-info"
 import { PlaySessionParticipants } from "@/features/play-sessions/components/play-session-participants"
+import type { PlaySessionParticipant } from "@/features/play-sessions/types"
 import { getSession } from "@/lib/session"
 
 interface PlaySessionDetailPageProps {
   params: Promise<{ groupId: string; sessionId: string }>
+  searchParams: Promise<{ delete?: string }>
 }
 
 export default async function GroupPlaySessionDetailPage({
   params,
+  searchParams,
 }: PlaySessionDetailPageProps) {
   const { groupId, sessionId } = await params
+  const { delete: deleteStatus } = await searchParams
   const backHref = `/groups/${groupId}`
   const detailHref = `/groups/${groupId}/${sessionId}`
   const userSession = await getSession()
@@ -31,14 +36,8 @@ export default async function GroupPlaySessionDetailPage({
   let playSession: Awaited<
     ReturnType<typeof getGroupPlaySessionDetail>
   > | null = null
-  let participants: Array<{
-    userId: string
-    joinedAt?: string
-    displayName?: string
-    status?: string
-  }> = []
+  let participants: PlaySessionParticipant[] = []
   let participantsError: string | null = null
-  let userNameMap: Record<string, string> = {}
 
   const normalizeUserId = (userId?: string | null) =>
     typeof userId === "string"
@@ -49,15 +48,10 @@ export default async function GroupPlaySessionDetailPage({
       : ""
 
   try {
-    const [sessionResult, participantsResult, membersResult] =
-      await Promise.allSettled([
-        getGroupPlaySessionDetail(groupId, sessionId),
-        listGroupPlaySessionParticipants(groupId, sessionId, {
-          page: 1,
-          limit: 20,
-        }),
-        getGroupMembers(groupId),
-      ])
+    const [sessionResult, participantsResult] = await Promise.allSettled([
+      getGroupPlaySessionDetail(groupId, sessionId),
+      listGroupPlaySessionParticipants(groupId, sessionId),
+    ])
 
     if (sessionResult.status === "rejected") {
       throw sessionResult.reason
@@ -66,25 +60,9 @@ export default async function GroupPlaySessionDetailPage({
     playSession = sessionResult.value
 
     if (participantsResult.status === "fulfilled") {
-      participants = participantsResult.value.participants
+      participants = participantsResult.value.data
     } else {
       participantsError = "Không thể tải danh sách người tham gia."
-    }
-
-    // Create a mapping of userId to name from group members
-    if (membersResult.status === "fulfilled") {
-      userNameMap = membersResult.value.reduce(
-        (acc, member) => {
-          acc[member.userId] = member.name
-          return acc
-        },
-        {} as Record<string, string>
-      )
-      // Enrich participants with display names
-      participants = participants.map((p) => ({
-        ...p,
-        displayName: userNameMap[p.userId],
-      }))
     }
   } catch (error) {
     const message =
@@ -111,6 +89,9 @@ export default async function GroupPlaySessionDetailPage({
         normalizeUserId(participant.userId) ===
           normalizeUserId(currentUserId) && participant.status !== "LEFT"
     )
+  const isCreator =
+    !!normalizeUserId(currentUserId) &&
+    normalizeUserId(currentUserId) === normalizeUserId(playSession.creatorId)
 
   async function leaveParticipationAction() {
     "use server"
@@ -125,8 +106,25 @@ export default async function GroupPlaySessionDetailPage({
     }
   }
 
+  async function deletePlaySessionAction() {
+    "use server"
+
+    try {
+      await deleteGroupPlaySession(groupId, sessionId)
+    } catch (error) {
+      console.error("Error deleting play session:", error)
+      redirect(detailHref + "?delete=error")
+    }
+
+    redirect(backHref + "?delete=success")
+  }
+
   return (
     <PageContainer>
+      <DeleteStatusToast
+        status={deleteStatus}
+        errorMessage="Xóa buổi chơi thất bại. Vui lòng thử lại sau."
+      />
       <PlaySessionHeader
         title={playSession.title}
         backHref={backHref}
@@ -150,6 +148,15 @@ export default async function GroupPlaySessionDetailPage({
         participants={participants}
         error={participantsError}
       />
+      {isCreator ? (
+        <div className="mt-4 flex justify-end">
+          <form action={deletePlaySessionAction}>
+            <Button type="submit" variant="destructive">
+              Xóa buổi chơi
+            </Button>
+          </form>
+        </div>
+      ) : null}
     </PageContainer>
   )
 }

@@ -91,12 +91,14 @@ export function JoinPlaySessionDialog({
                   name="guestsCount"
                   type="number"
                   min={0}
+                  max={5}
                   step={1}
                   defaultValue={0}
                   required
                 />
                 <FieldDescription>
-                  Nhập từ 0. Tổng số người đăng ký = bạn + số khách đi kèm.
+                  Nhập từ 0 đến 5. Tổng số người đăng ký = bạn + số khách đi
+                  kèm.
                 </FieldDescription>
               </Field>
 
@@ -114,7 +116,9 @@ export function JoinPlaySessionDialog({
               </Field>
 
               {state.error && (
-                <p className="text-sm text-destructive">{state.error}</p>
+                <p className="text-sm text-destructive">
+                  Đã có lỗi xảy ra. Vui lòng thử lại.
+                </p>
               )}
             </FieldGroup>
           </div>

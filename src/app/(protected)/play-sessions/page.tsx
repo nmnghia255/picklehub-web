@@ -1,5 +1,6 @@
 import { AlertCircle } from "lucide-react"
 
+import { DeleteStatusToast } from "@/components/delete-status-toast"
 import { PageContainer } from "@/components/page-container"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
@@ -9,10 +10,17 @@ import {
 import { PlaySessionsTabs } from "@/features/play-sessions/components/play-sessions-tabs"
 import type { GroupPlaySession } from "@/features/play-sessions/types"
 
-export default async function SessionsPage() {
+interface SessionsPageProps {
+  searchParams: Promise<{ delete?: string }>
+}
+
+export default async function SessionsPage({
+  searchParams,
+}: SessionsPageProps) {
+  const { delete: deleteStatus } = await searchParams
   const [mySessionsResult, publicSessionsResult] = await Promise.allSettled([
     getMyPlaySessions({
-      period: "month",
+      timeframe: "upcoming",
     }),
     listPlaySessions({
       contextType: "PUBLIC_APP",
@@ -34,25 +42,21 @@ export default async function SessionsPage() {
       ? publicSessionsResult.value.data
       : []
 
-  const errorMessage =
-    mySessionsResult.status === "rejected" ||
-    publicSessionsResult.status === "rejected"
-      ? "Không thể tải dữ liệu. Vui lòng thử lại sau."
-      : null
+  const mySessionsError = mySessionsResult.status === "rejected"
+  const publicSessionsError = publicSessionsResult.status === "rejected"
 
   return (
     <PageContainer>
-      {errorMessage && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertCircle className="size-4" />
-          <AlertTitle>Đã có lỗi xảy ra</AlertTitle>
-          <AlertDescription>{errorMessage}</AlertDescription>
-        </Alert>
-      )}
+      <DeleteStatusToast
+        status={deleteStatus}
+        successMessage="Xóa thành công."
+      />
 
       <PlaySessionsTabs
         mySessions={mySessions}
+        mySessionsError={mySessionsError}
         publicSessions={publicSessions}
+        publicSessionsError={publicSessionsError}
       />
     </PageContainer>
   )

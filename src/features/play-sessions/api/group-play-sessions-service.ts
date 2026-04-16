@@ -122,8 +122,8 @@ export async function listGroupPlaySessionParticipants(
   )
 
   return {
-    participants: Array.isArray(response.data.data) ? response.data.data : [],
-    meta: response.data.pagination,
+    data: Array.isArray(response.data.data) ? response.data.data : [],
+    message: response.data.message,
   }
 }
 

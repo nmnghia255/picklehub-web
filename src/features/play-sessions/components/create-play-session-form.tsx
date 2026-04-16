@@ -87,8 +87,8 @@ export function CreatePlaySessionForm({ groupId }: CreatePlaySessionFormProps) {
       }
 
       toast.success("Tạo buổi chơi thành công")
-      router.push(`/groups/${groupId}`)
-      router.refresh()
+      router.replace(`/groups/${groupId}`)
+      return
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Lỗi khi tạo buổi chơi"
