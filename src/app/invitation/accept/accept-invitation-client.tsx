@@ -33,11 +33,7 @@ export function AcceptInvitationClient({ token }: { token?: string }) {
         return
       }
 
-      if (result.isNewUser) {
-        router.push(`/set-password?groupId=${result.groupId}`)
-      } else {
-        router.push(`/groups/${result.groupId}`)
-      }
+      router.push(`/groups/${result.groupId}`)
     })
   }, [token, router])
 

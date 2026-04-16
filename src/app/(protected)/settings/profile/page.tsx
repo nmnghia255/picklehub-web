@@ -21,7 +21,7 @@ export default async function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-6">
+    <div className="min-h-screen bg-background py-6 text-foreground">
       <PageContainer className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
