@@ -7,6 +7,8 @@ export type JoinPlaySessionActionState = {
   error?: string
 }
 
+const MAX_GUESTS_COUNT = 5
+
 export async function joinPlaySessionAction(
   groupId: string,
   playSessionId: string,
@@ -19,8 +21,15 @@ export async function joinPlaySessionAction(
       formData.get("paymentReceiptUrl") ?? ""
     ).trim()
 
-    if (!Number.isInteger(guestsCount) || guestsCount < 0) {
-      return { success: false, error: "Số khách đi kèm phải từ 0 trở lên." }
+    if (
+      !Number.isInteger(guestsCount) ||
+      guestsCount < 0 ||
+      guestsCount > MAX_GUESTS_COUNT
+    ) {
+      return {
+        success: false,
+        error: `Số khách đi kèm phải từ 0 đến ${MAX_GUESTS_COUNT}.`,
+      }
     }
 
     if (!paymentReceiptUrl) {

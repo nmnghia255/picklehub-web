@@ -1,9 +1,11 @@
 import { redirect } from "next/navigation"
 
+import { DeleteStatusToast } from "@/components/delete-status-toast"
 import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
 import { getGroupMembers } from "@/features/groups/api/groups-service"
 import {
+  deleteGroupPlaySession,
   getGroupPlaySessionDetail,
   leaveGroupPlaySession,
   listGroupPlaySessionParticipants,
@@ -17,12 +19,15 @@ import { getSession } from "@/lib/session"
 
 interface PlaySessionDetailPageProps {
   params: Promise<{ groupId: string; sessionId: string }>
+  searchParams: Promise<{ delete?: string }>
 }
 
 export default async function GroupPlaySessionDetailPage({
   params,
+  searchParams,
 }: PlaySessionDetailPageProps) {
   const { groupId, sessionId } = await params
+  const { delete: deleteStatus } = await searchParams
   const backHref = `/groups/${groupId}`
   const detailHref = `/groups/${groupId}/${sessionId}`
   const userSession = await getSession()
@@ -111,6 +116,9 @@ export default async function GroupPlaySessionDetailPage({
         normalizeUserId(participant.userId) ===
           normalizeUserId(currentUserId) && participant.status !== "LEFT"
     )
+  const isCreator =
+    !!normalizeUserId(currentUserId) &&
+    normalizeUserId(currentUserId) === normalizeUserId(playSession.creatorId)
 
   async function leaveParticipationAction() {
     "use server"
@@ -125,8 +133,25 @@ export default async function GroupPlaySessionDetailPage({
     }
   }
 
+  async function deletePlaySessionAction() {
+    "use server"
+
+    try {
+      await deleteGroupPlaySession(groupId, sessionId)
+    } catch (error) {
+      console.error("Error deleting play session:", error)
+      redirect(detailHref + "?delete=error")
+    }
+
+    redirect(backHref + "?delete=success")
+  }
+
   return (
     <PageContainer>
+      <DeleteStatusToast
+        status={deleteStatus}
+        errorMessage="Xoa buoi choi that bai. Vui long thu lai sau."
+      />
       <PlaySessionHeader
         title={playSession.title}
         backHref={backHref}
@@ -150,6 +175,15 @@ export default async function GroupPlaySessionDetailPage({
         participants={participants}
         error={participantsError}
       />
+      {isCreator ? (
+        <div className="mt-4 flex justify-end">
+          <form action={deletePlaySessionAction}>
+            <Button type="submit" variant="destructive">
+              Xóa buổi chơi
+            </Button>
+          </form>
+        </div>
+      ) : null}
     </PageContainer>
   )
 }

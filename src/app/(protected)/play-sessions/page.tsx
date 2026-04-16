@@ -1,5 +1,6 @@
 import { AlertCircle } from "lucide-react"
 
+import { DeleteStatusToast } from "@/components/delete-status-toast"
 import { PageContainer } from "@/components/page-container"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
@@ -9,7 +10,14 @@ import {
 import { PlaySessionsTabs } from "@/features/play-sessions/components/play-sessions-tabs"
 import type { GroupPlaySession } from "@/features/play-sessions/types"
 
-export default async function SessionsPage() {
+interface SessionsPageProps {
+  searchParams: Promise<{ delete?: string }>
+}
+
+export default async function SessionsPage({
+  searchParams,
+}: SessionsPageProps) {
+  const { delete: deleteStatus } = await searchParams
   const [mySessionsResult, publicSessionsResult] = await Promise.allSettled([
     getMyPlaySessions({
       period: "month",
@@ -42,6 +50,10 @@ export default async function SessionsPage() {
 
   return (
     <PageContainer>
+      <DeleteStatusToast
+        status={deleteStatus}
+        successMessage="Xoa buoi choi thanh cong."
+      />
       {errorMessage && (
         <Alert variant="destructive" className="mb-4">
           <AlertCircle className="size-4" />

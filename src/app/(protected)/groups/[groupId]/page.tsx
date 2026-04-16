@@ -1,3 +1,4 @@
+import { DeleteStatusToast } from "@/components/delete-status-toast"
 import { ErrorSection } from "@/components/error-section"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -17,12 +18,15 @@ import type {
 
 interface GroupDetailPageProps {
   params: Promise<{ groupId: string }>
+  searchParams: Promise<{ delete?: string }>
 }
 
 export default async function GroupDetailPage({
   params,
+  searchParams,
 }: GroupDetailPageProps) {
   const { groupId } = await params
+  const { delete: deleteStatus } = await searchParams
 
   let group
   let invitations = []
@@ -65,6 +69,10 @@ export default async function GroupDetailPage({
 
   return (
     <div className="container mx-auto max-w-4xl p-6">
+      <DeleteStatusToast
+        status={deleteStatus}
+        successMessage="Xoa buoi choi thanh cong."
+      />
       <GroupDetailHeader
         groupId={groupId}
         groupName={group.name}

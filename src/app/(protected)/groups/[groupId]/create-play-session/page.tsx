@@ -14,19 +14,12 @@ export default async function CreatePlaySessionPage({
   const { groupId } = await params
 
   return (
-    <div className="container mx-auto max-w-4xl p-6">
-      <div className="mb-6 flex items-center gap-2">
-        <Link href={`/groups/${groupId}`}>
-          <Button variant="ghost" size="icon">
-            <ChevronLeft className="size-4" />
-          </Button>
-        </Link>
-        <h1 className="text-3xl font-bold">Tạo buổi chơi mới</h1>
+    <div className="container mx-auto max-w-2xl p-6">
+      <div className="mb-8 flex items-center gap-3">
+        <h1 className="text-2xl font-bold">Tạo buổi chơi mới</h1>
       </div>
 
-      <div className="flex justify-center">
-        <CreatePlaySessionForm groupId={groupId} />
-      </div>
+      <CreatePlaySessionForm groupId={groupId} />
     </div>
   )
 }
