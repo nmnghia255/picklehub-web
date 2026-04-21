@@ -2,7 +2,7 @@ export function StatsCard() {
   return (
     <>
       {/* Match Stats */}
-      <div className="rounded-2xl bg-card p-6 text-card-foreground shadow">
+      <div className="rounded-2xl border bg-card p-6 text-card-foreground shadow">
         <h3 className="mb-4 font-semibold">Thống kê</h3>
         <div className="mb-4 grid grid-cols-4 text-center">
           <div>

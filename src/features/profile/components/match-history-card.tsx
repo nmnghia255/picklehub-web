@@ -9,7 +9,7 @@ import {
 
 export function MatchHistory() {
   return (
-    <div className="rounded-2xl bg-card p-6 text-card-foreground shadow">
+    <div className="rounded-2xl border bg-card p-6 text-card-foreground shadow">
       <h3 className="mb-4 font-semibold">Trận đấu gần đây</h3>
       <Table className="text-left">
         <TableHeader>

@@ -27,7 +27,7 @@ const chartConfig = {
 
 export function RankingCard() {
   return (
-    <div className="rounded-2xl bg-card p-6 text-card-foreground shadow">
+    <div className="rounded-2xl border bg-card p-6 text-card-foreground shadow">
       <h3 className="mb-4 font-semibold">Điểm và xếp hạng</h3>
 
       <div className="mb-6">

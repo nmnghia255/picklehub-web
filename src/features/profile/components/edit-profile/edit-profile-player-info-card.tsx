@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { EditPlayerInfoForm } from "@/features/profile/components/edit-player-info-form"
+import { EditPlayerInfoForm } from "@/features/profile/components/edit-profile/edit-player-info-form"
 import type { ProfileDetails } from "@/features/profile/types"
 
 export function EditProfilePlayerInfoCard({
