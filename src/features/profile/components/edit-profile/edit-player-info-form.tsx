@@ -1,7 +1,7 @@
 "use client"
 
 import { Camera } from "lucide-react"
-import { startTransition, useActionState, useState } from "react"
+import { startTransition, useActionState, useEffect, useState } from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Textarea } from "@/components/ui/textarea"
 import { updateProfileDetailsAction } from "@/features/profile/actions"
+import { useProfileEditStore } from "@/features/profile/store/profile-edit-store"
 
 type EditPlayerInfoValues = {
   name?: string | null
@@ -29,6 +30,52 @@ type EditPlayerInfoValues = {
   preferredHand?: "RIGHT" | "LEFT" | "AMBIDEXTROUS" | null
 }
 
+const SELF_RATING_OPTIONS = [
+  "2.0",
+  "2.25",
+  "2.5",
+  "2.75",
+  "3.0",
+  "3.25",
+  "3.5",
+  "3.75",
+  "4.0",
+  "4.25",
+  "4.5",
+  "4.75",
+  "5.0+",
+] as const
+
+function getInitialSelfRatingValue(value?: number | null): string {
+  if (typeof value !== "number") {
+    return ""
+  }
+
+  // Legacy values may be stored as 1..13 indexes.
+  if (
+    Number.isInteger(value) &&
+    value >= 1 &&
+    value <= SELF_RATING_OPTIONS.length
+  ) {
+    return SELF_RATING_OPTIONS[value - 1]
+  }
+
+  if (value >= 5) {
+    return "5.0+"
+  }
+
+  const directMatch = SELF_RATING_OPTIONS.find(
+    (option) => option === value.toString()
+  )
+  if (directMatch) {
+    return directMatch
+  }
+
+  const rounded = value.toFixed(2).replace(/\.00$/, ".0").replace(/0$/, "")
+  const roundedMatch = SELF_RATING_OPTIONS.find((option) => option === rounded)
+  return roundedMatch ?? ""
+}
+
 export function EditPlayerInfoForm({
   initialValues,
 }: {
@@ -36,6 +83,7 @@ export function EditPlayerInfoForm({
 }) {
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false)
   const [avatarMethod, setAvatarMethod] = useState<"file" | "url">("file")
+  const setUser = useProfileEditStore((state) => state.setUser)
 
   const displayName = initialValues?.name?.trim() || "Unnamed Player"
   const initials = displayName
@@ -50,9 +98,27 @@ export function EditPlayerInfoForm({
     {}
   )
 
+  const initialSelfRatingValue = getInitialSelfRatingValue(
+    initialValues?.selfRating
+  )
+  const [selfRatingValue, setSelfRatingValue] = useState(initialSelfRatingValue)
+
+  useEffect(() => {
+    if (state.success && state.user) {
+      setUser(state.user)
+      setSelfRatingValue(getInitialSelfRatingValue(state.user.selfRating))
+    }
+  }, [setUser, state.success, state.user])
+
+  useEffect(() => {
+    setSelfRatingValue(initialSelfRatingValue)
+  }, [initialSelfRatingValue])
+
   return (
     <form
-      action={(formData) => {
+      onSubmit={(event) => {
+        event.preventDefault()
+        const formData = new FormData(event.currentTarget)
         startTransition(() => formAction(formData))
       }}
       className="space-y-4"
@@ -222,22 +288,15 @@ export function EditPlayerInfoForm({
             <NativeSelect
               id="selfRating"
               name="selfRating"
-              defaultValue={initialValues?.selfRating ?? "Newbie 2.5"}
+              value={selfRatingValue}
+              onChange={(event) => setSelfRatingValue(event.target.value)}
             >
               <NativeSelectOption value="">Chọn mức độ</NativeSelectOption>
-              <NativeSelectOption value="1">2.0</NativeSelectOption>
-              <NativeSelectOption value="2">2.25</NativeSelectOption>
-              <NativeSelectOption value="3">2.5</NativeSelectOption>
-              <NativeSelectOption value="4">2.75</NativeSelectOption>
-              <NativeSelectOption value="5">3.0</NativeSelectOption>
-              <NativeSelectOption value="6">3.25</NativeSelectOption>
-              <NativeSelectOption value="7">3.5</NativeSelectOption>
-              <NativeSelectOption value="8">3.75</NativeSelectOption>
-              <NativeSelectOption value="9">4.0</NativeSelectOption>
-              <NativeSelectOption value="10">4.25</NativeSelectOption>
-              <NativeSelectOption value="11">4.5</NativeSelectOption>
-              <NativeSelectOption value="12">4.75</NativeSelectOption>
-              <NativeSelectOption value="13">5.0+</NativeSelectOption>
+              {SELF_RATING_OPTIONS.map((option) => (
+                <NativeSelectOption key={option} value={option}>
+                  {option}
+                </NativeSelectOption>
+              ))}
             </NativeSelect>
           </Field>
 

@@ -4,12 +4,17 @@
 import axios from "axios"
 import { z } from "zod"
 
-import { getAuthenticatedAxios } from "@/lib/server-api"
+import {
+  updateMyProfile,
+  type UpdateMyProfilePayload,
+} from "@/features/profile/api/profile-service"
+import type { User } from "@/features/profile/types"
 
 export interface UpdateProfileState {
   error?: string
   success?: boolean
   message?: string
+  user?: User
 }
 
 const updateProfileSchema = z.object({
@@ -18,12 +23,12 @@ const updateProfileSchema = z.object({
     if (typeof value !== "string") return value
     const trimmed = value.trim()
     return trimmed.length > 0 ? trimmed : null
-  }, z.string().max(500).nullable()),
+  }, z.string().max(2048).nullable()),
   bio: z.preprocess((value) => {
     if (typeof value !== "string") return value
     const trimmed = value.trim()
     return trimmed.length > 0 ? trimmed : null
-  }, z.string().max(500).nullable()),
+  }, z.string().max(255).nullable()),
   gender: z.preprocess(
     (value) => {
       if (typeof value !== "string") return value
@@ -32,11 +37,23 @@ const updateProfileSchema = z.object({
     },
     z.enum(["MALE", "FEMALE", "OTHER"]).nullable()
   ),
-  selfRating: z.coerce
-    .number()
-    .min(0, "Tự đánh giá không hợp lệ")
-    .max(10, "Tự đánh giá không hợp lệ"),
-  preferredHand: z.enum(["RIGHT", "LEFT", "AMBIDEXTROUS"]),
+  selfRating: z.preprocess((value) => {
+    if (typeof value !== "string") return value
+    const trimmed = value.trim()
+    if (trimmed.length === 0) return undefined
+    if (trimmed === "5.0+") return 5
+
+    const parsed = Number(trimmed)
+    return Number.isFinite(parsed) ? parsed : value
+  }, z.number().min(2).max(5).optional()),
+  preferredHand: z.preprocess(
+    (value) => {
+      if (typeof value !== "string") return value
+      const trimmed = value.trim()
+      return trimmed.length > 0 ? trimmed : null
+    },
+    z.enum(["RIGHT", "LEFT", "AMBIDEXTROUS"]).nullable()
+  ),
 })
 
 export async function updateProfileDetailsAction(
@@ -48,6 +65,13 @@ export async function updateProfileDetailsAction(
     avatarFileField instanceof File && avatarFileField.size > 0
       ? avatarFileField
       : null
+
+  if (avatarFile) {
+    return {
+      error:
+        "User service hiện chỉ hỗ trợ cập nhật avatar bằng avatarUrl. Vui lòng dùng Avatar URL.",
+    }
+  }
 
   const parsed = updateProfileSchema.safeParse({
     name: formData.get("name"),
@@ -63,44 +87,24 @@ export async function updateProfileDetailsAction(
   }
 
   try {
-    const client = await getAuthenticatedAxios()
-
-    if (avatarFile) {
-      const multipart = new FormData()
-      multipart.append("name", parsed.data.name)
-      multipart.append("avatar", avatarFile, avatarFile.name)
-      multipart.append("avatarFile", avatarFile, avatarFile.name)
-
-      if (parsed.data.avatarUrl !== null) {
-        multipart.append("avatarUrl", parsed.data.avatarUrl)
-      }
-      if (parsed.data.bio !== null) {
-        multipart.append("bio", parsed.data.bio)
-      }
-      if (parsed.data.gender !== null) {
-        multipart.append("gender", parsed.data.gender)
-      }
-
-      multipart.append("selfRating", parsed.data.selfRating.toString())
-      multipart.append("preferredHand", parsed.data.preferredHand)
-
-      await client.patch("/api/users/me", multipart, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-    } else {
-      await client.patch("/api/users/me", {
-        name: parsed.data.name,
-        avatarUrl: parsed.data.avatarUrl,
-        bio: parsed.data.bio,
-        gender: parsed.data.gender,
-        selfRating: parsed.data.selfRating,
-        preferredHand: parsed.data.preferredHand,
-      })
+    const payload: UpdateMyProfilePayload = {
+      fullName: parsed.data.name,
+      avatarUrl: parsed.data.avatarUrl,
+      bio: parsed.data.bio,
+      gender: parsed.data.gender,
+      ...(typeof parsed.data.selfRating === "number"
+        ? { selfRating: parsed.data.selfRating }
+        : {}),
+      preferredHand: parsed.data.preferredHand,
     }
 
-    return { success: true, message: "Cập nhật hồ sơ thành công." }
+    const updatedUser = await updateMyProfile(payload)
+
+    return {
+      success: true,
+      message: "Cập nhật hồ sơ thành công.",
+      user: updatedUser,
+    }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {

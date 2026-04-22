@@ -1,6 +1,4 @@
-import type { AuthUser, LinkedProvider } from "@/features/auth/types"
-
-export type User = AuthUser & {
+export interface User {
   id: string
   fullName: string
   avatarUrl?: string
@@ -8,14 +6,21 @@ export type User = AuthUser & {
   gender?: "MALE" | "FEMALE" | "OTHER"
   selfRating: number
   preferredHand: "RIGHT" | "LEFT" | "AMBIDEXTROUS"
-  DuprProfile?: DuprProfile
+  dupr?: DuprProfile
 }
 
-export type DuprProfile = {
-  id: string
-  userId: string
+export interface DuprProfile {
   duprId: string
   rating: number
   singlesRating: number
   doublesRating: number
+  lastSyncedAt?: string
+}
+
+export interface UpdateProfileRequest {
+  fullName?: string
+  avatarUrl?: string | null
+  bio?: string | null
+  gender?: "MALE" | "FEMALE" | "OTHER" | null
+  preferredHand?: "RIGHT" | "LEFT" | "AMBIDEXTROUS" | null
 }

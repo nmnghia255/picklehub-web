@@ -21,7 +21,7 @@ export function EditProfilePlayerInfoCard({ user }: { user: User | null }) {
       <CardContent>
         <EditPlayerInfoForm
           initialValues={{
-            name: user?.name,
+            name: user?.fullName,
             avatarUrl: user?.avatarUrl,
             bio: user?.bio,
             gender: user?.gender,

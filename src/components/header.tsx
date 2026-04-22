@@ -279,7 +279,7 @@ export function Header({ user }: HeaderProps) {
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem asChild>
-              <Link href="/settings/profile">
+              <Link href="/profile">
                 <User className="size-4" />
                 <span>Hồ sơ</span>
               </Link>
