@@ -17,8 +17,6 @@ function normalizeStatus(status: string) {
   switch (status) {
     case "PUBLISHED":
       return "Đã xuất bản"
-    case "SCHEDULED":
-      return "Lên lịch"
     case "IN_PROGRESS":
       return "Đang diễn ra"
     case "COMPLETED":

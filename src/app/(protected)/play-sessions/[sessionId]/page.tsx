@@ -14,6 +14,7 @@ import { PlaySessionError } from "@/features/play-sessions/components/play-sessi
 import { PlaySessionHeader } from "@/features/play-sessions/components/play-session-header"
 import { PlaySessionInfo } from "@/features/play-sessions/components/play-session-info"
 import { PlaySessionParticipants } from "@/features/play-sessions/components/play-session-participants"
+import { PublicPlaySessionPaymentCard } from "@/features/play-sessions/components/public-play-session-payment-card"
 import type { PlaySessionParticipant } from "@/features/play-sessions/types"
 import { getSession } from "@/lib/session"
 
@@ -50,7 +51,7 @@ export default async function PlaySessionDetailPage({
   try {
     const [sessionResult, participantsResult] = await Promise.allSettled([
       getPublicPlaySessionDetail(sessionId),
-      listPublicPlaySessionParticipants(sessionId, { page: 1, limit: 100 }),
+      listPublicPlaySessionParticipants(sessionId),
     ])
 
     if (sessionResult.status === "rejected") {
@@ -92,6 +93,10 @@ export default async function PlaySessionDetailPage({
   const isCreator =
     !!normalizeUserId(currentUserId) &&
     normalizeUserId(currentUserId) === normalizeUserId(playSession.creatorId)
+  const myParticipant = participants.find(
+    (participant) =>
+      normalizeUserId(participant.userId) === normalizeUserId(currentUserId)
+  )
 
   async function toggleParticipationAction() {
     "use server"
@@ -104,10 +109,7 @@ export default async function PlaySessionDetailPage({
       if (hasJoined) {
         await leavePublicPlaySession(sessionId)
       } else {
-        await joinPlaySession(sessionId, {
-          guestsCount: 1,
-          paymentReceiptUrl: "",
-        })
+        await joinPlaySession(sessionId)
       }
 
       redirect(detailHref)
@@ -152,7 +154,9 @@ export default async function PlaySessionDetailPage({
         participantCount={participants.length}
       />
       <PlaySessionParticipants
+        playSessionId={sessionId}
         participants={participants}
+        isHost={isCreator}
         error={participantsError}
       />
       {isCreator ? (

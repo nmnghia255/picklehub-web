@@ -6,7 +6,7 @@ export type DateTimeFilter = "today" | "all" | "past" | "future"
 
 export type SessionStatusFilter =
   | "ALL"
-  | "SCHEDULED"
+  | "PUBLISHED"
   | "IN_PROGRESS"
   | "COMPLETED"
   | "CANCELLED"
@@ -30,7 +30,7 @@ export function SessionsFilterBar({
       className="w-full"
     >
       <NativeSelectOption value="ALL">Tất cả</NativeSelectOption>
-      <NativeSelectOption value="SCHEDULED">Lên lịch</NativeSelectOption>
+      <NativeSelectOption value="PUBLISHED">Lên lịch</NativeSelectOption>
       <NativeSelectOption value="IN_PROGRESS">Đang diễn ra</NativeSelectOption>
       <NativeSelectOption value="COMPLETED">Hoàn thành</NativeSelectOption>
       <NativeSelectOption value="CANCELLED">Đã hủy</NativeSelectOption>

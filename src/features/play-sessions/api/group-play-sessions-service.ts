@@ -12,6 +12,7 @@ import type {
   PlaySessionActionResult,
   UpdateGroupPlaySessionInput,
 } from "../types"
+import { normalizeParticipants } from "./participants-normalizer"
 import { listPlaySessions } from "./public-play-sessions-service"
 
 function unwrapEnvelope<T>(payload: ApiEnvelope<T> | T): T {
@@ -73,8 +74,7 @@ export async function joinGroupPlaySession(
   groupId: string,
   playSessionId: string,
   data: {
-    guestsCount: number
-    paymentReceiptUrl: string
+    guestsCount?: number
   }
 ): Promise<JoinPlaySessionReponse> {
   const axios = await getAuthenticatedAxios()
@@ -82,6 +82,31 @@ export async function joinGroupPlaySession(
     `/api/groups/${groupId}/play-sessions/${playSessionId}/join`,
     data
   )
+  return response.data
+}
+
+export async function submitGroupPlaySessionPayment(
+  groupId: string,
+  playSessionId: string
+): Promise<PlaySessionActionResult> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.post<PlaySessionActionResult>(
+    `/api/groups/${groupId}/play-sessions/${playSessionId}/participants/me/payment/submit`
+  )
+
+  return response.data
+}
+
+export async function approveGroupPlaySessionPayment(
+  groupId: string,
+  playSessionId: string,
+  userId: string
+): Promise<PlaySessionActionResult> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.post<PlaySessionActionResult>(
+    `/api/groups/${groupId}/play-sessions/${playSessionId}/participants/${userId}/payment/approve`
+  )
+
   return response.data
 }
 
@@ -122,7 +147,9 @@ export async function listGroupPlaySessionParticipants(
   )
 
   return {
-    data: Array.isArray(response.data.data) ? response.data.data : [],
+    data: Array.isArray(response.data.data)
+      ? normalizeParticipants(response.data.data)
+      : [],
     message: response.data.message,
   }
 }

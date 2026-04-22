@@ -145,6 +145,8 @@ export default async function GroupPlaySessionDetailPage({
         participantCount={participants.length}
       />
       <PlaySessionParticipants
+        playSessionId={sessionId}
+        groupId={groupId}
         participants={participants}
         error={participantsError}
       />

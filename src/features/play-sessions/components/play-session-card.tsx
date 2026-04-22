@@ -18,11 +18,6 @@ interface PlaySessionCardProps {
 function getUserParticipationStatus(
   session: GroupPlaySession
 ): "joined" | "waitlist" | "host" | "not_joined" {
-  // Check if user is waiting (pending approval)
-  if (session.myParticipationStatus === "PENDING") {
-    return "waitlist"
-  }
-
   // Check if user is the host
   if (session.isHost) {
     return "host"
@@ -45,6 +40,12 @@ export function isSameDay(dateTimeStr1: string, dateTimeStr2: string) {
 
 export function PlaySessionCard({ session }: PlaySessionCardProps) {
   const userParticipationStatus = getUserParticipationStatus(session)
+  const detailHref =
+    session.type === "INTERNAL_GROUP"
+      ? session.groupId
+        ? `/groups/${session.groupId}/${session.id}`
+        : null
+      : `/play-sessions/${session.id}`
 
   return (
     <Card>
@@ -107,17 +108,15 @@ export function PlaySessionCard({ session }: PlaySessionCardProps) {
           <Badge variant="secondary" className="uppercase">
             {normalizeStatus(session.status)}
           </Badge>
-          <Button variant="outline" asChild>
-            <Link
-              href={
-                session.groupId
-                  ? `/groups/${session.groupId}/${session.id}`
-                  : `/play-sessions/${session.id}`
-              }
-            >
-              Xem chi tiết
-            </Link>
-          </Button>
+          {detailHref ? (
+            <Button variant="outline" asChild>
+              <Link href={detailHref}>Xem chi tiết</Link>
+            </Button>
+          ) : (
+            <Button variant="outline" disabled>
+              Không có chi tiết
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

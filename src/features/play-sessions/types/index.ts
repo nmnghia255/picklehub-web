@@ -1,12 +1,10 @@
-import { number } from "zod"
-
 export type Participant = {
   id: string
   playSessionId: string
   userId: string
   status: "JOINED" | "LEFT" | "KICKED"
   guestsCount?: number
-  paymentReceiptUrl?: string
+  paymentStatus?: "UNPAID" | "PENDING_REVIEW" | "PAID"
   isCheckedIn?: boolean
   joinedAt: string
   name?: string
@@ -29,9 +27,10 @@ export interface PlaySessionParticipant {
   userId: string
   status: string
   guestsCount?: number
+  paymentStatus?: "UNPAID" | "PENDING_REVIEW" | "PAID" | string
   isCheckedIn?: boolean
   joinedAt?: string
-  name?: string
+  name?: string | null
 }
 
 export interface GroupPlaySession {
@@ -59,7 +58,7 @@ export interface GroupPlaySession {
   createdAt: string
   updatedAt: string
   isHost?: boolean
-  myParticipationStatus?: "PENDING" | "none"
+  myParticipationStatus?: "PENDING" | "JOINED" | "none"
 }
 
 export interface CreateGroupPlaySessionInput {
@@ -105,7 +104,7 @@ export interface ListMySessionsResult {
 export interface ListPlaySessionsParams {
   contextType?: "PUBLIC_APP" | "INTERNAL_GROUP" | string
   groupId?: string
-  status?: "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | string
+  status?: "PUBLISHED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | string
   search?: string
   startFrom?: string
   startTo?: string
@@ -149,9 +148,10 @@ export interface PublicPlaySessionParticipant {
   userId: string
   status: string
   guestsCount?: number
+  paymentStatus?: "UNPAID" | "PENDING_REVIEW" | "PAID" | string
   isCheckedIn?: boolean
   joinedAt: string
-  name: string
+  name?: string | null
 }
 
 export interface ListPublicParticipantsParams {
@@ -186,7 +186,7 @@ export interface JoinPlaySessionReponse {
     userId: string
     status: string
     guestsCount?: number
-    paymentReceiptUrl?: string
+    paymentStatus?: "UNPAID" | "PENDING_REVIEW" | "PAID"
     isCheckedIn?: boolean
     joinedAt: string
     requestedSlots: number
