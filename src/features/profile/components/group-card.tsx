@@ -35,7 +35,7 @@ export function GroupCard({ groups }: GroupCardProps) {
               <li key={group.id}>
                 <Link
                   href={`/groups/${group.id}`}
-                  className="flex items-center gap-3 rounded-lg border px-3 py-2 transition-colors hover:bg-muted/40"
+                  className="group flex items-center gap-3 rounded-lg border px-3 py-2 transition-all duration-200 hover:-translate-y-0.5 hover:bg-muted/40 hover:shadow-sm"
                 >
                   <Avatar className="size-9">
                     <AvatarImage
@@ -46,7 +46,9 @@ export function GroupCard({ groups }: GroupCardProps) {
                       {getGroupInitials(group.name)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="line-clamp-1 font-medium">{group.name}</span>
+                  <span className="line-clamp-1 font-medium transition-colors group-hover:text-primary">
+                    {group.name}
+                  </span>
                 </Link>
               </li>
             ))}
