@@ -1,13 +1,20 @@
 import Link from "next/link"
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 
 export function ProfileHeader({
   name,
-  email,
+  subtitle,
+  avatarUrl,
+  actionHref,
+  actionLabel = "Sửa hồ sơ",
 }: {
   name: string
-  email: string
+  subtitle: string
+  avatarUrl?: string | null
+  actionHref?: string
+  actionLabel?: string
 }) {
   const displayName = name || "Unnamed Player"
   const initials = displayName
@@ -20,21 +27,24 @@ export function ProfileHeader({
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-4">
-        {/* Avatar */}
-        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary via-primary/90 to-primary/70 text-3xl font-semibold text-primary-foreground shadow-[0_10px_30px_-12px_rgba(0,0,0,0.45)] ring-4 ring-background/80">
-          {initials || "U"}
-        </div>
+        <Avatar className="size-20 shrink-0 ring-4 ring-background/80">
+          <AvatarImage src={avatarUrl ?? undefined} alt={displayName} />
+          <AvatarFallback className="bg-linear-to-br from-primary via-primary/90 to-primary/70 text-3xl font-semibold text-primary-foreground">
+            {initials || "U"}
+          </AvatarFallback>
+        </Avatar>
 
-        {/* User Info */}
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{name}</h1>
 
-          <p className="text-muted-foreground">{email}</p>
+          <p className="text-muted-foreground">{subtitle}</p>
         </div>
       </div>
-      <Button>
-        <Link href="/profile/edit-profile">Sửa hồ sơ</Link>
-      </Button>
+      {actionHref ? (
+        <Button asChild>
+          <Link href={actionHref}>{actionLabel}</Link>
+        </Button>
+      ) : null}
     </div>
   )
 }

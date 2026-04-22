@@ -27,7 +27,7 @@ export function RightPanel({ user }: { user: User | null }) {
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border bg-card p-6 text-card-foreground shadow-sm">
-        <h3 className="mb-4 text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+        <h3 className="mb-4 text-sm font-semibold tracking-wide uppercase">
           Giới thiệu
         </h3>
         <p className="text-sm leading-6 text-foreground/90">
@@ -36,7 +36,7 @@ export function RightPanel({ user }: { user: User | null }) {
       </div>
 
       <div className="rounded-2xl border bg-card p-6 text-card-foreground shadow-sm">
-        <h3 className="mb-4 text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+        <h3 className="mb-4 text-sm font-semibold tracking-wide uppercase">
           Thông tin người chơi
         </h3>
         <dl className="space-y-3 text-sm">
@@ -58,33 +58,33 @@ export function RightPanel({ user }: { user: User | null }) {
       </div>
 
       <div className="rounded-2xl border bg-card p-6 text-card-foreground shadow-sm">
-        <h3 className="mb-4 text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+        <h3 className="mb-4 text-sm font-semibold tracking-wide uppercase">
           DUPR
         </h3>
-        {user?.DuprProfile ? (
+        {user?.dupr ? (
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between gap-4 rounded-lg bg-muted/30 px-3 py-2">
               <span className="text-muted-foreground">DUPR ID</span>
               <span className="font-medium text-foreground">
-                {user.DuprProfile.duprId}
+                {user.dupr.duprId}
               </span>
             </div>
             <div className="flex items-center justify-between gap-4 rounded-lg bg-muted/30 px-3 py-2">
               <span className="text-muted-foreground">Rating tổng</span>
               <span className="font-medium text-foreground">
-                {user.DuprProfile.rating.toFixed(2)}
+                {user.dupr.rating.toFixed(2)}
               </span>
             </div>
             <div className="flex items-center justify-between gap-4 rounded-lg bg-muted/30 px-3 py-2">
               <span className="text-muted-foreground">Singles</span>
               <span className="font-medium text-foreground">
-                {user.DuprProfile.singlesRating.toFixed(2)}
+                {user.dupr.singlesRating.toFixed(2)}
               </span>
             </div>
             <div className="flex items-center justify-between gap-4 rounded-lg bg-muted/30 px-3 py-2">
               <span className="text-muted-foreground">Doubles</span>
               <span className="font-medium text-foreground">
-                {user.DuprProfile.doublesRating.toFixed(2)}
+                {user.dupr.doublesRating.toFixed(2)}
               </span>
             </div>
           </div>
