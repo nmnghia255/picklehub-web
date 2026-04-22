@@ -103,6 +103,7 @@ export async function inviteToGroupAction(
 
   try {
     await inviteToGroup(groupId, parsed.data.email)
+    revalidatePath(`/groups/${groupId}`)
     return { success: true }
   } catch (error) {
     if (axios.isAxiosError(error)) {
