@@ -4,7 +4,7 @@ import { EditProfileAccountCard } from "@/features/profile/components/edit-profi
 import { EditProfileLinkedAccountsCard } from "@/features/profile/components/edit-profile/edit-profile-linked-accounts-card"
 import { EditProfilePlayerInfoCard } from "@/features/profile/components/edit-profile/edit-profile-player-info-card"
 import { EditProfileSecurityCard } from "@/features/profile/components/edit-profile/edit-profile-security-card"
-import type { ProfileDetails } from "@/features/profile/types"
+import type { User } from "@/features/profile/types"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 import { getSession } from "@/lib/session"
 
@@ -13,12 +13,12 @@ export default async function ProfilePage() {
   // session.user is guaranteed non-null by (protected)/layout.tsx
   const sessionUser = session.user!
 
-  let user: ProfileDetails | null = null
+  let user: User | null = null
   let linkedProviders: LinkedProvider[] = []
   try {
     const axios = await getAuthenticatedAxios()
     const [meResponse, linkedResponse] = await Promise.all([
-      axios.get<ProfileDetails>("/api/auth/me"),
+      axios.get<User>("/api/users/me"),
       axios.get<LinkedProvider[]>("/api/auth/social/linked"),
     ])
     user = meResponse.data
@@ -35,16 +35,16 @@ export default async function ProfilePage() {
       <div className="space-y-1">
         <h1 className="text-3xl font-bold">Chỉnh sửa hồ sơ</h1>
         <p className="text-sm text-muted-foreground">
-          Quản lý thông tin tài khoản, nhà cung cấp đã liên kết, và cài đặt bảo
-          mật.
+          Cập nhật tên, avatar, giới thiệu, giới tính, tự đánh giá và tay thuận
+          của bạn.
         </p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <EditProfileAccountCard
+          avatarUrl={user?.avatarUrl}
           displayName={displayName}
-          email={sessionUser.email}
-          userId={sessionUser.id}
+          email={user?.email || sessionUser.email}
         />
         <EditProfileLinkedAccountsCard linkedProviders={linkedProviders} />
       </div>

@@ -1,7 +1,4 @@
-import Link from "next/link"
-
 import { PageContainer } from "@/components/page-container"
-import { Button } from "@/components/ui/button"
 import type { AuthUser } from "@/features/auth/types"
 import { MatchHistory } from "@/features/profile/components/match-history-card"
 import { ProfileHeader } from "@/features/profile/components/profile-header"
@@ -30,7 +27,7 @@ export default async function ProfilePage() {
       <PageContainer className="space-y-6">
         {/* Header */}
         <ProfileHeader
-          name={authUser?.name || "Unnamed Player"}
+          name={user?.fullName || authUser?.name || "Unnamed Player"}
           email={authUser?.email || "No email available"}
         />
 

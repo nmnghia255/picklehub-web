@@ -33,7 +33,7 @@ export function ProfileHeader({
         </div>
       </div>
       <Button>
-        <Link href="/settings/edit-profile">Sửa hồ sơ</Link>
+        <Link href="/profile/edit-profile">Sửa hồ sơ</Link>
       </Button>
     </div>
   )
