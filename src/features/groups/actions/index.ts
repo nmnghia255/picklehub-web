@@ -2,6 +2,7 @@
 
 import axios from "axios"
 import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 
 import {
   archiveGroup,
@@ -160,10 +161,17 @@ export async function updateGroupAction(
 }
 
 export async function changeMemberRoleAction(
-  groupId: string,
-  memberId: string,
-  role: GroupMemberRole
+  _prevState: GroupActionState,
+  formData: FormData
 ): Promise<GroupActionState> {
+  const groupId = formData.get("groupId")?.toString() ?? ""
+  const memberId = formData.get("memberId")?.toString() ?? ""
+  const role = formData.get("role")?.toString() as GroupMemberRole | null
+
+  if (!groupId || !memberId || !role) {
+    return { error: "Thiếu thông tin cập nhật vai trò thành viên." }
+  }
+
   try {
     await changeMemberRole(groupId, memberId, { role })
     revalidatePath(`/groups/${groupId}`)
@@ -181,9 +189,16 @@ export async function changeMemberRoleAction(
 }
 
 export async function kickMemberAction(
-  groupId: string,
-  userId: string
+  _prevState: GroupMessageActionState,
+  formData: FormData
 ): Promise<GroupMessageActionState> {
+  const groupId = formData.get("groupId")?.toString() ?? ""
+  const userId = formData.get("userId")?.toString() ?? ""
+
+  if (!groupId || !userId) {
+    return { error: "Thiếu thông tin thành viên cần xóa." }
+  }
+
   try {
     const response = await kickMember(groupId, userId)
     revalidatePath(`/groups/${groupId}`)
@@ -201,14 +216,30 @@ export async function kickMemberAction(
 }
 
 export async function leaveGroupAction(
-  groupId: string
+  _prevState: GroupMessageActionState,
+  formData: FormData
 ): Promise<GroupMessageActionState> {
+  const groupId = formData.get("groupId")?.toString() ?? ""
+
+  if (!groupId) {
+    return { error: "Thiếu thông tin nhóm cần rời." }
+  }
+
   try {
-    const response = await leaveGroup(groupId)
+    await leaveGroup(groupId)
     revalidatePath("/groups")
-    revalidatePath(`/groups/${groupId}`)
-    return { success: true, message: response.message }
+    redirect("/groups")
   } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "digest" in error &&
+      typeof (error as { digest?: unknown }).digest === "string" &&
+      (error as { digest: string }).digest.startsWith("NEXT_REDIRECT")
+    ) {
+      throw error
+    }
+
     if (axios.isAxiosError(error)) {
       return {
         error:
