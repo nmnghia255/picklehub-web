@@ -1,6 +1,6 @@
 import { DeleteStatusToast } from "@/components/delete-status-toast"
 import { ErrorSection } from "@/components/error-section"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   getGroup,
   getGroupInvitations,
@@ -115,9 +115,6 @@ export default async function GroupDetailPage({
       {/* Invitations */}
       {isOwner && (
         <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Lời mời</CardTitle>
-          </CardHeader>
           <CardContent>
             <InvitationsTable
               groupId={groupId}
