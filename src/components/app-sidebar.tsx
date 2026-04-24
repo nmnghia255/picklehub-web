@@ -43,7 +43,7 @@ type SidebarItem = {
 
 const sidebarItems: SidebarItem[] = [
   { title: "Trang chủ", href: "/home", icon: House },
-  { title: "Hồ sơ", href: "/settings/profile", icon: UserRound },
+  { title: "Hồ sơ", href: "/profile", icon: UserRound },
   { title: "Trung tâm thể thao", href: "/sport-center", icon: MapPinned },
   { title: "Lịch sử", href: "/history", icon: History },
   { title: "Buổi chơi", href: "/play-sessions", icon: CalendarDays },

@@ -66,6 +66,20 @@ export async function getMyGroups(): Promise<Group[]> {
   return normalizeGroupsResponse(response.data)
 }
 
+export type ListGroupsByUserIdParams = ListAllGroupsParams
+
+export async function getGroupsByUserId(
+  userId: string,
+  params: ListGroupsByUserIdParams = {}
+): Promise<Group[]> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.get<
+    Group[] | PaginatedGroupsResponse | GroupsEnvelopeResponse
+  >(`/api/groups/users/${userId}`, { params })
+
+  return normalizeGroupsResponse(response.data)
+}
+
 export async function listAllGroups(
   params: ListAllGroupsParams = {}
 ): Promise<ListAllGroupsResult> {

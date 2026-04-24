@@ -6,10 +6,85 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import type { Match } from "@/features/matches/types"
+import { cn } from "@/lib/utils"
 
-export function MatchHistory() {
+interface MatchHistoryProps {
+  matches: Match[]
+  currentUserId: string
+}
+
+function formatDate(value: string): string {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    return "-"
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+  }).format(date)
+}
+
+function formatScore(match: Match): string {
+  if (Array.isArray(match.sets) && match.sets.length > 0) {
+    return match.sets.map((set) => `${set[0]}-${set[1]}`).join(", ")
+  }
+
+  return `${match.scoreA}-${match.scoreB}`
+}
+
+function getOpponentLabel(match: Match, currentUserId: string): string {
+  const isInTeamA = match.teamA.includes(currentUserId)
+  const opponentTeam = isInTeamA ? match.teamB : match.teamA
+
+  if (!Array.isArray(opponentTeam) || opponentTeam.length === 0) {
+    return "Không xác định"
+  }
+
+  if (opponentTeam.length === 1) {
+    return `User ${opponentTeam[0].slice(0, 8)}`
+  }
+
+  return `Team (${opponentTeam.length} người)`
+}
+
+function getResult(match: Match, currentUserId: string): string {
+  if (match.winner === "DRAW") {
+    return "Hòa"
+  }
+
+  if (!match.winner) {
+    if (match.status === "CANCELLED") {
+      return "Đã hủy"
+    }
+
+    return "Chưa xác nhận"
+  }
+
+  const isInTeamA = match.teamA.includes(currentUserId)
+  const won =
+    (isInTeamA && match.winner === "TEAM_A") ||
+    (!isInTeamA && match.winner === "TEAM_B")
+
+  return won ? "Thắng" : "Thua"
+}
+
+function getResultClassName(result: string): string {
+  if (result === "Thắng") {
+    return "bg-green-500 text-white"
+  }
+
+  if (result === "Thua") {
+    return "bg-gray-400 text-white"
+  }
+
+  return "bg-secondary text-secondary-foreground"
+}
+
+export function MatchHistory({ matches, currentUserId }: MatchHistoryProps) {
   return (
-    <div className="rounded-2xl bg-card p-6 text-card-foreground shadow">
+    <div className="rounded-2xl border bg-card p-6 text-card-foreground shadow">
       <h3 className="mb-4 font-semibold">Trận đấu gần đây</h3>
       <Table className="text-left">
         <TableHeader>
@@ -21,46 +96,39 @@ export function MatchHistory() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow>
-            <TableCell>Mar 15</TableCell>
-            <TableCell>Jane Doe</TableCell>
-            <TableCell>
-              <span className="rounded bg-green-500 px-2 py-1 text-white">
-                Thắng
-              </span>
-            </TableCell>
-            <TableCell>11-7, 11-9</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Mar 12</TableCell>
-            <TableCell>Mike Johnson</TableCell>
-            <TableCell>
-              <span className="rounded bg-gray-400 px-2 py-1 text-white">
-                Thua
-              </span>
-            </TableCell>
-            <TableCell>9-11, 8-11</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Mar 10</TableCell>
-            <TableCell>Sarah Williams</TableCell>
-            <TableCell>
-              <span className="rounded bg-green-500 px-2 py-1 text-white">
-                Thắng
-              </span>
-            </TableCell>
-            <TableCell>11-5, 11-3</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Mar 8</TableCell>
-            <TableCell>Tom Brown</TableCell>
-            <TableCell>
-              <span className="rounded bg-green-500 px-2 py-1 text-white">
-                Thắng
-              </span>
-            </TableCell>
-            <TableCell>11-9, 11-6</TableCell>
-          </TableRow>
+          {matches.length === 0 ? (
+            <TableRow>
+              <TableCell
+                colSpan={4}
+                className="text-center text-muted-foreground"
+              >
+                Chưa có dữ liệu trận đấu
+              </TableCell>
+            </TableRow>
+          ) : (
+            matches.map((match) => {
+              const result = getResult(match, currentUserId)
+              return (
+                <TableRow key={match.id}>
+                  <TableCell>{formatDate(match.scheduledAt)}</TableCell>
+                  <TableCell>
+                    {getOpponentLabel(match, currentUserId)}
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={cn(
+                        "rounded px-2 py-1 text-xs font-medium",
+                        getResultClassName(result)
+                      )}
+                    >
+                      {result}
+                    </span>
+                  </TableCell>
+                  <TableCell>{formatScore(match)}</TableCell>
+                </TableRow>
+              )
+            })
+          )}
         </TableBody>
       </Table>
     </div>

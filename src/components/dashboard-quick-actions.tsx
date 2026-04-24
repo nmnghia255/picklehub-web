@@ -46,7 +46,7 @@ export function DashboardQuickActions() {
           </p>
         </div>
         <Button size="sm" variant="outline" asChild className="mt-auto">
-          <Link href="/settings/profile">Cài Đặt</Link>
+          <Link href="/profile">Cài Đặt</Link>
         </Button>
       </Card>
     </div>

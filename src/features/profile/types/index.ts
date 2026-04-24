@@ -1,18 +1,26 @@
-import type { AuthUser, LinkedProvider } from "@/features/auth/types"
-
-export type ProfileDetails = AuthUser & {
-  height?: number | null
-  weight?: number | null
-  level?: string | null
-  playStyle?: string | null
-  timeToPlay?: string | null
+export interface User {
+  id: string
+  fullName: string
+  avatarUrl?: string
+  bio?: string
+  gender?: "MALE" | "FEMALE" | "OTHER"
+  selfRating: number
+  preferredHand: "RIGHT" | "LEFT" | "AMBIDEXTROUS"
+  dupr?: DuprProfile
 }
 
-export type ProfilePageData = {
-  user: ProfileDetails | null
-  linkedProviders: LinkedProvider[]
-  sessionUser: {
-    id: string
-    email: string
-  }
+export interface DuprProfile {
+  duprId: string
+  rating: number
+  singlesRating: number
+  doublesRating: number
+  lastSyncedAt?: string
+}
+
+export interface UpdateProfileRequest {
+  fullName?: string
+  avatarUrl?: string | null
+  bio?: string | null
+  gender?: "MALE" | "FEMALE" | "OTHER" | null
+  preferredHand?: "RIGHT" | "LEFT" | "AMBIDEXTROUS" | null
 }

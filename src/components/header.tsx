@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   LogOut,
   Moon,
+  Settings,
   Sun,
   User,
   XCircle,
@@ -279,9 +280,15 @@ export function Header({ user }: HeaderProps) {
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem asChild>
-              <Link href="/settings/profile">
+              <Link href="/profile">
                 <User className="size-4" />
                 <span>Hồ sơ</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/settings">
+                <Settings className="size-4" />
+                <span>Cài đặt</span>
               </Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>
