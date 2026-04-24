@@ -261,33 +261,41 @@ export function PlaySessionInfo({
       </CardHeader>
 
       <CardContent className="space-y-4">
+        {/* Người tổ chức */}
         <div className="space-y-2">
-          <p className="text-sm font-medium">Hosts</p>
+          <div className="h-0.5 w-full bg-gray-500"></div>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              {/* Tiêu đề */}
+              <h3 className="text-sm font-semibold">Người tổ chức</h3>
+            </div>
+            <div className="h-0.5 w-full bg-gray-500"></div>
+          </div>
+          {/* Liệt kê */}
           <div className="flex flex-wrap gap-6">
             {hosts.map((host) => (
               <div
                 key={`${host.name}-${host.avatarUrl ?? "no-avatar"}`}
                 className="flex flex-col items-center gap-2"
               >
-                <Avatar className="size-10 border">
+                <Avatar className="h-16 w-16 border">
                   <AvatarImage src={host.avatarUrl} alt={host.name} />
                   <AvatarFallback>{host.fallback}</AvatarFallback>
                 </Avatar>
-                <span className="text-xs text-foreground">{host.name}</span>
+                <span className="text-sm text-foreground">{host.name}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {session.description && (
-          <p className="text-sm text-muted-foreground">{session.description}</p>
-        )}
-
+        {/* Các thông tin */}
         <div className="grid gap-3 text-sm text-muted-foreground sm:grid-cols-2">
+          {/* Ngày */}
           <div className="flex items-center gap-1.5">
             <CalendarDays className="size-4" />
             <span>Ngày: {getDateOnly(session.startTime)}</span>
           </div>
+          {/* Giờ */}
           <div className="flex items-center gap-1.5">
             <Clock3 className="size-4" />
             <span>
@@ -295,6 +303,7 @@ export function PlaySessionInfo({
               {formatDateTime(session.endTime)}
             </span>
           </div>
+          {/* Số người tham gia */}
           <div className="flex items-center gap-1.5">
             <Users className="size-4" />
             <span>
@@ -303,21 +312,31 @@ export function PlaySessionInfo({
             </span>
           </div>
 
+          {/* Vị trí */}
           <div className="flex items-start gap-1.5 sm:col-span-2">
             <MapPin className="mt-0.5 size-4 shrink-0" />
             <span>{locationLabel}</span>
           </div>
 
+          {/* Format */}
           <div className="flex items-center gap-1.5">
             <Handshake className="size-4" />
             <span>{sessionFormatLabel}</span>
           </div>
 
+          {/* Phí */}
           <div className="flex items-center gap-1.5">
             <CreditCard className="size-4" />
             <span>Phí: {sessionFeeLabel}</span>
           </div>
         </div>
+
+        {/* Ghi chú */}
+        <p className="mt-9">Ghi chú</p>
+        {session.note && (
+          <p className="text-sm text-muted-foreground">{session.note}</p>
+        )}
+        {}
       </CardContent>
     </Card>
   )

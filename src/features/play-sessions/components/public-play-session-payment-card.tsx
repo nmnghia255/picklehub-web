@@ -65,7 +65,7 @@ export function PublicPlaySessionPaymentCard({
   )
 
   const isOfficialParticipant = useMemo(
-    () => String(myParticipationStatus ?? "").toUpperCase() === "JOINED",
+    () => String(myParticipationStatus ?? "").toUpperCase() === "CONFIRMED",
     [myParticipationStatus]
   )
 

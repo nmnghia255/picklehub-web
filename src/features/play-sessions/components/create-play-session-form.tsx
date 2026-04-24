@@ -101,6 +101,7 @@ export function CreatePlaySessionForm({
       note: "",
       startTime: "",
       durationMinutes: "60",
+      location: "",
       maxSlots: "12",
       feeMode: "NONE",
       feeAmount: "",
@@ -119,18 +120,21 @@ export function CreatePlaySessionForm({
       const startTime = new Date(data.startTime)
       const currentTime = new Date()
       const durationMinutes = Number.parseInt(data.durationMinutes, 10)
+      const location = data.location
 
       if (
         Number.isNaN(startTime.getTime()) ||
         startTime.getTime() <= currentTime.getTime()
       ) {
-        setError("Thời gian bắt đầu phải lớn hơn thời gian hiện tại")
+        setError("Vui lòng chọn thời gian bắt đầu hợp lệ")
+        form.setError("startTime", { type: "manual" })
         setIsLoading(false)
         return
       }
 
       if (Number.isNaN(durationMinutes) || durationMinutes <= 0) {
         setError("Vui lòng chọn thời lượng buổi chơi hợp lệ")
+        form.setError("durationMinutes", { type: "manual" })
         setIsLoading(false)
         return
       }
@@ -159,6 +163,7 @@ export function CreatePlaySessionForm({
         (!feeAmountValue || Number.isNaN(feeAmountValue) || feeAmountValue <= 0)
       ) {
         setError("Vui lòng nhập số tiền hợp lệ")
+        form.setError("feeAmount", { type: "manual" })
         setIsLoading(false)
         return
       }
@@ -168,7 +173,9 @@ export function CreatePlaySessionForm({
         maximumLevelValue !== undefined &&
         minimumLevelValue > maximumLevelValue
       ) {
-        setError("Mức tối thiểu phải nhỏ hơn hoặc bằng mức tối đa")
+        setError("Trình độ tối thiểu phải nhỏ hơn hoặc bằng trình độ tối đa")
+        form.setError("maximumLevel", { type: "manual" })
+        form.setError("minimumLevel", { type: "manual" })
         setIsLoading(false)
         return
       }
@@ -186,6 +193,7 @@ export function CreatePlaySessionForm({
         note: data.note || undefined,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
+        location: location,
         maxSlots: data.maxSlots ? parseInt(data.maxSlots, 10) : undefined,
         feeMode: feeMode,
         totalFee: totalFee,
@@ -460,7 +468,7 @@ export function CreatePlaySessionForm({
                 name="minimumLevel"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mức tối thiểu</FormLabel>
+                    <FormLabel>Trình độ tối thiểu</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -483,7 +491,7 @@ export function CreatePlaySessionForm({
                 name="maximumLevel"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mức tối đa</FormLabel>
+                    <FormLabel>Trình độ tối đa</FormLabel>
                     <FormControl>
                       <Input
                         type="number"

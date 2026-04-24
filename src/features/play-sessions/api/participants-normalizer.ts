@@ -207,9 +207,11 @@ export function normalizeParticipant(
     readNestedStringValue(source, ["user", "participant"], ["id", "userId"]) ??
     id
 
-  const status =
+  const rawStatus =
     readStringValue(source, ["status", "participantStatus"])?.toUpperCase() ??
-    "JOINED"
+    "CONFIRMED"
+
+  const status = rawStatus === "JOINED" ? "CONFIRMED" : rawStatus
 
   const guestsCount = readNumber(source, [
     "guestsCount",
@@ -232,6 +234,22 @@ export function normalizeParticipant(
     readNestedStringValue(source, ["playSession", "session"], ["id"]) ??
     ""
 
+  const avatarUrl =
+    readStringValue(source, ["avatarUrl", "avatar", "imageUrl"]) ??
+    readNestedStringValue(
+      source,
+      ["user", "profile", "participant"],
+      ["avatarUrl", "avatar", "imageUrl"]
+    ) ??
+    readStringByPaths(source, [
+      "user.profile.avatarUrl",
+      "user.profile.avatar",
+      "user.profile.imageUrl",
+      "participant.user.avatarUrl",
+      "participant.user.avatar",
+      "participant.user.imageUrl",
+    ])
+
   return {
     id,
     playSessionId,
@@ -242,6 +260,7 @@ export function normalizeParticipant(
     isCheckedIn,
     joinedAt,
     name: readName(source),
+    avatarUrl,
   }
 }
 

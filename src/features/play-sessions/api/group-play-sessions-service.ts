@@ -2,18 +2,23 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type {
   ApiEnvelope,
+  ApproveGuestInput,
   CreateGroupPlaySessionInput,
   GroupPlaySession,
   JoinPlaySessionReponse,
+  ListPlaySessionGuestsParams,
+  ListPlaySessionGuestsResult,
   ListPlaySessionParticipantsParams,
   ListPlaySessionParticipantsResult,
   ListPlaySessionsParams,
   ParticipantsResponse,
   PlaySessionActionResult,
+  PlaySessionGuest,
+  RequestGuestInput,
   UpdateGroupPlaySessionInput,
 } from "../types"
+import { normalizeGuests } from "./guests-normalizer"
 import { normalizeParticipants } from "./participants-normalizer"
-import { listPlaySessions } from "./public-play-sessions-service"
 
 function unwrapEnvelope<T>(payload: ApiEnvelope<T> | T): T {
   if (payload && typeof payload === "object" && "data" in payload) {
@@ -21,6 +26,73 @@ function unwrapEnvelope<T>(payload: ApiEnvelope<T> | T): T {
   }
 
   return payload as T
+}
+
+function normalizeGuestsPayload(payload: unknown): ListPlaySessionGuestsResult {
+  if (Array.isArray(payload)) {
+    return { data: normalizeGuests(payload) }
+  }
+
+  if (!payload || typeof payload !== "object") {
+    return { data: [] }
+  }
+
+  const value = payload as {
+    message?: unknown
+    data?: unknown
+    guests?: unknown
+  }
+
+  if (Array.isArray(value.data)) {
+    return {
+      data: normalizeGuests(value.data),
+      message: typeof value.message === "string" ? value.message : undefined,
+    }
+  }
+
+  if (Array.isArray(value.guests)) {
+    return {
+      data: normalizeGuests(value.guests),
+      message: typeof value.message === "string" ? value.message : undefined,
+    }
+  }
+
+  if (value.data && typeof value.data === "object") {
+    const nested = value.data as {
+      data?: unknown
+      guests?: unknown
+      message?: unknown
+    }
+
+    if (Array.isArray(nested.data)) {
+      return {
+        data: normalizeGuests(nested.data),
+        message:
+          typeof value.message === "string"
+            ? value.message
+            : typeof nested.message === "string"
+              ? nested.message
+              : undefined,
+      }
+    }
+
+    if (Array.isArray(nested.guests)) {
+      return {
+        data: normalizeGuests(nested.guests),
+        message:
+          typeof value.message === "string"
+            ? value.message
+            : typeof nested.message === "string"
+              ? nested.message
+              : undefined,
+      }
+    }
+  }
+
+  return {
+    data: [],
+    message: typeof value.message === "string" ? value.message : undefined,
+  }
 }
 
 export async function createGroupPlaySession(
@@ -185,6 +257,65 @@ export async function cancelGroupPlaySession(
     `/api/groups/${groupId}/play-sessions/${playSessionId}/cancel`
   )
   return response.data
+}
+
+export async function requestGroupPlaySessionGuest(
+  groupId: string,
+  playSessionId: string,
+  data: RequestGuestInput
+): Promise<PlaySessionGuest> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.post<ApiEnvelope<PlaySessionGuest>>(
+    `/api/groups/${groupId}/play-sessions/${playSessionId}/guests/request`,
+    data
+  )
+
+  return unwrapEnvelope(response.data)
+}
+
+export async function reserveGroupPlaySessionGuest(
+  groupId: string,
+  playSessionId: string,
+  data: RequestGuestInput
+): Promise<PlaySessionGuest> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.post<ApiEnvelope<PlaySessionGuest>>(
+    `/api/groups/${groupId}/play-sessions/${playSessionId}/guests/reserve`,
+    data
+  )
+
+  return unwrapEnvelope(response.data)
+}
+
+export async function approveGroupPlaySessionGuest(
+  groupId: string,
+  playSessionId: string,
+  guestId: string,
+  data: ApproveGuestInput
+): Promise<PlaySessionGuest> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.patch<ApiEnvelope<PlaySessionGuest>>(
+    `/api/groups/${groupId}/play-sessions/${playSessionId}/guests/${guestId}/approve`,
+    data
+  )
+
+  return unwrapEnvelope(response.data)
+}
+
+export async function listGroupPlaySessionGuests(
+  groupId: string,
+  playSessionId: string,
+  params: ListPlaySessionGuestsParams = {}
+): Promise<ListPlaySessionGuestsResult> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.get(
+    `/api/groups/${groupId}/play-sessions/${playSessionId}/guests`,
+    {
+      params,
+    }
+  )
+
+  return normalizeGuestsPayload(response.data)
 }
 
 export type ListGroupPlaySessionsParams = Omit<

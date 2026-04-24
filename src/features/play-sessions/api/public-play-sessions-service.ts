@@ -2,23 +2,30 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type {
   ApiEnvelope,
+  ApproveGuestInput,
   CountPlaySessionsEnvelope,
   CountPlaySessionsResult,
   CreateGroupPlaySessionInput,
   GetMyScheduleParams,
   GroupPlaySession,
+  ListPlaySessionGuestsParams,
+  ListPlaySessionGuestsResult,
   ListPlaySessionsParams,
   ListPlaySessionsResult,
   ListPublicParticipantsParams,
   ListPublicParticipantsResult,
   MyScheduleEnvelope,
   PlaySessionActionResult,
+  PlaySessionGuest,
   PlaySessionsListEnvelope,
   PlaySessionsPagination,
   PublicParticipantsEnvelope,
   PublicPlaySessionParticipant,
+  RequestGuestInput,
   UpdateGroupPlaySessionInput,
+  UpdateParticipantStatusInput,
 } from "../types"
+import { normalizeGuests } from "./guests-normalizer"
 import { normalizeParticipants } from "./participants-normalizer"
 
 function unwrapEnvelope<T>(payload: ApiEnvelope<T> | T): T {
@@ -202,6 +209,75 @@ function normalizeMySchedulePayload(payload: unknown): GroupPlaySession[] {
   return []
 }
 
+function normalizeGuestsPayload(payload: unknown): ListPlaySessionGuestsResult {
+  if (Array.isArray(payload)) {
+    return { data: normalizeGuests(payload) }
+  }
+
+  if (!payload || typeof payload !== "object") {
+    return { data: [] }
+  }
+
+  const value = payload as {
+    message?: unknown
+    data?: unknown
+    guests?: unknown
+  }
+
+  if (Array.isArray(value.data)) {
+    return {
+      data: normalizeGuests(value.data),
+      message: typeof value.message === "string" ? value.message : undefined,
+    }
+  }
+
+  if (Array.isArray(value.guests)) {
+    return {
+      data: normalizeGuests(value.guests),
+      message: typeof value.message === "string" ? value.message : undefined,
+    }
+  }
+
+  if (value.data && typeof value.data === "object") {
+    const nested = value.data as {
+      data?: unknown
+      guests?: unknown
+      message?: unknown
+    }
+
+    if (Array.isArray(nested.data)) {
+      return {
+        data: normalizeGuests(nested.data),
+        message:
+          typeof value.message === "string"
+            ? value.message
+            : typeof nested.message === "string"
+              ? nested.message
+              : undefined,
+      }
+    }
+
+    if (Array.isArray(nested.guests)) {
+      return {
+        data: normalizeGuests(nested.guests),
+        message:
+          typeof value.message === "string"
+            ? value.message
+            : typeof nested.message === "string"
+              ? nested.message
+              : undefined,
+      }
+    }
+  }
+
+  return {
+    data: [],
+    message: typeof value.message === "string" ? value.message : undefined,
+  }
+}
+
+// -----------PUBLIC PLAY SESSION-------------
+
 export async function createPublicPlaySession(
   input: CreateGroupPlaySessionInput
 ): Promise<GroupPlaySession> {
@@ -318,6 +394,26 @@ export async function updatePublicPlaySessionPayment(
   return response.data
 }
 
+export async function completePublicPlaySession(
+  playSessionId: string
+): Promise<PlaySessionActionResult> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.post<PlaySessionActionResult>(
+    `/api/play-sessions/${playSessionId}/complete`
+  )
+  return response.data
+}
+
+export async function cancelPublicPlaySession(
+  playSessionId: string
+): Promise<PlaySessionActionResult> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.post<PlaySessionActionResult>(
+    `/api/play-sessions/${playSessionId}/cancel`
+  )
+  return response.data
+}
+
 export async function submitPublicPlaySessionPayment(
   playSessionId: string
 ): Promise<PlaySessionActionResult> {
@@ -340,6 +436,8 @@ export async function approvePublicPlaySessionPayment(
 
   return response.data
 }
+
+// ----------------PUBLIC PARTICIPANT----------------
 
 export async function leavePublicPlaySession(
   playSessionId: string
@@ -376,32 +474,100 @@ export async function listPublicPlaySessionParticipants(
   return normalizePublicParticipantsPayload(response.data)
 }
 
-export async function startPublicPlaySession(
-  playSessionId: string
+export async function updatePublicPlaySessionParticipantStatus(
+  playSessionId: string,
+  userId: string,
+  data: UpdateParticipantStatusInput
 ): Promise<PlaySessionActionResult> {
   const axios = await getAuthenticatedAxios()
-  const response = await axios.post<PlaySessionActionResult>(
-    `/api/play-sessions/${playSessionId}/start`
+  const response = await axios.patch<PlaySessionActionResult>(
+    `/api/play-sessions/${playSessionId}/participants/${userId}`,
+    data
   )
+
   return response.data
 }
 
-export async function completePublicPlaySession(
-  playSessionId: string
-): Promise<PlaySessionActionResult> {
-  const axios = await getAuthenticatedAxios()
-  const response = await axios.post<PlaySessionActionResult>(
-    `/api/play-sessions/${playSessionId}/complete`
-  )
-  return response.data
+export async function confirmPublicPlaySessionParticipant(
+  playSessionId: string,
+  userId: string
+) {
+  return updatePublicPlaySessionParticipantStatus(playSessionId, userId, {
+    status: "CONFIRMED",
+  })
 }
 
-export async function cancelPublicPlaySession(
-  playSessionId: string
-): Promise<PlaySessionActionResult> {
+export async function moveToWaitlistPublicPlaySessionParticipant(
+  playSessionId: string,
+  userId: string
+) {
+  return updatePublicPlaySessionParticipantStatus(playSessionId, userId, {
+    status: "WAITLISTED",
+  })
+}
+
+export async function holdPublicPlaySessionParticipant(
+  playSessionId: string,
+  userId: string
+) {
+  return updatePublicPlaySessionParticipantStatus(playSessionId, userId, {
+    status: "ON_HOLD",
+  })
+}
+
+// --------------------PUBLIC GUEST-------------------------
+
+export async function requestPublicPlaySessionGuest(
+  playSessionId: string,
+  data: RequestGuestInput
+): Promise<PlaySessionGuest> {
   const axios = await getAuthenticatedAxios()
-  const response = await axios.post<PlaySessionActionResult>(
-    `/api/play-sessions/${playSessionId}/cancel`
+  const response = await axios.post<ApiEnvelope<PlaySessionGuest>>(
+    `/api/play-sessions/${playSessionId}/guests/request`,
+    data
   )
-  return response.data
+
+  return unwrapEnvelope(response.data)
+}
+
+export async function reservePublicPlaySessionGuest(
+  playSessionId: string,
+  data: RequestGuestInput
+): Promise<PlaySessionGuest> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.post<ApiEnvelope<PlaySessionGuest>>(
+    `/api/play-sessions/${playSessionId}/guests/reserve`,
+    data
+  )
+
+  return unwrapEnvelope(response.data)
+}
+
+export async function approvePublicPlaySessionGuest(
+  playSessionId: string,
+  guestId: string,
+  data: ApproveGuestInput
+): Promise<PlaySessionGuest> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.patch<ApiEnvelope<PlaySessionGuest>>(
+    `/api/play-sessions/${playSessionId}/guests/${guestId}/approve`,
+    data
+  )
+
+  return unwrapEnvelope(response.data)
+}
+
+export async function listPublicPlaySessionGuests(
+  playSessionId: string,
+  params: ListPlaySessionGuestsParams = {}
+): Promise<ListPlaySessionGuestsResult> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.get(
+    `/api/play-sessions/${playSessionId}/guests`,
+    {
+      params,
+    }
+  )
+
+  return normalizeGuestsPayload(response.data)
 }

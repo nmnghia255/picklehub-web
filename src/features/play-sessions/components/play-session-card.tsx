@@ -51,34 +51,62 @@ export function PlaySessionCard({ session }: PlaySessionCardProps) {
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <CardTitle className="line-clamp-1">{session.title}</CardTitle>
-        {userParticipationStatus && (
-          <Badge
-            variant={
-              userParticipationStatus === "joined"
-                ? "default"
-                : userParticipationStatus === "host"
-                  ? "default"
-                  : userParticipationStatus === "not_joined"
-                    ? "secondary"
-                    : "outline"
+        {userParticipationStatus &&
+          // <Badge
+          //   variant={
+          //     userParticipationStatus === "joined"
+          //       ? "default"
+          //       : userParticipationStatus === "host"
+          //         ? "default"
+          //         : userParticipationStatus === "not_joined"
+          //           ? "secondary"
+          //           : "outline"
+          //   }
+          //   className="shrink-0 p-1.5 text-xs"
+          // >
+          //   {userParticipationStatus === "joined"
+          //     ? "Đã tham gia"
+          //     : userParticipationStatus === "host"
+          //       ? "Người tổ chức"
+          //       : userParticipationStatus === "not_joined"
+          //         ? "Chưa tham gia"
+          //         : "Chờ xác nhận"}
+          // </Badge>
+          (() => {
+            const STATUS_LABELS: Record<
+              "joined" | "waitlist" | "host" | "not_joined",
+              string
+            > = {
+              host: "Người tổ chức",
+              joined: "Người tham gia",
+              waitlist: "Chờ xác nhận",
+              not_joined: "Chưa tham gia",
             }
-            className="shrink-0 p-1.5 text-xs"
-          >
-            {userParticipationStatus === "joined"
-              ? "Đã tham gia"
-              : userParticipationStatus === "host"
-                ? "Người tổ chức"
-                : userParticipationStatus === "not_joined"
-                  ? "Chưa tham gia"
-                  : "Chờ xác nhận"}
-          </Badge>
-        )}
+
+            const STATUS_STYLES: Record<
+              "joined" | "waitlist" | "host" | "not_joined",
+              string
+            > = {
+              host: "bg-purple-600 text-white",
+              joined: "bg-green-600 text-white",
+              waitlist: "bg-yellow-400 text-black",
+              not_joined: "bg-sky-100 text-sky-800",
+            }
+
+            const label = STATUS_LABELS[userParticipationStatus]
+            const style = STATUS_STYLES[userParticipationStatus]
+
+            return (
+              <Badge className={`shrink-0 p-1.5 text-xs ${style}`}>
+                {label}
+              </Badge>
+            )
+          })()}
       </CardHeader>
       <CardContent className="flex flex-col gap-3 text-sm">
-        {session.description && (
-          <p className="line-clamp-2 text-muted-foreground">
-            {session.description}
-          </p>
+        {/* Note */}
+        {session.note && (
+          <p className="line-clamp-2 text-muted-foreground">{session.note}</p>
         )}
 
         {/* Date */}

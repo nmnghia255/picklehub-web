@@ -31,7 +31,6 @@ export function SessionsFilterBar({
     >
       <NativeSelectOption value="ALL">Tất cả</NativeSelectOption>
       <NativeSelectOption value="PUBLISHED">Lên lịch</NativeSelectOption>
-      <NativeSelectOption value="IN_PROGRESS">Đang diễn ra</NativeSelectOption>
       <NativeSelectOption value="COMPLETED">Hoàn thành</NativeSelectOption>
       <NativeSelectOption value="CANCELLED">Đã hủy</NativeSelectOption>
     </NativeSelect>
