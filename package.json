@@ -21,8 +21,6 @@
   },
   "scripts": {
     "dev": "next dev",
-    "dev:webpack": "next dev --webpack",
-    "dev:turbo": "next dev --turbopack",
     "build": "next build",
     "build:turbo": "next build",
     "start": "next start",

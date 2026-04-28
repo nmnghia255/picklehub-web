@@ -7,7 +7,6 @@ import {
   deleteGroupPlaySession,
   getGroupPlaySessionDetail,
   leaveGroupPlaySession,
-  listGroupPlaySessionGuests,
   listGroupPlaySessionParticipants,
 } from "@/features/play-sessions/api/group-play-sessions-service"
 import { JoinPlaySessionDialog } from "@/features/play-sessions/components"
@@ -15,10 +14,7 @@ import { PlaySessionError } from "@/features/play-sessions/components/play-sessi
 import { PlaySessionHeader } from "@/features/play-sessions/components/play-session-header"
 import { PlaySessionInfo } from "@/features/play-sessions/components/play-session-info"
 import { PlaySessionParticipants } from "@/features/play-sessions/components/play-session-participants"
-import type {
-  PlaySessionGuest,
-  PlaySessionParticipant,
-} from "@/features/play-sessions/types"
+import type { PlaySessionParticipant } from "@/features/play-sessions/types"
 import { getSession } from "@/lib/session"
 
 interface PlaySessionDetailPageProps {
@@ -41,9 +37,7 @@ export default async function GroupPlaySessionDetailPage({
     ReturnType<typeof getGroupPlaySessionDetail>
   > | null = null
   let participants: PlaySessionParticipant[] = []
-  let guests: PlaySessionGuest[] = []
   let participantsError: string | null = null
-  let guestsError: string | null = null
 
   const normalizeUserId = (userId?: string | null) =>
     typeof userId === "string"
@@ -54,12 +48,10 @@ export default async function GroupPlaySessionDetailPage({
       : ""
 
   try {
-    const [sessionResult, participantsResult, guestsResult] =
-      await Promise.allSettled([
-        getGroupPlaySessionDetail(groupId, sessionId),
-        listGroupPlaySessionParticipants(groupId, sessionId),
-        listGroupPlaySessionGuests(groupId, sessionId, { status: "ALL" }),
-      ])
+    const [sessionResult, participantsResult] = await Promise.allSettled([
+      getGroupPlaySessionDetail(groupId, sessionId),
+      listGroupPlaySessionParticipants(groupId, sessionId),
+    ])
 
     if (sessionResult.status === "rejected") {
       throw sessionResult.reason
@@ -71,12 +63,6 @@ export default async function GroupPlaySessionDetailPage({
       participants = participantsResult.value.data
     } else {
       participantsError = "Không thể tải danh sách người tham gia."
-    }
-
-    if (guestsResult.status === "fulfilled") {
-      guests = guestsResult.value.data
-    } else {
-      guestsError = "Không thể tải danh sách guest."
     }
   } catch (error) {
     const message =
@@ -106,20 +92,6 @@ export default async function GroupPlaySessionDetailPage({
   const isCreator =
     !!normalizeUserId(currentUserId) &&
     normalizeUserId(currentUserId) === normalizeUserId(playSession.creatorId)
-
-  const normalizedMaxSlots = (() => {
-    const raw = playSession.maxSlots as unknown
-    if (typeof raw === "string") {
-      const n = Number(raw)
-      return Number.isFinite(n) ? n : null
-    }
-
-    if (typeof raw === "number") {
-      return Number.isFinite(raw) ? raw : null
-    }
-
-    return null
-  })()
 
   async function leaveParticipationAction() {
     "use server"
@@ -170,23 +142,11 @@ export default async function GroupPlaySessionDetailPage({
       />
       <PlaySessionInfo
         session={playSession}
-        participantCount={
-          participants.length +
-          guests.filter(
-            (guest) => String(guest.status ?? "").toUpperCase() === "CONFIRMED"
-          ).length
-        }
+        participantCount={participants.length}
       />
       <PlaySessionParticipants
-        maxSlots={normalizedMaxSlots}
-        playSessionId={sessionId}
-        groupId={groupId}
         participants={participants}
-        guests={guests}
-        currentUserId={currentUserId}
-        isHost={isCreator}
         error={participantsError}
-        guestsError={guestsError}
       />
       {isCreator ? (
         <div className="mt-4 flex justify-end">

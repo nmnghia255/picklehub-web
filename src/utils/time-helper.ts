@@ -2,6 +2,8 @@ export function normalizeStatus(status: string) {
   switch (status) {
     case "PUBLISHED":
       return "Lên lịch"
+    case "SCHEDULED":
+      return "Lên lịch"
     case "IN_PROGRESS":
       return "Đang diễn ra"
     case "COMPLETED":

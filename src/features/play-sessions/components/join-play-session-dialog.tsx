@@ -102,6 +102,19 @@ export function JoinPlaySessionDialog({
                 </FieldDescription>
               </Field>
 
+              <Field>
+                <FieldLabel htmlFor="paymentReceiptUrl">
+                  Link biên lai thanh toán
+                </FieldLabel>
+                <Input
+                  id="paymentReceiptUrl"
+                  name="paymentReceiptUrl"
+                  type="text"
+                  placeholder="https://..."
+                  required
+                />
+              </Field>
+
               {state.error && (
                 <p className="text-sm text-destructive">
                   Đã có lỗi xảy ra. Vui lòng thử lại.
