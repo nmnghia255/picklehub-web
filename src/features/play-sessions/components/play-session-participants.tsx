@@ -213,81 +213,90 @@ function ParticipantsGrid({
   )
 }
 
-// function GuestApprovalRow({
-//   playSessionId,
-//   groupId,
-//   guest,
-//   showConfirmButton,
-// }: {
-//   playSessionId: string
-//   groupId?: string
-//   guest: PlaySessionGuest
-//   showConfirmButton: boolean
-// }) {
-//   const router = useRouter()
-//   const [state, approveAction, isPending] = useActionState(
-//     approvePlaySessionGuestAction.bind(
-//       null,
-//       groupId ?? null,
-//       playSessionId,
-//       guest.id
-//     ),
-//     initialGuestActionState
-//   )
+function GuestApprovalRow({
+  playSessionId,
+  groupId,
+  guest,
+  showConfirmButton,
+}: {
+  playSessionId: string
+  groupId?: string
+  guest: PlaySessionGuest
+  showConfirmButton: boolean
+}) {
+  const router = useRouter()
+  const [state, approveAction, isPending] = useActionState(
+    approvePlaySessionGuestAction.bind(
+      null,
+      groupId ?? null,
+      playSessionId,
+      guest.id
+    ),
+    initialGuestActionState
+  )
 
-//   useEffect(() => {
-//     if (!state.success) {
-//       return
-//     }
+  useEffect(() => {
+    if (!state.success) {
+      return
+    }
 
-//     router.refresh()
-//   }, [router, state.success])
+    router.refresh()
+  }, [router, state.success])
 
-//   const submitStatus = (
-//     event: React.FormEvent<HTMLFormElement>,
-//     status: "CONFIRMED" | "WAITLISTED" | "ON_HOLD"
-//   ) => {
-//     event.preventDefault()
-//     const formData = new FormData()
-//     formData.set("status", status)
-//     startTransition(() => approveAction(formData))
-//   }
+  const submitStatus = (
+    event: React.FormEvent<HTMLFormElement>,
+    status: "CONFIRMED" | "WAITLISTED" | "ON_HOLD"
+  ) => {
+    event.preventDefault()
+    const formData = new FormData()
+    formData.set("status", status)
+    startTransition(() => approveAction(formData))
+  }
 
-//   return (
-//     <div className="rounded-md border p-3">
-//       <div className="flex flex-wrap items-center justify-between gap-3">
-//         <div className="min-w-0">
-//           <p className="truncate text-sm font-medium text-foreground">{guest.name}</p>
-//           <p className="text-xs text-muted-foreground">
-//             {toDisplayGuestType(guest.type)}
-//             {typeof guest.skillLevel === "number" ? ` • Level ${guest.skillLevel}` : ""}
-//           </p>
-//         </div>
-//         <Badge variant="outline">REQUESTED</Badge>
-//       </div>
-//       <div className="mt-3 flex flex-wrap gap-2">
-//         <form
-//           onSubmit={(event) =>
-//             submitStatus(event, showConfirmButton ? "CONFIRMED" : "WAITLISTED")
-//           }
-//         >
-//           <Button type="submit" size="sm" disabled={isPending}>
-//             {showConfirmButton ? "Put In Confirmed" : "Put In Waitlist"}
-//           </Button>
-//         </form>
+  return (
+    <div className="rounded-md border p-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium text-foreground">
+            {guest.name}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {toDisplayGuestType(guest.type)}
+            {typeof guest.skillLevel === "number"
+              ? ` • Level ${guest.skillLevel}`
+              : ""}
+          </p>
+        </div>
+        <Badge variant="outline">REQUESTED</Badge>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <form
+          onSubmit={(event) =>
+            submitStatus(event, showConfirmButton ? "CONFIRMED" : "WAITLISTED")
+          }
+        >
+          <Button type="submit" size="sm" disabled={isPending}>
+            {showConfirmButton ? "Put In Confirmed" : "Put In Waitlist"}
+          </Button>
+        </form>
 
-//         <form onSubmit={(event) => submitStatus(event, "ON_HOLD")}>
-//           <Button type="submit" size="sm" variant="outline" disabled={isPending}>
-//             Put On Hold
-//           </Button>
-//         </form>
-//       </div>
-//       {state.error && (
-//         <p className="mt-2 text-xs text-destructive">{state.error}</p>
-//       )}
-//     </div>
-//   )
-// }
+        <form onSubmit={(event) => submitStatus(event, "ON_HOLD")}>
+          <Button
+            type="submit"
+            size="sm"
+            variant="outline"
+            disabled={isPending}
+          >
+            Put On Hold
+          </Button>
+        </form>
+      </div>
+      {state.error && (
+        <p className="mt-2 text-xs text-destructive">{state.error}</p>
+      )}
+    </div>
+  )
+}
 
 function GuestRequestDialog({
   playSessionId,
@@ -316,20 +325,23 @@ function GuestRequestDialog({
   const activeState = mode === "reserve" ? reserveState : requestState
   const isPending = mode === "reserve" ? isReservePending : isRequestPending
 
-  // Effect to close dialog and refresh on success
   useEffect(() => {
     if (!requestState.success && !reserveState.success) {
       return
     }
+
     onOpenChange(false)
     router.refresh()
   }, [requestState.success, reserveState.success, onOpenChange, router])
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (isPending) return
+    if (isPending) {
+      return
+    }
 
     const formData = new FormData(event.currentTarget)
+
     startTransition(() => {
       if (mode === "reserve") {
         reserveAction(formData)
@@ -343,7 +355,87 @@ function GuestRequestDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="[&>button]:hidden">
         <form onSubmit={onSubmit}>
-          {/* ... rest of the form */}
+          <DialogHeader>
+            <DialogTitle>
+              {mode === "reserve" ? "Reserve guest" : "Request guest"}
+            </DialogTitle>
+            <DialogDescription>
+              Guest type chi khac ve cach hien thi tren UI. Xu ly backend giong
+              nhau.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-4">
+            <FieldGroup>
+              {isHost && (
+                <Field>
+                  <FieldLabel htmlFor="guestMode">Cach tao guest</FieldLabel>
+                  <NativeSelect
+                    id="guestMode"
+                    value={mode}
+                    disabled={isPending}
+                    onChange={(event) =>
+                      setMode(
+                        event.target.value === "reserve" ? "reserve" : "request"
+                      )
+                    }
+                  >
+                    <option value="request">Request (vao REQUESTED)</option>
+                    <option value="reserve">Reserve (vao CONFIRMED)</option>
+                  </NativeSelect>
+                </Field>
+              )}
+
+              <Field>
+                <FieldLabel htmlFor="guestName">Ten guest</FieldLabel>
+                <Input
+                  id="guestName"
+                  name="name"
+                  disabled={isPending}
+                  required
+                  maxLength={120}
+                  placeholder="Nhap ten guest"
+                />
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="guestType">Loai guest</FieldLabel>
+                <NativeSelect
+                  id="guestType"
+                  name="type"
+                  defaultValue="DROP_IN"
+                  disabled={isPending}
+                >
+                  <option value="DROP_IN">DROP_IN</option>
+                  <option value="RESERVED">RESERVED</option>
+                </NativeSelect>
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="guestSkillLevel">
+                  Skill level (optional)
+                </FieldLabel>
+                <Input
+                  id="guestSkillLevel"
+                  name="skillLevel"
+                  disabled={isPending}
+                  type="number"
+                  min={0}
+                  max={10}
+                  step={0.01}
+                  placeholder="0 - 10"
+                />
+                <FieldDescription>Toi da 2 chu so thap phan.</FieldDescription>
+              </Field>
+
+              {activeState.error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{activeState.error}</AlertDescription>
+                </Alert>
+              )}
+            </FieldGroup>
+          </div>
+
           <DialogFooter showCloseButton>
             <Button type="submit" disabled={isPending}>
               {isPending
@@ -383,8 +475,6 @@ export function PlaySessionParticipants({
     ON_HOLD: null,
     REQUESTED: null,
   })
-  const [fetchError, setFetchError] = useState<string | null>(null)
-  const [isFetching, setIsFetching] = useState(false)
 
   const [openGuestDialog, setOpenGuestDialog] = useState(false)
 
@@ -414,9 +504,6 @@ export function PlaySessionParticipants({
     (fetchedByStatus.REQUESTED as PlaySessionGuest[] | null) ??
     guests.filter((guest) => getGuestBucketStatus(guest.status) === "REQUESTED")
 
-  const confirmedGuests = guests.filter(
-    (guest) => getGuestBucketStatus(guest.status) === "CONFIRMED"
-  )
   const waitlistedGuests = guests.filter(
     (guest) => getGuestBucketStatus(guest.status) === "WAITLISTED"
   )
@@ -455,9 +542,6 @@ export function PlaySessionParticipants({
 
     const runFetch = async () => {
       if (!isMounted) return
-      setIsFetching(true)
-      setFetchError(null)
-
       try {
         const results = await Promise.all(
           statuses.map((s) =>
@@ -477,11 +561,6 @@ export function PlaySessionParticipants({
         results.forEach((r, i) => {
           const status = statuses[i]
           if (r && typeof r === "object" && "__error" in r) {
-            setFetchError((prev) =>
-              prev
-                ? `${prev}; ${status}: ${r.__error}`
-                : `${status}: ${r.__error}`
-            )
             next[status] = null
           } else {
             next[status] = Array.isArray(r) ? r : []
@@ -489,13 +568,8 @@ export function PlaySessionParticipants({
         })
 
         setFetchedByStatus(next)
-      } catch (err) {
+      } catch {
         if (!isMounted) return
-        setFetchError(String(err))
-      } finally {
-        if (isMounted) {
-          setIsFetching(false)
-        }
       }
     }
 
