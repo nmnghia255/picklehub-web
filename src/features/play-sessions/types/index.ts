@@ -1,15 +1,14 @@
-import { number } from "zod"
-
 export type Participant = {
   id: string
   playSessionId: string
   userId: string
-  status: "JOINED" | "LEFT" | "KICKED"
+  status: "CONFIRMED" | "WAITLISTED" | "ON_HOLD" | "LEFT" | "KICKED"
   guestsCount?: number
-  paymentReceiptUrl?: string
+  paymentStatus?: "UNPAID" | "PENDING_REVIEW" | "PAID"
   isCheckedIn?: boolean
   joinedAt: string
   name?: string
+  avatarUrl?: string | null
 }
 
 export type ParticipantsResponse = {
@@ -29,15 +28,65 @@ export interface PlaySessionParticipant {
   userId: string
   status: string
   guestsCount?: number
+  paymentStatus?: "UNPAID" | "PENDING_REVIEW" | "PAID" | string
   isCheckedIn?: boolean
   joinedAt?: string
-  name?: string
+  name?: string | null
+  avatarUrl?: string | null
+}
+
+export type PlaySessionGuestType = "DROP_IN" | "RESERVED"
+
+export type PlaySessionGuestStatus =
+  | "REQUESTED"
+  | "CONFIRMED"
+  | "WAITLISTED"
+  | "ON_HOLD"
+
+export interface PlaySessionGuest {
+  id: string
+  playSessionId: string
+  requestedByUserId: string
+  requestedByIsHost: boolean
+  name: string
+  skillLevel?: number | null
+  type: PlaySessionGuestType
+  status: PlaySessionGuestStatus
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface RequestGuestInput {
+  name: string
+  skillLevel?: number
+  type?: PlaySessionGuestType
+}
+
+export interface ApproveGuestInput {
+  status: Extract<
+    PlaySessionGuestStatus,
+    "CONFIRMED" | "WAITLISTED" | "ON_HOLD"
+  >
+}
+
+export interface ListPlaySessionGuestsParams {
+  status?: "ALL" | PlaySessionGuestStatus
+}
+
+export interface ListPlaySessionGuestsResult {
+  message?: string
+  data: PlaySessionGuest[]
+}
+
+export interface UpdateParticipantStatusInput {
+  message?: string
+  status: "CONFIRMED" | "WAITLISTED" | "ON_HOLD"
 }
 
 export interface GroupPlaySession {
   id: string
   title: string
-  description?: string | null
+  note?: string | null
   type: "PUBLIC_APP" | "INTERNAL_GROUP" | string
   alowGuests: boolean
   fee: number
@@ -59,7 +108,7 @@ export interface GroupPlaySession {
   createdAt: string
   updatedAt: string
   isHost?: boolean
-  myParticipationStatus?: "PENDING" | "none"
+  myParticipationStatus?: "PENDING" | "CONFIRMED" | "none"
 }
 
 export interface CreateGroupPlaySessionInput {
@@ -105,7 +154,7 @@ export interface ListMySessionsResult {
 export interface ListPlaySessionsParams {
   contextType?: "PUBLIC_APP" | "INTERNAL_GROUP" | string
   groupId?: string
-  status?: "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | string
+  status?: "PUBLISHED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | string
   search?: string
   startFrom?: string
   startTo?: string
@@ -149,9 +198,11 @@ export interface PublicPlaySessionParticipant {
   userId: string
   status: string
   guestsCount?: number
+  paymentStatus?: "UNPAID" | "PENDING_REVIEW" | "PAID" | string
   isCheckedIn?: boolean
   joinedAt: string
-  name: string
+  name?: string | null
+  avatarUrl?: string | null
 }
 
 export interface ListPublicParticipantsParams {
@@ -186,7 +237,7 @@ export interface JoinPlaySessionReponse {
     userId: string
     status: string
     guestsCount?: number
-    paymentReceiptUrl?: string
+    paymentStatus?: "UNPAID" | "PENDING_REVIEW" | "PAID"
     isCheckedIn?: boolean
     joinedAt: string
     requestedSlots: number

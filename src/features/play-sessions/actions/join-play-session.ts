@@ -17,9 +17,6 @@ export async function joinPlaySessionAction(
 ) {
   try {
     const guestsCount = Number(formData.get("guestsCount"))
-    const paymentReceiptUrl = String(
-      formData.get("paymentReceiptUrl") ?? ""
-    ).trim()
 
     if (
       !Number.isInteger(guestsCount) ||
@@ -32,16 +29,8 @@ export async function joinPlaySessionAction(
       }
     }
 
-    if (!paymentReceiptUrl) {
-      return {
-        success: false,
-        error: "Vui lòng nhập link biên lai thanh toán.",
-      }
-    }
-
     const result = await joinGroupPlaySession(groupId, playSessionId, {
       guestsCount,
-      paymentReceiptUrl,
     })
     return { success: true, data: result }
   } catch (error) {
