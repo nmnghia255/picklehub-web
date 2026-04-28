@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 
 import { AppSidebar } from "@/components/app-sidebar"
+import { Header } from "@/components/header"
 import {
   SidebarInset,
   SidebarProvider,
@@ -23,8 +24,9 @@ export default async function ProtectedLayout({
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-14 items-center border-b bg-background/90 px-4 backdrop-blur">
+        <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b bg-background/90 px-4 backdrop-blur">
           <SidebarTrigger />
+          <Header user={session.user} />
         </header>
         <div className="flex-1">{children}</div>
       </SidebarInset>

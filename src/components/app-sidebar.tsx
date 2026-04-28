@@ -1,18 +1,22 @@
 "use client"
 
+import { useAtomValue } from "jotai"
 import {
+  BellRing,
   CalendarDays,
-  Feather,
+  ChevronDown,
   History,
   House,
   type LucideIcon,
   MapPinned,
-  Newspaper,
+  Shield,
   UserRound,
   Users,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useTheme } from "next-themes"
+import { useEffect, useState } from "react"
 
 import {
   Sidebar,
@@ -23,7 +27,13 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import { useSidebar } from "@/components/ui/sidebar"
+import { notificationFeedAtom } from "@/features/feed/store/feed-store"
+import { cn } from "@/lib/utils"
 
 type SidebarItem = {
   title: string
@@ -33,14 +43,27 @@ type SidebarItem = {
 
 const sidebarItems: SidebarItem[] = [
   { title: "Trang chủ", href: "/home", icon: House },
-  { title: "Hồ sơ", href: "/settings/profile", icon: UserRound },
-  { title: "Sân", href: "/sport-center", icon: MapPinned },
+  { title: "Hồ sơ", href: "/profile", icon: UserRound },
+  { title: "Trung tâm thể thao", href: "/sport-center", icon: MapPinned },
   { title: "Lịch sử", href: "/history", icon: History },
-  { title: "Nhóm", href: "/groups", icon: Users },
   { title: "Buổi chơi", href: "/play-sessions", icon: CalendarDays },
+  { title: "Nhóm", href: "/groups", icon: Users },
   { title: "Bạn bè", href: "/friend", icon: Users },
-  { title: "Bảng tin", href: "/feed", icon: Newspaper },
+  { title: "Thông báo", href: "/feed", icon: BellRing },
 ]
+
+const coachMenuItems = [
+  { title: "Tổng quan huấn luyện viên", href: "/coach" },
+  { title: "Hồ sơ chuyên nghiệp", href: "/coach/profile" },
+  { title: "Danh sách học viên", href: "/coach/students" },
+  { title: "Lịch tập", href: "/coach/schedule" },
+  { title: "Quản lý giáo trình", href: "/coach/curriculum" },
+  { title: "Phân tích video", href: "/coach/video-analysis" },
+  { title: "Lộ trình học tập", href: "/coach/roadmap" },
+  { title: "Thống kê thu nhập", href: "/coach/income" },
+]
+
+const COACH_MENU_STORAGE_KEY = "isCoachMenuOpen"
 
 function isActivePath(pathname: string, href: string) {
   if (pathname === href) {
@@ -50,18 +73,91 @@ function isActivePath(pathname: string, href: string) {
   return pathname.startsWith(`${href}/`)
 }
 
+function SidebarLogo() {
+  const { state } = useSidebar()
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true)
+  }, [])
+
+  if (!mounted) return null
+
+  const isDark = resolvedTheme === "dark"
+
+  return (
+    <div className="flex items-center gap-2 px-3 py-4">
+      <div
+        className={cn(
+          "flex shrink-0 items-center justify-center rounded p-1.5 transition-colors",
+          isDark && "bg-white"
+        )}
+      >
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 40 40"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className={isDark ? "text-gray-900" : "text-sidebar-foreground"}
+        >
+          <polygon points="20,4 36,32 4,32" fill="currentColor" />
+        </svg>
+      </div>
+
+      {state !== "collapsed" && (
+        <div className="text-sm font-semibold tracking-wide whitespace-nowrap text-sidebar-foreground">
+          PickleHub
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function AppSidebar() {
   const pathname = usePathname()
+  const notifications = useAtomValue(notificationFeedAtom)
+  const [isCoachMenuOpen, setIsCoachMenuOpen] = useState(() => {
+    if (typeof window === "undefined") {
+      return false
+    }
+
+    return window.sessionStorage.getItem(COACH_MENU_STORAGE_KEY) === "true"
+  })
+  const isCoachPath = isActivePath(pathname, "/coach")
+  const shouldShowCoachMenu = isCoachPath || isCoachMenuOpen
+  const unreadCount = notifications.filter(
+    (notification) => notification.unread
+  ).length
+
+  const handleCoachMenuToggle = () => {
+    setIsCoachMenuOpen((prev) => {
+      const next = !prev
+
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(COACH_MENU_STORAGE_KEY, String(next))
+      }
+
+      return next
+    })
+  }
+
+  const handlePrimaryItemClick = () => {
+    if (isCoachMenuOpen) {
+      setIsCoachMenuOpen(false)
+
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(COACH_MENU_STORAGE_KEY, "false")
+      }
+    }
+  }
 
   return (
     <Sidebar variant="inset" collapsible="icon">
-      <SidebarHeader className="flex flex-row items-center justify-start gap-2 px-3 py-4 text-left">
-        {/* Logo */}
-        <Feather className="size-5 shrink-0 text-primary" />
-        {/* Brand Name */}
-        <span className="text-sm font-semibold tracking-wide whitespace-nowrap text-sidebar-foreground group-data-[state=collapsed]:hidden">
-          PickleHub
-        </span>
+      <SidebarHeader>
+        <SidebarLogo />
       </SidebarHeader>
 
       {/* Sidebar Content */}
@@ -76,13 +172,51 @@ export function AppSidebar() {
                     isActive={isActivePath(pathname, item.href)}
                     tooltip={item.title}
                   >
-                    <Link href={item.href}>
-                      <item.icon className="size-4" />
+                    <Link href={item.href} onClick={handlePrimaryItemClick}>
+                      <span className="relative inline-flex items-center justify-center">
+                        <item.icon className="size-4" />
+                        {item.href === "/feed" && unreadCount > 0 && (
+                          <span className="ring-sidebar-background absolute -top-1 -right-1 size-2 rounded-full bg-red-500 ring-2" />
+                        )}
+                      </span>
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={shouldShowCoachMenu}
+                  tooltip="Huấn luyện viên"
+                  onClick={handleCoachMenuToggle}
+                >
+                  <Shield className="size-4" />
+                  <span>Huấn luyện viên</span>
+                  <ChevronDown
+                    className={cn(
+                      "ml-auto size-4 transition-transform",
+                      shouldShowCoachMenu && "rotate-180"
+                    )}
+                  />
+                </SidebarMenuButton>
+                {shouldShowCoachMenu && (
+                  <SidebarMenuSub>
+                    {coachMenuItems.map((item) => (
+                      <SidebarMenuSubItem key={item.href}>
+                        <SidebarMenuSubButton
+                          asChild
+                          isActive={isActivePath(pathname, item.href)}
+                        >
+                          <Link href={item.href}>
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                )}
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

@@ -1,6 +1,6 @@
 import { DeleteStatusToast } from "@/components/delete-status-toast"
 import { ErrorSection } from "@/components/error-section"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   getGroup,
   getGroupInvitations,
@@ -15,6 +15,17 @@ import type {
   GroupPlaySession,
   ListPlaySessionsParams,
 } from "@/features/play-sessions/types"
+import { getSession } from "@/lib/session"
+
+function getHttpStatus(error: unknown): number | null {
+  if (!error || typeof error !== "object") {
+    return null
+  }
+
+  const maybeError = error as { response?: { status?: unknown } }
+  const status = maybeError.response?.status
+  return typeof status === "number" ? status : null
+}
 
 interface GroupDetailPageProps {
   params: Promise<{ groupId: string }>
@@ -27,6 +38,7 @@ export default async function GroupDetailPage({
 }: GroupDetailPageProps) {
   const { groupId } = await params
   const { delete: deleteStatus } = await searchParams
+  const session = await getSession()
 
   let group
   let invitations = []
@@ -40,13 +52,22 @@ export default async function GroupDetailPage({
     isOwner = group.role === "owner"
     invitations = isOwner ? await getGroupInvitations(groupId) : []
   } catch (error) {
-    console.error("Error loading group details:", error)
+    const status = getHttpStatus(error)
+
+    if (status !== 403 && status !== 404) {
+      console.error("Error loading group details:", error)
+    }
+
+    const message =
+      status === 403
+        ? "Bạn không có quyền truy cập nhóm này."
+        : status === 404
+          ? "Không tìm thấy nhóm hoặc nhóm đã bị xóa."
+          : "Đã xảy ra lỗi khi tải thông tin nhóm. Vui lòng thử lại sau."
+
     return (
       <div className="container mx-auto max-w-4xl p-6">
-        <ErrorSection
-          className="mb-4"
-          message="Đã xảy ra lỗi khi tải thông tin nhóm. Vui lòng thử lại sau."
-        />
+        <ErrorSection className="mb-4" message={message} />
       </div>
     )
   }
@@ -78,8 +99,12 @@ export default async function GroupDetailPage({
         groupName={group.name}
         isOwner={isOwner}
       />
-      <GroupOverviewCard groupId={groupId} />
-      <GroupMembersCard groupId={groupId} />
+      <GroupOverviewCard group={group} />
+      <GroupMembersCard
+        groupId={groupId}
+        currentUserId={session.user?.id ?? ""}
+        currentUserRole={group.role ?? null}
+      />
 
       {/* Upcoming sessions */}
       <UpcomingPlaySessionsSection
@@ -90,9 +115,6 @@ export default async function GroupDetailPage({
       {/* Invitations */}
       {isOwner && (
         <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Lời mời</CardTitle>
-          </CardHeader>
           <CardContent>
             <InvitationsTable
               groupId={groupId}

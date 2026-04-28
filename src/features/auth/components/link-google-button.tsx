@@ -26,7 +26,6 @@ export function LinkGoogleButton() {
       }}
       useOneTap={false}
       text="continue_with"
-      width="100%"
     />
   )
 }

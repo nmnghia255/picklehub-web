@@ -21,7 +21,6 @@ export async function loginWithGoogleAction(
     const response = await axios.post(`${API_BASE_URL}/api/auth/google`, {
       idToken,
     })
-    console.log(response)
     const { accessToken, refreshToken, expiresIn, user } = response.data
 
     const session = await getSession()
@@ -33,13 +32,30 @@ export async function loginWithGoogleAction(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const status = error.response?.status
+      const responseData = error.response?.data as
+        | { message?: string | string[]; error?: string }
+        | undefined
+      const backendMessage = Array.isArray(responseData?.message)
+        ? responseData.message.join(", ")
+        : responseData?.message || responseData?.error
+
       if (status === 403) {
         return { error: "Tài khoản của bạn đã bị vô hiệu hóa." }
       }
+
+      if (backendMessage) {
+        return { error: backendMessage }
+      }
+
+      if (error.code === "ECONNREFUSED") {
+        return {
+          error:
+            "Không thể kết nối API Gateway. Kiểm tra NEXT_PUBLIC_API_GATEWAY_URL và trạng thái docker services.",
+        }
+      }
+
       return {
-        error:
-          error.response?.data?.message ||
-          "Đăng nhập thất bại. Vui lòng thử lại.",
+        error: `Đăng nhập thất bại (${status ?? "network"}). Vui lòng thử lại.`,
       }
     }
     return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
@@ -64,10 +80,15 @@ export async function linkGoogleAction(
     }
   } catch (error) {
     if (axios.isAxiosError(error)) {
+      const responseData = error.response?.data as
+        | { message?: string | string[]; error?: string }
+        | undefined
+      const backendMessage = Array.isArray(responseData?.message)
+        ? responseData.message.join(", ")
+        : responseData?.message || responseData?.error
+
       return {
-        error:
-          error.response?.data?.message ||
-          "Liên kết thất bại. Vui lòng thử lại.",
+        error: backendMessage || "Liên kết thất bại. Vui lòng thử lại.",
       }
     }
     return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }

@@ -10,19 +10,32 @@ import {
 } from "@/components/ui/table"
 
 import { getGroupMembers } from "../api/groups-service"
+import { GroupMemberActions } from "./group-member-actions"
 
 function normalizeRole(role: string | null | undefined) {
-  switch (role) {
+  switch (role?.toLowerCase()) {
     case "owner":
       return "Trưởng nhóm"
-    case "user":
+    case "admin":
+      return "Quản trị"
+    case "member":
       return "Thành viên"
     default:
-      return role
+      return role ?? "-"
   }
 }
 
-export async function GroupMembersCard({ groupId }: { groupId: string }) {
+interface GroupMembersCardProps {
+  groupId: string
+  currentUserId: string
+  currentUserRole: string | null
+}
+
+export async function GroupMembersCard({
+  groupId,
+  currentUserId,
+  currentUserRole,
+}: GroupMembersCardProps) {
   const members = await getGroupMembers(groupId).catch((error) => {
     console.error("Error loading group members:", error)
     return null
@@ -33,6 +46,10 @@ export async function GroupMembersCard({ groupId }: { groupId: string }) {
       <ErrorSection message="Đã xảy ra lỗi khi tải thông tin thành viên. Vui lòng thử lại sau." />
     )
   }
+
+  const normalizedUserRole = currentUserRole?.toLowerCase()
+  const canManageMembers =
+    normalizedUserRole === "owner" || normalizedUserRole === "admin"
 
   return (
     <Card className="mt-6">
@@ -47,12 +64,24 @@ export async function GroupMembersCard({ groupId }: { groupId: string }) {
               <TableHead>Email</TableHead>
               <TableHead>Vai trò</TableHead>
               <TableHead>Ngày tham gia</TableHead>
+              {canManageMembers && (
+                <TableHead className="text-right">Thao tác</TableHead>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
             {members.map((member) => (
               <TableRow key={member.userId}>
-                <TableCell className="font-medium">{member.name}</TableCell>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    <span>{member.name}</span>
+                    {member.userId === currentUserId && (
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                        Bạn
+                      </span>
+                    )}
+                  </div>
+                </TableCell>
                 <TableCell className="text-muted-foreground">
                   {member.email}
                 </TableCell>
@@ -66,6 +95,18 @@ export async function GroupMembersCard({ groupId }: { groupId: string }) {
                     year: "numeric",
                   })}
                 </TableCell>
+                {canManageMembers && (
+                  <TableCell className="text-right">
+                    <GroupMemberActions
+                      groupId={groupId}
+                      memberId={member.userId}
+                      memberName={member.name}
+                      memberRole={member.role}
+                      currentUserId={currentUserId}
+                      currentUserRole={currentUserRole ?? ""}
+                    />
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>

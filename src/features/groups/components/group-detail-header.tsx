@@ -3,6 +3,7 @@ import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 
+import { LeaveGroupButton } from "./group-member-actions"
 import { InviteDialog } from "./invite-dialog"
 
 interface GroupDetailHeaderProps {
@@ -26,6 +27,7 @@ export function GroupDetailHeader({
             Tạo buổi chơi
           </Button>
         </Link>
+        {!isOwner && <LeaveGroupButton groupId={groupId} />}
         {isOwner && <InviteDialog groupId={groupId} />}
       </div>
     </div>

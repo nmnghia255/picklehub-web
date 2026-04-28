@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Mail } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { startTransition, useActionState, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 
@@ -26,6 +27,7 @@ interface InviteDialogProps {
 
 export function InviteDialog({ groupId }: InviteDialogProps) {
   const [open, setOpen] = useState(false)
+  const router = useRouter()
   const [state, formAction, isPending] = useActionState(
     inviteToGroupAction.bind(null, groupId),
     {}
@@ -41,9 +43,10 @@ export function InviteDialog({ groupId }: InviteDialogProps) {
     const id = setTimeout(() => {
       setOpen(false)
       form.reset()
+      router.refresh()
     })
     return () => clearTimeout(id)
-  }, [state.success, form])
+  }, [form, router, state.success])
 
   const onSubmit = form.handleSubmit((data) => {
     const fd = new FormData()

@@ -23,6 +23,7 @@ export function SetPasswordForm({
 
   const form = useForm<SetPasswordFormData>({
     resolver: zodResolver(setPasswordSchema),
+    mode: "onChange",
     defaultValues: {
       password: "",
       confirmPassword: "",
@@ -87,7 +88,7 @@ export function SetPasswordForm({
         )}
 
         <Field>
-          <Button type="submit" disabled={isPending}>
+          <Button type="submit" disabled={isPending || !form.formState.isValid}>
             {isPending ? "Đang lưu..." : "Lưu mật khẩu"}
           </Button>
         </Field>
