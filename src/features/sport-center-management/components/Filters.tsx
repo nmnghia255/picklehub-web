@@ -14,7 +14,7 @@ export function Filters({
   setCourtFilter,
 }: FiltersProps) {
   return (
-    <div className="flex items-center justify-between border-b border-border bg-white p-4">
+    <div className="dark:bg-surface flex items-center justify-between border-b border-border bg-background p-4">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <Calendar className="h-5 w-5 text-muted-foreground" />
@@ -45,19 +45,19 @@ export function Filters({
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-3 text-xs">
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-sm border-2 border-emerald-300 bg-linear-to-br from-emerald-50 to-teal-50"></div>
+            <div className="h-3 w-3 rounded-sm border-2 border-emerald-300 bg-linear-to-br from-emerald-50 to-teal-50 dark:border-emerald-600 dark:from-emerald-700 dark:to-teal-700"></div>
             <span className="text-muted-foreground">Đã đặt</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-sm border-2 border-amber-300 bg-linear-to-br from-amber-50 to-yellow-50"></div>
+            <div className="h-3 w-3 rounded-sm border-2 border-amber-300 bg-linear-to-br from-amber-50 to-yellow-50 dark:border-amber-600 dark:from-amber-700 dark:to-yellow-700"></div>
             <span className="text-muted-foreground">Chờ xác nhận</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-sm border-2 border-dashed border-gray-200 bg-white"></div>
+            <div className="dark:bg-surface h-3 w-3 rounded-sm border-2 border-dashed border-border bg-background"></div>
             <span className="text-muted-foreground">Còn trống</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-sm border-2 border-red-300 bg-linear-to-br from-red-50 to-rose-50"></div>
+            <div className="h-3 w-3 rounded-sm border-2 border-red-300 bg-linear-to-br from-red-50 to-rose-50 dark:border-red-600 dark:from-red-700 dark:to-rose-700"></div>
             <span className="text-muted-foreground">Đã hủy</span>
           </div>
         </div>

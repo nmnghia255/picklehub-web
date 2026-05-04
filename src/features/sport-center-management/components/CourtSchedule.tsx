@@ -138,11 +138,11 @@ export function CourtSchedule() {
         <div className="inline-block min-w-full">
           <div className="grid grid-cols-[120px_repeat(16,minmax(140px,1fr))] gap-px bg-border">
             {/* Header Row */}
-            <div className="sticky left-0 z-10 bg-white p-4"></div>
+            <div className="dark:bg-surface sticky left-0 z-0 bg-background p-4" />
             {timeSlots.map((time) => (
               <div
                 key={time}
-                className="bg-white p-4 text-center text-sm text-muted-foreground"
+                className="dark:bg-surface bg-background p-4 text-center text-sm text-muted-foreground"
               >
                 {time}
               </div>
@@ -153,7 +153,7 @@ export function CourtSchedule() {
               .filter((c) => (courtFilter === "all" ? true : c === courtFilter))
               .map((court) => (
                 <div key={court} className="contents">
-                  <div className="sticky left-0 z-10 flex items-center bg-white p-4 text-foreground">
+                  <div className="dark:bg-surface sticky left-0 z-0 flex items-center bg-background p-4 text-foreground">
                     {court}
                   </div>
                   {timeSlots.map((time) => {

@@ -23,33 +23,33 @@ export function TimeSlot({ booking, onClick }: TimeSlotProps) {
 
   const getSlotStyle = () => {
     if (!booking) {
-      return "bg-white hover:bg-gray-50 border-2 border-dashed border-gray-200"
+      return "bg-background dark:bg-surface hover:bg-accent/5 dark:hover:bg-accent/6 border-2 border-dashed border-border"
     }
 
     switch (booking.status) {
       case "booked":
-        return "bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-300 hover:border-emerald-400"
+        return "bg-linear-to-br from-emerald-50 to-teal-50 dark:from-emerald-700 dark:to-teal-700 border-2 border-emerald-300 dark:border-emerald-600 hover:border-emerald-400 dark:hover:border-emerald-500"
       case "pending":
-        return "bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-300 hover:border-amber-400"
+        return "bg-linear-to-br from-amber-50 to-yellow-50 dark:from-amber-700 dark:to-yellow-700 border-2 border-amber-300 dark:border-amber-600 hover:border-amber-400 dark:hover:border-amber-500"
       case "cancelled":
-        return "bg-gradient-to-br from-red-50 to-rose-50 border-2 border-red-300 hover:border-red-400"
+        return "bg-linear-to-br from-red-50 to-rose-50 dark:from-red-700 dark:to-rose-700 border-2 border-red-300 dark:border-red-600 hover:border-red-400 dark:hover:border-red-500"
       default:
-        return "bg-white hover:bg-gray-50"
+        return "bg-background dark:bg-surface hover:bg-accent/5 dark:hover:bg-accent/6"
     }
   }
 
   const getTextColor = () => {
-    if (!booking) return "text-gray-400"
+    if (!booking) return "text-muted-foreground"
 
     switch (booking.status) {
       case "booked":
-        return "text-emerald-700"
+        return "text-emerald-700 dark:text-emerald-200"
       case "pending":
-        return "text-amber-700"
+        return "text-amber-700 dark:text-amber-200"
       case "cancelled":
-        return "text-red-700"
+        return "text-red-700 dark:text-red-200"
       default:
-        return "text-gray-600"
+        return "text-muted-foreground"
     }
   }
 
@@ -68,7 +68,7 @@ export function TimeSlot({ booking, onClick }: TimeSlotProps) {
           </span>
         </>
       ) : (
-        <span className="text-xs text-gray-400">Còn trống</span>
+        <span className="text-xs text-muted-foreground">Còn trống</span>
       )}
     </button>
   )
