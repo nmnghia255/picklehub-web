@@ -44,7 +44,7 @@ type SidebarItem = {
 const sidebarItems: SidebarItem[] = [
   { title: "Trang chủ", href: "/home", icon: House },
   { title: "Hồ sơ", href: "/profile", icon: UserRound },
-  { title: "Trung tâm thể thao", href: "/sport-center", icon: MapPinned },
+  { title: "Sân", href: "/sport-center", icon: MapPinned },
   { title: "Lịch sử", href: "/history", icon: History },
   { title: "Buổi chơi", href: "/play-sessions", icon: CalendarDays },
   { title: "Nhóm", href: "/groups", icon: Users },
@@ -63,7 +63,16 @@ const coachMenuItems = [
   { title: "Thống kê thu nhập", href: "/coach/income" },
 ]
 
+const sportCenterManagementMenuItems = [
+  {
+    title: "Quản lý sân",
+    href: "/sport-center-management/courts-management",
+  },
+]
+
 const COACH_MENU_STORAGE_KEY = "isCoachMenuOpen"
+const SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY =
+  "isSportCenterManagementMenuOpen"
 
 function isActivePath(pathname: string, href: string) {
   if (pathname === href) {
@@ -126,8 +135,26 @@ export function AppSidebar() {
 
     return window.sessionStorage.getItem(COACH_MENU_STORAGE_KEY) === "true"
   })
+  const [isSportCenterManagementMenuOpen, setIsSportCenterManagementMenuOpen] =
+    useState(() => {
+      if (typeof window === "undefined") {
+        return false
+      }
+
+      return (
+        window.sessionStorage.getItem(
+          SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY
+        ) === "true"
+      )
+    })
   const isCoachPath = isActivePath(pathname, "/coach")
+  const isSportCenterManagementPath = isActivePath(
+    pathname,
+    "/sport-center-management"
+  )
   const shouldShowCoachMenu = isCoachPath || isCoachMenuOpen
+  const shouldShowSportCenterManagementMenu =
+    isSportCenterManagementPath || isSportCenterManagementMenuOpen
   const unreadCount = notifications.filter(
     (notification) => notification.unread
   ).length
@@ -152,6 +179,32 @@ export function AppSidebar() {
         window.sessionStorage.setItem(COACH_MENU_STORAGE_KEY, "false")
       }
     }
+
+    if (isSportCenterManagementMenuOpen) {
+      setIsSportCenterManagementMenuOpen(false)
+
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(
+          SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY,
+          "false"
+        )
+      }
+    }
+  }
+
+  const handleSportCenterManagementMenuToggle = () => {
+    setIsSportCenterManagementMenuOpen((prev) => {
+      const next = !prev
+
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(
+          SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY,
+          String(next)
+        )
+      }
+
+      return next
+    })
   }
 
   return (
@@ -184,6 +237,39 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={shouldShowSportCenterManagementMenu}
+                  tooltip="Quản lý trung tâm"
+                  onClick={handleSportCenterManagementMenuToggle}
+                >
+                  <MapPinned className="size-4" />
+                  <span>Quản lý trung tâm</span>
+                  <ChevronDown
+                    className={cn(
+                      "ml-auto size-4 transition-transform",
+                      shouldShowSportCenterManagementMenu && "rotate-180"
+                    )}
+                  />
+                </SidebarMenuButton>
+                {shouldShowSportCenterManagementMenu && (
+                  <SidebarMenuSub>
+                    {sportCenterManagementMenuItems.map((item) => (
+                      <SidebarMenuSubItem key={item.href}>
+                        <SidebarMenuSubButton
+                          asChild
+                          isActive={isActivePath(pathname, item.href)}
+                        >
+                          <Link href={item.href}>
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                )}
+              </SidebarMenuItem>
 
               <SidebarMenuItem>
                 <SidebarMenuButton
