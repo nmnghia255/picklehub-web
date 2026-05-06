@@ -46,8 +46,8 @@ export function PlayerCard({
       onDrop={onDrop}
       onDragOver={onDragOver}
       className={cn(
-        "flex cursor-move items-center gap-2 rounded border border-slate-200 bg-white p-2 transition-all hover:shadow-md",
-        isDragging && "scale-105 border-blue-400 opacity-50 shadow-lg"
+        "flex w-full min-w-0 cursor-move items-center gap-2 overflow-hidden rounded border border-slate-200 bg-white p-2 transition-all hover:shadow-md",
+        isDragging && "scale-105 opacity-50 shadow-lg ring-2 ring-blue-400"
       )}
     >
       {/* Avatar */}
@@ -63,12 +63,17 @@ export function PlayerCard({
       </Avatar>
 
       {/* Player Info */}
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-medium text-slate-900">
+      <div className="min-w-0 flex-1 overflow-hidden">
+        <p className="text-xs leading-tight font-medium text-slate-900">
           {player.name}
         </p>
         {skillLevelLabel && (
-          <Badge className={cn("h-5 px-1.5 text-xs", skillLevelColor)}>
+          <Badge
+            className={cn(
+              "mt-1 h-auto max-w-full px-1.5 py-0.5 text-[10px] leading-tight whitespace-normal",
+              skillLevelColor
+            )}
+          >
             {skillLevelLabel}
           </Badge>
         )}

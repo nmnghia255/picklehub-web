@@ -210,21 +210,48 @@ export const useMatchesGeneratorStore = create<
         players: [...m.players],
       }))
 
-      const src = newMatches[fromIndex]
-      const dst = newMatches[toIndex]
+      if (fromIndex === toIndex) {
+        const match = newMatches[fromIndex]
+        const fromPlayerIndex = match.players.findIndex(
+          (p) => p.id === fromPlayerId
+        )
+        if (fromPlayerIndex === -1) return
 
-      if (playerToRemove) {
-        // Swap: replace src player with playerToRemove, and dst player with playerToMove
-        src.players = src.players.map((p) =>
-          p.id === fromPlayerId ? playerToRemove : p
-        )
-        dst.players = dst.players.map((p) =>
-          p.id === toPlayerId ? playerToMove : p
-        )
+        if (playerToRemove) {
+          const toPlayerIndex = match.players.findIndex(
+            (p) => p.id === toPlayerId
+          )
+          if (toPlayerIndex === -1) return
+
+          match.players = match.players.map((player, index) => {
+            if (index === fromPlayerIndex) return playerToRemove
+            if (index === toPlayerIndex) return playerToMove
+            return player
+          })
+        } else {
+          match.players = [
+            ...match.players.slice(0, fromPlayerIndex),
+            ...match.players.slice(fromPlayerIndex + 1),
+          ]
+          match.players.push(playerToMove)
+        }
       } else {
-        // Move: remove from src and append to dst (if room)
-        src.players = src.players.filter((p) => p.id !== fromPlayerId)
-        dst.players.push(playerToMove)
+        const src = newMatches[fromIndex]
+        const dst = newMatches[toIndex]
+
+        if (playerToRemove) {
+          // Swap across two different matches
+          src.players = src.players.map((p) =>
+            p.id === fromPlayerId ? playerToRemove : p
+          )
+          dst.players = dst.players.map((p) =>
+            p.id === toPlayerId ? playerToMove : p
+          )
+        } else {
+          // Move: remove from src and add to dst
+          src.players = src.players.filter((p) => p.id !== fromPlayerId)
+          dst.players = [...dst.players, playerToMove]
+        }
       }
 
       // Normalize: dedupe and enforce max players per match

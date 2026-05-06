@@ -41,7 +41,14 @@ export function MatchesControlPanel({
   }
 
   const skillLevelLabel = (skillLevel?: number) => {
-    const levels = ["", "Beginner", "Intermediate", "Advanced", "Expert", "Pro"]
+    const levels = [
+      "",
+      "Người mới bắt đầu",
+      "Trung cấp",
+      "Nâng cao",
+      "Chuyên gia",
+      "Chuyên nghiệp",
+    ]
     return skillLevel ? levels[skillLevel] || "" : ""
   }
 
@@ -54,13 +61,13 @@ export function MatchesControlPanel({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="mb-4 text-lg font-semibold">Match Configuration</h2>
+        <h2 className="mb-4 text-lg font-semibold">Cấu hình trận đấu</h2>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {/* Number of Courts */}
         <div className="space-y-2">
-          <Label htmlFor="courts">Number of Courts</Label>
+          <Label htmlFor="courts">Số sân</Label>
           <Input
             id="courts"
             type="number"
@@ -72,12 +79,12 @@ export function MatchesControlPanel({
             }
             className="h-10"
           />
-          <p className="text-xs text-muted-foreground">Set up 1-12 courts</p>
+          <p className="text-xs text-muted-foreground">Thiết lập 1-12 sân</p>
         </div>
 
         {/* Number of Hours/Sessions */}
         <div className="space-y-2">
-          <Label htmlFor="hours">Number of Sessions</Label>
+          <Label htmlFor="hours">Số phiên</Label>
           <Input
             id="hours"
             type="number"
@@ -89,34 +96,34 @@ export function MatchesControlPanel({
             }
             className="h-10"
           />
-          <p className="text-xs text-muted-foreground">1 hour per session</p>
+          <p className="text-xs text-muted-foreground">1 giờ mỗi phiên</p>
         </div>
 
         {/* Total Match Slots */}
         <div className="space-y-2">
-          <Label>Total Match Slots</Label>
+          <Label>Tổng số vị trí trận</Label>
           <Card className="flex h-10 items-center justify-center bg-muted/50 text-lg font-semibold">
             {courts * hours}
           </Card>
           <p className="text-xs text-muted-foreground">
-            {courts} courts × {hours} sessions
+            {courts} sân × {hours} phiên
           </p>
         </div>
       </div>
 
       {/* Player Selection */}
       <div className="space-y-2">
-        <Label>Select Players</Label>
+        <Label>Chọn cầu thủ</Label>
         <MultiSelect
           options={playerOptions}
           selected={selectedPlayerIds}
           onSelectionChange={onPlayersChange}
-          placeholder="Select players to include in matches..."
+          placeholder="Chọn cầu thủ để bao gồm trong trận..."
         />
         <p className="text-xs text-muted-foreground">
           {selectedPlayerIds.length === 0
-            ? "All players will be included"
-            : `${selectedPlayerIds.length} players selected`}
+            ? "Tất cả cầu thủ sẽ được bao gồm"
+            : `${selectedPlayerIds.length} cầu thủ được chọn`}
         </p>
       </div>
 
@@ -129,7 +136,7 @@ export function MatchesControlPanel({
           className="gap-2"
         >
           <Sparkles className="h-4 w-4" />
-          {isGenerating ? "Generating..." : "Generate Matches"}
+          {isGenerating ? "Đang tạo..." : "Tạo trận"}
         </Button>
         <Button
           onClick={handleGenerate}
@@ -139,21 +146,21 @@ export function MatchesControlPanel({
           className="gap-2"
         >
           <RefreshCw className="h-4 w-4" />
-          Regenerate
+          Tạo lại
         </Button>
       </div>
 
       {/* Info Box */}
       <Card className="border-blue-200 bg-blue-50 p-4">
         <div className="space-y-1 text-sm">
-          <p className="font-medium text-blue-900">💡 How it works</p>
+          <p className="font-medium text-blue-900">💡 Cách hoạt động</p>
           <ul className="ml-4 list-disc space-y-1 text-xs text-blue-800">
-            <li>Select players and configure your court setup</li>
+            <li>Chọn cầu thủ và cấu hình sân của bạn</li>
             <li>
-              Click &quot;Generate Matches&quot; for AI-powered fair pairings
+              Nhấp &quot;Tạo trận&quot; để ghép cặp công bằng do AI điều khiển
             </li>
-            <li>Drag players between matches to manually adjust</li>
-            <li>Change match type (Singles/Doubles) as needed</li>
+            <li>Kéo cầu thủ giữa các trận để điều chỉnh thủ công</li>
+            <li>Đổi loại trận (Đơn/Đôi) khi cần</li>
           </ul>
         </div>
       </Card>

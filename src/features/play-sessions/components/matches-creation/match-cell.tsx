@@ -1,16 +1,9 @@
 "use client"
 
-import { MoreVertical, Plus } from "lucide-react"
+import { Plus } from "lucide-react"
 import React, { useState } from "react"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
   Select,
   SelectContent,
@@ -19,7 +12,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-import { PlayerCard } from "./player-card"
+import { MatchCellHeader } from "./match-cell-header"
+import { MatchSlot } from "./match-slot"
+import { PlayerSelectionDialog } from "./player-selection-dialog"
 
 interface Match {
   id: string
@@ -56,9 +51,9 @@ interface MatchCellProps {
 }
 
 const statusTexts = {
-  complete: "✓ Full",
-  incomplete: "! Missing Players",
-  empty: "No Match",
+  complete: "✓ Đầy đủ",
+  incomplete: "! Thiếu cầu thủ",
+  empty: "Không có trận",
 }
 
 export function MatchCell({
@@ -75,6 +70,10 @@ export function MatchCell({
   draggedPlayer,
 }: MatchCellProps) {
   const [isAddingPlayer, setIsAddingPlayer] = useState(false)
+  const [selectedEmptySlot, setSelectedEmptySlot] = useState<{
+    side: "left" | "right"
+    index: number
+  } | null>(null)
   const maxPlayers = match.matchType === "DOUBLES" ? 4 : 2
   const emptySlots = maxPlayers - match.players.length
 
@@ -84,7 +83,14 @@ export function MatchCell({
   )
 
   const skillLevelLabel = (skillLevel?: number) => {
-    const levels = ["", "Beginner", "Intermediate", "Advanced", "Expert", "Pro"]
+    const levels = [
+      "",
+      "Người mới bắt đầu",
+      "Trung cấp",
+      "Nâng cao",
+      "Chuyên gia",
+      "Chuyên nghiệp",
+    ]
     return skillLevel ? levels[skillLevel] || "" : ""
   }
 
@@ -101,9 +107,15 @@ export function MatchCell({
       : ""
   }
 
+  const leftSlotCount = Math.ceil(maxPlayers / 2)
+  const rightSlotCount = Math.floor(maxPlayers / 2)
+  const selectedSlotLabel = selectedEmptySlot
+    ? `${selectedEmptySlot.side === "left" ? "bên trái" : "bên phải"} vị trí ${selectedEmptySlot.index + 1}`
+    : undefined
+
   return (
     <div
-      className="flex h-full flex-col space-y-3"
+      className="flex h-full w-full min-w-0 flex-col space-y-3 overflow-hidden"
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => {
         e.preventDefault()
@@ -123,90 +135,69 @@ export function MatchCell({
         // If no empty slots, do nothing (user can drop onto a player to swap)
       }}
     >
-      {/* Header: Match Type and Status */}
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-xs">
-            {match.matchType}
-          </Badge>
-          <Badge className={`text-xs ${statusBadgeColor}`}>
-            {statusTexts[status]}
-          </Badge>
-        </div>
+      <MatchCellHeader
+        matchId={match.id}
+        matchTypeLabel={match.matchType === "SINGLES" ? "Đơn" : "Đôi"}
+        statusText={statusTexts[status]}
+        statusBadgeColor={statusBadgeColor}
+        onMatchTypeChange={onMatchTypeChange}
+      />
 
-        {/* Actions Menu */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem
-              onClick={() => onMatchTypeChange(match.id, "SINGLES")}
-            >
-              Change to Singles
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => onMatchTypeChange(match.id, "DOUBLES")}
-            >
-              Change to Doubles
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      {/* Players List */}
-      <div className="flex-1 space-y-2">
-        {match.players.length > 0 && (
-          <div className="space-y-1">
-            {match.players.map((player) => (
-              <PlayerCard
-                key={player.id}
-                player={player}
-                skillLevelLabel={skillLevelLabel(player.skillLevel)}
-                skillLevelColor={getSkillLevelColor(player.skillLevel)}
-                onRemove={() => onPlayerRemove(match.id, player.id)}
-                onDragStart={() => onDragStart(player.id)}
+      {/* Court Layout: left team | net | right team */}
+      <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
+        <div className="flex min-w-0 flex-1 flex-col items-center gap-2 overflow-hidden">
+          {/* Left side slots */}
+          <div className="flex w-full flex-col items-center gap-2">
+            {Array.from({ length: leftSlotCount }).map((_, idx) => (
+              <MatchSlot
+                key={`left-${idx}`}
+                matchId={match.id}
+                player={match.players[idx]}
+                draggedPlayer={draggedPlayer}
+                onPlayerRemove={onPlayerRemove}
+                onPlayerSwap={onPlayerSwap}
+                onDragStart={onDragStart}
                 onDragEnd={onDragEnd}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                  e.preventDefault()
-                  // Drop onto a specific player -> swap players between matches
-                  if (!draggedPlayer) return
-                  if (
-                    draggedPlayer.matchId === match.id &&
-                    draggedPlayer.playerId === player.id
-                  )
-                    return
-
-                  onPlayerSwap(
-                    draggedPlayer.matchId,
-                    match.id,
-                    draggedPlayer.playerId,
-                    player.id
-                  )
-                  onDragEnd()
-                }}
-                isDragging={draggedPlayer?.playerId === player.id}
+                skillLevelLabel={skillLevelLabel}
+                skillLevelColor={getSkillLevelColor}
+                onEmptySlotClick={() =>
+                  setSelectedEmptySlot({ side: "left", index: idx })
+                }
               />
             ))}
           </div>
-        )}
+        </div>
 
-        {/* Empty Slots */}
-        {emptySlots > 0 && (
-          <div className="space-y-1">
-            {Array.from({ length: emptySlots }).map((_, i) => (
-              <div
-                key={`empty-${i}`}
-                className="flex h-9 items-center justify-center rounded border-2 border-dashed border-slate-300 text-xs text-slate-400 transition-colors hover:border-slate-400 hover:bg-slate-50"
-              >
-                Empty slot
-              </div>
-            ))}
+        {/* Net */}
+        <div className="flex w-12 shrink-0 items-center justify-center">
+          <div className="h-24 w-0.5 bg-slate-400" />
+        </div>
+
+        <div className="flex min-w-0 flex-1 flex-col items-center gap-2 overflow-hidden">
+          {/* Right side slots */}
+          <div className="flex w-full flex-col items-center gap-2">
+            {Array.from({ length: rightSlotCount }).map((_, idx) => {
+              const playerIndex = leftSlotCount + idx
+              return (
+                <MatchSlot
+                  key={`right-${idx}`}
+                  matchId={match.id}
+                  player={match.players[playerIndex]}
+                  draggedPlayer={draggedPlayer}
+                  onPlayerRemove={onPlayerRemove}
+                  onPlayerSwap={onPlayerSwap}
+                  onDragStart={onDragStart}
+                  onDragEnd={onDragEnd}
+                  skillLevelLabel={skillLevelLabel}
+                  skillLevelColor={getSkillLevelColor}
+                  onEmptySlotClick={() =>
+                    setSelectedEmptySlot({ side: "right", index: idx })
+                  }
+                />
+              )
+            })}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Add Player Button */}
@@ -221,7 +212,7 @@ export function MatchCell({
                 }}
               >
                 <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="Select a player..." />
+                  <SelectValue placeholder="Chọn một cầu thủ..." />
                 </SelectTrigger>
                 <SelectContent>
                   {availablePlayersForAdd.map((player) => (
@@ -239,7 +230,7 @@ export function MatchCell({
                 className="h-7 w-full text-xs"
                 onClick={() => setIsAddingPlayer(false)}
               >
-                Cancel
+                Hủy
               </Button>
             </div>
           ) : (
@@ -250,11 +241,23 @@ export function MatchCell({
               onClick={() => setIsAddingPlayer(true)}
             >
               <Plus className="h-3 w-3" />
-              Add Player
+              Thêm cầu thủ
             </Button>
           )}
         </div>
       )}
+
+      <PlayerSelectionDialog
+        open={selectedEmptySlot !== null}
+        slotLabel={selectedSlotLabel}
+        players={availablePlayersForAdd}
+        skillLevelLabel={skillLevelLabel}
+        onClose={() => setSelectedEmptySlot(null)}
+        onSelect={(playerId) => {
+          onPlayerAdd(match.id, playerId)
+          setSelectedEmptySlot(null)
+        }}
+      />
     </div>
   )
 }

@@ -29,8 +29,6 @@ export default function MatchesCreationPage() {
     players,
     matches,
     selectedPlayers,
-    historyIndex,
-    history,
     setCourts,
     setHours,
     setSelectedPlayers,
@@ -40,14 +38,7 @@ export default function MatchesCreationPage() {
     addPlayerToMatch,
     changeMatchType,
     swapPlayers,
-    undo,
-    redo,
   } = useMatchesGeneratorStore()
-
-  const handleExport = () => {
-    const csv = generateCSV(matches, players)
-    downloadCSV(csv, `matches-${new Date().toISOString().split("T")[0]}.csv`)
-  }
 
   const handleGenerateMatches = () => {
     const generatedMatches = generateMockMatches(
@@ -65,7 +56,6 @@ export default function MatchesCreationPage() {
   const assignedPlayerIds = new Set(
     matches.flatMap((m) => m.players.map((p) => p.id))
   )
-  const assignedPlayersCount = assignedPlayerIds.size
 
   return (
     <PageContainer>
@@ -140,36 +130,4 @@ function generateMockMatches(
   }
 
   return matches
-}
-
-function generateCSV(matches: Match[], players: Player[]): string {
-  const rows: string[] = []
-  rows.push("Court,Session,Match Type,Players,Skill Levels")
-
-  matches.forEach((match) => {
-    const playerNames = match.players.map((p) => p.name).join(" & ")
-    const skillLevels = match.players.map((p) => p.skillLevel || "-").join(", ")
-    const courtNum = parseInt(match.courtId.split("-")[1]) + 1
-    const sessionNum = match.sessionIndex + 1
-
-    rows.push(
-      `Court ${courtNum},Session ${sessionNum},${match.matchType},"${playerNames}","${skillLevels}"`
-    )
-  })
-
-  return rows.join("\n")
-}
-
-function downloadCSV(csv: string, filename: string): void {
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
-  const link = document.createElement("a")
-  const url = URL.createObjectURL(blob)
-
-  link.setAttribute("href", url)
-  link.setAttribute("download", filename)
-  link.style.visibility = "hidden"
-
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
 }
