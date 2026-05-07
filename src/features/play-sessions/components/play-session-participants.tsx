@@ -40,6 +40,7 @@ interface PlaySessionParticipantsProps {
   groupId?: string
   participants: PlaySessionParticipant[]
   guests: PlaySessionGuest[]
+  currentUserId?: string | null | undefined
   isHost?: boolean
   error?: string | null
   guestsError?: string | null
