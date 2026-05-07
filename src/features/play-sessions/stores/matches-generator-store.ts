@@ -8,7 +8,7 @@ interface Match {
   courtId: string
   sessionIndex: number
   matchType: "SINGLES" | "DOUBLES"
-  players: Player[]
+  players: Array<Player | null>
 }
 
 interface Player {
@@ -58,6 +58,8 @@ interface MatchesGeneratorActions {
   reset: () => void
 }
 
+const isPlayer = (player: Player | null): player is Player => player !== null
+
 const initialState: MatchesGeneratorState = {
   courts: 2,
   hours: 2,
@@ -86,7 +88,7 @@ export const useMatchesGeneratorStore = create<
   ): boolean => {
     return matches
       .filter((m) => m.sessionIndex === sessionIndex)
-      .some((m) => m.players.some((p) => p.id === playerId))
+      .some((m) => m.players.filter(isPlayer).some((p) => p.id === playerId))
   }
 
   // Helper to add state to history
@@ -147,7 +149,9 @@ export const useMatchesGeneratorStore = create<
           m.id === matchId
             ? {
                 ...m,
-                players: m.players.filter((p) => p.id !== playerId),
+                players: m.players.map((player) =>
+                  player?.id === playerId ? null : player
+                ),
               }
             : m
         ),
@@ -162,10 +166,22 @@ export const useMatchesGeneratorStore = create<
       updateStateWithHistory({
         matches: currentMatches.map((m) =>
           m.id === matchId
-            ? {
-                ...m,
-                players: [...m.players, player],
-              }
+            ? (() => {
+                const nextPlayers = [...m.players]
+                const emptySlotIndex = nextPlayers.findIndex(
+                  (slot) => slot === null
+                )
+                if (emptySlotIndex !== -1) {
+                  nextPlayers[emptySlotIndex] = player
+                } else {
+                  nextPlayers.push(player)
+                }
+
+                return {
+                  ...m,
+                  players: nextPlayers,
+                }
+              })()
             : m
         ),
       })
@@ -201,11 +217,13 @@ export const useMatchesGeneratorStore = create<
       const fromMatch = currentMatches[fromIndex]
       const toMatch = currentMatches[toIndex]
 
-      const playerToMove = fromMatch.players.find((p) => p.id === fromPlayerId)
+      const playerToMove = fromMatch.players
+        .filter(isPlayer)
+        .find((p) => p.id === fromPlayerId)
       if (!playerToMove) return false
 
       const playerToRemove = toPlayerId
-        ? toMatch.players.find((p) => p.id === toPlayerId)
+        ? toMatch.players.filter(isPlayer).find((p) => p.id === toPlayerId)
         : null
 
       if (fromIndex !== toIndex) {
@@ -240,13 +258,13 @@ export const useMatchesGeneratorStore = create<
       if (fromIndex === toIndex) {
         const match = newMatches[fromIndex]
         const fromPlayerIndex = match.players.findIndex(
-          (p) => p.id === fromPlayerId
+          (p) => p?.id === fromPlayerId
         )
         if (fromPlayerIndex === -1) return false
 
         if (playerToRemove) {
           const toPlayerIndex = match.players.findIndex(
-            (p) => p.id === toPlayerId
+            (p) => p?.id === toPlayerId
           )
           if (toPlayerIndex === -1) return false
 
@@ -256,11 +274,15 @@ export const useMatchesGeneratorStore = create<
             return player
           })
         } else {
-          match.players = [
-            ...match.players.slice(0, fromPlayerIndex),
-            ...match.players.slice(fromPlayerIndex + 1),
-          ]
-          match.players.push(playerToMove)
+          match.players[fromPlayerIndex] = null
+          const emptySlotIndex = match.players.findIndex(
+            (slot) => slot === null
+          )
+          if (emptySlotIndex !== -1) {
+            match.players[emptySlotIndex] = playerToMove
+          } else {
+            match.players.push(playerToMove)
+          }
         }
       } else {
         const src = newMatches[fromIndex]
@@ -269,30 +291,43 @@ export const useMatchesGeneratorStore = create<
         if (playerToRemove) {
           // Swap across two different matches
           src.players = src.players.map((p) =>
-            p.id === fromPlayerId ? playerToRemove : p
+            p?.id === fromPlayerId ? playerToRemove : p
           )
           dst.players = dst.players.map((p) =>
-            p.id === toPlayerId ? playerToMove : p
+            p?.id === toPlayerId ? playerToMove : p
           )
         } else {
           // Move: remove from src and add to dst
-          src.players = src.players.filter((p) => p.id !== fromPlayerId)
-          dst.players = [...dst.players, playerToMove]
+          src.players = src.players.map((p) =>
+            p?.id === fromPlayerId ? null : p
+          )
+          const emptySlotIndex = dst.players.findIndex((slot) => slot === null)
+          if (emptySlotIndex !== -1) {
+            dst.players[emptySlotIndex] = playerToMove
+          } else {
+            dst.players = [...dst.players, playerToMove]
+          }
         }
       }
 
       // Normalize: dedupe and enforce max players per match
       for (const m of newMatches) {
         const seen = new Set<string>()
-        const deduped: Player[] = []
+        const normalized: Array<Player | null> = []
         for (const p of m.players) {
+          if (!p) {
+            normalized.push(null)
+            continue
+          }
           if (!seen.has(p.id)) {
             seen.add(p.id)
-            deduped.push(p)
+            normalized.push(p)
+          } else {
+            normalized.push(null)
           }
         }
         const maxPlayers = m.matchType === "DOUBLES" ? 4 : 2
-        m.players = deduped.slice(0, maxPlayers)
+        m.players = normalized.slice(0, maxPlayers)
       }
 
       updateStateWithHistory({ matches: newMatches })

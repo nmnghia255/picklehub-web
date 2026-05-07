@@ -1,7 +1,11 @@
 "use client"
 
 // MatchStatistics removed per user request
+import { CheckCircle2 } from "lucide-react"
+import { toast } from "sonner"
+
 import { PageContainer } from "@/components/page-container"
+import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { MatchesControlPanel } from "@/features/play-sessions/components/matches/matches-control-panel"
 import { MatchesGeneratorMatrix } from "@/features/play-sessions/components/matches/matches-generator-matrix"
@@ -12,7 +16,7 @@ interface Match {
   courtId: string
   sessionIndex: number
   matchType: "SINGLES" | "DOUBLES"
-  players: Player[]
+  players: Array<Player | null>
 }
 
 interface Player {
@@ -20,6 +24,14 @@ interface Player {
   name: string
   skillLevel?: number
   avatarUrl?: string | null
+}
+
+const isPlayer = (player: Player | null): player is Player => player !== null
+
+function isMatchCompleteOrEmpty(match: Match): boolean {
+  const maxPlayers = match.matchType === "DOUBLES" ? 4 : 2
+  const activePlayers = match.players.filter(isPlayer).length
+  return activePlayers === 0 || activePlayers === maxPlayers
 }
 
 export default function MatchesCreationPage() {
@@ -31,7 +43,6 @@ export default function MatchesCreationPage() {
     setCourts,
     setHours,
     setMatches,
-    updateMatch,
     removePlayerFromMatch,
     addPlayerToMatch,
     changeMatchType,
@@ -41,6 +52,21 @@ export default function MatchesCreationPage() {
   const handleGenerateMatches = () => {
     const generatedMatches = generateMockMatches(courts, hours, players)
     setMatches(generatedMatches)
+  }
+
+  const handleConfirmMatches = () => {
+    const invalidMatches = matches.filter(
+      (match) => !isMatchCompleteOrEmpty(match)
+    )
+
+    if (invalidMatches.length > 0) {
+      toast.error(
+        `Bạn cần hoàn tất các trận đấu trước khi xác nhận. Hiện còn ${invalidMatches.length} trận chưa hoàn chỉnh.`
+      )
+      return
+    }
+
+    toast.success("Các trận đã sẵn sàng để host tạo cho buổi chơi.")
   }
 
   return (
@@ -68,18 +94,40 @@ export default function MatchesCreationPage() {
           </Card>
 
           {matches.length > 0 && (
-            <Card className="overflow-x-auto border-border bg-card p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/75 dark:shadow-xl dark:shadow-black/20 dark:backdrop-blur">
-              <MatchesGeneratorMatrix
-                courts={courts}
-                hours={hours}
-                matches={matches}
-                allPlayers={players}
-                onPlayerRemove={removePlayerFromMatch}
-                onPlayerAdd={addPlayerToMatch}
-                onMatchTypeChange={changeMatchType}
-                onPlayerSwap={swapPlayers}
-              />
-            </Card>
+            <div className="space-y-4">
+              <Card className="overflow-x-auto border-border bg-card p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/75 dark:shadow-xl dark:shadow-black/20 dark:backdrop-blur">
+                <MatchesGeneratorMatrix
+                  courts={courts}
+                  hours={hours}
+                  matches={matches}
+                  allPlayers={players}
+                  onPlayerRemove={removePlayerFromMatch}
+                  onPlayerAdd={addPlayerToMatch}
+                  onMatchTypeChange={changeMatchType}
+                  onPlayerSwap={swapPlayers}
+                />
+              </Card>
+
+              <div className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground shadow-sm dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-300">
+                <div>
+                  <p className="font-medium text-foreground dark:text-slate-100">
+                    Xác nhận tạo các trận này cho buổi chơi
+                  </p>
+                  <p className="text-xs text-muted-foreground dark:text-slate-400">
+                    Giao diện xác nhận sẽ được gắn hành động sau.
+                  </p>
+                </div>
+
+                <Button
+                  size="lg"
+                  className="gap-2"
+                  onClick={handleConfirmMatches}
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  Xác nhận
+                </Button>
+              </div>
+            </div>
           )}
         </div>
       </div>

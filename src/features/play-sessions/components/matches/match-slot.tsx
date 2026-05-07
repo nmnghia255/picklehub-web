@@ -18,7 +18,7 @@ interface DraggedPlayer {
 
 interface MatchSlotProps {
   matchId: string
-  player?: Player
+  player?: Player | null
   draggedPlayer: DraggedPlayer | null
   onPlayerRemove: (matchId: string, playerId: string) => void
   onPlayerSwap: (

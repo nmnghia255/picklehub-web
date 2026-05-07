@@ -11,7 +11,7 @@ interface Match {
   courtId: string
   sessionIndex: number
   matchType: "SINGLES" | "DOUBLES"
-  players: Player[]
+  players: Array<Player | null>
 }
 
 interface Player {
@@ -20,6 +20,8 @@ interface Player {
   skillLevel?: number
   avatarUrl?: string | null
 }
+
+const isPlayer = (player: Player | null): player is Player => player !== null
 
 interface MatchesGeneratorMatrixProps {
   courts: number
@@ -68,14 +70,15 @@ export function MatchesGeneratorMatrix({
     match: Match
   ): "complete" | "incomplete" | "empty" => {
     const maxPlayers = match.matchType === "DOUBLES" ? 4 : 2
-    if (match.players.length === 0) return "empty"
-    if (match.players.length < maxPlayers) return "incomplete"
+    const activePlayers = match.players.filter(isPlayer)
+    if (activePlayers.length === 0) return "empty"
+    if (activePlayers.length < maxPlayers) return "incomplete"
     return "complete"
   }
 
   // Get unique players assigned to matches
   const assignedPlayerIds = new Set(
-    matches.flatMap((m) => m.players.map((p) => p.id))
+    matches.flatMap((m) => m.players.filter(isPlayer).map((p) => p.id))
   )
   const unassignedPlayers = allPlayers.filter(
     (p) => !assignedPlayerIds.has(p.id)
@@ -133,7 +136,7 @@ export function MatchesGeneratorMatrix({
                 const status = match ? getMatchStatus(match) : "empty"
                 const sessionPlayerIds = matches
                   .filter((m) => m.sessionIndex === sessionIndex)
-                  .flatMap((m) => m.players.map((p) => p.id))
+                  .flatMap((m) => m.players.filter(isPlayer).map((p) => p.id))
 
                 return (
                   <div

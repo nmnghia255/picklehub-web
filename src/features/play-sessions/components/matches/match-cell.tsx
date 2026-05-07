@@ -11,7 +11,7 @@ interface Match {
   courtId: string
   sessionIndex: number
   matchType: "SINGLES" | "DOUBLES"
-  players: Player[]
+  players: Array<Player | null>
 }
 
 interface Player {
@@ -71,7 +71,7 @@ export function MatchCell({
   // Keep the picker limited to players who have not already appeared in this session.
   const availablePlayersForAdd = allPlayers.filter(
     (p) =>
-      !match.players.find((mp) => mp.id === p.id) &&
+      !match.players.find((mp) => mp?.id === p.id) &&
       !sessionPlayerIds.includes(p.id)
   )
 
