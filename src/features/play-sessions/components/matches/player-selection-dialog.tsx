@@ -35,7 +35,7 @@ export function PlayerSelectionDialog({
 }: PlayerSelectionDialogProps) {
   return (
     <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100">
         <DialogHeader>
           <DialogTitle>Chọn cầu thủ</DialogTitle>
           <DialogDescription>
@@ -51,13 +51,13 @@ export function PlayerSelectionDialog({
               <Button
                 key={player.id}
                 variant="outline"
-                className="h-auto justify-start py-2"
+                className="h-auto justify-start py-2 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                 onClick={() => onSelect(player.id)}
               >
                 <div className="text-left">
                   <div className="font-medium">{player.name}</div>
                   {player.skillLevel && (
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-xs text-muted-foreground dark:text-slate-400">
                       {skillLevelLabel(player.skillLevel)}
                     </div>
                   )}
@@ -65,7 +65,7 @@ export function PlayerSelectionDialog({
               </Button>
             ))
           ) : (
-            <div className="rounded border border-dashed border-slate-300 p-4 text-sm text-muted-foreground">
+            <div className="rounded border border-dashed border-slate-300 p-4 text-sm text-muted-foreground dark:border-slate-700 dark:text-slate-400">
               Không còn cầu thủ phù hợp để thêm vào trận này.
             </div>
           )}

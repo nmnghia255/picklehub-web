@@ -1,16 +1,6 @@
 "use client"
 
-import { Plus } from "lucide-react"
 import React, { useState } from "react"
-
-import { Button } from "@/components/ui/button"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 
 import { MatchCellHeader } from "./match-cell-header"
 import { MatchSlot } from "./match-slot"
@@ -69,7 +59,6 @@ export function MatchCell({
   onDragEnd,
   draggedPlayer,
 }: MatchCellProps) {
-  const [isAddingPlayer, setIsAddingPlayer] = useState(false)
   const [selectedEmptySlot, setSelectedEmptySlot] = useState<{
     side: "left" | "right"
     index: number
@@ -83,15 +72,23 @@ export function MatchCell({
   )
 
   const skillLevelLabel = (skillLevel?: number) => {
-    const levels = [
+    const scores = [
       "",
-      "Người mới bắt đầu",
-      "Trung cấp",
-      "Nâng cao",
-      "Chuyên gia",
-      "Chuyên nghiệp",
+      "2.0",
+      "2.25",
+      "2.5",
+      "2.75",
+      "3.0",
+      "3.25",
+      "3.5",
+      "3.75",
+      "4.0",
+      "4.25",
+      "4.5",
+      "4.75",
+      "5.0+",
     ]
-    return skillLevel ? levels[skillLevel] || "" : ""
+    return skillLevel ? scores[skillLevel] || scores[scores.length - 1] : ""
   }
 
   const getSkillLevelColor = (skillLevel?: number): string => {
@@ -199,53 +196,6 @@ export function MatchCell({
           </div>
         </div>
       </div>
-
-      {/* Add Player Button */}
-      {emptySlots > 0 && availablePlayersForAdd.length > 0 && (
-        <div>
-          {isAddingPlayer ? (
-            <div className="space-y-1">
-              <Select
-                onValueChange={(playerId) => {
-                  onPlayerAdd(match.id, playerId)
-                  setIsAddingPlayer(false)
-                }}
-              >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="Chọn một cầu thủ..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {availablePlayersForAdd.map((player) => (
-                    <SelectItem key={player.id} value={player.id}>
-                      {player.name}
-                      {player.skillLevel &&
-                        ` (${skillLevelLabel(player.skillLevel)})`}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-7 w-full text-xs"
-                onClick={() => setIsAddingPlayer(false)}
-              >
-                Hủy
-              </Button>
-            </div>
-          ) : (
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-8 w-full gap-1 text-xs"
-              onClick={() => setIsAddingPlayer(true)}
-            >
-              <Plus className="h-3 w-3" />
-              Thêm cầu thủ
-            </Button>
-          )}
-        </div>
-      )}
 
       <PlayerSelectionDialog
         open={selectedEmptySlot !== null}

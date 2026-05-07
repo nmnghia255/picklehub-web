@@ -46,14 +46,15 @@ export function PlayerCard({
       onDrop={onDrop}
       onDragOver={onDragOver}
       className={cn(
-        "flex w-full min-w-0 cursor-move items-center gap-2 overflow-hidden rounded border border-slate-200 bg-white p-2 transition-all hover:shadow-md",
-        isDragging && "scale-105 opacity-50 shadow-lg ring-2 ring-blue-400"
+        "flex w-full min-w-0 cursor-move items-center gap-2 overflow-hidden rounded border border-slate-200 bg-white p-2 transition-all hover:shadow-md dark:border-slate-700 dark:bg-slate-950/60 dark:hover:shadow-lg",
+        isDragging &&
+          "scale-105 opacity-50 shadow-lg ring-2 ring-blue-400 dark:ring-cyan-400"
       )}
     >
       {/* Avatar */}
       <Avatar className="h-7 w-7 shrink-0">
         <AvatarImage src={player.avatarUrl || undefined} alt={player.name} />
-        <AvatarFallback className="text-xs">
+        <AvatarFallback className="text-xs dark:bg-slate-800 dark:text-slate-200">
           {player.name
             .split(" ")
             .map((n) => n[0])
@@ -64,7 +65,7 @@ export function PlayerCard({
 
       {/* Player Info */}
       <div className="min-w-0 flex-1 overflow-hidden">
-        <p className="text-xs leading-tight font-medium text-slate-900">
+        <p className="text-xs leading-tight font-medium text-slate-900 dark:text-slate-100">
           {player.name}
         </p>
         {skillLevelLabel && (
@@ -83,7 +84,7 @@ export function PlayerCard({
       <Button
         variant="ghost"
         size="sm"
-        className="h-6 w-6 shrink-0 p-0 hover:bg-red-100 hover:text-red-600"
+        className="h-6 w-6 shrink-0 p-0 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-300"
         onClick={onRemove}
       >
         <X className="h-3 w-3" />

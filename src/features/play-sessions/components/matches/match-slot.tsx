@@ -105,7 +105,7 @@ export function MatchSlot({
         }
       }}
       aria-label="Chọn cầu thủ cho ô trống"
-      className="flex h-12 w-full min-w-0 cursor-pointer items-center justify-center rounded border-2 border-dashed border-slate-300 bg-slate-50 text-xs font-medium text-slate-500 transition-colors hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 active:border-blue-500 active:bg-blue-100"
+      className="flex h-12 w-full min-w-0 cursor-pointer items-center justify-center rounded border-2 border-dashed border-slate-300 bg-slate-50 text-xs font-medium text-slate-500 transition-colors hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 active:border-blue-500 active:bg-blue-100 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-400 dark:hover:border-cyan-400/60 dark:hover:bg-slate-900 dark:hover:text-slate-100 dark:active:border-cyan-300/70 dark:active:bg-slate-900/90"
     >
       <span className="flex items-center gap-1">
         <span className="text-base leading-none">+</span>

@@ -1,5 +1,6 @@
 "use client"
 
+import { toast } from "sonner"
 import { create } from "zustand"
 
 interface Match {
@@ -27,7 +28,6 @@ export interface MatchesGeneratorState {
   hours: number
   players: Player[]
   matches: Match[]
-  selectedPlayers: string[]
   history: HistoryEntry[]
   historyIndex: number
 }
@@ -36,7 +36,6 @@ interface MatchesGeneratorActions {
   // Configuration
   setCourts: (courts: number) => void
   setHours: (hours: number) => void
-  setSelectedPlayers: (playerIds: string[]) => void
 
   // Match Management
   setMatches: (matches: Match[]) => void
@@ -49,7 +48,7 @@ interface MatchesGeneratorActions {
     toMatchId: string,
     fromPlayerId: string,
     toPlayerId: string | null
-  ) => void
+  ) => boolean
 
   // History Management
   undo: () => void
@@ -73,7 +72,6 @@ const initialState: MatchesGeneratorState = {
     { id: "8", name: "Frank Miller", skillLevel: 3 },
   ],
   matches: [],
-  selectedPlayers: [],
   history: [],
   historyIndex: -1,
 }
@@ -81,6 +79,16 @@ const initialState: MatchesGeneratorState = {
 export const useMatchesGeneratorStore = create<
   MatchesGeneratorState & MatchesGeneratorActions
 >((set, get) => {
+  const isPlayerInSession = (
+    matches: Match[],
+    playerId: string,
+    sessionIndex: number
+  ): boolean => {
+    return matches
+      .filter((m) => m.sessionIndex === sessionIndex)
+      .some((m) => m.players.some((p) => p.id === playerId))
+  }
+
   // Helper to add state to history
   const updateStateWithHistory = (newState: Partial<MatchesGeneratorState>) => {
     const currentState = get()
@@ -116,10 +124,6 @@ export const useMatchesGeneratorStore = create<
 
     setHours: (hours: number) => {
       updateStateWithHistory({ hours })
-    },
-
-    setSelectedPlayers: (selectedPlayers: string[]) => {
-      updateStateWithHistory({ selectedPlayers })
     },
 
     // Match management actions
@@ -187,22 +191,45 @@ export const useMatchesGeneratorStore = create<
       toMatchId: string,
       fromPlayerId: string,
       toPlayerId: string | null
-    ) => {
+    ): boolean => {
       const currentMatches = get().matches
       const fromIndex = currentMatches.findIndex((m) => m.id === fromMatchId)
       const toIndex = currentMatches.findIndex((m) => m.id === toMatchId)
 
-      if (fromIndex === -1 || toIndex === -1) return
+      if (fromIndex === -1 || toIndex === -1) return false
 
       const fromMatch = currentMatches[fromIndex]
       const toMatch = currentMatches[toIndex]
 
       const playerToMove = fromMatch.players.find((p) => p.id === fromPlayerId)
-      if (!playerToMove) return
+      if (!playerToMove) return false
 
       const playerToRemove = toPlayerId
         ? toMatch.players.find((p) => p.id === toPlayerId)
         : null
+
+      if (fromIndex !== toIndex) {
+        // Check if fromPlayerId is already in toMatch's session
+        if (
+          isPlayerInSession(currentMatches, fromPlayerId, toMatch.sessionIndex)
+        ) {
+          toast.error(
+            "Cầu thủ này đã xuất hiện trong phiên chơi này. Không thể thêm vào trận khác trong cùng phiên."
+          )
+          return false
+        }
+
+        // Check if toPlayerId is already in fromMatch's session (if swapping, not just moving)
+        if (
+          toPlayerId &&
+          isPlayerInSession(currentMatches, toPlayerId, fromMatch.sessionIndex)
+        ) {
+          toast.error(
+            "Cầu thủ này đã xuất hiện trong phiên chơi này. Không thể thêm vào trận khác trong cùng phiên."
+          )
+          return false
+        }
+      }
 
       // Work on shallow copies
       const newMatches = currentMatches.map((m) => ({
@@ -215,13 +242,13 @@ export const useMatchesGeneratorStore = create<
         const fromPlayerIndex = match.players.findIndex(
           (p) => p.id === fromPlayerId
         )
-        if (fromPlayerIndex === -1) return
+        if (fromPlayerIndex === -1) return false
 
         if (playerToRemove) {
           const toPlayerIndex = match.players.findIndex(
             (p) => p.id === toPlayerId
           )
-          if (toPlayerIndex === -1) return
+          if (toPlayerIndex === -1) return false
 
           match.players = match.players.map((player, index) => {
             if (index === fromPlayerIndex) return playerToRemove
@@ -269,6 +296,7 @@ export const useMatchesGeneratorStore = create<
       }
 
       updateStateWithHistory({ matches: newMatches })
+      return true
     },
 
     // History actions

@@ -26,7 +26,6 @@ interface MatchesGeneratorMatrixProps {
   hours: number
   matches: Match[]
   allPlayers: Player[]
-  onMatchUpdate: (match: Match) => void
   onPlayerRemove: (matchId: string, playerId: string) => void
   onPlayerAdd: (matchId: string, playerId: string) => void
   onMatchTypeChange: (matchId: string, matchType: "SINGLES" | "DOUBLES") => void
@@ -43,7 +42,6 @@ export function MatchesGeneratorMatrix({
   hours,
   matches,
   allPlayers,
-  onMatchUpdate,
   onPlayerRemove,
   onPlayerAdd,
   onMatchTypeChange,
@@ -88,11 +86,11 @@ export function MatchesGeneratorMatrix({
   ): string => {
     switch (status) {
       case "complete":
-        return "border-green-200 bg-green-50"
+        return "border-emerald-200 bg-emerald-50 dark:border-emerald-900/60 dark:bg-emerald-950/30"
       case "incomplete":
-        return "border-amber-200 bg-amber-50"
+        return "border-amber-200 bg-amber-50 dark:border-amber-900/60 dark:bg-amber-950/30"
       case "empty":
-        return "border-gray-200 bg-gray-50"
+        return "border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50"
     }
   }
 
@@ -101,11 +99,11 @@ export function MatchesGeneratorMatrix({
   ): string => {
     switch (status) {
       case "complete":
-        return "bg-green-100 text-green-800"
+        return "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300"
       case "incomplete":
-        return "bg-amber-100 text-amber-800"
+        return "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300"
       case "empty":
-        return "bg-gray-100 text-gray-800"
+        return "bg-slate-100 text-slate-700 dark:bg-slate-700/40 dark:text-slate-200"
     }
   }
 
@@ -113,8 +111,10 @@ export function MatchesGeneratorMatrix({
     <div className="space-y-4">
       {/* Summary */}
       <div>
-        <h3 className="font-semibold">Bảng trận đấu</h3>
-        <p className="text-sm text-muted-foreground">
+        <h3 className="font-semibold text-foreground dark:text-slate-50">
+          Bảng trận đấu
+        </h3>
+        <p className="text-sm text-muted-foreground dark:text-slate-400">
           {matches.length} trận • {unassignedPlayers.length} cầu thủ chưa được
           gán
         </p>
@@ -124,7 +124,7 @@ export function MatchesGeneratorMatrix({
       <div className="space-y-4">
         {Array.from({ length: hours }).map((_, sessionIndex) => (
           <div key={sessionIndex} className="space-y-2">
-            <div className="text-sm font-medium text-slate-700">
+            <div className="text-sm font-medium text-foreground dark:text-slate-200">
               Phiên {sessionIndex + 1}
             </div>
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -137,7 +137,7 @@ export function MatchesGeneratorMatrix({
                     key={`${courtIndex}-${sessionIndex}`}
                     className={`flex flex-col rounded-lg border p-3 ${getStatusColor(status)}`}
                   >
-                    <div className="mb-2 text-sm font-medium text-slate-700">
+                    <div className="mb-2 text-sm font-medium text-foreground dark:text-slate-200">
                       Sân {courtIndex + 1}
                     </div>
                     <div className="flex items-center justify-center">
@@ -158,7 +158,7 @@ export function MatchesGeneratorMatrix({
                           draggedPlayer={draggedPlayer}
                         />
                       ) : (
-                        <div className="flex items-center justify-center text-xs text-muted-foreground">
+                        <div className="flex items-center justify-center text-xs text-muted-foreground dark:text-slate-500">
                           Trống
                         </div>
                       )}
@@ -173,16 +173,16 @@ export function MatchesGeneratorMatrix({
 
       {/* Unassigned Players Section */}
       {unassignedPlayers.length > 0 && (
-        <Card className="border-blue-200 bg-blue-50 p-4">
+        <Card className="border-sky-200 bg-sky-50 p-4 dark:border-cyan-900/60 dark:bg-slate-950/60">
           <div className="space-y-2">
-            <p className="text-sm font-medium text-blue-900">
+            <p className="text-sm font-medium text-sky-900 dark:text-cyan-200">
               👥 Cầu thủ chưa được gán ({unassignedPlayers.length})
             </p>
             <div className="flex flex-wrap gap-2">
               {unassignedPlayers.map((player) => (
                 <Card
                   key={player.id}
-                  className="border-blue-300 bg-white px-3 py-1 text-xs font-medium text-blue-900"
+                  className="border-sky-200 bg-white px-3 py-1 text-xs font-medium text-sky-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                 >
                   {player.name}
                 </Card>

@@ -37,11 +37,18 @@ export function MatchCellHeader({
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0 text-foreground dark:text-slate-200"
+          >
             <MoreVertical className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuContent
+          align="end"
+          className="w-48 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+        >
           <DropdownMenuItem
             onClick={() => onMatchTypeChange(matchId, "SINGLES")}
           >
