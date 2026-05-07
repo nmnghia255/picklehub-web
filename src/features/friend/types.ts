@@ -10,6 +10,7 @@ export type FriendUser = {
   level: "Beginner" | "Intermediate" | "Advanced"
   location: string
   mutualFriends: number
+  counterpartId?: string
   invitedAt?: string
   becameFriendAt?: string
   lastActiveAt?: string
