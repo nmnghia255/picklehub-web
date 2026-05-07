@@ -7,12 +7,24 @@ import type { Group } from "@/features/groups/types"
 type Props = {
   myGroups: Group[]
   discoverGroups: Group[]
+  myGroupsError?: boolean
+  discoverGroupsError?: boolean
 }
 
-export function GroupsPageContent({ myGroups, discoverGroups }: Props) {
+export function GroupsPageContent({
+  myGroups,
+  discoverGroups,
+  myGroupsError = false,
+  discoverGroupsError = false,
+}: Props) {
   return (
     <PageContainer>
-      <GroupTabs myGroups={myGroups} discoverGroups={discoverGroups} />
+      <GroupTabs
+        myGroups={myGroups}
+        discoverGroups={discoverGroups}
+        myGroupsError={myGroupsError}
+        discoverGroupsError={discoverGroupsError}
+      />
     </PageContainer>
   )
 }

@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { startTransition, useActionState, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 
@@ -23,6 +24,7 @@ import { addGroupAction } from "../actions"
 import { type AddGroupFormData, addGroupSchema } from "../schemas"
 
 export function AddGroupDrawer() {
+  const router = useRouter()
   const [open, setOpen] = useState(false)
   const [state, formAction, isPending] = useActionState(addGroupAction, {})
 
@@ -36,12 +38,15 @@ export function AddGroupDrawer() {
 
   useEffect(() => {
     if (!state.success) return
+
     const id = setTimeout(() => {
       setOpen(false)
       form.reset()
+      router.refresh()
     })
+
     return () => clearTimeout(id)
-  }, [state.success, form])
+  }, [state.success, form, router])
 
   const onSubmit = form.handleSubmit((data) => {
     const fd = new FormData()

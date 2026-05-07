@@ -11,9 +11,16 @@ import type { Group } from "@/features/groups/types"
 interface GroupTabsProps {
   myGroups: Group[]
   discoverGroups: Group[]
+  myGroupsError?: boolean
+  discoverGroupsError?: boolean
 }
 
-export function GroupTabs({ myGroups, discoverGroups }: GroupTabsProps) {
+export function GroupTabs({
+  myGroups,
+  discoverGroups,
+  myGroupsError = false,
+  discoverGroupsError = false,
+}: GroupTabsProps) {
   const [myGroupsKeyword, setMyGroupsKeyword] = useState("")
   const [discoverKeyword, setDiscoverKeyword] = useState("")
 
@@ -66,7 +73,12 @@ export function GroupTabs({ myGroups, discoverGroups }: GroupTabsProps) {
           ariaLabel="Tìm kiếm nhóm của bạn"
         />
 
-        {filteredMyGroups.length === 0 ? (
+        {myGroupsError ? (
+          <GroupsEmptyState
+            title="Không thể tải danh sách nhóm"
+            description="Dữ liệu nhóm của bạn chưa tải được. Vui lòng thử lại sau."
+          />
+        ) : filteredMyGroups.length === 0 ? (
           <GroupsEmptyState
             title="Không có nhóm nào phù hợp"
             description="Thử một từ khóa khác để tìm trong nhóm của bạn."
@@ -93,7 +105,12 @@ export function GroupTabs({ myGroups, discoverGroups }: GroupTabsProps) {
           ariaLabel="Tìm kiếm nhóm khám phá"
         />
 
-        {filteredDiscoverGroups.length === 0 ? (
+        {discoverGroupsError ? (
+          <GroupsEmptyState
+            title="Không thể tải danh sách nhóm"
+            description="Danh sách khám phá chưa tải được. Vui lòng thử lại sau."
+          />
+        ) : filteredDiscoverGroups.length === 0 ? (
           <GroupsEmptyState
             title="Không có nhóm nào phù hợp"
             description="Thử một từ khóa khác để khám phá các nhóm."

@@ -26,6 +26,30 @@ export interface FeedNotification {
 
 export const feedNotifications: FeedNotification[] = [
   {
+    id: "notif-gchat-001",
+    type: "group",
+    section: "Hôm nay",
+    title: "Tin nhắn mới trong nhóm Morning Crew",
+    description: "Có 3 tin nhắn mới. Tham gia chat để phản hồi.",
+    actor: "Nhóm",
+    timeLabel: "1 phút trước",
+    unread: true,
+    tags: ["Chat nhóm"],
+    actionHref: "/groups/group-1/chat",
+  },
+  {
+    id: "notif-gchat-002",
+    type: "group",
+    section: "Hôm nay",
+    title: "Nhắc: Buổi chơi ngày mai",
+    description: "Nhóm Badminton Club nhắc bạn về buổi chơi ngày mai.",
+    actor: "Quản trị viên nhóm",
+    timeLabel: "10 phút trước",
+    unread: true,
+    tags: ["Nhắc lịch", "Nhóm"],
+    actionHref: "/groups/group-1/chat",
+  },
+  {
     id: "notif-001",
     type: "invitation",
     section: "Hôm nay",

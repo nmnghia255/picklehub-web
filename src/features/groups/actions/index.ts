@@ -4,6 +4,7 @@ import axios from "axios"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
+import type { AcceptInvitationResponse } from "@/features/auth/types"
 import {
   archiveGroup,
   changeMemberRole,
@@ -366,12 +367,14 @@ export async function acceptInvitationAction(
     const response = await axios.post(
       `${API_BASE_URL}/api/invitations/${token}/accept`
     )
-    const { accessToken, refreshToken, isNewUser, user, group } = response.data
+    const { accessToken, refreshToken, isNewUser, user, group, expiresIn } =
+      response.data as AcceptInvitationResponse & { expiresIn?: number }
 
     const session = await getSession()
     session.user = { id: user.id, email: user.email }
     session.accessToken = accessToken
     session.refreshToken = refreshToken
+    session.accessTokenExpiresAt = Date.now() + (expiresIn ?? 15 * 60) * 1000
     await session.save()
 
     return { success: true, isNewUser, groupId: group.id }

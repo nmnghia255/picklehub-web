@@ -18,7 +18,7 @@ export function GroupDetailHeader({
   isOwner,
 }: GroupDetailHeaderProps) {
   return (
-    <div className="mb-6 flex items-center justify-between">
+    <div className="flex items-center justify-between">
       <h1 className="text-3xl font-bold">{groupName}</h1>
       <div className="flex gap-2">
         <Link href={`/groups/${groupId}/create-play-session`}>
