@@ -26,6 +26,7 @@ interface MatchCellProps {
   status: "complete" | "incomplete" | "empty"
   statusBadgeColor: string
   allPlayers: Player[]
+  sessionPlayerIds: string[]
   onPlayerRemove: (matchId: string, playerId: string) => void
   onPlayerAdd: (matchId: string, playerId: string) => void
   onMatchTypeChange: (matchId: string, matchType: "SINGLES" | "DOUBLES") => void
@@ -51,6 +52,7 @@ export function MatchCell({
   status,
   statusBadgeColor,
   allPlayers,
+  sessionPlayerIds,
   onPlayerRemove,
   onPlayerAdd,
   onMatchTypeChange,
@@ -66,9 +68,11 @@ export function MatchCell({
   const maxPlayers = match.matchType === "DOUBLES" ? 4 : 2
   const emptySlots = maxPlayers - match.players.length
 
-  // Get available players (not already in this match, but can be from other matches)
+  // Keep the picker limited to players who have not already appeared in this session.
   const availablePlayersForAdd = allPlayers.filter(
-    (p) => !match.players.find((mp) => mp.id === p.id)
+    (p) =>
+      !match.players.find((mp) => mp.id === p.id) &&
+      !sessionPlayerIds.includes(p.id)
   )
 
   const skillLevelLabel = (skillLevel?: number) => {
@@ -201,6 +205,7 @@ export function MatchCell({
         open={selectedEmptySlot !== null}
         slotLabel={selectedSlotLabel}
         players={availablePlayersForAdd}
+        sessionPlayerIds={sessionPlayerIds}
         skillLevelLabel={skillLevelLabel}
         onClose={() => setSelectedEmptySlot(null)}
         onSelect={(playerId) => {

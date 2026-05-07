@@ -131,6 +131,9 @@ export function MatchesGeneratorMatrix({
               {Array.from({ length: courts }).map((_, courtIndex) => {
                 const match = getMatch(courtIndex, sessionIndex)
                 const status = match ? getMatchStatus(match) : "empty"
+                const sessionPlayerIds = matches
+                  .filter((m) => m.sessionIndex === sessionIndex)
+                  .flatMap((m) => m.players.map((p) => p.id))
 
                 return (
                   <div
@@ -147,6 +150,7 @@ export function MatchesGeneratorMatrix({
                           status={status}
                           statusBadgeColor={getStatusBadgeColor(status)}
                           allPlayers={allPlayers}
+                          sessionPlayerIds={sessionPlayerIds}
                           onPlayerRemove={onPlayerRemove}
                           onPlayerAdd={onPlayerAdd}
                           onMatchTypeChange={onMatchTypeChange}

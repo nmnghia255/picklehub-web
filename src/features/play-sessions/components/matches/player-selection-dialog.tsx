@@ -20,6 +20,7 @@ interface PlayerSelectionDialogProps {
   open: boolean
   slotLabel?: string
   players: Player[]
+  sessionPlayerIds: string[]
   skillLevelLabel: (skillLevel?: number) => string
   onClose: () => void
   onSelect: (playerId: string) => void
@@ -29,10 +30,15 @@ export function PlayerSelectionDialog({
   open,
   slotLabel,
   players,
+  sessionPlayerIds,
   skillLevelLabel,
   onClose,
   onSelect,
 }: PlayerSelectionDialogProps) {
+  const visiblePlayers = players.filter(
+    (player) => !sessionPlayerIds.includes(player.id)
+  )
+
   return (
     <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
       <DialogContent className="sm:max-w-md dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100">
@@ -46,8 +52,8 @@ export function PlayerSelectionDialog({
         </DialogHeader>
 
         <div className="grid max-h-96 gap-2 overflow-y-auto">
-          {players.length > 0 ? (
-            players.map((player) => (
+          {visiblePlayers.length > 0 ? (
+            visiblePlayers.map((player) => (
               <Button
                 key={player.id}
                 variant="outline"
