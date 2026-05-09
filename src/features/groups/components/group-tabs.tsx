@@ -10,19 +10,11 @@ import type { Group } from "@/features/groups/types"
 
 interface GroupTabsProps {
   myGroups: Group[]
-  discoverGroups: Group[]
   myGroupsError?: boolean
-  discoverGroupsError?: boolean
 }
 
-export function GroupTabs({
-  myGroups,
-  discoverGroups,
-  myGroupsError = false,
-  discoverGroupsError = false,
-}: GroupTabsProps) {
+export function GroupTabs({ myGroups, myGroupsError = false }: GroupTabsProps) {
   const [myGroupsKeyword, setMyGroupsKeyword] = useState("")
-  const [discoverKeyword, setDiscoverKeyword] = useState("")
 
   const filteredMyGroups = useMemo(() => {
     const safeMyGroups = Array.isArray(myGroups) ? myGroups : []
@@ -39,29 +31,11 @@ export function GroupTabs({
     })
   }, [myGroupsKeyword, myGroups])
 
-  const filteredDiscoverGroups = useMemo(() => {
-    const safeDiscoverGroups = Array.isArray(discoverGroups)
-      ? discoverGroups
-      : []
-    const keyword = discoverKeyword.trim().toLowerCase()
-
-    if (!keyword) {
-      return safeDiscoverGroups
-    }
-
-    return safeDiscoverGroups.filter((group) => {
-      const name = group.name.toLowerCase()
-      const description = (group.description ?? "").toLowerCase()
-      return name.includes(keyword) || description.includes(keyword)
-    })
-  }, [discoverKeyword, discoverGroups])
-
   return (
     <Tabs defaultValue="your-groups" className="gap-6">
       <div className="flex justify-center">
         <TabsList className="w-full max-w-xl">
           <TabsTrigger value="your-groups">Nhóm của bạn</TabsTrigger>
-          <TabsTrigger value="discover">Khám phá</TabsTrigger>
         </TabsList>
       </div>
 
@@ -91,37 +65,6 @@ export function GroupTabs({
                 group={group}
                 actionLabel="Mở"
                 showRole
-              />
-            ))}
-          </div>
-        )}
-      </TabsContent>
-
-      <TabsContent value="discover" className="space-y-4">
-        <GroupSearchControls
-          placeholder="Tìm kiếm nhóm khám phá"
-          value={discoverKeyword}
-          onChange={setDiscoverKeyword}
-          ariaLabel="Tìm kiếm nhóm khám phá"
-        />
-
-        {discoverGroupsError ? (
-          <GroupsEmptyState
-            title="Không thể tải danh sách nhóm"
-            description="Danh sách khám phá chưa tải được. Vui lòng thử lại sau."
-          />
-        ) : filteredDiscoverGroups.length === 0 ? (
-          <GroupsEmptyState
-            title="Không có nhóm nào phù hợp"
-            description="Thử một từ khóa khác để khám phá các nhóm."
-          />
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
-            {filteredDiscoverGroups.map((group) => (
-              <GroupCard
-                key={group.id}
-                group={group}
-                actionLabel="Xem chi tiết"
               />
             ))}
           </div>
