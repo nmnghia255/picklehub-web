@@ -1,5 +1,6 @@
 "use server"
 
+import { feedNotifications } from "@/features/feed/mock-data/feed-notifications"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type { GroupFeedNotificationItem } from "../components/group-feed-notifications"
@@ -12,22 +13,21 @@ import type { SendGroupFeedNotificationDto } from "../types"
 export async function fetchGroupFeedNotifications(
   groupId: string
 ): Promise<GroupFeedNotificationItem[]> {
-  try {
-    const axios = await getAuthenticatedAxios()
-    const response = await axios.get(
-      `/api/groups/${groupId}/feed-notifications`
+  return feedNotifications
+    .filter(
+      (notification) =>
+        notification.type === "group" &&
+        (!notification.groupId || notification.groupId === groupId)
     )
-
-    const data = Array.isArray(response.data)
-      ? response.data
-      : response.data?.data || []
-
-    return data as GroupFeedNotificationItem[]
-  } catch (error) {
-    // Return empty array if endpoint doesn't exist or other errors
-    console.error("Error fetching group feed notifications:", error)
-    return []
-  }
+    .map((notification) => ({
+      id: notification.id,
+      groupId: notification.groupId,
+      title: notification.title,
+      message: notification.description,
+      sentAt: new Date().toISOString(),
+      timeLabel: notification.timeLabel,
+      senderName: notification.actor,
+    }))
 }
 
 /**
@@ -39,8 +39,7 @@ export async function sendGroupFeedNotificationAction(
 ): Promise<{ success: boolean; message: string }> {
   try {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post("/api/notifications/feed", {
-      groupId: dto.groupId,
+    const response = await axios.post(`/api/groups/${dto.groupId}/notify`, {
       title: dto.title,
       message: dto.message,
     })

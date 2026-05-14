@@ -1,41 +1,25 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useAtomValue } from "jotai"
+import { useMemo } from "react"
 
-import { fetchGroupFeedNotifications } from "../actions/notifications"
 import type { GroupFeedNotificationItem } from "../components/group-feed-notifications"
+import { groupFeedNotificationsAtom } from "../store/group-feed-store"
 
 export function useGroupFeedNotifications(groupId: string) {
-  const [notifications, setNotifications] = useState<
-    GroupFeedNotificationItem[]
-  >([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<Error | null>(null)
+  const notifications = useAtomValue(groupFeedNotificationsAtom)
 
-  useEffect(() => {
-    const loadNotifications = async () => {
-      try {
-        setIsLoading(true)
-        setError(null)
+  const filteredNotifications = useMemo(() => {
+    return notifications.filter((notification) => {
+      if (!notification.groupId) return true
+      return notification.groupId === groupId
+    })
+  }, [groupId, notifications])
 
-        const data = await fetchGroupFeedNotifications(groupId)
-        setNotifications(data)
-      } catch (err) {
-        // Silently handle errors
-        setNotifications([])
-        if (err instanceof Error) {
-          setError(err)
-          console.error("Error fetching group notifications:", err)
-        }
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    if (groupId) {
-      loadNotifications()
-    }
-  }, [groupId])
-
-  return { notifications, isLoading, error }
+  return {
+    notifications: filteredNotifications as GroupFeedNotificationItem[],
+    isLoading: false,
+    error: null,
+    refresh: () => undefined,
+  }
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useAtom } from "jotai"
 import { Bell, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
@@ -26,7 +27,10 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import type { FeedNotification } from "@/features/feed/mock-data/feed-notifications"
+import { notificationFeedAtom } from "@/features/feed/store/feed-store"
 import { sendGroupFeedNotificationAction } from "@/features/notifications/actions/notifications"
+import { groupFeedNotificationsAtom } from "@/features/notifications/store/group-feed-store"
 import { useToast } from "@/hooks/use-toast"
 
 const sendNotificationSchema = z.object({
@@ -49,6 +53,8 @@ export function GroupFeedNotificationSender({
 }: GroupFeedNotificationSenderProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [, setNotifications] = useAtom(notificationFeedAtom)
+  const [, setGroupNotifications] = useAtom(groupFeedNotificationsAtom)
   const { toast } = useToast()
 
   const form = useForm<SendNotificationFormValues>({
@@ -77,6 +83,37 @@ export function GroupFeedNotificationSender({
         title: data.title,
         message: data.message,
       })
+
+      const now = new Date()
+      const timeLabel = now.toLocaleString("vi-VN")
+
+      const optimisticNotification: FeedNotification = {
+        id: `group-notification-${groupId}-${now.getTime()}`,
+        type: "group",
+        groupId,
+        section: "Hôm nay",
+        title: data.title,
+        description: data.message,
+        actor: groupName,
+        timeLabel,
+        unread: true,
+        tags: ["Nhóm", "Thông báo"],
+        actionHref: `/groups/${groupId}`,
+      }
+
+      setNotifications((current) => [optimisticNotification, ...current])
+      setGroupNotifications((current) => [
+        {
+          id: optimisticNotification.id,
+          groupId,
+          title: data.title,
+          message: data.message,
+          sentAt: now.toISOString(),
+          timeLabel,
+          senderName: groupName,
+        },
+        ...current,
+      ])
 
       toast({
         title: "Thành công",

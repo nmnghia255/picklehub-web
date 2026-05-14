@@ -17,9 +17,8 @@ export async function sendGroupFeedNotification(
 ): Promise<SendGroupFeedNotificationResponse> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<SendGroupFeedNotificationResponse>(
-    "/api/notifications/feed",
+    `/api/groups/${dto.groupId}/notify`,
     {
-      groupId: dto.groupId,
       title: dto.title,
       message: dto.message,
     }
@@ -37,7 +36,7 @@ export async function sendInAppNotification(
 ): Promise<SendInAppNotificationResponse> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<SendInAppNotificationResponse>(
-    "/api/notifications/send",
+    "/api/notification/send",
     {
       userIds: dto.userIds,
       title: dto.title,
@@ -61,7 +60,7 @@ export async function sendEmailNotification(
 ): Promise<{ message: string }> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<{ message: string }>(
-    "/api/notifications/email/send",
+    "/api/notification/email/send",
     {
       to,
       subject,

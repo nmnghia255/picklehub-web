@@ -13,7 +13,7 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 export async function fetchMyNotifications(): Promise<FeedNotification[]> {
   try {
     const axios = await getAuthenticatedAxios()
-    const res = await axios.get("/api/notifications")
+    const res = await axios.get("/api/notification")
 
     const payload = res.data
 
@@ -48,6 +48,9 @@ export async function fetchMyNotifications(): Promise<FeedNotification[]> {
             it["id"] ?? it["_id"] ?? Math.random().toString(36).slice(2, 9)
           ),
           type,
+          groupId: (it["groupId"] ?? it["group_id"] ?? undefined) as
+            | string
+            | undefined,
           section,
           title: (it["title"] ?? it["subject"] ?? "Thông báo") as string,
           description: (it["message"] ?? it["description"] ?? "") as string,
@@ -55,7 +58,10 @@ export async function fetchMyNotifications(): Promise<FeedNotification[]> {
           timeLabel: new Date(
             (it["createdAt"] ?? it["sentAt"] ?? Date.now()) as string | number
           ).toLocaleString("vi-VN"),
-          unread: it["read"] === false || it["unread"] === true,
+          unread:
+            it["read"] === false ||
+            it["isRead"] === false ||
+            it["unread"] === true,
           status: (it["status"] ?? undefined) as undefined | string,
           tags: Array.isArray(it["tags"]) ? (it["tags"] as string[]) : [],
           actionHref: (it["actionHref"] ?? it["url"] ?? undefined) as

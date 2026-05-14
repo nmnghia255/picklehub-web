@@ -7,9 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export interface GroupFeedNotificationItem {
   id: string
+  groupId?: string
   title: string
   message: string
   sentAt: string
+  timeLabel?: string
   senderName: string
 }
 
@@ -20,6 +22,9 @@ interface GroupFeedNotificationsProps {
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
+  if (Number.isNaN(date.getTime())) {
+    return "Vừa xong"
+  }
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffMins = Math.floor(diffMs / 60000)
@@ -100,7 +105,7 @@ export function GroupFeedNotifications({
                     className="text-xs whitespace-nowrap"
                   >
                     <Clock className="mr-1 size-3" />
-                    {formatDate(notification.sentAt)}
+                    {notification.timeLabel ?? formatDate(notification.sentAt)}
                   </Badge>
                 </div>
                 <p className="line-clamp-2 text-sm text-muted-foreground">
