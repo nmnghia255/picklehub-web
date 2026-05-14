@@ -15,6 +15,8 @@ import { GroupMembersCard } from "@/features/groups/components/group-members-car
 import { GroupOverviewCard } from "@/features/groups/components/group-overview-card"
 import { InvitationsTable } from "@/features/groups/components/invitations-table"
 import { UpcomingPlaySessionsSection } from "@/features/groups/components/upcoming-play-sessions-section"
+import { GroupFeedNotificationSender } from "@/features/notifications/components/group-feed-notification-sender"
+import { GroupFeedNotificationsContainer } from "@/features/notifications/components/group-feed-notifications-container"
 import { listPlaySessions } from "@/features/play-sessions/api/public-play-sessions-service"
 import type {
   GroupPlaySession,
@@ -135,26 +137,40 @@ export default async function GroupDetailPage({
             isOwner={isOwner}
           />
         </div>
-        <Button asChild variant="outline" size="sm" className="shrink-0">
-          <Link href={`/groups/${groupId}?view=chat`}>
-            <MessageSquare className="mr-2 size-4" />
-            Mở chat
-          </Link>
-        </Button>
+        <div className="flex shrink-0 items-center gap-2">
+          {isOwner && (
+            <GroupFeedNotificationSender
+              groupId={groupId}
+              groupName={group.name}
+              canSend={isOwner}
+            />
+          )}
+          <Button asChild variant="outline" size="sm">
+            <Link href={`/groups/${groupId}?view=chat`}>
+              <MessageSquare className="mr-2 size-4" />
+              Mở chat
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <>
         <GroupOverviewCard group={group} />
-        <GroupMembersCard
-          groupId={groupId}
-          currentUserId={session.user?.id ?? ""}
-          currentUserRole={group.role ?? null}
-        />
 
-        <UpcomingPlaySessionsSection
-          sessions={upcomingSessions}
-          hasError={hasUpcomingSessionsError}
-        />
+        <div className="mt-6 space-y-6">
+          <GroupMembersCard
+            groupId={groupId}
+            currentUserId={session.user?.id ?? ""}
+            currentUserRole={group.role ?? null}
+          />
+
+          <GroupFeedNotificationsContainer groupId={groupId} />
+
+          <UpcomingPlaySessionsSection
+            sessions={upcomingSessions}
+            hasError={hasUpcomingSessionsError}
+          />
+        </div>
 
         {isOwner && (
           <Card className="mt-6">

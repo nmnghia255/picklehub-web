@@ -16,11 +16,13 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
+import { useEffect } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { fetchMyNotifications } from "@/features/notifications/actions/user-notifications"
 import { cn } from "@/lib/utils"
 
 import type {
@@ -317,6 +319,35 @@ function StatCard({
 export function FeedPage() {
   const [activeFilter, setActiveFilter] = useState<FeedFilter>("all")
   const [notifications, setNotifications] = useAtom(notificationFeedAtom)
+
+  useEffect(() => {
+    let mounted = true
+
+    const load = async () => {
+      try {
+        const remote = await fetchMyNotifications()
+        if (!mounted || !Array.isArray(remote)) return
+
+        // Merge remote notifications into atom (avoid duplicates)
+        setNotifications((current) => {
+          const byId = new Map(current.map((n) => [n.id, n]))
+          remote.forEach((r) => {
+            if (!byId.has(r.id)) byId.set(r.id, r)
+          })
+          return Array.from(byId.values()).sort((a, b) =>
+            b.timeLabel > a.timeLabel ? 1 : -1
+          )
+        })
+      } catch (err) {
+        console.error("Failed to load remote notifications:", err)
+      }
+    }
+
+    load()
+    return () => {
+      mounted = false
+    }
+  }, [setNotifications])
 
   const unreadCount = notifications.filter(
     (notification) => notification.unread
