@@ -2,187 +2,78 @@
 
 import { create } from "zustand"
 
-import {
-  cancelBookingByOwner,
-  createBookingForCourt,
-  createBookingForCourtByOwner,
-  listCenterBookings,
-} from "../api/booking-service"
+import { listOwnerSportCenters } from "../api/sport-center-service"
 import type { Booking, BookingStatus } from "../types"
+import {
+  cancelBookingAction,
+  createBookingAction,
+  createBookingByOwnerAction,
+  fetchBookingsAction,
+} from "./booking-store.actions"
+import {
+  closeBookingAction,
+  closeQuickBookingAction,
+  fetchCourtsAction,
+  openBookingAction,
+  openQuickBookingAction,
+  rebookFromCancelledAction,
+} from "./court-schedule-store.actions"
+import { getDefaultDate } from "./court-schedule-store.helpers"
+import type { CourtScheduleState } from "./court-schedule-store.types"
 
 export type { Booking, BookingStatus }
 
-type QuickBookingSlot = {
-  court: string
-  time: string
-} | null
-
-type BookingItem = Partial<Booking> & {
-  bookingId?: string
-  player?: { name?: string | null; phone?: string | null }
-  userName?: string | null
-  phone?: string | null
-  courtName?: string | null
-  courtId?: string | null
-  startTime?: string | null
-  slot?: string | null
-}
-
-interface CourtScheduleState {
-  bookings: Record<string, Booking>
-  selectedBooking: Booking | null
-  quickBookingSlot: QuickBookingSlot
-  date: string
-  courtFilter: string
-  loading: boolean
-  centerId: string
-  setDate: (date: string) => void
-  setCourtFilter: (courtFilter: string) => void
-  openBooking: (booking: Booking) => void
-  closeBooking: () => void
-  openQuickBooking: (slot: NonNullable<QuickBookingSlot>) => void
-  closeQuickBooking: () => void
-  rebookFromCancelled: (booking: Booking) => void
-  fetchBookings: () => Promise<void>
-  cancelBooking: (bookingId: string) => Promise<void>
-  createBooking: (playerName: string, contact: string) => Promise<void>
-  createBookingByOwner: (playerName: string, contact: string) => Promise<void>
-}
-
-const courts = ["Sân 1", "Sân 2", "Sân 3", "Sân 4"]
-
-function buildBookingKey(court: string, time: string) {
-  return `${court}-${time}`
-}
-
-function normalizeBooking(item: BookingItem): Booking {
-  const id = item.id ?? item.bookingId ?? crypto.randomUUID()
-  const playerName =
-    item.playerName ?? item.player?.name ?? item.userName ?? "Khách"
-  const contact = item.contact ?? item.player?.phone ?? item.phone ?? ""
-  const status = (item.status ?? "PENDING") as BookingStatus
-  const time = item.time ?? item.startTime ?? item.slot ?? "00:00"
-  const court = item.court ?? item.courtName ?? item.courtId ?? "Sân 1"
-
-  return {
-    id,
-    playerName,
-    contact,
-    status,
-    time,
-    court,
-  }
-}
-
-function mapBookings(items: BookingItem[]) {
-  return items.reduce<Record<string, Booking>>((accumulator, item) => {
-    const booking = normalizeBooking(item)
-    accumulator[buildBookingKey(booking.court, booking.time)] = booking
-    return accumulator
-  }, {})
-}
-
-function getDefaultDate() {
-  return new Date().toISOString().slice(0, 10)
-}
-
 export const useCourtScheduleStore = create<CourtScheduleState>((set, get) => ({
+  courts: [],
   bookings: {},
   selectedBooking: null,
   quickBookingSlot: null,
+  quickBookingPlayerName: "",
+  quickBookingNote: "",
   date: getDefaultDate(),
   courtFilter: "all",
   loading: false,
-  centerId: process.env.NEXT_PUBLIC_DEFAULT_CENTER_ID ?? "default-center",
+  sportCenters: [],
+  loadingSportCenters: false,
+  centerId: "",
 
   setDate: (date) => set({ date }),
   setCourtFilter: (courtFilter) => set({ courtFilter }),
-  openBooking: (booking) => set({ selectedBooking: booking }),
-  closeBooking: () => set({ selectedBooking: null }),
-  openQuickBooking: (slot) => set({ quickBookingSlot: slot }),
-  closeQuickBooking: () => set({ quickBookingSlot: null }),
-  rebookFromCancelled: (booking) =>
-    set({
-      selectedBooking: null,
-      quickBookingSlot: { court: booking.court, time: booking.time },
-    }),
-
-  fetchBookings: async () => {
-    const { centerId, date } = get()
-    set({ loading: true })
-
-    try {
-      const payload = (await listCenterBookings(centerId, { date })) as {
-        data?: unknown
-      }
-      const items = Array.isArray(payload.data)
-        ? (payload.data as BookingItem[])
-        : []
-
-      set({ bookings: mapBookings(items) })
-    } catch (error) {
-      console.error("[CourtScheduleStore] fetchBookings error:", error)
-    } finally {
-      set({ loading: false })
-    }
+  setQuickBookingPlayerName: (quickBookingPlayerName) =>
+    set({ quickBookingPlayerName }),
+  setQuickBookingNote: (quickBookingNote) => set({ quickBookingNote }),
+  setCenterId: (centerId) => {
+    set({ centerId })
+    get().fetchCourts()
+    get().fetchBookings()
   },
-
-  cancelBooking: async (bookingId) => {
-    try {
-      await cancelBookingByOwner(bookingId)
-
-      await get().fetchBookings()
-    } catch (error) {
-      console.error("[CourtScheduleStore] cancelBooking error:", error)
-    } finally {
-      set({ selectedBooking: null })
-    }
-  },
-
-  createBooking: async (playerName, contact) => {
-    const { centerId, date, quickBookingSlot } = get()
-
-    if (!quickBookingSlot) {
-      return
-    }
+  fetchSportCenters: async () => {
+    set({ loadingSportCenters: true })
 
     try {
-      await createBookingForCourt(centerId, quickBookingSlot.court, {
-        date,
-        startTime: quickBookingSlot.time,
-        endTime: quickBookingSlot.time,
-        note: `${playerName} | ${contact}`,
+      const centers = await listOwnerSportCenters()
+
+      set({
+        sportCenters: centers,
+        centerId: centers.length > 0 ? centers[0].id : "",
       })
-
-      set({ quickBookingSlot: null })
-      await get().fetchBookings()
     } catch (error) {
-      console.error("[CourtScheduleStore] createBooking error:", error)
+      console.error("[CourtScheduleStore] fetchSportCenters error:", error)
+      set({ sportCenters: [] })
+    } finally {
+      set({ loadingSportCenters: false })
     }
   },
-  createBookingByOwner: async (playerName, contact) => {
-    const { centerId, date, quickBookingSlot } = get()
-
-    if (!quickBookingSlot) return
-
-    try {
-      await createBookingForCourtByOwner(centerId, quickBookingSlot.court, {
-        date,
-        startTime: quickBookingSlot.time,
-        endTime: quickBookingSlot.time,
-        playerName,
-        playerPhone: contact,
-        note: `${playerName} | ${contact}`,
-      })
-
-      set({ quickBookingSlot: null })
-      await get().fetchBookings()
-    } catch (error) {
-      console.error("[CourtScheduleStore] createBookingByOwner error:", error)
-    }
-  },
+  fetchCourts: async () => fetchCourtsAction(set, get),
+  openBooking: (booking) => openBookingAction(booking, set),
+  closeBooking: () => closeBookingAction(set),
+  openQuickBooking: (slot) => openQuickBookingAction(slot, set),
+  closeQuickBooking: () => closeQuickBookingAction(set),
+  rebookFromCancelled: (booking) => rebookFromCancelledAction(booking, set),
+  fetchBookings: async () => fetchBookingsAction(set, get),
+  cancelBooking: async (bookingId) => cancelBookingAction(bookingId, set, get),
+  createBooking: async (playerName, note) =>
+    createBookingAction(playerName, note, set, get),
+  createBookingByOwner: async (playerName, note) =>
+    createBookingByOwnerAction(playerName, note, set, get),
 }))
-
-export function getCourtNames() {
-  return courts
-}

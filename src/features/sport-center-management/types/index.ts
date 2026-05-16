@@ -68,20 +68,59 @@ export interface CreateBookingParams {
   date: string
   startTime: string
   endTime: string
+  playerName: string
   note?: string
 }
 
+// ============================================================================
+// Court Models
+// ============================================================================
+
 /**
- * Parameters for creating a booking by owner
+ * Represents a court in a sport center
  */
-export interface CreateBookingByOwnerParams extends CreateBookingParams {
-  playerName: string
-  playerPhone?: string
+export interface Court {
+  id: string
+  centerId: string
+  name: string
+  type: string
+  status: string
+  createdAt?: string
+  updatedAt?: string
 }
 
-// ============================================================================
-// List Parameters
-// ============================================================================
+/**
+ * Pagination metadata for court list responses
+ */
+export interface CourtPaginationMeta {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
+
+/**
+ * Paginated court response from API
+ */
+export interface PaginatedCourtResponse {
+  data: Court[]
+  meta: CourtPaginationMeta
+}
+
+/**
+ * Envelope response with court array
+ */
+export interface CourtEnvelopeResponse {
+  data: Court[]
+}
+
+/**
+ * List result for courts with optional pagination metadata
+ */
+export interface ListCenterCourtsResult {
+  courts: Court[]
+  meta?: CourtPaginationMeta
+}
 
 /**
  * Parameters for listing center bookings
@@ -93,4 +132,34 @@ export interface ListCenterBookingsParams {
   date?: string
   from?: string
   to?: string
+}
+
+// ============================================================================
+// Sport center Models
+// ============================================================================
+
+/**
+ *  Represents a sport center in the system
+ */
+export interface SportCenter {
+  id: string
+  ownerId: string
+  name: string
+  address: string
+  phone: string
+  email: string
+  openTime: string
+  closeTime: string
+  basePrice: number
+  status: string
+  amenities: string[]
+  images: string[]
+  rules: string[]
+  description: string
+  createdAt: string
+  updatedAt: string
+  deletedAt?: string
+  _count?: {
+    courts: number
+  }
 }

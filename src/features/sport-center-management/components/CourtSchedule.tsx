@@ -4,7 +4,6 @@ import { useEffect } from "react"
 
 import {
   type Booking,
-  getCourtNames,
   useCourtScheduleStore,
 } from "../stores/court-schedule-store"
 import { BookingDetailModal } from "./BookingModal"
@@ -19,9 +18,9 @@ const timeSlots = Array.from({ length: 16 }, (_, i) => {
 
 export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
   const {
+    courts,
     bookings,
     selectedBooking,
-    quickBookingSlot,
     date,
     courtFilter,
     setDate,
@@ -32,12 +31,14 @@ export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
     openQuickBooking,
     rebookFromCancelled,
     fetchBookings,
+    fetchCourts,
     cancelBooking,
     createBooking,
     createBookingByOwner,
   } = useCourtScheduleStore()
 
   useEffect(() => {
+    fetchCourts()
     fetchBookings()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date])
@@ -76,6 +77,7 @@ export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
           setDate={setDate}
           courtFilter={courtFilter}
           setCourtFilter={setCourtFilter}
+          courts={courts}
         />
       </div>
       <div className="overflow-x-auto">
@@ -93,21 +95,23 @@ export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
             ))}
 
             {/* Court Rows */}
-            {getCourtNames()
-              .filter((c) => (courtFilter === "all" ? true : c === courtFilter))
+            {courts
+              .filter((c) =>
+                courtFilter === "all" ? true : c.name === courtFilter
+              )
               .map((court) => (
-                <div key={court} className="contents">
+                <div key={court.name} className="contents">
                   <div className="dark:bg-surface sticky left-0 z-0 flex items-center bg-background p-4 text-foreground">
-                    {court}
+                    {court.name}
                   </div>
                   {timeSlots.map((time) => {
-                    const bookingKey = `${court}-${time}`
+                    const bookingKey = `${court.name}-${time}`
                     const booking = bookings[bookingKey]
                     return (
                       <TimeSlot
-                        key={`${court}-${time}`}
+                        key={`${court.name}-${time}`}
                         booking={booking}
-                        onClick={() => handleSlotClick(court, time)}
+                        onClick={() => handleSlotClick(court.name, time)}
                       />
                     )
                   })}
@@ -125,7 +129,6 @@ export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
       />
 
       <QuickBookingModal
-        slot={quickBookingSlot}
         onClose={closeQuickBooking}
         onCreate={handleCreateBooking}
       />

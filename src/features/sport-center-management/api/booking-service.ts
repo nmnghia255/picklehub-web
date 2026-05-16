@@ -1,13 +1,14 @@
+"use server"
+
 import type {
   Booking,
   BookingEnvelopeResponse,
-  CreateBookingByOwnerParams,
   CreateBookingParams,
   ListCenterBookingsParams,
   ListCenterBookingsResult,
   PaginatedBookingResponse,
 } from "@/features/sport-center-management/types"
-import { apiClient } from "@/lib/api-client"
+import { getAuthenticatedAxios } from "@/lib/server-api"
 
 // ============================================================================
 // Booking Service - Server-side API client
@@ -20,7 +21,8 @@ export async function listCenterBookings(
   centerId: string,
   params: ListCenterBookingsParams = {}
 ): Promise<ListCenterBookingsResult> {
-  const response = await apiClient.get<
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.get<
     Booking[] | PaginatedBookingResponse | BookingEnvelopeResponse
   >(`/api/sport-centers/${centerId}/bookings`, {
     params,
@@ -60,7 +62,8 @@ export async function getCenterBooking(
   centerId: string,
   bookingId: string
 ): Promise<Booking> {
-  const response = await apiClient.get<Booking>(
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.get<Booking>(
     `/api/sport-centers/${centerId}/bookings/${bookingId}`
   )
   return response.data
@@ -72,7 +75,8 @@ export async function getCenterBooking(
 export async function confirmBookingByOwner(
   bookingId: string
 ): Promise<Booking> {
-  const response = await apiClient.patch<Booking>(
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.patch<Booking>(
     `/api/bookings/${bookingId}/confirm`
   )
   return response.data
@@ -84,7 +88,8 @@ export async function confirmBookingByOwner(
 export async function cancelBookingByOwner(
   bookingId: string
 ): Promise<Booking> {
-  const response = await apiClient.patch<Booking>(
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.patch<Booking>(
     `/api/bookings/${bookingId}/cancel`
   )
   return response.data
@@ -96,7 +101,8 @@ export async function cancelBookingByOwner(
 export async function completeBookingByOwner(
   bookingId: string
 ): Promise<Booking> {
-  const response = await apiClient.patch<Booking>(
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.patch<Booking>(
     `/api/bookings/${bookingId}/complete`
   )
   return response.data
@@ -110,7 +116,8 @@ export async function createBookingForCourt(
   courtId: string,
   body: CreateBookingParams
 ): Promise<Booking> {
-  const response = await apiClient.post<Booking>(
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.post<Booking>(
     `/api/sport-centers/${centerId}/courts/${courtId}/bookings`,
     body
   )
@@ -123,9 +130,10 @@ export async function createBookingForCourt(
 export async function createBookingForCourtByOwner(
   centerId: string,
   courtId: string,
-  body: CreateBookingByOwnerParams
+  body: CreateBookingParams
 ): Promise<Booking> {
-  const response = await apiClient.post<Booking>(
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.post<Booking>(
     `/api/sport-centers/${centerId}/courts/${courtId}/bookings/by-owner`,
     body
   )

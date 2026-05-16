@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 
-import { getSession, type SessionData } from "@/lib/session"
+import type { SessionData } from "@/lib/session"
 
 export type Session = SessionData | null
 
@@ -12,8 +12,15 @@ export function useSession() {
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        const data = await getSession()
-        setSession(data as Session)
+        const response = await fetch("/api/auth/session")
+
+        if (!response.ok) {
+          setSession(null)
+          return
+        }
+
+        const data = (await response.json()) as SessionData
+        setSession(data)
       } catch {
         setSession(null)
       }
