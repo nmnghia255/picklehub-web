@@ -16,13 +16,13 @@ export interface FriendViewData {
 export async function getFriendViewData(): Promise<FriendViewData> {
   const [findRes, friendsRes, incomingRes, outgoingRes] =
     await Promise.allSettled([
-      getFindUsers(),
+      getFindUsers({ q: "a", page: 1, limit: 100 }),
       listFriends(),
       listIncomingRequests(),
       listOutgoingRequests(),
     ])
 
-  const find = findRes.status === "fulfilled" ? findRes.value : []
+  const find = findRes.status === "fulfilled" ? findRes.value.data : []
   const friends = friendsRes.status === "fulfilled" ? friendsRes.value : []
   const received = incomingRes.status === "fulfilled" ? incomingRes.value : []
   const sent = outgoingRes.status === "fulfilled" ? outgoingRes.value : []

@@ -43,6 +43,8 @@ export function filterUsersByUsername(users: FriendUser[], keyword: string) {
   const normalizedKeyword = keyword.trim().toLowerCase()
 
   return users.filter((user) =>
-    user.username.toLowerCase().includes(normalizedKeyword)
+    [user.username, user.fullName, user.email, user.inviteSource, user.bio]
+      .filter(Boolean)
+      .some((value) => String(value).toLowerCase().includes(normalizedKeyword))
   )
 }

@@ -1,18 +1,34 @@
 import axios from "axios"
 
-import { getSession } from "@/lib/session"
+import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type { FriendUser } from "../types"
 
-interface AuthUserItem {
+interface GlobalUserSearchApiItem {
   id: string
   name: string | null
   email: string
+  isFriend: boolean
+  friendshipStatus: FriendUser["friendshipStatus"]
+  mutualFriendsCount: number
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL || ""
-const INTERNAL_TOKEN =
-  process.env.AUTH_INTERNAL_TOKEN || "your-auth-internal-token-here"
+interface PaginationMeta {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
+
+interface SearchUsersResponse {
+  data?: GlobalUserSearchApiItem[]
+  meta?: PaginationMeta
+}
+
+type SearchUsersResult = {
+  data: FriendUser[]
+  meta: PaginationMeta
+}
 
 function createAvatarUrl(seed: string) {
   return `https://i.pravatar.cc/160?u=${encodeURIComponent(seed)}`
@@ -22,41 +38,65 @@ function getUsernameFromEmail(email: string) {
   return email.split("@")[0] || email
 }
 
-function mapUser(item: AuthUserItem): FriendUser {
+function mapUser(item: GlobalUserSearchApiItem): FriendUser {
   const fullName = item.name?.trim() || getUsernameFromEmail(item.email)
 
   return {
     id: item.id,
     username: getUsernameFromEmail(item.email),
     fullName,
+    email: item.email,
     avatarUrl: createAvatarUrl(item.id),
-    bio: "Người dùng trên hệ thống",
+    bio: item.isFriend ? "Đã là bạn bè" : "Người dùng trên hệ thống",
     level: "Beginner",
     location: "Chưa cập nhật",
-    mutualFriends: 0,
+    mutualFriends: item.mutualFriendsCount,
+    friendshipStatus: item.friendshipStatus,
+    isFriend: item.isFriend,
   }
 }
 
-export async function getFindUsers(): Promise<FriendUser[]> {
-  const session = await getSession()
-
-  if (!session.user?.id) {
-    return []
-  }
-
-  const response = await axios.get<{ data?: AuthUserItem[] } | AuthUserItem[]>(
-    `${API_BASE_URL}/api/auth/internal/users`,
-    {
-      params: { q: "", page: 1, limit: 100 },
-      headers: {
-        "x-internal-token": INTERNAL_TOKEN,
+function extractResults(
+  payload: SearchUsersResponse | GlobalUserSearchApiItem[]
+) {
+  if (Array.isArray(payload)) {
+    return {
+      data: payload,
+      meta: {
+        page: 1,
+        limit: payload.length,
+        total: payload.length,
+        totalPages: 1,
       },
     }
-  )
+  }
 
-  const users = Array.isArray(response.data)
-    ? response.data
-    : (response.data.data ?? [])
+  return {
+    data: Array.isArray(payload.data) ? payload.data : [],
+    meta: payload.meta ?? { page: 1, limit: 0, total: 0, totalPages: 0 },
+  }
+}
 
-  return users.filter((user) => user.id !== session.user?.id).map(mapUser)
+export async function getFindUsers(params?: {
+  q?: string
+  page?: number
+  limit?: number
+}): Promise<SearchUsersResult> {
+  const client = await getAuthenticatedAxios()
+  const response = await client.get<
+    SearchUsersResponse | GlobalUserSearchApiItem[]
+  >("/api/friends/users/search", {
+    params: {
+      q: params?.q ?? "",
+      page: params?.page ?? 1,
+      limit: params?.limit ?? 20,
+    },
+  })
+
+  const { data, meta } = extractResults(response.data)
+
+  return {
+    data: data.map(mapUser),
+    meta,
+  }
 }
