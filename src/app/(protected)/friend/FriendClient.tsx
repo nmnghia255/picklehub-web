@@ -8,7 +8,7 @@ import {
   UserRoundX,
   XCircle,
 } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -53,10 +53,10 @@ export default function FriendClient({
   const [processingIds, setProcessingIds] = useState<Record<string, boolean>>(
     {}
   )
+  const findRequestIdRef = useRef(0)
 
   useEffect(() => {
-    let isMounted = true
-    const controller = new AbortController()
+    const requestId = ++findRequestIdRef.current
     const shouldLoadFindUsers = activeTab === "find"
 
     async function loadFindUsers() {
@@ -79,7 +79,6 @@ export default function FriendClient({
           method: "GET",
           cache: "no-store",
           credentials: "include",
-          signal: controller.signal,
         })
 
         if (!response.ok) return
@@ -88,14 +87,21 @@ export default function FriendClient({
           data?: FriendUser[]
         }
 
-        if (isMounted && Array.isArray(payload.data)) {
+        if (
+          requestId === findRequestIdRef.current &&
+          Array.isArray(payload.data)
+        ) {
           setUsersByTab((prev) => ({
             ...prev,
             find: payload.data ?? prev.find,
           }))
         }
+      } catch (error) {
+        if (requestId === findRequestIdRef.current) {
+          throw error
+        }
       } finally {
-        if (isMounted) {
+        if (requestId === findRequestIdRef.current) {
           setIsLoadingFind(false)
         }
       }
@@ -103,10 +109,7 @@ export default function FriendClient({
 
     void loadFindUsers()
 
-    return () => {
-      isMounted = false
-      controller.abort()
-    }
+    return () => {}
   }, [activeTab, search])
 
   const users = useMemo(() => {
