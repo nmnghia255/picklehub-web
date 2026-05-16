@@ -8,7 +8,8 @@ export type SportCenter = {
 }
 
 export type QuickBookingSlot = {
-  court: string
+  courtId: string
+  courtName: string
   time: string
 } | null
 

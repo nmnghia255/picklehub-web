@@ -43,9 +43,21 @@ export function closeQuickBookingAction(set: SetState) {
   })
 }
 
-export function rebookFromCancelledAction(booking: Booking, set: SetState) {
+export function rebookFromCancelledAction(
+  booking: Booking,
+  set: SetState,
+  get: GetState
+) {
+  const matchedCourt = get().courts.find(
+    (court) => court.name === booking.court.name
+  )
+
   set({
     selectedBooking: null,
-    quickBookingSlot: { court: booking.court, time: booking.time },
+    quickBookingSlot: {
+      courtId: matchedCourt?.id ?? booking.court.id,
+      courtName: booking.court.name,
+      time: booking.startTime,
+    },
   })
 }

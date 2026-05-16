@@ -43,13 +43,17 @@ export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date])
 
-  const handleSlotClick = (court: string, time: string) => {
-    const booking = bookings[`${court}-${time}`]
+  const handleSlotClick = (
+    courtId: string,
+    courtName: string,
+    time: string
+  ) => {
+    const booking = bookings[`${courtName}-${time}`]
 
     if (booking) {
       openBooking(booking)
     } else {
-      openQuickBooking({ court, time })
+      openQuickBooking({ courtId, courtName, time })
     }
   }
 
@@ -111,7 +115,9 @@ export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
                       <TimeSlot
                         key={`${court.name}-${time}`}
                         booking={booking}
-                        onClick={() => handleSlotClick(court.name, time)}
+                        onClick={() =>
+                          handleSlotClick(court.id, court.name, time)
+                        }
                       />
                     )
                   })}

@@ -13,16 +13,27 @@ import type {
 type SetState = (partial: Partial<CourtScheduleState>) => void
 type GetState = () => CourtScheduleState
 
+function getEndTime(startTime: string): string {
+  const [hourText, minuteText] = startTime.split(":")
+  const hour = Number(hourText)
+  const minute = Number(minuteText)
+
+  if (Number.isNaN(hour) || Number.isNaN(minute)) {
+    return startTime
+  }
+
+  const endHour = (hour + 1) % 24
+  return `${String(endHour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`
+}
+
 export async function fetchBookingsAction(set: SetState, get: GetState) {
   const { centerId, date } = get()
   set({ loading: true })
 
   try {
-    const payload = (await listCenterBookings(centerId, { date })) as {
-      data?: unknown
-    }
-    const items = Array.isArray(payload.data)
-      ? (payload.data as BookingItem[])
+    const result = await listCenterBookings(centerId, { date })
+    const items = Array.isArray(result.data)
+      ? (result.data as BookingItem[])
       : []
 
     set({ bookings: mapBookings(items) })
@@ -61,10 +72,10 @@ export async function createBookingAction(
   }
 
   try {
-    await createBookingForCourt(centerId, quickBookingSlot.court, {
+    await createBookingForCourt(centerId, quickBookingSlot.courtId, {
       date,
       startTime: quickBookingSlot.time,
-      endTime: quickBookingSlot.time,
+      endTime: getEndTime(quickBookingSlot.time),
       playerName,
       note: `${playerName} | ${note}`,
     })
@@ -89,10 +100,10 @@ export async function createBookingByOwnerAction(
   }
 
   try {
-    await createBookingForCourtByOwner(centerId, quickBookingSlot.court, {
+    await createBookingForCourtByOwner(centerId, quickBookingSlot.courtId, {
       date,
       startTime: quickBookingSlot.time,
-      endTime: quickBookingSlot.time,
+      endTime: getEndTime(quickBookingSlot.time),
       playerName,
       note: `${playerName} | ${note}`,
     })

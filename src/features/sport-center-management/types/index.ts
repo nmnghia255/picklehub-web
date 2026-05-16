@@ -2,6 +2,8 @@
 // Booking Status Types
 // ============================================================================
 
+import { offsetPositive } from "recharts/types/util/ChartUtils"
+
 export type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED"
 
 // ============================================================================
@@ -13,11 +15,27 @@ export type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED"
  */
 export interface Booking {
   id: string
+  courtId: string
+  playerId: string
   playerName: string
-  contact: string
+  date: string
+  startTime: string
+  endTime: string
   status: BookingStatus
-  time: string
-  court: string
+  totalPrice?: number
+  note?: string
+  createdAt?: string
+  updatedAt?: string
+  cancelledAt?: string
+  cancelReason?: string
+  court: {
+    id: string
+    name: string
+  }
+  player: {
+    id: string
+    name: string
+  }
 }
 
 // ============================================================================
@@ -28,10 +46,9 @@ export interface Booking {
  * Pagination metadata for list responses
  */
 export interface BookingPaginationMeta {
-  page: number
   limit: number
+  offset: number
   total: number
-  totalPages: number
 }
 
 /**
@@ -53,8 +70,8 @@ export interface BookingEnvelopeResponse {
  * List result for bookings with optional pagination metadata
  */
 export interface ListCenterBookingsResult {
-  bookings: Booking[]
-  meta?: BookingPaginationMeta
+  data: Booking[]
+  pagination?: BookingPaginationMeta
 }
 
 // ============================================================================
@@ -126,12 +143,12 @@ export interface ListCenterCourtsResult {
  * Parameters for listing center bookings
  */
 export interface ListCenterBookingsParams {
-  page?: number
-  limit?: number
+  centerId?: string
   status?: BookingStatus
+  courtId?: string
   date?: string
-  from?: string
-  to?: string
+  limit?: number
+  offset?: number
 }
 
 // ============================================================================

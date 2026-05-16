@@ -23,36 +23,56 @@ export async function listCenterBookings(
 ): Promise<ListCenterBookingsResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.get<
-    Booking[] | PaginatedBookingResponse | BookingEnvelopeResponse
+    | Booking[]
+    | PaginatedBookingResponse
+    | BookingEnvelopeResponse
+    | {
+        data: Booking[]
+        pagination: { limit: number; offset: number; total: number }
+      }
   >(`/api/sport-centers/${centerId}/bookings`, {
     params,
   })
 
-  let bookings: Booking[] = []
+  let data: Booking[] = []
+  let pagination: { limit: number; offset: number; total: number } | undefined
 
+  // Handle array response
   if (Array.isArray(response.data)) {
-    bookings = response.data as Booking[]
-  } else if (
+    data = response.data as Booking[]
+  }
+  // Handle object response with data property
+  else if (
     response.data &&
     typeof response.data === "object" &&
     "data" in response.data &&
     Array.isArray((response.data as { data: unknown }).data)
   ) {
-    bookings = (response.data as { data: Booking[] }).data
-  }
+    data = (response.data as { data: Booking[] }).data
 
-  if (
-    response.data &&
-    typeof response.data === "object" &&
-    "meta" in response.data
-  ) {
-    return {
-      bookings,
-      meta: (response.data as PaginatedBookingResponse).meta,
+    // Check for pagination in new format
+    if ("pagination" in response.data) {
+      pagination = (
+        response.data as {
+          pagination: { limit: number; offset: number; total: number }
+        }
+      ).pagination
+    }
+    // Check for meta in old format
+    else if ("meta" in response.data) {
+      const meta = (response.data as PaginatedBookingResponse).meta
+      pagination = {
+        limit: meta.limit,
+        offset: meta.offset,
+        total: meta.total,
+      }
     }
   }
 
-  return { bookings }
+  return {
+    data,
+    pagination,
+  }
 }
 
 /**

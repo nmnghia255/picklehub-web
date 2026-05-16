@@ -68,7 +68,9 @@ export function QuickBookingModal({
 
         <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
           <p className="text-sm text-emerald-700">
-            <span className="text-emerald-900">{quickBookingSlot.court}</span>{" "}
+            <span className="text-emerald-900">
+              {quickBookingSlot.courtName}
+            </span>{" "}
             lúc{" "}
             <span className="text-emerald-900">{quickBookingSlot.time}</span>
           </p>

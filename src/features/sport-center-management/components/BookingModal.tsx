@@ -91,15 +91,15 @@ export function BookingDetailModal({
             <p className="text-foreground">{booking.playerName}</p>
           </div>
 
-          <div>
+          {/* <div>
             <label className="mb-1 block text-sm text-muted-foreground">
               Liên hệ
             </label>
             <div className="flex items-center gap-2 text-foreground">
               <Phone className="h-4 w-4 text-muted-foreground" />
-              <p>{booking.contact}</p>
+              <p>{booking.player?.name ?? booking.playerName ?? "—"}</p>
             </div>
-          </div>
+          </div> */}
 
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -108,7 +108,7 @@ export function BookingDetailModal({
               </label>
               <div className="flex items-center gap-2 text-foreground">
                 <Clock className="h-4 w-4 text-muted-foreground" />
-                <p>{booking.time}</p>
+                <p>{`${booking.startTime} - ${booking.endTime ?? ""}`}</p>
               </div>
             </div>
 
@@ -118,7 +118,7 @@ export function BookingDetailModal({
               </label>
               <div className="flex items-center gap-2 text-foreground">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
-                <p>{booking.court}</p>
+                <p>{booking.court?.name ?? "—"}</p>
               </div>
             </div>
           </div>

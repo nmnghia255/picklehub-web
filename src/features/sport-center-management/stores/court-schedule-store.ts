@@ -69,7 +69,8 @@ export const useCourtScheduleStore = create<CourtScheduleState>((set, get) => ({
   closeBooking: () => closeBookingAction(set),
   openQuickBooking: (slot) => openQuickBookingAction(slot, set),
   closeQuickBooking: () => closeQuickBookingAction(set),
-  rebookFromCancelled: (booking) => rebookFromCancelledAction(booking, set),
+  rebookFromCancelled: (booking) =>
+    rebookFromCancelledAction(booking, set, get),
   fetchBookings: async () => fetchBookingsAction(set, get),
   cancelBooking: async (bookingId) => cancelBookingAction(bookingId, set, get),
   createBooking: async (playerName, note) =>
