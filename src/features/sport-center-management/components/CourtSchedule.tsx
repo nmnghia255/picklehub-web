@@ -1,127 +1,76 @@
-import { useState } from "react"
+"use client"
 
+import { useEffect } from "react"
+
+import {
+  type Booking,
+  useCourtScheduleStore,
+} from "../stores/court-schedule-store"
 import { BookingDetailModal } from "./BookingModal"
 import { TimeSlot } from "./CourtSlot"
 import { Filters } from "./Filters"
 import { QuickBookingModal } from "./QuickBookingModal"
 
-export type BookingStatus = "available" | "booked" | "pending" | "cancelled"
-
-export interface Booking {
-  id: string
-  playerName: string
-  contact: string
-  status: BookingStatus
-  time: string
-  court: string
-}
-
-const courts = ["Sân 1", "Sân 2", "Sân 3", "Sân 4"]
 const timeSlots = Array.from({ length: 16 }, (_, i) => {
   const hour = i + 6
   return `${hour.toString().padStart(2, "0")}:00`
 })
 
-// Mock booking data
-const mockBookings: Record<string, Booking> = {
-  "Sân 1-08:00": {
-    id: "1",
-    playerName: "Sarah Johnson",
-    contact: "(555) 123-4567",
-    status: "booked",
-    time: "08:00",
-    court: "Sân 1",
-  },
-  "Sân 1-10:00": {
-    id: "2",
-    playerName: "Mike Peters",
-    contact: "(555) 234-5678",
-    status: "pending",
-    time: "10:00",
-    court: "Sân 1",
-  },
-  "Sân 2-09:00": {
-    id: "3",
-    playerName: "Emily Davis",
-    contact: "(555) 345-6789",
-    status: "booked",
-    time: "09:00",
-    court: "Sân 2",
-  },
-  "Sân 3-14:00": {
-    id: "4",
-    playerName: "Robert Chen",
-    contact: "(555) 456-7890",
-    status: "booked",
-    time: "14:00",
-    court: "Sân 3",
-  },
-  "Sân 2-16:00": {
-    id: "5",
-    playerName: "Lisa Anderson",
-    contact: "(555) 567-8901",
-    status: "cancelled",
-    time: "16:00",
-    court: "Sân 2",
-  },
-}
+export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
+  const {
+    courts,
+    bookings,
+    selectedBooking,
+    date,
+    courtFilter,
+    setDate,
+    setCourtFilter,
+    openBooking,
+    closeBooking,
+    closeQuickBooking,
+    openQuickBooking,
+    rebookFromCancelled,
+    fetchBookings,
+    fetchCourts,
+    cancelBooking,
+    createBooking,
+    createBookingByOwner,
+  } = useCourtScheduleStore()
 
-export function CourtSchedule() {
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
-  const [quickBookingSlot, setQuickBookingSlot] = useState<{
-    court: string
+  useEffect(() => {
+    fetchCourts()
+    fetchBookings()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [date])
+
+  const handleSlotClick = (
+    courtId: string,
+    courtName: string,
     time: string
-  } | null>(null)
-  const [bookings, setBookings] = useState(mockBookings)
-  const [date, setDate] = useState<string>(() =>
-    new Date().toISOString().slice(0, 10)
-  )
-  const [courtFilter, setCourtFilter] = useState<string>("all")
-
-  const handleSlotClick = (court: string, time: string) => {
-    const bookingKey = `${court}-${time}`
-    const booking = bookings[bookingKey]
+  ) => {
+    const booking = bookings[`${courtName}-${time}`]
 
     if (booking) {
-      setSelectedBooking(booking)
+      openBooking(booking)
     } else {
-      setQuickBookingSlot({ court, time })
+      openQuickBooking({ courtId, courtName, time })
     }
   }
 
   const handleRebookFromCancelled = (booking: Booking) => {
-    setSelectedBooking(null)
-    setQuickBookingSlot({ court: booking.court, time: booking.time })
+    rebookFromCancelled(booking)
   }
 
-  const handleCancelBooking = (bookingId: string) => {
-    const updatedBookings = { ...bookings }
-    const entry = Object.entries(updatedBookings).find(
-      ([_, b]) => b.id === bookingId
-    )
-    if (entry) {
-      const [key, booking] = entry
-      updatedBookings[key] = { ...booking, status: "cancelled" }
-      setBookings(updatedBookings)
-    }
-    setSelectedBooking(null)
+  const handleCancelBooking = async (bookingId: string) => {
+    await cancelBooking(bookingId)
   }
 
-  const handleCreateBooking = (playerName: string, contact: string) => {
-    if (!quickBookingSlot) return
-
-    const newBooking: Booking = {
-      id: Date.now().toString(),
-      playerName,
-      contact,
-      status: "booked",
-      time: quickBookingSlot.time,
-      court: quickBookingSlot.court,
+  const handleCreateBooking = async (playerName: string, contact: string) => {
+    if (ownerMode) {
+      await createBookingByOwner(playerName, contact)
+    } else {
+      await createBooking(playerName, contact)
     }
-
-    const bookingKey = `${quickBookingSlot.court}-${quickBookingSlot.time}`
-    setBookings({ ...bookings, [bookingKey]: newBooking })
-    setQuickBookingSlot(null)
   }
 
   return (
@@ -132,6 +81,7 @@ export function CourtSchedule() {
           setDate={setDate}
           courtFilter={courtFilter}
           setCourtFilter={setCourtFilter}
+          courts={courts}
         />
       </div>
       <div className="overflow-x-auto">
@@ -150,20 +100,24 @@ export function CourtSchedule() {
 
             {/* Court Rows */}
             {courts
-              .filter((c) => (courtFilter === "all" ? true : c === courtFilter))
+              .filter((c) =>
+                courtFilter === "all" ? true : c.name === courtFilter
+              )
               .map((court) => (
-                <div key={court} className="contents">
+                <div key={court.name} className="contents">
                   <div className="dark:bg-surface sticky left-0 z-0 flex items-center bg-background p-4 text-foreground">
-                    {court}
+                    {court.name}
                   </div>
                   {timeSlots.map((time) => {
-                    const bookingKey = `${court}-${time}`
+                    const bookingKey = `${court.name}-${time}`
                     const booking = bookings[bookingKey]
                     return (
                       <TimeSlot
-                        key={`${court}-${time}`}
+                        key={`${court.name}-${time}`}
                         booking={booking}
-                        onClick={() => handleSlotClick(court, time)}
+                        onClick={() =>
+                          handleSlotClick(court.id, court.name, time)
+                        }
                       />
                     )
                   })}
@@ -175,14 +129,13 @@ export function CourtSchedule() {
 
       <BookingDetailModal
         booking={selectedBooking}
-        onClose={() => setSelectedBooking(null)}
+        onClose={closeBooking}
         onCancel={handleCancelBooking}
-        onBookNew={handleRebookFromCancelled}
+        onBookNew={(booking) => handleRebookFromCancelled(booking)}
       />
 
       <QuickBookingModal
-        slot={quickBookingSlot}
-        onClose={() => setQuickBookingSlot(null)}
+        onClose={closeQuickBooking}
         onCreate={handleCreateBooking}
       />
     </>

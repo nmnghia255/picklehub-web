@@ -54,6 +54,15 @@ export function MatchesGeneratorMatrix({
     playerId: string
   } | null>(null)
 
+  // Compute stats: total matches and per-player match counts
+  const totalMatches = matches.length
+  const playerMatchCounts: Record<string, number> = {}
+  for (const m of matches) {
+    for (const p of m.players.filter(isPlayer)) {
+      playerMatchCounts[p.id] = (playerMatchCounts[p.id] || 0) + 1
+    }
+  }
+
   // Get matches for a specific court and session
   const getMatch = (
     courtIndex: number,
@@ -112,18 +121,6 @@ export function MatchesGeneratorMatrix({
 
   return (
     <div className="space-y-4">
-      {/* Summary */}
-      <div>
-        <h3 className="font-semibold text-foreground dark:text-slate-50">
-          Bảng trận đấu
-        </h3>
-        <p className="text-sm text-muted-foreground dark:text-slate-400">
-          {matches.length} trận • {unassignedPlayers.length} cầu thủ chưa được
-          gán
-        </p>
-      </div>
-
-      {/* Timeline View */}
       <div className="space-y-4">
         {Array.from({ length: hours }).map((_, sessionIndex) => (
           <div key={sessionIndex} className="space-y-2">
@@ -174,30 +171,41 @@ export function MatchesGeneratorMatrix({
                 )
               })}
             </div>
+
+            {/* Waitlist for this session */}
+            {(() => {
+              const sessionPlayerIds = matches
+                .filter((m) => m.sessionIndex === sessionIndex)
+                .flatMap((m) => m.players.filter(isPlayer).map((p) => p.id))
+
+              const waitlist = allPlayers.filter(
+                (p) => !sessionPlayerIds.includes(p.id)
+              )
+              if (waitlist.length === 0) return null
+
+              return (
+                <Card className="border-border bg-card p-3">
+                  <div className="text-sm">
+                    <p className="font-medium text-foreground dark:text-slate-100">
+                      Danh sách chờ (Phiên {sessionIndex + 1})
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {waitlist.map((p) => (
+                        <Card
+                          key={p.id}
+                          className="border-border bg-muted/30 px-3 py-1 text-xs font-medium"
+                        >
+                          {p.name}
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                </Card>
+              )
+            })()}
           </div>
         ))}
       </div>
-
-      {/* Unassigned Players Section */}
-      {unassignedPlayers.length > 0 && (
-        <Card className="border-sky-200 bg-sky-50 p-4 dark:border-cyan-900/60 dark:bg-slate-950/60">
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-sky-900 dark:text-cyan-200">
-              👥 Cầu thủ chưa được gán ({unassignedPlayers.length})
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {unassignedPlayers.map((player) => (
-                <Card
-                  key={player.id}
-                  className="border-sky-200 bg-white px-3 py-1 text-xs font-medium text-sky-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-                >
-                  {player.name}
-                </Card>
-              ))}
-            </div>
-          </div>
-        </Card>
-      )}
     </div>
   )
 }

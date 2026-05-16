@@ -18,6 +18,7 @@ import { registerAction } from "@/features/auth/actions"
 import { cn } from "@/lib/utils"
 
 import { type RegisterFormData, registerSchema } from "../schemas"
+import { FacebookAuthButton } from "./facebook-auth-button"
 import { GoogleAuthButton } from "./google-auth-button"
 
 export function RegisterForm({
@@ -121,10 +122,7 @@ export function RegisterForm({
 
         <Field>
           <GoogleAuthButton text="signup_with" />
-
-          {/* <Button variant="outline" type="button">
-            Đăng ký với Facebook
-          </Button> */}
+          <FacebookAuthButton title="Đăng ký với Facebook" />
 
           <FieldDescription className="text-center">
             Bạn đã có tài khoản?{" "}

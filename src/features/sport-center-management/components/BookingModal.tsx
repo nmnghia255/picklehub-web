@@ -1,3 +1,5 @@
+"use client"
+
 import { Clock, MapPin, Phone } from "lucide-react"
 import { useState } from "react"
 
@@ -20,7 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 
-import type { Booking } from "./CourtSchedule"
+import type { Booking } from "../types"
 
 interface BookingDetailModalProps {
   booking: Booking | null
@@ -41,12 +43,14 @@ export function BookingDetailModal({
 
   const getStatusLabel = () => {
     switch (booking.status) {
-      case "booked":
+      case "CONFIRMED":
         return "Đã đặt"
-      case "pending":
+      case "PENDING":
         return "Chờ xác nhận"
-      case "cancelled":
+      case "CANCELLED":
         return "Đã hủy"
+      case "COMPLETED":
+        return "Hoàn thành"
       default:
         return booking.status
     }
@@ -59,12 +63,14 @@ export function BookingDetailModal({
 
   const getStatusColor = () => {
     switch (booking.status) {
-      case "booked":
+      case "CONFIRMED":
         return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-200"
-      case "pending":
+      case "PENDING":
         return "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-200"
-      case "cancelled":
+      case "CANCELLED":
         return "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200"
+      case "COMPLETED":
+        return "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200"
       default:
         return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-200"
     }
@@ -85,15 +91,15 @@ export function BookingDetailModal({
             <p className="text-foreground">{booking.playerName}</p>
           </div>
 
-          <div>
+          {/* <div>
             <label className="mb-1 block text-sm text-muted-foreground">
               Liên hệ
             </label>
             <div className="flex items-center gap-2 text-foreground">
               <Phone className="h-4 w-4 text-muted-foreground" />
-              <p>{booking.contact}</p>
+              <p>{booking.player?.name ?? booking.playerName ?? "—"}</p>
             </div>
-          </div>
+          </div> */}
 
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -102,7 +108,7 @@ export function BookingDetailModal({
               </label>
               <div className="flex items-center gap-2 text-foreground">
                 <Clock className="h-4 w-4 text-muted-foreground" />
-                <p>{booking.time}</p>
+                <p>{`${booking.startTime} - ${booking.endTime ?? ""}`}</p>
               </div>
             </div>
 
@@ -112,7 +118,7 @@ export function BookingDetailModal({
               </label>
               <div className="flex items-center gap-2 text-foreground">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
-                <p>{booking.court}</p>
+                <p>{booking.court?.name ?? "—"}</p>
               </div>
             </div>
           </div>
@@ -129,7 +135,7 @@ export function BookingDetailModal({
           </div>
         </div>
 
-        {booking.status !== "cancelled" ? (
+        {booking.status !== "CANCELLED" ? (
           <DialogFooter className="mt-6 sm:justify-end">
             <Button
               onClick={onClose}

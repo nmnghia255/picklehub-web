@@ -1,10 +1,13 @@
 import { Calendar, Filter } from "lucide-react"
 
+import type { Court } from "../types"
+
 interface FiltersProps {
   date: string
   setDate: (d: string) => void
   courtFilter: string
   setCourtFilter: (c: string) => void
+  courts: Court[]
 }
 
 export function Filters({
@@ -12,6 +15,7 @@ export function Filters({
   setDate,
   courtFilter,
   setCourtFilter,
+  courts,
 }: FiltersProps) {
   return (
     <div className="dark:bg-surface flex items-center justify-between border-b border-border bg-background p-4">
@@ -34,10 +38,11 @@ export function Filters({
             className="bg-input-background rounded-lg border border-border px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
           >
             <option value="all">Tất cả sân</option>
-            <option value="Sân 1">Sân 1</option>
-            <option value="Sân 2">Sân 2</option>
-            <option value="Sân 3">Sân 3</option>
-            <option value="Sân 4">Sân 4</option>
+            {courts.map((court) => (
+              <option key={court.id} value={court.name}>
+                {court.name}
+              </option>
+            ))}
           </select>
         </div>
       </div>
