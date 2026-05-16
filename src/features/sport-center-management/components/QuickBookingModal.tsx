@@ -1,3 +1,5 @@
+"use client"
+
 import { Phone, User } from "lucide-react"
 import { useState } from "react"
 

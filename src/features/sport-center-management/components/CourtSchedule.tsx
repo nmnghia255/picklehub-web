@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect } from "react"
 
 import {
@@ -15,7 +17,7 @@ const timeSlots = Array.from({ length: 16 }, (_, i) => {
   return `${hour.toString().padStart(2, "0")}:00`
 })
 
-export function CourtSchedule() {
+export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
   const {
     bookings,
     selectedBooking,
@@ -32,6 +34,7 @@ export function CourtSchedule() {
     fetchBookings,
     cancelBooking,
     createBooking,
+    createBookingByOwner,
   } = useCourtScheduleStore()
 
   useEffect(() => {
@@ -58,7 +61,11 @@ export function CourtSchedule() {
   }
 
   const handleCreateBooking = async (playerName: string, contact: string) => {
-    await createBooking(playerName, contact)
+    if (ownerMode) {
+      await createBookingByOwner(playerName, contact)
+    } else {
+      await createBooking(playerName, contact)
+    }
   }
 
   return (

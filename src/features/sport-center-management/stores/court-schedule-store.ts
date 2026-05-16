@@ -5,19 +5,12 @@ import { create } from "zustand"
 import {
   cancelBookingByOwner,
   createBookingForCourt,
+  createBookingForCourtByOwner,
   listCenterBookings,
 } from "../api/booking-service"
+import type { Booking, BookingStatus } from "../types"
 
-export type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED"
-
-export interface Booking {
-  id: string
-  playerName: string
-  contact: string
-  status: BookingStatus
-  time: string
-  court: string
-}
+export type { Booking, BookingStatus }
 
 type QuickBookingSlot = {
   court: string
@@ -53,6 +46,7 @@ interface CourtScheduleState {
   fetchBookings: () => Promise<void>
   cancelBooking: (bookingId: string) => Promise<void>
   createBooking: (playerName: string, contact: string) => Promise<void>
+  createBookingByOwner: (playerName: string, contact: string) => Promise<void>
 }
 
 const courts = ["Sân 1", "Sân 2", "Sân 3", "Sân 4"]
@@ -164,6 +158,27 @@ export const useCourtScheduleStore = create<CourtScheduleState>((set, get) => ({
       await get().fetchBookings()
     } catch (error) {
       console.error("[CourtScheduleStore] createBooking error:", error)
+    }
+  },
+  createBookingByOwner: async (playerName, contact) => {
+    const { centerId, date, quickBookingSlot } = get()
+
+    if (!quickBookingSlot) return
+
+    try {
+      await createBookingForCourtByOwner(centerId, quickBookingSlot.court, {
+        date,
+        startTime: quickBookingSlot.time,
+        endTime: quickBookingSlot.time,
+        playerName,
+        playerPhone: contact,
+        note: `${playerName} | ${contact}`,
+      })
+
+      set({ quickBookingSlot: null })
+      await get().fetchBookings()
+    } catch (error) {
+      console.error("[CourtScheduleStore] createBookingByOwner error:", error)
     }
   },
 }))

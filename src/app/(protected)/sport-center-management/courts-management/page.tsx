@@ -1,4 +1,3 @@
-"use client"
 import { CourtSchedule } from "../../../../features/sport-center-management/components/CourtSchedule"
 
 export default function Page() {
@@ -8,7 +7,7 @@ export default function Page() {
         <h1 className="text-2xl font-semibold">Quản lý sân</h1>
       </header>
 
-      <CourtSchedule />
+      <CourtSchedule ownerMode={true} />
     </div>
   )
 }
