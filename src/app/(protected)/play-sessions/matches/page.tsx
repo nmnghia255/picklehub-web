@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { MatchesControlPanel } from "@/features/play-sessions/components/matches/matches-control-panel"
 import { MatchesGeneratorMatrix } from "@/features/play-sessions/components/matches/matches-generator-matrix"
+import StatisticCard from "@/features/play-sessions/components/matches/statistic-card"
 import { useMatchesGeneratorStore } from "@/features/play-sessions/stores/matches-generator-store"
 
 interface Match {
@@ -91,6 +92,10 @@ export default function MatchesCreationPage() {
               onHoursChange={setHours}
               onGenerateMatches={handleGenerateMatches}
             />
+          </Card>
+
+          <Card className="border-border bg-card p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/75 dark:shadow-xl dark:shadow-black/20 dark:backdrop-blur">
+            <StatisticCard matches={matches} allPlayers={players} />
           </Card>
 
           {matches.length > 0 && (
