@@ -42,23 +42,30 @@ export function GroupsPageContent({ myGroups, myGroupsError = false }: Props) {
         ariaLabel="Tìm kiếm nhóm của bạn"
       />
 
-      {myGroupsError ? (
-        <GroupsEmptyState
-          title="Không thể tải danh sách nhóm"
-          description="Dữ liệu nhóm của bạn chưa tải được. Vui lòng thử lại sau."
-        />
-      ) : filteredMyGroups.length === 0 ? (
-        <GroupsEmptyState
-          title="Không có nhóm nào phù hợp"
-          description="Thử một từ khóa khác để tìm trong nhóm của bạn."
-        />
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {filteredMyGroups.map((group) => (
-            <GroupCard key={group.id} group={group} actionLabel="Mở" showRole />
-          ))}
-        </div>
-      )}
+      <div className="mt-6">
+        {myGroupsError ? (
+          <GroupsEmptyState
+            title="Không thể tải danh sách nhóm"
+            description="Dữ liệu nhóm của bạn chưa tải được. Vui lòng thử lại sau."
+          />
+        ) : filteredMyGroups.length === 0 ? (
+          <GroupsEmptyState
+            title="Không có nhóm nào phù hợp"
+            description="Thử một từ khóa khác để tìm trong nhóm của bạn."
+          />
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {filteredMyGroups.map((group) => (
+              <GroupCard
+                key={group.id}
+                group={group}
+                actionLabel="Mở"
+                showRole
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </PageContainer>
   )
 }
