@@ -1,0 +1,203 @@
+import { RecurringSocialTemplate, Court, SchedulePreview } from './recurring-socials.types';
+
+export const MOCK_COURTS: Court[] = [
+  { id: '1', name: 'Sân 1 - Tân Phú', capacity: 8 },
+  { id: '2', name: 'Sân 2 - Tân Phú', capacity: 8 },
+  { id: '3', name: 'Sân 3 - Tân Phú', capacity: 8 },
+  { id: '4', name: 'Sân 1 - Quận 7', capacity: 8 },
+  { id: '5', name: 'Sân 2 - Quận 7', capacity: 8 },
+  { id: '6', name: 'Sân 1 - Biên Hòa', capacity: 8 },
+];
+
+export const MOCK_RECURRING_SOCIALS: RecurringSocialTemplate[] = [
+  {
+    id: 'rs-001',
+    name: 'Saturday Morning Social',
+    description: 'Buổi chơi pickleball vào sáng thứ 7 hàng tuần',
+    socialType: 'beginner',
+    skillLevel: '3.0-3.5',
+    startTime: '08:00',
+    endTime: '10:00',
+    courts: [MOCK_COURTS[0], MOCK_COURTS[1]],
+    maxParticipants: 16,
+    maxPerCourt: 8,
+    maxWaitlist: 5,
+    fee: 150000,
+    courtRentFee: 200000,
+    costNote: 'Giá bao gồm đồ uống nhẹ',
+    recurrenceType: 'weekly',
+    daysOfWeek: ['saturday'],
+    startDate: '2026-06-06',
+    endDate: '2026-12-31',
+    status: 'active',
+    createdBy: 'Admin User',
+    createdAt: '2026-05-16T10:00:00Z',
+    updatedAt: '2026-05-16T10:00:00Z',
+  },
+  {
+    id: 'rs-002',
+    name: 'Mid-Week Evening Social',
+    description: 'Buổi chơi vào tối thứ 4 và thứ 5',
+    socialType: 'intermediate',
+    skillLevel: '3.5-4.0',
+    startTime: '18:00',
+    endTime: '20:00',
+    courts: [MOCK_COURTS[3]],
+    maxParticipants: 8,
+    maxPerCourt: 8,
+    maxWaitlist: 3,
+    fee: 120000,
+    courtRentFee: 150000,
+    costNote: 'Bao gồm nước uống',
+    recurrenceType: 'weekly',
+    daysOfWeek: ['wednesday', 'friday'],
+    startDate: '2026-05-20',
+    endDate: '2026-12-31',
+    status: 'active',
+    createdBy: 'Coach John',
+    createdAt: '2026-05-01T14:30:00Z',
+    updatedAt: '2026-05-15T09:15:00Z',
+  },
+  {
+    id: 'rs-003',
+    name: 'Monthly Championship',
+    description: 'Giải đấu hàng tháng vào ngày 15',
+    socialType: 'competitive',
+    skillLevel: '4.0+',
+    startTime: '14:00',
+    endTime: '18:00',
+    courts: [MOCK_COURTS[0], MOCK_COURTS[1], MOCK_COURTS[2]],
+    maxParticipants: 32,
+    maxPerCourt: 8,
+    maxWaitlist: 10,
+    fee: 300000,
+    courtRentFee: 500000,
+    costNote: 'Bao gồm quả bóng và giải thưởng',
+    recurrenceType: 'monthly',
+    dayOfMonth: 15,
+    startDate: '2026-06-15',
+    endDate: '2027-12-31',
+    status: 'paused',
+    createdBy: 'Event Manager',
+    createdAt: '2026-04-10T11:00:00Z',
+    updatedAt: '2026-05-16T08:45:00Z',
+  },
+  {
+    id: 'rs-004',
+    name: 'Quarterly League',
+    description: 'Giải đấu định kỳ hàng quý',
+    socialType: 'league',
+    skillLevel: '3.5-4.5',
+    startTime: '09:00',
+    endTime: '17:00',
+    courts: [MOCK_COURTS[0], MOCK_COURTS[1], MOCK_COURTS[2], MOCK_COURTS[3]],
+    maxParticipants: 64,
+    maxPerCourt: 8,
+    maxWaitlist: 20,
+    fee: 500000,
+    courtRentFee: 1000000,
+    costNote: 'Bao gồm cả ngày chơi, lunch và giải thưởng',
+    recurrenceType: 'quarterly',
+    quarterStartMonth: 1,
+    quarterDay: 20,
+    startDate: '2026-01-20',
+    endDate: '2027-12-20',
+    status: 'active',
+    createdBy: 'Director',
+    createdAt: '2026-01-05T10:00:00Z',
+    updatedAt: '2026-05-10T13:20:00Z',
+  },
+];
+
+export const MOCK_SCHEDULE_PREVIEW: SchedulePreview[] = [
+  {
+    date: '2026-06-06',
+    dayName: 'Saturday',
+    startTime: '08:00',
+    endTime: '10:00',
+    courts: 2,
+    totalCapacity: 16,
+  },
+  {
+    date: '2026-06-13',
+    dayName: 'Saturday',
+    startTime: '08:00',
+    endTime: '10:00',
+    courts: 2,
+    totalCapacity: 16,
+  },
+  {
+    date: '2026-06-20',
+    dayName: 'Saturday',
+    startTime: '08:00',
+    endTime: '10:00',
+    courts: 2,
+    totalCapacity: 16,
+  },
+  {
+    date: '2026-06-27',
+    dayName: 'Saturday',
+    startTime: '08:00',
+    endTime: '10:00',
+    courts: 2,
+    totalCapacity: 16,
+  },
+  {
+    date: '2026-07-04',
+    dayName: 'Saturday',
+    startTime: '08:00',
+    endTime: '10:00',
+    courts: 2,
+    totalCapacity: 16,
+  },
+];
+
+// Social type options
+export const SOCIAL_TYPES = [
+  { value: 'beginner', label: 'Người mới bắt đầu' },
+  { value: 'intermediate', label: 'Trung cấp' },
+  { value: 'advanced', label: 'Nâng cao' },
+  { value: 'competitive', label: 'Cạnh tranh' },
+  { value: 'league', label: 'Giải đấu' },
+  { value: 'social', label: 'Tập chơi' },
+];
+
+// Skill level options
+export const SKILL_LEVELS = [
+  { value: '2.5', label: '2.5' },
+  { value: '3.0', label: '3.0' },
+  { value: '3.0-3.5', label: '3.0 - 3.5' },
+  { value: '3.5', label: '3.5' },
+  { value: '3.5-4.0', label: '3.5 - 4.0' },
+  { value: '4.0', label: '4.0' },
+  { value: '4.0+', label: '4.0+' },
+  { value: 'mixed', label: 'Hỗn hợp' },
+];
+
+// Days of week
+export const DAYS_OF_WEEK = [
+  { value: 'monday', label: 'Thứ 2' },
+  { value: 'tuesday', label: 'Thứ 3' },
+  { value: 'wednesday', label: 'Thứ 4' },
+  { value: 'thursday', label: 'Thứ 5' },
+  { value: 'friday', label: 'Thứ 6' },
+  { value: 'saturday', label: 'Thứ 7' },
+  { value: 'sunday', label: 'Chủ nhật' },
+];
+
+// Month positions (for "first Saturday of month" pattern)
+export const MONTH_POSITIONS = [
+  { value: 'first', label: 'Đầu tiên' },
+  { value: 'second', label: 'Thứ hai' },
+  { value: 'third', label: 'Thứ ba' },
+  { value: 'fourth', label: 'Thứ tư' },
+  { value: 'last', label: 'Cuối cùng' },
+];
+
+// Quarters
+export const QUARTERS = [
+  { value: 1, label: 'Quý I (Tháng 1-3)' },
+  { value: 4, label: 'Quý II (Tháng 4-6)' },
+  { value: 7, label: 'Quý III (Tháng 7-9)' },
+  { value: 10, label: 'Quý IV (Tháng 10-12)' },
+];
