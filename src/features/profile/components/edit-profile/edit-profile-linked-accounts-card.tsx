@@ -1,7 +1,6 @@
 import { ShieldCheck } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -9,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { LinkFacebookButton } from "@/features/auth/components/link-facebook-button"
 import { LinkGoogleButton } from "@/features/auth/components/link-google-button"
 import type { LinkedProvider } from "@/features/auth/types"
 
@@ -89,35 +89,26 @@ export function EditProfileLinkedAccountsCard({
             {!googleLinked && <LinkGoogleButton />}
           </div>
 
-          {/* <div className="rounded-lg border p-4">
-						<div className="mb-3 flex items-start justify-between gap-3">
-							<div>
-								<p className="flex items-center gap-2 font-medium">
-									<FacebookIcon />
-									Facebook
-								</p>
-								<p className="text-sm text-muted-foreground">
-									{facebookLinked
-										? `Đã liên kết lúc ${new Date(facebookLinked.linkedAt).toLocaleString("vi-VN")}`
-										: "Chưa liên kết"}
-								</p>
-							</div>
-							<Badge variant={facebookLinked ? "default" : "secondary"}>
-								{facebookLinked ? "Đã liên kết" : "Chưa liên kết"}
-							</Badge>
-						</div>
+          <div className="rounded-lg border p-4">
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <div>
+                <p className="flex items-center gap-2 font-medium">
+                  <FacebookIcon />
+                  Facebook
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {facebookLinked
+                    ? `Đã liên kết lúc ${new Date(facebookLinked.linkedAt).toLocaleString("vi-VN")}`
+                    : "Chưa liên kết"}
+                </p>
+              </div>
+              <Badge variant={facebookLinked ? "default" : "secondary"}>
+                {facebookLinked ? "Đã liên kết" : "Chưa liên kết"}
+              </Badge>
+            </div>
 
-						{!facebookLinked && (
-							<Button
-								type="button"
-								variant="outline"
-								className="w-full sm:w-auto"
-								disabled
-							>
-								Liên kết Facebook (sắp có)
-							</Button>
-						)}
-					</div> */}
+            {!facebookLinked && <LinkFacebookButton />}
+          </div>
 
           {linkedProviders.length === 0 && (
             <p className="text-sm text-muted-foreground">

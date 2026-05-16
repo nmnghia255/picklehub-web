@@ -3,6 +3,7 @@ import "@/styles/globals.css"
 import type { Metadata, Viewport } from "next"
 import Script from "next/script"
 
+import { FacebookSDKScript } from "@/components/facebook-sdk-script"
 import { Providers } from "@/components/providers"
 import { META_THEME_COLORS, SITE_INFO } from "@/config/site"
 import { AuthInitializer } from "@/features/auth/components/auth-initializer"
@@ -91,6 +92,7 @@ export default async function RootLayout({
           since regular `<script>` tags are not executed when rendering in React components.
          */}
         <Script src={`data:text/javascript;base64,${btoa(darkModeScript)}`} />
+        <FacebookSDKScript />
       </head>
 
       <body suppressHydrationWarning>

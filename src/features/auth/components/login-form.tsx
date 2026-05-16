@@ -18,6 +18,7 @@ import { loginAction } from "@/features/auth/actions"
 import { cn } from "@/lib/utils"
 
 import { type LoginFormData, loginSchema } from "../schemas"
+import { FacebookAuthButton } from "./facebook-auth-button"
 import { GoogleAuthButton } from "./google-auth-button"
 
 export function LoginForm({ className }: { className?: string }) {
@@ -105,9 +106,7 @@ export function LoginForm({ className }: { className?: string }) {
 
         <Field>
           <GoogleAuthButton text="signin_with" />
-          {/* <Button variant="outline" type="button">
-            Đăng nhập với Facebook
-          </Button> */}
+          <FacebookAuthButton title="Đăng nhập với Facebook" />
           <FieldDescription className="text-center">
             Bạn chưa có tài khoản?{" "}
             <Link href="/register" className="underline underline-offset-4">
