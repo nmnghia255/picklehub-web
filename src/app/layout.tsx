@@ -6,6 +6,7 @@ import Script from "next/script"
 import { Providers } from "@/components/providers"
 import { META_THEME_COLORS, SITE_INFO } from "@/config/site"
 import { AuthInitializer } from "@/features/auth/components/auth-initializer"
+import { fetchMyNotifications } from "@/features/notifications/actions/user-notifications"
 import { fontMono, fontSans } from "@/lib/fonts"
 import { getSession } from "@/lib/session"
 import { cn } from "@/lib/utils"
@@ -76,6 +77,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const session = await getSession()
+  const notifications = session.user ? await fetchMyNotifications() : []
 
   return (
     <html
@@ -93,7 +95,10 @@ export default async function RootLayout({
 
       <body suppressHydrationWarning>
         <Providers>
-          <AuthInitializer user={session.user ?? null} />
+          <AuthInitializer
+            user={session.user ?? null}
+            notifications={notifications}
+          />
           {children}
         </Providers>
       </body>

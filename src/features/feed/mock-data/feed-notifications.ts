@@ -13,6 +13,7 @@ export type FeedNotificationStatus = "pending" | "accepted" | "declined"
 export interface FeedNotification {
   id: string
   type: FeedNotificationType
+  groupId?: string
   section: string
   title: string
   description: string
@@ -28,6 +29,7 @@ export const feedNotifications: FeedNotification[] = [
   {
     id: "notif-gchat-001",
     type: "group",
+    groupId: "group-1",
     section: "Hôm nay",
     title: "Tin nhắn mới trong nhóm Morning Crew",
     description: "Có 3 tin nhắn mới. Tham gia chat để phản hồi.",
@@ -40,6 +42,7 @@ export const feedNotifications: FeedNotification[] = [
   {
     id: "notif-gchat-002",
     type: "group",
+    groupId: "group-1",
     section: "Hôm nay",
     title: "Nhắc: Buổi chơi ngày mai",
     description: "Nhóm Badminton Club nhắc bạn về buổi chơi ngày mai.",
@@ -79,6 +82,7 @@ export const feedNotifications: FeedNotification[] = [
   {
     id: "notif-003",
     type: "group",
+    groupId: "group-1",
     section: "Hôm nay",
     title: "Nhóm Badminton Club cập nhật nội dung mới",
     description:
@@ -131,6 +135,7 @@ export const feedNotifications: FeedNotification[] = [
   {
     id: "notif-007",
     type: "group",
+    groupId: "group-1",
     section: "Tuần này",
     title: "Thành viên mới gia nhập nhóm của bạn",
     description:

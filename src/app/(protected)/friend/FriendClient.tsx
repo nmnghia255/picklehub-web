@@ -3,11 +3,12 @@
 import {
   MessageCircle,
   Search,
+  UserCheck,
   UserPlus,
   UserRoundX,
   XCircle,
 } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -52,15 +53,29 @@ export default function FriendClient({
   const [processingIds, setProcessingIds] = useState<Record<string, boolean>>(
     {}
   )
+  const findRequestIdRef = useRef(0)
 
   useEffect(() => {
-    let isMounted = true
+    const requestId = ++findRequestIdRef.current
+    const shouldLoadFindUsers = activeTab === "find"
 
     async function loadFindUsers() {
+      if (!shouldLoadFindUsers) {
+        return
+      }
+
+      const keyword = search.trim() || "a"
+
       setIsLoadingFind(true)
 
       try {
-        const response = await fetch("/api/friends/find", {
+        const query = new URLSearchParams({
+          q: keyword,
+          page: "1",
+          limit: "100",
+        })
+
+        const response = await fetch(`/api/friends/find?${query.toString()}`, {
           method: "GET",
           cache: "no-store",
           credentials: "include",
@@ -68,30 +83,41 @@ export default function FriendClient({
 
         if (!response.ok) return
 
-        const payload = (await response.json()) as { data?: FriendUser[] }
+        const payload = (await response.json()) as {
+          data?: FriendUser[]
+        }
 
-        if (isMounted && Array.isArray(payload.data)) {
+        if (
+          requestId === findRequestIdRef.current &&
+          Array.isArray(payload.data)
+        ) {
           setUsersByTab((prev) => ({
             ...prev,
             find: payload.data ?? prev.find,
           }))
         }
+      } catch (error) {
+        if (requestId === findRequestIdRef.current) {
+          throw error
+        }
       } finally {
-        if (isMounted) {
+        if (requestId === findRequestIdRef.current) {
           setIsLoadingFind(false)
         }
       }
     }
 
-    loadFindUsers()
+    void loadFindUsers()
 
-    return () => {
-      isMounted = false
-    }
-  }, [])
+    return () => {}
+  }, [activeTab, search])
 
   const users = useMemo(() => {
     const rawUsers = usersByTab[activeTab]
+    if (activeTab === "find") {
+      return sortUsers(rawUsers, sortBy)
+    }
+
     const byKeyword = filterUsersByUsername(rawUsers, search)
     return sortUsers(byKeyword, sortBy)
   }, [activeTab, search, sortBy, usersByTab])
@@ -263,7 +289,7 @@ export default function FriendClient({
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               className="pl-9"
-              placeholder="Tìm kiếm theo username..."
+              placeholder="Tìm kiếm theo tên, username hoặc email..."
             />
           </div>
 
@@ -352,18 +378,48 @@ export default function FriendClient({
 
                       <div className="flex flex-col items-start gap-2 sm:items-end">
                         <div className="mt-1 flex flex-wrap gap-2">
-                          {tab === "find" && (
-                            <Button
-                              size="sm"
-                              disabled={Boolean(
-                                processingIds[`find-${user.id}`]
-                              )}
-                              onClick={() => handleSendRequest(user)}
-                            >
-                              <UserPlus className="size-4" />
-                              Kết bạn
-                            </Button>
-                          )}
+                          {tab === "find" &&
+                            (() => {
+                              const status = user.friendshipStatus ?? "NONE"
+                              const canSendRequest = status === "NONE"
+                              const actionLabel =
+                                status === "FRIEND"
+                                  ? "Đã là bạn bè"
+                                  : status === "REQUEST_SENT"
+                                    ? "Đã gửi lời mời"
+                                    : status === "REQUEST_RECEIVED"
+                                      ? "Đã nhận lời mời"
+                                      : "Kết bạn"
+
+                              return status === "FRIEND" ? (
+                                <Button
+                                  size="sm"
+                                  disabled
+                                  aria-label="Đã là bạn bè"
+                                  className="bg-gray-100 text-gray-800 hover:bg-gray-100"
+                                >
+                                  <UserCheck
+                                    className="mr-2 size-5 text-emerald-700"
+                                    strokeWidth={1.8}
+                                  />
+                                  <span className="font-semibold text-gray-800">
+                                    Đã là bạn bè
+                                  </span>
+                                </Button>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  disabled={
+                                    !canSendRequest ||
+                                    Boolean(processingIds[`find-${user.id}`])
+                                  }
+                                  onClick={() => handleSendRequest(user)}
+                                >
+                                  <UserPlus className="size-4" />
+                                  {actionLabel}
+                                </Button>
+                              )
+                            })()}
 
                           {tab === "sent" && (
                             <Button

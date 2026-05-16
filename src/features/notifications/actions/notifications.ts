@@ -1,0 +1,57 @@
+"use server"
+
+import { feedNotifications } from "@/features/feed/mock-data/feed-notifications"
+import { getAuthenticatedAxios } from "@/lib/server-api"
+
+import type { GroupFeedNotificationItem } from "../components/group-feed-notifications"
+import type { SendGroupFeedNotificationDto } from "../types"
+
+/**
+ * Server action to fetch group feed notifications
+ * This runs on the server and can safely access authenticated axios
+ */
+export async function fetchGroupFeedNotifications(
+  groupId: string
+): Promise<GroupFeedNotificationItem[]> {
+  return feedNotifications
+    .filter(
+      (notification) =>
+        notification.type === "group" &&
+        (!notification.groupId || notification.groupId === groupId)
+    )
+    .map((notification) => ({
+      id: notification.id,
+      groupId: notification.groupId,
+      title: notification.title,
+      message: notification.description,
+      sentAt: new Date().toISOString(),
+      timeLabel: notification.timeLabel,
+      senderName: notification.actor,
+    }))
+}
+
+/**
+ * Server action to send a group feed notification
+ * This runs on the server and can safely access authenticated axios
+ */
+export async function sendGroupFeedNotificationAction(
+  dto: SendGroupFeedNotificationDto
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.post(`/api/groups/${dto.groupId}/notify`, {
+      title: dto.title,
+      message: dto.message,
+    })
+
+    return {
+      success: true,
+      message: response.data?.message || "Thông báo đã được gửi thành công",
+    }
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Không thể gửi thông báo"
+    console.error("Error sending group feed notification:", error)
+    throw new Error(errorMessage)
+  }
+}
