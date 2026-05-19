@@ -130,7 +130,7 @@ export default function PlaySessionSidebar({
             disabled={!social.hasAvailableSlots}
             onClick={onJoin}
           >
-            {social.hasAvailableSlots ? "Join Social" : "Full"}
+            {social.hasAvailableSlots ? "Join Session" : "Full"}
           </Button>
         )}
 
@@ -141,7 +141,7 @@ export default function PlaySessionSidebar({
             variant="outline"
             onClick={onLeave}
           >
-            Leave Social
+            Leave Session
           </Button>
         )}
       </CardContent>
