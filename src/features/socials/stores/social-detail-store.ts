@@ -1,0 +1,36 @@
+import { create } from "zustand"
+
+import type { PlaySession } from "@/features/socials/types"
+
+interface SocialDetailState {
+  joinDialogOpen: boolean
+  setJoinDialogOpen: (open: boolean) => void
+  playSessionModalOpen: boolean
+  setPlaySessionModalOpen: (open: boolean) => void
+  selectedSession: PlaySession | null
+  setSelectedSession: (s: PlaySession | null) => void
+  tabValue: string
+  setTabValue: (v: string) => void
+  reset: () => void
+}
+
+export const useSocialDetailStore = create<SocialDetailState>((set) => ({
+  joinDialogOpen: false,
+  setJoinDialogOpen: (open: boolean) => set({ joinDialogOpen: open }),
+  playSessionModalOpen: false,
+  setPlaySessionModalOpen: (open: boolean) =>
+    set({ playSessionModalOpen: open }),
+  selectedSession: null,
+  setSelectedSession: (s: PlaySession | null) => set({ selectedSession: s }),
+  tabValue: "0",
+  setTabValue: (v: string) => set({ tabValue: v }),
+  reset: () =>
+    set({
+      joinDialogOpen: false,
+      playSessionModalOpen: false,
+      selectedSession: null,
+      tabValue: "0",
+    }),
+}))
+
+export default useSocialDetailStore

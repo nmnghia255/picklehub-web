@@ -2,11 +2,12 @@
 
 import { differenceInHours } from "date-fns"
 import { useParams, useRouter } from "next/navigation"
-import React, { useState } from "react"
+import React from "react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PlaySessionModal } from "@/features/socials/components/play-session/PlaySessionModal"
 import { mockSocials } from "@/features/socials/mockData"
+import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
 import type { Match, PlaySession } from "@/features/socials/types"
 
 import SocialHeader from "./SocialHeader"
@@ -20,12 +21,18 @@ import SocialSidebar from "./SocialSidebar"
 export default function SocialDetail() {
   const params = useParams()
   const router = useRouter()
-  const [joinDialogOpen, setJoinDialogOpen] = useState(false)
-  const [playSessionModalOpen, setPlaySessionModalOpen] = useState(false)
-  const [selectedSession, setSelectedSession] = useState<PlaySession | null>(
-    null
+  const joinDialogOpen = useSocialDetailStore((s) => s.joinDialogOpen)
+  const setJoinDialogOpen = useSocialDetailStore((s) => s.setJoinDialogOpen)
+  const playSessionModalOpen = useSocialDetailStore(
+    (s) => s.playSessionModalOpen
   )
-  const [tabValue, setTabValue] = useState("0")
+  const setPlaySessionModalOpen = useSocialDetailStore(
+    (s) => s.setPlaySessionModalOpen
+  )
+  const selectedSession = useSocialDetailStore((s) => s.selectedSession)
+  const setSelectedSession = useSocialDetailStore((s) => s.setSelectedSession)
+  const tabValue = useSocialDetailStore((s) => s.tabValue)
+  const setTabValue = useSocialDetailStore((s) => s.setTabValue)
 
   const socialId = params.socialId as string | undefined
   const social = mockSocials.find((item) => item.id === socialId)

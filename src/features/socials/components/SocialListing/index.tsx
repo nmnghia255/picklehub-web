@@ -10,7 +10,6 @@ import {
   Users,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import React, { useState } from "react"
 
 import { AvatarGroup } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -18,6 +17,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { mockSocials } from "@/features/socials/mockData"
+import useSocialsStore from "@/features/socials/stores/social-listing-store"
 
 import FiltersDrawer from "./FiltersDrawer"
 import ProgressBar from "./ProgressBar"
@@ -38,15 +38,12 @@ function getStatusClasses(status: string) {
 
 export default function SocialListing() {
   const router = useRouter()
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false)
-  const [filters, setFilters] = useState({
-    status: "ALL",
-    genderPolicy: "ALL",
-    ageGroup: "ALL",
-    format: "ALL",
-    availableSlots: false,
-  })
+  const searchQuery = useSocialsStore((s) => s.searchQuery)
+  const setSearchQuery = useSocialsStore((s) => s.setSearchQuery)
+  const filterDrawerOpen = useSocialsStore((s) => s.filterDrawerOpen)
+  const setFilterDrawerOpen = useSocialsStore((s) => s.setFilterDrawerOpen)
+  const filters = useSocialsStore((s) => s.filters)
+  const setFilters = useSocialsStore((s) => s.setFilters)
 
   const filteredSocials = mockSocials.filter((social) => {
     if (

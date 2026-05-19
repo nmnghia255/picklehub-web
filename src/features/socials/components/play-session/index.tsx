@@ -3,13 +3,14 @@
 import { differenceInMinutes } from "date-fns"
 import { ArrowLeft } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
-import React, { useState } from "react"
+import React from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { mockSocials } from "@/features/socials/mockData"
 import { getSessionWithDetails } from "@/features/socials/mockSessionData"
+import usePlaySessionStore from "@/features/socials/stores/play-session-store"
 import type { Match } from "@/features/socials/types"
 
 import CreateMatchDialog from "./CreateMatchDialog"
@@ -37,8 +38,10 @@ function getSessionStatusClasses(status: string) {
 export default function PlaySessionDetail() {
   const params = useParams()
   const router = useRouter()
-  const [tabValue, setTabValue] = useState("0")
-  const [matchDialogOpen, setMatchDialogOpen] = useState(false)
+  const tabValue = usePlaySessionStore((s) => s.tabValue)
+  const setTabValue = usePlaySessionStore((s) => s.setTabValue)
+  const matchDialogOpen = usePlaySessionStore((s) => s.matchDialogOpen)
+  const setMatchDialogOpen = usePlaySessionStore((s) => s.setMatchDialogOpen)
 
   const socialId = params.socialId as string | undefined
   const sessionId = params.playSessionId as string | undefined
