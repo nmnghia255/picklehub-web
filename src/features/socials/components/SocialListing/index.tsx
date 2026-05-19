@@ -96,7 +96,8 @@ export default function SocialListing() {
           {filteredSocials.map((social) => (
             <Card
               key={social.id}
-              className="group overflow-hidden border-border/60 p-0 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+              className="group cursor-pointer overflow-hidden border-border/60 p-0 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+              onClick={() => router.push(`/socials/${social.id}`)}
             >
               <div className="relative flex h-48 items-center justify-center bg-linear-to-br from-sky-500 via-blue-600 to-violet-600">
                 <span className="text-5xl drop-shadow-sm">🏓</span>
@@ -115,7 +116,7 @@ export default function SocialListing() {
                   </Badge>
                 )}
                 {social.isParticipant && !social.isHost && (
-                  <Badge className="absolute top-3 left-3 gap-1 border-emerald-500/20 bg-emerald-500/10 text-emerald-700">
+                  <Badge className="text-white-800/60 absolute top-3 left-3 gap-1 border-emerald-500/30 bg-emerald-500">
                     <Check className="size-3.5" />
                     Joined
                   </Badge>

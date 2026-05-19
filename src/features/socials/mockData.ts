@@ -274,27 +274,3 @@ export const mockSocials: Social[] = [
     isParticipant: false,
   },
 ]
-
-export function getSessionWithDetails(sessionId: string, socialId: string) {
-  const social = mockSocials.find((s) => s.id === socialId)
-  const base = social?.playSessions.find((p) => p.id === sessionId)
-  if (!base) return undefined
-
-  const participants: SessionParticipant[] = [
-    {
-      id: `part-${currentUser.id}`,
-      userId: currentUser.id,
-      user: currentUser,
-      status: "CONFIRMED" as const,
-      joinedAt: new Date().toISOString(),
-    },
-  ]
-
-  const matches: never[] = []
-
-  return {
-    ...base,
-    participants,
-    matches,
-  }
-}

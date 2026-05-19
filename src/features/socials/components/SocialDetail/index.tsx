@@ -9,12 +9,12 @@ import { PlaySessionModal } from "@/features/socials/components/play-session/Pla
 import { mockSocials } from "@/features/socials/mockData"
 import type { Match, PlaySession } from "@/features/socials/types"
 
-import PlaySessions from "./PlaySessions"
 import SocialHeader from "./SocialHeader"
 import SocialHero from "./SocialHero"
 import SocialJoinDialog from "./SocialJoinDialog"
 import SocialOverview from "./SocialOverview"
 import SocialParticipants from "./SocialParticipants"
+import SocialSessions from "./SocialSessions"
 import SocialSidebar from "./SocialSidebar"
 
 export default function SocialDetail() {
@@ -95,25 +95,28 @@ export default function SocialDetail() {
             <TabsList>
               <TabsTrigger value="0">Overview</TabsTrigger>
               <TabsTrigger value="1">
+                Participants ({social.joinedCount})
+              </TabsTrigger>
+
+              {/* <TabsTrigger value="2">
                 Matches (
                 {completedMatches.length +
                   inProgressMatches.length +
                   scheduledMatches.length}
                 )
-              </TabsTrigger>
-              <TabsTrigger value="2">
-                Participants ({social.joinedCount})
-              </TabsTrigger>
+              </TabsTrigger> */}
             </TabsList>
 
             <TabsContent value="0" className="space-y-4">
               <SocialOverview social={overviewSocial} duration={duration} />
-            </TabsContent>
-
-            <TabsContent value="1" className="space-y-4">
-              <PlaySessions
-                isHost={isHost}
+              <SocialSessions
                 sessions={social.playSessions}
+                isHost={isHost}
+                matchesByStatus={{
+                  inProgress: inProgressMatches,
+                  scheduled: scheduledMatches,
+                  completed: completedMatches,
+                }}
                 onCreateSession={() => {
                   setSelectedSession(null)
                   setPlaySessionModalOpen(true)
@@ -128,7 +131,11 @@ export default function SocialDetail() {
               />
             </TabsContent>
 
-            <TabsContent value="2" className="space-y-4">
+            {/* <TabsContent value="1" className="space-y-4">
+
+            </TabsContent> */}
+
+            <TabsContent value="1" className="space-y-4">
               <SocialParticipants participants={currentSession?.participants} />
             </TabsContent>
           </Tabs>

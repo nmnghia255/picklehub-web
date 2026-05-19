@@ -10,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import ProgressBar from "@/features/socials/components/SocialListing/ProgressBar"
 import type { PlaySession } from "@/features/socials/types"
 
-import MatchCard from "./MatchCard"
+import type MatchCard from "./MatchCard"
 
 function SectionLabel({
   children,
@@ -146,7 +146,7 @@ export default function SocialSessions({
         </CardContent>
       </Card>
 
-      <Card className="p-0">
+      {/* <Card className="p-0">
         <CardContent className="space-y-4 p-6">
           <h2 className="text-lg font-semibold">Match Schedule</h2>
           <div className="space-y-4">
@@ -189,7 +189,7 @@ export default function SocialSessions({
             )}
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
     </>
   )
 }
