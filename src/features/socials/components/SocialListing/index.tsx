@@ -1,6 +1,6 @@
 "use client"
 
-import { Filter, Search } from "lucide-react"
+import { Filter, Plus, Search } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 import { Badge } from "@/components/ui/badge"
@@ -55,6 +55,13 @@ export default function SocialListing() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+          <Button
+            className="h-11 gap-2"
+            onClick={() => router.push("/socials/create")}
+          >
+            <Plus className="size-4" />
+            Create Social
+          </Button>
           <Button
             variant="outline"
             className="h-11 gap-2 md:w-auto"
