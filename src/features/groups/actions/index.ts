@@ -6,7 +6,6 @@ import { redirect } from "next/navigation"
 
 import type { AcceptInvitationResponse } from "@/features/auth/types"
 import {
-  archiveGroup,
   changeMemberRole,
   createGroup,
   createInviteLink,
@@ -252,27 +251,6 @@ export async function leaveGroupAction(
     return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
   }
 }
-
-export async function archiveGroupAction(
-  groupId: string
-): Promise<GroupActionState> {
-  try {
-    await archiveGroup(groupId)
-    revalidatePath("/groups")
-    revalidatePath(`/groups/${groupId}`)
-    return { success: true }
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      return {
-        error:
-          error.response?.data?.message ||
-          "Lưu trữ nhóm thất bại. Vui lòng thử lại.",
-      }
-    }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
-  }
-}
-
 /** @deprecated */
 export interface InviteLinkActionState {
   data?: InviteLinkResponse

@@ -183,12 +183,6 @@ export async function leaveGroup(
   return response.data
 }
 
-export async function archiveGroup(groupId: string): Promise<Group> {
-  const axios = await getAuthenticatedAxios()
-  const response = await axios.patch<Group>(`/api/groups/${groupId}/archive`)
-  return response.data
-}
-
 export async function getGroupInvitations(
   groupId: string
 ): Promise<Invitation[]> {

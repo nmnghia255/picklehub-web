@@ -94,7 +94,12 @@ export default async function GroupDetailPage({
       const sessionsPayload = sessionsResponse?.data || []
       upcomingSessions = sessionsPayload
     } catch (error) {
-      console.error("Error loading upcoming sessions:", error)
+      const status = getHttpStatus(error)
+
+      if (status !== 404) {
+        console.error("Error loading upcoming sessions:", error)
+      }
+
       hasUpcomingSessionsError = true
     }
   }
