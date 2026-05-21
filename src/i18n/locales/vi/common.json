@@ -16,9 +16,9 @@
       "draft": "Bản nháp",
       "scheduled": "Đã lên lịch",
       "inProgress": "Đang diễn ra",
-      "mixed": "Hỗn hợp",
-      "menOnly": "Chỉ nam",
-      "womenOnly": "Chỉ nữ",
+      "mixed": "Nam & Nữ",
+      "menOnly": "Nam",
+      "womenOnly": "Nữ",
       "junior": "Trẻ",
       "adult": "Người lớn",
       "senior": "Cao tuổi",
@@ -185,17 +185,17 @@
       "status": "Trạng thái",
       "privateEvent": "Sự kiện riêng tư",
       "autoApproveJoinRequests": "Tự động duyệt yêu cầu tham gia",
-      "deleteSocial": "Xóa social",
-      "confirmDeleteSocial": "Bạn có chắc muốn xóa social này không?",
+      "deleteSocial": "Xóa",
+      "confirmDeleteSocial": "Bạn có chắc muốn xóa không?",
       "paymentCodePlaceholder": "ví dụ: mã Venmo, số tham chiếu",
       "paymentInstructionsPlaceholder": "ví dụ: Venmo @username hoặc trả tiền mặt tại sân",
       "validationEndAfterStart": "Thời gian kết thúc phải sau thời gian bắt đầu.",
-      "addPlaySessionsHint": "Thêm các phiên chơi để sắp xếp social theo từng khung giờ và sân.",
-      "createSuccess": "Tạo social thành công!",
-      "updateSuccess": "Cập nhật social thành công!",
-      "save": "Lưu social",
-      "create": "Tạo social",
-      "update": "Cập nhật social"
+      "addPlaySessionsHint": "Thêm các phiên chơi để sắp xếp theo từng khung giờ và sân.",
+      "createSuccess": "Tạo thành công!",
+      "updateSuccess": "Cập nhật thành công!",
+      "save": "Lưu",
+      "create": "Tạo",
+      "update": "Cập nhật"
     }
   }
 }

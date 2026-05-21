@@ -374,7 +374,7 @@ export async function acceptInvitationAction(
     session.user = { id: user.id, email: user.email }
     session.accessToken = accessToken
     session.refreshToken = refreshToken
-    session.accessTokenExpiresAt = Date.now() + (expiresIn ?? 15 * 60) * 1000
+    session.accessTokenExpiresAt = Date.now() + (expiresIn ?? 900) * 1000
     await session.save()
 
     return { success: true, isNewUser, groupId: group.id }
