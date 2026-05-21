@@ -28,8 +28,26 @@ export function useSocialsTranslation() {
     const syncLanguage = () => {
       const nextLanguage = getStoredLanguage()
 
-      if (socialsI18n.language !== nextLanguage) {
-        void socialsI18n.changeLanguage(nextLanguage)
+      // If the i18n instance hasn't been initialized yet, wait for initialization
+      // and then apply the language change. This avoids calling into i18next
+      // internals before resources/store are ready which can cause a runtime
+      // TypeError (hasLanguageSomeTranslations undefined).
+      if (socialsI18n.isInitialized) {
+        if (socialsI18n.language !== nextLanguage) {
+          void socialsI18n.changeLanguage(nextLanguage)
+        }
+      } else {
+        const onInit = () => {
+          try {
+            if (socialsI18n.language !== nextLanguage) {
+              void socialsI18n.changeLanguage(nextLanguage)
+            }
+          } finally {
+            socialsI18n.off("initialized", onInit)
+          }
+        }
+
+        socialsI18n.on("initialized", onInit)
       }
     }
 
