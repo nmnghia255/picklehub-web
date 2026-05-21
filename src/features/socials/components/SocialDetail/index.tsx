@@ -8,7 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PlaySessionModal } from "@/features/socials/components/play-session/PlaySessionModal"
 import { mockSocials } from "@/features/socials/mockData"
 import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
-import type { Match, PlaySession } from "@/features/socials/types"
+import type { Match } from "@/features/socials/types"
+import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
 
 import SocialHeader from "./SocialHeader"
 import SocialHero from "./SocialHero"
@@ -21,6 +22,7 @@ import SocialSidebar from "./SocialSidebar"
 export default function SocialDetail() {
   const params = useParams()
   const router = useRouter()
+  const { t } = useSocialsTranslation()
   const joinDialogOpen = useSocialDetailStore((s) => s.joinDialogOpen)
   const setJoinDialogOpen = useSocialDetailStore((s) => s.setJoinDialogOpen)
   const playSessionModalOpen = useSocialDetailStore(
@@ -40,15 +42,15 @@ export default function SocialDetail() {
   if (!social) {
     return (
       <div className="mx-auto flex max-w-3xl flex-col items-center justify-center px-4 py-16 text-center">
-        <h1 className="text-2xl font-semibold">Social not found</h1>
+        <h1 className="text-2xl font-semibold">{t("detail.notFoundTitle")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          The social you are looking for does not exist or is unavailable.
+          {t("detail.notFoundDescription")}
         </p>
         <button
           className="mt-6 rounded-md border px-4 py-2 text-sm"
           onClick={() => router.push("/socials")}
         >
-          Back to Socials
+          {t("detail.backToSocials")}
         </button>
       </div>
     )
@@ -100,9 +102,9 @@ export default function SocialDetail() {
             className="space-y-4"
           >
             <TabsList>
-              <TabsTrigger value="0">Overview</TabsTrigger>
+              <TabsTrigger value="0">{t("detail.overview")}</TabsTrigger>
               <TabsTrigger value="1">
-                Participants ({social.joinedCount})
+                {t("detail.participants")} ({social.joinedCount})
               </TabsTrigger>
 
               {/* <TabsTrigger value="2">

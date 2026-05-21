@@ -19,6 +19,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
+import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
 
 import { mockSocials } from "../../mockData"
 import type {
@@ -28,8 +29,8 @@ import type {
   SocialFormat,
   SocialStatus,
 } from "../../types"
-
 export function SocialForm() {
+  const { t } = useSocialsTranslation()
   const params = useParams() as { id?: string }
   const router = useRouter()
   const id = params.id as string | undefined
@@ -58,14 +59,14 @@ export function SocialForm() {
     status: "DRAFT" as SocialStatus,
   })
 
-  const [playSessions, setPlaySessions] = useState<
-    Array<{
-      title: string
-      startTime: string
-      endTime: string
-      maxSlots: number
-    }>
-  >([])
+  type PlaySessionDraft = {
+    title: string
+    startTime: string
+    endTime: string
+    maxSlots: number
+  }
+
+  const [playSessions, setPlaySessions] = useState<PlaySessionDraft[]>([])
 
   useEffect(() => {
     if (!social) return
@@ -97,7 +98,7 @@ export function SocialForm() {
 
   const handleSubmit = () => {
     console.log("Saving social:", formData, playSessions)
-    alert(`Social ${isEditMode ? "updated" : "created"} successfully!`)
+    alert(isEditMode ? t("form.updateSuccess") : t("form.createSuccess"))
     router.push("/socials")
   }
 
@@ -113,18 +114,19 @@ export function SocialForm() {
     ])
   }
 
-  const removePlaySession = (index: number) => {
-    setPlaySessions(playSessions.filter((_, itemIndex) => itemIndex !== index))
-  }
+  const removePlaySession = (index: number) =>
+    setPlaySessions(playSessions.filter((_, i) => i !== index))
 
   const updatePlaySession = (
     index: number,
-    field: string,
+    field: keyof PlaySessionDraft,
     value: string | number
   ) => {
-    const updated = [...playSessions]
-    updated[index] = { ...updated[index], [field]: value }
-    setPlaySessions(updated)
+    setPlaySessions((prev) => {
+      const next = [...prev]
+      next[index] = { ...next[index], [field]: value }
+      return next
+    })
   }
 
   return (
@@ -135,10 +137,10 @@ export function SocialForm() {
         </Button>
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            {isEditMode ? "Edit Social" : "Create New Social"}
+            {isEditMode ? t("form.editTitle") : t("form.createTitle")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Configure the event details, rules, and publishing settings.
+            {t("form.subtitle")}
           </p>
         </div>
       </div>
@@ -147,32 +149,34 @@ export function SocialForm() {
         <div className="space-y-6">
           <Card className="p-0">
             <CardContent className="space-y-5 p-6">
-              <h2 className="text-lg font-semibold">Basic Information</h2>
+              <h2 className="text-lg font-semibold">
+                {t("form.basicInformation")}
+              </h2>
               <div className="space-y-4">
-                <Field label="Social Title">
+                <Field label={t("form.socialTitle")}>
                   <Input
                     value={formData.title}
                     onChange={(e) =>
                       setFormData({ ...formData, title: e.target.value })
                     }
-                    placeholder="e.g., Sunday Morning Pickleball Social"
+                    placeholder={t("form.socialTitlePlaceholder")}
                     required
                   />
                 </Field>
 
-                <Field label="Description">
+                <Field label={t("form.description")}>
                   <Textarea
                     rows={4}
                     value={formData.note}
                     onChange={(e) =>
                       setFormData({ ...formData, note: e.target.value })
                     }
-                    placeholder="Describe your social event..."
+                    placeholder={t("form.descriptionPlaceholder")}
                     required
                   />
                 </Field>
 
-                <Field label="Format">
+                <Field label={t("form.format")}>
                   <Select
                     value={formData.format}
                     onValueChange={(value) =>
@@ -183,12 +187,18 @@ export function SocialForm() {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select format" />
+                      <SelectValue placeholder={t("form.format")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="SOCIAL">Social</SelectItem>
-                      <SelectItem value="TOURNAMENT">Tournament</SelectItem>
-                      <SelectItem value="TRAINING">Training</SelectItem>
+                      <SelectItem value="SOCIAL">
+                        {t("labels.social")}
+                      </SelectItem>
+                      <SelectItem value="TOURNAMENT">
+                        {t("labels.tournament")}
+                      </SelectItem>
+                      <SelectItem value="TRAINING">
+                        {t("labels.training")}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </Field>
@@ -198,9 +208,9 @@ export function SocialForm() {
 
           <Card className="p-0">
             <CardContent className="space-y-5 p-6">
-              <h2 className="text-lg font-semibold">Schedule</h2>
+              <h2 className="text-lg font-semibold">{t("form.schedule")}</h2>
               <div className="space-y-4">
-                <Field label="Start Time">
+                <Field label={t("form.startTime")}>
                   <Input
                     type="datetime-local"
                     value={formData.startTime}
@@ -211,7 +221,7 @@ export function SocialForm() {
                   />
                 </Field>
 
-                <Field label="End Time">
+                <Field label={t("form.endTime")}>
                   <Input
                     type="datetime-local"
                     value={formData.endTime}
@@ -228,12 +238,12 @@ export function SocialForm() {
                     new Date(formData.startTime) && (
                     <Alert variant="destructive">
                       <AlertDescription>
-                        End time must be after start time.
+                        {t("form.validationEndAfterStart")}
                       </AlertDescription>
                     </Alert>
                   )}
 
-                <Field label="Cancellation Freeze (hours before event)">
+                <Field label={t("form.cancellationFreeze")}>
                   <Input
                     type="number"
                     value={formData.cancellationFreezeHours}
@@ -253,9 +263,11 @@ export function SocialForm() {
 
           <Card className="p-0">
             <CardContent className="space-y-5 p-6">
-              <h2 className="text-lg font-semibold">Participation Rules</h2>
+              <h2 className="text-lg font-semibold">
+                {t("form.participationRules")}
+              </h2>
               <div className="space-y-4">
-                <Field label="Maximum Participants">
+                <Field label={t("form.maximumParticipants")}>
                   <Input
                     type="number"
                     value={formData.maxSlots}
@@ -272,7 +284,7 @@ export function SocialForm() {
                 </Field>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Gender Policy">
+                  <Field label={t("form.genderPolicy")}>
                     <Select
                       value={formData.genderPolicy}
                       onValueChange={(value) =>
@@ -283,17 +295,25 @@ export function SocialForm() {
                       }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select policy" />
+                        <SelectValue
+                          placeholder={t("filters.selectGenderPolicy")}
+                        />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="MIXED">Mixed</SelectItem>
-                        <SelectItem value="MALE_ONLY">Men Only</SelectItem>
-                        <SelectItem value="FEMALE_ONLY">Women Only</SelectItem>
+                        <SelectItem value="MIXED">
+                          {t("labels.mixed")}
+                        </SelectItem>
+                        <SelectItem value="MALE_ONLY">
+                          {t("labels.menOnly")}
+                        </SelectItem>
+                        <SelectItem value="FEMALE_ONLY">
+                          {t("labels.womenOnly")}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </Field>
 
-                  <Field label="Age Group">
+                  <Field label={t("form.ageGroup")}>
                     <Select
                       value={formData.ageGroup}
                       onValueChange={(value) =>
@@ -304,19 +324,27 @@ export function SocialForm() {
                       }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select age group" />
+                        <SelectValue
+                          placeholder={t("filters.selectAgeGroup")}
+                        />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="JUNIOR">Junior</SelectItem>
-                        <SelectItem value="ADULT">Adult</SelectItem>
-                        <SelectItem value="SENIOR">Senior</SelectItem>
+                        <SelectItem value="JUNIOR">
+                          {t("labels.junior")}
+                        </SelectItem>
+                        <SelectItem value="ADULT">
+                          {t("labels.adult")}
+                        </SelectItem>
+                        <SelectItem value="SENIOR">
+                          {t("labels.senior")}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </Field>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Minimum Skill Level">
+                  <Field label={t("form.minimumSkillLevel")}>
                     <Input
                       type="number"
                       value={formData.minimumLevel}
@@ -331,7 +359,7 @@ export function SocialForm() {
                       step={0.5}
                     />
                   </Field>
-                  <Field label="Maximum Skill Level">
+                  <Field label={t("form.maximumSkillLevel")}>
                     <Input
                       type="number"
                       value={formData.maximumLevel}
@@ -348,7 +376,7 @@ export function SocialForm() {
                   </Field>
                 </div>
 
-                <Field label="Host Role">
+                <Field label={t("form.hostRole")}>
                   <Select
                     value={formData.hostRole}
                     onValueChange={(value) =>
@@ -356,21 +384,21 @@ export function SocialForm() {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select host role" />
+                      <SelectValue placeholder={t("form.hostRole")} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="HOST_ONLY">
-                        Host Only (not playing)
+                        {t("sidebar.hostRoleHostOnly")}
                       </SelectItem>
                       <SelectItem value="HOST_AND_PLAY">
-                        Host and Play
+                        {t("sidebar.hostRoleHostAndPlay")}
                       </SelectItem>
                     </SelectContent>
                   </Select>
                 </Field>
 
                 <ToggleRow
-                  label="Submit to DUPR"
+                  label={t("form.submitDupr")}
                   checked={formData.submitDupr}
                   onCheckedChange={(checked) =>
                     setFormData({ ...formData, submitDupr: checked })
@@ -383,10 +411,10 @@ export function SocialForm() {
           <Card className="p-0">
             <CardContent className="space-y-5 p-6">
               <h2 className="text-lg font-semibold">
-                Payment Setup (Optional)
+                {t("form.paymentSetup")}
               </h2>
               <div className="space-y-4">
-                <Field label="Total Expense per Person">
+                <Field label={t("form.totalExpensePerPerson")}>
                   <div className="flex items-center gap-2 rounded-md border border-input bg-transparent px-3">
                     <span className="text-sm text-muted-foreground">$</span>
                     <Input
@@ -405,24 +433,24 @@ export function SocialForm() {
                   </div>
                 </Field>
 
-                <Field label="Payment Code">
+                <Field label={t("form.paymentCode")}>
                   <Input
                     value={formData.paymentCode}
                     onChange={(e) =>
                       setFormData({ ...formData, paymentCode: e.target.value })
                     }
-                    placeholder="e.g., Venmo code, reference number"
+                    placeholder={t("form.paymentCodePlaceholder")}
                   />
                 </Field>
 
-                <Field label="Payment Instructions">
+                <Field label={t("form.paymentInstructions")}>
                   <Textarea
                     rows={2}
                     value={formData.paymentNote}
                     onChange={(e) =>
                       setFormData({ ...formData, paymentNote: e.target.value })
                     }
-                    placeholder="e.g., Venmo @username or Cash at venue"
+                    placeholder={t("form.paymentInstructionsPlaceholder")}
                   />
                 </Field>
               </div>
@@ -433,18 +461,17 @@ export function SocialForm() {
             <CardContent className="space-y-5 p-6">
               <div className="flex items-center justify-between gap-3">
                 <h2 className="text-lg font-semibold">
-                  Play Sessions ({playSessions.length})
+                  {t("form.playSessions")} ({playSessions.length})
                 </h2>
                 <Button variant="outline" onClick={addPlaySession}>
                   <Plus className="size-4" />
-                  Add Session
+                  {t("form.addPlaySession")}
                 </Button>
               </div>
 
               {playSessions.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-border px-6 py-10 text-sm text-muted-foreground">
-                  Add play sessions to organize your social into specific time
-                  slots and courts.
+                  {t("form.addPlaySessionsHint")}
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -453,7 +480,7 @@ export function SocialForm() {
                       <CardContent className="space-y-4 p-5">
                         <div className="flex items-start justify-between gap-3">
                           <h3 className="text-sm font-semibold">
-                            Session {index + 1}
+                            {t("form.sessionTitle")} {index + 1}
                           </h3>
                           <Button
                             variant="ghost"
@@ -465,18 +492,18 @@ export function SocialForm() {
                           </Button>
                         </div>
 
-                        <Field label="Session Title">
+                        <Field label={t("form.sessionTitle")}>
                           <Input
                             value={session.title}
                             onChange={(e) =>
                               updatePlaySession(index, "title", e.target.value)
                             }
-                            placeholder="e.g., Morning Session - Courts 1 & 2"
+                            placeholder={t("form.sessionTitlePlaceholder")}
                           />
                         </Field>
 
                         <div className="grid gap-4 md:grid-cols-3">
-                          <Field label="Max Slots">
+                          <Field label={t("form.maxSlots")}>
                             <Input
                               type="number"
                               value={session.maxSlots}
@@ -490,7 +517,7 @@ export function SocialForm() {
                               min={1}
                             />
                           </Field>
-                          <Field label="Start Time">
+                          <Field label={t("form.startTime")}>
                             <Input
                               type="datetime-local"
                               value={session.startTime}
@@ -503,7 +530,7 @@ export function SocialForm() {
                               }
                             />
                           </Field>
-                          <Field label="End Time">
+                          <Field label={t("form.endTime")}>
                             <Input
                               type="datetime-local"
                               value={session.endTime}
@@ -528,10 +555,12 @@ export function SocialForm() {
 
         <Card className="sticky top-6 h-fit p-0">
           <CardContent className="space-y-5 p-6">
-            <h2 className="text-lg font-semibold">Settings & Publish</h2>
+            <h2 className="text-lg font-semibold">
+              {t("form.settingsAndPublish")}
+            </h2>
 
             <div className="space-y-3">
-              <Field label="Status">
+              <Field label={t("form.status")}>
                 <Select
                   value={formData.status}
                   onValueChange={(value) =>
@@ -539,13 +568,19 @@ export function SocialForm() {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
+                    <SelectValue placeholder={t("filters.selectStatus")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="DRAFT">Draft</SelectItem>
-                    <SelectItem value="PUBLISHED">Published</SelectItem>
-                    <SelectItem value="COMPLETED">Completed</SelectItem>
-                    <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                    <SelectItem value="DRAFT">{t("labels.draft")}</SelectItem>
+                    <SelectItem value="PUBLISHED">
+                      {t("labels.published")}
+                    </SelectItem>
+                    <SelectItem value="COMPLETED">
+                      {t("labels.completed")}
+                    </SelectItem>
+                    <SelectItem value="CANCELLED">
+                      {t("labels.cancelled")}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </Field>
@@ -553,7 +588,7 @@ export function SocialForm() {
               <Separator />
 
               <ToggleRow
-                label="Private Event"
+                label={t("form.privateEvent")}
                 checked={formData.isPrivate}
                 onCheckedChange={(checked) =>
                   setFormData({ ...formData, isPrivate: checked })
@@ -561,7 +596,7 @@ export function SocialForm() {
               />
 
               <ToggleRow
-                label="Auto-approve Join Requests"
+                label={t("form.autoApproveJoinRequests")}
                 checked={formData.autoApproveJoinRequests}
                 onCheckedChange={(checked) =>
                   setFormData({ ...formData, autoApproveJoinRequests: checked })
@@ -584,7 +619,7 @@ export function SocialForm() {
                 }
               >
                 <Save className="size-4" />
-                {isEditMode ? "Update Social" : "Create Social"}
+                {isEditMode ? t("form.update") : t("form.create")}
               </Button>
 
               {isEditMode && (
@@ -592,15 +627,13 @@ export function SocialForm() {
                   variant="outline"
                   className="w-full text-destructive hover:text-destructive"
                   onClick={() => {
-                    if (
-                      confirm("Are you sure you want to delete this social?")
-                    ) {
-                      alert("Social deleted!")
+                    if (confirm(t("form.confirmDeleteSocial"))) {
+                      alert(t("form.deleteSocial"))
                       router.push("/socials")
                     }
                   }}
                 >
-                  Delete Social
+                  {t("form.deleteSocial")}
                 </Button>
               )}
             </div>

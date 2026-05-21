@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
+import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
 
 export default function FiltersDrawer({
   open,
@@ -41,18 +42,20 @@ export default function FiltersDrawer({
     availableSlots: boolean
   }) => void
 }) {
+  const { t } = useSocialsTranslation()
+
   return (
     <Drawer direction="right" open={open} onOpenChange={onOpenChange}>
       <DrawerContent>
         <div className="flex h-full flex-col">
           <DrawerHeader>
-            <DrawerTitle>Filters</DrawerTitle>
+            <DrawerTitle>{t("filters.title")}</DrawerTitle>
           </DrawerHeader>
 
           <div className="flex-1 overflow-y-auto px-4 pb-4">
             <div className="space-y-5">
               <div className="grid gap-2">
-                <Label>Status</Label>
+                <Label>{t("filters.status")}</Label>
                 <Select
                   value={filters.status}
                   onValueChange={(value) =>
@@ -60,20 +63,26 @@ export default function FiltersDrawer({
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
+                    <SelectValue placeholder={t("filters.selectStatus")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ALL">All</SelectItem>
-                    <SelectItem value="PUBLISHED">Published</SelectItem>
-                    <SelectItem value="COMPLETED">Completed</SelectItem>
-                    <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                    <SelectItem value="DRAFT">Draft</SelectItem>
+                    <SelectItem value="ALL">{t("filters.all")}</SelectItem>
+                    <SelectItem value="PUBLISHED">
+                      {t("labels.published")}
+                    </SelectItem>
+                    <SelectItem value="COMPLETED">
+                      {t("labels.completed")}
+                    </SelectItem>
+                    <SelectItem value="CANCELLED">
+                      {t("labels.cancelled")}
+                    </SelectItem>
+                    <SelectItem value="DRAFT">{t("labels.draft")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="grid gap-2">
-                <Label>Gender Policy</Label>
+                <Label>{t("filters.genderPolicy")}</Label>
                 <Select
                   value={filters.genderPolicy}
                   onValueChange={(value) =>
@@ -81,19 +90,25 @@ export default function FiltersDrawer({
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select gender policy" />
+                    <SelectValue
+                      placeholder={t("filters.selectGenderPolicy")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ALL">All</SelectItem>
-                    <SelectItem value="MIXED">Mixed</SelectItem>
-                    <SelectItem value="MALE_ONLY">Men Only</SelectItem>
-                    <SelectItem value="FEMALE_ONLY">Women Only</SelectItem>
+                    <SelectItem value="ALL">{t("filters.all")}</SelectItem>
+                    <SelectItem value="MIXED">{t("labels.mixed")}</SelectItem>
+                    <SelectItem value="MALE_ONLY">
+                      {t("labels.menOnly")}
+                    </SelectItem>
+                    <SelectItem value="FEMALE_ONLY">
+                      {t("labels.womenOnly")}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="grid gap-2">
-                <Label>Age Group</Label>
+                <Label>{t("filters.ageGroup")}</Label>
                 <Select
                   value={filters.ageGroup}
                   onValueChange={(value) =>
@@ -101,19 +116,19 @@ export default function FiltersDrawer({
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select age group" />
+                    <SelectValue placeholder={t("filters.selectAgeGroup")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ALL">All</SelectItem>
-                    <SelectItem value="JUNIOR">Junior</SelectItem>
-                    <SelectItem value="ADULT">Adult</SelectItem>
-                    <SelectItem value="SENIOR">Senior</SelectItem>
+                    <SelectItem value="ALL">{t("filters.all")}</SelectItem>
+                    <SelectItem value="JUNIOR">{t("labels.junior")}</SelectItem>
+                    <SelectItem value="ADULT">{t("labels.adult")}</SelectItem>
+                    <SelectItem value="SENIOR">{t("labels.senior")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="grid gap-2">
-                <Label>Format</Label>
+                <Label>{t("filters.format")}</Label>
                 <Select
                   value={filters.format}
                   onValueChange={(value) =>
@@ -121,13 +136,17 @@ export default function FiltersDrawer({
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select format" />
+                    <SelectValue placeholder={t("filters.selectFormat")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ALL">All</SelectItem>
-                    <SelectItem value="SOCIAL">Social</SelectItem>
-                    <SelectItem value="TOURNAMENT">Tournament</SelectItem>
-                    <SelectItem value="TRAINING">Training</SelectItem>
+                    <SelectItem value="ALL">{t("filters.all")}</SelectItem>
+                    <SelectItem value="SOCIAL">{t("labels.social")}</SelectItem>
+                    <SelectItem value="TOURNAMENT">
+                      {t("labels.tournament")}
+                    </SelectItem>
+                    <SelectItem value="TRAINING">
+                      {t("labels.training")}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -145,8 +164,8 @@ export default function FiltersDrawer({
                 }
               >
                 {filters.availableSlots
-                  ? "Showing: Available Slots Only"
-                  : "Show All Availability"}
+                  ? t("listing.showingAvailableSlotsOnly")
+                  : t("listing.showAllAvailability")}
               </Button>
             </div>
           </div>
@@ -164,7 +183,7 @@ export default function FiltersDrawer({
                 })
               }
             >
-              Clear All
+              {t("filters.clearAll")}
             </Button>
           </DrawerFooter>
         </div>

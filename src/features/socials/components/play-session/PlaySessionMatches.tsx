@@ -4,6 +4,7 @@ import { Activity, Plus } from "lucide-react"
 import React from "react"
 
 import { Button } from "@/components/ui/button"
+import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
 
 import MatchCard from "./MatchCard"
 
@@ -40,6 +41,8 @@ export default function PlaySessionMatches({
   }
   onCreateMatch: () => void
 }) {
+  const { t } = useSocialsTranslation()
+
   const totalMatches =
     matches.inProgress.length +
     matches.scheduled.length +
@@ -48,11 +51,11 @@ export default function PlaySessionMatches({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold">Match Schedule</h2>
+        <h2 className="text-lg font-semibold">{t("matches.title")}</h2>
         {isHost && (
           <Button size="sm" onClick={onCreateMatch}>
             <Plus className="size-4" />
-            Create Match
+            {t("matches.createMatch")}
           </Button>
         )}
       </div>
@@ -61,26 +64,32 @@ export default function PlaySessionMatches({
         {totalMatches === 0 ? (
           <div className="rounded-2xl border border-dashed border-border px-6 py-12 text-center text-sm text-muted-foreground">
             <Activity className="mx-auto mb-3 size-10 text-muted-foreground" />
-            No matches scheduled yet.
+            {t("matches.noMatches")}
           </div>
         ) : (
           <>
             {matches.inProgress.length > 0 && (
-              <SectionLabel tone="warning">IN PROGRESS</SectionLabel>
+              <SectionLabel tone="warning">
+                {t("labels.inProgress")}
+              </SectionLabel>
             )}
             {matches.inProgress.map((match) => (
               <MatchCard key={match.id} match={match} isHost={isHost} />
             ))}
 
             {matches.scheduled.length > 0 && (
-              <SectionLabel tone="primary">SCHEDULED</SectionLabel>
+              <SectionLabel tone="primary">
+                {t("labels.scheduled")}
+              </SectionLabel>
             )}
             {matches.scheduled.map((match) => (
               <MatchCard key={match.id} match={match} isHost={isHost} />
             ))}
 
             {matches.completed.length > 0 && (
-              <SectionLabel tone="success">COMPLETED</SectionLabel>
+              <SectionLabel tone="success">
+                {t("labels.completed")}
+              </SectionLabel>
             )}
             {matches.completed.map((match) => (
               <MatchCard

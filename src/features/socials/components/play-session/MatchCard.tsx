@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Match } from "@/features/socials/types"
+import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
 
 import PlayerRow from "./PlayerRow"
 
@@ -36,17 +37,46 @@ export default function MatchCard({
   isHost: boolean
   completed?: boolean
 }) {
+  const { t } = useSocialsTranslation()
+
+  const getStatusLabel = () => {
+    switch (match.status) {
+      case "COMPLETED":
+        return t("labels.completed")
+      case "IN_PROGRESS":
+        return t("labels.inProgress")
+      case "CANCELLED":
+        return t("labels.cancelled")
+      default:
+        return t("labels.scheduled")
+    }
+  }
+
+  const getTimingLabel = () => {
+    if (completed) {
+      return t("matches.completed")
+    }
+
+    if (match.status === "IN_PROGRESS") {
+      return t("matches.started")
+    }
+
+    return t("matches.scheduled")
+  }
+
   return (
     <Card className="p-0">
       <CardContent className="space-y-4 p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline">Court {match.courtNumber}</Badge>
+            <Badge variant="outline">
+              {t("matches.court", { number: match.courtNumber ?? 0 })}
+            </Badge>
             <Badge
               className={getMatchStatusClasses(match.status)}
               variant="outline"
             >
-              {match.status}
+              {getStatusLabel()}
             </Badge>
           </div>
           {match.score && (
@@ -65,7 +95,7 @@ export default function MatchCard({
             {match.team1.player2 && <PlayerRow user={match.team1.player2} />}
           </div>
           <div className="text-center text-sm font-semibold text-muted-foreground">
-            VS
+            {t("matches.versus")}
           </div>
           <div className="space-y-2 text-right">
             <PlayerRow user={match.team2.player1} alignRight />
@@ -77,14 +107,14 @@ export default function MatchCard({
 
         {match.startTime && match.endTime && (
           <p className="text-xs text-muted-foreground">
-            {completed
-              ? "Completed"
-              : match.status === "IN_PROGRESS"
-                ? "Started"
-                : "Scheduled"}{" "}
-            {format(new Date(match.startTime), "h:mm a")}
+            {getTimingLabel()} {format(new Date(match.startTime), "h:mm a")}
             {completed &&
-              ` • ${differenceInMinutes(new Date(match.endTime), new Date(match.startTime))} minutes`}
+              ` • ${t("matches.minutes", {
+                count: differenceInMinutes(
+                  new Date(match.endTime),
+                  new Date(match.startTime)
+                ),
+              })}`}
           </p>
         )}
 

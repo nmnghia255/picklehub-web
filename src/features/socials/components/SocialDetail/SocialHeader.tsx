@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import type { SocialFormat, SocialStatus } from "@/features/socials/types"
+import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
 
 function getStatusClasses(status: SocialStatus) {
   switch (status) {
@@ -49,6 +50,32 @@ export default function SocialHeader({
   onShare: () => void
   onEdit: () => void
 }) {
+  const { t } = useSocialsTranslation()
+
+  const getStatusLabel = () => {
+    switch (status) {
+      case "PUBLISHED":
+        return t("labels.published")
+      case "COMPLETED":
+        return t("labels.completed")
+      case "CANCELLED":
+        return t("labels.cancelled")
+      default:
+        return t("labels.draft")
+    }
+  }
+
+  const getFormatLabel = () => {
+    switch (format) {
+      case "TOURNAMENT":
+        return t("labels.tournament")
+      case "TRAINING":
+        return t("labels.training")
+      default:
+        return t("labels.social")
+    }
+  }
+
   return (
     <Card className="p-0">
       <CardContent className="p-6">
@@ -57,20 +84,20 @@ export default function SocialHeader({
             <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
             <div className="flex flex-wrap gap-2">
               <Badge className={getStatusClasses(status)} variant="outline">
-                {status}
+                {getStatusLabel()}
               </Badge>
               <Badge variant="outline" className="gap-1">
                 {getFormatIcon(format)}
-                {format}
+                {getFormatLabel()}
               </Badge>
-              {isHost && <Badge>You&apos;re hosting</Badge>}
+              {isHost && <Badge>{t("badges.hosting")}</Badge>}
               {isParticipant && !isHost && (
                 <Badge
                   className="gap-1 border-emerald-500/20 bg-emerald-500/10 text-emerald-700"
                   variant="outline"
                 >
                   <Check className="size-3.5" />
-                  Joined
+                  {t("badges.joined")}
                 </Badge>
               )}
             </div>

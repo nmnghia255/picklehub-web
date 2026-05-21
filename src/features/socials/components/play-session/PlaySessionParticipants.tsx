@@ -5,6 +5,7 @@ import React from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
 
 export default function PlaySessionParticipants({
   participants,
@@ -17,12 +18,27 @@ export default function PlaySessionParticipants({
     joinedAt: string | Date
   }>
 }) {
+  const { t } = useSocialsTranslation()
+
+  const getParticipantStatusLabel = (status: string) => {
+    switch (status) {
+      case "CONFIRMED":
+        return t("participantStatus.confirmed")
+      case "CANCELLED":
+        return t("participantStatus.cancelled")
+      case "REJECTED":
+        return t("participantStatus.rejected")
+      default:
+        return t("participantStatus.pending")
+    }
+  }
+
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Participants</h2>
+      <h2 className="text-lg font-semibold">{t("detail.participants")}</h2>
       {!participants || participants.length === 0 ? (
         <div className="mt-4 rounded-2xl border border-dashed border-border px-6 py-12 text-center text-sm text-muted-foreground">
-          No participants yet.
+          {t("detail.noParticipants")}
         </div>
       ) : (
         <div className="mt-4 space-y-3">
@@ -52,18 +68,20 @@ export default function PlaySessionParticipants({
                       }
                       variant="outline"
                     >
-                      {participant.status}
+                      {getParticipantStatusLabel(participant.status)}
                     </Badge>
                     {participant.skillLevel && (
                       <Badge variant="outline">
-                        Level {participant.skillLevel}
+                        {t("common.level")} {participant.skillLevel}
                       </Badge>
                     )}
                   </div>
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                Joined {format(new Date(participant.joinedAt), "MMM d")}
+                {t("detail.joinedOn", {
+                  date: format(new Date(participant.joinedAt), "MMM d"),
+                })}
               </p>
             </div>
           ))}

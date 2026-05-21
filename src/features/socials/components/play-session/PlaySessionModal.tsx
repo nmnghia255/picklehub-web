@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
 
 import type { PlaySession, PlaySessionStatus } from "../../types"
 
@@ -35,6 +36,7 @@ export function PlaySessionModal({
   session,
   socialId,
 }: PlaySessionModalProps) {
+  const { t } = useSocialsTranslation()
   const [formData, setFormData] = useState({
     title: "",
     status: "DRAFT" as PlaySessionStatus,
@@ -67,8 +69,21 @@ export function PlaySessionModal({
 
   const handleSubmit = () => {
     console.log("Saving play session:", formData, socialId)
-    alert(`Play session ${session ? "updated" : "created"} successfully!`)
+    alert(session ? t("form.updateSuccess") : t("form.createSuccess"))
     onClose()
+  }
+
+  const getStatusLabel = (status: PlaySessionStatus) => {
+    switch (status) {
+      case "DRAFT":
+        return t("labels.draft")
+      case "PUBLISHED":
+        return t("labels.published")
+      case "COMPLETED":
+        return t("labels.completed")
+      case "CANCELLED":
+        return t("labels.cancelled")
+    }
   }
 
   return (
@@ -76,16 +91,14 @@ export function PlaySessionModal({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {session ? "Edit Play Session" : "Create Play Session"}
+            {session ? t("sessions.editSession") : t("sessions.createSession")}
           </DialogTitle>
-          <DialogDescription>
-            Configure the session details and time window for this social.
-          </DialogDescription>
+          <DialogDescription>{t("form.subtitle")}</DialogDescription>
         </DialogHeader>
 
         <div className="mt-2 grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="play-session-title">Session Title</Label>
+            <Label htmlFor="play-session-title">{t("form.sessionTitle")}</Label>
             <Input
               id="play-session-title"
               value={formData.title}
@@ -98,7 +111,7 @@ export function PlaySessionModal({
           </div>
 
           <div className="grid gap-2">
-            <Label>Status</Label>
+            <Label>{t("filters.status")}</Label>
             <Select
               value={formData.status}
               onValueChange={(value) =>
@@ -106,19 +119,22 @@ export function PlaySessionModal({
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select status" />
+                <SelectValue placeholder={t("filters.selectStatus")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="DRAFT">Draft</SelectItem>
-                <SelectItem value="PUBLISHED">Published</SelectItem>
-                <SelectItem value="COMPLETED">Completed</SelectItem>
-                <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                {(
+                  ["DRAFT", "PUBLISHED", "COMPLETED", "CANCELLED"] as const
+                ).map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {getStatusLabel(status)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="play-session-max-slots">Max Participants</Label>
+            <Label htmlFor="play-session-max-slots">{t("form.maxSlots")}</Label>
             <Input
               id="play-session-max-slots"
               type="number"
@@ -136,7 +152,9 @@ export function PlaySessionModal({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="play-session-start-time">Start Time</Label>
+            <Label htmlFor="play-session-start-time">
+              {t("form.startTime")}
+            </Label>
             <Input
               id="play-session-start-time"
               type="datetime-local"
@@ -149,7 +167,7 @@ export function PlaySessionModal({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="play-session-end-time">End Time</Label>
+            <Label htmlFor="play-session-end-time">{t("form.endTime")}</Label>
             <Input
               id="play-session-end-time"
               type="datetime-local"
@@ -166,7 +184,7 @@ export function PlaySessionModal({
             new Date(formData.endTime) <= new Date(formData.startTime) && (
               <Alert variant="destructive">
                 <AlertDescription>
-                  End time must be after start time.
+                  {t("form.validationEndAfterStart")}
                 </AlertDescription>
               </Alert>
             )}
@@ -174,7 +192,7 @@ export function PlaySessionModal({
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t("dialogs.cancel")}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -186,7 +204,7 @@ export function PlaySessionModal({
               new Date(formData.endTime) <= new Date(formData.startTime)
             }
           >
-            {session ? "Update" : "Create"}
+            {session ? t("form.update") : t("form.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

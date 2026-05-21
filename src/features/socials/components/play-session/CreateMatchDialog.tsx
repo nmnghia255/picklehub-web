@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
 
 function Field({
   label,
@@ -36,31 +37,33 @@ export default function CreateMatchDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const { t } = useSocialsTranslation()
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Match</DialogTitle>
-          <DialogDescription>
-            Schedule a new match for this play session.
-          </DialogDescription>
+          <DialogTitle>{t("matches.createMatch")}</DialogTitle>
+          <DialogDescription>{t("matches.scheduleMatch")}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          <Field label="Court Number">
+          <Field label={t("matches.courtNumber")}>
             <Input type="number" />
           </Field>
-          <Field label="Start Time">
+          <Field label={t("form.startTime")}>
             <Input type="datetime-local" />
           </Field>
           <p className="text-sm text-muted-foreground">
-            Select participants from the list to create teams.
+            {t("matches.selectParticipantsHint")}
           </p>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("dialogs.cancel")}
           </Button>
-          <Button onClick={() => onOpenChange(false)}>Create Match</Button>
+          <Button onClick={() => onOpenChange(false)}>
+            {t("matches.createMatch")}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

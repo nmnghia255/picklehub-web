@@ -12,6 +12,7 @@ import { mockSocials } from "@/features/socials/mockData"
 import { getSessionWithDetails } from "@/features/socials/mockSessionData"
 import usePlaySessionStore from "@/features/socials/stores/play-session-store"
 import type { Match } from "@/features/socials/types"
+import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
 
 import CreateMatchDialog from "./CreateMatchDialog"
 import PlaySessionMatches from "./PlaySessionMatches"
@@ -35,9 +36,27 @@ function getSessionStatusClasses(status: string) {
   }
 }
 
+function getSessionStatusLabel(status: string, t: (key: string) => string) {
+  switch (status) {
+    case "PUBLISHED":
+      return t("labels.published")
+    case "COMPLETED":
+      return t("labels.completed")
+    case "CANCELLED":
+      return t("labels.cancelled")
+    case "IN_PROGRESS":
+      return t("labels.inProgress")
+    case "SCHEDULED":
+      return t("labels.scheduled")
+    default:
+      return t("labels.draft")
+  }
+}
+
 export default function PlaySessionDetail() {
   const params = useParams()
   const router = useRouter()
+  const { t } = useSocialsTranslation()
   const tabValue = usePlaySessionStore((s) => s.tabValue)
   const setTabValue = usePlaySessionStore((s) => s.setTabValue)
   const matchDialogOpen = usePlaySessionStore((s) => s.matchDialogOpen)
@@ -53,12 +72,12 @@ export default function PlaySessionDetail() {
   if (!social || !session) {
     return (
       <div className="mx-auto flex max-w-3xl flex-col items-center justify-center px-4 py-16 text-center">
-        <h1 className="text-2xl font-semibold">Play session not found</h1>
+        <h1 className="text-2xl font-semibold">{t("detail.notFoundTitle")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          The session could not be found in this social.
+          {t("detail.notFoundDescription")}
         </p>
         <Button className="mt-6" onClick={() => router.push("/socials")}>
-          Back to Socials
+          {t("detail.backToSocials")}
         </Button>
       </div>
     )
@@ -102,7 +121,7 @@ export default function PlaySessionDetail() {
           className={getSessionStatusClasses(session.status)}
           variant="outline"
         >
-          {session.status}
+          {getSessionStatusLabel(session.status, t)}
         </Badge>
       </div>
 
@@ -116,19 +135,20 @@ export default function PlaySessionDetail() {
                     className={`rounded-md px-3 py-1.5 ${tabValue === "0" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                     onClick={() => setTabValue("0")}
                   >
-                    Overview
+                    {t("detail.overview")}
                   </button>
                   <button
                     className={`rounded-md px-3 py-1.5 ${tabValue === "1" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                     onClick={() => setTabValue("1")}
                   >
-                    Matches ({session.matches?.length || 0})
+                    {t("matches.title")} ({session.matches?.length || 0})
                   </button>
                   <button
                     className={`rounded-md px-3 py-1.5 ${tabValue === "2" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                     onClick={() => setTabValue("2")}
                   >
-                    Participants ({session.participants?.length || 0})
+                    {t("detail.participants")} (
+                    {session.participants?.length || 0})
                   </button>
                 </div>
               </div>
@@ -169,8 +189,8 @@ export default function PlaySessionDetail() {
         <PlaySessionSidebar
           session={session}
           social={social}
-          onJoin={() => alert("Join social")}
-          onLeave={() => alert("Leave social")}
+          onJoin={() => alert(t("sidebar.joinSession"))}
+          onLeave={() => alert(t("sidebar.leaveSession"))}
         />
       </div>
 

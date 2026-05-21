@@ -6,6 +6,7 @@ import React, { type ReactNode } from "react"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
 
 function StatCard({ value, label }: { value: string | number; label: string }) {
   return (
@@ -57,15 +58,23 @@ export default function PlaySessionOverview({
   activeMatchesCount: number
   upcomingMatchesCount: number
 }) {
+  const { t } = useSocialsTranslation()
+
   return (
     <div className="space-y-0">
       <div className="grid gap-4 sm:grid-cols-2">
-        <StatCard value={duration} label="Minutes" />
-        <StatCard value={session.participants?.length || 0} label="Players" />
-        <StatCard value={completedMatchesCount} label="Completed" />
+        <StatCard value={duration} label={t("playSessionOverview.minutes")} />
+        <StatCard
+          value={session.participants?.length || 0}
+          label={t("playSessionOverview.players")}
+        />
+        <StatCard
+          value={completedMatchesCount}
+          label={t("playSessionOverview.completed")}
+        />
         <StatCard
           value={upcomingMatchesCount + activeMatchesCount}
-          label="Upcoming / Active"
+          label={t("playSessionOverview.upcomingActive")}
         />
       </div>
 
@@ -74,12 +83,12 @@ export default function PlaySessionOverview({
       <div className="grid gap-4 sm:grid-cols-2">
         <InfoRow
           icon={<CalendarDays className="size-4" />}
-          label="Date"
+          label={t("playSessionOverview.date")}
           value={format(new Date(session.startTime), "MMM d, yyyy")}
         />
         <InfoRow
           icon={<Clock3 className="size-4" />}
-          label="Time"
+          label={t("playSessionOverview.time")}
           value={`${format(new Date(session.startTime), "h:mm a")} - ${format(new Date(session.endTime), "h:mm a")}`}
         />
       </div>

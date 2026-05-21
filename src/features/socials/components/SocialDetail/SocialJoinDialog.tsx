@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
 
 export default function SocialJoinDialog({
   open,
@@ -23,26 +24,27 @@ export default function SocialJoinDialog({
   title: string
   autoApproveJoinRequests: boolean
 }) {
+  const { t } = useSocialsTranslation()
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Join {title}</DialogTitle>
-          <DialogDescription>
-            You&apos;re about to join this social event. You&apos;ll be able to
-            select specific play sessions after confirming.
-          </DialogDescription>
+          <DialogTitle>{t("dialogs.joinTitle", { title })}</DialogTitle>
+          <DialogDescription>{t("dialogs.joinDescription")}</DialogDescription>
         </DialogHeader>
         <div className="rounded-xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
           {autoApproveJoinRequests
-            ? "Your request will be auto-approved."
-            : "This event requires manual approval. You&apos;ll receive a notification once the host reviews your request."}
+            ? t("dialogs.autoApproved")
+            : t("dialogs.manualApproval")}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("dialogs.cancel")}
           </Button>
-          <Button onClick={() => onOpenChange(false)}>Confirm Join</Button>
+          <Button onClick={() => onOpenChange(false)}>
+            {t("dialogs.confirmJoin")}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

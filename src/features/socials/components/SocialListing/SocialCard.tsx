@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import type { Social } from "@/features/socials/types"
+import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
 
 import ProgressBar from "./ProgressBar"
 import UserAvatar from "./UserAvatar"
@@ -33,6 +34,21 @@ interface SocialCardProps {
 
 export default function SocialCard({ social }: SocialCardProps) {
   const router = useRouter()
+  const { t } = useSocialsTranslation()
+
+  const formatLabel = t(`labels.${social.format.toLowerCase()}`)
+  const ageGroupLabel = t(`labels.${social.ageGroup.toLowerCase()}`)
+
+  const getGenderPolicyLabel = () => {
+    switch (social.genderPolicy) {
+      case "MALE_ONLY":
+        return t("labels.menOnly")
+      case "FEMALE_ONLY":
+        return t("labels.womenOnly")
+      default:
+        return t("labels.mixed")
+    }
+  }
 
   return (
     <Card
@@ -48,18 +64,18 @@ export default function SocialCard({ social }: SocialCardProps) {
             variant="outline"
           >
             <LockKeyhole className="size-3.5" />
-            Private
+            {t("badges.private")}
           </Badge>
         )}
         {social.isHost && (
           <Badge className="absolute top-3 left-3 border-primary/20 bg-primary text-primary-foreground">
-            You&apos;re hosting
+            {t("badges.hosting")}
           </Badge>
         )}
         {social.isParticipant && !social.isHost && (
           <Badge className="text-white-800/60 absolute top-3 left-3 gap-1 border-emerald-500/30 bg-emerald-500">
             <Check className="size-3.5" />
-            Joined
+            {t("badges.joined")}
           </Badge>
         )}
       </div>
@@ -70,7 +86,7 @@ export default function SocialCard({ social }: SocialCardProps) {
             {social.title}
           </h2>
           <Badge className={getStatusClasses(social.status)} variant="outline">
-            {social.status}
+            {t(`labels.${social.status.toLowerCase()}`)}
           </Badge>
         </div>
       </CardHeader>
@@ -83,9 +99,9 @@ export default function SocialCard({ social }: SocialCardProps) {
         </p>
 
         <div className="mb-4 flex flex-wrap gap-2">
-          <Badge variant="outline">{social.format}</Badge>
-          <Badge variant="outline">{social.genderPolicy}</Badge>
-          <Badge variant="outline">{social.ageGroup}</Badge>
+          <Badge variant="outline">{formatLabel}</Badge>
+          <Badge variant="outline">{getGenderPolicyLabel()}</Badge>
+          <Badge variant="outline">{ageGroupLabel}</Badge>
         </div>
 
         <div className="space-y-3 text-sm text-muted-foreground">
@@ -98,15 +114,14 @@ export default function SocialCard({ social }: SocialCardProps) {
           <div className="flex items-center gap-2">
             <div className="size-4">👥</div>
             <span>
-              {social.playSessions.length} session
-              {social.playSessions.length !== 1 ? "s" : ""}
+              {t("listing.sessionCount", { count: social.playSessions.length })}
             </span>
           </div>
         </div>
 
         <div className="mt-5 space-y-2">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Participants</span>
+            <span>{t("detail.participants")}</span>
             <span>
               {social.joinedCount} / {social.maxSlots}
             </span>
@@ -127,11 +142,13 @@ export default function SocialCard({ social }: SocialCardProps) {
             </AvatarGroup>
             <div className="min-w-0 text-sm">
               <p className="truncate text-foreground">
-                Hosted by {social.organizers[0].name}
+                {t("sidebar.hostedBy")} {social.organizers[0].name}
               </p>
               {social.organizers.length > 1 && (
                 <p className="text-muted-foreground">
-                  {social.organizers.length} organizers
+                  {t("listing.organizerCount", {
+                    count: social.organizers.length,
+                  })}
                 </p>
               )}
             </div>
@@ -145,7 +162,9 @@ export default function SocialCard({ social }: SocialCardProps) {
           variant={social.hasAvailableSlots ? "default" : "destructive"}
           disabled={!social.hasAvailableSlots}
         >
-          {social.hasAvailableSlots ? "Join" : "Full"}
+          {social.hasAvailableSlots
+            ? t("sidebar.joinSocial")
+            : t("sidebar.full")}
         </Button>
       </CardFooter>
     </Card>

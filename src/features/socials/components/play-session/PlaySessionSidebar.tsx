@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
 
 import ProgressBar from "./ProgressBar"
 
@@ -42,11 +43,15 @@ export default function PlaySessionSidebar({
   onJoin: () => void
   onLeave: () => void
 }) {
+  const { t } = useSocialsTranslation()
+
   return (
     <Card className="sticky top-6 h-fit p-0">
       <CardContent className="space-y-5 p-6">
         <div>
-          <p className="text-sm text-muted-foreground">Participants</p>
+          <p className="text-sm text-muted-foreground">
+            {t("sidebar.participants")}
+          </p>
           <h2 className="mt-1 text-3xl font-semibold">
             {session.joinedCount} / {session.maxSlots}
           </h2>
@@ -55,7 +60,9 @@ export default function PlaySessionSidebar({
               value={(session.joinedCount / session.maxSlots) * 100}
             />
             <p className="text-xs text-muted-foreground">
-              {session.maxSlots - session.joinedCount} spots remaining
+              {t("sidebar.spotsRemaining", {
+                count: session.maxSlots - session.joinedCount,
+              })}
             </p>
           </div>
         </div>
@@ -63,12 +70,14 @@ export default function PlaySessionSidebar({
         <Separator />
 
         <div>
-          <p className="text-sm text-muted-foreground">Hosted by</p>
+          <p className="text-sm text-muted-foreground">
+            {t("sidebar.hostedBy")}
+          </p>
           <div className="mt-3 flex items-center gap-3">
             <Avatar className="size-11">
               <AvatarImage
                 src={social.organizers[0]?.avatar ?? undefined}
-                alt={social.organizers[0]?.name ?? "Host"}
+                alt={social.organizers[0]?.name ?? t("sidebar.hostedBy")}
               />
               <AvatarFallback>
                 {(social.organizers[0]?.name ?? "H").slice(0, 1)}
@@ -80,8 +89,8 @@ export default function PlaySessionSidebar({
               </p>
               <p className="text-xs text-muted-foreground">
                 {social.hostRole === "HOST_AND_PLAY"
-                  ? "Host & Player"
-                  : "Host Only"}
+                  ? t("sidebar.hostRoleHostAndPlay")
+                  : t("sidebar.hostRoleHostOnly")}
               </p>
             </div>
           </div>
@@ -90,23 +99,29 @@ export default function PlaySessionSidebar({
         <Separator />
 
         <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">Settings</p>
+          <p className="text-sm text-muted-foreground">
+            {t("sidebar.settings")}
+          </p>
           <div className="space-y-2 text-sm">
             <SettingRow
-              label="Auto Approve"
+              label={t("sidebar.autoApprove")}
               value={
                 social.autoApproveJoinRequests
-                  ? "Enabled"
-                  : "Manual approval required"
+                  ? t("sidebar.autoApproveEnabled")
+                  : t("sidebar.manualApprovalRequired")
               }
             />
             <SettingRow
-              label="Cancellation Policy"
-              value={`${social.cancellationFreezeHours} hours before event`}
+              label={t("sidebar.cancellationPolicy")}
+              value={`${social.cancellationFreezeHours} ${t("common.hours", {
+                count: social.cancellationFreezeHours,
+              })} ${t("common.beforeEvent")}`}
             />
             <SettingRow
-              label="Visibility"
-              value={social.isPrivate ? "Private" : "Public"}
+              label={t("sidebar.visibility")}
+              value={
+                social.isPrivate ? t("badges.private") : t("badges.public")
+              }
             />
           </div>
         </div>
@@ -115,7 +130,9 @@ export default function PlaySessionSidebar({
           <>
             <Separator />
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Payment</p>
+              <p className="text-sm text-muted-foreground">
+                {t("sidebar.payment")}
+              </p>
               <div className="text-3xl font-semibold text-primary">
                 ${social.totalExpense}
               </div>
@@ -130,7 +147,9 @@ export default function PlaySessionSidebar({
             disabled={!social.hasAvailableSlots}
             onClick={onJoin}
           >
-            {social.hasAvailableSlots ? "Join Session" : "Full"}
+            {social.hasAvailableSlots
+              ? t("sidebar.joinSession")
+              : t("sidebar.full")}
           </Button>
         )}
 
@@ -141,7 +160,7 @@ export default function PlaySessionSidebar({
             variant="outline"
             onClick={onLeave}
           >
-            Leave Session
+            {t("sidebar.leaveSession")}
           </Button>
         )}
       </CardContent>
