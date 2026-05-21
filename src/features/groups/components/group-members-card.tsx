@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table"
 
 import { getGroupMembers } from "../api/groups-service"
+import { isArchivedGroup } from "../utils/group-status"
 import { GroupMemberActions } from "./group-member-actions"
 
 function normalizeRole(role: string | null | undefined) {
@@ -29,12 +30,14 @@ interface GroupMembersCardProps {
   groupId: string
   currentUserId: string
   currentUserRole: string | null
+  groupStatus?: string | null
 }
 
 export async function GroupMembersCard({
   groupId,
   currentUserId,
   currentUserRole,
+  groupStatus,
 }: GroupMembersCardProps) {
   const members = await getGroupMembers(groupId).catch((error) => {
     console.error("Error loading group members:", error)
@@ -49,7 +52,8 @@ export async function GroupMembersCard({
 
   const normalizedUserRole = currentUserRole?.toLowerCase()
   const canManageMembers =
-    normalizedUserRole === "owner" || normalizedUserRole === "admin"
+    !isArchivedGroup(groupStatus) &&
+    (normalizedUserRole === "owner" || normalizedUserRole === "admin")
 
   return (
     <Card className="mt-6">
@@ -104,6 +108,7 @@ export async function GroupMembersCard({
                       memberRole={member.role}
                       currentUserId={currentUserId}
                       currentUserRole={currentUserRole ?? ""}
+                      isEditable={!isArchivedGroup(groupStatus)}
                     />
                   </TableCell>
                 )}

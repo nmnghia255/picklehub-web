@@ -174,6 +174,7 @@ interface GroupMemberActionsProps {
   memberRole: string
   currentUserId: string
   currentUserRole: string
+  isEditable?: boolean
 }
 
 export function GroupMemberActions({
@@ -183,16 +184,19 @@ export function GroupMemberActions({
   memberRole,
   currentUserId,
   currentUserRole,
+  isEditable = true,
 }: GroupMemberActionsProps) {
   const normalizedCurrentRole = normalizeRole(currentUserRole)
   const normalizedMemberRole = normalizeRole(memberRole)
   const isSelf = memberId === currentUserId
 
   const canChangeRole =
+    isEditable &&
     normalizedCurrentRole === "owner" &&
     !isSelf &&
     normalizedMemberRole !== "owner"
   const canKick =
+    isEditable &&
     !isSelf &&
     ((normalizedCurrentRole === "owner" && normalizedMemberRole !== "owner") ||
       (normalizedCurrentRole === "admin" && normalizedMemberRole === "member"))

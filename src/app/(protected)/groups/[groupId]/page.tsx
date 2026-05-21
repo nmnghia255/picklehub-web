@@ -140,6 +140,7 @@ export default async function GroupDetailPage({
             groupId={groupId}
             groupName={group.name}
             isOwner={isOwner}
+            groupStatus={group.status}
           />
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -167,6 +168,7 @@ export default async function GroupDetailPage({
             groupId={groupId}
             currentUserId={session.user?.id ?? ""}
             currentUserRole={group.role ?? null}
+            groupStatus={group.status}
           />
 
           <GroupFeedNotificationsContainer groupId={groupId} />
