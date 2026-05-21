@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { sportCenterInfo } from "@/features/sport-center/mock-data/sport-center-info"
+import { ProductCard } from "@/features/sport-center-management/services-products/components/product-card"
+import { ServiceCard } from "@/features/sport-center-management/services-products/components/service-card"
+import { MOCK_COURT_INVENTORY } from "@/features/sport-center-management/services-products/mock-data"
 
 export default function SportCenterInformationPage() {
   return (
@@ -91,22 +94,55 @@ export default function SportCenterInformationPage() {
         <TabsContent value="service">
           <Card>
             <CardContent className="space-y-4 p-6">
-              <h2 className="text-lg font-semibold">Dịch vụ</h2>
-              <div className="space-y-2">
-                {sportCenterInfo.services.map((service) => (
-                  <div
-                    key={service.label}
-                    className="flex items-center justify-between rounded-lg border px-3 py-2"
-                  >
-                    <span>{service.label}</span>
-                    <span className="font-medium">{service.price}</span>
-                  </div>
-                ))}
-              </div>
+              <h2 className="text-lg font-semibold">
+                Dịch vụ & Sản phẩm (xem)
+              </h2>
+
               <p className="text-sm text-muted-foreground">
-                Các dịch vụ khác: phòng tắm, Wi-Fi miễn phí, huấn luyện cá nhân
-                và hỗ trợ sự kiện.
+                Dữ liệu mock hiển thị từ module quản trị (view-only).
               </p>
+
+              <div className="space-y-8">
+                <section className="space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-sm font-medium">Sản phẩm</h3>
+                    <span className="text-xs text-muted-foreground">
+                      {
+                        MOCK_COURT_INVENTORY.flatMap((c) => c.products ?? [])
+                          .length
+                      }{" "}
+                      mục
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                    {MOCK_COURT_INVENTORY.flatMap((c) => c.products ?? []).map(
+                      (p) => (
+                        <ProductCard key={p.id} item={p} />
+                      )
+                    )}
+                  </div>
+                </section>
+
+                <section className="space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-sm font-medium">Dịch vụ</h3>
+                    <span className="text-xs text-muted-foreground">
+                      {
+                        MOCK_COURT_INVENTORY.flatMap((c) => c.services ?? [])
+                          .length
+                      }{" "}
+                      mục
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                    {MOCK_COURT_INVENTORY.flatMap((c) => c.services ?? []).map(
+                      (s) => (
+                        <ServiceCard key={s.id} item={s} />
+                      )
+                    )}
+                  </div>
+                </section>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
