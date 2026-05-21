@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 export default function FiltersDrawer({
   open,

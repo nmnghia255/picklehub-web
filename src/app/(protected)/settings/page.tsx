@@ -27,8 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { logoutAction } from "@/features/auth/actions"
-
-const LANGUAGE_STORAGE_KEY = "picklehub-language"
+import { languageStorageKey } from "@/i18n/settings"
 
 const languageOptions = [
   { value: "vi", label: "Tiếng Việt" },
@@ -51,14 +50,14 @@ export default function SettingsPage() {
       return "vi"
     }
 
-    const storedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY)
+    const storedLanguage = window.localStorage.getItem(languageStorageKey)
     return storedLanguage === "vi" || storedLanguage === "en"
       ? storedLanguage
       : "vi"
   })
 
   useEffect(() => {
-    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language)
+    window.localStorage.setItem(languageStorageKey, language)
     document.documentElement.lang = language
   }, [language])
 

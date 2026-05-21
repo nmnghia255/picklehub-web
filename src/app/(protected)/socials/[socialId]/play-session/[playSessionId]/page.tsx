@@ -2,7 +2,7 @@
 
 import React from "react"
 
-import PlaySessionDetail from "@/features/socials/components/play-session"
+import PlaySessionDetail from "@/features/socials/components/PlaySessions"
 
 export default function Page() {
   return <PlaySessionDetail />

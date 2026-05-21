@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { mockSocials } from "@/features/socials/mockData"
 import useSocialsStore from "@/features/socials/stores/social-listing-store"
-import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import FiltersDrawer from "./FiltersDrawer"
 import SocialCard from "./SocialCard"

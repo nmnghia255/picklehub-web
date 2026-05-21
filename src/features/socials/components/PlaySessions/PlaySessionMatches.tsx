@@ -4,7 +4,7 @@ import { Activity, Plus } from "lucide-react"
 import React from "react"
 
 import { Button } from "@/components/ui/button"
-import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import MatchCard from "./MatchCard"
 

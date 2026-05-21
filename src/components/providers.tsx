@@ -11,6 +11,8 @@ import { ThemeProvider } from "next-themes"
 import { useState } from "react"
 import { Toaster } from "sonner"
 
+import { I18nProvider } from "@/components/i18n-provider"
+
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
@@ -33,27 +35,29 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
       <QueryClientProvider client={queryClient}>
         <JotaiProvider>
-          <ThemeProvider
-            enableSystem
-            disableTransitionOnChange
-            enableColorScheme
-            storageKey="theme"
-            defaultTheme="light"
-            attribute="class"
-          >
-            <AppProgressProvider
-              color="#2563eb"
-              height="2px"
-              delay={500}
-              options={{ showSpinner: false }}
+          <I18nProvider>
+            <ThemeProvider
+              enableSystem
+              disableTransitionOnChange
+              enableColorScheme
+              storageKey="theme"
+              defaultTheme="light"
+              attribute="class"
             >
-              {children}
-            </AppProgressProvider>
+              <AppProgressProvider
+                color="#2563eb"
+                height="2px"
+                delay={500}
+                options={{ showSpinner: false }}
+              >
+                {children}
+              </AppProgressProvider>
 
-            <Toaster position="top-center" richColors />
-            <Analytics />
-            <SpeedInsights />
-          </ThemeProvider>
+              <Toaster position="top-center" richColors />
+              <Analytics />
+              <SpeedInsights />
+            </ThemeProvider>
+          </I18nProvider>
         </JotaiProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>

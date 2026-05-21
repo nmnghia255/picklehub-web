@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import ProgressBar from "@/features/socials/components/SocialListing/ProgressBar"
 import type { Match, PlaySession } from "@/features/socials/types"
-import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import MatchCard from "./MatchCard"
 

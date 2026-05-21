@@ -12,7 +12,7 @@ import { mockSocials } from "@/features/socials/mockData"
 import { getSessionWithDetails } from "@/features/socials/mockSessionData"
 import usePlaySessionStore from "@/features/socials/stores/play-session-store"
 import type { Match } from "@/features/socials/types"
-import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import CreateMatchDialog from "./CreateMatchDialog"
 import PlaySessionMatches from "./PlaySessionMatches"

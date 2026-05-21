@@ -6,7 +6,7 @@ import React, { type ReactNode } from "react"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 function StatCard({ value, label }: { value: string | number; label: string }) {
   return (

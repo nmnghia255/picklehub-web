@@ -5,11 +5,11 @@ import { useParams, useRouter } from "next/navigation"
 import React from "react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { PlaySessionModal } from "@/features/socials/components/play-session/PlaySessionModal"
+import { PlaySessionModal } from "@/features/socials/components/PlaySessions/PlaySessionModal"
 import { mockSocials } from "@/features/socials/mockData"
 import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
 import type { Match } from "@/features/socials/types"
-import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import SocialHeader from "./SocialHeader"
 import SocialHero from "./SocialHero"

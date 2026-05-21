@@ -4,7 +4,7 @@ import { LockKeyhole } from "lucide-react"
 import React from "react"
 
 import { Badge } from "@/components/ui/badge"
-import { useSocialsTranslation } from "@/features/socials/use-socials-translation"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 export default function SocialHero({ isPrivate }: { isPrivate: boolean }) {
   const { t } = useSocialsTranslation()

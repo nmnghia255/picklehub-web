@@ -8,6 +8,7 @@ import { Providers } from "@/components/providers"
 import { META_THEME_COLORS, SITE_INFO } from "@/config/site"
 import { AuthInitializer } from "@/features/auth/components/auth-initializer"
 import { fetchMyNotifications } from "@/features/notifications/actions/user-notifications"
+import { defaultLanguage } from "@/i18n/settings"
 import { fontMono, fontSans } from "@/lib/fonts"
 import { getSession } from "@/lib/session"
 import { cn } from "@/lib/utils"
@@ -82,7 +83,7 @@ export default async function RootLayout({
 
   return (
     <html
-      lang="en"
+      lang={defaultLanguage}
       className={cn(fontSans.variable, fontMono.variable)}
       suppressHydrationWarning
     >
