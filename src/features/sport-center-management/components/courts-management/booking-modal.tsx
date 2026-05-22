@@ -22,7 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 
-import type { Booking } from "../types"
+import type { Booking } from "../../types"
 
 interface BookingDetailModalProps {
   booking: Booking | null

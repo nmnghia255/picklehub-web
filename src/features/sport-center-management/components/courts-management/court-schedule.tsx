@@ -5,11 +5,11 @@ import { useEffect } from "react"
 import {
   type Booking,
   useCourtScheduleStore,
-} from "../stores/court-schedule-store"
-import { BookingDetailModal } from "./BookingModal"
-import { TimeSlot } from "./CourtSlot"
-import { Filters } from "./Filters"
-import { QuickBookingModal } from "./QuickBookingModal"
+} from "../../stores/court-schedule-store"
+import { BookingDetailModal } from "./booking-modal"
+import { TimeSlot } from "./court-slot"
+import { Filters } from "./filters"
+import { QuickBookingModal } from "./quick-booking-modal"
 
 const timeSlots = Array.from({ length: 16 }, (_, i) => {
   const hour = i + 6

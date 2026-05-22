@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 
-import { useCourtScheduleStore } from "../stores/court-schedule-store"
+import { useCourtScheduleStore } from "../../stores/court-schedule-store"
 
 interface QuickBookingModalProps {
   onClose: () => void

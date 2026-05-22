@@ -2,8 +2,8 @@
 
 import { useEffect } from "react"
 
-import { useCourtScheduleStore } from "../stores/court-schedule-store"
-import { CourtSchedule } from "./CourtSchedule"
+import { useCourtScheduleStore } from "../../stores/court-schedule-store"
+import { CourtSchedule } from "./court-schedule"
 
 type CourtScheduleWrapperProps = {
   ownerMode?: boolean

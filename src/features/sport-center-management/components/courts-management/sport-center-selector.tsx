@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import { useCourtScheduleStore } from "../stores/court-schedule-store"
+import { useCourtScheduleStore } from "../../stores/court-schedule-store"
 
 export function SportCenterSelector() {
   const sportCenters = useCourtScheduleStore((state) => state.sportCenters)
