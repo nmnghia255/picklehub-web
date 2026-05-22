@@ -1,11 +1,34 @@
 import { BadgeCheck, Landmark } from "lucide-react"
 
-import type { PaymentStatus, TimelineEventType } from "./expense-types"
+import type {
+  PaymentStatus,
+  TimelineEventType,
+} from "../../mock-data/expense-types"
 
-const currencyFormatter = new Intl.NumberFormat("en-US")
+export function formatCurrency(value: number, locale?: string) {
+  const lang =
+    locale ??
+    (typeof document !== "undefined" && document.documentElement?.lang) ??
+    (typeof navigator !== "undefined" && navigator.language) ??
+    "en-US"
 
+  const isVietnamese = String(lang).toLowerCase().startsWith("vi")
+
+  const currency = isVietnamese ? "VND" : "USD"
+  const currencyDisplay = isVietnamese ? "code" : "symbol"
+  const maximumFractionDigits = isVietnamese ? 0 : 2
+
+  return new Intl.NumberFormat(isVietnamese ? "vi-VN" : "en-US", {
+    style: "currency",
+    currency,
+    currencyDisplay,
+    maximumFractionDigits,
+  }).format(value)
+}
+
+// Backwards-compatible alias used across the expense components
 export function formatVnd(value: number) {
-  return `${currencyFormatter.format(value)} VND`
+  return formatCurrency(value)
 }
 
 export function getPaymentStatusTone(status: PaymentStatus) {

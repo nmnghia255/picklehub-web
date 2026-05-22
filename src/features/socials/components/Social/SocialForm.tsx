@@ -5,7 +5,7 @@ import { startTransition, useEffect, useState } from "react"
 
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import { mockSocials } from "../../mockData"
+import { mockSocials } from "../../mock-data/mockData"
 import type { Social } from "../../types"
 import type { PlaySessionDraft, SocialFormData } from "./SocialForm.types"
 import { SocialFormBasicInformationCard } from "./SocialFormBasicInformationCard"

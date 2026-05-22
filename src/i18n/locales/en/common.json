@@ -71,6 +71,114 @@
       "joinedOn": "Joined {{date}}",
       "noParticipants": "No participants yet."
     },
+    "expenses": {
+      "tab": "Expenses",
+      "badges": {
+        "courtBookingOnly": "Court-booking only",
+        "hostFinancialView": "Host financial view"
+      },
+      "title": "Expense Management",
+      "subtitle": "Review booking costs, calculate participant shares, track payments, and keep the social event financially organized.",
+      "actions": {
+        "addExpense": "Add Expense",
+        "exportReport": "Export Report"
+      },
+      "progress": {
+        "title": "Collection progress",
+        "description": "{{count}}% of the current court-booking total has been collected.",
+        "extensibleTitle": "Extensible expense model:",
+        "extensibleDescription": "Court bookings are the only source today, but the layout supports future expense types without changing the dashboard structure."
+      },
+      "summary": {
+        "totalExpense": "Total Expense",
+        "totalExpenseDescription": "All court bookings added to the social event",
+        "participants": "Participants",
+        "participantsDescription": "Confirmed players participating in the cost split",
+        "costPerParticipant": "Cost Per Participant",
+        "costPerParticipantDescription": "Calculated from the current confirmed participant count",
+        "paidMembers": "Paid Members",
+        "paidMembersDescription": "Members who have already paid their share",
+        "collectedAmount": "Collected Amount",
+        "collectedAmountDescription": "Payments already received from participants",
+        "outstandingAmount": "Outstanding Amount",
+        "outstandingAmountDescription": "Remaining balance that the host can track"
+      },
+      "courtBookings": {
+        "title": "Court Booking Expenses",
+        "description": "Every cost in this tab comes from booked courts.",
+        "readyForFutureTypes": "Table-driven and ready for future types",
+        "headers": {
+          "courtName": "Court Name",
+          "date": "Date",
+          "time": "Time",
+          "duration": "Duration",
+          "cost": "Cost"
+        },
+        "rowTypeCourtBooking": "Court booking",
+        "rowTypeOther": "Other expense",
+        "footerLabel": "Total Court Expense",
+        "note": "All entries are court booking expenses today. If the business expands later, the same table and aggregation patterns can be extended with more expense categories."
+      },
+      "breakdown": {
+        "title": "Expense Breakdown",
+        "description": "The host can see exactly how the per-participant amount is calculated.",
+        "totalExpense": "Total Expense",
+        "totalExpenseDescription": "Sum of all booked court sessions.",
+        "split": "Split",
+        "confirmedParticipants": "Confirmed Participants",
+        "onlyConfirmedPlayers": "Only confirmed players are used in the calculation.",
+        "calculate": "Calculate",
+        "costPerParticipant": "Cost Per Participant",
+        "equation": "{{total}} ÷ {{count}}"
+      },
+      "tracking": {
+        "title": "Participant Payment Tracking",
+        "description": "Search participants and filter their payment status.",
+        "results_one": "{{count}} result",
+        "results_other": "{{count}} results",
+        "stickyHeaderEnabled": "Sticky header enabled",
+        "searchPlaceholder": "Search participant",
+        "filterPlaceholder": "Filter by payment status",
+        "allStatuses": "All statuses",
+        "paid": "Paid",
+        "unpaid": "Unpaid",
+        "refunded": "Refunded",
+        "headers": {
+          "participant": "Participant",
+          "status": "Status",
+          "amountDue": "Amount Due",
+          "paymentStatus": "Payment Status"
+        },
+        "participantStatus": {
+          "pending": "Pending",
+          "confirmed": "Confirmed",
+          "cancelled": "Cancelled",
+          "rejected": "Rejected"
+        },
+        "emptyTitle": "No participants match this filter.",
+        "emptyDescription": "Clear the search or switch payment status to see more rows."
+      },
+      "paymentInfo": {
+        "title": "Payment Information",
+        "description": "Share the payment reference and QR code with participants.",
+        "bankName": "Bank Name",
+        "accountNumber": "Account Number",
+        "paymentNote": "Payment Note",
+        "qrPreviewLabel": "QR Code Preview",
+        "qrDescription": "Scan-friendly preview for the participant payment flow.",
+        "collectionProgress": "Collection progress",
+        "edit": "Edit Payment Information",
+        "copied": "Copied",
+        "copyAccountNumber": "Copy Account Number"
+      },
+      "timeline": {
+        "title": "Financial Timeline",
+        "description": "A concise event history of booking costs and incoming payments.",
+        "courtBookingCreated": "Court booking created",
+        "participantPaymentReceived": "Participant payment received",
+        "ledgerNote": "Hosted on the financial ledger"
+      }
+    },
     "participantStatus": {
       "pending": "Pending",
       "confirmed": "Confirmed",

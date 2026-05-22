@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { mockSocials } from "@/features/socials/mockData"
+import { mockSocials } from "@/features/socials/mock-data/mockData"
 import useSocialsStore from "@/features/socials/stores/social-listing-store"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 

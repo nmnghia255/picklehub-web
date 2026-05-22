@@ -6,7 +6,7 @@ import React from "react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PlaySessionModal } from "@/features/socials/components/PlaySessions/PlaySessionModal"
-import { mockSocials } from "@/features/socials/mockData"
+import { mockSocials } from "@/features/socials/mock-data/mockData"
 import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
 import type { Match } from "@/features/socials/types"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
@@ -105,10 +105,10 @@ export default function SocialDetail() {
             <TabsList>
               <TabsTrigger value="0">{t("detail.overview")}</TabsTrigger>
               <TabsTrigger value="1">
-                {t("detail.participants")} ({social.joinedCount})
+                {t("detail.participants")} {/* ({social.joinedCount}) */}
               </TabsTrigger>
 
-              <TabsTrigger value="2">Expenses</TabsTrigger>
+              <TabsTrigger value="2">{t("expenses.tab")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="0" className="space-y-4">

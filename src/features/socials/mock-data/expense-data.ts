@@ -147,7 +147,7 @@ export const timelineRows: FinancialTimelineRow[] = [
 
 export const paymentPlan = {
   bankName: "Vietcombank",
-  paymentCode: "SOCIAL-20260522",
+  accountNumber: "SOCIAL-20260522",
   paymentNote: "Pickleball Court Fee",
   qrPreviewLabel: "QR Code Preview",
 }

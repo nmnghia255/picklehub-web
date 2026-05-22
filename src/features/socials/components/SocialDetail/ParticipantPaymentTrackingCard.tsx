@@ -27,8 +27,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import type { ParticipantPaymentRow, PaymentStatus } from "./expense-types"
+import type {
+  ParticipantPaymentRow,
+  PaymentStatus,
+} from "../../mock-data/expense-types"
 import { formatVnd, getPaymentStatusTone } from "./expense-utils"
 
 export function ParticipantPaymentTrackingCard({
@@ -36,6 +40,7 @@ export function ParticipantPaymentTrackingCard({
 }: {
   participants: ParticipantPaymentRow[]
 }) {
+  const { t } = useSocialsTranslation()
   const [searchTerm, setSearchTerm] = React.useState("")
   const [paymentFilter, setPaymentFilter] = React.useState<
     "all" | PaymentStatus
@@ -62,20 +67,22 @@ export function ParticipantPaymentTrackingCard({
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <CardTitle className="text-xl">
-              Participant Payment Tracking
+              {t("expenses.tracking.title")}
             </CardTitle>
             <CardDescription className="mt-1">
-              Search participants and filter their payment status.
+              {t("expenses.tracking.description")}
             </CardDescription>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          {/* <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <Badge variant="outline" className="rounded-full px-3 py-1">
-              {filteredParticipants.length} results
+              {t("expenses.tracking.results", {
+                count: filteredParticipants.length,
+              })}
             </Badge>
             <Badge variant="outline" className="rounded-full px-3 py-1">
-              Sticky header enabled
+              {t("expenses.tracking.stickyHeaderEnabled")}
             </Badge>
-          </div>
+          </div> */}
         </div>
 
         <div className="grid gap-3 pt-4 md:grid-cols-[minmax(0,1fr)_220px]">
@@ -83,7 +90,7 @@ export function ParticipantPaymentTrackingCard({
             <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               className="pl-9"
-              placeholder="Search participant"
+              placeholder={t("expenses.tracking.searchPlaceholder")}
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
             />
@@ -96,13 +103,23 @@ export function ParticipantPaymentTrackingCard({
             }
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Filter by payment status" />
+              <SelectValue
+                placeholder={t("expenses.tracking.filterPlaceholder")}
+              />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="paid">Paid</SelectItem>
-              <SelectItem value="unpaid">Unpaid</SelectItem>
-              <SelectItem value="refunded">Refunded</SelectItem>
+              <SelectItem value="all">
+                {t("expenses.tracking.allStatuses")}
+              </SelectItem>
+              <SelectItem value="paid">
+                {t("expenses.tracking.paid")}
+              </SelectItem>
+              <SelectItem value="unpaid">
+                {t("expenses.tracking.unpaid")}
+              </SelectItem>
+              <SelectItem value="refunded">
+                {t("expenses.tracking.refunded")}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -113,11 +130,17 @@ export function ParticipantPaymentTrackingCard({
           <Table>
             <TableHeader className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80">
               <TableRow>
-                <TableHead className="px-6 py-4">Participant</TableHead>
-                <TableHead className="px-6 py-4">Status</TableHead>
-                <TableHead className="px-6 py-4">Amount Due</TableHead>
+                <TableHead className="px-6 py-4">
+                  {t("expenses.tracking.headers.participant")}
+                </TableHead>
+                <TableHead className="px-6 py-4">
+                  {t("expenses.tracking.headers.status")}
+                </TableHead>
+                <TableHead className="px-6 py-4">
+                  {t("expenses.tracking.headers.amountDue")}
+                </TableHead>
                 <TableHead className="px-6 py-4 text-right">
-                  Payment Status
+                  {t("expenses.tracking.headers.paymentStatus")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -129,7 +152,11 @@ export function ParticipantPaymentTrackingCard({
                       {row.participant}
                     </TableCell>
                     <TableCell className="px-6 py-4">
-                      <Badge variant="secondary">{row.participantStatus}</Badge>
+                      <Badge variant="secondary">
+                        {t(
+                          `expenses.tracking.participantStatus.${row.participantStatus.toLowerCase()}`
+                        )}
+                      </Badge>
                     </TableCell>
                     <TableCell className="px-6 py-4 text-muted-foreground">
                       {formatVnd(row.amountDue)}
@@ -138,11 +165,7 @@ export function ParticipantPaymentTrackingCard({
                       <Badge
                         className={getPaymentStatusTone(row.paymentStatus)}
                       >
-                        {row.paymentStatus === "paid"
-                          ? "Paid"
-                          : row.paymentStatus === "unpaid"
-                            ? "Unpaid"
-                            : "Refunded"}
+                        {t(`expenses.tracking.${row.paymentStatus}`)}
                       </Badge>
                     </TableCell>
                   </TableRow>
@@ -153,11 +176,10 @@ export function ParticipantPaymentTrackingCard({
                     <div className="mx-auto flex max-w-sm flex-col items-center gap-3 text-muted-foreground">
                       <Search className="size-10 text-muted-foreground/60" />
                       <p className="font-medium text-foreground">
-                        No participants match this filter.
+                        {t("expenses.tracking.emptyTitle")}
                       </p>
                       <p className="text-sm">
-                        Clear the search or switch payment status to see more
-                        rows.
+                        {t("expenses.tracking.emptyDescription")}
                       </p>
                     </div>
                   </TableCell>

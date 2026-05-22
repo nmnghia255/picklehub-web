@@ -71,6 +71,114 @@
       "joinedOn": "Tham gia ngày {{date}}",
       "noParticipants": "Chưa có người tham gia."
     },
+    "expenses": {
+      "tab": "Chi phí",
+      "badges": {
+        "courtBookingOnly": "Chỉ sân đã đặt",
+        "hostFinancialView": "Góc nhìn tài chính của chủ nhà"
+      },
+      "title": "Quản lý chi phí",
+      "subtitle": "Xem lại chi phí đặt sân, tính phần chia cho người tham gia, theo dõi thanh toán và giữ sự kiện social luôn gọn gàng về tài chính.",
+      "actions": {
+        "addExpense": "Thêm chi phí",
+        "exportReport": "Xuất báo cáo"
+      },
+      "progress": {
+        "title": "Tiến độ thu tiền",
+        "description": "Đã thu {{count}}% trên tổng chi phí đặt sân hiện tại.",
+        "extensibleTitle": "Mô hình chi phí mở rộng:",
+        "extensibleDescription": "Hiện tại chỉ có chi phí đặt sân, nhưng bố cục này có thể mở rộng cho các loại chi phí khác mà không cần thay đổi cấu trúc dashboard."
+      },
+      "summary": {
+        "totalExpense": "Tổng chi phí",
+        "totalExpenseDescription": "Tất cả chi phí đặt sân của sự kiện social",
+        "participants": "Người tham gia",
+        "participantsDescription": "Các người chơi đã xác nhận tham gia chia chi phí",
+        "costPerParticipant": "Chi phí mỗi người",
+        "costPerParticipantDescription": "Được tính dựa trên số người tham gia đã xác nhận hiện tại",
+        "paidMembers": "Thành viên đã thanh toán",
+        "paidMembersDescription": "Các thành viên đã thanh toán phần của mình",
+        "collectedAmount": "Số tiền đã thu",
+        "collectedAmountDescription": "Các khoản thanh toán đã nhận từ người tham gia",
+        "outstandingAmount": "Số tiền còn lại",
+        "outstandingAmountDescription": "Số dư còn lại mà chủ nhà có thể theo dõi"
+      },
+      "courtBookings": {
+        "title": "Chi phí đặt sân",
+        "description": "Mọi chi phí đều đến từ các sân đã đặt.",
+        "readyForFutureTypes": "Bảng dữ liệu đã sẵn sàng cho các loại chi phí trong tương lai",
+        "headers": {
+          "courtName": "Tên sân",
+          "date": "Ngày",
+          "time": "Giờ",
+          "duration": "Thời lượng",
+          "cost": "Chi phí"
+        },
+        "rowTypeCourtBooking": "Đặt sân",
+        "rowTypeOther": "Chi phí khác",
+        "footerLabel": "Tổng chi phí đặt sân",
+        "note": "Hiện tại tất cả mục đều là chi phí đặt sân. Nếu sau này mở rộng, cùng bảng và cách tổng hợp này có thể dùng cho thêm nhiều nhóm chi phí khác."
+      },
+      "breakdown": {
+        "title": "Phân tích chi phí",
+        "description": "Chủ nhà có thể thấy rõ khoản phí mỗi người được tính như thế nào.",
+        "totalExpense": "Tổng chi phí",
+        "totalExpenseDescription": "Tổng của tất cả các buổi đặt sân.",
+        "split": "Chia đều",
+        "confirmedParticipants": "Người tham gia đã xác nhận",
+        "onlyConfirmedPlayers": "Chỉ các người chơi đã xác nhận được dùng trong phép tính.",
+        "calculate": "Tính toán",
+        "costPerParticipant": "Chi phí mỗi người",
+        "equation": "{{total}} ÷ {{count}}"
+      },
+      "tracking": {
+        "title": "Theo dõi thanh toán của người tham gia",
+        "description": "Tìm kiếm người tham gia và lọc theo trạng thái thanh toán.",
+        "results_one": "{{count}} kết quả",
+        "results_other": "{{count}} kết quả",
+        "stickyHeaderEnabled": "Đã bật tiêu đề cố định",
+        "searchPlaceholder": "Tìm người tham gia",
+        "filterPlaceholder": "Lọc theo trạng thái thanh toán",
+        "allStatuses": "Tất cả trạng thái",
+        "paid": "Đã thanh toán",
+        "unpaid": "Chưa thanh toán",
+        "refunded": "Đã hoàn tiền",
+        "headers": {
+          "participant": "Người tham gia",
+          "status": "Trạng thái",
+          "amountDue": "Số tiền cần thu",
+          "paymentStatus": "Trạng thái thanh toán"
+        },
+        "participantStatus": {
+          "pending": "Chờ duyệt",
+          "confirmed": "Đã xác nhận",
+          "cancelled": "Đã hủy",
+          "rejected": "Bị từ chối"
+        },
+        "emptyTitle": "Không có người tham gia nào khớp bộ lọc này.",
+        "emptyDescription": "Xóa tìm kiếm hoặc đổi trạng thái thanh toán để xem thêm dòng dữ liệu."
+      },
+      "paymentInfo": {
+        "title": "Thông tin thanh toán",
+        "description": "Chia sẻ mã thanh toán và mã QR với người tham gia.",
+        "bankName": "Tên ngân hàng",
+        "accountNumber": "Số tài khoản",
+        "paymentNote": "Ghi chú thanh toán",
+        "qrPreviewLabel": "Xem trước mã QR",
+        "qrDescription": "Bản xem trước thân thiện với việc quét cho quy trình thanh toán của người tham gia.",
+        "collectionProgress": "Tiến độ thu tiền",
+        "edit": "Chỉnh sửa thông tin thanh toán",
+        "copied": "Đã sao chép",
+        "copyAccountNumber": "Sao chép số tài khoản"
+      },
+      "timeline": {
+        "title": "Dòng thời gian tài chính",
+        "description": "Lịch sử ngắn gọn của chi phí đặt sân và các khoản thanh toán đến.",
+        "courtBookingCreated": "Đã tạo đặt sân",
+        "participantPaymentReceived": "Đã nhận thanh toán từ người tham gia",
+        "ledgerNote": "Được lưu trên sổ cái tài chính"
+      }
+    },
     "participantStatus": {
       "pending": "Chờ duyệt",
       "confirmed": "Đã xác nhận",

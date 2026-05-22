@@ -1,4 +1,4 @@
-import type { SessionParticipant, Social, User } from "./types"
+import type { SessionParticipant, Social, User } from "../types"
 
 export const currentUser: User = {
   id: "user-1",
@@ -16,7 +16,7 @@ export const mockSocials: Social[] = [
     groupId: "group-1",
     startTime: "2026-05-24T09:00:00Z",
     endTime: "2026-05-24T13:00:00Z",
-    totalExpense: 25,
+    totalExpense: 100000,
     paymentQrUrl: "https://example.com/qr",
     paymentCode: "PICKLE2024",
     paymentNote: "Venmo: @pickleballclub or Cash at venue",
@@ -81,7 +81,7 @@ export const mockSocials: Social[] = [
     groupId: "group-1",
     startTime: "2026-06-15T08:00:00Z",
     endTime: "2026-06-15T18:00:00Z",
-    totalExpense: 45,
+    totalExpense: 45000,
     paymentQrUrl: "https://example.com/qr",
     paymentCode: "TOURNEY2024",
     paymentNote: "Entry fee includes lunch and tournament shirt",
@@ -147,7 +147,7 @@ export const mockSocials: Social[] = [
     groupId: "group-2",
     startTime: "2026-05-20T17:00:00Z",
     endTime: "2026-05-20T19:00:00Z",
-    totalExpense: 15,
+    totalExpense: 75000,
     hasAvailableSlots: false,
     genderPolicy: "MIXED",
     ageGroup: "ADULT",
@@ -191,7 +191,7 @@ export const mockSocials: Social[] = [
     groupId: "group-3",
     startTime: "2026-05-28T18:00:00Z",
     endTime: "2026-05-28T21:00:00Z",
-    totalExpense: 20,
+    totalExpense: 200000,
     hasAvailableSlots: true,
     genderPolicy: "FEMALE_ONLY",
     ageGroup: "ADULT",
@@ -242,6 +242,7 @@ export const mockSocials: Social[] = [
     groupId: "group-1",
     startTime: "2026-05-18T10:00:00Z",
     endTime: "2026-05-18T14:00:00Z",
+    totalExpense: 0,
     hasAvailableSlots: false,
     genderPolicy: "MIXED",
     ageGroup: "ADULT",

@@ -1,4 +1,4 @@
-import type { Match, PlaySession, SessionParticipant, User } from "./types"
+import type { Match, PlaySession, SessionParticipant, User } from "../types"
 
 const mockUsers: User[] = [
   {

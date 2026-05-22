@@ -12,9 +12,14 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
+import {
+  expenseRows,
+  participantRows,
+  timelineRows,
+} from "../../mock-data/expense-data"
 import { CourtBookingExpensesCard } from "./CourtBookingExpensesCard"
-import { expenseRows, participantRows, timelineRows } from "./expense-data"
 import { ExpenseBreakdownCard } from "./ExpenseBreakdownCard"
 import { ExpenseSummaryGrid } from "./ExpenseSummaryGrid"
 import { FinancialTimelineCard } from "./FinancialTimelineCard"
@@ -23,9 +28,13 @@ import { PaymentInformationCard } from "./PaymentInformationCard"
 import { SocialExpenseTabSkeleton } from "./SocialExpenseTabSkeleton"
 
 export default function SocialExpenseTab() {
+  const { t } = useSocialsTranslation()
   const totalCourtExpense = expenseRows.reduce((sum, row) => sum + row.cost, 0)
   const confirmedParticipants = 12
   const totalParticipants = 16
+  const paidMembers = participantRows.filter(
+    (participant) => participant.paymentStatus === "paid"
+  ).length
   const costPerParticipant = Math.round(
     totalCourtExpense / confirmedParticipants
   )
@@ -48,48 +57,41 @@ export default function SocialExpenseTab() {
         <CardHeader className="border-b border-border/60 bg-muted/20">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="rounded-full px-3 py-1">
-                  Court-booking only
-                </Badge>
-                <Badge className="rounded-full px-3 py-1">
-                  Host financial view
-                </Badge>
-              </div>
               <div>
                 <CardTitle className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                  Expense Management
+                  {t("expenses.title")}
                 </CardTitle>
                 <CardDescription className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-                  Review booking costs, calculate participant shares, track
-                  payments, and keep the social event financially organized.
+                  {t("expenses.subtitle")}
                 </CardDescription>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" className="gap-2" type="button">
+            <div className="flex flex-col flex-wrap gap-2">
+              {/* <Button variant="outline" className="gap-2" type="button">
                 <Plus className="size-4" />
-                Add Expense
-              </Button>
-              <Button variant="secondary" className="gap-2" type="button">
+                {t("expenses.actions.addExpense")}
+              </Button> */}
+              {/* <Button variant="secondary" className="gap-2" type="button">
                 <RefreshCcw className="size-4" />
                 Refresh Expenses
-              </Button>
+              </Button> */}
               <Button className="gap-2" type="button">
                 <Download className="size-4" />
-                Export Report
+                {t("expenses.actions.exportReport")}
               </Button>
             </div>
           </div>
         </CardHeader>
 
+        {/* Expense Summary */}
         <CardContent className="space-y-5 p-6">
           <ExpenseSummaryGrid
             totalCourtExpense={totalCourtExpense}
             confirmedParticipants={confirmedParticipants}
             totalParticipants={totalParticipants}
             costPerParticipant={costPerParticipant}
+            paidMembers={paidMembers}
             collectedAmount={collectedAmount}
             outstandingAmount={outstandingAmount}
           />
@@ -98,37 +100,32 @@ export default function SocialExpenseTab() {
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <TrendingUp className="size-4 text-primary" />
-                Collection progress
+                {t("expenses.progress.title")}
               </div>
               <Progress value={collectionProgress} className="h-2.5" />
               <p className="text-xs text-muted-foreground">
-                {collectionProgress}% of the current court-booking total has
-                been collected.
+                {t("expenses.progress.description", {
+                  count: collectionProgress,
+                })}
               </p>
-            </div>
-            <div className="rounded-xl border border-primary/10 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">
-                Extensible expense model:
-              </span>{" "}
-              court bookings are the only source today, but the layout supports
-              future expense types without changing the dashboard structure.
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(360px,0.7fr)]">
+      {/* Expense Details */}
+      <section className="grid gap-6">
         <div className="space-y-6">
           <CourtBookingExpensesCard
             expenseRows={expenseRows}
             totalCourtExpense={totalCourtExpense}
           />
 
-          <ExpenseBreakdownCard
+          {/* <ExpenseBreakdownCard
             totalCourtExpense={totalCourtExpense}
             confirmedParticipants={confirmedParticipants}
             costPerParticipant={costPerParticipant}
-          />
+          /> */}
 
           <ParticipantPaymentTrackingCard participants={participantRows} />
         </div>

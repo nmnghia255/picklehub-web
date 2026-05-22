@@ -9,6 +9,8 @@ import { Separator } from "@/components/ui/separator"
 import ProgressBar from "@/features/socials/components/SocialListing/ProgressBar"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
+import { formatVnd } from "./expense-utils"
+
 function SettingRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-3 text-sm">
@@ -133,7 +135,7 @@ export default function SocialSidebar({
                 {t("sidebar.payment")}
               </p>
               <div className="text-3xl font-semibold text-primary">
-                ${social.totalExpense}
+                {formatVnd(social.totalExpense)}
               </div>
             </div>
           </>

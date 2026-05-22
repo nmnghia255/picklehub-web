@@ -17,8 +17,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import type { CourtExpenseRow } from "./expense-types"
+import type { CourtExpenseRow } from "../../mock-data/expense-types"
 import { formatVnd } from "./expense-utils"
 
 export function CourtBookingExpensesCard({
@@ -28,20 +29,20 @@ export function CourtBookingExpensesCard({
   expenseRows: CourtExpenseRow[]
   totalCourtExpense: number
 }) {
+  const { t } = useSocialsTranslation()
+
   return (
     <Card className="overflow-hidden">
       <CardHeader className="border-b border-border/60 bg-muted/20">
         <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <CardTitle className="text-xl">Court Booking Expenses</CardTitle>
+            <CardTitle className="text-xl">
+              {t("expenses.courtBookings.title")}
+            </CardTitle>
             <CardDescription className="mt-1">
-              Every cost in this tab comes from booked courts.
+              {t("expenses.courtBookings.description")}
             </CardDescription>
           </div>
-          <Badge variant="outline" className="w-fit rounded-full px-3 py-1">
-            <Building2 className="mr-1.5 size-3.5" />
-            Table-driven and ready for future types
-          </Badge>
         </div>
       </CardHeader>
 
@@ -50,11 +51,21 @@ export function CourtBookingExpensesCard({
           <Table>
             <TableHeader className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80">
               <TableRow>
-                <TableHead className="px-6 py-4">Court Name</TableHead>
-                <TableHead className="px-6 py-4">Date</TableHead>
-                <TableHead className="px-6 py-4">Time</TableHead>
-                <TableHead className="px-6 py-4">Duration</TableHead>
-                <TableHead className="px-6 py-4 text-right">Cost</TableHead>
+                <TableHead className="px-6 py-4">
+                  {t("expenses.courtBookings.headers.courtName")}
+                </TableHead>
+                <TableHead className="px-6 py-4">
+                  {t("expenses.courtBookings.headers.date")}
+                </TableHead>
+                <TableHead className="px-6 py-4">
+                  {t("expenses.courtBookings.headers.time")}
+                </TableHead>
+                <TableHead className="px-6 py-4">
+                  {t("expenses.courtBookings.headers.duration")}
+                </TableHead>
+                <TableHead className="px-6 py-4 text-right">
+                  {t("expenses.courtBookings.headers.cost")}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -69,8 +80,8 @@ export function CourtBookingExpensesCard({
                         <p>{row.courtName}</p>
                         <p className="text-xs text-muted-foreground">
                           {row.type === "COURT_BOOKING"
-                            ? "Court booking"
-                            : "Other expense"}
+                            ? t("expenses.courtBookings.rowTypeCourtBooking")
+                            : t("expenses.courtBookings.rowTypeOther")}
                         </p>
                       </div>
                     </div>
@@ -93,7 +104,7 @@ export function CourtBookingExpensesCard({
             <TableFooter>
               <TableRow>
                 <TableCell colSpan={4} className="px-6 py-4 text-sm">
-                  Total Court Expense
+                  {t("expenses.courtBookings.footerLabel")}
                 </TableCell>
                 <TableCell className="px-6 py-4 text-right text-base">
                   {formatVnd(totalCourtExpense)}
@@ -103,13 +114,11 @@ export function CourtBookingExpensesCard({
           </Table>
         </div>
 
-        <div className="px-6 pb-6">
+        {/* <div className="px-6 pb-6">
           <div className="rounded-xl border border-dashed border-border/70 bg-muted/20 p-4 text-sm text-muted-foreground">
-            All entries are court booking expenses today. If the business
-            expands later, the same table and aggregation patterns can be
-            extended with more expense categories.
+            {t("expenses.courtBookings.note")}
           </div>
-        </div>
+        </div> */}
       </CardContent>
     </Card>
   )
