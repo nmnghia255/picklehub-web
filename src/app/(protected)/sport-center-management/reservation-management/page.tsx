@@ -1,10 +1,13 @@
 "use client"
 
 import { CalendarClock, Clock3, ShieldCheck } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
-import type { DateRange } from "react-day-picker"
+import { useEffect, useMemo } from "react"
 
 import { PageContainer } from "@/components/page-container"
+import {
+  type ReservationSortValue,
+  useReservationManagementStore,
+} from "@/features/sport-center-management/stores/reservation-management-store"
 
 import { ReservationCardMobile } from "../../../../features/sport-center-management/components/reservation-management/reservation-card-mobile"
 import { ReservationDetailDrawer } from "../../../../features/sport-center-management/components/reservation-management/reservation-detail-drawer"
@@ -17,10 +20,8 @@ import { ReservationTabs } from "../../../../features/sport-center-management/co
 import {
   COURT_OPTIONS,
   isExpiringSoon,
-  MOCK_RESERVATIONS,
   type ReservationRecord,
   type ReservationStatus,
-  type ReservationTabValue,
 } from "./mock-data"
 
 const statusFilterOptions: Array<{
@@ -35,14 +36,7 @@ const statusFilterOptions: Array<{
   { value: "CANCELLED", label: "Cancelled" },
 ]
 
-type SortValue =
-  | "latest-hold"
-  | "soonest-expiry"
-  | "reservation-date"
-  | "price-high"
-  | "customer-a-z"
-
-const sortOptions: Array<{ value: SortValue; label: string }> = [
+const sortOptions: Array<{ value: ReservationSortValue; label: string }> = [
   { value: "latest-hold", label: "Latest hold expiry" },
   { value: "soonest-expiry", label: "Soonest expiry" },
   { value: "reservation-date", label: "Reservation date" },
@@ -50,62 +44,64 @@ const sortOptions: Array<{ value: SortValue; label: string }> = [
   { value: "customer-a-z", label: "Customer A-Z" },
 ]
 
-function createInitialReservations() {
-  return MOCK_RESERVATIONS.map((reservation) => ({
-    ...reservation,
-    timeline: reservation.timeline.map((entry) => ({ ...entry })),
-    auditLog: reservation.auditLog.map((entry) => ({ ...entry })),
-  }))
-}
-
-function updateReservationState(
-  reservation: ReservationRecord,
-  updates: Partial<ReservationRecord>,
-  auditMessage: string,
-  actor: string
-) {
-  const timestamp = new Date()
-
-  return {
-    ...reservation,
-    ...updates,
-    updatedAt: timestamp,
-    timeline: [
-      {
-        label: auditMessage,
-        timestamp,
-        actor,
-      },
-      ...reservation.timeline,
-    ],
-    auditLog: [
-      {
-        action: auditMessage,
-        timestamp,
-        actor,
-      },
-      ...reservation.auditLog,
-    ],
-  }
-}
-
 export default function ReservationManagementPage() {
-  const [isLoading, setIsLoading] = useState(true)
-  const [reservations, setReservations] = useState<ReservationRecord[]>(() =>
-    createInitialReservations()
+  const isLoading = useReservationManagementStore((state) => state.isLoading)
+  const reservations = useReservationManagementStore(
+    (state) => state.reservations
   )
-  const [selectedTab, setSelectedTab] = useState<ReservationTabValue>("all")
-  const [search, setSearch] = useState("")
-  const [statusFilter, setStatusFilter] = useState<"all" | ReservationStatus>(
-    "all"
+  const selectedTab = useReservationManagementStore(
+    (state) => state.selectedTab
   )
-  const [courtFilter, setCourtFilter] = useState("all")
-  const [sortBy, setSortBy] = useState<SortValue>("latest-hold")
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
-  const [selectedReservationId, setSelectedReservationId] = useState<
-    string | null
-  >(null)
-  const [detailOpen, setDetailOpen] = useState(false)
+  const search = useReservationManagementStore((state) => state.search)
+  const statusFilter = useReservationManagementStore(
+    (state) => state.statusFilter
+  )
+  const courtFilter = useReservationManagementStore(
+    (state) => state.courtFilter
+  )
+  const sortBy = useReservationManagementStore((state) => state.sortBy)
+  const dateRange = useReservationManagementStore((state) => state.dateRange)
+  const selectedReservationId = useReservationManagementStore(
+    (state) => state.selectedReservationId
+  )
+  const detailOpen = useReservationManagementStore((state) => state.detailOpen)
+  const setIsLoading = useReservationManagementStore(
+    (state) => state.setIsLoading
+  )
+  const setSelectedTab = useReservationManagementStore(
+    (state) => state.setSelectedTab
+  )
+  const setSearch = useReservationManagementStore((state) => state.setSearch)
+  const setStatusFilter = useReservationManagementStore(
+    (state) => state.setStatusFilter
+  )
+  const setCourtFilter = useReservationManagementStore(
+    (state) => state.setCourtFilter
+  )
+  const setSortBy = useReservationManagementStore((state) => state.setSortBy)
+  const setDateRange = useReservationManagementStore(
+    (state) => state.setDateRange
+  )
+  const openReservation = useReservationManagementStore(
+    (state) => state.openReservation
+  )
+  const setDetailOpen = useReservationManagementStore(
+    (state) => state.setDetailOpen
+  )
+  const confirmBooking = useReservationManagementStore(
+    (state) => state.confirmBooking
+  )
+  const extendHold = useReservationManagementStore((state) => state.extendHold)
+  const markPaid = useReservationManagementStore((state) => state.markPaid)
+  const cancelReservation = useReservationManagementStore(
+    (state) => state.cancelReservation
+  )
+  const resetFilters = useReservationManagementStore(
+    (state) => state.resetFilters
+  )
+  const resetMockReservations = useReservationManagementStore(
+    (state) => state.resetMockReservations
+  )
 
   useEffect(() => {
     const timer = window.setTimeout(() => setIsLoading(false), 650)
@@ -247,104 +243,8 @@ export default function ReservationManagementPage() {
     }
   }, [reservations])
 
-  const openReservation = (reservation: ReservationRecord) => {
-    setSelectedReservationId(reservation.id)
-    setDetailOpen(true)
-  }
-
-  const patchReservation = (
-    reservationId: string,
-    updater: (reservation: ReservationRecord) => ReservationRecord
-  ) => {
-    setReservations((current) =>
-      current.map((reservation) =>
-        reservation.id === reservationId ? updater(reservation) : reservation
-      )
-    )
-  }
-
-  const handleConfirmBooking = (reservation: ReservationRecord) => {
-    patchReservation(reservation.id, (current) =>
-      updateReservationState(
-        current,
-        {
-          status: "CONFIRMED",
-          paymentStatus: "PAID",
-          confirmedAt: new Date(),
-          paymentAttemptAt: current.paymentAttemptAt ?? new Date(),
-          countdownMode: "expiresAt",
-          countdownText: `Expires at ${current.holdExpiresAt.toLocaleTimeString(
-            [],
-            {
-              hour: "2-digit",
-              minute: "2-digit",
-            }
-          )}`,
-        },
-        "Booking confirmed",
-        "Admin"
-      )
-    )
-  }
-
-  const handleExtendHold = (reservation: ReservationRecord) => {
-    patchReservation(reservation.id, (current) => {
-      const nextExpiresAt = new Date(current.holdExpiresAt)
-      nextExpiresAt.setMinutes(nextExpiresAt.getMinutes() + 15)
-
-      return updateReservationState(
-        current,
-        {
-          holdExpiresAt: nextExpiresAt,
-          countdownMode: "remaining",
-          countdownText: `${current.countdownText} · extended`,
-        },
-        "Hold extended by 15 minutes",
-        "Admin"
-      )
-    })
-  }
-
-  const handleMarkPaid = (reservation: ReservationRecord) => {
-    patchReservation(reservation.id, (current) =>
-      updateReservationState(
-        current,
-        {
-          paymentStatus: "PAID",
-          paymentAttemptAt: current.paymentAttemptAt ?? new Date(),
-          transactionId:
-            current.transactionId ??
-            `TXN-${current.id.slice(-4)}-${Date.now().toString().slice(-4)}`,
-        },
-        "Marked as paid",
-        "Cashier"
-      )
-    )
-  }
-
-  const handleCancelReservation = (reservation: ReservationRecord) => {
-    patchReservation(reservation.id, (current) =>
-      updateReservationState(
-        current,
-        {
-          status: "CANCELLED",
-          countdownMode: "expired",
-          countdownText: "Expired",
-        },
-        "Reservation cancelled",
-        "Admin"
-      )
-    )
-  }
-
   const handleViewReservation = (reservation: ReservationRecord) => {
     openReservation(reservation)
-  }
-
-  const handleResetMockReservations = () => {
-    setReservations(createInitialReservations())
-    setSelectedReservationId(null)
-    setDetailOpen(false)
   }
 
   if (isLoading) {
@@ -422,16 +322,9 @@ export default function ReservationManagementPage() {
               onSearchChange={setSearch}
               onStatusFilterChange={setStatusFilter}
               onCourtFilterChange={setCourtFilter}
-              onSortChange={(value) => setSortBy(value as SortValue)}
+              onSortChange={(value) => setSortBy(value as ReservationSortValue)}
               onDateRangeChange={setDateRange}
-              onReset={() => {
-                setSearch("")
-                setStatusFilter("all")
-                setCourtFilter("all")
-                setSortBy("latest-hold")
-                setDateRange(undefined)
-                setSelectedTab("all")
-              }}
+              onReset={resetFilters}
             />
           </div>
         </div>
@@ -441,21 +334,14 @@ export default function ReservationManagementPage() {
             title="No reservations yet"
             description="This admin view uses mock data only. Reset the dataset to bring the reservation list back."
             actionLabel="Restore mock reservations"
-            onAction={handleResetMockReservations}
+            onAction={resetMockReservations}
           />
         ) : filteredReservations.length === 0 ? (
           <ReservationEmptyState
             title="No matching reservations"
             description="Try another filter, date range, or search term to surface a different mock reservation set."
             actionLabel="Clear filters"
-            onAction={() => {
-              setSearch("")
-              setStatusFilter("all")
-              setCourtFilter("all")
-              setSortBy("latest-hold")
-              setDateRange(undefined)
-              setSelectedTab("all")
-            }}
+            onAction={resetFilters}
           />
         ) : (
           <>
@@ -464,10 +350,10 @@ export default function ReservationManagementPage() {
                 reservations={filteredReservations}
                 onView={handleViewReservation}
                 onRowClick={openReservation}
-                onConfirmBooking={handleConfirmBooking}
-                onExtendHold={handleExtendHold}
-                onMarkPaid={handleMarkPaid}
-                onCancelReservation={handleCancelReservation}
+                onConfirmBooking={confirmBooking}
+                onExtendHold={extendHold}
+                onMarkPaid={markPaid}
+                onCancelReservation={cancelReservation}
               />
             </div>
 
@@ -478,10 +364,10 @@ export default function ReservationManagementPage() {
                   reservation={reservation}
                   onView={handleViewReservation}
                   onOpen={openReservation}
-                  onConfirmBooking={handleConfirmBooking}
-                  onExtendHold={handleExtendHold}
-                  onMarkPaid={handleMarkPaid}
-                  onCancelReservation={handleCancelReservation}
+                  onConfirmBooking={confirmBooking}
+                  onExtendHold={extendHold}
+                  onMarkPaid={markPaid}
+                  onCancelReservation={cancelReservation}
                 />
               ))}
             </div>
@@ -493,10 +379,10 @@ export default function ReservationManagementPage() {
         reservation={selectedReservation}
         open={detailOpen}
         onOpenChange={setDetailOpen}
-        onConfirmBooking={handleConfirmBooking}
-        onExtendHold={handleExtendHold}
-        onMarkPaid={handleMarkPaid}
-        onCancelReservation={handleCancelReservation}
+        onConfirmBooking={confirmBooking}
+        onExtendHold={extendHold}
+        onMarkPaid={markPaid}
+        onCancelReservation={cancelReservation}
       />
     </PageContainer>
   )
