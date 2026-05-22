@@ -11,6 +11,7 @@ import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
 import type { Match } from "@/features/socials/types"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
+import SocialExpenseTab from "./SocialExpenseTab"
 import SocialHeader from "./SocialHeader"
 import SocialHero from "./SocialHero"
 import SocialJoinDialog from "./SocialJoinDialog"
@@ -107,13 +108,7 @@ export default function SocialDetail() {
                 {t("detail.participants")} ({social.joinedCount})
               </TabsTrigger>
 
-              {/* <TabsTrigger value="2">
-                Matches (
-                {completedMatches.length +
-                  inProgressMatches.length +
-                  scheduledMatches.length}
-                )
-              </TabsTrigger> */}
+              <TabsTrigger value="2">Expenses</TabsTrigger>
             </TabsList>
 
             <TabsContent value="0" className="space-y-4">
@@ -140,12 +135,12 @@ export default function SocialDetail() {
               />
             </TabsContent>
 
-            {/* <TabsContent value="1" className="space-y-4">
-
-            </TabsContent> */}
-
             <TabsContent value="1" className="space-y-4">
               <SocialParticipants participants={currentSession?.participants} />
+            </TabsContent>
+
+            <TabsContent value="2" className="space-y-4">
+              <SocialExpenseTab />
             </TabsContent>
           </Tabs>
         </div>
