@@ -1,6 +1,7 @@
-'use client';
+"use client"
 
-import React from 'react';
+import React from "react"
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,8 +11,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
+} from "@/components/ui/alert-dialog"
+import { Badge } from "@/components/ui/badge"
 import {
   Table,
   TableBody,
@@ -19,16 +20,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { SchedulePreview, RecurringSocialFormData } from '../recurring-socials.types';
-import { formatDateDisplay, formatDateRangeDisplay, formatCurrency } from '../recurring-socials.utils';
+} from "@/components/ui/table"
+
+import type {
+  RecurringSocialFormData,
+  SchedulePreview,
+} from "../recurring-socials.types"
+import {
+  formatCurrency,
+  formatDateDisplay,
+  formatDateRangeDisplay,
+} from "../recurring-socials.utils"
 
 interface ConfirmCreateModalProps {
-  scheduleCount: number;
-  schedules: SchedulePreview[];
-  formData: RecurringSocialFormData;
-  onConfirm: () => void;
-  onCancel: () => void;
+  scheduleCount: number
+  schedules: SchedulePreview[]
+  formData: RecurringSocialFormData
+  onConfirm: () => void
+  onCancel: () => void
 }
 
 export function ConfirmCreateModal({
@@ -40,9 +49,11 @@ export function ConfirmCreateModal({
 }: ConfirmCreateModalProps) {
   return (
     <AlertDialog open={true} onOpenChange={onCancel}>
-      <AlertDialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <AlertDialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-xl">Xác nhận tạo social tự động</AlertDialogTitle>
+          <AlertDialogTitle className="text-xl">
+            Xác nhận tạo social tự động
+          </AlertDialogTitle>
           <AlertDialogDescription>
             Vui lòng kiểm tra lại thông tin trước khi tạo
           </AlertDialogDescription>
@@ -51,56 +62,56 @@ export function ConfirmCreateModal({
         <div className="space-y-6 py-4">
           {/* Summary Info */}
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-4">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/50">
               <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
                 Tên social
               </p>
-              <p className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-2">
+              <p className="mt-2 text-lg font-bold text-slate-900 dark:text-slate-100">
                 {formData.name}
               </p>
             </div>
 
-            <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-4">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/50">
               <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
                 Tổng số social sẽ tạo
               </p>
-              <p className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-2">
+              <p className="mt-2 text-lg font-bold text-slate-900 dark:text-slate-100">
                 <Badge>{scheduleCount}</Badge>
               </p>
             </div>
 
-            <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-4">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/50">
               <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
                 Khoảng thời gian
               </p>
-              <p className="text-sm font-bold text-slate-900 dark:text-slate-100 mt-2">
+              <p className="mt-2 text-sm font-bold text-slate-900 dark:text-slate-100">
                 {formatDateRangeDisplay(formData.startDate, formData.endDate)}
               </p>
             </div>
 
-            <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-4">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/50">
               <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
                 Khung giờ
               </p>
-              <p className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-2">
+              <p className="mt-2 text-lg font-bold text-slate-900 dark:text-slate-100">
                 {formData.startTime} - {formData.endTime}
               </p>
             </div>
 
-            <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-4">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/50">
               <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
                 Số sân
               </p>
-              <p className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-2">
+              <p className="mt-2 text-lg font-bold text-slate-900 dark:text-slate-100">
                 {formData.selectedCourts.length}
               </p>
             </div>
 
-            <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-4">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/50">
               <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
                 Sức chứa dự kiến
               </p>
-              <p className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-2">
+              <p className="mt-2 text-lg font-bold text-slate-900 dark:text-slate-100">
                 <Badge variant="secondary">
                   {formData.selectedCourts.length * formData.maxPerCourt} người
                 </Badge>
@@ -114,7 +125,7 @@ export function ConfirmCreateModal({
               Sân được chọn:
             </p>
             <div className="flex flex-wrap gap-2">
-              {formData.selectedCourts.map(court => (
+              {formData.selectedCourts.map((court) => (
                 <Badge key={court.id} variant="outline">
                   {court.name}
                 </Badge>
@@ -127,7 +138,7 @@ export function ConfirmCreateModal({
             <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
               Danh sách 5 buổi đầu tiên:
             </p>
-            <div className="border rounded-lg overflow-hidden">
+            <div className="overflow-hidden rounded-lg border">
               <Table className="text-sm">
                 <TableHeader>
                   <TableRow>
@@ -156,11 +167,11 @@ export function ConfirmCreateModal({
           </div>
 
           {/* Cost Info */}
-          <div className="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950 p-4 space-y-2">
+          <div className="space-y-2 rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950">
             <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
               💰 Chi phí:
             </p>
-            <div className="text-sm text-emerald-800 dark:text-emerald-200 space-y-1">
+            <div className="space-y-1 text-sm text-emerald-800 dark:text-emerald-200">
               <p>• Giá tham gia: {formatCurrency(formData.fee)}/người</p>
               <p>• Chi phí sân: {formatCurrency(formData.courtRentFee)}/buổi</p>
               {formData.costNote && <p>• Ghi chú: {formData.costNote}</p>}
@@ -168,20 +179,24 @@ export function ConfirmCreateModal({
           </div>
 
           {/* Warning Message */}
-          <div className="rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-950 p-4">
+          <div className="rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-950">
             <p className="text-sm text-orange-900 dark:text-orange-100">
-              ⚠️ Hành động này sẽ tạo {scheduleCount} buổi social. Bạn có thể chỉnh sửa hoặc xóa từng buổi sau đó.
+              ⚠️ Hành động này sẽ tạo {scheduleCount} buổi social. Bạn có thể
+              chỉnh sửa hoặc xóa từng buổi sau đó.
             </p>
           </div>
         </div>
 
         <AlertDialogFooter>
           <AlertDialogCancel>Hủy</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} className="bg-green-600 hover:bg-green-700">
+          <AlertDialogAction
+            onClick={onConfirm}
+            className="bg-green-600 hover:bg-green-700"
+          >
             Xác nhận tạo
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
+  )
 }

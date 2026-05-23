@@ -1,15 +1,31 @@
-'use client';
+"use client"
 
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Edit, Eye, MoreHorizontal, Pause, Trash2 } from "lucide-react"
+import React, { useState } from "react"
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select"
 import {
   Table,
   TableBody,
@@ -17,30 +33,22 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+} from "@/components/ui/table"
+
+import type { RecurringSocialTemplate } from "../recurring-socials.types"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { RecurringSocialTemplate } from '../recurring-socials.types';
-import {
-  getRecurrenceTypeLabel,
-  getStatusLabel,
-  getStatusBadgeColor,
   formatDateDisplay,
-} from '../recurring-socials.utils';
-import { MoreHorizontal, Edit, Pause, Trash2, Eye } from 'lucide-react';
+  getRecurrenceTypeLabel,
+  getStatusBadgeColor,
+  getStatusLabel,
+} from "../recurring-socials.utils"
 
 interface RecurringSocialsListProps {
-  socials: RecurringSocialTemplate[];
-  onEdit?: (social: RecurringSocialTemplate) => void;
-  onPause?: (id: string) => void;
-  onDelete?: (id: string) => void;
-  onView?: (social: RecurringSocialTemplate) => void;
+  socials: RecurringSocialTemplate[]
+  onEdit?: (social: RecurringSocialTemplate) => void
+  onPause?: (id: string) => void
+  onDelete?: (id: string) => void
+  onView?: (social: RecurringSocialTemplate) => void
 }
 
 export function RecurringSocialsList({
@@ -50,21 +58,24 @@ export function RecurringSocialsList({
   onDelete,
   onView,
 }: RecurringSocialsListProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
 
-  const filteredSocials = socials.filter(social => {
-    const matchesSearch = social.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || social.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredSocials = socials.filter((social) => {
+    const matchesSearch = social.name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+    const matchesStatus =
+      statusFilter === "all" || social.status === statusFilter
+    return matchesSearch && matchesStatus
+  })
 
   if (filteredSocials.length === 0 && socials.length === 0) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <div className="text-center">
-            <p className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            <p className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
               Chưa có social tự động nào
             </p>
             <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -73,7 +84,7 @@ export function RecurringSocialsList({
           </div>
         </CardContent>
       </Card>
-    );
+    )
   }
 
   return (
@@ -94,7 +105,7 @@ export function RecurringSocialsList({
             <Input
               placeholder="Tìm kiếm theo tên social..."
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full"
             />
           </div>
@@ -113,7 +124,7 @@ export function RecurringSocialsList({
 
         {/* Empty state for search */}
         {filteredSocials.length === 0 ? (
-          <div className="text-center py-12">
+          <div className="py-12 text-center">
             <p className="text-sm text-slate-600 dark:text-slate-400">
               Không tìm thấy social nào phù hợp
             </p>
@@ -126,7 +137,7 @@ export function RecurringSocialsList({
             </p>
 
             {/* Table */}
-            <div className="border rounded-lg overflow-hidden">
+            <div className="overflow-hidden rounded-lg border">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -141,9 +152,11 @@ export function RecurringSocialsList({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredSocials.map(social => (
+                  {filteredSocials.map((social) => (
                     <TableRow key={social.id}>
-                      <TableCell className="font-medium">{social.name}</TableCell>
+                      <TableCell className="font-medium">
+                        {social.name}
+                      </TableCell>
                       <TableCell>
                         <Badge variant="outline">
                           {getRecurrenceTypeLabel(social.recurrenceType)}
@@ -152,7 +165,9 @@ export function RecurringSocialsList({
                       <TableCell className="text-sm">
                         {social.startTime} - {social.endTime}
                       </TableCell>
-                      <TableCell className="text-right">{social.courts.length}</TableCell>
+                      <TableCell className="text-right">
+                        {social.courts.length}
+                      </TableCell>
                       <TableCell className="text-right">
                         <Badge variant="secondary">
                           {social.courts.length * social.maxPerCourt}
@@ -164,7 +179,7 @@ export function RecurringSocialsList({
                         </Badge>
                       </TableCell>
                       <TableCell className="text-sm">
-                        {formatDateDisplay(social.createdAt.split('T')[0])}
+                        {formatDateDisplay(social.createdAt.split("T")[0])}
                       </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
@@ -176,19 +191,21 @@ export function RecurringSocialsList({
                           <DropdownMenuContent align="end">
                             {onView && (
                               <DropdownMenuItem onClick={() => onView(social)}>
-                                <Eye className="size-4 mr-2" />
+                                <Eye className="mr-2 size-4" />
                                 Xem chi tiết
                               </DropdownMenuItem>
                             )}
                             {onEdit && (
                               <DropdownMenuItem onClick={() => onEdit(social)}>
-                                <Edit className="size-4 mr-2" />
+                                <Edit className="mr-2 size-4" />
                                 Chỉnh sửa
                               </DropdownMenuItem>
                             )}
-                            {onPause && social.status === 'active' && (
-                              <DropdownMenuItem onClick={() => onPause(social.id)}>
-                                <Pause className="size-4 mr-2" />
+                            {onPause && social.status === "active" && (
+                              <DropdownMenuItem
+                                onClick={() => onPause(social.id)}
+                              >
+                                <Pause className="mr-2 size-4" />
                                 Tạm dừng
                               </DropdownMenuItem>
                             )}
@@ -197,7 +214,7 @@ export function RecurringSocialsList({
                                 onClick={() => onDelete(social.id)}
                                 className="text-red-600"
                               >
-                                <Trash2 className="size-4 mr-2" />
+                                <Trash2 className="mr-2 size-4" />
                                 Xóa
                               </DropdownMenuItem>
                             )}
@@ -213,5 +230,5 @@ export function RecurringSocialsList({
         )}
       </CardContent>
     </Card>
-  );
+  )
 }

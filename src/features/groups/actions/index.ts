@@ -162,6 +162,28 @@ export async function updateGroupAction(
   }
 }
 
+export async function archiveGroupAction(
+  groupId: string,
+  _prevState: GroupActionState,
+  _formData: FormData
+): Promise<GroupActionState> {
+  try {
+    await archiveGroup(groupId)
+    revalidatePath("/groups")
+    revalidatePath(`/groups/${groupId}`)
+    return { success: true }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        error:
+          error.response?.data?.message ||
+          "Lưu trữ nhóm thất bại. Vui lòng thử lại.",
+      }
+    }
+    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+  }
+}
+
 export async function changeMemberRoleAction(
   _prevState: GroupActionState,
   formData: FormData
@@ -252,27 +274,6 @@ export async function leaveGroupAction(
     return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
   }
 }
-
-export async function archiveGroupAction(
-  groupId: string
-): Promise<GroupActionState> {
-  try {
-    await archiveGroup(groupId)
-    revalidatePath("/groups")
-    revalidatePath(`/groups/${groupId}`)
-    return { success: true }
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      return {
-        error:
-          error.response?.data?.message ||
-          "Lưu trữ nhóm thất bại. Vui lòng thử lại.",
-      }
-    }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
-  }
-}
-
 /** @deprecated */
 export interface InviteLinkActionState {
   data?: InviteLinkResponse
@@ -374,7 +375,7 @@ export async function acceptInvitationAction(
     session.user = { id: user.id, email: user.email }
     session.accessToken = accessToken
     session.refreshToken = refreshToken
-    session.accessTokenExpiresAt = Date.now() + (expiresIn ?? 15 * 60) * 1000
+    session.accessTokenExpiresAt = Date.now() + (expiresIn ?? 900) * 1000
     await session.save()
 
     return { success: true, isNewUser, groupId: group.id }
