@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Group } from "@/features/groups/types"
 
+import { getArchivedGroupLabel, isArchivedGroup } from "../utils/group-status"
+
 type Props = {
   group: Group
   actionLabel: string
@@ -36,15 +38,22 @@ function getGroupInitials(name: string) {
 }
 
 export function GroupCard({ group, actionLabel, showRole = false }: Props) {
+  const archived = isArchivedGroup(group.status)
+
   return (
     <Card key={group.id}>
       <CardHeader>
-        <div className="flex items-center gap-3">
-          <Avatar>
-            <AvatarImage src={group.avatarUrl ?? undefined} alt={group.name} />
-            <AvatarFallback>{getGroupInitials(group.name)}</AvatarFallback>
-          </Avatar>
-          <CardTitle className="line-clamp-1 text-lg">{group.name}</CardTitle>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <Avatar>
+              <AvatarImage
+                src={group.avatarUrl ?? undefined}
+                alt={group.name}
+              />
+              <AvatarFallback>{getGroupInitials(group.name)}</AvatarFallback>
+            </Avatar>
+            <CardTitle className="line-clamp-1 text-lg">{group.name}</CardTitle>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
@@ -53,16 +62,26 @@ export function GroupCard({ group, actionLabel, showRole = false }: Props) {
             {group.description}
           </p>
         )}
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
+        <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <Users className="size-4" />
             <span>{group.memberCount} thành viên</span>
           </div>
-          {showRole ? (
-            <Badge variant="secondary" className="capitalize">
-              {formatRole(group.role)}
-            </Badge>
-          ) : null}
+          <div className="flex items-center gap-2">
+            {showRole ? (
+              <Badge variant="secondary" className="capitalize">
+                {formatRole(group.role)}
+              </Badge>
+            ) : null}
+            {archived ? (
+              <Badge
+                variant="secondary"
+                className="bg-muted text-muted-foreground"
+              >
+                {getArchivedGroupLabel()}
+              </Badge>
+            ) : null}
+          </div>
         </div>
         <Button variant="outline" asChild>
           <Link href={`/groups/${group.id}`}>{actionLabel}</Link>

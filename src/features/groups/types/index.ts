@@ -1,3 +1,5 @@
+export type GroupStatus = "ACTIVE" | "GRACE_PERIOD" | "FROZEN" | "ARCHIVED"
+
 export interface Group {
   id: string
   name: string
@@ -6,7 +8,7 @@ export interface Group {
   maxMembers: number | null
   memberCount: number
   role: string
-  status?: string
+  status?: GroupStatus
   createdAt: string
 }
 
