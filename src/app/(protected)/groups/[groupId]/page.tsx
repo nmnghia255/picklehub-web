@@ -10,7 +10,9 @@ import {
   getGroupInvitations,
 } from "@/features/groups/api/groups-service"
 import { GroupChat } from "@/features/groups/components/group-chat"
+import { GroupDetailActionsMenu } from "@/features/groups/components/group-detail-actions-menu"
 import { GroupDetailHeader } from "@/features/groups/components/group-detail-header"
+import { GroupFinanceSection } from "@/features/groups/components/group-finance-section"
 import { GroupMembersCard } from "@/features/groups/components/group-members-card"
 import { GroupOverviewCard } from "@/features/groups/components/group-overview-card"
 import { InvitationsTable } from "@/features/groups/components/invitations-table"
@@ -36,7 +38,11 @@ function getHttpStatus(error: unknown): number | null {
 
 interface GroupDetailPageProps {
   params: Promise<{ groupId: string }>
-  searchParams: Promise<{ delete?: string; view?: string }>
+  searchParams: Promise<{
+    delete?: string
+    view?: string
+    showFinance?: string
+  }>
 }
 
 export default async function GroupDetailPage({
@@ -44,9 +50,10 @@ export default async function GroupDetailPage({
   searchParams,
 }: GroupDetailPageProps) {
   const { groupId } = await params
-  const { delete: deleteStatus, view } = await searchParams
+  const { delete: deleteStatus, view, showFinance } = await searchParams
   const session = await getSession()
   const isChatView = view === "chat"
+  const isFinanceVisible = showFinance === "1"
 
   let group
   let invitations = []
@@ -157,6 +164,13 @@ export default async function GroupDetailPage({
               Mở chat
             </Link>
           </Button>
+          <GroupDetailActionsMenu
+            groupId={groupId}
+            groupName={group.name}
+            isOwner={isOwner}
+            isArchived={group.status === "ARCHIVED"}
+            showFinance={isFinanceVisible}
+          />
         </div>
       </div>
 
@@ -170,6 +184,15 @@ export default async function GroupDetailPage({
             currentUserRole={group.role ?? null}
             groupStatus={group.status}
           />
+
+          {isFinanceVisible && (
+            <GroupFinanceSection
+              groupId={groupId}
+              currentUserId={session.user?.id ?? ""}
+              currentUserRole={group.role ?? null}
+              groupStatus={group.status}
+            />
+          )}
 
           <GroupFeedNotificationsContainer groupId={groupId} />
 

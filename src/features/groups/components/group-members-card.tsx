@@ -62,6 +62,13 @@ export async function GroupMembersCard({
       </CardHeader>
       <CardContent>
         <Table>
+          <colgroup>
+            <col style={{ width: "20%" }} />
+            <col style={{ width: "40%" }} />
+            <col style={{ width: "15%" }} />
+            <col style={{ width: "15%" }} />
+            <col style={{ width: "10%" }} />
+          </colgroup>
           <TableHeader>
             <TableRow>
               <TableHead>Tên</TableHead>
@@ -86,7 +93,7 @@ export async function GroupMembersCard({
                     )}
                   </div>
                 </TableCell>
-                <TableCell className="text-muted-foreground">
+                <TableCell className="truncate overflow-hidden text-muted-foreground">
                   {member.email}
                 </TableCell>
                 <TableCell className="capitalize">

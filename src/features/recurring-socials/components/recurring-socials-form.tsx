@@ -5,7 +5,6 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -33,6 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+import { createRecurringSocial } from "../api/recurring-socials-service"
 import {
   DAYS_OF_WEEK,
   MOCK_COURTS,
@@ -42,11 +42,11 @@ import {
   SOCIAL_TYPES,
 } from "../recurring-socials.mock"
 import type {
+  Court,
   RecurrenceType,
   RecurringSocialFormData,
   SchedulePreview,
 } from "../recurring-socials.types"
-import { DayOfWeek } from "../recurring-socials.types"
 import { generateSchedulePreview } from "../recurring-socials.utils"
 import { ConfirmCreateModal } from "./confirm-create-modal"
 import { RecurringSocialsPreview } from "./recurring-socials-preview"
@@ -66,7 +66,15 @@ const formSchema = z.object({
   quarterDay: z.number().optional(),
   startDate: z.string().min(1, "Vui lòng chọn ngày bắt đầu"),
   endDate: z.string().min(1, "Vui lòng chọn ngày kết thúc"),
-  selectedCourts: z.array(z.unknown()).min(1, "Vui lòng chọn ít nhất 1 sân"),
+  selectedCourts: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        capacity: z.number(),
+      })
+    )
+    .min(1, "Vui lòng chọn ít nhất 1 sân"),
   maxParticipants: z
     .number()
     .min(4, "Tối thiểu 4 người")
@@ -131,18 +139,32 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
       values as RecurringSocialFormData
     )
     setPreviewData({
-      ...values,
+      ...(values as RecurringSocialFormData),
       schedulePreview,
     })
     setShowConfirmModal(true)
   }
 
   const handleConfirmCreate = () => {
-    if (onSubmit) {
-      onSubmit(previewData)
+    const doCreate = async () => {
+      try {
+        if (!previewData) return
+        await createRecurringSocial(previewData)
+        if (onSubmit) onSubmit(previewData)
+        setShowConfirmModal(false)
+        form.reset()
+      } catch (err) {
+        // basic error handling
+
+        console.error("Create recurring social failed:", err)
+        // show simple alert for now
+        // In production replace with toast UI
+
+        alert("Tạo social thất bại. Vui lòng thử lại.")
+      }
     }
-    setShowConfirmModal(false)
-    form.reset()
+
+    void doCreate()
   }
 
   return (
@@ -549,16 +571,19 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                         >
                           <Checkbox
                             checked={
-                              field.value?.some((c) => c.id === court.id) ||
-                              false
+                              field.value?.some(
+                                (c: Court) => c.id === court.id
+                              ) || false
                             }
                             onCheckedChange={(checked) => {
-                              const currentCourts = field.value || []
+                              const currentCourts = field.value ?? []
                               if (checked) {
                                 field.onChange([...currentCourts, court])
                               } else {
                                 field.onChange(
-                                  currentCourts.filter((c) => c.id !== court.id)
+                                  currentCourts.filter(
+                                    (c: Court) => c.id !== court.id
+                                  )
                                 )
                               }
                             }}
