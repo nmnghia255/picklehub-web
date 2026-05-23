@@ -46,7 +46,7 @@ const sidebarItems: SidebarItem[] = [
   { title: "Hồ sơ", href: "/profile", icon: UserRound },
   { title: "Sân", href: "/sport-center", icon: MapPinned },
   { title: "Lịch sử", href: "/history", icon: History },
-  { title: "Buổi chơi", href: "/play-sessions", icon: CalendarDays },
+  { title: "Buổi chơi", href: "/socials", icon: CalendarDays },
   { title: "Nhóm", href: "/groups", icon: Users },
   { title: "Bạn bè", href: "/friend", icon: Users },
   { title: "Thông báo", href: "/feed", icon: BellRing },

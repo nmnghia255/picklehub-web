@@ -17,6 +17,7 @@ import {
 } from "../schemas"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL || ""
+const ACCESS_TOKEN_TTL_MS = 900_000
 
 export interface AuthActionState {
   error?: string
@@ -310,7 +311,7 @@ export async function verifyMagicLinkAction(magic: string): Promise<{
     session.user = { id: user.id, email: user.email }
     session.accessToken = accessToken
     session.refreshToken = refreshToken
-    session.accessTokenExpiresAt = Date.now() + 15 * 60 * 1000
+    session.accessTokenExpiresAt = Date.now() + ACCESS_TOKEN_TTL_MS
     await session.save()
 
     return {}
