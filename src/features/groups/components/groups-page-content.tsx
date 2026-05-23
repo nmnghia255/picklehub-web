@@ -20,7 +20,7 @@ type Props = {
 
 export function GroupsPageContent({ myGroups, myGroupsError = false }: Props) {
   const [keyword, setKeyword] = useState("")
-  const [groupFilter, setGroupFilter] = useState<GroupListFilter>("all")
+  const [groupFilter, setGroupFilter] = useState<GroupListFilter>("active")
 
   const filteredByStatus = useMemo(() => {
     const safeMyGroups = Array.isArray(myGroups) ? myGroups : []

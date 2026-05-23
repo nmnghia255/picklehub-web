@@ -6,6 +6,14 @@ import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
   Table,
   TableBody,
   TableCell,
@@ -52,6 +60,8 @@ export function InvitationsTable({
     useState<Invitation[]>(initialInvitations)
   const [revokingId, setRevokingId] = useState<string | null>(null)
   const [isListVisible, setIsListVisible] = useState(true)
+  const [invitationToRevoke, setInvitationToRevoke] =
+    useState<Invitation | null>(null)
 
   useEffect(() => {
     setInvitations(initialInvitations)
@@ -76,6 +86,14 @@ export function InvitationsTable({
   const pendingCount = invitations.filter(
     (invitation) => invitation.status === "pending"
   ).length
+
+  const handleConfirmRevoke = async () => {
+    if (!invitationToRevoke) return
+
+    const invitationId = invitationToRevoke.id
+    setInvitationToRevoke(null)
+    await handleRevoke(invitationId)
+  }
 
   return (
     <div className="py-4">
@@ -119,17 +137,19 @@ export function InvitationsTable({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="pl-4">Email</TableHead>
+                  <TableHead className="w-[35%] pl-4">Email</TableHead>
                   <TableHead>Trạng thái</TableHead>
                   <TableHead>Ngày tạo</TableHead>
                   <TableHead>Hết hạn</TableHead>
-                  <TableHead className="w-10 pr-4" />
+                  <TableHead className="w-14 pr-6" />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {invitations.map((invitation) => (
                   <TableRow key={invitation.id}>
-                    <TableCell className="pl-4">{invitation.email}</TableCell>
+                    <TableCell className="w-[35%] pl-4 font-medium">
+                      <div className="truncate">{invitation.email}</div>
+                    </TableCell>
                     <TableCell>
                       <span
                         className={`font-medium capitalize ${getStatusClasses(invitation.status)}`}
@@ -157,14 +177,14 @@ export function InvitationsTable({
                         }
                       )}
                     </TableCell>
-                    <TableCell className="pr-4 text-right">
+                    <TableCell className="pr-6 text-right">
                       {invitation.status === "pending" && (
                         <Button
                           variant="ghost"
                           size="icon"
                           className="size-7 text-muted-foreground hover:text-destructive"
                           disabled={revokingId === invitation.id}
-                          onClick={() => handleRevoke(invitation.id)}
+                          onClick={() => setInvitationToRevoke(invitation)}
                           aria-label="Thu hồi lời mời"
                         >
                           {revokingId === invitation.id ? (
@@ -182,6 +202,45 @@ export function InvitationsTable({
           </div>
         </div>
       </div>
+
+      <Dialog
+        open={invitationToRevoke !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setInvitationToRevoke(null)
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Thu hồi lời mời</DialogTitle>
+            <DialogDescription>
+              Bạn có chắc muốn thu hồi lời mời gửi tới{" "}
+              {invitationToRevoke?.email} không? Thao tác này sẽ thay đổi trạng
+              thái lời mời sang đã thu hồi.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter showCloseButton={false} className="pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setInvitationToRevoke(null)}
+              disabled={revokingId !== null}
+            >
+              Không
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleConfirmRevoke}
+              disabled={revokingId !== null}
+            >
+              Có, thu hồi
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

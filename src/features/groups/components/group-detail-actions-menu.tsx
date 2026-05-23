@@ -114,7 +114,10 @@ export function GroupDetailActionsMenu({
                 <Mail className="size-4" />
                 Mời thành viên
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setArchiveOpen(true)}>
+              <DropdownMenuItem
+                variant="destructive"
+                onSelect={() => setArchiveOpen(true)}
+              >
                 <Archive className="size-4" />
                 Lưu trữ nhóm
               </DropdownMenuItem>
