@@ -101,25 +101,28 @@ export default function PlaySessionDetail() {
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
       <div className="flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.push(`/socials/${socialId}`)}
-        >
-          <ArrowLeft className="size-4" />
-        </Button>
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-3xl font-semibold tracking-tight">
             {session.title}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">{social.title}</p>
         </div>
-        <Badge
+        {/* <Badge
           className={getSessionStatusClasses(session.status)}
           variant="outline"
         >
           {getSessionStatusLabel(session.status, t)}
-        </Badge>
+        </Badge> */}
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2 self-start"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {t("matches.creation.back")}
+        </Button>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">

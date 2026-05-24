@@ -360,6 +360,8 @@
       "startTime": "Start Time",
       "endTime": "End Time",
       "cancellationFreeze": "Cancellation Freeze (hours before event)",
+      "bookedSportCenter": "Booked Sport Center",
+      "bookedSportCenterPlaceholder": "e.g., Downtown Sports Center — Court 3",
       "participationRules": "Participation Rules",
       "maximumParticipants": "Maximum Participants",
       "genderPolicy": "Gender Policy",

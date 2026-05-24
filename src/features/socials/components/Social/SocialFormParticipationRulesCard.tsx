@@ -61,7 +61,7 @@ export function SocialFormParticipationRulesCard({
                   }))
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder={t("filters.selectGenderPolicy")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -86,7 +86,7 @@ export function SocialFormParticipationRulesCard({
                   }))
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder={t("filters.selectAgeGroup")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -141,7 +141,7 @@ export function SocialFormParticipationRulesCard({
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder={t("form.hostRole")} />
               </SelectTrigger>
               <SelectContent>

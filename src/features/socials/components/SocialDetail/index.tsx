@@ -93,7 +93,7 @@ export default function SocialDetail() {
             format={social.format}
             isHost={isHost}
             isParticipant={social.isParticipant}
-            onShare={() => alert("Share functionality")}
+            onBack={() => router.back()}
             onEdit={() => router.push(`/socials/${social.id}/edit`)}
           />
 
@@ -104,9 +104,7 @@ export default function SocialDetail() {
           >
             <TabsList>
               <TabsTrigger value="0">{t("detail.overview")}</TabsTrigger>
-              <TabsTrigger value="1">
-                {t("detail.participants")} {/* ({social.joinedCount}) */}
-              </TabsTrigger>
+              <TabsTrigger value="1">{t("detail.participants")}</TabsTrigger>
 
               <TabsTrigger value="2">{t("expenses.tab")}</TabsTrigger>
             </TabsList>

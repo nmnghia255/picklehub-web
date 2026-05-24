@@ -12,10 +12,7 @@ export function SocialFormHeader({ isEditMode }: { isEditMode: boolean }) {
 
   return (
     <div className="flex items-center gap-3">
-      <Button variant="ghost" size="icon" onClick={() => router.back()}>
-        <ArrowLeft className="size-4" />
-      </Button>
-      <div>
+      <div className="min-w-0 flex-1">
         <h1 className="text-3xl font-semibold tracking-tight">
           {isEditMode ? t("form.editTitle") : t("form.createTitle")}
         </h1>
@@ -23,6 +20,16 @@ export function SocialFormHeader({ isEditMode }: { isEditMode: boolean }) {
           {t("form.subtitle")}
         </p>
       </div>
+
+      <Button
+        variant="outline"
+        size="sm"
+        className="gap-2 self-start"
+        onClick={() => router.back()}
+      >
+        <ArrowLeft className="h-4 w-4" />
+        {t("matches.creation.back")}
+      </Button>
     </div>
   )
 }

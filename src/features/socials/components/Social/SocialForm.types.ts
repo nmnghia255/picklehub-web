@@ -26,6 +26,7 @@ export interface SocialFormData {
   paymentCode: string
   paymentNote: string
   status: SocialStatus
+  bookedSportCenter?: string
 }
 
 export interface PlaySessionDraft {

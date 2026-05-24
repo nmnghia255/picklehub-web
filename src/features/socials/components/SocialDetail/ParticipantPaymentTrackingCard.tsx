@@ -28,12 +28,12 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
+import { formatVnd, getPaymentStatusTone } from "@/utils/expense-utils"
 
 import type {
   ParticipantPaymentRow,
   PaymentStatus,
 } from "../../mock-data/expense-types"
-import { formatVnd, getPaymentStatusTone } from "./expense-utils"
 
 export function ParticipantPaymentTrackingCard({
   participants,

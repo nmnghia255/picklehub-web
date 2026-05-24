@@ -53,7 +53,7 @@ export function SocialFormSidebar({
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder={t("filters.selectStatus")} />
               </SelectTrigger>
               <SelectContent>

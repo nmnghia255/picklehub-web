@@ -360,6 +360,8 @@
       "startTime": "Thời gian bắt đầu",
       "endTime": "Thời gian kết thúc",
       "cancellationFreeze": "Khoảng khóa hủy (giờ trước sự kiện)",
+      "bookedSportCenter": "Chọn Sân đã đặt",
+      "bookedSportCenterPlaceholder": "ví dụ: Trung tâm thể thao Downtown — Sân 3",
       "participationRules": "Quy tắc tham gia",
       "maximumParticipants": "Số người tối đa",
       "genderPolicy": "Giới tính",

@@ -193,7 +193,7 @@ export default function SocialSessions({
         </CardContent>
       </Card>
 
-      <Card className="p-0">
+      {/* <Card className="p-0">
         <CardContent className="space-y-4 p-6">
           <h2 className="text-lg font-semibold">{t("matches.title")}</h2>
           <div className="space-y-4">
@@ -239,7 +239,7 @@ export default function SocialSessions({
             )}
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   )
 }
