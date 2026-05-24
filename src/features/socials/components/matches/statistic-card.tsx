@@ -1,13 +1,6 @@
 "use client"
 
-import {
-  Activity,
-  CheckCircle2,
-  Clock3,
-  Gauge,
-  TableCellsMerge,
-  Users,
-} from "lucide-react"
+import { Activity, Gauge, Users } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
@@ -22,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 interface Player {
   id: string
@@ -51,6 +45,7 @@ export function StatisticCard({
   courts: number
   isLoading?: boolean
 }) {
+  const { t } = useSocialsTranslation()
   const totalMatches = matches.length
 
   const playerMatchCounts: Record<string, number> = {}
@@ -76,29 +71,6 @@ export function StatisticCard({
     return "complete"
   }
 
-  const getStatusBadgeColor = (
-    status: "complete" | "incomplete" | "empty"
-  ): string => {
-    switch (status) {
-      case "complete":
-        return "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300"
-      case "incomplete":
-        return "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300"
-      case "empty":
-        return "bg-slate-100 text-slate-700 dark:bg-slate-700/40 dark:text-slate-200"
-    }
-  }
-
-  const boardStatus = (() => {
-    if (matches.length === 0) return "empty" as const
-    const hasIncomplete = matches.some(
-      (m) => getMatchStatus(m) === "incomplete"
-    )
-    if (hasIncomplete) return "incomplete" as const
-    const hasComplete = matches.some((m) => getMatchStatus(m) === "complete")
-    return hasComplete ? ("complete" as const) : ("empty" as const)
-  })()
-
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -116,17 +88,19 @@ export function StatisticCard({
     <div className="space-y-5">
       <div>
         <h2 className="text-lg font-semibold text-foreground">
-          Thông số trận đấu
+          {t("matches.statistics.title")}
         </h2>
         <p className="text-sm text-muted-foreground">
-          Theo dõi mức độ phân bổ trận trong một phiên chơi.
+          {t("matches.statistics.subtitle")}
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <Card className="group border-border/70 p-4 transition-all">
           <div className="mb-2 flex items-center justify-between">
-            <Label className="text-muted-foreground">Tổng số trận</Label>
+            <Label className="text-muted-foreground">
+              {t("matches.statistics.totalMatches")}
+            </Label>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </div>
           <p className="text-2xl font-bold text-foreground">{totalMatches}</p>
@@ -134,7 +108,9 @@ export function StatisticCard({
 
         <Card className="group border-border/70 p-4 transition-all">
           <div className="mb-2 flex items-center justify-between">
-            <Label className="text-muted-foreground">Người chơi</Label>
+            <Label className="text-muted-foreground">
+              {t("matches.statistics.players")}
+            </Label>
             <Users className="h-4 w-4 text-muted-foreground" />
           </div>
           <p className="text-2xl font-bold text-foreground">{totalPlayers}</p>
@@ -142,7 +118,9 @@ export function StatisticCard({
 
         <Card className="group border-border/70 p-4 transition-all">
           <div className="mb-2 flex items-center justify-between">
-            <Label className="text-muted-foreground">Đã xếp trận</Label>
+            <Label className="text-muted-foreground">
+              {t("matches.statistics.assignedMatches")}
+            </Label>
             <Gauge className="h-4 w-4 text-muted-foreground" />
           </div>
           <p className="text-2xl font-bold text-foreground">
@@ -156,23 +134,29 @@ export function StatisticCard({
       <Card className="border-border/70 p-0">
         <div className="border-b px-4 py-3">
           <h3 className="text-sm font-semibold text-foreground">
-            Số trận theo người chơi
+            {t("matches.statistics.playerMatchesTitle")}
           </h3>
         </div>
 
         {allPlayers.length === 0 ? (
           <div className="p-8 text-center text-sm text-muted-foreground">
-            Chưa có người chơi để hiển thị thống kê.
+            {t("matches.statistics.noPlayers")}
           </div>
         ) : (
           <div className="max-h-64 overflow-y-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Người chơi</TableHead>
-                  <TableHead>Mức độ</TableHead>
-                  <TableHead>Tiến độ</TableHead>
-                  <TableHead className="text-right">Số trận</TableHead>
+                  <TableHead>
+                    {t("matches.statistics.headers.player")}
+                  </TableHead>
+                  <TableHead>{t("matches.statistics.headers.level")}</TableHead>
+                  <TableHead>
+                    {t("matches.statistics.headers.progress")}
+                  </TableHead>
+                  <TableHead className="text-right">
+                    {t("matches.statistics.headers.matches")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -206,8 +190,8 @@ export function StatisticCard({
                         <TableCell>
                           <Badge variant="outline">
                             {typeof p.skillLevel === "number"
-                              ? `Level ${p.skillLevel}`
-                              : "N/A"}
+                              ? `${t("common.level")} ${p.skillLevel}`
+                              : t("common.na")}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -219,7 +203,9 @@ export function StatisticCard({
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Badge variant="secondary">{count} trận</Badge>
+                          <Badge variant="secondary">
+                            {t("matches.statistics.matchesCount", { count })}
+                          </Badge>
                         </TableCell>
                       </TableRow>
                     )

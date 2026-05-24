@@ -3,6 +3,7 @@
 import React, { useState } from "react"
 
 import { Card } from "@/components/ui/card"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import { MatchCellHeader } from "./match-cell-header"
 import { MatchSlot } from "./match-slot"
@@ -43,36 +44,6 @@ interface MatchCellProps {
   draggedPlayer: { matchId: string; playerId: string } | null
 }
 
-const statusTexts = {
-  complete: "✓ Đầy đủ",
-  incomplete: "! Thiếu cầu thủ",
-  empty: "Không có trận",
-}
-
-const statusLabels = {
-  complete: {
-    label: "Đủ",
-    badgeColor:
-      "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300",
-    cardColor:
-      "border-emerald-200 bg-emerald-50/70 dark:border-emerald-900/60 dark:bg-emerald-950/20",
-  },
-  incomplete: {
-    label: "Thiếu",
-    badgeColor:
-      "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300",
-    cardColor:
-      "border-amber-200 bg-amber-50/70 dark:border-amber-900/60 dark:bg-amber-950/20",
-  },
-  empty: {
-    label: "Trống",
-    badgeColor:
-      "bg-slate-100 text-slate-700 dark:bg-slate-700/40 dark:text-slate-200",
-    cardColor:
-      "border-slate-200 bg-slate-50/80 dark:border-slate-800 dark:bg-slate-950/30",
-  },
-}
-
 export function MatchCell({
   match,
   courtLabel,
@@ -87,6 +58,7 @@ export function MatchCell({
   onDragEnd,
   draggedPlayer,
 }: MatchCellProps) {
+  const { t } = useSocialsTranslation()
   const [selectedEmptySlot, setSelectedEmptySlot] = useState<{
     side: "left" | "right"
     index: number
@@ -136,8 +108,44 @@ export function MatchCell({
   const leftSlotCount = Math.ceil(maxPlayers / 2)
   const rightSlotCount = Math.floor(maxPlayers / 2)
   const selectedSlotLabel = selectedEmptySlot
-    ? `${selectedEmptySlot.side === "left" ? "bên trái" : "bên phải"} vị trí ${selectedEmptySlot.index + 1}`
+    ? t("matches.slot.selectedPosition", {
+        side:
+          selectedEmptySlot.side === "left"
+            ? t("matches.slot.sideLeft")
+            : t("matches.slot.sideRight"),
+        index: selectedEmptySlot.index + 1,
+      })
     : undefined
+  const statusTexts = {
+    complete: t("matches.status.complete"),
+    incomplete: t("matches.status.incomplete"),
+    empty: t("matches.status.empty"),
+  }
+
+  const statusLabels = {
+    complete: {
+      label: t("matches.status.complete"),
+      badgeColor:
+        "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300",
+      cardColor:
+        "border-emerald-200 bg-emerald-50/70 dark:border-emerald-900/60 dark:bg-emerald-950/20",
+    },
+    incomplete: {
+      label: t("matches.status.incomplete"),
+      badgeColor:
+        "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300",
+      cardColor:
+        "border-amber-200 bg-amber-50/70 dark:border-amber-900/60 dark:bg-amber-950/20",
+    },
+    empty: {
+      label: t("matches.status.empty"),
+      badgeColor:
+        "bg-slate-100 text-slate-700 dark:bg-slate-700/40 dark:text-slate-200",
+      cardColor:
+        "border-slate-200 bg-slate-50/80 dark:border-slate-800 dark:bg-slate-950/30",
+    },
+  }
+
   const statusStyle = statusLabels[status]
 
   if (!match) {
@@ -148,7 +156,7 @@ export function MatchCell({
         <MatchCellHeader
           courtLabel={courtLabel}
           matchId={courtLabel}
-          matchTypeLabel="Trận"
+          matchTypeLabel={t("matches.type.match")}
           statusText={statusTexts.empty}
           statusBadgeColor={statusStyle.badgeColor}
           onMatchTypeChange={onMatchTypeChange}
@@ -156,9 +164,11 @@ export function MatchCell({
 
         <div className="flex min-h-40 flex-1 items-center justify-center rounded-xl border border-dashed border-border/70 bg-muted/20 text-center">
           <div className="space-y-1">
-            <p className="text-sm font-medium text-foreground">Trống</p>
+            <p className="text-sm font-medium text-foreground">
+              {t("matches.cell.emptyCourtTitle")}
+            </p>
             <p className="text-xs text-muted-foreground">
-              Chưa có trận cho sân này
+              {t("matches.cell.emptyCourtDescription")}
             </p>
           </div>
         </div>
@@ -189,7 +199,11 @@ export function MatchCell({
       <MatchCellHeader
         courtLabel={courtLabel}
         matchId={match.id}
-        matchTypeLabel={match.matchType === "SINGLES" ? "Đơn" : "Đôi"}
+        matchTypeLabel={
+          match.matchType === "SINGLES"
+            ? t("matches.type.singles")
+            : t("matches.type.doubles")
+        }
         statusText={statusTexts[status]}
         statusBadgeColor={statusStyle.badgeColor}
         onMatchTypeChange={onMatchTypeChange}

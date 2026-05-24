@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { MatchCell } from "@/features/socials/components/matches/match-cell"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 interface Match {
   id: string
@@ -51,6 +52,7 @@ export function MatchesGeneratorMatrix({
   onPlayerSwap,
   isLoading = false,
 }: MatchesGeneratorMatrixProps) {
+  const { t } = useSocialsTranslation()
   const [draggedPlayer, setDraggedPlayer] = useState<{
     matchId: string
     playerId: string
@@ -72,19 +74,6 @@ export function MatchesGeneratorMatrix({
     return "complete"
   }
 
-  const getStatusBadgeColor = (
-    status: "complete" | "incomplete" | "empty"
-  ): string => {
-    switch (status) {
-      case "complete":
-        return "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300"
-      case "incomplete":
-        return "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300"
-      case "empty":
-        return "bg-slate-100 text-slate-700 dark:bg-slate-700/40 dark:text-slate-200"
-    }
-  }
-
   const getBoardStatus = () => {
     if (matches.length === 0) return "empty"
     const hasIncomplete = matches.some(
@@ -100,35 +89,36 @@ export function MatchesGeneratorMatrix({
   )
   const waitlist = allPlayers.filter((p) => !assignedPlayerIds.has(p.id))
   const boardStatus = getBoardStatus()
+  const boardStatusLabel = t(`matches.matrix.boardStatus.${boardStatus}`)
 
   return (
     <div className="space-y-5">
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="mb-4 text-lg font-semibold text-foreground dark:text-slate-50">
-            Danh sách trận đấu
+            {t("matches.matrix.title")}
           </h2>
 
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-xs">
-              {matches.length} trận
+              {t("matches.matrix.count", { count: matches.length })}
             </Badge>
             <Badge
               variant="outline"
-              className={`${getStatusBadgeColor(boardStatus)} flex items-center gap-1 px-2 py-1 text-xs`}
+              className={`flex items-center gap-1 px-2 py-1 text-xs ${
+                boardStatus === "complete"
+                  ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300"
+                  : boardStatus === "incomplete"
+                    ? "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300"
+                    : "bg-slate-100 text-slate-700 dark:bg-slate-700/40 dark:text-slate-200"
+              }`}
             >
               {boardStatus === "complete" ? (
                 <CheckCircle2 className="h-3.5 w-3.5" />
               ) : (
                 <Clock3 className="h-3.5 w-3.5" />
               )}
-              <span className="text-xs">
-                {boardStatus === "complete"
-                  ? "Hoàn chỉnh"
-                  : boardStatus === "incomplete"
-                    ? "Chưa đủ người"
-                    : "Trống"}
-              </span>
+              <span className="text-xs">{boardStatusLabel}</span>
             </Badge>
           </div>
         </div>
@@ -154,7 +144,7 @@ export function MatchesGeneratorMatrix({
               return (
                 <MatchCell
                   key={`court-${courtIndex}`}
-                  courtLabel={`Sân ${courtIndex + 1}`}
+                  courtLabel={t("matches.court", { number: courtIndex + 1 })}
                   match={match ?? null}
                   status={status}
                   allPlayers={allPlayers}
@@ -180,7 +170,9 @@ export function MatchesGeneratorMatrix({
         {waitlist.length > 0 ? (
           <Card className="border-border bg-card p-3 transition-shadow hover:shadow-sm">
             <div className="text-sm">
-              <p className="font-medium text-foreground">Danh sách chờ</p>
+              <p className="font-medium text-foreground">
+                {t("matches.matrix.waitlist")}
+              </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {waitlist.map((p) => (
                   <Card

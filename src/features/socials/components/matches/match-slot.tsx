@@ -5,6 +5,7 @@ import React from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { cn } from "@/lib/utils"
 
 import { PlayerCard } from "./player-card"
@@ -51,6 +52,8 @@ export function MatchSlot({
   skillLevelColor,
   onEmptySlotClick,
 }: MatchSlotProps) {
+  const { t } = useSocialsTranslation()
+
   if (player) {
     return (
       <PlayerCard
@@ -109,7 +112,7 @@ export function MatchSlot({
           onEmptySlotClick()
         }
       }}
-      aria-label="Chọn cầu thủ cho ô trống"
+      aria-label={t("matches.slot.choosePlayerAria")}
       className={cn(
         "group flex min-h-14 w-full min-w-0 cursor-pointer items-center justify-center border border-dashed border-border/80 bg-muted/20 px-3 py-2.5 text-xs font-medium text-muted-foreground transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:text-foreground hover:shadow-sm active:border-primary/60 active:bg-primary/10"
       )}
@@ -119,9 +122,11 @@ export function MatchSlot({
           <Plus className="h-4 w-4" />
         </div>
         <span className="mt-1 flex items-center gap-1 text-[11px] font-semibold tracking-wide uppercase">
-          Nhấp để chọn
+          {t("matches.slot.choosePlayer")}
         </span>
-        {/* <span className="text-[10px] text-muted-foreground">Hoặc kéo thả vào đây</span> */}
+        <span className="text-[10px] text-muted-foreground">
+          {t("matches.slot.dragDropHere")}
+        </span>
       </div>
     </Card>
   )

@@ -244,7 +244,95 @@
       "scheduled": "Đã lên lịch",
       "versus": "VS",
       "minutes_one": "{{count}} phút",
-      "minutes_other": "{{count}} phút"
+      "minutes_other": "{{count}} phút",
+      "type": {
+        "singles": "Đơn",
+        "doubles": "Đôi",
+        "match": "Trận"
+      },
+      "status": {
+        "complete": "Đủ",
+        "incomplete": "Thiếu",
+        "empty": "Trống"
+      },
+      "matrix": {
+        "title": "Danh sách trận đấu",
+        "count_one": "{{count}} trận",
+        "count_other": "{{count}} trận",
+        "boardStatus": {
+          "complete": "Sẵn sàng",
+          "incomplete": "Thiếu người",
+          "empty": "Trống"
+        },
+        "waitlist": "Danh sách chờ",
+        "noWaitlist": "Không còn người chơi trong danh sách chờ."
+      },
+      "creation": {
+        "badge": "Quản lý trận đấu",
+        "title": "Trận đấu",
+        "subtitle": "Quản lý và theo dõi các trận đấu trong phiên chơi của bạn.",
+        "back": "Quay lại",
+        "confirmTitle": "Xác nhận tạo các trận này cho phiên chơi",
+        "confirmDescription": "Giao diện xác nhận sẽ được gắn hành động sau.",
+        "confirmButton": "Xác nhận",
+        "confirmError": "Bạn cần hoàn tất các trận đấu trước khi xác nhận. Hiện còn {{count}} trận chưa hoàn chỉnh.",
+        "success": "Các trận đã sẵn sàng để host tạo cho buổi chơi.",
+        "emptyTitle": "Chưa có trận đấu nào",
+        "emptyDescription": "Thiết lập số sân ở phần trên, sau đó bấm tạo trận để bắt đầu quản lý."
+      },
+      "controlPanel": {
+        "title": "Cấu hình trận đấu",
+        "totalMatches": "Tổng số trận",
+        "courts": "Số sân",
+        "generate": "Tạo trận",
+        "regenerate": "Tạo lại",
+        "generating": "Đang tạo...",
+        "howItWorks": "Cách hoạt động",
+        "step1": "Điều chỉnh số sân cho phiên chơi hiện tại",
+        "step2": "Nhấp \"Tạo trận\" để tạo danh sách trận cho một phiên chơi",
+        "step3": "Kéo cầu thủ giữa các trận để điều chỉnh thủ công",
+        "step4": "Đổi loại trận (Đơn/Đôi) khi cần"
+      },
+      "cell": {
+        "emptyCourtTitle": "Chưa có trận",
+        "emptyCourtDescription": "Chưa có trận cho sân này."
+      },
+      "slot": {
+        "choosePlayerAria": "Chọn cầu thủ cho ô trống",
+        "choosePlayer": "Nhấp để chọn",
+        "dragDropHere": "Hoặc kéo thả vào đây",
+        "sideLeft": "bên trái",
+        "sideRight": "bên phải",
+        "selectedPosition": "vị trí {{index}} {{side}}"
+      },
+      "dialog": {
+        "title": "Chọn cầu thủ",
+        "descriptionForSlot": "Chọn cầu thủ cho {{slotLabel}}",
+        "description": "Chọn một cầu thủ để thêm vào trận đấu",
+        "noAvailablePlayers": "Không còn cầu thủ phù hợp để thêm vào trận này."
+      },
+      "statistics": {
+        "title": "Thông số trận đấu",
+        "subtitle": "Theo dõi mức độ phân bổ trận trong một phiên chơi.",
+        "totalMatches": "Tổng số trận",
+        "players": "Người chơi",
+        "assignedMatches": "Đã xếp trận",
+        "playerMatchesTitle": "Số trận theo người chơi",
+        "headers": {
+          "player": "Người chơi",
+          "level": "Mức độ",
+          "progress": "Tiến độ",
+          "matches": "Số trận"
+        },
+        "boardStatus": {
+          "complete": "Sẵn sàng",
+          "incomplete": "Thiếu người",
+          "empty": "Trống"
+        },
+        "matchesCount_one": "{{count}} trận",
+        "matchesCount_other": "{{count}} trận",
+        "noPlayers": "Chưa có người chơi để hiển thị thống kê."
+      }
     },
     "playSessionOverview": {
       "minutes": "Phút",

@@ -17,6 +17,7 @@ import { MatchesControlPanel } from "@/features/socials/components/matches/match
 import { MatchesGeneratorMatrix } from "@/features/socials/components/matches/matches-generator-matrix"
 import StatisticCard from "@/features/socials/components/matches/statistic-card"
 import { useMatchesGeneratorStore } from "@/features/socials/stores/matches-generator-store"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 interface Match {
   id: string
@@ -42,6 +43,7 @@ function isMatchCompleteOrEmpty(match: Match): boolean {
 }
 
 export function MatchesCreationContent() {
+  const { t } = useSocialsTranslation()
   const router = useRouter()
   const [isInitialLoading, setIsInitialLoading] = useState(true)
   const [totalMatches, setTotalMatches] = useState(2)
@@ -79,12 +81,12 @@ export function MatchesCreationContent() {
 
     if (invalidMatches.length > 0) {
       toast.error(
-        `Bạn cần hoàn tất các trận đấu trước khi xác nhận. Hiện còn ${invalidMatches.length} trận chưa hoàn chỉnh.`
+        t("matches.creation.confirmError", { count: invalidMatches.length })
       )
       return
     }
 
-    toast.success("Các trận đã sẵn sàng để host tạo cho buổi chơi.")
+    toast.success(t("matches.creation.success"))
   }
 
   return (
@@ -97,13 +99,13 @@ export function MatchesCreationContent() {
             <div className="space-y-2">
               <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-muted/60 px-3 py-1 text-xs font-medium text-muted-foreground">
                 <LayoutDashboard className="h-3.5 w-3.5" />
-                Match Management
+                {t("matches.creation.badge")}
               </div>
               <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                Trận đấu
+                {t("matches.creation.title")}
               </h1>
               <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
-                Quản lý và theo dõi các trận đấu trong phiên chơi của bạn
+                {t("matches.creation.subtitle")}
               </p>
             </div>
 
@@ -114,7 +116,7 @@ export function MatchesCreationContent() {
               onClick={() => router.back()}
             >
               <ArrowLeft className="h-4 w-4" />
-              Quay lại
+              {t("matches.creation.back")}
             </Button>
           </div>
         </div>
@@ -164,10 +166,10 @@ export function MatchesCreationContent() {
             <div className="flex flex-col gap-3 rounded-2xl border border-border bg-muted/40 p-4 text-sm text-muted-foreground shadow-sm sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-medium text-foreground">
-                  Xác nhận tạo các trận này cho phiên chơi
+                  {t("matches.creation.confirmTitle")}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Giao diện xác nhận sẽ được gắn hành động sau.
+                  {t("matches.creation.confirmDescription")}
                 </p>
               </div>
 
@@ -177,7 +179,7 @@ export function MatchesCreationContent() {
                 onClick={handleConfirmMatches}
               >
                 <CheckCircle2 className="h-4 w-4" />
-                Xác nhận
+                {t("matches.creation.confirmButton")}
               </Button>
             </div>
           </div>
@@ -188,11 +190,10 @@ export function MatchesCreationContent() {
                 <Sparkles className="h-5 w-5 text-primary" />
               </div>
               <h3 className="text-lg font-semibold text-foreground">
-                Chưa có trận đấu nào
+                {t("matches.creation.emptyTitle")}
               </h3>
               <p className="text-sm text-muted-foreground">
-                Thiết lập số sân ở phần trên, sau đó bấm tạo trận để bắt đầu
-                quản lý.
+                {t("matches.creation.emptyDescription")}
               </p>
             </div>
           </Card>

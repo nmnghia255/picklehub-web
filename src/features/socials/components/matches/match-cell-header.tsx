@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 interface MatchCellHeaderProps {
   courtLabel: string
@@ -28,6 +29,8 @@ export function MatchCellHeader({
   statusBadgeColor,
   onMatchTypeChange,
 }: MatchCellHeaderProps) {
+  const { t } = useSocialsTranslation()
+
   return (
     <div className="grid min-h-14 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl bg-muted/20 px-2.5 py-2.5">
       <span className="text-md min-w-0 truncate leading-none font-semibold text-foreground">
@@ -59,13 +62,13 @@ export function MatchCellHeader({
             <DropdownMenuItem
               onClick={() => onMatchTypeChange(matchId, "SINGLES")}
             >
-              Đổi thành Đơn
+              {t("matches.header.changeToSingles")}
             </DropdownMenuItem>
 
             <DropdownMenuItem
               onClick={() => onMatchTypeChange(matchId, "DOUBLES")}
             >
-              Đổi thành Đôi
+              {t("matches.header.changeToDoubles")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

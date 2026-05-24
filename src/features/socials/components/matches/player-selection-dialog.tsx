@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 interface Player {
   id: string
@@ -35,6 +36,8 @@ export function PlayerSelectionDialog({
   onClose,
   onSelect,
 }: PlayerSelectionDialogProps) {
+  const { t } = useSocialsTranslation()
+
   const visiblePlayers = players.filter(
     (player) => !sessionPlayerIds.includes(player.id)
   )
@@ -43,11 +46,11 @@ export function PlayerSelectionDialog({
     <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
       <DialogContent className="sm:max-w-md dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100">
         <DialogHeader>
-          <DialogTitle>Chọn cầu thủ</DialogTitle>
+          <DialogTitle>{t("matches.dialog.title")}</DialogTitle>
           <DialogDescription>
             {slotLabel
-              ? `Chọn cầu thủ cho ${slotLabel}`
-              : "Chọn một cầu thủ để thêm vào trận đấu"}
+              ? t("matches.dialog.descriptionForSlot", { slotLabel })
+              : t("matches.dialog.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -72,7 +75,7 @@ export function PlayerSelectionDialog({
             ))
           ) : (
             <div className="rounded border border-dashed border-slate-300 p-4 text-sm text-muted-foreground dark:border-slate-700 dark:text-slate-400">
-              Không còn cầu thủ phù hợp để thêm vào trận này.
+              {t("matches.dialog.noAvailablePlayers")}
             </div>
           )}
         </div>

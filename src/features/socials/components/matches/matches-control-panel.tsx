@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 interface MatchesControlPanelProps {
   courts: number
@@ -23,6 +24,7 @@ export function MatchesControlPanel({
   onTotalMatchesChange,
   onGenerateMatches,
 }: MatchesControlPanelProps) {
+  const { t } = useSocialsTranslation()
   const [isGenerating, setIsGenerating] = useState(false)
 
   const handleGenerate = async () => {
@@ -37,7 +39,7 @@ export function MatchesControlPanel({
     <div className="space-y-6">
       <div>
         <h2 className="mb-4 text-lg font-semibold text-foreground dark:text-slate-50">
-          Cấu hình trận đấu
+          {t("matches.controlPanel.title")}
         </h2>
       </div>
 
@@ -48,7 +50,7 @@ export function MatchesControlPanel({
             htmlFor="total-matches"
             className="text-foreground dark:text-slate-200"
           >
-            Tổng số trận
+            {t("matches.controlPanel.totalMatches")}
           </Label>
           <Input
             id="total-matches"
@@ -69,7 +71,7 @@ export function MatchesControlPanel({
             htmlFor="courts"
             className="text-foreground dark:text-slate-200"
           >
-            Số sân
+            {t("matches.controlPanel.courts")}
           </Label>
           <Input
             id="courts"
@@ -94,7 +96,9 @@ export function MatchesControlPanel({
           className="gap-2"
         >
           <Sparkles className="h-4 w-4" />
-          {isGenerating ? "Đang tạo..." : "Tạo trận"}
+          {isGenerating
+            ? t("matches.controlPanel.generating")
+            : t("matches.controlPanel.generate")}
         </Button>
         <Button
           onClick={handleGenerate}
@@ -104,7 +108,7 @@ export function MatchesControlPanel({
           className="gap-2"
         >
           <RefreshCw className="h-4 w-4" />
-          Tạo lại
+          {t("matches.controlPanel.regenerate")}
         </Button>
       </div>
 
@@ -112,15 +116,13 @@ export function MatchesControlPanel({
       <Card className="border-sky-200 bg-sky-50 p-4 dark:border-cyan-900/60 dark:bg-slate-950/60">
         <div className="space-y-1 text-sm">
           <p className="font-medium text-sky-900 dark:text-cyan-200">
-            💡 Cách hoạt động
+            {t("matches.controlPanel.howItWorks")}
           </p>
           <ul className="ml-4 list-disc space-y-1 text-xs text-sky-800 dark:text-slate-300">
-            <li>Điều chỉnh số sân cho phiên chơi hiện tại</li>
-            <li>
-              Nhấp &quot;Tạo trận&quot; để tạo danh sách trận cho một phiên chơi
-            </li>
-            <li>Kéo cầu thủ giữa các trận để điều chỉnh thủ công</li>
-            <li>Đổi loại trận (Đơn/Đôi) khi cần</li>
+            <li>{t("matches.controlPanel.step1")}</li>
+            <li>{t("matches.controlPanel.step2")}</li>
+            <li>{t("matches.controlPanel.step3")}</li>
+            <li>{t("matches.controlPanel.step4")}</li>
           </ul>
         </div>
       </Card>
