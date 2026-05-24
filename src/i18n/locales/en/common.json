@@ -305,5 +305,122 @@
       "create": "Create Social",
       "update": "Update Social"
     }
+  },
+  "sportCenterManagement": {
+    "courtCredits": {
+      "page": {
+        "badge": "Court credits workspace",
+        "title": "Court Credits",
+        "subtitle": "Manage credits generated when bookings are canceled.",
+        "mockCredits": "{{count}} mock credits"
+      },
+      "sort": {
+        "latestCreated": "Latest created",
+        "soonestExpiry": "Soonest expiry",
+        "highestCreditAmount": "Highest credit amount",
+        "highestRemainingAmount": "Highest remaining amount",
+        "customerAZ": "Customer A-Z"
+      },
+      "filters": {
+        "searchPlaceholder": "Search customer, phone, booking code, or credit code",
+        "reason": "Reason",
+        "court": "Court",
+        "sort": "Sort",
+        "resetFilters": "Reset filters",
+        "courts": {
+          "all": "All courts",
+          "courtA": "Court A",
+          "courtB": "Court B",
+          "courtC": "Court C",
+          "courtD": "Court D",
+          "centerCourt": "Center Court"
+        },
+        "reasons": {
+          "all": "All reasons",
+          "customerCancelled": "Customer Cancelled",
+          "ownerCancelled": "Owner Cancelled",
+          "weather": "Weather",
+          "maintenance": "Maintenance",
+          "other": "Other"
+        }
+      },
+      "stats": {
+        "totalCreditValue": "Total Credit Value",
+        "totalCredits": "Total Credits",
+        "liveMock": "Live mock"
+      },
+      "empty": {
+        "noCreditsTitle": "No credits found",
+        "noCreditsDescription": "Credits generated from cancelled bookings will appear here.",
+        "restoreMockCredits": "Restore mock credits",
+        "noMatchesTitle": "No matching credits",
+        "noMatchesDescription": "Try another filter or search term to surface a different mock credit set.",
+        "clearFilters": "Clear filters"
+      },
+      "table": {
+        "creditId": "Credit ID",
+        "customer": "Customer",
+        "originalBookingId": "Original Booking ID",
+        "creditAmount": "Credit Amount",
+        "remainingAmount": "Remaining Amount",
+        "createdDate": "Created Date",
+        "cancellationReason": "Cancellation Reason",
+        "actions": "Actions"
+      },
+      "mobile": {
+        "created": "Created",
+        "booking": "Booking {{bookingId}}",
+        "balance": "Balance",
+        "original": "Original {{amount}}",
+        "reason": "Reason",
+        "remaining": "Remaining {{amount}}"
+      },
+      "actions": {
+        "viewDetails": "View Details",
+        "cancelCredit": "Cancel Credit",
+        "createManualCredit": "Create Manual Credit"
+      },
+      "detail": {
+        "title": "Credit details",
+        "description": "Review the original cancellation, remaining balance, and usage timeline.",
+        "customerInformation": "Customer Information",
+        "name": "Name",
+        "phoneNumber": "Phone Number",
+        "originalBookingInformation": "Original Booking Information",
+        "bookingId": "Booking ID",
+        "courtName": "Court Name",
+        "bookingDate": "Booking Date",
+        "timeSlot": "Time Slot",
+        "creditInformation": "Credit Information",
+        "creditAmount": "Credit Amount",
+        "remainingAmount": "Remaining Amount",
+        "createdDate": "Created Date",
+        "cancellationInformation": "Cancellation Information",
+        "cancellationReason": "Cancellation Reason",
+        "manualCredit": "Manual Credit",
+        "yes": "Yes",
+        "no": "No",
+        "notes": "Notes",
+        "creditUsageHistory": "Credit Usage History",
+        "usedAmount": "Used {{amount}}",
+        "bookingLabel": "Booking {{bookingId}}",
+        "noUsageRecorded": "No usage recorded yet.",
+        "cancelCredit": "Cancel Credit",
+        "noCreditSelected": "No credit selected."
+      },
+      "status": {
+        "ACTIVE": "Active",
+        "PARTIALLY_USED": "Partially used",
+        "USED": "Used",
+        "EXPIRED": "Expired"
+      },
+      "reasons": {
+        "CUSTOMER_CANCELLED": "Customer Cancelled",
+        "OWNER_CANCELLED": "Owner Cancelled",
+        "WEATHER": "Weather",
+        "MAINTENANCE": "Maintenance",
+        "OTHER": "Other"
+      }
+    }
   }
 }

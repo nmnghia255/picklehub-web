@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useCourtCreditsTranslation } from "@/i18n/use-court-credits-translation"
 
 import type {
   CancellationReason,
@@ -47,6 +48,8 @@ export function CreditFilters({
   onSortChange: (value: string) => void
   onReset: () => void
 }) {
+  const { t } = useCourtCreditsTranslation()
+
   return (
     <div className="grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_repeat(5,minmax(0,1fr))]">
       <div className="relative xl:col-span-3">
@@ -54,7 +57,7 @@ export function CreditFilters({
         <Input
           value={search}
           onChange={(event) => onSearchChange(event.target.value)}
-          placeholder="Search customer, phone, booking code, or credit code"
+          placeholder={t("filters.searchPlaceholder")}
           className="h-10 pl-9"
         />
       </div>
@@ -66,7 +69,7 @@ export function CreditFilters({
         }
       >
         <SelectTrigger className="h-10 w-full">
-          <SelectValue placeholder="Reason" />
+          <SelectValue placeholder={t("filters.reason")} />
         </SelectTrigger>
         <SelectContent>
           {cancellationReasonOptions.map((option) => (
@@ -79,7 +82,7 @@ export function CreditFilters({
 
       <Select value={courtFilter} onValueChange={onCourtFilterChange}>
         <SelectTrigger className="h-10 w-full">
-          <SelectValue placeholder="Court" />
+          <SelectValue placeholder={t("filters.court")} />
         </SelectTrigger>
         <SelectContent>
           {courts.map((court) => (
@@ -93,7 +96,7 @@ export function CreditFilters({
       <div className="flex gap-2 xl:col-span-1">
         <Select value={sortBy} onValueChange={onSortChange}>
           <SelectTrigger className="h-10 w-full">
-            <SelectValue placeholder="Sort" />
+            <SelectValue placeholder={t("filters.sort")} />
           </SelectTrigger>
           <SelectContent>
             {sortOptions.map((option) => (
@@ -105,7 +108,7 @@ export function CreditFilters({
         </Select>
 
         <Button
-          aria-label="Reset filters"
+          aria-label={t("filters.resetFilters")}
           variant="ghost"
           size="icon"
           className="h-10 w-10 shrink-0"

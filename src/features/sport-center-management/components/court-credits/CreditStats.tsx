@@ -3,7 +3,7 @@
 import { BadgeDollarSign, Coins } from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
+import { useCourtCreditsTranslation } from "@/i18n/use-court-credits-translation"
 
 import { formatCurrencyVnd } from "../../credit-management/court-credits-data"
 
@@ -14,15 +14,17 @@ export function CreditStats({
   totalCreditValue: number
   totalCredits: number
 }) {
+  const { t } = useCourtCreditsTranslation()
+
   const cards = [
     {
-      label: "Total Credit Value",
+      label: t("stats.totalCreditValue"),
       value: formatCurrencyVnd(totalCreditValue),
       icon: BadgeDollarSign,
       iconClass: "text-sky-600",
     },
     {
-      label: "Total Credits",
+      label: t("stats.totalCredits"),
       value: totalCredits,
       icon: Coins,
       iconClass: "text-emerald-600",
@@ -45,7 +47,7 @@ export function CreditStats({
                   <Icon className={`size-5 ${card.iconClass}`} />
                 </div>
                 <div className="rounded-full border border-border bg-muted/40 px-3 py-1 text-xs font-medium text-muted-foreground">
-                  Live mock
+                  {t("stats.liveMock")}
                 </div>
               </div>
               <div className="space-y-1">

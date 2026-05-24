@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useCourtCreditsTranslation } from "@/i18n/use-court-credits-translation"
 
 import type { CreditRecord } from "../../credit-management/court-credits-data"
 
@@ -24,6 +25,8 @@ export default function CreditActionsDropdown({
   onCancelCredit: (credit: CreditRecord) => void
   onCreateManualCredit: (credit: CreditRecord) => void
 }) {
+  const { t } = useCourtCreditsTranslation()
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -38,7 +41,7 @@ export default function CreditActionsDropdown({
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuItem onClick={() => onView(credit)}>
           <Search className="mr-2 size-4" />
-          View Details
+          {t("actions.viewDetails")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
@@ -46,12 +49,12 @@ export default function CreditActionsDropdown({
           onClick={() => onCancelCredit(credit)}
         >
           <Trash2 className="mr-2 size-4" />
-          Cancel Credit
+          {t("actions.cancelCredit")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => onCreateManualCredit(credit)}>
           <PlusCircle className="mr-2 size-4" />
-          Create Manual Credit
+          {t("actions.createManualCredit")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

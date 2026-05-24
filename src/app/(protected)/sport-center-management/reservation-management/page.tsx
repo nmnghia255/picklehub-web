@@ -1,6 +1,6 @@
 "use client"
 
-import { BadgeDollarSign, Clock3, ShieldCheck } from "lucide-react"
+import { BadgeDollarSign, ShieldCheck } from "lucide-react"
 import { useEffect, useMemo } from "react"
 
 import { PageContainer } from "@/components/page-container"
@@ -13,26 +13,16 @@ import {
   CreditStats,
   CreditTable,
 } from "@/features/sport-center-management/components/court-credits-management"
-import {
-  CANCELLATION_REASON_OPTIONS,
-  COURT_OPTIONS,
-  type CreditRecord,
-  type CreditStatus,
-} from "@/features/sport-center-management/credit-management/court-credits-data"
+import type { CreditRecord } from "@/features/sport-center-management/credit-management/court-credits-data"
+import type { CancellationReason } from "@/features/sport-center-management/credit-management/court-credits-data"
 import {
   type CreditSortValue,
   useCreditManagementStore,
 } from "@/features/sport-center-management/stores/court-credits-store"
-
-const sortOptions: Array<{ value: CreditSortValue; label: string }> = [
-  { value: "latest-created", label: "Latest created" },
-  { value: "soonest-expiry", label: "Soonest expiry" },
-  { value: "credit-amount-high", label: "Highest credit amount" },
-  { value: "remaining-high", label: "Highest remaining amount" },
-  { value: "customer-a-z", label: "Customer A-Z" },
-]
+import { useCourtCreditsTranslation } from "@/i18n/use-court-credits-translation"
 
 export default function CourtCreditsPage() {
+  const { t } = useCourtCreditsTranslation()
   const isLoading = useCreditManagementStore((state) => state.isLoading)
   const credits = useCreditManagementStore((state) => state.credits)
   const search = useCreditManagementStore((state) => state.search)
@@ -73,7 +63,7 @@ export default function CourtCreditsPage() {
   useEffect(() => {
     const timer = window.setTimeout(() => setIsLoading(false), 650)
     return () => window.clearTimeout(timer)
-  }, [])
+  }, [setIsLoading])
 
   const selectedCredit = useMemo(() => {
     return credits.find((item) => item.id === selectedCreditId) ?? null
@@ -137,6 +127,49 @@ export default function CourtCreditsPage() {
     }
   }, [credits])
 
+  const sortOptions = useMemo<Array<{ value: CreditSortValue; label: string }>>(
+    () => [
+      { value: "latest-created", label: t("sort.latestCreated") },
+      { value: "soonest-expiry", label: t("sort.soonestExpiry") },
+      { value: "credit-amount-high", label: t("sort.highestCreditAmount") },
+      { value: "remaining-high", label: t("sort.highestRemainingAmount") },
+      { value: "customer-a-z", label: t("sort.customerAZ") },
+    ],
+    [t]
+  )
+
+  const courtOptions = useMemo(
+    () => [
+      { value: "all", label: t("filters.courts.all") },
+      { value: "court-a", label: t("filters.courts.courtA") },
+      { value: "court-b", label: t("filters.courts.courtB") },
+      { value: "court-c", label: t("filters.courts.courtC") },
+      { value: "court-d", label: t("filters.courts.courtD") },
+      { value: "center-court", label: t("filters.courts.centerCourt") },
+    ],
+    [t]
+  )
+
+  const cancellationReasonOptions = useMemo<
+    Array<{ value: "all" | CancellationReason; label: string }>
+  >(
+    () => [
+      { value: "all", label: t("filters.reasons.all") },
+      {
+        value: "CUSTOMER_CANCELLED",
+        label: t("filters.reasons.customerCancelled"),
+      },
+      {
+        value: "OWNER_CANCELLED",
+        label: t("filters.reasons.ownerCancelled"),
+      },
+      { value: "WEATHER", label: t("filters.reasons.weather") },
+      { value: "MAINTENANCE", label: t("filters.reasons.maintenance") },
+      { value: "OTHER", label: t("filters.reasons.other") },
+    ],
+    [t]
+  )
+
   const handleViewCredit = (credit: CreditRecord) => {
     openCredit(credit)
   }
@@ -162,14 +195,14 @@ export default function CourtCreditsPage() {
           <div className="max-w-3xl space-y-2">
             <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur">
               <ShieldCheck className="size-3.5 text-emerald-500" />
-              Canceled booking credit workspace
+              {t("page.badge")}
             </div>
             <div className="space-y-2">
               <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-                Court Credits
+                {t("page.title")}
               </h1>
               <p className="max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
-                Manage credits generated when bookings are canceled.
+                {t("page.subtitle")}
               </p>
             </div>
           </div>
@@ -177,7 +210,7 @@ export default function CourtCreditsPage() {
           <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
             <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-2 shadow-sm backdrop-blur">
               <BadgeDollarSign className="size-4 text-sky-500" />
-              {credits.length} mock credits
+              {t("page.mockCredits", { count: credits.length })}
             </div>
           </div>
         </div>
@@ -196,8 +229,8 @@ export default function CourtCreditsPage() {
               cancellationReasonFilter={cancellationReasonFilter}
               courtFilter={courtFilter}
               sortBy={sortBy}
-              courts={COURT_OPTIONS}
-              cancellationReasonOptions={CANCELLATION_REASON_OPTIONS}
+              courts={courtOptions}
+              cancellationReasonOptions={cancellationReasonOptions}
               sortOptions={sortOptions}
               onSearchChange={setSearch}
               onCancellationReasonFilterChange={setCancellationReasonFilter}
@@ -210,16 +243,16 @@ export default function CourtCreditsPage() {
 
         {credits.length === 0 ? (
           <CreditEmptyState
-            title="No credits found"
-            description="Credits generated from cancelled bookings will appear here."
-            actionLabel="Restore mock credits"
+            title={t("empty.noCreditsTitle")}
+            description={t("empty.noCreditsDescription")}
+            actionLabel={t("empty.restoreMockCredits")}
             onAction={resetMockCredits}
           />
         ) : filteredCredits.length === 0 ? (
           <CreditEmptyState
-            title="No matching credits"
-            description="Try another filter, date range, or search term to surface a different mock credit set."
-            actionLabel="Clear filters"
+            title={t("empty.noMatchesTitle")}
+            description={t("empty.noMatchesDescription")}
+            actionLabel={t("empty.clearFilters")}
             onAction={resetFilters}
           />
         ) : (

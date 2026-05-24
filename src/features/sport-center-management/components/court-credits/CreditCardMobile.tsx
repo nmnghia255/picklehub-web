@@ -5,6 +5,7 @@ import { CalendarDays, ReceiptText, ShieldCheck, UserRound } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useCourtCreditsTranslation } from "@/i18n/use-court-credits-translation"
 import { cn } from "@/lib/utils"
 
 import type { CreditRecord } from "../../credit-management/court-credits-data"
@@ -12,6 +13,7 @@ import {
   formatCreditDate,
   formatCurrencyVnd,
 } from "../../credit-management/court-credits-data"
+import { ReasonBadge } from "./Badges"
 import CreditActionsDropdown from "./CreditActionsDropdown"
 
 export function CreditCardMobile({
@@ -27,6 +29,8 @@ export function CreditCardMobile({
   onCancelCredit: (credit: CreditRecord) => void
   onCreateManualCredit: (credit: CreditRecord) => void
 }) {
+  const { t, i18n } = useCourtCreditsTranslation()
+
   return (
     <Card
       className={cn(
@@ -49,23 +53,27 @@ export function CreditCardMobile({
           <div className="rounded-2xl border bg-muted/30 p-3">
             <div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
               <CalendarDays className="size-3.5" />
-              Created
+              {t("mobile.created")}
             </div>
-            <p className="font-medium">{formatCreditDate(credit.createdAt)}</p>
+            <p className="font-medium">
+              {formatCreditDate(credit.createdAt, i18n.language)}
+            </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Booking {credit.originalBookingId}
+              {t("mobile.booking", { bookingId: credit.originalBookingId })}
             </p>
           </div>
           <div className="rounded-2xl border bg-muted/30 p-3">
             <div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
               <ReceiptText className="size-3.5" />
-              Balance
+              {t("mobile.balance")}
             </div>
             <p className="font-medium">
               {formatCurrencyVnd(credit.remainingAmount)}
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Original {formatCurrencyVnd(credit.creditAmount)}
+              {t("mobile.original", {
+                amount: formatCurrencyVnd(credit.creditAmount),
+              })}
             </p>
           </div>
         </div>
@@ -74,18 +82,18 @@ export function CreditCardMobile({
           <div className="rounded-2xl border bg-muted/30 p-3">
             <div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
               <ShieldCheck className="size-3.5" />
-              Reason
+              {t("mobile.reason")}
             </div>
-            <p className="font-semibold text-foreground">
-              {credit.cancellationReason.replace("_", " ")}
-            </p>
+            <ReasonBadge reason={credit.cancellationReason} />
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{credit.bookingCode}</Badge>
           <Badge variant="outline">
-            Remaining {formatCurrencyVnd(credit.remainingAmount)}
+            {t("mobile.remaining", {
+              amount: formatCurrencyVnd(credit.remainingAmount),
+            })}
           </Badge>
         </div>
 
@@ -98,7 +106,7 @@ export function CreditCardMobile({
             className="flex-1"
             onClick={() => onView(credit)}
           >
-            View Details
+            {t("actions.viewDetails")}
           </Button>
           <CreditActionsDropdown
             credit={credit}

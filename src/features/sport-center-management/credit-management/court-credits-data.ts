@@ -92,16 +92,20 @@ export function formatCurrencyVnd(value: number) {
   return vndFormatter.format(value)
 }
 
-export function formatCreditDate(date: Date) {
-  return new Intl.DateTimeFormat("en-GB", {
+function resolveDateLocale(locale: string) {
+  return locale.startsWith("vi") ? "vi-VN" : "en-GB"
+}
+
+export function formatCreditDate(date: Date, locale = "en-GB") {
+  return new Intl.DateTimeFormat(resolveDateLocale(locale), {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
   }).format(date)
 }
 
-export function formatCreditDateTime(date: Date) {
-  return new Intl.DateTimeFormat("en-GB", {
+export function formatCreditDateTime(date: Date, locale = "en-GB") {
+  return new Intl.DateTimeFormat(resolveDateLocale(locale), {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -110,14 +114,36 @@ export function formatCreditDateTime(date: Date) {
   }).format(date)
 }
 
-export function formatDateRangeLabel(range: { from?: Date; to?: Date }) {
-  if (!range.from && !range.to) return "Any date"
-  if (range.from && range.to) {
-    return `${formatCreditDate(range.from)} - ${formatCreditDate(range.to)}`
+export function formatDateRangeLabel(
+  range: { from?: Date; to?: Date },
+  locale = "en-GB"
+) {
+  if (!range.from && !range.to) {
+    return locale.startsWith("vi") ? "Mọi ngày" : "Any date"
   }
-  if (range.from) return `From ${formatCreditDate(range.from)}`
-  if (range.to) return `Until ${formatCreditDate(range.to)}`
-  return "Any date"
+
+  if (range.from && range.to) {
+    return `${formatCreditDate(range.from, locale)} - ${formatCreditDate(
+      range.to,
+      locale
+    )}`
+  }
+
+  if (range.from) {
+    return `${locale.startsWith("vi") ? "Từ" : "From"} ${formatCreditDate(
+      range.from,
+      locale
+    )}`
+  }
+
+  if (range.to) {
+    return `${locale.startsWith("vi") ? "Đến" : "Until"} ${formatCreditDate(
+      range.to,
+      locale
+    )}`
+  }
+
+  return locale.startsWith("vi") ? "Mọi ngày" : "Any date"
 }
 
 function minutesAgo(minutes: number) {

@@ -45,8 +45,8 @@
       "title": "Bộ lọc",
       "status": "Trạng thái",
       "selectStatus": "Chọn trạng thái",
-      "genderPolicy": "Chính sách giới tính",
-      "selectGenderPolicy": "Chọn chính sách giới tính",
+      "genderPolicy": "Giới tính",
+      "selectGenderPolicy": "Chọn giới tính",
       "ageGroup": "Nhóm tuổi",
       "selectAgeGroup": "Chọn nhóm tuổi",
       "format": "Hình thức",
@@ -63,7 +63,7 @@
       "aboutThisSocial": "Về social này",
       "schedule": "Lịch trình",
       "duration": "Thời lượng",
-      "genderPolicy": "Chính sách giới tính",
+      "genderPolicy": "Giới tính",
       "ageGroup": "Nhóm tuổi",
       "skillLevel": "Trình độ",
       "skillLevelDescription": "Social này dành cho người chơi có DUPR từ {{minimum}} đến {{maximum}}.",
@@ -274,7 +274,7 @@
       "cancellationFreeze": "Khoảng khóa hủy (giờ trước sự kiện)",
       "participationRules": "Quy tắc tham gia",
       "maximumParticipants": "Số người tối đa",
-      "genderPolicy": "Chính sách giới tính",
+      "genderPolicy": "Giới tính",
       "ageGroup": "Nhóm tuổi",
       "minimumSkillLevel": "Trình độ tối thiểu",
       "maximumSkillLevel": "Trình độ tối đa",
@@ -304,6 +304,123 @@
       "save": "Lưu",
       "create": "Tạo",
       "update": "Cập nhật"
+    }
+  },
+  "sportCenterManagement": {
+    "courtCredits": {
+      "page": {
+        "badge": "Khu vực quản lý bảo lưu",
+        "title": "Bảo lưu",
+        "subtitle": "Quản lý các khoản hoàn tiền được tạo khi đơn đặt sân bị hủy.",
+        "mockCredits": "{{count}} bảo lưu mẫu"
+      },
+      "sort": {
+        "latestCreated": "Mới tạo gần đây",
+        "soonestExpiry": "Sắp hết hạn nhất",
+        "highestCreditAmount": "Giá trị hoàn tiền cao nhất",
+        "highestRemainingAmount": "Số dư còn lại cao nhất",
+        "customerAZ": "Khách hàng A-Z"
+      },
+      "filters": {
+        "searchPlaceholder": "Tìm khách hàng, số điện thoại, mã đặt sân hoặc mã bảo lưu",
+        "reason": "Lý do",
+        "court": "Sân",
+        "sort": "Sắp xếp",
+        "resetFilters": "Đặt lại bộ lọc",
+        "courts": {
+          "all": "Tất cả sân",
+          "courtA": "Sân A",
+          "courtB": "Sân B",
+          "courtC": "Sân C",
+          "courtD": "Sân D",
+          "centerCourt": "Sân trung tâm"
+        },
+        "reasons": {
+          "all": "Tất cả lý do",
+          "customerCancelled": "Khách hàng hủy",
+          "ownerCancelled": "Chủ sân hủy",
+          "weather": "Thời tiết",
+          "maintenance": "Bảo trì",
+          "other": "Khác"
+        }
+      },
+      "stats": {
+        "totalCreditValue": "Tổng giá trị hoàn tiền",
+        "totalCredits": "Tổng số bảo lưu",
+        "liveMock": "Dữ liệu mẫu"
+      },
+      "empty": {
+        "noCreditsTitle": "Không tìm thấy bảo lưu nào",
+        "noCreditsDescription": "Các bảo lưu được tạo từ đơn hủy sẽ hiển thị ở đây.",
+        "restoreMockCredits": "Khôi phục dữ liệu mẫu",
+        "noMatchesTitle": "Không có bảo lưu phù hợp",
+        "noMatchesDescription": "Thử bộ lọc hoặc từ khóa khác để hiển thị một bộ bảo lưu mẫu khác.",
+        "clearFilters": "Xóa bộ lọc"
+      },
+      "table": {
+        "creditId": "Mã bảo lưu",
+        "customer": "Khách hàng",
+        "originalBookingId": "Mã đặt sân gốc",
+        "creditAmount": "Giá trị hoàn tiền",
+        "remainingAmount": "Số dư còn lại",
+        "createdDate": "Ngày tạo",
+        "cancellationReason": "Lý do hủy",
+        "actions": "Thao tác"
+      },
+      "mobile": {
+        "created": "Ngày tạo",
+        "booking": "Đặt sân {{bookingId}}",
+        "balance": "Số dư",
+        "original": "Ban đầu {{amount}}",
+        "reason": "Lý do",
+        "remaining": "Còn lại {{amount}}"
+      },
+      "actions": {
+        "viewDetails": "Xem chi tiết",
+        "cancelCredit": "Hủy bảo lưu",
+        "createManualCredit": "Tạo bảo lưu thủ công"
+      },
+      "detail": {
+        "title": "Chi tiết bảo lưu",
+        "description": "Xem lại đơn hủy ban đầu, số dư còn lại và dòng thời gian sử dụng.",
+        "customerInformation": "Thông tin khách hàng",
+        "name": "Tên",
+        "phoneNumber": "Số điện thoại",
+        "originalBookingInformation": "Thông tin đặt sân ban đầu",
+        "bookingId": "Mã đặt sân",
+        "courtName": "Tên sân",
+        "bookingDate": "Ngày đặt",
+        "timeSlot": "Khung giờ",
+        "creditInformation": "Thông tin bảo lưu",
+        "creditAmount": "Giá trị hoàn tiền",
+        "remainingAmount": "Số dư còn lại",
+        "createdDate": "Ngày tạo",
+        "cancellationInformation": "Thông tin hủy",
+        "cancellationReason": "Lý do hủy",
+        "manualCredit": "Bảo lưu thủ công",
+        "yes": "Có",
+        "no": "Không",
+        "notes": "Ghi chú",
+        "creditUsageHistory": "Lịch sử sử dụng bảo lưu",
+        "usedAmount": "Đã dùng {{amount}}",
+        "bookingLabel": "Đặt sân {{bookingId}}",
+        "noUsageRecorded": "Chưa có lần sử dụng nào.",
+        "cancelCredit": "Hủy bảo lưu",
+        "noCreditSelected": "Chưa chọn bảo lưu nào."
+      },
+      "status": {
+        "ACTIVE": "Đang hoạt động",
+        "PARTIALLY_USED": "Đã dùng một phần",
+        "USED": "Đã dùng",
+        "EXPIRED": "Đã hết hạn"
+      },
+      "reasons": {
+        "CUSTOMER_CANCELLED": "Khách hàng hủy",
+        "OWNER_CANCELLED": "Chủ sân hủy",
+        "WEATHER": "Thời tiết",
+        "MAINTENANCE": "Bảo trì",
+        "OTHER": "Khác"
+      }
     }
   }
 }

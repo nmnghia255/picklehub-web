@@ -1,6 +1,7 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
+import { useCourtCreditsTranslation } from "@/i18n/use-court-credits-translation"
 import { cn } from "@/lib/utils"
 
 import type {
@@ -15,6 +16,8 @@ export function CreditStatusBadge({
   status: CreditStatus
   className?: string
 }) {
+  const { t } = useCourtCreditsTranslation()
+
   const styles: Record<CreditStatus, string> = {
     ACTIVE:
       "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
@@ -26,10 +29,10 @@ export function CreditStatusBadge({
   }
 
   const labels: Record<CreditStatus, string> = {
-    ACTIVE: "Active",
-    PARTIALLY_USED: "Partially used",
-    USED: "Used",
-    EXPIRED: "Expired",
+    ACTIVE: t("status.ACTIVE"),
+    PARTIALLY_USED: t("status.PARTIALLY_USED"),
+    USED: t("status.USED"),
+    EXPIRED: t("status.EXPIRED"),
   }
 
   return (
@@ -47,12 +50,14 @@ export function CreditStatusBadge({
 }
 
 export function ReasonBadge({ reason }: { reason: CancellationReason }) {
+  const { t } = useCourtCreditsTranslation()
+
   const labels: Record<CancellationReason, string> = {
-    CUSTOMER_CANCELLED: "Customer Cancelled",
-    OWNER_CANCELLED: "Owner Cancelled",
-    WEATHER: "Weather",
-    MAINTENANCE: "Maintenance",
-    OTHER: "Other",
+    CUSTOMER_CANCELLED: t("reasons.CUSTOMER_CANCELLED"),
+    OWNER_CANCELLED: t("reasons.OWNER_CANCELLED"),
+    WEATHER: t("reasons.WEATHER"),
+    MAINTENANCE: t("reasons.MAINTENANCE"),
+    OTHER: t("reasons.OTHER"),
   }
 
   return <Badge variant="secondary">{labels[reason]}</Badge>

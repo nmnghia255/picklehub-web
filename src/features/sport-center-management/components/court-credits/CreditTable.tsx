@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useCourtCreditsTranslation } from "@/i18n/use-court-credits-translation"
 import { cn } from "@/lib/utils"
 
 import type { CreditRecord } from "../../credit-management/court-credits-data"
@@ -32,20 +33,22 @@ export function CreditTable({
   onCancelCredit: (credit: CreditRecord) => void
   onCreateManualCredit: (credit: CreditRecord) => void
 }) {
+  const { t, i18n } = useCourtCreditsTranslation()
+
   return (
     <div className="overflow-hidden rounded-3xl border bg-card shadow-sm">
       <div className="max-h-[68vh] overflow-auto">
         <Table>
           <TableHeader className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/85">
             <TableRow>
-              <TableHead>Credit ID</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Original Booking ID</TableHead>
-              <TableHead>Credit Amount</TableHead>
-              <TableHead>Remaining Amount</TableHead>
-              <TableHead>Created Date</TableHead>
-              <TableHead>Cancellation Reason</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead>{t("table.creditId")}</TableHead>
+              <TableHead>{t("table.customer")}</TableHead>
+              <TableHead>{t("table.originalBookingId")}</TableHead>
+              <TableHead>{t("table.creditAmount")}</TableHead>
+              <TableHead>{t("table.remainingAmount")}</TableHead>
+              <TableHead>{t("table.createdDate")}</TableHead>
+              <TableHead>{t("table.cancellationReason")}</TableHead>
+              <TableHead>{t("table.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -77,7 +80,9 @@ export function CreditTable({
                 <TableCell>
                   {formatCurrencyVnd(credit.remainingAmount)}
                 </TableCell>
-                <TableCell>{formatCreditDate(credit.createdAt)}</TableCell>
+                <TableCell>
+                  {formatCreditDate(credit.createdAt, i18n.language)}
+                </TableCell>
                 <TableCell>
                   <ReasonBadge reason={credit.cancellationReason} />
                 </TableCell>
