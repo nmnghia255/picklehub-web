@@ -134,7 +134,7 @@ export default function PlaySessionSidebar({
                 {t("sidebar.payment")}
               </p>
               <div className="text-3xl font-semibold text-primary">
-                ${social.totalExpense}
+                {social.totalExpense} VND
               </div>
             </div>
           </>

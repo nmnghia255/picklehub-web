@@ -14,7 +14,6 @@ import usePlaySessionStore from "@/features/socials/stores/play-session-store"
 import type { Match } from "@/features/socials/types"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import CreateMatchDialog from "./CreateMatchDialog"
 import PlaySessionMatches from "./PlaySessionMatches"
 import PlaySessionOverview from "./PlaySessionOverview"
 import PlaySessionParticipants from "./PlaySessionParticipants"
@@ -59,8 +58,6 @@ export default function PlaySessionDetail() {
   const { t } = useSocialsTranslation()
   const tabValue = usePlaySessionStore((s) => s.tabValue)
   const setTabValue = usePlaySessionStore((s) => s.setTabValue)
-  const matchDialogOpen = usePlaySessionStore((s) => s.matchDialogOpen)
-  const setMatchDialogOpen = usePlaySessionStore((s) => s.setMatchDialogOpen)
 
   const socialId = params.socialId as string | undefined
   const sessionId = params.playSessionId as string | undefined
@@ -172,7 +169,11 @@ export default function PlaySessionDetail() {
                       scheduled: scheduledMatches,
                       completed: completedMatches,
                     }}
-                    onCreateMatch={() => setMatchDialogOpen(true)}
+                    onCreateMatch={() =>
+                      router.push(
+                        `/socials/${socialId}/play-session/${sessionId}/create-matches`
+                      )
+                    }
                   />
                 )}
 
@@ -193,11 +194,6 @@ export default function PlaySessionDetail() {
           onLeave={() => alert(t("sidebar.leaveSession"))}
         />
       </div>
-
-      <CreateMatchDialog
-        open={matchDialogOpen}
-        onOpenChange={setMatchDialogOpen}
-      />
     </div>
   )
 }
