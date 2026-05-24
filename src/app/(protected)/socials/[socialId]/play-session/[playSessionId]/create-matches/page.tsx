@@ -1,10 +1,5 @@
-import { PageContainer } from "@/components/page-container"
-import { MatchesCreationContent } from "@/features/socials/components/matches/matches-creation-content"
+import { MatchesCreationContent } from "@/features/socials/components/matches"
 
 export default function MatchesCreationPage() {
-  return (
-    <PageContainer>
-      <MatchesCreationContent />
-    </PageContainer>
-  )
+  return <MatchesCreationContent />
 }

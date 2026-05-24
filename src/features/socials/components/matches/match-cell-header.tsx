@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 interface MatchCellHeaderProps {
+  courtLabel: string
   matchId: string
   matchTypeLabel: string
   statusText: string
@@ -20,6 +21,7 @@ interface MatchCellHeaderProps {
 }
 
 export function MatchCellHeader({
+  courtLabel,
   matchId,
   matchTypeLabel,
   statusText,
@@ -27,40 +29,47 @@ export function MatchCellHeader({
   onMatchTypeChange,
 }: MatchCellHeaderProps) {
   return (
-    <div className="flex items-start justify-between gap-2">
-      <div className="flex items-center gap-2">
-        <Badge variant="outline" className="text-xs">
+    <div className="grid min-h-14 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl bg-muted/20 px-2.5 py-2.5">
+      <span className="text-md min-w-0 truncate leading-none font-semibold text-foreground">
+        {courtLabel}
+      </span>
+
+      <div className="flex shrink-0 items-center gap-2 whitespace-nowrap">
+        <Badge variant="outline" className="text-xs font-medium">
           {matchTypeLabel}
         </Badge>
-        <Badge className={`text-xs ${statusBadgeColor}`}>{statusText}</Badge>
-      </div>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0 text-foreground dark:text-slate-200"
+        <Badge className={`text-xs ${statusBadgeColor}`}>{statusText}</Badge>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0 text-foreground dark:text-slate-200"
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent
+            align="end"
+            className="w-48 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
           >
-            <MoreVertical className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="end"
-          className="w-48 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
-        >
-          <DropdownMenuItem
-            onClick={() => onMatchTypeChange(matchId, "SINGLES")}
-          >
-            Đổi thành Đơn
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => onMatchTypeChange(matchId, "DOUBLES")}
-          >
-            Đổi thành Đôi
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            <DropdownMenuItem
+              onClick={() => onMatchTypeChange(matchId, "SINGLES")}
+            >
+              Đổi thành Đơn
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={() => onMatchTypeChange(matchId, "DOUBLES")}
+            >
+              Đổi thành Đôi
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   )
 }

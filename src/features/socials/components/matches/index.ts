@@ -1,4 +1,5 @@
 export { MatchCell } from "./match-cell"
 export { MatchesControlPanel } from "./matches-control-panel"
+export { MatchesCreationContent } from "./matches-creation-content"
 export { MatchesGeneratorMatrix } from "./matches-generator-matrix"
 export { PlayerCard } from "./player-card"

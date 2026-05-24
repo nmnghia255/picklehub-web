@@ -1,7 +1,27 @@
 "use client"
 
+import {
+  Activity,
+  CheckCircle2,
+  Clock3,
+  Gauge,
+  TableCellsMerge,
+  Users,
+} from "lucide-react"
+
+import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
+import { Progress } from "@/components/ui/progress"
+import { Skeleton } from "@/components/ui/skeleton"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 interface Player {
   id: string
@@ -23,9 +43,13 @@ const isPlayer = (player: Player | null): player is Player => player !== null
 export function StatisticCard({
   matches,
   allPlayers,
+  courts,
+  isLoading = false,
 }: {
   matches: Match[]
   allPlayers: Player[]
+  courts: number
+  isLoading?: boolean
 }) {
   const totalMatches = matches.length
 
@@ -36,106 +60,175 @@ export function StatisticCard({
     }
   }
 
-  const uniqueSessions = new Set(matches.map((m) => m.sessionIndex)).size
   const totalPlayers = allPlayers.length
+  const assignedPlayers = new Set(
+    matches.flatMap((m) => m.players.filter(isPlayer).map((p) => p.id))
+  ).size
+  const maxMatchesPerPlayer = Math.max(...Object.values(playerMatchCounts), 1)
+
+  const getMatchStatus = (
+    match: Match
+  ): "complete" | "incomplete" | "empty" => {
+    const maxPlayers = match.matchType === "DOUBLES" ? 4 : 2
+    const activePlayers = match.players.filter(isPlayer)
+    if (activePlayers.length === 0) return "empty"
+    if (activePlayers.length < maxPlayers) return "incomplete"
+    return "complete"
+  }
+
+  const getStatusBadgeColor = (
+    status: "complete" | "incomplete" | "empty"
+  ): string => {
+    switch (status) {
+      case "complete":
+        return "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300"
+      case "incomplete":
+        return "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300"
+      case "empty":
+        return "bg-slate-100 text-slate-700 dark:bg-slate-700/40 dark:text-slate-200"
+    }
+  }
+
+  const boardStatus = (() => {
+    if (matches.length === 0) return "empty" as const
+    const hasIncomplete = matches.some(
+      (m) => getMatchStatus(m) === "incomplete"
+    )
+    if (hasIncomplete) return "incomplete" as const
+    const hasComplete = matches.some((m) => getMatchStatus(m) === "complete")
+    return hasComplete ? ("complete" as const) : ("empty" as const)
+  })()
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
+        </div>
+        <Skeleton className="h-52 w-full" />
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h2 className="mb-4 text-lg font-semibold text-foreground dark:text-slate-50">
+        <h2 className="text-lg font-semibold text-foreground">
           Thông số trận đấu
         </h2>
+        <p className="text-sm text-muted-foreground">
+          Theo dõi mức độ phân bổ trận trong một phiên chơi.
+        </p>
       </div>
 
-      <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-1 gap-16 md:grid-cols-3">
-          <div className="space-y-2">
-            <Label className="text-foreground dark:text-slate-200">
-              Tổng số trận
-            </Label>
-            <Card>
-              <div className="p-4 text-center text-xl font-bold text-foreground dark:text-slate-100">
-                {totalMatches}
-              </div>
-            </Card>
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <Card className="group border-border/70 p-4 transition-all">
+          <div className="mb-2 flex items-center justify-between">
+            <Label className="text-muted-foreground">Tổng số trận</Label>
+            <Activity className="h-4 w-4 text-muted-foreground" />
           </div>
+          <p className="text-2xl font-bold text-foreground">{totalMatches}</p>
+        </Card>
 
-          <div className="space-y-2">
-            <Label className="text-foreground dark:text-slate-200">
-              Số phiên
-            </Label>
-            <Card>
-              <div className="p-4 text-center text-xl font-bold text-foreground dark:text-slate-100">
-                {uniqueSessions}
-              </div>
-            </Card>
+        <Card className="group border-border/70 p-4 transition-all">
+          <div className="mb-2 flex items-center justify-between">
+            <Label className="text-muted-foreground">Người chơi</Label>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </div>
+          <p className="text-2xl font-bold text-foreground">{totalPlayers}</p>
+        </Card>
 
-          <div className="space-y-2">
-            <Label className="text-foreground dark:text-slate-200">
-              Người chơi
-            </Label>
-            <Card>
-              <div className="p-4 text-center text-xl font-bold text-foreground dark:text-slate-100">
-                {totalPlayers}
-              </div>
-            </Card>
+        <Card className="group border-border/70 p-4 transition-all">
+          <div className="mb-2 flex items-center justify-between">
+            <Label className="text-muted-foreground">Đã xếp trận</Label>
+            <Gauge className="h-4 w-4 text-muted-foreground" />
           </div>
-        </div>
-
-        <h2 className="mt-4 text-lg font-semibold text-foreground dark:text-slate-50">
-          Số trận theo người chơi
-        </h2>
-
-        <div className="mt-2 max-h-56 divide-y overflow-y-auto rounded-md border border-border p-2 dark:border-slate-700">
-          {allPlayers.length === 0 ? (
-            <div className="p-4 text-center text-sm text-muted-foreground">
-              Chưa có người chơi
-            </div>
-          ) : (
-            allPlayers
-              .slice()
-              .sort(
-                (a, b) =>
-                  (playerMatchCounts[b.id] || 0) -
-                  (playerMatchCounts[a.id] || 0)
-              )
-              .map((p) => (
-                <div
-                  key={p.id}
-                  className="flex items-center justify-between py-2"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-sm font-semibold text-muted-foreground">
-                      {(p.name || "")
-                        .split(" ")
-                        .map((s) => s[0])
-                        .slice(0, 2)
-                        .join("")}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="truncate text-sm font-medium text-foreground">
-                        {p.name}
-                      </div>
-                      {typeof p.skillLevel === "number" && (
-                        <div className="text-xs text-muted-foreground">
-                          Level {p.skillLevel}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <div className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
-                      {playerMatchCounts[p.id] || 0}
-                    </div>
-                    <div className="text-xs text-muted-foreground">trận</div>
-                  </div>
-                </div>
-              ))
-          )}
-        </div>
+          <p className="text-2xl font-bold text-foreground">
+            {assignedPlayers}
+          </p>
+        </Card>
       </div>
+
+      {/* Overview moved to matrix as a compact status badge */}
+
+      <Card className="border-border/70 p-0">
+        <div className="border-b px-4 py-3">
+          <h3 className="text-sm font-semibold text-foreground">
+            Số trận theo người chơi
+          </h3>
+        </div>
+
+        {allPlayers.length === 0 ? (
+          <div className="p-8 text-center text-sm text-muted-foreground">
+            Chưa có người chơi để hiển thị thống kê.
+          </div>
+        ) : (
+          <div className="max-h-64 overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Người chơi</TableHead>
+                  <TableHead>Mức độ</TableHead>
+                  <TableHead>Tiến độ</TableHead>
+                  <TableHead className="text-right">Số trận</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {allPlayers
+                  .slice()
+                  .sort(
+                    (a, b) =>
+                      (playerMatchCounts[b.id] || 0) -
+                      (playerMatchCounts[a.id] || 0)
+                  )
+                  .map((p) => {
+                    const count = playerMatchCounts[p.id] || 0
+                    const fill = Math.round((count / maxMatchesPerPlayer) * 100)
+
+                    return (
+                      <TableRow key={p.id} className="hover:bg-muted/40">
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">
+                              {(p.name || "")
+                                .split(" ")
+                                .map((s) => s[0])
+                                .slice(0, 2)
+                                .join("")}
+                            </div>
+                            <span className="truncate font-medium text-foreground">
+                              {p.name}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">
+                            {typeof p.skillLevel === "number"
+                              ? `Level ${p.skillLevel}`
+                              : "N/A"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Progress value={fill} className="h-2 w-28" />
+                            <span className="text-xs text-muted-foreground">
+                              {fill}%
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Badge variant="secondary">{count} trận</Badge>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </Card>
     </div>
   )
 }

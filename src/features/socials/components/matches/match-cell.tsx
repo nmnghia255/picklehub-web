@@ -2,6 +2,8 @@
 
 import React, { useState } from "react"
 
+import { Card } from "@/components/ui/card"
+
 import { MatchCellHeader } from "./match-cell-header"
 import { MatchSlot } from "./match-slot"
 import { PlayerSelectionDialog } from "./player-selection-dialog"
@@ -22,9 +24,9 @@ interface Player {
 }
 
 interface MatchCellProps {
-  match: Match
+  match: Match | null
+  courtLabel: string
   status: "complete" | "incomplete" | "empty"
-  statusBadgeColor: string
   allPlayers: Player[]
   sessionPlayerIds: string[]
   onPlayerRemove: (matchId: string, playerId: string) => void
@@ -47,10 +49,34 @@ const statusTexts = {
   empty: "Không có trận",
 }
 
+const statusLabels = {
+  complete: {
+    label: "Đủ",
+    badgeColor:
+      "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300",
+    cardColor:
+      "border-emerald-200 bg-emerald-50/70 dark:border-emerald-900/60 dark:bg-emerald-950/20",
+  },
+  incomplete: {
+    label: "Thiếu",
+    badgeColor:
+      "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300",
+    cardColor:
+      "border-amber-200 bg-amber-50/70 dark:border-amber-900/60 dark:bg-amber-950/20",
+  },
+  empty: {
+    label: "Trống",
+    badgeColor:
+      "bg-slate-100 text-slate-700 dark:bg-slate-700/40 dark:text-slate-200",
+    cardColor:
+      "border-slate-200 bg-slate-50/80 dark:border-slate-800 dark:bg-slate-950/30",
+  },
+}
+
 export function MatchCell({
   match,
+  courtLabel,
   status,
-  statusBadgeColor,
   allPlayers,
   sessionPlayerIds,
   onPlayerRemove,
@@ -65,14 +91,14 @@ export function MatchCell({
     side: "left" | "right"
     index: number
   } | null>(null)
-  const maxPlayers = match.matchType === "DOUBLES" ? 4 : 2
-  const emptySlots = maxPlayers - match.players.length
 
-  // Keep the picker limited to players who have not already appeared in this session.
+  const maxPlayers = match ? (match.matchType === "DOUBLES" ? 4 : 2) : 0
+  const emptySlots = match ? maxPlayers - match.players.length : 0
+
   const availablePlayersForAdd = allPlayers.filter(
-    (p) =>
-      !match.players.find((mp) => mp?.id === p.id) &&
-      !sessionPlayerIds.includes(p.id)
+    (player) =>
+      !match?.players.find((matchPlayer) => matchPlayer?.id === player.id) &&
+      !sessionPlayerIds.includes(player.id)
   )
 
   const skillLevelLabel = (skillLevel?: number) => {
@@ -96,16 +122,15 @@ export function MatchCell({
   }
 
   const getSkillLevelColor = (skillLevel?: number): string => {
-    const colors = {
+    const colors: Record<number, string> = {
       1: "bg-blue-100 text-blue-800",
       2: "bg-green-100 text-green-800",
       3: "bg-yellow-100 text-yellow-800",
       4: "bg-orange-100 text-orange-800",
       5: "bg-red-100 text-red-800",
     }
-    return skillLevel && skillLevel in colors
-      ? colors[skillLevel as keyof typeof colors]
-      : ""
+
+    return skillLevel && skillLevel in colors ? colors[skillLevel] : ""
   }
 
   const leftSlotCount = Math.ceil(maxPlayers / 2)
@@ -113,14 +138,40 @@ export function MatchCell({
   const selectedSlotLabel = selectedEmptySlot
     ? `${selectedEmptySlot.side === "left" ? "bên trái" : "bên phải"} vị trí ${selectedEmptySlot.index + 1}`
     : undefined
+  const statusStyle = statusLabels[status]
+
+  if (!match) {
+    return (
+      <Card
+        className={`flex min-h-64 w-full flex-col overflow-hidden border p-3 transition-all hover:shadow-md ${statusStyle.cardColor}`}
+      >
+        <MatchCellHeader
+          courtLabel={courtLabel}
+          matchId={courtLabel}
+          matchTypeLabel="Trận"
+          statusText={statusTexts.empty}
+          statusBadgeColor={statusStyle.badgeColor}
+          onMatchTypeChange={onMatchTypeChange}
+        />
+
+        <div className="flex min-h-40 flex-1 items-center justify-center rounded-xl border border-dashed border-border/70 bg-muted/20 text-center">
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-foreground">Trống</p>
+            <p className="text-xs text-muted-foreground">
+              Chưa có trận cho sân này
+            </p>
+          </div>
+        </div>
+      </Card>
+    )
+  }
 
   return (
-    <div
-      className="flex h-full w-full min-w-0 flex-col space-y-3 overflow-hidden"
+    <Card
+      className={`group flex h-full w-full min-w-0 flex-col overflow-hidden border p-4 transition-all hover:shadow-md ${statusStyle.cardColor}`}
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => {
         e.preventDefault()
-        // Drop onto the cell (not a specific player) -> move player into this match if possible
         if (!draggedPlayer) return
         if (draggedPlayer.matchId === match.id) return
 
@@ -133,21 +184,20 @@ export function MatchCell({
           )
           onDragEnd()
         }
-        // If no empty slots, do nothing (user can drop onto a player to swap)
       }}
     >
       <MatchCellHeader
+        courtLabel={courtLabel}
         matchId={match.id}
         matchTypeLabel={match.matchType === "SINGLES" ? "Đơn" : "Đôi"}
         statusText={statusTexts[status]}
-        statusBadgeColor={statusBadgeColor}
+        statusBadgeColor={statusStyle.badgeColor}
         onMatchTypeChange={onMatchTypeChange}
       />
 
-      {/* Court Layout: left team | net | right team */}
+      {/* Slot Container */}
       <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
-        <div className="flex min-w-0 flex-1 flex-col items-center gap-2 overflow-hidden">
-          {/* Left side slots */}
+        <div className="flex min-w-0 flex-1 flex-col items-center gap-2 overflow-hidden py-2">
           <div className="flex w-full flex-col items-center gap-2">
             {Array.from({ length: leftSlotCount }).map((_, idx) => (
               <MatchSlot
@@ -169,13 +219,16 @@ export function MatchCell({
           </div>
         </div>
 
-        {/* Net */}
+        {/* Divider */}
         <div className="flex w-12 shrink-0 items-center justify-center">
-          <div className="h-24 w-0.5 bg-slate-400" />
+          <div className="flex h-full flex-col items-center justify-center gap-1">
+            <div className="h-2 w-2 rounded-full bg-border" />
+            <div className="h-24 w-px rounded-full bg-linear-to-b from-border via-border/60 to-border" />
+            <div className="h-2 w-2 rounded-full bg-border" />
+          </div>
         </div>
 
-        <div className="flex min-w-0 flex-1 flex-col items-center gap-2 overflow-hidden">
-          {/* Right side slots */}
+        <div className="flex min-w-0 flex-1 flex-col items-center gap-2 overflow-hidden py-2">
           <div className="flex w-full flex-col items-center gap-2">
             {Array.from({ length: rightSlotCount }).map((_, idx) => {
               const playerIndex = leftSlotCount + idx
@@ -213,6 +266,8 @@ export function MatchCell({
           setSelectedEmptySlot(null)
         }}
       />
-    </div>
+    </Card>
   )
 }
+
+export default MatchCell

@@ -1,6 +1,11 @@
 "use client"
 
+import { Plus, Sparkles } from "lucide-react"
 import React from "react"
+
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 
 import { PlayerCard } from "./player-card"
 
@@ -80,7 +85,7 @@ export function MatchSlot({
   }
 
   return (
-    <div
+    <Card
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => {
         e.preventDefault()
@@ -105,12 +110,19 @@ export function MatchSlot({
         }
       }}
       aria-label="Chọn cầu thủ cho ô trống"
-      className="flex h-12 w-full min-w-0 cursor-pointer items-center justify-center rounded border-2 border-dashed border-slate-300 bg-slate-50 text-xs font-medium text-slate-500 transition-colors hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 active:border-blue-500 active:bg-blue-100 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-400 dark:hover:border-cyan-400/60 dark:hover:bg-slate-900 dark:hover:text-slate-100 dark:active:border-cyan-300/70 dark:active:bg-slate-900/90"
+      className={cn(
+        "group flex min-h-14 w-full min-w-0 cursor-pointer items-center justify-center border border-dashed border-border/80 bg-muted/20 px-3 py-2.5 text-xs font-medium text-muted-foreground transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:text-foreground hover:shadow-sm active:border-primary/60 active:bg-primary/10"
+      )}
     >
-      <span className="flex items-center gap-1">
-        <span className="text-base leading-none">+</span>
-        <span>Nhấp để chọn</span>
-      </span>
-    </div>
+      <div className="flex flex-col items-center gap-1 text-center">
+        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-background text-muted-foreground ring-1 ring-border transition-colors group-hover:text-primary">
+          <Plus className="h-4 w-4" />
+        </div>
+        <span className="mt-1 flex items-center gap-1 text-[11px] font-semibold tracking-wide uppercase">
+          Nhấp để chọn
+        </span>
+        {/* <span className="text-[10px] text-muted-foreground">Hoặc kéo thả vào đây</span> */}
+      </div>
+    </Card>
   )
 }

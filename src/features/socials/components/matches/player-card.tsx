@@ -1,11 +1,12 @@
 "use client"
 
-import { X } from "lucide-react"
+import { GripVertical, Star, UserRound, X } from "lucide-react"
 import React from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
 interface Player {
@@ -39,56 +40,60 @@ export function PlayerCard({
   isDragging,
 }: PlayerCardProps) {
   return (
-    <div
+    <Card
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
       onDrop={onDrop}
       onDragOver={onDragOver}
       className={cn(
-        "flex w-full min-w-0 cursor-move items-center gap-2 overflow-hidden rounded border border-slate-200 bg-white p-2 transition-all hover:shadow-md dark:border-slate-700 dark:bg-slate-950/60 dark:hover:shadow-lg",
-        isDragging &&
-          "scale-105 opacity-50 shadow-lg ring-2 ring-blue-400 dark:ring-cyan-400"
+        "group relative flex w-full cursor-move flex-row items-center gap-3 border-border/70 bg-card p-3 transition-all hover:-translate-y-0.5 hover:shadow-md",
+        isDragging && "scale-[1.02] opacity-60 shadow-lg ring-2 ring-primary/40"
       )}
     >
-      {/* Avatar */}
-      <Avatar className="h-7 w-7 shrink-0">
-        <AvatarImage src={player.avatarUrl || undefined} alt={player.name} />
-        <AvatarFallback className="text-xs dark:bg-slate-800 dark:text-slate-200">
-          {player.name
-            .split(" ")
-            .map((n) => n[0])
-            .join("")
-            .toUpperCase()}
-        </AvatarFallback>
-      </Avatar>
+      {/* Left content */}
+      <div className="flex min-w-0 flex-1 gap-3">
+        <Avatar className="h-10 w-10 shrink-0 ring-1 ring-border/70">
+          <AvatarImage src={player.avatarUrl || undefined} alt={player.name} />
+          <AvatarFallback className="bg-muted text-xs font-semibold text-muted-foreground">
+            {player.name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")
+              .toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
 
-      {/* Player Info */}
-      <div className="min-w-0 flex-1 overflow-hidden">
-        <p className="text-xs leading-tight font-medium text-slate-900 dark:text-slate-100">
-          {player.name}
-        </p>
-        {skillLevelLabel && (
-          <Badge
-            className={cn(
-              "mt-1 h-auto max-w-full px-1.5 py-0.5 text-[10px] leading-tight whitespace-normal",
-              skillLevelColor
-            )}
-          >
-            {skillLevelLabel}
-          </Badge>
-        )}
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-foreground">
+            {player.name}
+          </p>
+
+          {skillLevelLabel && (
+            <Badge
+              variant="outline"
+              className={cn(
+                "mt-1 inline-flex h-auto items-center gap-1 rounded-full px-2 py-0.5 text-[10px]",
+                skillLevelColor
+              )}
+            >
+              <Star className="h-3 w-3" />
+              {skillLevelLabel}
+            </Badge>
+          )}
+        </div>
       </div>
 
-      {/* Remove Button */}
+      {/* Right action */}
       <Button
         variant="ghost"
-        size="sm"
-        className="h-6 w-6 shrink-0 p-0 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-300"
+        size="icon"
+        className="h-8 w-8 shrink-0 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+        aria-label={`Xóa ${player.name}`}
         onClick={onRemove}
       >
-        <X className="h-3 w-3" />
+        <X className="h-4 w-4" />
       </Button>
-    </div>
+    </Card>
   )
 }
