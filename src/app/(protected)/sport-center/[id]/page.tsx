@@ -1,19 +1,137 @@
-"use client"
-
 import { Clock3, Heart, Mail, MapPin, Phone, Star } from "lucide-react"
 import Link from "next/link"
+import { notFound } from "next/navigation"
 
 import { PageContainer } from "@/components/page-container"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { sportCenterInfo } from "@/features/sport-center/mock-data/sport-center-info"
+import {
+  getSportCenterById,
+  getSportCenterCourts,
+  getSportCenterPriceSlots,
+  getSportCenterReviews,
+} from "@/features/sport-center/api/sport-center-user-service"
+import type { CourtResponse } from "@/features/sport-center/types/court"
+import type { Review } from "@/features/sport-center/types/review"
+import type {
+  PriceSlot,
+  SportCenter,
+} from "@/features/sport-center/types/sport-center"
 import { ProductCard } from "@/features/sport-center-management/services-products/components/product-card"
 import { ServiceCard } from "@/features/sport-center-management/services-products/components/service-card"
-import { MOCK_COURT_INVENTORY } from "@/features/sport-center-management/services-products/mock-data"
+import type {
+  ProductInventoryItem,
+  ServiceInventoryItem,
+} from "@/features/sport-center-management/services-products/types"
 
-export default function SportCenterInformationPage() {
+type PageProps = {
+  params: Promise<{ id: string }>
+}
+
+function formatPriceVnd(value: number) {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0,
+  }).format(value)
+}
+
+function getCourtTypeLabel(court: CourtResponse) {
+  return court.type === "INDOOR" ? "Trong nhà" : "Ngoài trời"
+}
+
+function getCourtStatusLabel(court: CourtResponse) {
+  return court.status === "ACTIVE" ? "Đang hoạt động" : "Tạm ngưng"
+}
+
+function mapProductToInventoryItem(
+  product: SportCenter["products"][number],
+  courtName: string
+): ProductInventoryItem {
+  return {
+    kind: "product",
+    id: product.id,
+    courtId: product.centerId,
+    courtName,
+    name: product.name,
+    category: "Đồ uống",
+    price: product.price,
+    stock: product.stock,
+    status: product.isActive && product.stock > 0 ? "in_stock" : "out_of_stock",
+    description: product.description,
+    imageUrl: product.imageUrl,
+    updatedAt: product.updatedAt,
+  }
+}
+
+function mapServiceToInventoryItem(
+  service: SportCenter["services"][number],
+  courtName: string
+): ServiceInventoryItem {
+  return {
+    kind: "service",
+    id: service.id,
+    courtId: service.centerId,
+    courtName,
+    name: service.name,
+    category: service.type === "COACHING" ? "Huấn luyện" : "Cho thuê",
+    price: service.price,
+    status: service.isActive ? "active" : "paused",
+    description: service.description,
+    updatedAt: service.updatedAt,
+  }
+}
+
+export default async function SportCenterInformationPage({
+  params,
+}: PageProps) {
+  const { id } = await params
+
+  let sportCenter: SportCenter | null = null
+  let courts: CourtResponse[] = []
+  let priceSlots: PriceSlot[] = []
+  let reviews: Review[] = []
+
+  try {
+    sportCenter = await getSportCenterById(id)
+  } catch (error) {
+    console.error("Failed to fetch sport center details:", error)
+    notFound()
+  }
+
+  if (!sportCenter) {
+    notFound()
+  }
+
+  const [courtsResult, priceSlotsResult, reviewsResult] =
+    await Promise.allSettled([
+      getSportCenterCourts(id),
+      getSportCenterPriceSlots(id),
+      getSportCenterReviews(id),
+    ])
+
+  if (courtsResult.status === "fulfilled") {
+    courts = courtsResult.value
+  }
+
+  if (priceSlotsResult.status === "fulfilled") {
+    priceSlots = priceSlotsResult.value
+  }
+
+  if (reviewsResult.status === "fulfilled") {
+    reviews = reviewsResult.value
+  }
+
+  const productInventoryItems = sportCenter.products.map((product) =>
+    mapProductToInventoryItem(product, sportCenter.name)
+  )
+
+  const serviceInventoryItems = sportCenter.services.map((service) =>
+    mapServiceToInventoryItem(service, sportCenter.name)
+  )
+
   return (
     <PageContainer variant="wide" className="space-y-6">
       <Card className="overflow-hidden py-0">
@@ -22,30 +140,40 @@ export default function SportCenterInformationPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-4">
               <img
-                src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?auto=format&fit=crop&w=240&q=80"
-                alt="Sport center logo"
+                src={
+                  sportCenter.images[0] ??
+                  "https://images.unsplash.com/photo-1611224923853-80b023f02d71?auto=format&fit=crop&w=240&q=80"
+                }
+                alt={`${sportCenter.name} logo`}
                 className="size-20 rounded-full border-4 border-background object-cover shadow-sm"
               />
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tight">
-                  Pickle Dome Sukhumvit
+                  {sportCenter.name}
                 </h1>
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">Premium Partner</Badge>
-                  <Badge variant="outline">8 sân</Badge>
+                  <Badge variant="secondary">
+                    {sportCenter.status === "ACTIVE"
+                      ? "Đang hoạt động"
+                      : "Tạm ngưng"}
+                  </Badge>
+                  <Badge variant="outline">
+                    {sportCenter._count.courts} sân
+                  </Badge>
+                  <Badge variant="outline">
+                    {sportCenter.averageRating.toFixed(1)} sao
+                  </Badge>
                 </div>
               </div>
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <Link href={`/booking`}>
-                {/* TODO: Navigate to booking page with sport center ID */}
+              <Link href={`/booking?centerId=${sportCenter.id}`}>
                 <Button>Đặt sân</Button>
               </Link>
               <Button variant="outline">
                 <Heart />
-                {/* TODO: Implement favorite functionality */}
-                Yêu thích
+                {sportCenter.isFavourite ? "Đã yêu thích" : "Yêu thích"}
               </Button>
             </div>
           </div>
@@ -53,21 +181,31 @@ export default function SportCenterInformationPage() {
           <div className="grid grid-cols-1 gap-3 text-sm text-muted-foreground md:grid-cols-2">
             <p className="flex items-center gap-2">
               <MapPin className="size-4" />
-              42 Sukhumvit 49, Watthana, Bangkok
+              {sportCenter.address}
             </p>
             <p className="flex items-center gap-2">
               <Clock3 className="size-4" />
-              Giờ hoạt động: 06:00 - 23:00
+              Giờ hoạt động: {sportCenter.openTime} - {sportCenter.closeTime}
             </p>
             <p className="flex items-center gap-2">
               <Phone className="size-4" />
-              +66 2 111 2222
+              {sportCenter.phone}
             </p>
             <p className="flex items-center gap-2">
               <Mail className="size-4" />
-              hello@pickledome.com
+              {sportCenter.email}
             </p>
           </div>
+
+          {sportCenter.amenities.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {sportCenter.amenities.map((amenity) => (
+                <Badge key={amenity} variant="outline">
+                  {amenity}
+                </Badge>
+              ))}
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -85,8 +223,32 @@ export default function SportCenterInformationPage() {
             <CardContent className="space-y-3 p-6">
               <h2 className="text-lg font-semibold">Giới thiệu</h2>
               <p className="text-sm text-muted-foreground">
-                {sportCenterInfo.introduction}
+                {sportCenter.description}
               </p>
+
+              <div className="space-y-3 pt-3">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-sm font-medium">Danh sách sân</h3>
+                  <span className="text-xs text-muted-foreground">
+                    {courts.length} sân
+                  </span>
+                </div>
+
+                {courts.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {courts.map((court) => (
+                      <Badge key={court.id} variant="outline">
+                        {court.name} · {getCourtTypeLabel(court)} ·{" "}
+                        {getCourtStatusLabel(court)}
+                      </Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Chưa có thông tin sân.
+                  </p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -99,7 +261,7 @@ export default function SportCenterInformationPage() {
               </h2>
 
               <p className="text-sm text-muted-foreground">
-                Dữ liệu mock hiển thị từ module quản trị (view-only).
+                Dữ liệu được đồng bộ trực tiếp từ API trung tâm sân.
               </p>
 
               <div className="space-y-8">
@@ -107,18 +269,18 @@ export default function SportCenterInformationPage() {
                   <div className="flex items-center justify-between gap-3">
                     <h3 className="text-sm font-medium">Sản phẩm</h3>
                     <span className="text-xs text-muted-foreground">
-                      {
-                        MOCK_COURT_INVENTORY.flatMap((c) => c.products ?? [])
-                          .length
-                      }{" "}
-                      mục
+                      {productInventoryItems.length} mục
                     </span>
                   </div>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                    {MOCK_COURT_INVENTORY.flatMap((c) => c.products ?? []).map(
-                      (p) => (
-                        <ProductCard key={p.id} item={p} />
-                      )
+                    {productInventoryItems.length > 0 ? (
+                      productInventoryItems.map((item) => (
+                        <ProductCard key={item.id} item={item} />
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Chưa có sản phẩm.
+                      </p>
                     )}
                   </div>
                 </section>
@@ -127,20 +289,53 @@ export default function SportCenterInformationPage() {
                   <div className="flex items-center justify-between gap-3">
                     <h3 className="text-sm font-medium">Dịch vụ</h3>
                     <span className="text-xs text-muted-foreground">
-                      {
-                        MOCK_COURT_INVENTORY.flatMap((c) => c.services ?? [])
-                          .length
-                      }{" "}
-                      mục
+                      {serviceInventoryItems.length} mục
                     </span>
                   </div>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                    {MOCK_COURT_INVENTORY.flatMap((c) => c.services ?? []).map(
-                      (s) => (
-                        <ServiceCard key={s.id} item={s} />
-                      )
+                    {serviceInventoryItems.length > 0 ? (
+                      serviceInventoryItems.map((item) => (
+                        <ServiceCard key={item.id} item={item} />
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Chưa có dịch vụ.
+                      </p>
                     )}
                   </div>
+                </section>
+
+                <section className="space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-sm font-medium">Bảng giá</h3>
+                    <span className="text-xs text-muted-foreground">
+                      {priceSlots.length} khung giờ
+                    </span>
+                  </div>
+
+                  {priceSlots.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                      {priceSlots.map((slot) => (
+                        <div key={slot.id} className="rounded-lg border p-4">
+                          <div className="mb-1 flex items-center justify-between gap-3">
+                            <p className="font-medium">
+                              {slot.startTime} - {slot.endTime}
+                            </p>
+                            <p className="text-sm font-semibold">
+                              {formatPriceVnd(slot.pricePerHour)} / giờ
+                            </p>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Áp dụng cho {sportCenter.name}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Chưa có bảng giá.
+                    </p>
+                  )}
                 </section>
               </div>
             </CardContent>
@@ -152,7 +347,7 @@ export default function SportCenterInformationPage() {
             <CardContent className="space-y-4 p-6">
               <h2 className="text-lg font-semibold">Hình ảnh</h2>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {sportCenterInfo.images?.map((url, index) => (
+                {sportCenter.images.map((url, index) => (
                   <img
                     key={index}
                     src={url}
@@ -170,7 +365,7 @@ export default function SportCenterInformationPage() {
             <CardContent className="space-y-3 p-6">
               <h2 className="text-lg font-semibold">Điều khoản & quy định</h2>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                {sportCenterInfo.policies.map((item) => (
+                {sportCenter.rules.map((item) => (
                   <li key={item} className="rounded-lg border px-3 py-2">
                     {item}
                   </li>
@@ -185,20 +380,28 @@ export default function SportCenterInformationPage() {
             <CardContent className="space-y-4 p-6">
               <h2 className="text-lg font-semibold">Đánh giá</h2>
               <div className="space-y-3">
-                {sportCenterInfo.feedback.map((entry) => (
-                  <div key={entry.name} className="rounded-lg border p-4">
-                    <div className="mb-1 flex items-center justify-between">
-                      <p className="font-medium">{entry.name}</p>
-                      <p className="flex items-center gap-1 text-sm">
-                        <Star className="size-4 fill-current" />
-                        {entry.rating}.0
+                {reviews.length > 0 ? (
+                  reviews.map((entry) => (
+                    <div key={entry.id} className="rounded-lg border p-4">
+                      <div className="mb-1 flex items-center justify-between">
+                        <p className="font-medium">
+                          Người dùng {entry.userId.slice(0, 8)}
+                        </p>
+                        <p className="flex items-center gap-1 text-sm">
+                          <Star className="size-4 fill-current" />
+                          {entry.rating.toFixed(1)}
+                        </p>
+                      </div>
+                      <p className="mb-2 text-sm text-muted-foreground">
+                        {entry.comment}
                       </p>
                     </div>
-                    <p className="mb-2 text-sm text-muted-foreground">
-                      {entry.comment}
-                    </p>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Chưa có đánh giá nào.
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>

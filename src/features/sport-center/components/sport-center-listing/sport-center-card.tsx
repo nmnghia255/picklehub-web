@@ -11,11 +11,11 @@ export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
       <Card className="cursor-pointer overflow-hidden py-0 transition hover:shadow-md active:scale-[0.98]">
         <div className="relative h-44 w-full overflow-hidden">
           <img
-            src={sportCenter.imageUrl}
+            src={sportCenter.images[0]}
             alt={`${sportCenter.name} cover`}
             className="h-full w-full object-cover"
           />
-          {sportCenter.isFavorite ? (
+          {sportCenter.isFavourite ? (
             <span className="absolute top-3 right-3 inline-flex size-8 items-center justify-center rounded-full border border-white/20 bg-white/30 text-rose-500 shadow-sm backdrop-blur-md">
               <Heart className="size-4 fill-current" />
             </span>
@@ -26,7 +26,7 @@ export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
           <div className="flex items-start gap-3">
             <Avatar size="lg" className="border">
               <AvatarImage
-                src={sportCenter.logoUrl}
+                src={sportCenter.images[0]}
                 alt={`${sportCenter.name} logo`}
               />
               <AvatarFallback>

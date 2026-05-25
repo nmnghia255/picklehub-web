@@ -57,6 +57,6 @@ export const useSportCenterStore = create<SportCenterStore>((set, get) => ({
 
   getBookedSportCenters: () => {
     const state = get()
-    return state.sportCenters.filter((center) => center.isFavorite).slice(0, 2)
+    return state.sportCenters.filter((center) => center.isFavourite).slice(0, 2)
   },
 }))
