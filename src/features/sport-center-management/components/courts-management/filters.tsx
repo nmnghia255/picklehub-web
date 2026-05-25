@@ -1,0 +1,72 @@
+import { Calendar, Filter } from "lucide-react"
+
+import type { Court } from "../../types"
+
+interface FiltersProps {
+  date: string
+  setDate: (d: string) => void
+  courtFilter: string
+  setCourtFilter: (c: string) => void
+  courts: Court[]
+}
+
+export function Filters({
+  date,
+  setDate,
+  courtFilter,
+  setCourtFilter,
+  courts,
+}: FiltersProps) {
+  return (
+    <div className="dark:bg-surface flex items-center justify-between border-b border-border bg-background p-4">
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <Calendar className="h-5 w-5 text-muted-foreground" />
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="bg-input-background rounded-lg border border-border px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Filter className="h-5 w-5 text-muted-foreground" />
+          <select
+            value={courtFilter}
+            onChange={(e) => setCourtFilter(e.target.value)}
+            className="bg-input-background rounded-lg border border-border px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+          >
+            <option value="all">Tất cả sân</option>
+            {courts.map((court) => (
+              <option key={court.id} value={court.name}>
+                {court.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 rounded-sm border-2 border-emerald-300 bg-linear-to-br from-emerald-50 to-teal-50 dark:border-emerald-600 dark:from-emerald-700 dark:to-teal-700"></div>
+            <span className="text-muted-foreground">Đã đặt</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 rounded-sm border-2 border-amber-300 bg-linear-to-br from-amber-50 to-yellow-50 dark:border-amber-600 dark:from-amber-700 dark:to-yellow-700"></div>
+            <span className="text-muted-foreground">Chờ xác nhận</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="dark:bg-surface h-3 w-3 rounded-sm border-2 border-dashed border-border bg-background"></div>
+            <span className="text-muted-foreground">Còn trống</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 rounded-sm border-2 border-red-300 bg-linear-to-br from-red-50 to-rose-50 dark:border-red-600 dark:from-red-700 dark:to-rose-700"></div>
+            <span className="text-muted-foreground">Đã hủy</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

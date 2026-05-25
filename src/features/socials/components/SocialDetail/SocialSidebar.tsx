@@ -8,8 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import ProgressBar from "@/features/socials/components/SocialListing/ProgressBar"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
-
-import { formatVnd } from "./expense-utils"
+import { formatVnd } from "@/utils/expense-utils"
 
 function SettingRow({ label, value }: { label: string; value: string }) {
   return (

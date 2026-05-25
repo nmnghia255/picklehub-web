@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
+import { formatVnd } from "@/utils/expense-utils"
 
 import ProgressBar from "./ProgressBar"
 
@@ -134,7 +135,7 @@ export default function PlaySessionSidebar({
                 {t("sidebar.payment")}
               </p>
               <div className="text-3xl font-semibold text-primary">
-                ${social.totalExpense}
+                {formatVnd(social.totalExpense)}
               </div>
             </div>
           </>

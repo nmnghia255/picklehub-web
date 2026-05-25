@@ -1,4 +1,4 @@
-import { TimerReset } from "lucide-react"
+import { BadgeCheck, Landmark, TimerReset } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import {
@@ -9,9 +9,15 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
+import { formatVnd } from "@/utils/expense-utils"
 
 import type { FinancialTimelineRow } from "../../mock-data/expense-types"
-import { formatVnd, getTimelineIcon } from "./expense-utils"
+
+export type TimelineEventType = "court-booking" | "participant-payment"
+
+export function getTimelineIcon(type: TimelineEventType) {
+  return type === "court-booking" ? Landmark : BadgeCheck
+}
 
 export function FinancialTimelineCard({
   timelineRows,

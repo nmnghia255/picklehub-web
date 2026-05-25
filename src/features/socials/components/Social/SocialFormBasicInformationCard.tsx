@@ -1,6 +1,6 @@
 "use client"
 
-import type { Dispatch, SetStateAction } from "react"
+import { type Dispatch, type SetStateAction, useEffect } from "react"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -56,26 +56,30 @@ export function SocialFormBasicInformationCard({
           </Field>
 
           <Field label={t("form.format")}>
-            <Select
-              value={formData.format}
-              onValueChange={(value) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  format: value as SocialFormat,
-                }))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t("form.format")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="SOCIAL">{t("labels.social")}</SelectItem>
-                <SelectItem value="TOURNAMENT">
-                  {t("labels.tournament")}
-                </SelectItem>
-                <SelectItem value="TRAINING">{t("labels.training")}</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="w-full">
+              <Select
+                value={formData.format}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    format: value as SocialFormat,
+                  }))
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={t("form.format")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="SOCIAL">{t("labels.social")}</SelectItem>
+                  <SelectItem value="TOURNAMENT">
+                    {t("labels.tournament")}
+                  </SelectItem>
+                  <SelectItem value="TRAINING">
+                    {t("labels.training")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </Field>
         </div>
       </CardContent>

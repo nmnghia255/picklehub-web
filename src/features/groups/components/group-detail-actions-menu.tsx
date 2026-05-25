@@ -303,10 +303,7 @@ function LeaveGroupConfirmDialog({
   onOpenChange: (open: boolean) => void
 }) {
   const handledSuccessRef = useRef(false)
-  const [state, formAction, isPending] = useActionState(
-    leaveGroupAction.bind(null, groupId),
-    {}
-  )
+  const [state, formAction, isPending] = useActionState(leaveGroupAction, {})
 
   useEffect(() => {
     if (state.success && !handledSuccessRef.current) {
@@ -325,6 +322,7 @@ function LeaveGroupConfirmDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <form action={formAction}>
+          <input type="hidden" name="groupId" value={groupId} />
           <DialogHeader>
             <DialogTitle>Rời nhóm</DialogTitle>
             <DialogDescription>

@@ -18,9 +18,9 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
+import { formatVnd } from "@/utils/expense-utils"
 
 import type { CourtExpenseRow } from "../../mock-data/expense-types"
-import { formatVnd } from "./expense-utils"
 
 export function CourtBookingExpensesCard({
   expenseRows,

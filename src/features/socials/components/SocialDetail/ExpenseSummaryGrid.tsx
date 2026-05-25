@@ -9,8 +9,7 @@ import {
 
 import { Card, CardContent } from "@/components/ui/card"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
-
-import { formatVnd } from "./expense-utils"
+import { formatVnd } from "@/utils/expense-utils"
 
 function ExpenseStatCard({
   label,
