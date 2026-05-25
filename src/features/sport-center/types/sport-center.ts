@@ -1,30 +1,5 @@
-import type { Court } from "./court"
 import type { Product } from "./product"
 import type { Service } from "./service"
-// ============================================
-// Sport Center Types
-// ============================================
-
-// export interface SportCenter {
-//   id: number
-//   name: string
-//   address: string
-//   region: string
-//   isFavorite: boolean
-//   distanceKm: number
-//   openTime: string
-//   playTimeTags: string[]
-//   imageUrl: string
-//   logoUrl: string
-// }
-
-// export interface SportCenterInfo {
-//   introduction?: string
-//   services: { label: string; price: string }[]
-//   images?: string[]
-//   policies: string[]
-//   feedback: { name: string; rating: number; comment: string }[]
-// }
 
 export type SportCenterStatus = "ACTIVE" | "INACTIVE"
 
