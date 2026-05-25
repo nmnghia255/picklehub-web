@@ -5,8 +5,8 @@ import { useEffect } from "react"
 
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { FilterSidebar } from "@/features/sport-center/components/filter-sidebar"
 import { EmptyState } from "@/features/sport-center/components/sport-center-listing/empty-state"
+import { FilterSidebar } from "@/features/sport-center/components/sport-center-listing/filter-sidebar"
 import { SportCenterCard } from "@/features/sport-center/components/sport-center-listing/sport-center-card"
 import {
   type SportCenterTab,
