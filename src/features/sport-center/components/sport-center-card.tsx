@@ -3,7 +3,7 @@ import Link from "next/link"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
-import type { SportCenter } from "@/features/sport-center/types"
+import type { SportCenter } from "@/features/sport-center/types/sport-center"
 
 export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
   return (

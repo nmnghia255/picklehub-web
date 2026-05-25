@@ -1,6 +1,6 @@
 // Mock data for sport centers
 
-import type { SportCenter } from "../types"
+import type { SportCenter } from "../types/sport-center"
 
 export const SPORT_CENTERS: SportCenter[] = [
   {

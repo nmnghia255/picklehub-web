@@ -1,4 +1,4 @@
-import type { SportCenterInfo } from "../types"
+import type { SportCenterInfo } from "../types/sport-center"
 
 export const sportCenterInfo: SportCenterInfo = {
   introduction:
