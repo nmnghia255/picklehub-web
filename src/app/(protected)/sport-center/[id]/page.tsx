@@ -70,7 +70,7 @@ export default async function SportCenterInformationPage({
     <PageContainer variant="wide" className="space-y-6">
       <SportCenterHeaderCard sportCenter={sportCenter} />
 
-      <Tabs defaultValue="introduction" className="w-full">
+      <Tabs defaultValue="introduction" className="mb-6 w-full">
         <TabsList className="h-auto w-full flex-wrap justify-start">
           <TabsTrigger value="introduction">Giới thiệu</TabsTrigger>
           <TabsTrigger value="service">Dịch vụ</TabsTrigger>
@@ -104,7 +104,7 @@ export default async function SportCenterInformationPage({
         </TabsContent>
 
         <TabsContent value="feedback">
-          <FeedbackTab reviews={reviews} />
+          <FeedbackTab reviews={reviews} centerId={id} />
         </TabsContent>
       </Tabs>
     </PageContainer>

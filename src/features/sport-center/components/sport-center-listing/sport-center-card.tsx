@@ -1,6 +1,7 @@
 import { Clock3, Heart, MapPin } from "lucide-react"
 import Link from "next/link"
 
+import { FallbackImage } from "@/components/fallback-image"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
@@ -10,7 +11,7 @@ export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
     <Link href={`/sport-center/${sportCenter.id}`}>
       <Card className="cursor-pointer overflow-hidden py-0 transition hover:shadow-md active:scale-[0.98]">
         <div className="relative h-44 w-full overflow-hidden">
-          <img
+          <FallbackImage
             src={sportCenter.images[0]}
             alt={`${sportCenter.name} cover`}
             className="h-full w-full object-cover"

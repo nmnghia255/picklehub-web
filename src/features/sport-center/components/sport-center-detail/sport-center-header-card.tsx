@@ -1,29 +1,61 @@
-import { Clock3, Heart, Mail, MapPin, Phone } from "lucide-react"
-import Link from "next/link"
+"use client"
 
+import { ArrowLeft, Clock3, Heart, Mail, MapPin, Phone } from "lucide-react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { startTransition, useActionState, useEffect } from "react"
+
+import { FallbackImage } from "@/components/fallback-image"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { toggleFavoriteSportCenterAction } from "@/features/sport-center/actions/toggle-favorite-sport-center"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
+import { useToast } from "@/hooks/use-toast"
 
 interface SportCenterHeaderCardProps {
   sportCenter: SportCenter
 }
 
-const fallbackImageUrl =
-  "https://images.unsplash.com/photo-1611224923853-80b023f02d71?auto=format&fit=crop&w=240&q=80"
-
 export function SportCenterHeaderCard({
   sportCenter,
 }: SportCenterHeaderCardProps) {
+  const { toast } = useToast()
+
+  const [favoriteState, formAction, isPending] = useActionState(
+    toggleFavoriteSportCenterAction,
+    {
+      isFavourite: sportCenter.isFavourite,
+    }
+  )
+
+  const router = useRouter()
+
+  useEffect(() => {
+    if (favoriteState.message) {
+      toast({
+        title: favoriteState.message,
+      })
+    }
+
+    if (favoriteState.error) {
+      toast({
+        title: favoriteState.error,
+        variant: "destructive",
+      })
+    }
+  }, [favoriteState.error, favoriteState.message, toast])
+
   return (
     <Card className="overflow-hidden py-0">
+      {/* Header Image */}
       <div className="h-48 w-full bg-linear-to-r from-emerald-500 via-teal-500 to-cyan-500" />
+
       <CardContent className="space-y-5 p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-4">
-            <img
-              src={sportCenter.images[0] ?? fallbackImageUrl}
+            <FallbackImage
+              src={sportCenter.images[0]}
               alt={`${sportCenter.name} logo`}
               className="size-20 rounded-full border-4 border-background object-cover shadow-sm"
             />
@@ -46,12 +78,41 @@ export function SportCenterHeaderCard({
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Link href={`/booking?centerId=${sportCenter.id}`}>
+            <Link
+              href={`/sport-center/${sportCenter.id}/booking`}
+              className="w-fit"
+            >
               <Button>Đặt sân</Button>
             </Link>
-            <Button variant="outline">
-              <Heart />
-              {sportCenter.isFavourite ? "Đã yêu thích" : "Yêu thích"}
+            <form
+              action={(formData) => {
+                startTransition(() => formAction(formData))
+              }}
+            >
+              <input type="hidden" name="centerId" value={sportCenter.id} />
+              <input
+                type="hidden"
+                name="isFavourite"
+                value={String(favoriteState.isFavourite)}
+              />
+              <Button
+                type="submit"
+                variant={favoriteState.isFavourite ? "secondary" : "secondary"}
+                disabled={isPending}
+              >
+                <Heart
+                  className={favoriteState.isFavourite ? "fill-current" : ""}
+                />
+                {isPending
+                  ? "Đang cập nhật..."
+                  : favoriteState.isFavourite
+                    ? "Đã yêu thích"
+                    : "Yêu thích"}
+              </Button>
+            </form>
+            <Button variant="outline" onClick={() => router.back()}>
+              <ArrowLeft className="size-4" />
+              Quay lại
             </Button>
           </div>
         </div>

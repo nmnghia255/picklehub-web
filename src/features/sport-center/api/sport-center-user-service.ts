@@ -121,7 +121,7 @@ export async function addFavoriteSportCenter(
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<
     ApiResponse<SportCenterFavorite> | SportCenterFavorite
-  >("/api/sport-centers/favorites", { centerId })
+  >("/api/sport-centers/favourites", { centerId })
   return unwrapApiResponse(response.data)
 }
 
@@ -130,7 +130,7 @@ export async function removeFavoriteSportCenter(
 ): Promise<void> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.delete(
-    `/api/sport-centers/favorites/${centerId}`
+    `/api/sport-centers/favourites/${centerId}`
   )
   return unwrapApiResponse(response.data)
 }

@@ -1,8 +1,11 @@
 "use client"
 
+import { ArrowLeft } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 
 import { PageContainer } from "@/components/page-container"
+import { Button } from "@/components/ui/button"
 import { BookingAddOnsCard } from "@/features/booking/components/booking-add-ons-card"
 import { BookingAvailableCourtsCard } from "@/features/booking/components/booking-available-courts-card"
 import { BookingCourtInfoCard } from "@/features/booking/components/booking-court-info-card"
@@ -24,6 +27,8 @@ export default function BookingPage() {
     balls: false,
     coach: false,
   })
+
+  const router = useRouter()
 
   const selectedDateText = useMemo(() => {
     if (!selectedDate) return "No date selected"
@@ -75,12 +80,17 @@ export default function BookingPage() {
 
   return (
     <PageContainer variant="wide" className="flex flex-col">
-      <section className="mb-6 space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Đặt sân</h1>
-        <p className="text-sm text-muted-foreground">
-          Chọn ngày, sân và khung giờ bạn muốn đặt. Bạn cũng có thể thêm các
-          dịch vụ bổ sung.
-        </p>
+      <section className="mb-6 flex items-start justify-between gap-4 space-y-2">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Đặt sân</h1>
+          <p className="text-sm text-muted-foreground">
+            Chọn ngày, sân và khung giờ bạn muốn đặt. Bạn cũng có thể thêm các
+            dịch vụ bổ sung.
+          </p>
+        </div>
+        <Button variant="outline" onClick={() => router.back()}>
+          <ArrowLeft className="size-4" /> Quay lại
+        </Button>
       </section>
 
       <section className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
