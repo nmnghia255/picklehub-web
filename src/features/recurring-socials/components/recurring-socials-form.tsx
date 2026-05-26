@@ -32,7 +32,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-import { createRecurringSocial } from "../api/recurring-socials-service"
 import {
   DAYS_OF_WEEK,
   MOCK_COURTS,
@@ -149,7 +148,6 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
     const doCreate = async () => {
       try {
         if (!previewData) return
-        await createRecurringSocial(previewData)
         if (onSubmit) onSubmit(previewData)
         setShowConfirmModal(false)
         form.reset()

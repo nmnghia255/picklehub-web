@@ -52,10 +52,12 @@ import { GroupActivityUpcomingList } from "./group-activity-upcoming-list"
 
 interface GroupActivitySchedulePageProps {
   initialGroupId?: string
+  embedded?: boolean
 }
 
 export function GroupActivitySchedulePage({
   initialGroupId,
+  embedded = false,
 }: GroupActivitySchedulePageProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [events, setEvents] = useState<GroupEvent[]>(MOCK_EVENTS)
@@ -173,17 +175,9 @@ export function GroupActivitySchedulePage({
     setDeleteTarget(null)
   }
 
-  if (isLoading) {
-    return (
-      <PageContainer>
-        <GroupActivityLoadingSkeleton />
-      </PageContainer>
-    )
-  }
-
-  return (
-    <PageContainer>
-      <div className="space-y-6 pb-8">
+  const content = (
+    <div className={embedded ? "space-y-6" : "space-y-6 pb-8"}>
+      {!embedded && (
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">
             Lịch hoạt động nhóm
@@ -192,72 +186,76 @@ export function GroupActivitySchedulePage({
             Quản lý lịch chơi, social và các hoạt động của nhóm.
           </p>
         </div>
+      )}
 
-        <GroupActivityGroupContextCard group={activeGroup ?? MOCK_GROUPS[0]} />
+      <GroupActivityGroupContextCard group={activeGroup ?? MOCK_GROUPS[0]} />
 
-        <GroupActivityToolbar
-          keyword={keyword}
-          onKeywordChange={setKeyword}
-          period={periodFilter}
-          onPeriodChange={setPeriodFilter}
-          activityType={activityTypeFilter}
-          onActivityTypeChange={setActivityTypeFilter}
-          onCreate={() => {
-            setEditingEvent(null)
-            setIsFormOpen(true)
-          }}
-        />
+      <GroupActivityToolbar
+        keyword={keyword}
+        onKeywordChange={setKeyword}
+        period={periodFilter}
+        onPeriodChange={setPeriodFilter}
+        activityType={activityTypeFilter}
+        onActivityTypeChange={setActivityTypeFilter}
+        onCreate={() => {
+          setEditingEvent(null)
+          setIsFormOpen(true)
+        }}
+      />
 
-        {groupEvents.length === 0 ? (
-          <Empty className="border">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <CalendarClock className="size-5" />
-              </EmptyMedia>
-              <EmptyTitle>Nhóm này chưa có hoạt động nào</EmptyTitle>
-              <EmptyDescription>
-                Hãy tạo sự kiện đầu tiên cho nhóm pickleball hiện tại.
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        ) : filteredEvents.length === 0 ? (
-          <Empty className="border">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <CalendarClock className="size-5" />
-              </EmptyMedia>
-              <EmptyTitle>Không có sự kiện phù hợp</EmptyTitle>
-              <EmptyDescription>
-                Thử đổi bộ lọc thời gian hoặc từ khóa để xem thêm dữ liệu của
-                nhóm này.
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        ) : (
-          <>
-            <GroupActivityCalendarView
-              events={filteredEvents}
-              venues={groupVenues}
-              view={calendarView}
-              onViewChange={setCalendarView}
-              onOpenDetail={setDetailEvent}
-            />
+      {groupEvents.length === 0 ? (
+        <Empty className="border">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <CalendarClock className="size-5" />
+            </EmptyMedia>
+            <EmptyTitle>Nhóm này chưa có hoạt động nào</EmptyTitle>
+            <EmptyDescription>
+              Hãy tạo sự kiện đầu tiên cho nhóm pickleball hiện tại.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      ) : filteredEvents.length === 0 ? (
+        <Empty className="border">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <CalendarClock className="size-5" />
+            </EmptyMedia>
+            <EmptyTitle>Không có sự kiện phù hợp</EmptyTitle>
+            <EmptyDescription>
+              Thử đổi bộ lọc thời gian hoặc từ khóa để xem thêm dữ liệu của nhóm
+              này.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      ) : (
+        <>
+          <GroupActivityCalendarView
+            events={filteredEvents}
+            venues={groupVenues}
+            view={calendarView}
+            onViewChange={setCalendarView}
+            onOpenDetail={setDetailEvent}
+          />
 
-            <GroupActivityUpcomingList
-              events={filteredEvents}
-              members={groupMembers}
-              venues={groupVenues}
-              onOpenDetail={setDetailEvent}
-              onEdit={(event) => {
-                setEditingEvent(event)
-                setIsFormOpen(true)
-              }}
-              onDelete={setDeleteTarget}
-            />
-          </>
-        )}
-      </div>
+          <GroupActivityUpcomingList
+            events={filteredEvents}
+            members={groupMembers}
+            venues={groupVenues}
+            onOpenDetail={setDetailEvent}
+            onEdit={(event) => {
+              setEditingEvent(event)
+              setIsFormOpen(true)
+            }}
+            onDelete={setDeleteTarget}
+          />
+        </>
+      )}
+    </div>
+  )
 
+  const dialogs = (
+    <>
       <GroupActivityFormDialog
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
@@ -307,6 +305,28 @@ export function GroupActivitySchedulePage({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </>
+  )
+
+  if (isLoading) {
+    return embedded ? (
+      <GroupActivityLoadingSkeleton />
+    ) : (
+      <PageContainer>
+        <GroupActivityLoadingSkeleton />
+      </PageContainer>
+    )
+  }
+
+  return embedded ? (
+    <>
+      {content}
+      {dialogs}
+    </>
+  ) : (
+    <PageContainer>
+      {content}
+      {dialogs}
     </PageContainer>
   )
 }

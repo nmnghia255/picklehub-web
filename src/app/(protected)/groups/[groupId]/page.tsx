@@ -1,24 +1,15 @@
-import { ChevronLeft, MessageSquare } from "lucide-react"
-import Link from "next/link"
-
 import { DeleteStatusToast } from "@/components/delete-status-toast"
 import { ErrorSection } from "@/components/error-section"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { PageContainer } from "@/components/page-container"
 import {
   getGroup,
   getGroupInvitations,
 } from "@/features/groups/api/groups-service"
-import { GroupChat } from "@/features/groups/components/group-chat"
 import { GroupDetailActionsMenu } from "@/features/groups/components/group-detail-actions-menu"
 import { GroupDetailHeader } from "@/features/groups/components/group-detail-header"
-import { GroupFinanceSection } from "@/features/groups/components/group-finance-section"
-import { GroupMembersCard } from "@/features/groups/components/group-members-card"
-import { GroupOverviewCard } from "@/features/groups/components/group-overview-card"
-import { InvitationsTable } from "@/features/groups/components/invitations-table"
-import { UpcomingPlaySessionsSection } from "@/features/groups/components/upcoming-play-sessions-section"
+import { GroupDetailPanels } from "@/features/groups/components/group-detail-panels"
+import { GroupInviteMemberButton } from "@/features/groups/components/group-invite-member-button"
 import { GroupFeedNotificationSender } from "@/features/notifications/components/group-feed-notification-sender"
-import { GroupFeedNotificationsContainer } from "@/features/notifications/components/group-feed-notifications-container"
 import { listPlaySessions } from "@/features/play-sessions/api/public-play-sessions-service"
 import type {
   GroupPlaySession,
@@ -41,7 +32,6 @@ interface GroupDetailPageProps {
   searchParams: Promise<{
     delete?: string
     view?: string
-    showFinance?: string
   }>
 }
 
@@ -50,10 +40,9 @@ export default async function GroupDetailPage({
   searchParams,
 }: GroupDetailPageProps) {
   const { groupId } = await params
-  const { delete: deleteStatus, view, showFinance } = await searchParams
+  const { delete: deleteStatus, view } = await searchParams
   const session = await getSession()
-  const isChatView = view === "chat"
-  const isFinanceVisible = showFinance === "1"
+  const defaultTab = view === "chat" ? "chat" : "overview"
 
   let group
   let invitations = []
@@ -65,8 +54,7 @@ export default async function GroupDetailPage({
     group = await getGroup(groupId)
 
     isOwner = group.role === "owner"
-    invitations =
-      !isChatView && isOwner ? await getGroupInvitations(groupId) : []
+    invitations = isOwner ? await getGroupInvitations(groupId) : []
   } catch (error) {
     const status = getHttpStatus(error)
 
@@ -82,67 +70,42 @@ export default async function GroupDetailPage({
           : "Đã xảy ra lỗi khi tải thông tin nhóm. Vui lòng thử lại sau."
 
     return (
-      <div className="container mx-auto max-w-4xl p-6">
+      <PageContainer variant="wide" className="space-y-6">
         <ErrorSection className="mb-4" message={message} />
-      </div>
+      </PageContainer>
     )
   }
 
-  if (!isChatView) {
-    try {
-      const params: ListPlaySessionsParams = {
-        contextType: "INTERNAL_GROUP",
-        groupId,
-        status: "PUBLISHED",
-        sortBy: "startTime",
-        order: "asc",
-      }
-      const sessionsResponse = await listPlaySessions(params)
-      const sessionsPayload = sessionsResponse?.data || []
-      upcomingSessions = sessionsPayload
-    } catch (error) {
-      const status = getHttpStatus(error)
-
-      if (status !== 404) {
-        console.error("Error loading upcoming sessions:", error)
-      }
-
-      hasUpcomingSessionsError = true
+  try {
+    const params: ListPlaySessionsParams = {
+      contextType: "INTERNAL_GROUP",
+      groupId,
+      status: "PUBLISHED",
+      sortBy: "startTime",
+      order: "asc",
     }
-  }
+    const sessionsResponse = await listPlaySessions(params)
+    const sessionsPayload = sessionsResponse?.data || []
+    upcomingSessions = sessionsPayload
+  } catch (error) {
+    const status = getHttpStatus(error)
 
-  if (isChatView) {
-    return (
-      <div className="flex h-[calc(100vh-3.5rem)] flex-col">
-        <div className="flex items-center justify-between border-b px-4 py-3 sm:px-6">
-          <div>
-            <p className="text-sm text-muted-foreground">Nhóm</p>
-            <h1 className="text-xl font-semibold">{group.name}</h1>
-          </div>
-          <Button asChild variant="outline" size="sm" className="shrink-0">
-            <Link href={`/groups/${groupId}`}>
-              <ChevronLeft className="mr-2 size-4" />
-              Trở lại nhóm
-            </Link>
-          </Button>
-        </div>
+    if (status !== 404) {
+      console.error("Error loading upcoming sessions:", error)
+    }
 
-        <div className="min-h-0 flex-1">
-          <GroupChat groupId={groupId} fullPage />
-        </div>
-      </div>
-    )
+    hasUpcomingSessionsError = true
   }
 
   return (
-    <div className="container mx-auto max-w-4xl p-6">
+    <PageContainer variant="wide" className="space-y-6">
       <DeleteStatusToast
         status={deleteStatus}
         successMessage="Xoa buoi choi thanh cong."
       />
 
-      <div className="mb-6 flex items-center justify-between gap-3">
-        <div className="flex-1">
+      <div className="flex flex-col gap-4 border-b pb-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6 lg:pb-5">
+        <div className="min-w-0 flex-1">
           <GroupDetailHeader
             groupId={groupId}
             groupName={group.name}
@@ -150,7 +113,7 @@ export default async function GroupDetailPage({
             groupStatus={group.status}
           />
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 flex-wrap items-center justify-start gap-2 lg:justify-end">
           {isOwner && (
             <GroupFeedNotificationSender
               groupId={groupId}
@@ -158,61 +121,30 @@ export default async function GroupDetailPage({
               canSend={isOwner}
             />
           )}
-          <Button asChild variant="outline" size="sm">
-            <Link href={`/groups/${groupId}?view=chat`}>
-              <MessageSquare className="mr-2 size-4" />
-              Mở chat
-            </Link>
-          </Button>
+          {isOwner && (
+            <GroupInviteMemberButton groupId={groupId} groupName={group.name} />
+          )}
           <GroupDetailActionsMenu
             groupId={groupId}
             groupName={group.name}
             isOwner={isOwner}
             isArchived={group.status === "ARCHIVED"}
-            showFinance={isFinanceVisible}
           />
         </div>
       </div>
 
-      <>
-        <GroupOverviewCard group={group} />
-
-        <div className="mt-6 space-y-6">
-          <GroupMembersCard
-            groupId={groupId}
-            currentUserId={session.user?.id ?? ""}
-            currentUserRole={group.role ?? null}
-            groupStatus={group.status}
-          />
-
-          {isFinanceVisible && (
-            <GroupFinanceSection
-              groupId={groupId}
-              currentUserId={session.user?.id ?? ""}
-              currentUserRole={group.role ?? null}
-              groupStatus={group.status}
-            />
-          )}
-
-          <GroupFeedNotificationsContainer groupId={groupId} />
-
-          <UpcomingPlaySessionsSection
-            sessions={upcomingSessions}
-            hasError={hasUpcomingSessionsError}
-          />
-        </div>
-
-        {isOwner && (
-          <Card className="mt-6">
-            <CardContent>
-              <InvitationsTable
-                groupId={groupId}
-                initialInvitations={invitations}
-              />
-            </CardContent>
-          </Card>
-        )}
-      </>
-    </div>
+      <div className="w-full min-w-0">
+        <GroupDetailPanels
+          groupId={groupId}
+          group={group}
+          currentUserId={session.user?.id ?? ""}
+          currentUserRole={group.role ?? null}
+          invitations={invitations}
+          upcomingSessions={upcomingSessions}
+          hasUpcomingSessionsError={hasUpcomingSessionsError}
+          defaultTab={defaultTab}
+        />
+      </div>
+    </PageContainer>
   )
 }
