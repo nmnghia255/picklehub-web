@@ -1,67 +1,90 @@
+import { X } from "lucide-react"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { SelectedCourts } from "@/features/booking/types"
+import type { BulkCourtAvailability } from "@/features/sport-center/types/court"
 
 type Props = {
-  selectedDate: Date | undefined
-  bookedSlots: Record<number, string[]>
-  timeSlots: string[]
+  availability: BulkCourtAvailability | null
+  isLoading: boolean
+  error?: string
   selectedCourts: SelectedCourts
-  onToggleCourtSlot: (courtId: number, slot: string) => void
+  onToggleCourtSlot: (courtId: string, slot: string) => void
 }
 
 export function BookingAvailableCourtsCard({
-  selectedDate,
-  bookedSlots,
-  timeSlots,
+  availability,
+  isLoading,
+  error,
   selectedCourts,
   onToggleCourtSlot,
 }: Props) {
+  const courtCount = availability?.courtCount ?? 0
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">
-          Sân trống (
-          {selectedDate
-            ? `${Object.keys(bookedSlots).length} sân`
-            : "Select date first"}
-          )
-        </CardTitle>
+        <CardTitle className="text-lg">Sân ({courtCount} sân)</CardTitle>
       </CardHeader>
       <CardContent>
-        {!selectedDate ? (
+        {isLoading ? (
+          <p className="text-sm text-muted-foreground">
+            Đang tải danh sách sân trống...
+          </p>
+        ) : error ? (
+          <p className="text-sm text-destructive">{error}</p>
+        ) : !availability ? (
           <p className="text-sm text-muted-foreground">
             Hãy chọn ngày để xem sân nào còn trống.
           </p>
+        ) : availability.courts.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Ngày này chưa có dữ liệu sân trống.
+          </p>
         ) : (
           <div className="space-y-4">
-            {Object.entries(bookedSlots).map(([courtIdStr, booked]) => {
-              const courtId = Number(courtIdStr)
+            {availability.courts.map((court) => {
               const isSelected =
-                selectedCourts[courtId] && selectedCourts[courtId].size > 0
+                selectedCourts[court.courtId] &&
+                selectedCourts[court.courtId].size > 0
+              const availableSlots = court.slots.filter(
+                (slot) => slot.available
+              )
+              const bookedCount = court.slots.length - availableSlots.length
 
               return (
-                <div key={courtId} className="rounded-lg border p-4">
+                <div key={court.courtId} className="rounded-lg border p-4">
                   <div className="mb-3 flex items-center justify-between">
-                    <h3 className="font-medium">Sân {courtId}</h3>
+                    <div>
+                      <h3 className="font-medium">{court.courtName}</h3>
+                    </div>
                     {isSelected && (
                       <span className="text-xs font-semibold text-primary">
-                        {selectedCourts[courtId].size} giờ đã chọn
+                        {selectedCourts[court.courtId].size} giờ đã chọn
                       </span>
                     )}
                   </div>
 
+                  <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground">
+                    <span>{availableSlots.length} khung giờ còn trống</span>
+                    <span>{bookedCount} khung giờ đã kín</span>
+                  </div>
+
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                    {timeSlots.map((slot) => {
-                      const isBooked = booked.includes(slot)
-                      const isSelectedSlot = selectedCourts[courtId]?.has(slot)
+                    {court.slots.map((slot) => {
+                      const isBooked = !slot.available
+                      const isSelectedSlot = selectedCourts[court.courtId]?.has(
+                        slot.startTime
+                      )
 
                       return (
                         <button
-                          key={slot}
+                          key={slot.startTime}
                           type="button"
                           disabled={isBooked}
                           onClick={() =>
-                            !isBooked && onToggleCourtSlot(courtId, slot)
+                            !isBooked &&
+                            onToggleCourtSlot(court.courtId, slot.startTime)
                           }
                           className={[
                             "rounded-md border px-2 py-2 text-xs transition-colors sm:text-sm",
@@ -72,8 +95,10 @@ export function BookingAvailableCourtsCard({
                                 : "hover:bg-accent",
                           ].join(" ")}
                         >
-                          {slot}
-                          {isBooked && " ❌"}
+                          {slot.startTime} - {slot.endTime}
+                          {isBooked && (
+                            <X className="ml-1 inline size-5 text-destructive" />
+                          )}
                         </button>
                       )
                     })}

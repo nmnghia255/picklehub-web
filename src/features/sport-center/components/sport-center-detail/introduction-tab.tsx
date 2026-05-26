@@ -34,19 +34,19 @@ export function IntroductionTab({ description, courts }: IntroductionTabProps) {
   return (
     <Card>
       <CardContent className="space-y-3 p-6">
-        <div className="space-y-1">
+        <div className="space-y-2">
           <h2 className="text-lg font-semibold tracking-tight">Giới thiệu</h2>
-          <p className="text-sm leading-6 text-muted-foreground">
+          <p className="text-md leading-6 text-muted-foreground">
             {description}
           </p>
         </div>
 
         <div className="space-y-3 pt-3">
           <div className="flex items-center justify-between gap-3">
-            <h3 className="text-sm font-medium tracking-tight">
+            <h2 className="text-lg font-semibold tracking-tight">
               Danh sách sân
-            </h3>
-            <span className="text-xs text-muted-foreground">
+            </h2>
+            <span className="text-sm text-muted-foreground">
               {courts.length} sân
             </span>
           </div>

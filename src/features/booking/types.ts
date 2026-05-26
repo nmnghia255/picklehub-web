@@ -1,4 +1,4 @@
-export type SelectedCourts = Record<number, Set<string>>
+export type SelectedCourts = Record<string, Set<string>>
 
 export type ExtrasState = Record<string, boolean>
 

@@ -1,51 +1,58 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Textarea } from "@/components/ui/textarea"
-import type { AddOn, ExtrasState } from "@/features/booking/types"
+import type { ExtrasState } from "@/features/booking/types"
+import type { Service } from "@/features/sport-center/types/service"
 
 type Props = {
-  addOns: AddOn[]
+  services: Service[]
   extras: ExtrasState
   onSetExtras: React.Dispatch<React.SetStateAction<ExtrasState>>
+  note: string
+  onNoteChange: (note: string) => void
 }
 
-export function BookingAddOnsCard({ addOns, extras, onSetExtras }: Props) {
+export function BookingServicesCard({ services, extras, onSetExtras }: Props) {
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-lg">Dịch vụ bổ sung</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {addOns.map((addon) => (
-          <label
-            key={addon.key}
-            htmlFor={addon.key}
-            className="flex cursor-pointer items-center justify-between rounded-md border p-3"
-          >
-            <div className="flex items-center gap-3">
-              <Checkbox
-                id={addon.key}
-                checked={extras[addon.key]}
-                onCheckedChange={(checked) => {
-                  onSetExtras((prev) => ({
-                    ...prev,
-                    [addon.key]: checked === true,
-                  }))
-                }}
-              />
-              <span className="text-sm">{addon.label}</span>
-            </div>
-            <span className="text-sm font-medium">+{addon.price}VND</span>
-          </label>
-        ))}
-
-        <div className="space-y-2">
-          <p className="text-sm font-medium">Ghi chú đặt sân</p>
-          <Textarea
-            placeholder="Ghi chú tùy chọn cho nhân viên sân (thiết bị, số lượng người chơi, yêu cầu...)"
-            className="min-h-24"
-          />
-        </div>
+        {services.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Không có dịch vụ bổ sung.
+          </p>
+        ) : (
+          services.map((service) => (
+            <label
+              key={service.id}
+              htmlFor={service.id}
+              className="flex cursor-pointer items-center justify-between rounded-md border p-3"
+            >
+              <div className="flex flex-col">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    id={service.id}
+                    checked={extras[service.id]}
+                    onCheckedChange={(checked) => {
+                      onSetExtras((prev) => ({
+                        ...prev,
+                        [service.id]: checked === true,
+                      }))
+                    }}
+                  />
+                  <span className="text-sm font-medium">{service.name}</span>
+                </div>
+                {service.description && (
+                  <span className="mt-1 text-xs text-muted-foreground">
+                    {service.description}
+                  </span>
+                )}
+              </div>
+              <span className="text-sm font-medium">+{service.price} VND</span>
+            </label>
+          ))
+        )}
       </CardContent>
     </Card>
   )

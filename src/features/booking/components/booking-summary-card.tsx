@@ -10,6 +10,11 @@ type Props = {
   courtPrice: number
   addOnTotal: number
   total: number
+  onConfirm: () => void
+  isSubmitting: boolean
+  canConfirm: boolean
+  statusMessage?: string
+  errorMessage?: string
 }
 
 export function BookingSummaryCard({
@@ -19,6 +24,11 @@ export function BookingSummaryCard({
   courtPrice,
   addOnTotal,
   total,
+  onConfirm,
+  isSubmitting,
+  canConfirm,
+  statusMessage,
+  errorMessage,
 }: Props) {
   return (
     <Card>
@@ -79,14 +89,22 @@ export function BookingSummaryCard({
           <span>{total} VND</span>
         </div>
 
-        <Button className="w-full" size="lg">
-          Xác nhận
+        <Button
+          className="w-full"
+          size="lg"
+          onClick={onConfirm}
+          disabled={!canConfirm || isSubmitting}
+        >
+          {isSubmitting ? "Đang gửi..." : "Xác nhận"}
         </Button>
 
-        <p className="text-xs text-muted-foreground">
-          *Lưu ý: Đây là trang demo. Tính năng đặt sân chưa được triển khai thực
-          tế.
-        </p>
+        {statusMessage && (
+          <p className="text-sm text-emerald-600">{statusMessage}</p>
+        )}
+
+        {errorMessage && (
+          <p className="text-sm text-destructive">{errorMessage}</p>
+        )}
       </CardContent>
     </Card>
   )

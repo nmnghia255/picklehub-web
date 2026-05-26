@@ -1,7 +1,6 @@
 "use client"
 
 import { ArrowLeft, Clock3, Heart, Mail, MapPin, Phone } from "lucide-react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { startTransition, useActionState, useEffect } from "react"
 
@@ -10,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { toggleFavoriteSportCenterAction } from "@/features/sport-center/actions/toggle-favorite-sport-center"
+import { useBookingStore } from "@/features/sport-center/stores/booking-store"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
 import { useToast } from "@/hooks/use-toast"
 
@@ -21,6 +21,7 @@ export function SportCenterHeaderCard({
   sportCenter,
 }: SportCenterHeaderCardProps) {
   const { toast } = useToast()
+  const setSportCenter = useBookingStore((state) => state.setSportCenter)
 
   const [favoriteState, formAction, isPending] = useActionState(
     toggleFavoriteSportCenterAction,
@@ -78,12 +79,15 @@ export function SportCenterHeaderCard({
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Link
-              href={`/sport-center/${sportCenter.id}/booking`}
+            <Button
               className="w-fit"
+              onClick={() => {
+                setSportCenter(sportCenter)
+                router.push(`/sport-center/${sportCenter.id}/booking`)
+              }}
             >
-              <Button>Đặt sân</Button>
-            </Link>
+              Đặt sân
+            </Button>
             <form
               action={(formData) => {
                 startTransition(() => formAction(formData))

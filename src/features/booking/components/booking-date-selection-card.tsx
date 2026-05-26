@@ -17,7 +17,7 @@ export function BookingDateSelectionCard({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <CalendarClock className="size-5" />
-          Chọn ngày và khung giờ
+          Chọn ngày
         </CardTitle>
       </CardHeader>
       <CardContent>

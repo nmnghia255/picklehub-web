@@ -1,8 +1,10 @@
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type { Booking, BookingRequest, BookingStatus } from "../types/booking"
-import type { CourtResponse } from "../types/court"
+import type { BulkCourtAvailability, CourtResponse } from "../types/court"
+import type { Product } from "../types/product"
 import type { Review } from "../types/review"
+import type { Service } from "../types/service"
 import type {
   PriceSlot,
   SportCenter,
@@ -166,11 +168,11 @@ export async function getCourtAvailability(
 export async function getBulkCourtAvailability(
   centerId: string,
   date: string
-): Promise<CourtResponse[]> {
+): Promise<BulkCourtAvailability> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.get<
-    ApiResponse<CourtResponse[]> | CourtResponse[]
-  >(`/api/sport-centers/${centerId}/courts/availability?date=${date}`)
+    ApiResponse<BulkCourtAvailability> | BulkCourtAvailability
+  >(`/api/sport-centers/${centerId}/availability?date=${date}`)
   return unwrapApiResponse(response.data)
 }
 
@@ -265,5 +267,33 @@ export async function editSportCenterReview(
 export async function deleteSportCenterReview(reviewId: string): Promise<void> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.delete(`/api/sport-centers/reviews/${reviewId}`)
+  return unwrapApiResponse(response.data)
+}
+
+// ============================================
+// Sport Center Services
+// ============================================
+
+export async function getSportCenterServices(
+  centerId: string
+): Promise<Service[]> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.get<ApiResponse<Service[]> | Service[]>(
+    `/api/sport-centers/${centerId}/services`
+  )
+  return unwrapApiResponse(response.data)
+}
+
+// ============================================
+// Sport Center Products
+// ============================================
+
+export async function getSportCenterProducts(
+  centerId: string
+): Promise<Product[]> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.get<ApiResponse<Product[]> | Product[]>(
+    `/api/sport-centers/${centerId}/products`
+  )
   return unwrapApiResponse(response.data)
 }
