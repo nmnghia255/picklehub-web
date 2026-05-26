@@ -4,12 +4,21 @@ import type { SportCenter } from "@/features/sport-center/types/sport-center"
 
 export type SportCenterTab = "sport-center" | "booking"
 
+export interface SportCenterPaginationState {
+  currentPage: number
+  pageSize: number
+  total: number
+  offset: number
+  hasNextPage: boolean
+}
+
 interface SportCenterStore {
   // State
   activeTab: SportCenterTab
   searchQuery: string
   favoriteFilter: string
   sportCenters: SportCenter[]
+  pagination: SportCenterPaginationState | null
   loading: boolean
 
   // Actions
@@ -17,6 +26,7 @@ interface SportCenterStore {
   setSearchQuery: (query: string) => void
   setFavoriteFilter: (filter: string) => void
   setSportCenters: (centers: SportCenter[]) => void
+  setPagination: (pagination: SportCenterPaginationState | null) => void
   setLoading: (loading: boolean) => void
 
   // Computed
@@ -30,6 +40,7 @@ export const useSportCenterStore = create<SportCenterStore>((set, get) => ({
   searchQuery: "",
   favoriteFilter: "all",
   sportCenters: [],
+  pagination: null,
   loading: false,
 
   // Actions
@@ -37,6 +48,7 @@ export const useSportCenterStore = create<SportCenterStore>((set, get) => ({
   setSearchQuery: (query) => set({ searchQuery: query }),
   setFavoriteFilter: (filter) => set({ favoriteFilter: filter }),
   setSportCenters: (centers) => set({ sportCenters: centers }),
+  setPagination: (pagination) => set({ pagination }),
   setLoading: (loading) => set({ loading }),
 
   // Computed selectors

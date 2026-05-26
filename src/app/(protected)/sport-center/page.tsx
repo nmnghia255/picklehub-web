@@ -1,45 +1,65 @@
 import { PageContainer } from "@/components/page-container"
 import {
-  getMyFavoriteSportCenters,
   listSportCenters,
+  type ListSportCentersResult,
 } from "@/features/sport-center/api/sport-center-user-service"
-import { SportCenterBrowser } from "@/features/sport-center/components/sport-center-listing/sport-center-browser"
-import type { SportCenter } from "@/features/sport-center/types/sport-center"
+import { SportCenterBrowser } from "@/features/sport-center/components/sport-center-listing"
 
-export default async function SportCenterPage() {
-  let sportCenters: SportCenter[] = []
-  let favoriteCenterIds = new Set<string>()
+const PAGE_SIZE = 20
 
-  const [sportCentersResult, favoriteCentersResult] = await Promise.allSettled([
-    listSportCenters(),
-    getMyFavoriteSportCenters(),
-  ])
+type PageProps = {
+  searchParams?: Promise<{ page?: string }>
+}
 
-  if (sportCentersResult.status === "fulfilled") {
-    sportCenters = sportCentersResult.value
-  } else {
-    console.warn("Failed to fetch sport centers, showing empty state.")
+export default async function SportCenterPage({ searchParams }: PageProps) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const rawPage = Number.parseInt(resolvedSearchParams?.page ?? "1", 10)
+  const currentPage = Number.isNaN(rawPage) || rawPage < 1 ? 1 : rawPage
+  const offset = (currentPage - 1) * PAGE_SIZE
+
+  let sportCentersResult: ListSportCentersResult = {
+    data: [],
+    pagination: undefined,
   }
 
-  if (favoriteCentersResult.status === "fulfilled") {
-    favoriteCenterIds = new Set(
-      favoriteCentersResult.value.map((favorite) => favorite.centerId)
-    )
-  } else {
-    console.warn(
-      "Failed to fetch favorite sport centers, continuing without it."
+  try {
+    sportCentersResult = await listSportCenters(PAGE_SIZE, offset)
+  } catch (error) {
+    console.error("Failed to fetch sport centers:", error)
+    return (
+      <PageContainer variant="wide">
+        <div className="p-4">
+          <p className="text-red-500">
+            Không thể tải danh sách trung tâm thể thao. Vui lòng thử lại sau.
+          </p>
+        </div>
+      </PageContainer>
     )
   }
 
-  const hydratedSportCenters = sportCenters.map((sportCenter) => ({
-    ...sportCenter,
-    isFavourite:
-      favoriteCenterIds.has(sportCenter.id) || sportCenter.isFavourite,
-  }))
+  const sportCenters = sportCentersResult.data
+  const pagination = sportCentersResult.pagination ?? {
+    total: sportCenters.length,
+    offset,
+    limit: PAGE_SIZE,
+  }
+  const hasNextPage = pagination.offset + pagination.limit < pagination.total
 
   return (
-    <PageContainer variant="wide">
-      <SportCenterBrowser sportCenters={hydratedSportCenters} />
+    <PageContainer
+      variant="wide"
+      className="flex min-h-[calc(100vh-3.5rem)] flex-col"
+    >
+      <SportCenterBrowser
+        sportCenters={sportCenters}
+        pagination={{
+          currentPage,
+          pageSize: pagination.limit,
+          total: pagination.total,
+          offset: pagination.offset,
+          hasNextPage,
+        }}
+      />
     </PageContainer>
   )
 }

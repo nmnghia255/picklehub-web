@@ -1,21 +1,48 @@
-import type { LinkedProvider } from "@/features/auth/types"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type { Booking, BookingRequest, BookingStatus } from "../types/booking"
 import type { CourtResponse } from "../types/court"
-import { ProductItem } from "../types/product"
 import type { Review } from "../types/review"
-import { ServiceItem } from "../types/service"
 import type {
   PriceSlot,
   SportCenter,
   SportCenterFavorite,
+  SportCenterStatus,
 } from "../types/sport-center"
 
 interface ApiResponse<T> {
   success: boolean
   message: string
   data: T
+  pagination?: {
+    total: number
+    offset: number
+    limit: number
+  }
+}
+
+export interface SportCenterPagination {
+  total: number
+  offset: number
+  limit: number
+}
+
+export interface ListSportCentersResult {
+  data: SportCenter[]
+  pagination?: SportCenterPagination
+}
+
+function normalizeSportCentersResponse(
+  payload: ApiResponse<SportCenter[]> | SportCenter[]
+): ListSportCentersResult {
+  if (Array.isArray(payload)) {
+    return { data: payload }
+  }
+
+  return {
+    data: Array.isArray(payload.data) ? payload.data : [],
+    pagination: payload.pagination,
+  }
 }
 
 function unwrapApiResponse<T>(payload: ApiResponse<T> | T): T {
@@ -29,12 +56,25 @@ function unwrapApiResponse<T>(payload: ApiResponse<T> | T): T {
 // Sport Center
 // ============================================
 
-export async function listSportCenters(): Promise<SportCenter[]> {
+export async function listSportCenters(
+  limit?: number,
+  offset?: number,
+  status?: SportCenterStatus,
+  favouritesOnly?: boolean
+): Promise<ListSportCentersResult> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.get<ApiResponse<SportCenter[]> | SportCenter[]>(
-    "/api/sport-centers"
+    "/api/sport-centers",
+    {
+      params: {
+        limit,
+        offset,
+        status,
+        favouritesOnly,
+      },
+    }
   )
-  return unwrapApiResponse(response.data)
+  return normalizeSportCentersResponse(response.data)
 }
 
 export async function getSportCenterById(
