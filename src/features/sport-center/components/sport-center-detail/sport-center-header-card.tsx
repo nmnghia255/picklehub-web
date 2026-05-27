@@ -99,11 +99,7 @@ export function SportCenterHeaderCard({
                 name="isFavourite"
                 value={String(favoriteState.isFavourite)}
               />
-              <Button
-                type="submit"
-                variant={favoriteState.isFavourite ? "secondary" : "secondary"}
-                disabled={isPending}
-              >
+              <Button type="submit" variant="outline" disabled={isPending}>
                 <Heart
                   className={favoriteState.isFavourite ? "fill-current" : ""}
                 />

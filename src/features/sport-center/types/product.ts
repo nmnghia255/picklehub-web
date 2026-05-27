@@ -1,11 +1,9 @@
-export type ProductType = "BEVERAGE"
-
 export interface Product {
   id: string
   centerId: string
   name: string
   description: string
-  type: ProductType
+  type: string
   imageUrl: string
   price: number
   unit: string

@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import ProgressBar from "@/features/socials/components/SocialListing/ProgressBar"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
-import { formatVnd } from "@/utils/expense-utils"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 function SettingRow({ label, value }: { label: string; value: string }) {
   return (
@@ -134,7 +134,7 @@ export default function SocialSidebar({
                 {t("sidebar.payment")}
               </p>
               <div className="text-3xl font-semibold text-primary">
-                {formatVnd(social.totalExpense)}
+                {formatCurrencyVnd(social.totalExpense)}
               </div>
             </div>
           </>

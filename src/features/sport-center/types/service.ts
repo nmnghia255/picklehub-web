@@ -1,11 +1,9 @@
-export type ServiceType = "EQUIPMENT_RENTAL" | "COACHING"
-
 export interface Service {
   id: string
   centerId: string
   name: string
   description: string
-  type: ServiceType
+  type: string
   imageUrl: string
   price: number
   unit: string

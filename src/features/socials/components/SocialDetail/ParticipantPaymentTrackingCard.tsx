@@ -28,7 +28,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
-import { formatVnd, getPaymentStatusTone } from "@/utils/expense-utils"
+import { formatCurrencyVnd, getPaymentStatusTone } from "@/utils/expense-utils"
 
 import type {
   ParticipantPaymentRow,
@@ -159,7 +159,7 @@ export function ParticipantPaymentTrackingCard({
                       </Badge>
                     </TableCell>
                     <TableCell className="px-6 py-4 text-muted-foreground">
-                      {formatVnd(row.amountDue)}
+                      {formatCurrencyVnd(row.amountDue)}
                     </TableCell>
                     <TableCell className="px-6 py-4 text-right">
                       <Badge

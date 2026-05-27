@@ -9,7 +9,7 @@ import {
 
 import { Card, CardContent } from "@/components/ui/card"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
-import { formatVnd } from "@/utils/expense-utils"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 function ExpenseStatCard({
   label,
@@ -66,7 +66,7 @@ export function ExpenseSummaryGrid({
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       <ExpenseStatCard
         label={t("expenses.summary.totalExpense")}
-        value={formatVnd(totalCourtExpense)}
+        value={formatCurrencyVnd(totalCourtExpense)}
         iconClassName="flex size-9 shrink-0 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 lg:size-10"
         icon={Wallet}
       />
@@ -78,7 +78,7 @@ export function ExpenseSummaryGrid({
       />
       <ExpenseStatCard
         label={t("expenses.summary.costPerParticipant")}
-        value={formatVnd(costPerParticipant)}
+        value={formatCurrencyVnd(costPerParticipant)}
         iconClassName="flex size-9 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 lg:size-10"
         icon={CircleDollarSign}
       />
@@ -90,13 +90,13 @@ export function ExpenseSummaryGrid({
       />
       <ExpenseStatCard
         label={t("expenses.summary.collectedAmount")}
-        value={formatVnd(collectedAmount)}
+        value={formatCurrencyVnd(collectedAmount)}
         iconClassName="flex size-9 shrink-0 items-center justify-center rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 lg:size-10"
         icon={BadgeCheck}
       />
       <ExpenseStatCard
         label={t("expenses.summary.outstandingAmount")}
-        value={formatVnd(outstandingAmount)}
+        value={formatCurrencyVnd(outstandingAmount)}
         iconClassName="flex size-9 shrink-0 items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 lg:size-10"
         icon={AlertCircle}
       />

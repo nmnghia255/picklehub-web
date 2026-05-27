@@ -5,15 +5,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   getSportCenterById,
   getSportCenterCourts,
-  getSportCenterPriceSlots,
   getSportCenterReviews,
 } from "@/features/sport-center/api/sport-center-user-service"
 import type { CourtResponse } from "@/features/sport-center/types/court"
 import type { Review } from "@/features/sport-center/types/review"
-import type {
-  PriceSlot,
-  SportCenter,
-} from "@/features/sport-center/types/sport-center"
+import type { SportCenter } from "@/features/sport-center/types/sport-center"
 
 import { FeedbackTab } from "../../../../features/sport-center/components/sport-center-detail/feedback-tab"
 import { ImagesTab } from "../../../../features/sport-center/components/sport-center-detail/images-tab"
@@ -33,7 +29,6 @@ export default async function SportCenterInformationPage({
 
   let sportCenter: SportCenter | null = null
   let courts: CourtResponse[] = []
-  let priceSlots: PriceSlot[] = []
   let reviews: Review[] = []
 
   try {
@@ -47,19 +42,13 @@ export default async function SportCenterInformationPage({
     notFound()
   }
 
-  const [courtsResult, priceSlotsResult, reviewsResult] =
-    await Promise.allSettled([
-      getSportCenterCourts(id),
-      getSportCenterPriceSlots(id),
-      getSportCenterReviews(id),
-    ])
+  const [courtsResult, reviewsResult] = await Promise.allSettled([
+    getSportCenterCourts(id),
+    getSportCenterReviews(id),
+  ])
 
   if (courtsResult.status === "fulfilled") {
     courts = courtsResult.value
-  }
-
-  if (priceSlotsResult.status === "fulfilled") {
-    priceSlots = priceSlotsResult.value
   }
 
   if (reviewsResult.status === "fulfilled") {
@@ -70,8 +59,8 @@ export default async function SportCenterInformationPage({
     <PageContainer variant="wide" className="space-y-6">
       <SportCenterHeaderCard sportCenter={sportCenter} />
 
-      <Tabs defaultValue="introduction" className="mb-6 w-full">
-        <TabsList className="h-auto w-full flex-wrap justify-start">
+      <Tabs defaultValue="introduction" className="w-full">
+        <TabsList className="mb-4 h-auto w-full flex-wrap justify-start">
           <TabsTrigger value="introduction">Giới thiệu</TabsTrigger>
           <TabsTrigger value="service">Dịch vụ</TabsTrigger>
           <TabsTrigger value="images">Hình ảnh</TabsTrigger>
@@ -88,10 +77,10 @@ export default async function SportCenterInformationPage({
 
         <TabsContent value="service">
           <ServiceTab
+            sportCenterId={id}
             sportCenterName={sportCenter.name}
             products={sportCenter.products}
             services={sportCenter.services}
-            priceSlots={priceSlots}
           />
         </TabsContent>
 

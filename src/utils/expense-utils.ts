@@ -3,8 +3,12 @@ import { BadgeCheck, Landmark } from "lucide-react"
 export type PaymentStatus = "paid" | "unpaid" | "refunded"
 
 // Backwards-compatible alias used across the expense components
-export function formatVnd(value: number) {
-  return value.toLocaleString("vi-VN") + " VND"
+export function formatCurrencyVnd(value: number) {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0,
+  }).format(value)
 }
 
 export function getPaymentStatusTone(status: PaymentStatus) {

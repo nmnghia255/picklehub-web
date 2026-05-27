@@ -1,9 +1,7 @@
 "use client"
 
-import { Search } from "lucide-react"
 import { useEffect } from "react"
 
-import { Input } from "@/components/ui/input"
 import {
   Pagination,
   PaginationContent,
@@ -13,9 +11,8 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { EmptyState } from "@/features/sport-center/components/sport-center-listing/empty-state"
-import { FilterSidebar } from "@/features/sport-center/components/sport-center-listing/filter-sidebar"
-import { SportCenterCard } from "@/features/sport-center/components/sport-center-listing/sport-center-card"
+import { BookingTabContent } from "@/features/sport-center/components/sport-center-listing/booking-tab-content"
+import { SportCenterTabContent } from "@/features/sport-center/components/sport-center-listing/sport-center-tab-content"
 import {
   type SportCenterPaginationState,
   type SportCenterTab,
@@ -25,24 +22,28 @@ import type { SportCenter } from "@/features/sport-center/types/sport-center"
 
 interface SportCenterBrowserProps {
   sportCenters: SportCenter[]
+  bookedSportCenters: SportCenter[]
+  favoriteOnly: boolean
   pagination: SportCenterPaginationState
 }
 
 export function SportCenterBrowser({
   sportCenters,
+  bookedSportCenters,
+  favoriteOnly,
   pagination,
 }: SportCenterBrowserProps) {
   const activeTab = useSportCenterStore((state) => state.activeTab)
   const setActiveTab = useSportCenterStore((state) => state.setActiveTab)
   const searchQuery = useSportCenterStore((state) => state.searchQuery)
   const setSearchQuery = useSportCenterStore((state) => state.setSearchQuery)
+  const setFavoriteFilter = useSportCenterStore(
+    (state) => state.setFavoriteFilter
+  )
   const setSportCenters = useSportCenterStore((state) => state.setSportCenters)
   const setPagination = useSportCenterStore((state) => state.setPagination)
   const getFilteredSportCenters = useSportCenterStore(
     (state) => state.getFilteredSportCenters
-  )
-  const getBookedSportCenters = useSportCenterStore(
-    (state) => state.getBookedSportCenters
   )
   const storePagination = useSportCenterStore((state) => state.pagination)
 
@@ -51,17 +52,23 @@ export function SportCenterBrowser({
   }, [setSportCenters, sportCenters])
 
   useEffect(() => {
+    setFavoriteFilter(favoriteOnly ? "favorite" : "all")
+  }, [favoriteOnly, setFavoriteFilter])
+
+  useEffect(() => {
     setPagination(pagination)
   }, [pagination, setPagination])
 
   const filteredSportCenters = getFilteredSportCenters()
-  const bookedSportCenters = getBookedSportCenters()
   const activePagination = storePagination ?? pagination
   const previousPage = Math.max(1, activePagination.currentPage - 1)
   const nextPage = activePagination.currentPage + 1
+  const favoriteQuery = favoriteOnly ? "&favorite=favorite" : ""
   const previousHref =
-    previousPage === 1 ? "/sport-center" : `/sport-center?page=${previousPage}`
-  const nextHref = `/sport-center?page=${nextPage}`
+    previousPage === 1
+      ? `/sport-center${favoriteQuery}`
+      : `/sport-center?page=${previousPage}${favoriteQuery}`
+  const nextHref = `/sport-center?page=${nextPage}${favoriteQuery}`
 
   return (
     <div className="flex flex-1 flex-col">
@@ -77,66 +84,16 @@ export function SportCenterBrowser({
         </div>
 
         <TabsContent value="sport-center" className="space-y-6">
-          <section className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-            <div className="space-y-4">
-              <div className="relative">
-                <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="Tìm kiếm theo tên sân hoặc địa chỉ"
-                  className="pl-9"
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-medium text-muted-foreground">
-                  {filteredSportCenters.length} kết quả phù hợp
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Trang {activePagination.currentPage} /{" "}
-                  {Math.max(
-                    1,
-                    Math.ceil(
-                      activePagination.total / activePagination.pageSize
-                    )
-                  )}
-                </p>
-              </div>
-
-              {filteredSportCenters.length > 0 ? (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {filteredSportCenters.map((sportCenter) => (
-                    <SportCenterCard
-                      key={sportCenter.id}
-                      sportCenter={sportCenter}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <EmptyState variant="sport-center" />
-              )}
-            </div>
-
-            <div>
-              <FilterSidebar />
-            </div>
-          </section>
+          <SportCenterTabContent
+            filteredSportCenters={filteredSportCenters}
+            activePagination={activePagination}
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
+          />
         </TabsContent>
 
         <TabsContent value="booking" className="space-y-4">
-          {bookedSportCenters.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {bookedSportCenters.map((sportCenter) => (
-                <SportCenterCard
-                  key={sportCenter.id}
-                  sportCenter={sportCenter}
-                />
-              ))}
-            </div>
-          ) : (
-            <EmptyState variant="booking" />
-          )}
+          <BookingTabContent bookedSportCenters={bookedSportCenters} />
         </TabsContent>
       </Tabs>
 

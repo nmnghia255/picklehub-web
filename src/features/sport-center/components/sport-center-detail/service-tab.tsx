@@ -1,136 +1,46 @@
 import { Card, CardContent } from "@/components/ui/card"
+import { getSportCenterPriceSlots } from "@/features/sport-center/api/sport-center-user-service"
+import { ProductCard } from "@/features/sport-center/components/sport-center-detail/product-card"
+import { ServiceCard } from "@/features/sport-center/components/sport-center-detail/service-card"
 import type {
   PriceSlot,
   SportCenter,
 } from "@/features/sport-center/types/sport-center"
-import { ProductCard } from "@/features/sport-center-management/services-products/components/product-card"
-import { ServiceCard } from "@/features/sport-center-management/services-products/components/service-card"
-import type {
-  ProductInventoryItem,
-  ServiceInventoryItem,
-} from "@/features/sport-center-management/services-products/types"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 interface ServiceTabProps {
+  sportCenterId: string
   sportCenterName: string
   products: SportCenter["products"]
   services: SportCenter["services"]
-  priceSlots: PriceSlot[]
 }
 
-function formatPriceVnd(value: number) {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(value)
-}
-
-function mapProductToInventoryItem(
-  product: SportCenter["products"][number],
-  sportCenterName: string
-): ProductInventoryItem {
-  return {
-    kind: "product",
-    id: product.id,
-    courtId: product.centerId,
-    courtName: sportCenterName,
-    name: product.name,
-    category: "Đồ uống",
-    price: product.price,
-    stock: product.stock,
-    status: product.isActive && product.stock > 0 ? "in_stock" : "out_of_stock",
-    description: product.description,
-    imageUrl: product.imageUrl,
-    updatedAt: product.updatedAt,
-  }
-}
-
-function mapServiceToInventoryItem(
-  service: SportCenter["services"][number],
-  sportCenterName: string
-): ServiceInventoryItem {
-  return {
-    kind: "service",
-    id: service.id,
-    courtId: service.centerId,
-    courtName: sportCenterName,
-    name: service.name,
-    category: service.type === "COACHING" ? "Huấn luyện" : "Cho thuê",
-    price: service.price,
-    status: service.isActive ? "active" : "paused",
-    description: service.description,
-    updatedAt: service.updatedAt,
-  }
-}
-
-export function ServiceTab({
+export async function ServiceTab({
+  sportCenterId,
   sportCenterName,
   products,
   services,
-  priceSlots,
 }: ServiceTabProps) {
-  const productInventoryItems = products.map((product) =>
-    mapProductToInventoryItem(product, sportCenterName)
-  )
+  let priceSlots: PriceSlot[] = []
 
-  const serviceInventoryItems = services.map((service) =>
-    mapServiceToInventoryItem(service, sportCenterName)
-  )
+  try {
+    priceSlots = await getSportCenterPriceSlots(sportCenterId)
+  } catch (error) {
+    console.error("Failed to fetch sport center price slots:", error)
+  }
 
   return (
-    <Card>
-      <CardContent className="space-y-4 p-6">
-        <h2 className="text-lg font-semibold">Dịch vụ & Sản phẩm</h2>
-
-        <div className="space-y-8">
+    <Card className="gap-0 py-0">
+      <CardContent className="space-y-6 p-6">
+        {/* Price Slots */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold">Bảng giá</h2>
+            <span className="text-xs text-muted-foreground">
+              {priceSlots.length} khung giờ
+            </span>
+          </div>
           <section className="space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-sm font-medium">Sản phẩm</h3>
-              <span className="text-xs text-muted-foreground">
-                {productInventoryItems.length} mục
-              </span>
-            </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {productInventoryItems.length > 0 ? (
-                productInventoryItems.map((item) => (
-                  <ProductCard key={item.id} item={item} />
-                ))
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Chưa có sản phẩm.
-                </p>
-              )}
-            </div>
-          </section>
-
-          <section className="space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-sm font-medium">Dịch vụ</h3>
-              <span className="text-xs text-muted-foreground">
-                {serviceInventoryItems.length} mục
-              </span>
-            </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {serviceInventoryItems.length > 0 ? (
-                serviceInventoryItems.map((item) => (
-                  <ServiceCard key={item.id} item={item} />
-                ))
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Chưa có dịch vụ.
-                </p>
-              )}
-            </div>
-          </section>
-
-          <section className="space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-sm font-medium">Bảng giá</h3>
-              <span className="text-xs text-muted-foreground">
-                {priceSlots.length} khung giờ
-              </span>
-            </div>
-
             {priceSlots.length > 0 ? (
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 {priceSlots.map((slot) => (
@@ -140,7 +50,7 @@ export function ServiceTab({
                         {slot.startTime} - {slot.endTime}
                       </p>
                       <p className="text-sm font-semibold">
-                        {formatPriceVnd(slot.pricePerHour)} / giờ
+                        {formatCurrencyVnd(slot.pricePerHour)} / giờ
                       </p>
                     </div>
                     <p className="text-xs text-muted-foreground">
@@ -152,6 +62,54 @@ export function ServiceTab({
             ) : (
               <p className="text-sm text-muted-foreground">Chưa có bảng giá.</p>
             )}
+          </section>
+        </div>
+
+        {/* Products */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold">Sản phẩm</h2>
+            <span className="text-xs text-muted-foreground">
+              {products.length} mục
+            </span>
+          </div>
+
+          <section className="space-y-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {products.length > 0 ? (
+                products.map((item) => (
+                  <ProductCard key={item.id} item={item} />
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Chưa có sản phẩm.
+                </p>
+              )}
+            </div>
+          </section>
+        </div>
+
+        {/* Services */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold">Dịch vụ</h2>
+            <span className="text-xs text-muted-foreground">
+              {services.length} mục
+            </span>
+          </div>
+
+          <section className="space-y-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {services.length > 0 ? (
+                services.map((item) => (
+                  <ServiceCard key={item.id} item={item} />
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Chưa có dịch vụ.
+                </p>
+              )}
+            </div>
           </section>
         </div>
       </CardContent>

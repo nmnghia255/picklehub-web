@@ -18,7 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
-import { formatVnd } from "@/utils/expense-utils"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import type { CourtExpenseRow } from "../../mock-data/expense-types"
 
@@ -96,7 +96,7 @@ export function CourtBookingExpensesCard({
                     {row.duration}
                   </TableCell>
                   <TableCell className="px-6 py-4 text-right font-medium">
-                    {formatVnd(row.cost)}
+                    {formatCurrencyVnd(row.cost)}
                   </TableCell>
                 </TableRow>
               ))}
@@ -107,7 +107,7 @@ export function CourtBookingExpensesCard({
                   {t("expenses.courtBookings.footerLabel")}
                 </TableCell>
                 <TableCell className="px-6 py-4 text-right text-base">
-                  {formatVnd(totalCourtExpense)}
+                  {formatCurrencyVnd(totalCourtExpense)}
                 </TableCell>
               </TableRow>
             </TableFooter>

@@ -1,14 +1,24 @@
 import { PageContainer } from "@/components/page-container"
 import {
+  getMyBookings,
   listSportCenters,
   type ListSportCentersResult,
 } from "@/features/sport-center/api/sport-center-user-service"
 import { SportCenterBrowser } from "@/features/sport-center/components/sport-center-listing"
+import type { BookingStatus } from "@/features/sport-center/types/booking"
+import type { SportCenter } from "@/features/sport-center/types/sport-center"
 
 const PAGE_SIZE = 20
+const BOOKING_PAGE_SIZE = 100
+const BOOKING_STATUSES: BookingStatus[] = [
+  "PENDING",
+  "CONFIRMED",
+  "COMPLETED",
+  "CANCELLED",
+]
 
 type PageProps = {
-  searchParams?: Promise<{ page?: string }>
+  searchParams?: Promise<{ page?: string; favorite?: string }>
 }
 
 export default async function SportCenterPage({ searchParams }: PageProps) {
@@ -16,16 +26,44 @@ export default async function SportCenterPage({ searchParams }: PageProps) {
   const rawPage = Number.parseInt(resolvedSearchParams?.page ?? "1", 10)
   const currentPage = Number.isNaN(rawPage) || rawPage < 1 ? 1 : rawPage
   const offset = (currentPage - 1) * PAGE_SIZE
+  const favoriteOnly = resolvedSearchParams?.favorite === "favorite"
 
   let sportCentersResult: ListSportCentersResult = {
     data: [],
     pagination: undefined,
   }
+  let bookedSportCenters: SportCenter[] = []
 
   try {
-    sportCentersResult = await listSportCenters(PAGE_SIZE, offset)
+    const [sportCentersResponse, bookingResponses] = await Promise.all([
+      listSportCenters(PAGE_SIZE, offset, undefined, favoriteOnly),
+      Promise.allSettled(
+        BOOKING_STATUSES.map((status) =>
+          getMyBookings(status, "", "", BOOKING_PAGE_SIZE, 0)
+        )
+      ),
+    ])
+
+    sportCentersResult = sportCentersResponse
+
+    const bookings = bookingResponses.flatMap((result) =>
+      result.status === "fulfilled" ? result.value : []
+    )
+
+    const seenCenterIds = new Set<string>()
+    bookedSportCenters = bookings.reduce<SportCenter[]>((centers, booking) => {
+      const center = booking.court.center
+
+      if (seenCenterIds.has(center.id)) {
+        return centers
+      }
+
+      seenCenterIds.add(center.id)
+      centers.push(center)
+      return centers
+    }, [])
   } catch (error) {
-    console.error("Failed to fetch sport centers:", error)
+    console.error("Failed to fetch sport centers or bookings:", error)
     return (
       <PageContainer variant="wide">
         <div className="p-4">
@@ -52,6 +90,8 @@ export default async function SportCenterPage({ searchParams }: PageProps) {
     >
       <SportCenterBrowser
         sportCenters={sportCenters}
+        bookedSportCenters={bookedSportCenters}
+        favoriteOnly={favoriteOnly}
         pagination={{
           currentPage,
           pageSize: pagination.limit,
