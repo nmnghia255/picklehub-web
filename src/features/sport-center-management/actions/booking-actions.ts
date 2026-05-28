@@ -1,7 +1,7 @@
 import type { Booking } from "../types/booking"
 import type { BookingStatus } from "../types/booking"
 
-export type BookingListPagination = {
+export type Pagination = {
   total: number
   offset: number
   limit: number
@@ -9,7 +9,7 @@ export type BookingListPagination = {
 
 export type ListBookingsResult = {
   data: Booking[]
-  pagination?: BookingListPagination
+  pagination?: Pagination
 }
 
 async function apiRequest<T>(input: string, init?: RequestInit): Promise<T> {
@@ -45,7 +45,7 @@ function normalizeListBookingsPayload(payload: unknown): ListBookingsResult {
   const value = payload as {
     data?: unknown
     bookings?: unknown
-    pagination?: BookingListPagination
+    pagination?: Pagination
   }
 
   if (Array.isArray(value.data)) {
@@ -66,7 +66,7 @@ function normalizeListBookingsPayload(payload: unknown): ListBookingsResult {
     const nested = value.data as {
       data?: unknown
       bookings?: unknown
-      pagination?: BookingListPagination
+      pagination?: Pagination
     }
 
     if (Array.isArray(nested.data)) {

@@ -1,19 +1,27 @@
 "use client"
 
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { PageContainer } from "@/components/page-container"
+import type { Pagination as BookingListPagination } from "@/features/sport-center-management/actions/booking-actions"
+import {
+  cancelBookingAction,
+  confirmBookingAction,
+  listBookingListAction,
+} from "@/features/sport-center-management/actions/booking-actions"
 import {
   BookingListFiltersPanel,
   BookingListPageHeader,
   BookingListResults,
   BookingListSkeleton,
-  BookingListStats,
 } from "@/features/sport-center-management/components/booking-list"
+import type { BookingCreatedAtFilter } from "@/features/sport-center-management/components/booking-list/booking-list.utils"
 import { sortBookingsByNewest } from "@/features/sport-center-management/components/booking-list/booking-list.utils"
-import useBookingListStore from "@/features/sport-center-management/stores/booking-list-store"
+import { useBookingListStore } from "@/features/sport-center-management/stores/booking-list-store"
 import { useCourtScheduleStore } from "@/features/sport-center-management/stores/court-schedule-store"
 import type { Booking } from "@/features/sport-center-management/types/booking"
+
+const PAGE_SIZE = 20
 
 export default function Page() {
   const sportCenters = useCourtScheduleStore((state) => state.sportCenters)
@@ -21,30 +29,102 @@ export default function Page() {
   const loadingSportCenters = useCourtScheduleStore(
     (state) => state.loadingSportCenters
   )
-
-  const bookings = useBookingListStore((state) => state.bookings)
   const createdAtFilter = useBookingListStore((state) => state.createdAtFilter)
   const statusFilter = useBookingListStore((state) => state.statusFilter)
+
+  return (
+    <BookingListPageContent
+      key={`${centerId ?? "none"}-${createdAtFilter}-${statusFilter}`}
+      centerId={centerId}
+      loadingSportCenters={loadingSportCenters}
+      sportCenters={sportCenters}
+      createdAtFilter={createdAtFilter}
+      statusFilter={statusFilter}
+    />
+  )
+}
+
+function BookingListPageContent({
+  centerId,
+  loadingSportCenters,
+  sportCenters,
+  createdAtFilter,
+  statusFilter,
+}: {
+  centerId: string | null
+  loadingSportCenters: boolean
+  sportCenters: Array<{ id: string; name: string }>
+  createdAtFilter: BookingCreatedAtFilter
+  statusFilter: "all" | Booking["status"]
+}) {
+  const bookings = useBookingListStore((state) => state.bookings)
+  const setBookings = useBookingListStore((state) => state.setBookings)
+  const setIsLoadingBookings = useBookingListStore(
+    (state) => state.setIsLoadingBookings
+  )
+  const setLoadError = useBookingListStore((state) => state.setLoadError)
   const isLoadingBookings = useBookingListStore(
     (state) => state.isLoadingBookings
   )
   const loadError = useBookingListStore((state) => state.loadError)
   const pendingAction = useBookingListStore((state) => state.pendingAction)
-  const pagination = useBookingListStore((state) => state.pagination)
 
-  const loadBookings = useBookingListStore((state) => state.loadBookings)
-  const confirmBooking = useBookingListStore((state) => state.confirmBooking)
-  const cancelBooking = useBookingListStore((state) => state.cancelBooking)
   const setCreatedAtFilter = useBookingListStore(
     (state) => state.setCreatedAtFilter
   )
   const setStatusFilter = useBookingListStore((state) => state.setStatusFilter)
   const resetFilters = useBookingListStore((state) => state.resetFilters)
 
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pagination, setPagination] = useState<BookingListPagination | null>(
+    null
+  )
+
   useEffect(() => {
     if (!centerId) return
-    void loadBookings(centerId, 1)
-  }, [centerId, createdAtFilter, statusFilter, loadBookings])
+    let active = true
+
+    const loadBookings = async () => {
+      setIsLoadingBookings(true)
+      setLoadError(null)
+
+      const offset = (currentPage - 1) * PAGE_SIZE
+
+      try {
+        const response = await listBookingListAction(
+          centerId,
+          "",
+          "all",
+          "",
+          offset,
+          PAGE_SIZE
+        )
+
+        if (!active) return
+
+        setBookings(response.data)
+        setPagination(response.pagination ?? null)
+      } catch (error) {
+        if (!active) return
+
+        setLoadError(
+          error instanceof Error
+            ? error.message
+            : "Không thể tải danh sách đặt sân"
+        )
+      } finally {
+        if (active) {
+          setIsLoadingBookings(false)
+        }
+      }
+    }
+
+    void loadBookings()
+
+    return () => {
+      active = false
+    }
+  }, [centerId, currentPage, setBookings, setIsLoadingBookings, setLoadError])
 
   const selectedCenter = useMemo(
     () => sportCenters.find((center) => center.id === centerId) ?? null,
@@ -56,6 +136,21 @@ export default function Page() {
     [bookings, centerId]
   )
 
+  const paginationView = useMemo(() => {
+    const pageSize = pagination?.limit ?? PAGE_SIZE
+    const total = pagination?.total ?? activeBookings.length
+    const totalPages = Math.max(1, Math.ceil(total / pageSize))
+
+    return {
+      currentPage,
+      totalPages,
+      total,
+      pageSize,
+      hasPreviousPage: currentPage > 1,
+      hasNextPage: currentPage < totalPages,
+    }
+  }, [activeBookings.length, currentPage, pagination?.limit, pagination?.total])
+
   const bookingCounts = useMemo(() => {
     const pending = activeBookings.filter(
       (booking) => booking.status === "PENDING"
@@ -65,29 +160,20 @@ export default function Page() {
     ).length
 
     return {
-      total: pagination?.total ?? activeBookings.length,
+      total: paginationView.total,
       pending,
       confirmed,
     }
-  }, [activeBookings, pagination?.total])
-
-  const currentPage = pagination
-    ? Math.floor(pagination.offset / pagination.limit) + 1
-    : 1
-  const totalPages = pagination
-    ? Math.max(1, Math.ceil(pagination.total / pagination.limit))
-    : 1
-  const hasPreviousPage = currentPage > 1
-  const hasNextPage = currentPage < totalPages
+  }, [activeBookings, paginationView.total])
 
   const hasActiveFilters = createdAtFilter !== "all" || statusFilter !== "all"
 
   const handleConfirmBooking = (booking: Booking) => {
-    void confirmBooking(booking.id)
+    void confirmBookingAction(booking.id)
   }
 
   const handleCancelBooking = (booking: Booking) => {
-    void cancelBooking(booking.id)
+    void cancelBookingAction(booking.id)
   }
 
   const shouldShowSkeleton = loadingSportCenters || isLoadingBookings
@@ -117,8 +203,6 @@ export default function Page() {
         totalBookings={bookingCounts.total}
       />
 
-      {/* <BookingListStats bookingCounts={bookingCounts} /> */}
-
       <section className="space-y-5">
         <BookingListFiltersPanel
           createdAtFilter={createdAtFilter}
@@ -132,25 +216,18 @@ export default function Page() {
           loadError={loadError}
           activeBookings={activeBookings}
           hasActiveFilters={hasActiveFilters}
-          pagination={{
-            currentPage,
-            totalPages,
-            total: pagination?.total ?? activeBookings.length,
-            pageSize: pagination?.limit ?? 0,
-            hasPreviousPage,
-            hasNextPage,
-          }}
+          pagination={paginationView}
           onConfirmBooking={handleConfirmBooking}
           onCancelBooking={handleCancelBooking}
           onResetFilters={resetFilters}
           onRetry={() => window.location.reload()}
           onPreviousPage={() => {
-            if (!centerId || !hasPreviousPage) return
-            void loadBookings(centerId, currentPage - 1)
+            if (!centerId || !paginationView.hasPreviousPage) return
+            setCurrentPage((page) => Math.max(1, page - 1))
           }}
           onNextPage={() => {
-            if (!centerId || !hasNextPage) return
-            void loadBookings(centerId, currentPage + 1)
+            if (!centerId || !paginationView.hasNextPage) return
+            setCurrentPage((page) => page + 1)
           }}
           pendingAction={pendingAction}
         />
