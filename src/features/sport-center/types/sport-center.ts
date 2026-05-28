@@ -97,13 +97,3 @@ export interface SportCenterFavorite {
   userId: string
   createdAt: string
 }
-
-// ============================================
-// Sport Center Courts
-// ============================================
-
-export type CourtStatus = "ACTIVE" | "INACTIVE"
-
-// ============================================
-// Sport Center Booking
-// ============================================

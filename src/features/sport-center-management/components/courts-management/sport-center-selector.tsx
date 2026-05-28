@@ -62,7 +62,7 @@ export function SportCenterSelector() {
             >
               <span className="font-medium">{center.name}</span>
               <span className="text-xs text-muted-foreground">
-                {center.location}
+                {center.address}
               </span>
             </DropdownMenuItem>
           ))

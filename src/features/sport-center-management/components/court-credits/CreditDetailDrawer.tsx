@@ -19,12 +19,12 @@ import {
 } from "@/components/ui/sheet"
 import { useCourtCreditsTranslation } from "@/i18n/use-court-credits-translation"
 
-import type { CreditRecord } from "../../credit-management/court-credits-data"
 import {
   formatCreditDate,
   formatCreditDateTime,
   formatCurrencyVnd,
 } from "../../credit-management/court-credits-data"
+import type { CreditRecord } from "../../types/credit"
 
 function DetailBlock({ label, value }: { label: string; value: string }) {
   return (

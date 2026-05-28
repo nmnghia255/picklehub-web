@@ -3,13 +3,13 @@
 import type { DateRange } from "react-day-picker"
 import { create } from "zustand"
 
-import {
-  type CancellationReason,
-  type CreditRecord,
-  type CreditStatus,
-  type CreditTabValue,
-  MOCK_CREDITS,
-} from "../credit-management/court-credits-data"
+import { MOCK_CREDITS } from "../credit-management/court-credits-data"
+import type {
+  CancellationReason,
+  CreditRecord,
+  CreditStatus,
+  CreditTabValue,
+} from "../types/credit"
 
 export type CreditSortValue =
   | "latest-created"

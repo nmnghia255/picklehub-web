@@ -1,161 +1,135 @@
-"use server"
+import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type {
   Booking,
-  BookingEnvelopeResponse,
-  CreateBookingParams,
-  ListCenterBookingsParams,
-  ListCenterBookingsResult,
-  PaginatedBookingResponse,
-} from "@/features/sport-center-management/types"
-import { getAuthenticatedAxios } from "@/lib/server-api"
+  BookingDetail,
+  BookingStatus,
+  OwnerBooking,
+} from "../types/booking"
+import type { CreditTransaction, MyCredit } from "../types/credit"
 
-// ============================================================================
-// Booking Service - Server-side API client
-// ============================================================================
-
-/**
- * List all bookings for a specific sport center
- */
-export async function listCenterBookings(
-  centerId: string,
-  params: ListCenterBookingsParams = {}
-): Promise<ListCenterBookingsResult> {
-  const axios = await getAuthenticatedAxios()
-  const response = await axios.get<
-    | Booking[]
-    | PaginatedBookingResponse
-    | BookingEnvelopeResponse
-    | {
-        data: Booking[]
-        pagination: { limit: number; offset: number; total: number }
-      }
-  >(`/api/sport-centers/${centerId}/bookings`, {
-    params,
-  })
-
-  let data: Booking[] = []
-  let pagination: { limit: number; offset: number; total: number } | undefined
-
-  // Handle array response
-  if (Array.isArray(response.data)) {
-    data = response.data as Booking[]
+interface ApiResponse<T> {
+  success: boolean
+  message: string
+  data: T
+  pagination?: {
+    total: number
+    offset: number
+    limit: number
   }
-  // Handle object response with data property
-  else if (
-    response.data &&
-    typeof response.data === "object" &&
-    "data" in response.data &&
-    Array.isArray((response.data as { data: unknown }).data)
-  ) {
-    data = (response.data as { data: Booking[] }).data
+}
 
-    // Check for pagination in new format
-    if ("pagination" in response.data) {
-      pagination = (
-        response.data as {
-          pagination: { limit: number; offset: number; total: number }
-        }
-      ).pagination
+function unwrapApiResponse<T>(payload: ApiResponse<T> | T): T {
+  if (payload && typeof payload === "object" && "data" in payload) {
+    return (payload as ApiResponse<T>).data
+  }
+  return payload as T
+}
+
+export const BookingService = {
+  listBookings: async function listBookings(
+    centerId: string,
+    status: BookingStatus,
+    courtId: string,
+    date: string,
+    offset = 0,
+    limit = 20
+  ): Promise<Booking[]> {
+    const axios = await getAuthenticatedAxios()
+    let stringBuilder = `/api/sport-centers/${centerId}/bookings?offset=${offset}&limit=${limit}`
+    if (courtId) {
+      stringBuilder += `&courts=${courtId}`
     }
-    // Check for meta in old format
-    else if ("meta" in response.data) {
-      const meta = (response.data as PaginatedBookingResponse).meta
-      pagination = {
-        limit: meta.limit,
-        offset: meta.offset,
-        total: meta.total,
-      }
+    if (date) {
+      stringBuilder += `&date=${date}`
     }
-  }
+    if (status) {
+      stringBuilder += `&status=${status}`
+    }
+    const response = await axios.get<Booking[]>(stringBuilder)
+    console.log("Fetched bookings:", response.data)
+    return unwrapApiResponse(response.data)
+  },
 
-  return {
-    data,
-    pagination,
-  }
-}
+  getBookingDetail: async function getBookingDetail(
+    centerId: string,
+    bookingId: string
+  ): Promise<BookingDetail> {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.get<BookingDetail>(
+      `/api/sport-centers/${centerId}/bookings/${bookingId}`
+    )
+    return unwrapApiResponse(response.data)
+  },
 
-/**
- * Get detailed information about a specific booking
- */
-export async function getCenterBooking(
-  centerId: string,
-  bookingId: string
-): Promise<Booking> {
-  const axios = await getAuthenticatedAxios()
-  const response = await axios.get<Booking>(
-    `/api/sport-centers/${centerId}/bookings/${bookingId}`
-  )
-  return response.data
-}
+  // listBookingDetails: async function listBookingDetails(bookingId: string): Promise<BookingDetail> {
+  //   const axios = await getAuthenticatedAxios()
+  //   const response = await axios.get<BookingDetail>(`/api/bookings/${bookingId}`)
+  //   return unwrapApiResponse(response.data)
+  // },
 
-/**
- * Confirm a booking (owner action)
- */
-export async function confirmBookingByOwner(
-  bookingId: string
-): Promise<Booking> {
-  const axios = await getAuthenticatedAxios()
-  const response = await axios.patch<Booking>(
-    `/api/bookings/${bookingId}/confirm`
-  )
-  return response.data
-}
+  cancelBooking: async function cancelBookingByOwner(
+    bookingId: string,
+    cancelReason?: string
+  ): Promise<Booking> {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.post<Booking>(
+      `/api/bookings/${bookingId}/cancel-by-owner`,
+      { reason: cancelReason }
+    )
+    return unwrapApiResponse(response.data)
+  },
 
-/**
- * Cancel a booking (owner action)
- */
-export async function cancelBookingByOwner(
-  bookingId: string
-): Promise<Booking> {
-  const axios = await getAuthenticatedAxios()
-  const response = await axios.patch<Booking>(
-    `/api/bookings/${bookingId}/cancel`
-  )
-  return response.data
-}
+  createBooking: async function createBooking(
+    centerId: string,
+    bookingData: OwnerBooking
+  ): Promise<Booking> {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.post<Booking>(
+      `/api/sport-centers/${centerId}/bookings`,
+      bookingData
+    )
+    return unwrapApiResponse(response.data)
+  },
 
-/**
- * Complete a booking (owner action)
- */
-export async function completeBookingByOwner(
-  bookingId: string
-): Promise<Booking> {
-  const axios = await getAuthenticatedAxios()
-  const response = await axios.patch<Booking>(
-    `/api/bookings/${bookingId}/complete`
-  )
-  return response.data
-}
+  confirmBooking: async function confirmBooking(
+    bookingId: string
+  ): Promise<Booking> {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.post<Booking>(
+      `/api/bookings/${bookingId}/confirm`
+    )
+    return unwrapApiResponse(response.data)
+  },
 
-/**
- * Create a booking for a specific court
- */
-export async function createBookingForCourt(
-  centerId: string,
-  courtId: string,
-  body: CreateBookingParams
-): Promise<Booking> {
-  const axios = await getAuthenticatedAxios()
-  const response = await axios.post<Booking>(
-    `/api/sport-centers/${centerId}/courts/${courtId}/bookings`,
-    body
-  )
-  return response.data
-}
+  completeBooking: async function completeBooking(
+    bookingId: string
+  ): Promise<Booking> {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.post<Booking>(
+      `/api/bookings/${bookingId}/complete`
+    )
+    return unwrapApiResponse(response.data)
+  },
 
-/**
- * Create a booking for a specific court by owner
- */
-export async function createBookingForCourtByOwner(
-  centerId: string,
-  courtId: string,
-  body: CreateBookingParams
-): Promise<Booking> {
-  const axios = await getAuthenticatedAxios()
-  const response = await axios.post<Booking>(
-    `/api/sport-centers/${centerId}/courts/${courtId}/bookings/by-owner`,
-    body
-  )
-  return response.data
+  getMyPreservationsCreditWallets: async function getMyReservations(): Promise<
+    MyCredit[]
+  > {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.get<MyCredit[]>(`/api/bookings/credits`)
+    return unwrapApiResponse(response.data)
+  },
+
+  getPreservationCreditTransactionHistory:
+    async function getPreservationCreditTransactionHistory(
+      centerId: string,
+      limit = 20,
+      offset = 0
+    ): Promise<CreditTransaction[]> {
+      const axios = await getAuthenticatedAxios()
+      const response = await axios.get<CreditTransaction[]>(
+        `/api/bookings/credits/${centerId}/transactions?limit=${limit}&offset=${offset}`
+      )
+      return unwrapApiResponse(response.data)
+    },
 }

@@ -1,6 +1,6 @@
 "use server"
 
-import { getBulkCourtAvailability } from "@/features/sport-center/api/sport-center-user-service"
+import { getBulkCourtAvailability } from "@/features/sport-center/api/sport-center-service"
 import type { BulkCourtAvailability } from "@/features/sport-center/types/court"
 
 function formatBookingDate(date: Date) {

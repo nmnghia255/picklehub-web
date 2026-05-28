@@ -2,7 +2,7 @@
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import type { CreditTabValue } from "../../credit-management/court-credits-data"
+import type { CreditTabValue } from "../../types/credit"
 
 export function CreditTabs({
   value,

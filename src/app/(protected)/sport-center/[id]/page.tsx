@@ -6,7 +6,7 @@ import {
   getSportCenterById,
   getSportCenterCourts,
   getSportCenterReviews,
-} from "@/features/sport-center/api/sport-center-user-service"
+} from "@/features/sport-center/api/sport-center-service"
 import type { CourtResponse } from "@/features/sport-center/types/court"
 import type { Review } from "@/features/sport-center/types/review"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"

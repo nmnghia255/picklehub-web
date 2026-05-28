@@ -1,65 +1,11 @@
-export type CreditStatus = "ACTIVE" | "PARTIALLY_USED" | "USED" | "EXPIRED"
-
-export type CancellationReason =
-  | "CUSTOMER_CANCELLED"
-  | "OWNER_CANCELLED"
-  | "WEATHER"
-  | "MAINTENANCE"
-  | "OTHER"
-
-export type CreditTabValue =
-  | "all"
-  | "active"
-  | "partially-used"
-  | "used"
-  | "expired"
-
-export interface CreditUsageEntry {
-  timestamp: Date
-  amount: number
-  bookingId: string
-  notes: string
-}
-
-export interface CreditTimelineEntry {
-  label: string
-  timestamp: Date
-  actor: string
-}
-
-export interface CreditAuditEntry {
-  action: string
-  timestamp: Date
-  actor: string
-}
-
-export interface CreditRecord {
-  id: string
-  creditCode: string
-  customerName: string
-  phone: string
-  bookingCode: string
-  originalBookingId: string
-  courtName: string
-  bookingDate: Date
-  timeSlot: string
-  creditAmount: number
-  remainingAmount: number
-  status: CreditStatus
-  createdAt: Date
-  expirationDate: Date
-  cancellationReason: CancellationReason
-  notes: string
-  manualCredit: boolean
-  usageHistory: CreditUsageEntry[]
-  timeline: CreditTimelineEntry[]
-  auditLog: CreditAuditEntry[]
-}
-
-export interface CourtOption {
-  value: string
-  label: string
-}
+import type {
+  CancellationReason,
+  CourtOption,
+  CreditAuditEntry,
+  CreditRecord,
+  CreditTimelineEntry,
+  CreditUsageEntry,
+} from "../types/credit"
 
 export const COURT_OPTIONS: CourtOption[] = [
   { value: "all", label: "All courts" },

@@ -3,7 +3,7 @@
 import {
   addFavoriteSportCenter,
   removeFavoriteSportCenter,
-} from "@/features/sport-center/api/sport-center-user-service"
+} from "@/features/sport-center/api/sport-center-service"
 
 export interface ToggleFavoriteSportCenterState {
   isFavourite: boolean

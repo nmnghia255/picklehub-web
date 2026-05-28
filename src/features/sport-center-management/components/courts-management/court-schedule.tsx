@@ -2,10 +2,8 @@
 
 import { useEffect } from "react"
 
-import {
-  type Booking,
-  useCourtScheduleStore,
-} from "../../stores/court-schedule-store"
+import { useCourtScheduleStore } from "../../stores/court-schedule-store"
+import type { Booking } from "../../types/booking"
 import { BookingDetailModal } from "./booking-modal"
 import { TimeSlot } from "./court-slot"
 import { Filters } from "./filters"

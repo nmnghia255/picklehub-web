@@ -12,11 +12,11 @@ import {
 import { useCourtCreditsTranslation } from "@/i18n/use-court-credits-translation"
 import { cn } from "@/lib/utils"
 
-import type { CreditRecord } from "../../credit-management/court-credits-data"
 import {
   formatCreditDate,
   formatCurrencyVnd,
 } from "../../credit-management/court-credits-data"
+import type { CreditRecord } from "../../types/credit"
 import { ReasonBadge } from "./Badges"
 import CreditActionsDropdown from "./CreditActionsDropdown"
 

@@ -3,6 +3,7 @@
 import { useAtomValue } from "jotai"
 import {
   BellRing,
+  CalendarClock,
   CalendarDays,
   ChevronDown,
   History,
@@ -71,6 +72,11 @@ const sportCenterManagementMenuItems = [
   {
     title: "Bảo lưu sân",
     href: "/sport-center-management/reservation-management",
+  },
+  {
+    title: "Danh sách đặt sân",
+    href: "/sport-center-management/booking-list",
+    icon: CalendarClock,
   },
 ]
 

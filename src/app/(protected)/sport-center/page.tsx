@@ -3,7 +3,7 @@ import {
   getMyBookings,
   listSportCenters,
   type ListSportCentersResult,
-} from "@/features/sport-center/api/sport-center-user-service"
+} from "@/features/sport-center/api/sport-center-service"
 import { SportCenterBrowser } from "@/features/sport-center/components/sport-center-listing"
 import type { BookingStatus } from "@/features/sport-center/types/booking"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"

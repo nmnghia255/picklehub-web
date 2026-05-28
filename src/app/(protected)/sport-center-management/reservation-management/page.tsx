@@ -13,12 +13,14 @@ import {
   CreditStats,
   CreditTable,
 } from "@/features/sport-center-management/components/court-credits-management"
-import type { CreditRecord } from "@/features/sport-center-management/credit-management/court-credits-data"
-import type { CancellationReason } from "@/features/sport-center-management/credit-management/court-credits-data"
 import {
   type CreditSortValue,
   useCreditManagementStore,
 } from "@/features/sport-center-management/stores/court-credits-store"
+import type {
+  CancellationReason,
+  CreditRecord,
+} from "@/features/sport-center-management/types/credit"
 import { useCourtCreditsTranslation } from "@/i18n/use-court-credits-translation"
 
 export default function CourtCreditsPage() {

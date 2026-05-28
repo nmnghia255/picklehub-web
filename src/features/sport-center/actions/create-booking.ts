@@ -1,6 +1,6 @@
 "use server"
 
-import { createBooking } from "@/features/sport-center/api/sport-center-user-service"
+import { createBooking } from "@/features/sport-center/api/sport-center-service"
 import type { BookingRequest } from "@/features/sport-center/types/booking"
 
 export type CreateSportCenterBookingsPayload = {
