@@ -27,7 +27,10 @@ export async function GET(request: Request, context: RouteContext) {
       limit
     )
 
-    return NextResponse.json({ data: bookings }, { status: 200 })
+    return NextResponse.json(
+      { data: bookings.data, pagination: bookings.pagination },
+      { status: 200 }
+    )
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Failed to load bookings"

@@ -1,6 +1,7 @@
 import { toast } from "sonner"
 import { create } from "zustand"
 
+import type { BookingListPagination } from "@/features/sport-center-management/actions/booking-actions"
 import {
   cancelBookingAction,
   confirmBookingAction,
@@ -21,8 +22,9 @@ interface BookingListState {
   pendingAction: PendingAction
   offset: number
   limit: number
+  pagination: BookingListPagination | null
 
-  loadBookings: (centerId: string) => Promise<void>
+  loadBookings: (centerId: string, page?: number) => Promise<void>
   confirmBooking: (bookingId: string) => Promise<void>
   cancelBooking: (bookingId: string) => Promise<void>
   setCreatedAtFilter: (f: BookingCreatedAtFilter) => void
@@ -39,16 +41,44 @@ export const useBookingListStore = create<BookingListState>((set, get) => ({
   loadError: null,
   pendingAction: null,
   offset: 0,
-  limit: 100,
+  limit: 20,
+  pagination: null,
 
-  loadBookings: async (centerId: string) => {
+  loadBookings: async (centerId: string, page = 1) => {
     if (!centerId) return
     set({ isLoadingBookings: true, loadError: null })
     try {
-      const limit = get().limit
-      const page = await listBookingListAction(centerId, "", "", "", 0, limit)
-      const items = Array.isArray(page) ? page : []
-      set({ bookings: items, offset: items.length })
+      const {
+        limit,
+        createdAtFilter,
+        statusFilter: currentStatusFilter,
+      } = get()
+      const statusFilter: "" | Booking["status"] =
+        currentStatusFilter === "all" ? "" : currentStatusFilter
+      const dateFilter = createdAtFilter === "all" ? "" : createdAtFilter
+
+      const response = await listBookingListAction(
+        centerId,
+        statusFilter,
+        "",
+        dateFilter,
+        (page - 1) * limit,
+        limit
+      )
+
+      const items = Array.isArray(response.data) ? response.data : []
+      const pagination = response.pagination ?? {
+        total: items.length,
+        offset: (page - 1) * limit,
+        limit,
+      }
+
+      set({
+        bookings: items,
+        offset: pagination.offset,
+        limit: pagination.limit,
+        pagination,
+      })
     } catch (error) {
       set({ loadError: error instanceof Error ? error.message : String(error) })
     } finally {

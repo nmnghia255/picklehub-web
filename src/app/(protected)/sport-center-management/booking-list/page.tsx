@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef } from "react"
+import { useEffect, useMemo } from "react"
 
 import { PageContainer } from "@/components/page-container"
 import {
@@ -10,10 +10,7 @@ import {
   BookingListSkeleton,
   BookingListStats,
 } from "@/features/sport-center-management/components/booking-list"
-import {
-  matchesCreatedAtFilter,
-  sortBookingsByNewest,
-} from "@/features/sport-center-management/components/booking-list/booking-list.utils"
+import { sortBookingsByNewest } from "@/features/sport-center-management/components/booking-list/booking-list.utils"
 import useBookingListStore from "@/features/sport-center-management/stores/booking-list-store"
 import { useCourtScheduleStore } from "@/features/sport-center-management/stores/court-schedule-store"
 import type { Booking } from "@/features/sport-center-management/types/booking"
@@ -33,6 +30,7 @@ export default function Page() {
   )
   const loadError = useBookingListStore((state) => state.loadError)
   const pendingAction = useBookingListStore((state) => state.pendingAction)
+  const pagination = useBookingListStore((state) => state.pagination)
 
   const loadBookings = useBookingListStore((state) => state.loadBookings)
   const confirmBooking = useBookingListStore((state) => state.confirmBooking)
@@ -43,15 +41,10 @@ export default function Page() {
   const setStatusFilter = useBookingListStore((state) => state.setStatusFilter)
   const resetFilters = useBookingListStore((state) => state.resetFilters)
 
-  const loadedCenterRef = useRef<string | null>(null)
-
   useEffect(() => {
     if (!centerId) return
-    // only call once per centerId — avoid repeated retries on failure
-    if (loadedCenterRef.current === centerId) return
-    loadedCenterRef.current = centerId
-    void loadBookings(centerId)
-  }, [centerId, loadBookings])
+    void loadBookings(centerId, 1)
+  }, [centerId, createdAtFilter, statusFilter, loadBookings])
 
   const selectedCenter = useMemo(
     () => sportCenters.find((center) => center.id === centerId) ?? null,
@@ -59,19 +52,9 @@ export default function Page() {
   )
 
   const activeBookings = useMemo(
-    () => (centerId ? bookings : []),
+    () => (centerId ? sortBookingsByNewest(bookings) : []),
     [bookings, centerId]
   )
-
-  const filteredBookings = useMemo(() => {
-    return sortBookingsByNewest(
-      activeBookings.filter(
-        (booking) =>
-          matchesCreatedAtFilter(booking, createdAtFilter) &&
-          (statusFilter === "all" || booking.status === statusFilter)
-      )
-    )
-  }, [activeBookings, createdAtFilter, statusFilter])
 
   const bookingCounts = useMemo(() => {
     const pending = activeBookings.filter(
@@ -82,11 +65,20 @@ export default function Page() {
     ).length
 
     return {
-      total: activeBookings.length,
+      total: pagination?.total ?? activeBookings.length,
       pending,
       confirmed,
     }
-  }, [activeBookings])
+  }, [activeBookings, pagination?.total])
+
+  const currentPage = pagination
+    ? Math.floor(pagination.offset / pagination.limit) + 1
+    : 1
+  const totalPages = pagination
+    ? Math.max(1, Math.ceil(pagination.total / pagination.limit))
+    : 1
+  const hasPreviousPage = currentPage > 1
+  const hasNextPage = currentPage < totalPages
 
   const hasActiveFilters = createdAtFilter !== "all" || statusFilter !== "all"
 
@@ -139,12 +131,27 @@ export default function Page() {
         <BookingListResults
           loadError={loadError}
           activeBookings={activeBookings}
-          filteredBookings={filteredBookings}
           hasActiveFilters={hasActiveFilters}
+          pagination={{
+            currentPage,
+            totalPages,
+            total: pagination?.total ?? activeBookings.length,
+            pageSize: pagination?.limit ?? 0,
+            hasPreviousPage,
+            hasNextPage,
+          }}
           onConfirmBooking={handleConfirmBooking}
           onCancelBooking={handleCancelBooking}
           onResetFilters={resetFilters}
           onRetry={() => window.location.reload()}
+          onPreviousPage={() => {
+            if (!centerId || !hasPreviousPage) return
+            void loadBookings(centerId, currentPage - 1)
+          }}
+          onNextPage={() => {
+            if (!centerId || !hasNextPage) return
+            void loadBookings(centerId, currentPage + 1)
+          }}
           pendingAction={pendingAction}
         />
       </section>

@@ -1,6 +1,17 @@
 import type { Booking } from "../types/booking"
 import type { BookingStatus } from "../types/booking"
 
+export type BookingListPagination = {
+  total: number
+  offset: number
+  limit: number
+}
+
+export type ListBookingsResult = {
+  data: Booking[]
+  pagination?: BookingListPagination
+}
+
 async function apiRequest<T>(input: string, init?: RequestInit): Promise<T> {
   const response = await fetch(input, {
     ...init,
@@ -22,6 +33,63 @@ async function apiRequest<T>(input: string, init?: RequestInit): Promise<T> {
   return (payload.data ?? payload) as T
 }
 
+function normalizeListBookingsPayload(payload: unknown): ListBookingsResult {
+  if (Array.isArray(payload)) {
+    return { data: payload as Booking[] }
+  }
+
+  if (!payload || typeof payload !== "object") {
+    return { data: [] }
+  }
+
+  const value = payload as {
+    data?: unknown
+    bookings?: unknown
+    pagination?: BookingListPagination
+  }
+
+  if (Array.isArray(value.data)) {
+    return {
+      data: value.data as Booking[],
+      pagination: value.pagination,
+    }
+  }
+
+  if (Array.isArray(value.bookings)) {
+    return {
+      data: value.bookings as Booking[],
+      pagination: value.pagination,
+    }
+  }
+
+  if (value.data && typeof value.data === "object") {
+    const nested = value.data as {
+      data?: unknown
+      bookings?: unknown
+      pagination?: BookingListPagination
+    }
+
+    if (Array.isArray(nested.data)) {
+      return {
+        data: nested.data as Booking[],
+        pagination: nested.pagination ?? value.pagination,
+      }
+    }
+
+    if (Array.isArray(nested.bookings)) {
+      return {
+        data: nested.bookings as Booking[],
+        pagination: nested.pagination ?? value.pagination,
+      }
+    }
+  }
+
+  return {
+    data: [],
+    pagination: value.pagination,
+  }
+}
+
 export async function listBookingListAction(
   centerId: string,
   status: BookingStatus | "",
@@ -39,8 +107,10 @@ export async function listBookingListAction(
   if (courtId) searchParams.set("courtId", courtId)
   if (date) searchParams.set("date", date)
 
-  return apiRequest<Booking[]>(
-    `/api/sport-centers/${centerId}/bookings?${searchParams.toString()}`
+  return normalizeListBookingsPayload(
+    await apiRequest<unknown>(
+      `/api/sport-centers/${centerId}/bookings?${searchParams.toString()}`
+    )
   )
 }
 

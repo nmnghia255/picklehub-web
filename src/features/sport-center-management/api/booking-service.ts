@@ -19,6 +19,17 @@ interface ApiResponse<T> {
   }
 }
 
+export type BookingListPagination = {
+  total: number
+  offset: number
+  limit: number
+}
+
+export type ListBookingsResult = {
+  data: Booking[]
+  pagination?: BookingListPagination
+}
+
 function unwrapApiResponse<T>(payload: ApiResponse<T> | T): T {
   if (payload && typeof payload === "object" && "data" in payload) {
     return (payload as ApiResponse<T>).data
@@ -26,15 +37,72 @@ function unwrapApiResponse<T>(payload: ApiResponse<T> | T): T {
   return payload as T
 }
 
+function normalizeListBookingsPayload(payload: unknown): ListBookingsResult {
+  if (Array.isArray(payload)) {
+    return { data: payload as Booking[] }
+  }
+
+  if (!payload || typeof payload !== "object") {
+    return { data: [] }
+  }
+
+  const value = payload as {
+    data?: unknown
+    bookings?: unknown
+    pagination?: BookingListPagination
+  }
+
+  if (Array.isArray(value.data)) {
+    return {
+      data: value.data as Booking[],
+      pagination: value.pagination,
+    }
+  }
+
+  if (Array.isArray(value.bookings)) {
+    return {
+      data: value.bookings as Booking[],
+      pagination: value.pagination,
+    }
+  }
+
+  if (value.data && typeof value.data === "object") {
+    const nested = value.data as {
+      data?: unknown
+      bookings?: unknown
+      pagination?: BookingListPagination
+    }
+
+    if (Array.isArray(nested.data)) {
+      return {
+        data: nested.data as Booking[],
+        pagination: nested.pagination ?? value.pagination,
+      }
+    }
+
+    if (Array.isArray(nested.bookings)) {
+      return {
+        data: nested.bookings as Booking[],
+        pagination: nested.pagination ?? value.pagination,
+      }
+    }
+  }
+
+  return {
+    data: [],
+    pagination: value.pagination,
+  }
+}
+
 export const BookingService = {
   listBookings: async function listBookings(
     centerId: string,
-    status: BookingStatus,
+    status: BookingStatus | "",
     courtId: string,
     date: string,
     offset = 0,
     limit = 20
-  ): Promise<Booking[]> {
+  ): Promise<ListBookingsResult> {
     const axios = await getAuthenticatedAxios()
     let stringBuilder = `/api/sport-centers/${centerId}/bookings?offset=${offset}&limit=${limit}`
     if (courtId) {
@@ -46,9 +114,8 @@ export const BookingService = {
     if (status) {
       stringBuilder += `&status=${status}`
     }
-    const response = await axios.get<Booking[]>(stringBuilder)
-    console.log("Fetched bookings:", response.data)
-    return unwrapApiResponse(response.data)
+    const response = await axios.get<unknown>(stringBuilder)
+    return normalizeListBookingsPayload(unwrapApiResponse(response.data))
   },
 
   getBookingDetail: async function getBookingDetail(
