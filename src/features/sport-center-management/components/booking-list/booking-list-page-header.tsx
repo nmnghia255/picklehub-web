@@ -41,12 +41,12 @@ export function BookingListPageHeader({
         </div>
       </div>
 
-      {centerName && (
+      {/* {centerName && (
         <p className="text-sm text-muted-foreground">
           Đang xem dữ liệu của{" "}
           <span className="font-medium text-foreground">{centerName}</span>
         </p>
-      )}
+      )} */}
     </section>
   )
 }

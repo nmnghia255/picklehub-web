@@ -117,7 +117,7 @@ export default function Page() {
         totalBookings={bookingCounts.total}
       />
 
-      <BookingListStats bookingCounts={bookingCounts} />
+      {/* <BookingListStats bookingCounts={bookingCounts} /> */}
 
       <section className="space-y-5">
         <BookingListFiltersPanel

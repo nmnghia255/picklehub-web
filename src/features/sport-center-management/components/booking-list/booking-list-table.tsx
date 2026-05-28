@@ -31,7 +31,7 @@ export function BookingListTable({
           <TableHeader className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/85">
             <TableRow>
               <TableHead>Khách hàng</TableHead>
-              <TableHead>Sân / khung giờ</TableHead>
+              <TableHead>Số điện thoại</TableHead>
               <TableHead>Ngày đặt</TableHead>
               <TableHead>Tổng tiền</TableHead>
               <TableHead>Ngày tạo</TableHead>

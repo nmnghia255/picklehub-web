@@ -28,12 +28,6 @@ export function BookingListTableRow({
   onConfirmBooking,
   onCancelBooking,
 }: BookingListTableRowProps) {
-  const firstBookingItem = booking.bookingItems?.[0]
-  const courtName = firstBookingItem?.court?.name ?? "Sân"
-  const timeRange = firstBookingItem
-    ? `${firstBookingItem.startTime} - ${firstBookingItem.endTime}`
-    : "—"
-
   return (
     <TableRow
       className={cn(
@@ -44,15 +38,14 @@ export function BookingListTableRow({
       <TableCell>
         <div className="space-y-1">
           <p className="font-medium text-foreground">{booking.playerName}</p>
-          <p className="text-xs text-muted-foreground">
-            {booking.phoneNumber || "—"}
-          </p>
         </div>
       </TableCell>
 
       <TableCell>
         <div className="space-y-1">
-          <p className="font-medium text-foreground">{courtName}</p>
+          <p className="text-medium text-foreground">
+            {booking.phoneNumber || "Chưa cập nhật"}
+          </p>
         </div>
       </TableCell>
 
