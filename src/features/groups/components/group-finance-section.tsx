@@ -1,12 +1,12 @@
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import {
   Table,
@@ -31,9 +31,9 @@ import {
   CreateExpenseButton,
   CreateFundButton,
   ExpenseRowActions,
+  FundRowActions,
   PaymentReceiptPreview,
   PaymentVerifyRow,
-  FundRowActions,
 } from "./finance-item-actions"
 
 function formatCurrency(value?: string | number | null) {
@@ -126,10 +126,7 @@ function getPaymentPayerAvatar(payment: FundPayment) {
 }
 
 function getInitials(name: string) {
-  const words = name
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
+  const words = name.trim().split(/\s+/).filter(Boolean)
 
   if (!words.length) {
     return "TV"
@@ -177,7 +174,9 @@ function getPaymentSortRank(status?: string | null) {
 }
 
 function getPendingPayments(payments: FundPayment[]) {
-  return payments.filter((payment) => payment.status?.toUpperCase() === "PENDING")
+  return payments.filter(
+    (payment) => payment.status?.toUpperCase() === "PENDING"
+  )
 }
 
 function PaymentCountChip({
@@ -215,9 +214,7 @@ function FundPaymentPreviewList({
   showQuickActions: boolean
 }) {
   if (!payments.length) {
-    return (
-      <p className="text-xs text-muted-foreground">{emptyLabel}</p>
-    )
+    return <p className="text-xs text-muted-foreground">{emptyLabel}</p>
   }
 
   const previewItems = payments.slice(0, previewCount)
@@ -238,7 +235,10 @@ function FundPaymentPreviewList({
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="flex min-w-0 items-start gap-3">
                 <Avatar size="sm" className="shrink-0">
-                  <AvatarImage src={getPaymentPayerAvatar(payment)} alt={name} />
+                  <AvatarImage
+                    src={getPaymentPayerAvatar(payment)}
+                    alt={name}
+                  />
                   <AvatarFallback>{getInitials(name)}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 space-y-1">
@@ -250,14 +250,18 @@ function FundPaymentPreviewList({
                   </div>
                   <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
                     <span>Số tiền: {formatCurrency(payment.amountPaid)}</span>
-                    <span>Gửi lúc: {formatDateTime(payment.paidAt ?? null)}</span>
+                    <span>
+                      Gửi lúc: {formatDateTime(payment.paidAt ?? null)}
+                    </span>
                   </div>
                 </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-2 md:self-center">
                 {payment.paymentReceiptUrl && (
-                  <PaymentReceiptPreview receiptUrl={payment.paymentReceiptUrl} />
+                  <PaymentReceiptPreview
+                    receiptUrl={payment.paymentReceiptUrl}
+                  />
                 )}
 
                 {showQuickActions && canManage && (
@@ -309,7 +313,8 @@ function FundListItemCard({
 
   const myPayment = payments.find((payment) => payment.userId === currentUserId)
   const myStatus = myPayment?.status?.toUpperCase() ?? null
-  const canSubmitPayment = !!myPayment && myStatus !== "PAID" && myStatus !== "PENDING"
+  const canSubmitPayment =
+    !!myPayment && myStatus !== "PAID" && myStatus !== "PENDING"
   const canPayThisFund = canPay && canSubmitPayment
   const defaultPreviewCount = paymentStats.totalMembers > 8 ? 3 : 4
 
@@ -369,7 +374,9 @@ function FundListItemCard({
           <div className="min-w-0 space-y-1.5">
             <div className="flex items-center gap-2">
               <p className="text-sm font-medium">Duyệt thanh toán nhanh</p>
-              <Badge variant={paymentStats.pending > 0 ? "secondary" : "outline"}>
+              <Badge
+                variant={paymentStats.pending > 0 ? "secondary" : "outline"}
+              >
                 {paymentStats.pending} chờ duyệt
               </Badge>
             </div>

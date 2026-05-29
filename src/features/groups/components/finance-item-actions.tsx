@@ -156,7 +156,11 @@ export function PaymentReceiptPreview({ receiptUrl }: { receiptUrl: string }) {
               </div>
 
               <div className="mt-auto flex justify-end">
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
                   Đóng
                 </Button>
               </div>
@@ -561,7 +565,9 @@ export function PaymentVerifyRow({
   }
 
   return (
-    <div className={`flex flex-wrap items-center justify-end gap-2 ${className ?? ""}`}>
+    <div
+      className={`flex flex-wrap items-center justify-end gap-2 ${className ?? ""}`}
+    >
       <form action={formAction} className="flex flex-wrap items-center gap-2">
         <Button
           type="submit"
