@@ -27,6 +27,12 @@ export interface BookingProduct {
   product: Product
 }
 
+export interface BookingCourtItem {
+  courtId: string
+  startTime: string
+  endTime: string
+}
+
 export interface CreateBookingRequest {
   date: string
   note: string
@@ -34,7 +40,14 @@ export interface CreateBookingRequest {
   useCredit: boolean
   serviceItems: ServiceItem[]
   productItems: ProductItem[]
-  courtItems: BookingScheduleItem[]
+  items: BookingCourtItem[]
+}
+
+export interface PreviewBookingRequest {
+  date: string
+  courtItems: BookingCourtItem[]
+  serviceItems: ServiceItem[]
+  productItems: ProductItem[]
 }
 
 export interface BookingPriceBreakdown {

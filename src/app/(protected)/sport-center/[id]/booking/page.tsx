@@ -6,12 +6,17 @@ import { useEffect } from "react"
 
 import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
-import { BookingServicesCard } from "@/features/booking/components/booking-add-ons-card"
-import { BookingAvailableCourtsCard } from "@/features/booking/components/booking-available-courts-card"
-import { BookingCourtInfoCard } from "@/features/booking/components/booking-court-info-card"
-import { BookingDateSelectionCard } from "@/features/booking/components/booking-date-selection-card"
-import { BookingNote } from "@/features/booking/components/booking-note"
-import { BookingSummaryCard } from "@/features/booking/components/booking-summary-card"
+import {
+  fetchCourtAvailabilityAction,
+  fetchProductsAction,
+  fetchServicesAction,
+} from "@/features/sport-center/booking-store-actions"
+import { BookingServicesCard } from "@/features/sport-center/components/booking/booking-add-ons-card"
+import { BookingAvailableCourtsCard } from "@/features/sport-center/components/booking/booking-available-courts-card"
+import { BookingCourtInfoCard } from "@/features/sport-center/components/booking/booking-court-info-card"
+import { BookingDateSelectionCard } from "@/features/sport-center/components/booking/booking-date-selection-card"
+import { BookingNote } from "@/features/sport-center/components/booking/booking-note"
+import { BookingSummaryCard } from "@/features/sport-center/components/booking/booking-summary-card"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
 
 export default function BookingPage() {
@@ -24,25 +29,20 @@ export default function BookingPage() {
   const sportCenter = useBookingStore((state) => state.sportCenter)
   const initializeBooking = useBookingStore((state) => state.initializeBooking)
   const setBookingNote = useBookingStore((state) => state.setBookingNote)
-  const fetchCourtAvailability = useBookingStore(
-    (state) => state.fetchCourtAvailability
-  )
-  const fetchServices = useBookingStore((state) => state.fetchServices)
-  const fetchProducts = useBookingStore((state) => state.fetchProducts)
 
   useEffect(() => {
     if (centerId) {
       initializeBooking(centerId)
-      void fetchServices(centerId)
-      void fetchProducts(centerId)
+      void fetchServicesAction(centerId)
+      void fetchProductsAction(centerId)
     }
-  }, [centerId, initializeBooking, fetchProducts, fetchServices])
+  }, [centerId, initializeBooking])
 
   useEffect(() => {
     if (centerId && selectedDate) {
-      void fetchCourtAvailability(centerId, selectedDate)
+      void fetchCourtAvailabilityAction(centerId, selectedDate)
     }
-  }, [centerId, fetchCourtAvailability, selectedDate])
+  }, [centerId, selectedDate])
 
   return (
     <PageContainer variant="wide" className="flex flex-col">

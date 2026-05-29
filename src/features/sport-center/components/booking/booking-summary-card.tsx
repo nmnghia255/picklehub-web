@@ -25,7 +25,6 @@ export function BookingSummaryCard() {
   const isSubmitting = useBookingStore((state) => state.isSubmitting)
   const statusMessage = useBookingStore((state) => state.submitMessage)
   const errorMessage = useBookingStore((state) => state.submitError)
-  const submitBookings = useBookingStore((state) => state.submitBookings)
 
   const selectedDateText = useMemo(() => {
     if (!selectedDate) return "Chưa chọn ngày"
@@ -52,12 +51,14 @@ export function BookingSummaryCard() {
     return Object.entries(selectedCourts).reduce(
       (courtSum, [courtId, slots]) => {
         const court = courtAvailability.courts.find(
-          (c) => c.courtId === courtId
+          (court) => court.courtId === courtId
         )
         const slotTotal = Array.from(slots).reduce((slotSum, selectedSlot) => {
           const [startTime = "", endTime = ""] = selectedSlot.split(" - ")
           const slot = court?.slots.find(
-            (item) => item.startTime === startTime && item.endTime === endTime
+            (availableSlot) =>
+              availableSlot.startTime === startTime &&
+              availableSlot.endTime === endTime
           )
 
           return slotSum + (slot?.pricePerHour ?? sportCenter?.basePrice ?? 0)
@@ -86,8 +87,8 @@ export function BookingSummaryCard() {
   const total = courtTotal + serviceTotal + productTotal
   const canConfirm = totalSlots > 0 && !!selectedDate && !isSubmitting
 
-  const handleConfirm = async () => {
-    router.push(`/sport-center/${centerId}/booking-confirmation`)
+  const handleContinue = () => {
+    router.push(`/sport-center/${centerId}/booking/confirmation`)
   }
 
   return (
@@ -159,10 +160,10 @@ export function BookingSummaryCard() {
         <Button
           className="w-full"
           size="lg"
-          onClick={() => void handleConfirm()}
+          onClick={handleContinue}
           disabled={!canConfirm || isSubmitting}
         >
-          {isSubmitting ? "Đang gửi..." : "Xác nhận"}
+          Tiếp tục
         </Button>
 
         {statusMessage && (

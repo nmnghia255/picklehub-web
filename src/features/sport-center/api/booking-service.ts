@@ -5,6 +5,7 @@ import type {
   BookingStatus,
   CreateBookingRequest,
   MyBookingsResponse,
+  PreviewBookingRequest,
 } from "../types/booking"
 
 interface ApiResponse<T> {
@@ -73,6 +74,18 @@ export const BookingService = {
     const response = await axios.post(
       `/api/bookings/${bookingId}/payment-proof`,
       { paymentProof }
+    )
+    return unwrapApiResponse(response.data)
+  },
+
+  previewBooking: async (
+    centerId: string,
+    bookingRequest: PreviewBookingRequest
+  ): Promise<BookingResponse> => {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.post(
+      `/api/sport-centers/${centerId}/bookings/preview`,
+      bookingRequest
     )
     return unwrapApiResponse(response.data)
   },

@@ -28,7 +28,7 @@ export async function createSportCenterBookingsAction(
     }
   }
 
-  if (!payload.bookingRequest.courtItems.length) {
+  if (!payload.bookingRequest.items.length) {
     return {
       success: false,
       error: "Vui lòng chọn ít nhất một sân và khung giờ để đặt.",
@@ -36,6 +36,9 @@ export async function createSportCenterBookingsAction(
   }
 
   try {
+    console.log("Submitting booking request for centerId:", payload.centerId)
+    console.log("Booking Request:", payload.bookingRequest)
+
     const booking = await BookingService.createBookings(
       payload.centerId,
       payload.bookingRequest
