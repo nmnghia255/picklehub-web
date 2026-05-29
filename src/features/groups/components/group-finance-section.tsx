@@ -1,5 +1,13 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { Progress } from "@/components/ui/progress"
 import {
   Table,
   TableBody,
@@ -23,6 +31,8 @@ import {
   CreateExpenseButton,
   CreateFundButton,
   ExpenseRowActions,
+  PaymentReceiptPreview,
+  PaymentVerifyRow,
   FundRowActions,
 } from "./finance-item-actions"
 
@@ -48,6 +58,21 @@ function formatDate(value?: string | null) {
   })
 }
 
+function formatDateTime(value?: string | null) {
+  if (!value) return "-"
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return "-"
+
+  return date.toLocaleString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+}
+
 function formatPaymentStatus(status?: string | null) {
   const normalized = status?.toUpperCase()
 
@@ -68,6 +93,336 @@ function formatPaymentStatus(status?: string | null) {
   }
 
   return status ?? "-"
+}
+
+function getPaymentStatusVariant(status?: string | null) {
+  const normalized = status?.toUpperCase()
+
+  if (normalized === "PAID") {
+    return "default" as const
+  }
+
+  if (normalized === "PENDING") {
+    return "secondary" as const
+  }
+
+  if (normalized === "REJECTED") {
+    return "destructive" as const
+  }
+
+  return "outline" as const
+}
+
+function getPaymentPayerName(payment: FundPayment) {
+  return (
+    payment.user?.name ||
+    payment.userName ||
+    (payment.userId ? `ID: ${payment.userId.slice(0, 8)}` : "Thành viên")
+  )
+}
+
+function getPaymentPayerAvatar(payment: FundPayment) {
+  return payment.user?.avatarUrl || payment.userAvatarUrl || ""
+}
+
+function getInitials(name: string) {
+  const words = name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+
+  if (!words.length) {
+    return "TV"
+  }
+
+  if (words.length === 1) {
+    return words[0].slice(0, 2).toUpperCase()
+  }
+
+  return `${words[0][0] ?? ""}${words[1][0] ?? ""}`.toUpperCase()
+}
+
+function getFundPaymentStats(payments: FundPayment[]) {
+  let paid = 0
+  let pending = 0
+
+  for (const payment of payments) {
+    const normalized = payment.status?.toUpperCase()
+    if (normalized === "PAID") {
+      paid += 1
+      continue
+    }
+
+    if (normalized === "PENDING") {
+      pending += 1
+    }
+  }
+
+  return {
+    paid,
+    pending,
+    totalMembers: payments.length,
+    unpaid: Math.max(payments.length - paid - pending, 0),
+  }
+}
+
+function getPaymentSortRank(status?: string | null) {
+  const normalized = status?.toUpperCase()
+
+  if (normalized === "PENDING") return 0
+  if (normalized === "REJECTED") return 1
+  if (normalized === "PAID") return 2
+
+  return 3
+}
+
+function getPendingPayments(payments: FundPayment[]) {
+  return payments.filter((payment) => payment.status?.toUpperCase() === "PENDING")
+}
+
+function PaymentCountChip({
+  label,
+  value,
+  variant,
+}: {
+  label: string
+  value: number
+  variant: "default" | "secondary" | "outline"
+}) {
+  return (
+    <div className="flex items-center gap-2 rounded-md border bg-muted/30 px-2.5 py-1.5">
+      <Badge variant={variant}>{value}</Badge>
+      <span className="text-xs text-muted-foreground">{label}</span>
+    </div>
+  )
+}
+
+function FundPaymentPreviewList({
+  groupId,
+  fundId,
+  payments,
+  previewCount,
+  canManage,
+  emptyLabel,
+  showQuickActions,
+}: {
+  groupId: string
+  fundId: string
+  payments: FundPayment[]
+  previewCount: number
+  canManage: boolean
+  emptyLabel: string
+  showQuickActions: boolean
+}) {
+  if (!payments.length) {
+    return (
+      <p className="text-xs text-muted-foreground">{emptyLabel}</p>
+    )
+  }
+
+  const previewItems = payments.slice(0, previewCount)
+  const moreCount = Math.max(payments.length - previewCount, 0)
+
+  return (
+    <div className="space-y-2">
+      {previewItems.map((payment) => {
+        const name = getPaymentPayerName(payment)
+        const statusLabel = formatPaymentStatus(payment.status)
+        const statusVariant = getPaymentStatusVariant(payment.status)
+
+        return (
+          <div
+            key={payment.id}
+            className="rounded-md border bg-background/60 p-3"
+          >
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div className="flex min-w-0 items-start gap-3">
+                <Avatar size="sm" className="shrink-0">
+                  <AvatarImage src={getPaymentPayerAvatar(payment)} alt={name} />
+                  <AvatarFallback>{getInitials(name)}</AvatarFallback>
+                </Avatar>
+                <div className="min-w-0 space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="truncate text-sm font-medium">{name}</span>
+                    <Badge variant={statusVariant} className="shrink-0">
+                      {statusLabel}
+                    </Badge>
+                  </div>
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                    <span>Số tiền: {formatCurrency(payment.amountPaid)}</span>
+                    <span>Gửi lúc: {formatDateTime(payment.paidAt ?? null)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 md:self-center">
+                {payment.paymentReceiptUrl && (
+                  <PaymentReceiptPreview receiptUrl={payment.paymentReceiptUrl} />
+                )}
+
+                {showQuickActions && canManage && (
+                  <PaymentVerifyRow
+                    groupId={groupId}
+                    fundId={fundId}
+                    payment={payment}
+                    compact
+                    className="md:self-center"
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      })}
+
+      {moreCount > 0 && (
+        <p className="text-xs text-muted-foreground">+{moreCount} người khác</p>
+      )}
+    </div>
+  )
+}
+
+function FundListItemCard({
+  groupId,
+  fund,
+  canManage,
+  canPay,
+  currentUserId,
+}: {
+  groupId: string
+  fund: FundItem & { payments: FundPayment[] }
+  canManage: boolean
+  canPay: boolean
+  currentUserId: string
+}) {
+  const payments = fund.payments ?? []
+  const paymentStats = getFundPaymentStats(payments)
+  const paymentProgressPercent =
+    paymentStats.totalMembers > 0
+      ? Math.round((paymentStats.paid / paymentStats.totalMembers) * 100)
+      : 0
+
+  const sortedPreviewPayments = [...payments].sort((a, b) => {
+    return getPaymentSortRank(a.status) - getPaymentSortRank(b.status)
+  })
+  const pendingPayments = getPendingPayments(sortedPreviewPayments)
+
+  const myPayment = payments.find((payment) => payment.userId === currentUserId)
+  const myStatus = myPayment?.status?.toUpperCase() ?? null
+  const canSubmitPayment = !!myPayment && myStatus !== "PAID" && myStatus !== "PENDING"
+  const canPayThisFund = canPay && canSubmitPayment
+  const defaultPreviewCount = paymentStats.totalMembers > 8 ? 3 : 4
+
+  return (
+    <AccordionItem
+      value={fund.id}
+      className="overflow-hidden rounded-lg border bg-card data-[state=open]:border-primary/40"
+    >
+      <AccordionTrigger className="px-4 py-4 hover:no-underline">
+        <div className="flex w-full min-w-0 flex-col gap-3 pr-2 text-left">
+          <div className="min-w-0 space-y-1.5">
+            <p className="truncate text-base font-semibold">{fund.title}</p>
+            {fund.description && (
+              <p className="line-clamp-1 text-sm text-muted-foreground">
+                {fund.description}
+              </p>
+            )}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+              <span>Số tiền: {formatCurrency(fund.amount)}</span>
+              <span>Hạn chót: {formatDate(fund.deadline ?? null)}</span>
+              <span>Tạo bởi: {fund.createdBy?.name ?? "-"}</span>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+              <span>
+                {paymentStats.paid}/{paymentStats.totalMembers} đã thanh toán
+              </span>
+              <span>{paymentProgressPercent}% hoàn thành</span>
+            </div>
+            <Progress value={paymentProgressPercent} />
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <PaymentCountChip
+              label="Đã thanh toán"
+              value={paymentStats.paid}
+              variant="default"
+            />
+            <PaymentCountChip
+              label="Chờ duyệt"
+              value={paymentStats.pending}
+              variant="secondary"
+            />
+            <PaymentCountChip
+              label="Chưa gửi"
+              value={paymentStats.unpaid}
+              variant="outline"
+            />
+          </div>
+        </div>
+      </AccordionTrigger>
+
+      <div className="border-t px-4 py-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0 space-y-1.5">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium">Duyệt thanh toán nhanh</p>
+              <Badge variant={paymentStats.pending > 0 ? "secondary" : "outline"}>
+                {paymentStats.pending} chờ duyệt
+              </Badge>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Xem nhanh các yêu cầu đang chờ và duyệt ngay tại danh sách quỹ.
+            </p>
+          </div>
+
+          <div className="shrink-0 self-start lg:self-auto">
+            <FundRowActions
+              groupId={groupId}
+              fund={fund}
+              canManage={canManage}
+              canPay={canPayThisFund}
+              payments={payments}
+            />
+          </div>
+        </div>
+
+        <div className="mt-4 space-y-2">
+          <FundPaymentPreviewList
+            groupId={groupId}
+            fundId={fund.id}
+            payments={pendingPayments}
+            previewCount={Math.min(pendingPayments.length, defaultPreviewCount)}
+            canManage={canManage}
+            emptyLabel="Chưa có yêu cầu thanh toán nào đang chờ duyệt."
+            showQuickActions
+          />
+        </div>
+      </div>
+
+      <AccordionContent>
+        <div className="border-t px-4 pt-4">
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <p className="text-sm font-medium">Tất cả thanh toán</p>
+            <p className="text-xs text-muted-foreground">
+              {payments.length} giao dịch
+            </p>
+          </div>
+          <FundPaymentPreviewList
+            groupId={groupId}
+            fundId={fund.id}
+            payments={sortedPreviewPayments}
+            previewCount={Math.min(sortedPreviewPayments.length, 10)}
+            canManage={canManage}
+            emptyLabel="Chưa có dữ liệu thanh toán của thành viên."
+            showQuickActions={false}
+          />
+        </div>
+      </AccordionContent>
+    </AccordionItem>
+  )
 }
 
 function SummaryCard({
@@ -270,57 +625,18 @@ function FinanceFundsTable({
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Tên</TableHead>
-          <TableHead>Số tiền</TableHead>
-          <TableHead>Hạn chót</TableHead>
-          <TableHead>Người tạo</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {funds.map((fund) => (
-          <TableRow key={fund.id}>
-            <TableCell className="font-medium">
-              <div className="flex flex-col gap-1">
-                <span>{fund.title}</span>
-                {fund.description && (
-                  <span className="line-clamp-1 text-xs text-muted-foreground">
-                    {fund.description}
-                  </span>
-                )}
-              </div>
-            </TableCell>
-            <TableCell>{formatCurrency(fund.amount)}</TableCell>
-            <TableCell>{formatDate(fund.deadline ?? null)}</TableCell>
-            <TableCell className="text-muted-foreground">
-              {fund.createdBy?.name ?? "-"}
-            </TableCell>
-            <TableCell className="text-right">
-              {(() => {
-                const myPayment = (fund.payments ?? []).find(
-                  (p) => p.userId === currentUserId
-                )
-                const status = myPayment?.status?.toUpperCase() ?? null
-                const canSubmitPayment =
-                  !!myPayment && status !== "PAID" && status !== "PENDING"
-
-                return (
-                  <FundRowActions
-                    groupId={groupId}
-                    fund={fund}
-                    canManage={canManage}
-                    canPay={canPay && canSubmitPayment}
-                    payments={fund.payments ?? []}
-                  />
-                )
-              })()}
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <Accordion type="multiple" className="space-y-3">
+      {funds.map((fund) => (
+        <FundListItemCard
+          key={fund.id}
+          groupId={groupId}
+          fund={fund}
+          canManage={canManage}
+          canPay={canPay}
+          currentUserId={currentUserId}
+        />
+      ))}
+    </Accordion>
   )
 }
 

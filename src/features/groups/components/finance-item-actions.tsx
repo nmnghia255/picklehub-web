@@ -104,60 +104,63 @@ function isImageReceiptUrl(url?: string | null) {
   )
 }
 
-function PaymentReceiptViewer({ receiptUrl }: { receiptUrl: string }) {
+export function PaymentReceiptPreview({ receiptUrl }: { receiptUrl: string }) {
   const [open, setOpen] = useState(false)
-
-  if (!isImageReceiptUrl(receiptUrl)) {
-    return (
-      <a
-        href={receiptUrl}
-        target="_blank"
-        rel="noreferrer"
-        className="text-xs text-primary underline underline-offset-2"
-      >
-        Xem chứng từ
-      </a>
-    )
-  }
+  const isImage = isImageReceiptUrl(receiptUrl)
 
   return (
     <>
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="xs"
+        className="h-7 rounded-full px-2.5"
         onClick={() => setOpen(true)}
-        className="block w-fit"
       >
-        <img
-          src={receiptUrl}
-          alt="Biên lai thanh toán"
-          className="h-20 w-20 rounded-md border object-cover"
-        />
-      </button>
+        {isImage ? "Xem ảnh" : "Xem chứng từ"}
+      </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Ảnh chứng từ thanh toán</DialogTitle>
-            <DialogDescription>
-              Xem ảnh biên lai ở kích thước lớn.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-center">
-            <img
-              src={receiptUrl}
-              alt="Ảnh chứng từ thanh toán"
-              className="max-h-[70vh] w-auto rounded-md object-contain"
-            />
-          </div>
-          <div className="text-right">
-            <a
-              href={receiptUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="text-xs text-primary underline underline-offset-2"
-            >
-              Mở ảnh ở tab mới
-            </a>
+        <DialogContent className="max-h-[90vh] overflow-hidden p-0 sm:max-w-4xl">
+          <div className="grid max-h-[90vh] gap-0 overflow-hidden md:grid-cols-[minmax(0,1fr)_280px]">
+            <div className="flex items-center justify-center bg-black/90 p-4 md:min-h-[70vh]">
+              {isImage ? (
+                <img
+                  src={receiptUrl}
+                  alt="Biên lai thanh toán"
+                  className="max-h-[78vh] w-full max-w-full rounded-md object-contain"
+                />
+              ) : (
+                <iframe
+                  src={receiptUrl}
+                  title="Biên lai thanh toán"
+                  className="h-[78vh] w-full rounded-md bg-white"
+                />
+              )}
+            </div>
+
+            <div className="flex flex-col gap-4 border-t p-5 md:border-t-0 md:border-l">
+              <DialogHeader className="text-left">
+                <DialogTitle>Chứng từ thanh toán</DialogTitle>
+                <DialogDescription>
+                  Xem chứng từ ngay trong trang hiện tại.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-3 text-sm text-muted-foreground">
+                <p>
+                  {isImage
+                    ? "Ảnh được hiển thị ở kích thước lớn để kiểm tra chi tiết."
+                    : "Tệp chứng từ được mở trực tiếp trong khung xem nội tuyến."}
+                </p>
+              </div>
+
+              <div className="mt-auto flex justify-end">
+                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                  Đóng
+                </Button>
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
@@ -529,48 +532,59 @@ function DeleteForm({
   )
 }
 
-function PaymentVerifyRow({
+export function PaymentVerifyRow({
   groupId,
   fundId,
   payment,
+  compact = false,
+  className,
   onDone,
 }: {
   groupId: string
   fundId: string
   payment: FundPayment
-  onDone: () => void
+  compact?: boolean
+  className?: string
+  onDone?: () => void
 }) {
   const normalizedStatus = payment.status?.toUpperCase()
   const canVerify = normalizedStatus === "PENDING"
-  const [status, setStatus] = useState<"PAID" | "REJECTED">("PAID")
   const [state, formAction, isPending] = useActionState(
     verifyFundPaymentAction.bind(null, groupId, fundId, payment.id),
     {}
   )
 
-  useToastState(state, "Đã cập nhật thanh toán.", onDone)
+  useToastState(state, "Đã cập nhật thanh toán.", onDone ?? (() => {}))
 
   if (!canVerify) {
     return null
   }
 
   return (
-    <form action={formAction} className="flex items-center justify-end gap-2">
-      <input type="hidden" name="status" value={status} />
-      <Button type="submit" size="sm" disabled={isPending}>
-        {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-        Duyệt
-      </Button>
-      <Button
-        type="submit"
-        size="sm"
-        variant="destructive"
-        disabled={isPending}
-        onClick={() => setStatus("REJECTED")}
-      >
-        Từ chối
-      </Button>
-    </form>
+    <div className={`flex flex-wrap items-center justify-end gap-2 ${className ?? ""}`}>
+      <form action={formAction} className="flex flex-wrap items-center gap-2">
+        <Button
+          type="submit"
+          name="status"
+          value="PAID"
+          size={compact ? "xs" : "sm"}
+          disabled={isPending}
+        >
+          {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+          Duyệt
+        </Button>
+        <Button
+          type="submit"
+          name="status"
+          value="REJECTED"
+          size={compact ? "xs" : "sm"}
+          variant="destructive"
+          disabled={isPending}
+        >
+          Từ chối
+        </Button>
+      </form>
+    </div>
   )
 }
 
@@ -758,7 +772,7 @@ export function FundRowActions({
                       {formatPaymentStatus(payment.status)}
                     </div>
                     {payment.paymentReceiptUrl ? (
-                      <PaymentReceiptViewer
+                      <PaymentReceiptPreview
                         receiptUrl={payment.paymentReceiptUrl}
                       />
                     ) : (
@@ -941,7 +955,7 @@ export function ExpenseRowActions({
             {expenseDetail.receiptUrl ? (
               <div>
                 <div className="text-sm text-muted-foreground">Chứng từ</div>
-                <PaymentReceiptViewer receiptUrl={expenseDetail.receiptUrl} />
+                <PaymentReceiptPreview receiptUrl={expenseDetail.receiptUrl} />
               </div>
             ) : null}
           </div>

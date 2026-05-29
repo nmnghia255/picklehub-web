@@ -32,6 +32,9 @@ export interface FundPayment {
   status: string
   verifiedById?: string | null
   paidAt?: string | null
+  user?: FinanceUserSummary | null
+  userName?: string | null
+  userAvatarUrl?: string | null
 }
 
 export interface FundItem {
