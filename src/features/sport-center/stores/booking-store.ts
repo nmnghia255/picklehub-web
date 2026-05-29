@@ -3,26 +3,19 @@
 import type { Dispatch, SetStateAction } from "react"
 import { create } from "zustand"
 
-import { ADD_ONS } from "@/features/booking/data"
-import type { ExtrasState, SelectedCourts } from "@/features/booking/types"
 import { createSportCenterBookingsAction } from "@/features/sport-center/actions/create-booking"
 import { fetchBulkCourtAvailabilityAction } from "@/features/sport-center/actions/fetch-bulk-court-availability"
+import { fetchSportCenterProductsAction } from "@/features/sport-center/actions/fetch-sport-center-products"
 import { fetchSportCenterServicesAction } from "@/features/sport-center/actions/fetch-sport-center-services"
-import type { BookingRequest } from "@/features/sport-center/types/booking"
+import type { CreateBookingRequest } from "@/features/sport-center/types/booking"
 import type { BulkCourtAvailability } from "@/features/sport-center/types/court"
+import type { Product } from "@/features/sport-center/types/product"
 import type { Service } from "@/features/sport-center/types/service"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
 
-const DEFAULT_EXTRAS: ExtrasState = {
-  paddle: true,
-  balls: false,
-  coach: false,
-}
-
-type BookingPayload = {
-  courtId: string
-  bookingRequest: BookingRequest
-}
+export type SelectedCourts = Record<string, Set<string>>
+export type ServiceSelectionState = Record<string, boolean>
+export type ProductSelectionState = Record<string, number>
 
 interface BookingStore {
   sportCenter: SportCenter | null
@@ -33,20 +26,25 @@ interface BookingStore {
   isLoadingAvailability: boolean
   availabilityError: string
   services: Service[]
-  extras: ExtrasState
+  products: Product[]
+  selectedServices: ServiceSelectionState
+  selectedProducts: ProductSelectionState
   bookingNote: string
   isSubmitting: boolean
   submitMessage: string
   submitError: string
+  lastBookingId: string | null
   setSportCenter: (sportCenter: SportCenter) => void
   initializeBooking: (centerId: string) => void
   setSelectedDate: (date: Date | undefined) => void
   toggleCourtSlot: (courtId: string, slot: string) => void
-  setExtras: Dispatch<SetStateAction<ExtrasState>>
+  setSelectedServices: Dispatch<SetStateAction<ServiceSelectionState>>
+  setSelectedProducts: Dispatch<SetStateAction<ProductSelectionState>>
   setBookingNote: (note: string) => void
   clearSubmissionFeedback: () => void
   fetchCourtAvailability: (centerId: string, date: Date) => Promise<void>
   fetchServices: (centerId: string) => Promise<void>
+  fetchProducts: (centerId: string) => Promise<void>
   submitBookings: () => Promise<boolean>
 }
 
@@ -64,41 +62,93 @@ function parseBookingSlot(slot: string) {
   return { startTime, endTime }
 }
 
-function buildBookingRequests(
+function buildBookingRequest(
   selectedDate: Date,
   selectedCourts: SelectedCourts,
-  extras: ExtrasState,
-  bookingNote: string
-): BookingPayload[] {
+  selectedServices: ServiceSelectionState,
+  selectedProducts: ProductSelectionState,
+  bookingNote: string,
+  services: Service[],
+  products: Product[],
+  availability: BulkCourtAvailability | null,
+  basePrice: number
+): CreateBookingRequest {
   const bookingDate = formatBookingDate(selectedDate)
-  const selectedAddOns = ADD_ONS.filter((addon) => extras[addon.key]).map(
-    (addon) => addon.label
+
+  const serviceItems = services
+    .filter((service) => selectedServices[service.id])
+    .map((service) => ({ serviceId: service.id, quantity: 1 }))
+
+  const productItems = products
+    .map((product) => ({
+      productId: product.id,
+      quantity: selectedProducts[product.id] ?? 0,
+      name: product.name,
+    }))
+    .filter((item) => item.quantity > 0)
+
+  const selectedServiceNames = services
+    .filter((service) => selectedServices[service.id])
+    .map((service) => service.name)
+
+  const selectedProductLines = productItems.map(
+    (item) => `${item.name} x${item.quantity}`
   )
+
   const noteParts = [bookingNote.trim()]
 
-  if (selectedAddOns.length > 0) {
-    noteParts.push(`Dịch vụ bổ sung: ${selectedAddOns.join(", ")}`)
+  if (selectedServiceNames.length > 0) {
+    noteParts.push(`Dịch vụ: ${selectedServiceNames.join(", ")}`)
+  }
+
+  if (selectedProductLines.length > 0) {
+    noteParts.push(`Sản phẩm: ${selectedProductLines.join(", ")}`)
   }
 
   const note = noteParts.filter(Boolean).join("\n")
 
-  return Object.entries(selectedCourts).flatMap(([courtId, slots]) =>
-    Array.from(slots).map((slot) => {
-      const { startTime, endTime } = parseBookingSlot(slot)
+  const courtItems = Object.entries(selectedCourts).flatMap(
+    ([courtId, slots]) =>
+      Array.from(slots).map((slot) => {
+        const { startTime, endTime } = parseBookingSlot(slot)
+        const availabilityCourt = availability?.courts.find(
+          (court) => court.courtId === courtId
+        )
+        const availabilitySlot = availabilityCourt?.slots.find(
+          (item) => item.startTime === startTime && item.endTime === endTime
+        )
+        const pricePerHour = availabilitySlot?.pricePerHour ?? basePrice
 
-      return {
-        courtId: courtId.toString(),
-        bookingRequest: {
-          date: bookingDate,
+        return {
+          courtId: courtId.toString(),
+          courtName: availabilityCourt?.courtName ?? `Sân ${courtId}`,
           startTime,
           endTime,
-          serviceItems: [],
-          productItems: [],
-          note,
-        },
-      }
-    })
+          durationHours: 1,
+          breakdown: [
+            {
+              startTime,
+              endTime,
+              pricePerHour,
+            },
+          ],
+          courtPrice: pricePerHour,
+        }
+      })
   )
+
+  return {
+    date: bookingDate,
+    note,
+    phoneNumber: "",
+    useCredit: false,
+    serviceItems,
+    productItems: productItems.map(({ productId, quantity }) => ({
+      productId,
+      quantity,
+    })),
+    courtItems,
+  }
 }
 
 function getDefaultState(centerId = "") {
@@ -111,11 +161,14 @@ function getDefaultState(centerId = "") {
     isLoadingAvailability: false,
     availabilityError: "",
     services: [],
-    extras: { ...DEFAULT_EXTRAS },
+    products: [],
+    selectedServices: {},
+    selectedProducts: {},
     bookingNote: "",
     isSubmitting: false,
     submitMessage: "",
     submitError: "",
+    lastBookingId: null,
   }
 }
 
@@ -142,6 +195,7 @@ export const useBookingStore = create<BookingStore>((set, get) => ({
       selectedCourts: {},
       submitMessage: "",
       submitError: "",
+      lastBookingId: null,
     }),
 
   toggleCourtSlot: (courtId, slot) => {
@@ -167,12 +221,21 @@ export const useBookingStore = create<BookingStore>((set, get) => ({
     })
   },
 
-  setExtras: (nextExtras) => {
+  setSelectedServices: (nextSelection) => {
     set((state) => ({
-      extras:
-        typeof nextExtras === "function"
-          ? nextExtras(state.extras)
-          : nextExtras,
+      selectedServices:
+        typeof nextSelection === "function"
+          ? nextSelection(state.selectedServices)
+          : nextSelection,
+    }))
+  },
+
+  setSelectedProducts: (nextSelection) => {
+    set((state) => ({
+      selectedProducts:
+        typeof nextSelection === "function"
+          ? nextSelection(state.selectedProducts)
+          : nextSelection,
     }))
   },
 
@@ -207,16 +270,55 @@ export const useBookingStore = create<BookingStore>((set, get) => ({
 
   fetchServices: async (centerId) => {
     try {
-      const services = await fetchSportCenterServicesAction(centerId)
-      set({ services })
+      const services = (await fetchSportCenterServicesAction(centerId)).filter(
+        (service) => service.isActive
+      )
+      const selectedServices = services.reduce<ServiceSelectionState>(
+        (acc, service) => {
+          acc[service.id] = false
+          return acc
+        },
+        {}
+      )
+
+      set({ services, selectedServices })
     } catch {
-      set({ services: [] })
+      set({ services: [], selectedServices: {} })
+    }
+  },
+
+  fetchProducts: async (centerId) => {
+    try {
+      const products = (await fetchSportCenterProductsAction(centerId)).filter(
+        (product) => product.isActive
+      )
+      const selectedProducts = products.reduce<ProductSelectionState>(
+        (acc, product) => {
+          acc[product.id] = 0
+          return acc
+        },
+        {}
+      )
+
+      set({ products, selectedProducts })
+    } catch {
+      set({ products: [], selectedProducts: {} })
     }
   },
 
   submitBookings: async () => {
-    const { centerId, selectedDate, selectedCourts, extras, bookingNote } =
-      get()
+    const {
+      centerId,
+      selectedDate,
+      selectedCourts,
+      selectedServices,
+      selectedProducts,
+      bookingNote,
+      services,
+      products,
+      courtAvailability,
+      sportCenter,
+    } = get()
 
     if (!centerId) {
       set({ submitError: "Không tìm thấy mã sân." })
@@ -228,24 +330,34 @@ export const useBookingStore = create<BookingStore>((set, get) => ({
       return false
     }
 
-    const bookings = buildBookingRequests(
+    const bookingRequest = buildBookingRequest(
       selectedDate,
       selectedCourts,
-      extras,
-      bookingNote
+      selectedServices,
+      selectedProducts,
+      bookingNote,
+      services,
+      products,
+      courtAvailability,
+      sportCenter?.basePrice ?? 0
     )
 
-    if (bookings.length === 0) {
+    if (bookingRequest.courtItems.length === 0) {
       set({ submitError: "Vui lòng chọn ít nhất một sân và khung giờ." })
       return false
     }
 
-    set({ isSubmitting: true, submitMessage: "", submitError: "" })
+    set({
+      isSubmitting: true,
+      submitMessage: "",
+      submitError: "",
+      lastBookingId: null,
+    })
 
     try {
       const result = await createSportCenterBookingsAction({
         centerId,
-        bookings,
+        bookingRequest,
       })
 
       if (!result.success) {
@@ -255,8 +367,22 @@ export const useBookingStore = create<BookingStore>((set, get) => ({
 
       set({
         selectedCourts: {},
-        extras: { ...DEFAULT_EXTRAS },
+        selectedServices: services.reduce<ServiceSelectionState>(
+          (acc, service) => {
+            acc[service.id] = false
+            return acc
+          },
+          {}
+        ),
+        selectedProducts: products.reduce<ProductSelectionState>(
+          (acc, product) => {
+            acc[product.id] = 0
+            return acc
+          },
+          {}
+        ),
         bookingNote: "",
+        lastBookingId: result.booking?.id ?? null,
         submitMessage: result.message ?? "Đã gửi yêu cầu đặt sân thành công.",
       })
 

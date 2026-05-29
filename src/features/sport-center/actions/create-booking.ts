@@ -1,20 +1,21 @@
 "use server"
 
-import { createBooking } from "@/features/sport-center/api/sport-center-service"
-import type { BookingRequest } from "@/features/sport-center/types/booking"
+import { BookingService } from "@/features/sport-center/api/booking-service"
+import type {
+  BookingResponse,
+  CreateBookingRequest,
+} from "@/features/sport-center/types/booking"
 
 export type CreateSportCenterBookingsPayload = {
   centerId: string
-  bookings: Array<{
-    courtId: string
-    bookingRequest: BookingRequest
-  }>
+  bookingRequest: CreateBookingRequest
 }
 
 export type CreateSportCenterBookingsState = {
   success: boolean
   message?: string
   error?: string
+  booking?: BookingResponse
 }
 
 export async function createSportCenterBookingsAction(
@@ -27,7 +28,7 @@ export async function createSportCenterBookingsAction(
     }
   }
 
-  if (!payload.bookings.length) {
+  if (!payload.bookingRequest.courtItems.length) {
     return {
       success: false,
       error: "Vui lòng chọn ít nhất một sân và khung giờ để đặt.",
@@ -35,15 +36,15 @@ export async function createSportCenterBookingsAction(
   }
 
   try {
-    await Promise.all(
-      payload.bookings.map(({ courtId, bookingRequest }) =>
-        createBooking(payload.centerId, courtId, bookingRequest)
-      )
+    const booking = await BookingService.createBookings(
+      payload.centerId,
+      payload.bookingRequest
     )
 
     return {
       success: true,
-      message: `Đã gửi ${payload.bookings.length} lượt đặt sân thành công.`,
+      message: "Đã gửi yêu cầu đặt sân thành công.",
+      booking,
     }
   } catch (error) {
     return {

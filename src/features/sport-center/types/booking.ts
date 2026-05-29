@@ -27,28 +27,99 @@ export interface BookingProduct {
   product: Product
 }
 
-export interface BookingRequest {
+export interface CreateBookingRequest {
   date: string
-  startTime: string
-  endTime: string
+  note: string
+  phoneNumber: string
+  useCredit: boolean
   serviceItems: ServiceItem[]
   productItems: ProductItem[]
-  note: string
+  courtItems: BookingScheduleItem[]
 }
 
-export interface Booking {
-  id: string
-  courtId: string
-  playerId: string
-  playerName: string
+export interface BookingPriceBreakdown {
+  startTime: string
+  endTime: string
+  pricePerHour: number
+}
 
-  date: string
+export interface BookingScheduleItem {
+  courtId: string
+  courtName: string
+
   startTime: string
   endTime: string
 
+  durationHours: number
+
+  breakdown: BookingPriceBreakdown[]
+
+  courtPrice: number
+}
+
+export interface BookingItem {
+  id: string
+  bookingId: string
+
+  courtId: string
+
+  startTime: string
+  endTime: string
+
+  itemPrice: number
+
+  createdAt: string
+
+  court: Court
+}
+
+export interface BookingServiceSummary {
+  id: string
+
+  name: string
+
+  price: number
+  unit: string
+
+  quantity: number
+
+  lineTotal: number
+}
+
+export interface BookingProductSummary {
+  id: string
+
+  name: string
+
+  price: number
+  unit: string
+
+  stock: number
+
+  quantity: number
+
+  lineTotal: number
+}
+
+export interface BookingResponse {
+  id: string
+
+  centerId: string
+
+  playerId: string
+  playerName: string
+  phoneNumber: string
+
+  date: string
+
   status: BookingStatus
+
   totalPrice: number
-  note: string | null
+
+  creditApplied: number
+  paymentRemaining: number
+
+  note: string
 
   playSessionId: string | null
 
@@ -61,8 +132,33 @@ export interface Booking {
   cancelledAt: string | null
   cancelReason: string | null
 
-  court: Court
+  center: SportCenter
+
+  bookingItems: BookingItem[]
 
   bookingServices: BookingService[]
   bookingProducts: BookingProduct[]
+
+  items: BookingScheduleItem[]
+
+  bookingCount: number
+
+  totalCourtPrice: number
+  totalServicePrice: number
+  totalProductPrice: number
+
+  services: BookingServiceSummary[]
+  products: BookingProductSummary[]
+
+  servicePricePerItem: number
+  productPricePerItem: number
+}
+
+export interface MyBookingsResponse {
+  data: BookingResponse[]
+  pagination: {
+    limit: number
+    offset: number
+    total: number
+  }
 }

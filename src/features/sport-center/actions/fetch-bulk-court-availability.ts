@@ -1,6 +1,6 @@
 "use server"
 
-import { getBulkCourtAvailability } from "@/features/sport-center/api/sport-center-service"
+import { CourtService } from "@/features/sport-center/api/court-service"
 import type { BulkCourtAvailability } from "@/features/sport-center/types/court"
 
 function formatBookingDate(date: Date) {
@@ -15,5 +15,8 @@ export async function fetchBulkCourtAvailabilityAction(
   centerId: string,
   date: Date
 ): Promise<BulkCourtAvailability> {
-  return getBulkCourtAvailability(centerId, formatBookingDate(date))
+  return CourtService.getBulkCourtAvailability(
+    centerId,
+    formatBookingDate(date)
+  )
 }

@@ -2,9 +2,9 @@ import { notFound } from "next/navigation"
 
 import { PageContainer } from "@/components/page-container"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { CourtService } from "@/features/sport-center/api/court-service"
 import {
   getSportCenterById,
-  getSportCenterCourts,
   getSportCenterReviews,
 } from "@/features/sport-center/api/sport-center-service"
 import type { CourtResponse } from "@/features/sport-center/types/court"
@@ -43,7 +43,7 @@ export default async function SportCenterInformationPage({
   }
 
   const [courtsResult, reviewsResult] = await Promise.allSettled([
-    getSportCenterCourts(id),
+    CourtService.getCourts(id),
     getSportCenterReviews(id),
   ])
 

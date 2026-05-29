@@ -1,24 +1,17 @@
+"use client"
+
 import { X } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { SelectedCourts } from "@/features/booking/types"
-import type { BulkCourtAvailability } from "@/features/sport-center/types/court"
+import { useBookingStore } from "@/features/sport-center/stores/booking-store"
 
-type Props = {
-  availability: BulkCourtAvailability | null
-  isLoading: boolean
-  error?: string
-  selectedCourts: SelectedCourts
-  onToggleCourtSlot: (courtId: string, slot: string) => void
-}
+export function BookingAvailableCourtsCard() {
+  const availability = useBookingStore((state) => state.courtAvailability)
+  const isLoading = useBookingStore((state) => state.isLoadingAvailability)
+  const error = useBookingStore((state) => state.availabilityError)
+  const selectedCourts = useBookingStore((state) => state.selectedCourts)
+  const onToggleCourtSlot = useBookingStore((state) => state.toggleCourtSlot)
 
-export function BookingAvailableCourtsCard({
-  availability,
-  isLoading,
-  error,
-  selectedCourts,
-  onToggleCourtSlot,
-}: Props) {
   const courtCount = availability?.courtCount ?? 0
 
   return (
@@ -73,9 +66,9 @@ export function BookingAvailableCourtsCard({
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                     {court.slots.map((slot) => {
                       const isBooked = !slot.available
-                      const isSelectedSlot = selectedCourts[court.courtId]?.has(
-                        slot.startTime
-                      )
+                      const slotKey = `${slot.startTime} - ${slot.endTime}`
+                      const isSelectedSlot =
+                        selectedCourts[court.courtId]?.has(slotKey)
 
                       return (
                         <button
@@ -84,7 +77,7 @@ export function BookingAvailableCourtsCard({
                           disabled={isBooked}
                           onClick={() =>
                             !isBooked &&
-                            onToggleCourtSlot(court.courtId, slot.startTime)
+                            onToggleCourtSlot(court.courtId, slotKey)
                           }
                           className={[
                             "rounded-md border px-2 py-2 text-xs transition-colors sm:text-sm",

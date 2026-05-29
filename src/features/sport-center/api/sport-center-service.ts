@@ -1,6 +1,6 @@
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
-import type { Booking, BookingRequest, BookingStatus } from "../types/booking"
+import type { BookingStatus } from "../types/booking"
 import type { BulkCourtAvailability, CourtResponse } from "../types/court"
 import type { Product } from "../types/product"
 import type { Review } from "../types/review"
@@ -100,20 +100,6 @@ export async function getSportCenterPriceSlots(
 }
 
 // ============================================
-// Sport Center Courts
-// ============================================
-
-export async function getSportCenterCourts(
-  centerId: string
-): Promise<CourtResponse[]> {
-  const axios = await getAuthenticatedAxios()
-  const response = await axios.get<
-    ApiResponse<CourtResponse[]> | CourtResponse[]
-  >(`/api/sport-centers/${centerId}/courts`)
-  return unwrapApiResponse(response.data)
-}
-
-// ============================================
 // Sport Center Favorite
 // ============================================
 
@@ -144,83 +130,6 @@ export async function getMyFavoriteSportCenters(): Promise<
   const response = await axios.get<
     ApiResponse<SportCenterFavorite[]> | SportCenterFavorite[]
   >("/api/sport-centers/favorites/me")
-  return unwrapApiResponse(response.data)
-}
-
-// ============================================
-// Sport Center Courts Availability
-// ============================================
-
-export async function getCourtAvailability(
-  centerId: string,
-  courtId: string,
-  date: string
-): Promise<CourtResponse[]> {
-  const axios = await getAuthenticatedAxios()
-  const response = await axios.get<
-    ApiResponse<CourtResponse[]> | CourtResponse[]
-  >(
-    `/api/sport-centers/${centerId}/courts/${courtId}/availability?date=${date}`
-  )
-  return unwrapApiResponse(response.data)
-}
-
-export async function getBulkCourtAvailability(
-  centerId: string,
-  date: string
-): Promise<BulkCourtAvailability> {
-  const axios = await getAuthenticatedAxios()
-  const response = await axios.get<
-    ApiResponse<BulkCourtAvailability> | BulkCourtAvailability
-  >(`/api/sport-centers/${centerId}/availability?date=${date}`)
-  return unwrapApiResponse(response.data)
-}
-
-// ============================================
-// Sport Center Bookings
-// ============================================
-
-export async function createBooking(
-  centerId: string,
-  courtId: string,
-  bookingRequest: BookingRequest
-): Promise<Booking> {
-  const axios = await getAuthenticatedAxios()
-  const response = await axios.post(
-    `/api/sport-centers/${centerId}/courts/${courtId}/bookings`,
-    bookingRequest
-  )
-  return unwrapApiResponse(response.data)
-}
-
-export async function getMyBookings(
-  status: BookingStatus,
-  courtId: string,
-  date: string,
-  limit: number,
-  offset: number
-): Promise<Booking[]> {
-  const axios = await getAuthenticatedAxios()
-  const response = await axios.get(
-    `/api/sport-centers/bookings/me?status=${status}&courtId=${courtId}&date=${date}&limit=${limit}&offset=${offset}`
-  )
-  return unwrapApiResponse(response.data)
-}
-
-export async function getBookingById(bookingId: string): Promise<Booking> {
-  const axios = await getAuthenticatedAxios()
-  const response = await axios.get(`/api/sport-centers/bookings/${bookingId}`)
-  return unwrapApiResponse(response.data)
-}
-
-export async function cancelBooking(
-  bookingId: string,
-  cancelReason: string
-): Promise<void> {
-  const axios = await getAuthenticatedAxios()
-  const response = await axios.post(
-    `/api/sport-centers/bookings/${bookingId}/cancel?cancel_reason=${cancelReason}`
-  )
   return unwrapApiResponse(response.data)
 }
 

@@ -1,6 +1,6 @@
 import { PageContainer } from "@/components/page-container"
+import { BookingService } from "@/features/sport-center/api/booking-service"
 import {
-  getMyBookings,
   listSportCenters,
   type ListSportCentersResult,
 } from "@/features/sport-center/api/sport-center-service"
@@ -32,14 +32,14 @@ export default async function SportCenterPage({ searchParams }: PageProps) {
     data: [],
     pagination: undefined,
   }
-  let bookedSportCenters: SportCenter[] = []
+  const bookedSportCenters: SportCenter[] = []
 
   try {
     const [sportCentersResponse, bookingResponses] = await Promise.all([
       listSportCenters(PAGE_SIZE, offset, undefined, favoriteOnly),
       Promise.allSettled(
         BOOKING_STATUSES.map((status) =>
-          getMyBookings(status, "", "", BOOKING_PAGE_SIZE, 0)
+          BookingService.getMyBookings(status, "", "", "", BOOKING_PAGE_SIZE, 0)
         )
       ),
     ])
@@ -51,17 +51,17 @@ export default async function SportCenterPage({ searchParams }: PageProps) {
     )
 
     const seenCenterIds = new Set<string>()
-    bookedSportCenters = bookings.reduce<SportCenter[]>((centers, booking) => {
-      const center = booking.court.center
+    // bookedSportCenters = bookings.reduce<SportCenter[]>((centers, booking) => {
+    //   const center = booking.court.center
 
-      if (seenCenterIds.has(center.id)) {
-        return centers
-      }
+    //   if (seenCenterIds.has(center.id)) {
+    //     return centers
+    //   }
 
-      seenCenterIds.add(center.id)
-      centers.push(center)
-      return centers
-    }, [])
+    //   seenCenterIds.add(center.id)
+    //   centers.push(center)
+    //   return centers
+    // }, [])
   } catch (error) {
     console.error("Failed to fetch sport centers or bookings:", error)
     return (

@@ -1,17 +1,15 @@
+"use client"
+
 import { CalendarClock } from "lucide-react"
 
 import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useBookingStore } from "@/features/sport-center/stores/booking-store"
 
-type Props = {
-  selectedDate: Date | undefined
-  onSelectDate: (date: Date | undefined) => void
-}
+export function BookingDateSelectionCard() {
+  const selectedDate = useBookingStore((state) => state.selectedDate)
+  const setSelectedDate = useBookingStore((state) => state.setSelectedDate)
 
-export function BookingDateSelectionCard({
-  selectedDate,
-  onSelectDate,
-}: Props) {
   return (
     <Card>
       <CardHeader>
@@ -25,7 +23,7 @@ export function BookingDateSelectionCard({
           <Calendar
             mode="single"
             selected={selectedDate}
-            onSelect={onSelectDate}
+            onSelect={setSelectedDate}
             className="w-full"
           />
         </div>

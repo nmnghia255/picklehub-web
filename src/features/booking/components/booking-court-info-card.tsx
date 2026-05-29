@@ -1,5 +1,6 @@
 import { Clock3, MapPin, Phone } from "lucide-react"
 
+import { FallbackImage } from "@/components/fallback-image"
 import { Card, CardContent } from "@/components/ui/card"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
 
@@ -13,18 +14,17 @@ export function BookingCourtInfoCard({
   const imageSrc =
     sportCenter?.images[0] ??
     "https://images.unsplash.com/photo-1611224923853-80b023f02d71?auto=format&fit=crop&w=240&q=80"
-  const centerName = sportCenter?.name ?? "Pickle Dome Sukhumvit"
-  const centerAddress =
-    sportCenter?.address ?? "42 Sukhumvit 49, Watthana, Bangkok"
+  const centerName = sportCenter?.name ?? "Chưa cập nhật tên trung tâm"
+  const centerAddress = sportCenter?.address ?? "Chưa cập nhật địa chỉ"
   const centerHours = sportCenter
     ? `Giờ hoạt động: ${sportCenter.openTime} - ${sportCenter.closeTime}`
-    : "Open daily: 06:00 - 23:00"
-  const centerPhone = sportCenter?.phone ?? "+66 2 111 2222"
+    : "Open daily: 08:00 - 22:00"
+  const centerPhone = sportCenter?.phone ?? "Chưa cập nhật số điện thoại"
 
   return (
     <Card>
       <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center">
-        <img
+        <FallbackImage
           src={imageSrc}
           alt={`${centerName} overview`}
           className="h-32 w-full rounded-lg object-cover sm:w-56"
