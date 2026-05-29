@@ -1,14 +1,22 @@
+"use client"
+
 import { Clock3, Heart, MapPin } from "lucide-react"
 import Link from "next/link"
 
 import { FallbackImage } from "@/components/fallback-image"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
+import { useSportCenterStore } from "@/features/sport-center/stores/sport-center-store"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
 
 export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
+  const setSportCenter = useSportCenterStore((s) => s.setSportCenter)
+
   return (
-    <Link href={`/sport-center/${sportCenter.id}`}>
+    <Link
+      href={`/sport-center/${sportCenter.id}`}
+      onClick={() => setSportCenter(sportCenter)}
+    >
       <Card className="group cursor-pointer overflow-hidden py-0 transition-transform duration-200 ease-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">
         <div className="relative h-44 w-full overflow-hidden">
           <FallbackImage

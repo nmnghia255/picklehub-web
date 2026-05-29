@@ -15,6 +15,7 @@ import type {
   ServiceSelectionState,
 } from "@/features/sport-center/stores/booking-store"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
+import { useSportCenterStore } from "@/features/sport-center/stores/sport-center-store"
 import type { BulkCourtAvailability } from "@/features/sport-center/types/court"
 import type { Product } from "@/features/sport-center/types/product"
 import type { Service } from "@/features/sport-center/types/service"
@@ -25,7 +26,6 @@ type BookingDraft = {
   selectedDate: Date | undefined
   selectedCourts: SelectedCourts
   courtAvailability: BulkCourtAvailability | null
-  sportCenter: SportCenter | null
   services: Service[]
   products: Product[]
   selectedServices: ServiceSelectionState
@@ -56,7 +56,6 @@ export default function BookingConfirmationPage() {
       selectedDate: state.selectedDate,
       selectedCourts: state.selectedCourts,
       courtAvailability: state.courtAvailability,
-      sportCenter: state.sportCenter,
       services: state.services,
       products: state.products,
       selectedServices: state.selectedServices,
@@ -64,6 +63,8 @@ export default function BookingConfirmationPage() {
       bookingNote: state.bookingNote,
     }
   })
+
+  const sportCenter = useSportCenterStore((s) => s.sportCenter)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitMessage, setSubmitMessage] = useState("")
@@ -84,7 +85,7 @@ export default function BookingConfirmationPage() {
 
   const courtTotal = useMemo(() => {
     if (!bookingDraft.courtAvailability) {
-      return totalSlots * (bookingDraft.sportCenter?.basePrice ?? 0)
+      return totalSlots * (sportCenter?.basePrice ?? 0)
     }
 
     return Object.entries(bookingDraft.selectedCourts).reduce(
@@ -101,10 +102,7 @@ export default function BookingConfirmationPage() {
               availableSlot.endTime === endTime
           )
 
-          return (
-            slotSum +
-            (slot?.pricePerHour ?? bookingDraft.sportCenter?.basePrice ?? 0)
-          )
+          return slotSum + (slot?.pricePerHour ?? sportCenter?.basePrice ?? 0)
         }, 0)
 
         return courtSum + slotTotal
@@ -114,7 +112,7 @@ export default function BookingConfirmationPage() {
   }, [
     bookingDraft.courtAvailability,
     bookingDraft.selectedCourts,
-    bookingDraft.sportCenter?.basePrice,
+    sportCenter?.basePrice,
     totalSlots,
   ])
 
@@ -134,7 +132,7 @@ export default function BookingConfirmationPage() {
 
   const total = courtTotal + serviceTotal + productTotal
   const totalDisplay = formatCurrencyVnd(total)
-  const centerName = bookingDraft.sportCenter?.name ?? "Sân pickleball"
+  const centerName = sportCenter?.name ?? "Sân pickleball"
   const canConfirm =
     totalSlots > 0 && !!bookingDraft.selectedDate && !isSubmitting
 
@@ -209,11 +207,8 @@ export default function BookingConfirmationPage() {
     }
   }
 
-  if (
-    !bookingDraft.sportCenter ||
-    !bookingDraft.selectedDate ||
-    totalSlots === 0
-  ) {
+  if (!sportCenter || totalSlots === 0) {
+    console.log("Booking Draft:", bookingDraft)
     return <BookingConfirmationEmptyState />
   }
 
@@ -235,7 +230,7 @@ export default function BookingConfirmationPage() {
           <div className="space-y-6">
             <BookingConfirmationDetailsCard
               centerName={centerName}
-              address={bookingDraft.sportCenter.address}
+              address={sportCenter.address}
               selectedDateText={selectedDateText}
               selectedCourtCount={
                 Object.keys(bookingDraft.selectedCourts).length
@@ -260,12 +255,10 @@ export default function BookingConfirmationPage() {
 
           <div className="space-y-6">
             <BookingConfirmationPaymentCard
-              paymentAccountName={bookingDraft.sportCenter.paymentAccountName}
-              paymentBankName={bookingDraft.sportCenter.paymentBankName}
-              paymentAccountNumber={
-                bookingDraft.sportCenter.paymentAccountNumber
-              }
-              paymentQrUrl={bookingDraft.sportCenter.paymentQrUrl}
+              paymentAccountName={sportCenter.paymentAccountName}
+              paymentBankName={sportCenter.paymentBankName}
+              paymentAccountNumber={sportCenter.paymentAccountNumber}
+              paymentQrUrl={sportCenter.paymentQrUrl}
               canConfirm={canConfirm}
               isSubmitting={isSubmitting}
               submitMessage={submitMessage}

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
+import { useSportCenterStore } from "@/features/sport-center/stores/sport-center-store"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 export function BookingSummaryCard() {
@@ -17,7 +18,7 @@ export function BookingSummaryCard() {
   const selectedDate = useBookingStore((state) => state.selectedDate)
   const selectedCourts = useBookingStore((state) => state.selectedCourts)
   const courtAvailability = useBookingStore((state) => state.courtAvailability)
-  const sportCenter = useBookingStore((state) => state.sportCenter)
+  const sportCenter = useSportCenterStore((state) => state.sportCenter)
   const services = useBookingStore((state) => state.services)
   const products = useBookingStore((state) => state.products)
   const selectedServices = useBookingStore((state) => state.selectedServices)

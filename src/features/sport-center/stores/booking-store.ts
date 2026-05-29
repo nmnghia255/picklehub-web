@@ -13,8 +13,6 @@ export type ServiceSelectionState = Record<string, boolean>
 export type ProductSelectionState = Record<string, number>
 
 interface BookingStore {
-  sportCenter: SportCenter | null
-  centerId: string
   selectedDate: Date | undefined
   selectedCourts: SelectedCourts
   courtAvailability: BulkCourtAvailability | null
@@ -29,8 +27,7 @@ interface BookingStore {
   submitMessage: string
   submitError: string
   lastBookingId: string | null
-  setSportCenter: (sportCenter: SportCenter) => void
-  initializeBooking: (centerId: string) => void
+  initializeBooking: () => void
   setSelectedDate: (date: Date | undefined) => void
   toggleCourtSlot: (courtId: string, slot: string) => void
   setSelectedServices: Dispatch<SetStateAction<ServiceSelectionState>>
@@ -39,10 +36,8 @@ interface BookingStore {
   clearSubmissionFeedback: () => void
 }
 
-function getDefaultState(centerId = "") {
+function getDefaultState() {
   return {
-    sportCenter: null,
-    centerId,
     selectedDate: new Date(),
     selectedCourts: {},
     courtAvailability: null,
@@ -63,18 +58,9 @@ function getDefaultState(centerId = "") {
 export const useBookingStore = create<BookingStore>((set, get) => ({
   ...getDefaultState(),
 
-  setSportCenter: (sportCenter) =>
-    set((state) => ({
-      sportCenter,
-      centerId: sportCenter.id,
-      selectedDate: state.selectedDate ?? new Date(),
-    })),
-
-  initializeBooking: (centerId) =>
-    set((state) => ({
-      ...getDefaultState(centerId),
-      sportCenter:
-        state.sportCenter?.id === centerId ? state.sportCenter : null,
+  initializeBooking: () =>
+    set(() => ({
+      ...getDefaultState(),
     })),
 
   setSelectedDate: (selectedDate) =>

@@ -14,6 +14,7 @@ export interface SportCenterPaginationState {
 
 interface SportCenterStore {
   // State
+  sportCenter: SportCenter
   activeTab: SportCenterTab
   searchQuery: string
   favoriteFilter: string
@@ -22,6 +23,7 @@ interface SportCenterStore {
   loading: boolean
 
   // Actions
+  setSportCenter: (center: SportCenter) => void
   setActiveTab: (tab: SportCenterTab) => void
   setSearchQuery: (query: string) => void
   setFavoriteFilter: (filter: string) => void
@@ -36,6 +38,7 @@ interface SportCenterStore {
 
 export const useSportCenterStore = create<SportCenterStore>((set, get) => ({
   // Initial state
+  sportCenter: {} as SportCenter,
   activeTab: "sport-center",
   searchQuery: "",
   favoriteFilter: "all",
@@ -44,6 +47,7 @@ export const useSportCenterStore = create<SportCenterStore>((set, get) => ({
   loading: false,
 
   // Actions
+  setSportCenter: (center) => set({ sportCenter: center }),
   setActiveTab: (tab) => set({ activeTab: tab }),
   setSearchQuery: (query) => set({ searchQuery: query }),
   setFavoriteFilter: (filter) => set({ favoriteFilter: filter }),
