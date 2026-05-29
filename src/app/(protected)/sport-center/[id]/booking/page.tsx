@@ -18,6 +18,7 @@ import { BookingDateSelectionCard } from "@/features/sport-center/components/boo
 import { BookingNote } from "@/features/sport-center/components/booking/booking-note"
 import { BookingSummaryCard } from "@/features/sport-center/components/booking/booking-summary-card"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
+import { useSportCenterStore } from "@/features/sport-center/stores/sport-center-store"
 
 export default function BookingPage() {
   const router = useRouter()
@@ -26,13 +27,13 @@ export default function BookingPage() {
 
   const selectedDate = useBookingStore((state) => state.selectedDate)
   const bookingNote = useBookingStore((state) => state.bookingNote)
-  const sportCenter = useBookingStore((state) => state.sportCenter)
+  const sportCenter = useSportCenterStore((state) => state.sportCenter)
   const initializeBooking = useBookingStore((state) => state.initializeBooking)
   const setBookingNote = useBookingStore((state) => state.setBookingNote)
 
   useEffect(() => {
     if (centerId) {
-      initializeBooking(centerId)
+      initializeBooking()
       void fetchServicesAction(centerId)
       void fetchProductsAction(centerId)
     }

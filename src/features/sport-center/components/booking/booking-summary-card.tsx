@@ -10,6 +10,11 @@ import { useBookingStore } from "@/features/sport-center/stores/booking-store"
 import { useSportCenterStore } from "@/features/sport-center/stores/sport-center-store"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
+function toAmount(value: number | string | null | undefined) {
+  const normalized = Number(value ?? 0)
+  return Number.isFinite(normalized) ? normalized : 0
+}
+
 export function BookingSummaryCard() {
   const router = useRouter()
   const params = useParams<{ id?: string | string[] }>()
@@ -46,7 +51,7 @@ export function BookingSummaryCard() {
 
   const courtTotal = useMemo(() => {
     if (!courtAvailability) {
-      return totalSlots * (sportCenter?.basePrice ?? 0)
+      return totalSlots * toAmount(sportCenter?.basePrice)
     }
 
     return Object.entries(selectedCourts).reduce(
@@ -62,7 +67,9 @@ export function BookingSummaryCard() {
               availableSlot.endTime === endTime
           )
 
-          return slotSum + (slot?.pricePerHour ?? sportCenter?.basePrice ?? 0)
+          return (
+            slotSum + toAmount(slot?.pricePerHour ?? sportCenter?.basePrice)
+          )
         }, 0)
 
         return courtSum + slotTotal
@@ -74,14 +81,14 @@ export function BookingSummaryCard() {
   const serviceTotal = useMemo(() => {
     return services.reduce((sum, service) => {
       if (!selectedServices[service.id]) return sum
-      return sum + service.price
+      return sum + toAmount(service.price)
     }, 0)
   }, [selectedServices, services])
 
   const productTotal = useMemo(() => {
     return products.reduce((sum, product) => {
       const quantity = selectedProducts[product.id] ?? 0
-      return sum + product.price * quantity
+      return sum + toAmount(product.price) * quantity
     }, 0)
   }, [products, selectedProducts])
 

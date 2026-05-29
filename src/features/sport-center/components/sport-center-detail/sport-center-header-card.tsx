@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { toggleFavoriteSportCenterAction } from "@/features/sport-center/actions/toggle-favorite-sport-center"
-import { useBookingStore } from "@/features/sport-center/stores/booking-store"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
 import { useToast } from "@/hooks/use-toast"
 
@@ -21,7 +20,6 @@ export function SportCenterHeaderCard({
   sportCenter,
 }: SportCenterHeaderCardProps) {
   const { toast } = useToast()
-  const setSportCenter = useBookingStore((state) => state.setSportCenter)
 
   const [favoriteState, formAction, isPending] = useActionState(
     toggleFavoriteSportCenterAction,
@@ -82,7 +80,6 @@ export function SportCenterHeaderCard({
             <Button
               className="w-fit"
               onClick={() => {
-                setSportCenter(sportCenter)
                 router.push(`/sport-center/${sportCenter.id}/booking`)
               }}
             >

@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react"
 
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
 
@@ -17,7 +18,10 @@ export function BookingAvailableCourtsCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Sân ({courtCount} sân)</CardTitle>
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="text-lg">Danh sách sân</CardTitle>
+          <Badge variant="outline">{courtCount} sân</Badge>
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (

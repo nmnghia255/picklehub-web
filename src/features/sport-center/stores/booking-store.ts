@@ -23,6 +23,7 @@ interface BookingStore {
   selectedServices: ServiceSelectionState
   selectedProducts: ProductSelectionState
   bookingNote: string
+  useCredit: boolean
   isSubmitting: boolean
   submitMessage: string
   submitError: string
@@ -33,6 +34,7 @@ interface BookingStore {
   setSelectedServices: Dispatch<SetStateAction<ServiceSelectionState>>
   setSelectedProducts: Dispatch<SetStateAction<ProductSelectionState>>
   setBookingNote: (note: string) => void
+  setUseCredit: (useCredit: boolean) => void
   clearSubmissionFeedback: () => void
 }
 
@@ -48,6 +50,7 @@ function getDefaultState() {
     selectedServices: {},
     selectedProducts: {},
     bookingNote: "",
+    useCredit: false,
     isSubmitting: false,
     submitMessage: "",
     submitError: "",
@@ -114,6 +117,8 @@ export const useBookingStore = create<BookingStore>((set, get) => ({
   },
 
   setBookingNote: (bookingNote) => set({ bookingNote }),
+
+  setUseCredit: (useCredit) => set({ useCredit }),
 
   clearSubmissionFeedback: () => set({ submitMessage: "", submitError: "" }),
 }))

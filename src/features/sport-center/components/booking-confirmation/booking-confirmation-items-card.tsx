@@ -24,9 +24,11 @@ export function BookingConfirmationItemsCard({
   selectedProducts,
 }: BookingConfirmationItemsCardProps) {
   return (
-    <Card className="border-0 shadow-lg shadow-black/5">
+    <Card className="border shadow-lg shadow-black/5">
       <CardHeader>
-        <CardTitle>Chi tiết dịch vụ và sản phẩm</CardTitle>
+        <CardTitle className="flex items-center gap-2 text-xl">
+          Chi tiết dịch vụ và sản phẩm
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
         <div className="space-y-3">

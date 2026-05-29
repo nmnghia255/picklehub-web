@@ -10,6 +10,7 @@ import {
   type ServiceSelectionState,
   useBookingStore,
 } from "@/features/sport-center/stores/booking-store"
+import { useSportCenterStore } from "@/features/sport-center/stores/sport-center-store"
 import type { CreateBookingRequest } from "@/features/sport-center/types/booking"
 import type { BulkCourtAvailability } from "@/features/sport-center/types/court"
 import type { Product } from "@/features/sport-center/types/product"
@@ -35,6 +36,7 @@ function buildBookingRequest(
   selectedServices: ServiceSelectionState,
   selectedProducts: ProductSelectionState,
   bookingNote: string,
+  useCredit: boolean,
   services: Service[],
   products: Product[],
   availability: BulkCourtAvailability | null,
@@ -108,7 +110,7 @@ function buildBookingRequest(
     date: bookingDate,
     note,
     phoneNumber: "",
-    useCredit: false,
+    useCredit,
     serviceItems,
     productItems: productItems.map(({ productId, quantity }) => ({
       productId,
@@ -187,17 +189,19 @@ export async function fetchProductsAction(centerId: string) {
 
 export async function submitBookingsAction() {
   const {
-    centerId,
     selectedDate,
     selectedCourts,
     selectedServices,
     selectedProducts,
     bookingNote,
+    useCredit,
     services,
     products,
     courtAvailability,
-    sportCenter,
   } = useBookingStore.getState()
+
+  const sportCenter = useSportCenterStore.getState().sportCenter
+  const centerId = sportCenter.id
 
   if (!centerId) {
     useBookingStore.setState({ submitError: "Không tìm thấy mã sân." })
@@ -215,6 +219,7 @@ export async function submitBookingsAction() {
     selectedServices,
     selectedProducts,
     bookingNote,
+    useCredit,
     services,
     products,
     courtAvailability,

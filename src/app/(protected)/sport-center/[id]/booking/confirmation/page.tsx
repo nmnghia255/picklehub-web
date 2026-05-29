@@ -3,7 +3,9 @@
 import { useParams, useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 
+import { PageContainer } from "@/components/page-container"
 import { submitBookingsAction } from "@/features/sport-center/booking-store-actions"
+import { BookingConfirmationBookedSlotsCard } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-booked-slots-card"
 import { BookingConfirmationDetailsCard } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-details-card"
 import { BookingConfirmationEmptyState } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-empty-state"
 import { BookingConfirmationHeader } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-header"
@@ -213,62 +215,55 @@ export default function BookingConfirmationPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-linear-to-b from-background via-background to-muted/40">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,197,94,0.08),transparent_32%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.08),transparent_28%)]" />
-
-      <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 md:px-6 lg:py-10">
+    <PageContainer
+      variant="wide"
+      className="flex min-h-screen flex-col gap-6 py-8"
+    >
+      <section>
         <BookingConfirmationHeader
-          centerName={centerName}
-          selectedDateText={selectedDateText}
-          totalSlots={totalSlots}
-          totalDisplay={totalDisplay}
-          bookingId={createdBookingId}
           onBack={() => router.push(`/sport-center/${centerId}/booking`)}
         />
+      </section>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
-          <div className="space-y-6">
-            <BookingConfirmationDetailsCard
-              centerName={centerName}
-              address={sportCenter.address}
-              selectedDateText={selectedDateText}
-              selectedCourtCount={
-                Object.keys(bookingDraft.selectedCourts).length
-              }
-              totalSlots={totalSlots}
-              totalDisplay={totalDisplay}
-              bookingNote={bookingDraft.bookingNote}
-              courtRows={courtRows}
-            />
+      <section className="space-y-6">
+        <BookingConfirmationDetailsCard
+          centerName={centerName}
+          address={sportCenter.address}
+          selectedDateText={selectedDateText}
+          totalDisplay={totalDisplay}
+          bookingNote={bookingDraft.bookingNote}
+        />
 
-            <BookingConfirmationItemsCard
-              serviceTotalDisplay={
-                serviceTotal ? formatCurrencyVnd(serviceTotal) : "0 VND"
-              }
-              productTotalDisplay={
-                productTotal ? formatCurrencyVnd(productTotal) : "0 VND"
-              }
-              selectedServices={selectedServices}
-              selectedProducts={selectedProducts}
-            />
-          </div>
+        <BookingConfirmationBookedSlotsCard
+          totalSlots={totalSlots}
+          selectedCourtCount={Object.keys(bookingDraft.selectedCourts).length}
+          courtRows={courtRows}
+        />
 
-          <div className="space-y-6">
-            <BookingConfirmationPaymentCard
-              paymentAccountName={sportCenter.paymentAccountName}
-              paymentBankName={sportCenter.paymentBankName}
-              paymentAccountNumber={sportCenter.paymentAccountNumber}
-              paymentQrUrl={sportCenter.paymentQrUrl}
-              canConfirm={canConfirm}
-              isSubmitting={isSubmitting}
-              submitMessage={submitMessage}
-              submitError={submitError}
-              hasCreatedBooking={Boolean(createdBookingId)}
-              onConfirm={() => void handleCreateBooking()}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+        <BookingConfirmationItemsCard
+          serviceTotalDisplay={
+            serviceTotal ? formatCurrencyVnd(serviceTotal) : "0 VND"
+          }
+          productTotalDisplay={
+            productTotal ? formatCurrencyVnd(productTotal) : "0 VND"
+          }
+          selectedServices={selectedServices}
+          selectedProducts={selectedProducts}
+        />
+
+        <BookingConfirmationPaymentCard
+          paymentAccountName={sportCenter.paymentAccountName}
+          paymentBankName={sportCenter.paymentBankName}
+          paymentAccountNumber={sportCenter.paymentAccountNumber}
+          paymentQrUrl={sportCenter.paymentQrUrl}
+          canConfirm={canConfirm}
+          isSubmitting={isSubmitting}
+          submitMessage={submitMessage}
+          submitError={submitError}
+          hasCreatedBooking={Boolean(createdBookingId)}
+          onConfirm={() => void handleCreateBooking()}
+        />
+      </section>
+    </PageContainer>
   )
 }
