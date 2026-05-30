@@ -2,7 +2,6 @@
 
 import React from "react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -30,10 +29,10 @@ export default function PlaySessionSidebar({
     maxSlots: number
   }
   social: {
-    organizers: Array<{ name: string; avatar?: string | null }>
+    creatorId: string
     hostRole: string
     autoApproveJoinRequests: boolean
-    cancellationFreezeHours: number
+    cancellationFreezeHours: number | null
     isPrivate: boolean
     totalExpense?: number | null
     isParticipant?: boolean
@@ -74,18 +73,9 @@ export default function PlaySessionSidebar({
             {t("sidebar.hostedBy")}
           </p>
           <div className="mt-3 flex items-center gap-3">
-            <Avatar className="size-11">
-              <AvatarImage
-                src={social.organizers[0]?.avatar ?? undefined}
-                alt={social.organizers[0]?.name ?? t("sidebar.hostedBy")}
-              />
-              <AvatarFallback>
-                {(social.organizers[0]?.name ?? "H").slice(0, 1)}
-              </AvatarFallback>
-            </Avatar>
             <div>
               <p className="text-sm font-medium">
-                {social.organizers[0]?.name}
+                {social.creatorId}
               </p>
               <p className="text-xs text-muted-foreground">
                 {social.hostRole === "HOST_AND_PLAY"
@@ -113,9 +103,13 @@ export default function PlaySessionSidebar({
             />
             <SettingRow
               label={t("sidebar.cancellationPolicy")}
-              value={`${social.cancellationFreezeHours} ${t("common.hours", {
-                count: social.cancellationFreezeHours,
-              })} ${t("common.beforeEvent")}`}
+              value={
+                social.cancellationFreezeHours === null
+                  ? t("common.na")
+                  : `${t("common.hours", {
+                      count: social.cancellationFreezeHours,
+                    })} ${t("common.beforeEvent")}`
+              }
             />
             <SettingRow
               label={t("sidebar.visibility")}

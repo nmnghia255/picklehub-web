@@ -1,79 +1,125 @@
+"use client"
+
+import {
+  eachDayOfInterval,
+  endOfMonth,
+  endOfWeek,
+  format,
+  isSameDay,
+  isSameMonth,
+  startOfMonth,
+  startOfWeek,
+} from "date-fns"
 import { CalendarRange, MapPin } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import type {
   CalendarView,
-  GroupEvent,
-  Venue,
 } from "@/features/group-activity-schedule/group-activity-schedule.types"
-import {
-  formatTime,
-  formatWeekdayAndDate,
-  getActivityTypeBadgeClass,
-  getMonthGridDates,
-  getVenueById,
-  getWeekDates,
-  isDateInDay,
-  sortEventsByStart,
-} from "@/features/group-activity-schedule/group-activity-schedule.utils"
+import type { Social } from "@/features/socials/types"
 
 interface GroupActivityCalendarViewProps {
-  events: GroupEvent[]
-  venues: Venue[]
+  socials: Social[]
+  baseDate: Date
   view: CalendarView
+  selectedDate: Date
   onViewChange: (value: CalendarView) => void
-  onOpenDetail: (event: GroupEvent) => void
+  onSelectDate: (date: Date) => void
+  onOpenSocial: (social: Social) => void
 }
 
-function EventChip({
-  event,
-  venueLabel,
-  onOpenDetail,
+function getStatusBadgeClass(status: Social["status"]) {
+  if (status === "PUBLISHED") return "bg-emerald-100 text-emerald-700 border-emerald-200"
+  if (status === "COMPLETED") return "bg-slate-100 text-slate-700 border-slate-200"
+  if (status === "CANCELLED") return "bg-rose-100 text-rose-700 border-rose-200"
+  return "bg-amber-100 text-amber-700 border-amber-200"
+}
+
+function formatTime(value?: string | null) {
+  if (!value) return ""
+  return format(new Date(value), "HH:mm")
+}
+
+function getMonthGridDates(baseDate: Date) {
+  const monthStart = startOfMonth(baseDate)
+  const monthEnd = endOfMonth(baseDate)
+  const gridStart = startOfWeek(monthStart, { weekStartsOn: 1 })
+  const gridEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
+  return eachDayOfInterval({ start: gridStart, end: gridEnd })
+}
+
+function getWeekDates(baseDate: Date) {
+  const weekStart = startOfWeek(baseDate, { weekStartsOn: 1 })
+  return eachDayOfInterval({
+    start: weekStart,
+    end: endOfWeek(baseDate, { weekStartsOn: 1 }),
+  })
+}
+
+function groupSocialsByDate(socials: Social[]) {
+  return socials.reduce<Record<string, Social[]>>((accumulator, social) => {
+    if (!social.startTime) return accumulator
+    const key = format(new Date(social.startTime), "yyyy-MM-dd")
+    if (!accumulator[key]) accumulator[key] = []
+    accumulator[key].push(social)
+    return accumulator
+  }, {})
+}
+
+function SocialChip({
+  social,
+  onOpenSocial,
 }: {
-  event: GroupEvent
-  venueLabel: string
-  onOpenDetail: (event: GroupEvent) => void
+  social: Social
+  onOpenSocial: (social: Social) => void
 }) {
+  const { t } = useSocialsTranslation()
+
   return (
     <button
       type="button"
-      onClick={() => onOpenDetail(event)}
+      onClick={() => onOpenSocial(social)}
       className="w-full rounded-md border p-2 text-left transition-colors hover:bg-accent"
     >
       <div className="mb-1 flex items-center justify-between gap-2">
-        <p className="truncate text-xs font-semibold">{event.title}</p>
-        <Badge
-          variant="outline"
-          className={getActivityTypeBadgeClass(event.activityType)}
-        >
-          {formatTime(event.startAt)}
+        <p className="truncate text-xs font-semibold">{social.title}</p>
+        <Badge variant="outline" className={getStatusBadgeClass(social.status)}>
+          {formatTime(social.startTime)}
         </Badge>
       </div>
-      <p className="truncate text-xs text-muted-foreground">{venueLabel}</p>
+      <p className="truncate text-xs text-muted-foreground">
+        {social.joinedCount}/{social.maxSlots} {t("calendar.slots")}
+      </p>
     </button>
   )
 }
 
 export function GroupActivityCalendarView({
-  events,
-  venues,
+  socials,
+  baseDate,
   view,
+  selectedDate,
   onViewChange,
-  onOpenDetail,
+  onSelectDate,
+  onOpenSocial,
 }: GroupActivityCalendarViewProps) {
-  const sortedEvents = sortEventsByStart(events)
-  const weekDates = getWeekDates(new Date())
-  const monthDates = getMonthGridDates(new Date())
-  const thisMonth = new Date().getMonth()
+  const { t } = useSocialsTranslation()
+  const groupedSocials = groupSocialsByDate(socials)
+  const monthDates = getMonthGridDates(baseDate)
+  const weekDates = getWeekDates(baseDate)
+  const selectedKey = format(selectedDate, "yyyy-MM-dd")
+  const selectedDateSocials = groupedSocials[selectedKey] ?? []
+  const currentMonth = baseDate.getMonth()
 
   return (
     <Card>
       <CardHeader className="gap-3">
         <div className="flex items-center gap-2">
           <CalendarRange className="size-5" />
-          <CardTitle>Lịch hoạt động</CardTitle>
+          <CardTitle>{t("calendar.title")}</CardTitle>
         </div>
       </CardHeader>
 
@@ -84,9 +130,9 @@ export function GroupActivityCalendarView({
           className="gap-4"
         >
           <TabsList>
-            <TabsTrigger value="month">Tháng</TabsTrigger>
-            <TabsTrigger value="week">Tuần</TabsTrigger>
-            <TabsTrigger value="agenda">Danh sách</TabsTrigger>
+            <TabsTrigger value="month">{t("calendar.month")}</TabsTrigger>
+            <TabsTrigger value="week">{t("calendar.week")}</TabsTrigger>
+            <TabsTrigger value="agenda">{t("calendar.agenda")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="month" className="space-y-3">
@@ -102,44 +148,51 @@ export function GroupActivityCalendarView({
 
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-7">
               {monthDates.map((date) => {
-                const dayEvents = sortedEvents.filter((event) =>
-                  isDateInDay(date, event.startAt)
-                )
-                const isCurrentMonth = date.getMonth() === thisMonth
+                const key = format(date, "yyyy-MM-dd")
+                const daySocials = groupedSocials[key] ?? []
+                const isCurrentMonth = date.getMonth() === currentMonth
+                const isSelected = isSameDay(date, selectedDate)
+                const isToday = isSameDay(date, new Date())
 
                 return (
-                  <div
-                    key={date.toISOString()}
-                    className="min-h-28 rounded-lg border p-2"
+                  <button
+                    type="button"
+                    key={key}
+                    onClick={() => onSelectDate(date)}
+                    className={`min-h-32 rounded-lg border p-2 text-left transition-colors ${
+                      isSelected ? "border-primary bg-primary/5" : "hover:bg-accent/40"
+                    }`}
                   >
-                    <p
-                      className={`mb-2 text-xs font-medium ${
-                        isCurrentMonth
-                          ? "text-foreground"
-                          : "text-muted-foreground"
-                      }`}
-                    >
-                      {date.getDate()}
-                    </p>
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <p
+                        className={`text-xs font-medium ${
+                          isCurrentMonth ? "text-foreground" : "text-muted-foreground"
+                        } ${isToday ? "rounded-full bg-primary px-2 py-0.5 text-primary-foreground" : ""}`}
+                      >
+                        {date.getDate()}
+                      </p>
+                      {daySocials.length > 0 && (
+                        <Badge variant="outline">{daySocials.length}</Badge>
+                      )}
+                    </div>
                     <div className="space-y-2">
-                      {dayEvents.slice(0, 2).map((event) => (
-                        <EventChip
-                          key={event.id}
-                          event={event}
-                          venueLabel={
-                            getVenueById(venues, event.venueId)?.shortLabel ??
-                            "-"
-                          }
-                          onOpenDetail={onOpenDetail}
-                        />
+                      {daySocials.slice(0, 2).map((social) => (
+                        <div
+                          key={social.id}
+                          className="truncate rounded-md bg-muted px-2 py-1 text-[11px]"
+                          title={social.title}
+                        >
+                          <span className="mr-1">🏓</span>
+                          {social.title}
+                        </div>
                       ))}
-                      {dayEvents.length > 2 && (
+                      {daySocials.length > 2 && (
                         <p className="text-xs text-muted-foreground">
-                          +{dayEvents.length - 2} sự kiện
+                          {t("calendar.moreSocials", { count: daySocials.length - 2 })}
                         </p>
                       )}
                     </div>
-                  </div>
+                  </button>
                 )
               })}
             </div>
@@ -148,97 +201,100 @@ export function GroupActivityCalendarView({
           <TabsContent value="week" className="space-y-3">
             <div className="grid gap-3 lg:grid-cols-7">
               {weekDates.map((date) => {
-                const dayEvents = sortedEvents.filter((event) =>
-                  isDateInDay(date, event.startAt)
-                )
+                const key = format(date, "yyyy-MM-dd")
+                const daySocials = groupedSocials[key] ?? []
 
                 return (
-                  <div
-                    key={date.toISOString()}
-                    className="rounded-lg border p-3"
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => onSelectDate(date)}
+                    className={`rounded-lg border p-3 text-left transition-colors ${
+                      isSameDay(date, selectedDate) ? "border-primary bg-primary/5" : "hover:bg-accent/40"
+                    }`}
                   >
                     <p className="mb-3 text-sm font-semibold">
-                      {formatWeekdayAndDate(date)}
+                      {date.toLocaleDateString("vi-VN", {
+                        weekday: "short",
+                        day: "2-digit",
+                        month: "2-digit",
+                      })}
                     </p>
 
                     <div className="space-y-2">
-                      {dayEvents.length === 0 && (
+                      {daySocials.length === 0 && (
                         <p className="text-xs text-muted-foreground">
-                          Không có sự kiện
+                          {t("calendar.noSocialInWeek")}
                         </p>
                       )}
-                      {dayEvents.map((event) => (
-                        <EventChip
-                          key={event.id}
-                          event={event}
-                          venueLabel={
-                            getVenueById(venues, event.venueId)?.shortLabel ??
-                            "-"
-                          }
-                          onOpenDetail={onOpenDetail}
+                      {daySocials.map((social) => (
+                        <SocialChip
+                          key={social.id}
+                          social={social}
+                          onOpenSocial={onOpenSocial}
                         />
                       ))}
                     </div>
-                  </div>
+                  </button>
                 )
               })}
             </div>
           </TabsContent>
 
           <TabsContent value="agenda" className="space-y-2">
-            {sortedEvents.length === 0 ? (
+            {socials.length === 0 ? (
               <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-                Không có dữ liệu agenda trong bộ lọc hiện tại.
+                {t("calendar.noSocialInMonth")}
               </p>
             ) : (
-              sortedEvents.map((event) => {
-                const venue = getVenueById(venues, event.venueId)
-
-                return (
+              socials
+                .slice()
+                .sort((a, b) => {
+                  const left = a.startTime ? new Date(a.startTime).getTime() : 0
+                  const right = b.startTime ? new Date(b.startTime).getTime() : 0
+                  return left - right
+                })
+                .map((social) => (
                   <button
-                    key={event.id}
+                    key={social.id}
                     type="button"
-                    onClick={() => onOpenDetail(event)}
+                    onClick={() => onOpenSocial(social)}
                     className="flex w-full items-start justify-between gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-accent"
                   >
                     <div className="space-y-1">
-                      <p className="font-semibold">{event.title}</p>
+                      <p className="font-semibold">{social.title}</p>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(event.startAt).toLocaleDateString("vi-VN", {
-                          weekday: "long",
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        })}
-                        {" · "}
-                        {formatTime(event.startAt)} - {formatTime(event.endAt)}
+                        {social.startTime
+                          ? new Date(social.startTime).toLocaleDateString("vi-VN", {
+                              weekday: "long",
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                            })
+                          : t("calendar.noSchedule")}
+                        {social.startTime && social.endTime ? ` · ${formatTime(social.startTime)} - ${formatTime(social.endTime)}` : ""}
                       </p>
                       <p className="flex items-center gap-1 text-sm text-muted-foreground">
                         <MapPin className="size-3.5" />
-                        {venue?.shortLabel ?? "Không rõ địa điểm"}
+                        {social.groupId ? t("calendar.group", { groupId: social.groupId }) : t("calendar.unknownGroup")}
                       </p>
                     </div>
 
-                    <Badge
-                      variant="outline"
-                      className={getActivityTypeBadgeClass(event.activityType)}
-                    >
-                      {event.activityType === "SOCIAL"
-                        ? "Social"
-                        : event.activityType === "CHOI_THUONG"
-                          ? "Chơi thường"
-                          : event.activityType === "GIAI_DAU"
-                            ? "Giải đấu"
-                            : event.activityType === "MEETUP"
-                              ? "Meetup"
-                              : "Thuê sân"}
+                    <Badge variant="outline" className={getStatusBadgeClass(social.status)}>
+                      {social.status}
                     </Badge>
                   </button>
-                )
-              })
+                ))
             )}
           </TabsContent>
         </Tabs>
+
+        <div className="mt-4 rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
+          {t("calendar.selectedDateSummary", {
+            date: format(selectedDate, "dd/MM/yyyy"),
+            count: selectedDateSocials.length,
+          })}
+        </div>
       </CardContent>
     </Card>
   )

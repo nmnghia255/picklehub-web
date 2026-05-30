@@ -14,27 +14,29 @@ import InfoRow from "./InfoRow"
 
 export default function SocialOverview({
   social,
-  duration,
 }: {
   social: {
-    startTime: string | Date
-    note: string
+    startTime: string | Date | null
+    note: string | null
     genderPolicy: GenderPolicy
     ageGroup: string
     minimumLevel?: string | number
     maximumLevel?: string | number
     submitDupr?: boolean
   }
-  duration: number
 }) {
   const { t } = useSocialsTranslation()
 
   function getGenderPolicyLabel(policy: GenderPolicy) {
     switch (policy) {
+      case "ANY":
+        return t("filters.all")
       case "MALE_ONLY":
         return t("labels.menOnly")
       case "FEMALE_ONLY":
         return t("labels.womenOnly")
+      case "MIXED_ONLY":
+        return t("labels.mixed")
       default:
         return t("labels.mixed")
     }
@@ -48,7 +50,7 @@ export default function SocialOverview({
             {t("detail.aboutThisSocial")}
           </h2>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
-            {social.note}
+            {social.note ?? ""}
           </p>
         </div>
 
@@ -58,12 +60,11 @@ export default function SocialOverview({
           <InfoRow
             icon={<Clock3 className="size-4" />}
             label={t("detail.schedule")}
-            value={format(new Date(social.startTime), "MMM d, yyyy • h:mm a")}
-          />
-          <InfoRow
-            icon={<Clock3 className="size-4" />}
-            label={t("detail.duration")}
-            value={t("common.hours", { count: duration })}
+            value={
+              social.startTime
+                ? format(new Date(social.startTime), "MMM d, yyyy • h:mm a")
+                : t("common.na")
+            }
           />
           <InfoRow
             icon={<Info className="size-4" />}

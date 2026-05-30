@@ -32,6 +32,16 @@ export function SocialFormBasicInformationCard({
       <CardContent className="space-y-5 p-6">
         <h2 className="text-lg font-semibold">{t("form.basicInformation")}</h2>
         <div className="space-y-4">
+          <Field label={t("form.groupId")}>
+            <Input
+              value={formData.groupId}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, groupId: e.target.value }))
+              }
+              placeholder={t("form.groupIdPlaceholder")}
+            />
+          </Field>
+
           <Field label={t("form.socialTitle")}>
             <Input
               value={formData.title}
@@ -70,10 +80,7 @@ export function SocialFormBasicInformationCard({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="SOCIAL">{t("labels.social")}</SelectItem>
-                <SelectItem value="TOURNAMENT">
-                  {t("labels.tournament")}
-                </SelectItem>
-                <SelectItem value="TRAINING">{t("labels.training")}</SelectItem>
+                <SelectItem value="SINGLES">{t("labels.singles")}</SelectItem>
               </SelectContent>
             </Select>
           </Field>

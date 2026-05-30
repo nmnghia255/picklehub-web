@@ -65,13 +65,14 @@ export function SocialFormParticipationRulesCard({
                   <SelectValue placeholder={t("filters.selectGenderPolicy")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="MIXED">{t("labels.mixed")}</SelectItem>
+                  <SelectItem value="ANY">{t("filters.all")}</SelectItem>
                   <SelectItem value="MALE_ONLY">
                     {t("labels.menOnly")}
                   </SelectItem>
                   <SelectItem value="FEMALE_ONLY">
                     {t("labels.womenOnly")}
                   </SelectItem>
+                  <SelectItem value="MIXED_ONLY">{t("labels.mixed")}</SelectItem>
                 </SelectContent>
               </Select>
             </Field>
@@ -90,6 +91,7 @@ export function SocialFormParticipationRulesCard({
                   <SelectValue placeholder={t("filters.selectAgeGroup")} />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="ANY">{t("filters.all")}</SelectItem>
                   <SelectItem value="JUNIOR">{t("labels.junior")}</SelectItem>
                   <SelectItem value="ADULT">{t("labels.adult")}</SelectItem>
                   <SelectItem value="SENIOR">{t("labels.senior")}</SelectItem>

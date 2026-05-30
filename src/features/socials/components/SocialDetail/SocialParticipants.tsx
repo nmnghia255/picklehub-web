@@ -3,7 +3,6 @@
 import { format } from "date-fns"
 import React from "react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
@@ -12,10 +11,10 @@ export default function SocialParticipants({
 }: {
   participants?: Array<{
     id: string
-    user: { name: string; avatar?: string | null }
+    userId: string
     status: string
-    skillLevel?: string | number | null
     joinedAt: string | Date
+    skillLevel?: string | number | null
   }>
 }) {
   const { t } = useSocialsTranslation()
@@ -28,6 +27,10 @@ export default function SocialParticipants({
         return t("participantStatus.cancelled")
       case "REJECTED":
         return t("participantStatus.rejected")
+      case "WAITLISTED":
+        return t("participantStatus.pending")
+      case "ON_HOLD":
+        return t("participantStatus.pending")
       default:
         return t("participantStatus.pending")
     }
@@ -48,17 +51,8 @@ export default function SocialParticipants({
               className="flex items-center justify-between rounded-2xl border border-border/60 p-4"
             >
               <div className="flex items-center gap-3">
-                <Avatar className="size-10">
-                  <AvatarImage
-                    src={participant.user.avatar ?? undefined}
-                    alt={participant.user.name}
-                  />
-                  <AvatarFallback>
-                    {participant.user.name.slice(0, 1)}
-                  </AvatarFallback>
-                </Avatar>
                 <div>
-                  <p className="text-sm font-medium">{participant.user.name}</p>
+                  <p className="text-sm font-medium">{participant.userId}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <Badge
                       className={

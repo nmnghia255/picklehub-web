@@ -1,15 +1,72 @@
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
-import type { Social } from "../types"
+import type { PlaySession, Social } from "../types"
 
 interface ApiResponse<T> {
   meta: {
-    total: number
-    page: number
-    limit: number
+    total?: number
+    page?: number
+    limit?: number
+    totalPages?: number
   }
   message: string
   data: T
+}
+
+export interface SocialListQuery {
+  page?: number
+  limit?: number
+  sortBy?: "createdAt" | "startTime"
+  order?: "asc" | "desc"
+  groupId?: string
+  status?: "PUBLISHED" | "COMPLETED" | "CANCELLED"
+  search?: string
+  startFrom?: string
+  startTo?: string
+  upcoming?: boolean
+  hasAvailableSlots?: boolean
+  minimumLevel?: number
+  maximumLevel?: number
+  format?: "SOCIAL" | "SINGLES"
+  genderPolicy?: "ANY" | "MALE_ONLY" | "FEMALE_ONLY" | "MIXED_ONLY"
+  ageGroup?: "ANY" | "JUNIOR" | "ADULT" | "SENIOR"
+}
+
+export interface SocialCreatePayload {
+  groupId?: string
+  title: string
+  note?: string
+  startTime?: string
+  endTime?: string
+  format?: "SOCIAL" | "SINGLES"
+  isPrivate?: boolean
+  maxSlots?: number
+  submitDupr?: boolean
+  minimumLevel?: number
+  maximumLevel?: number
+  genderPolicy?: "ANY" | "MALE_ONLY" | "FEMALE_ONLY" | "MIXED_ONLY"
+  ageGroup?: "ANY" | "JUNIOR" | "ADULT" | "SENIOR"
+  hostRole?: "HOST_ONLY" | "HOST_AND_PLAY"
+  cancellationFreezeHours?: number
+  autoApproveJoinRequests?: boolean
+  paymentQrUrl?: string
+  paymentCode?: string
+  paymentNote?: string
+}
+
+export interface SocialUpdatePayload extends Partial<SocialCreatePayload> {
+  status?: "DRAFT" | "PUBLISHED" | "COMPLETED" | "CANCELLED"
+}
+
+export interface ListResponse<T> {
+  data: T
+  meta?: {
+    total?: number
+    page?: number
+    limit?: number
+    totalPages?: number
+  }
+  message: string
 }
 
 function unwrapApiResponse<T>(payload: ApiResponse<T> | T): T {
@@ -20,14 +77,14 @@ function unwrapApiResponse<T>(payload: ApiResponse<T> | T): T {
 }
 
 export const socialService = {
-  listMySocials: async function (): Promise<Social[]> {
+  listMySocials: async function (): Promise<ListResponse<Social[]>> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<Social[]>>(
+    const response = await axios.get<ListResponse<Social[]>>(
       "/api/events/socials/my-schedule"
     )
-    return unwrapApiResponse(response.data)
+    return response.data
   },
-  createSocial: async function (payload: unknown): Promise<Social> {
+  createSocial: async function (payload: SocialCreatePayload): Promise<Social> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.post<ApiResponse<Social>>(
       "/api/events/socials",
@@ -35,22 +92,20 @@ export const socialService = {
     )
     return unwrapApiResponse(response.data)
   },
-  discover: async function (
-    params?: Record<string, unknown>
-  ): Promise<Social[]> {
+  discover: async function (params?: SocialListQuery): Promise<ListResponse<Social[]>> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<Social[]>>(
+    const response = await axios.get<ListResponse<Social[]>>(
       "/api/events/socials/discover",
       { params }
     )
-    return unwrapApiResponse(response.data)
+    return response.data
   },
-  listAll: async function (): Promise<Social[]> {
+  listAll: async function (): Promise<ListResponse<Social[]>> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<Social[]>>(
+    const response = await axios.get<ListResponse<Social[]>>(
       "/api/events/socials/all"
     )
-    return unwrapApiResponse(response.data)
+    return response.data
   },
   getSocial: async function (id: string): Promise<Social> {
     const axios = await getAuthenticatedAxios()
@@ -59,7 +114,7 @@ export const socialService = {
     )
     return unwrapApiResponse(response.data)
   },
-  updateSocial: async function (id: string, payload: unknown): Promise<Social> {
+  updateSocial: async function (id: string, payload: SocialUpdatePayload): Promise<Social> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.patch<ApiResponse<Social>>(
       `/api/events/socials/${id}`,
@@ -95,17 +150,17 @@ export const socialService = {
   createPlaySession: async function (
     socialId: string,
     payload: unknown
-  ): Promise<unknown> {
+  ): Promise<PlaySession> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post<ApiResponse<unknown>>(
+    const response = await axios.post<ApiResponse<PlaySession>>(
       `/api/events/socials/${socialId}/play-sessions`,
       payload
     )
     return unwrapApiResponse(response.data)
   },
-  listPlaySessions: async function (socialId: string): Promise<unknown[]> {
+  listPlaySessions: async function (socialId: string): Promise<PlaySession[]> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<unknown[]>>(
+    const response = await axios.get<ApiResponse<PlaySession[]>>(
       `/api/events/socials/${socialId}/play-sessions`
     )
     return unwrapApiResponse(response.data)
@@ -113,9 +168,9 @@ export const socialService = {
   getPlaySession: async function (
     socialId: string,
     sessionId: string
-  ): Promise<unknown> {
+  ): Promise<PlaySession> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<unknown>>(
+    const response = await axios.get<ApiResponse<PlaySession>>(
       `/api/events/socials/${socialId}/play-sessions/${sessionId}`
     )
     return unwrapApiResponse(response.data)
@@ -124,9 +179,9 @@ export const socialService = {
     socialId: string,
     sessionId: string,
     payload: unknown
-  ): Promise<unknown> {
+  ): Promise<PlaySession> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.patch<ApiResponse<unknown>>(
+    const response = await axios.patch<ApiResponse<PlaySession>>(
       `/api/events/socials/${socialId}/play-sessions/${sessionId}`,
       payload
     )
@@ -145,9 +200,9 @@ export const socialService = {
   cancelPlaySession: async function (
     socialId: string,
     sessionId: string
-  ): Promise<unknown> {
+  ): Promise<PlaySession> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.patch<ApiResponse<unknown>>(
+    const response = await axios.patch<ApiResponse<PlaySession>>(
       `/api/events/socials/${socialId}/play-sessions/${sessionId}/cancel`
     )
     return unwrapApiResponse(response.data)

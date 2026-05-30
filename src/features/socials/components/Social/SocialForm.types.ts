@@ -7,6 +7,7 @@ import type {
 } from "../../types"
 
 export interface SocialFormData {
+  groupId: string
   title: string
   note: string
   format: SocialFormat
@@ -23,6 +24,7 @@ export interface SocialFormData {
   submitDupr: boolean
   cancellationFreezeHours: number
   totalExpense: number
+  paymentQrUrl: string
   paymentCode: string
   paymentNote: string
   status: SocialStatus

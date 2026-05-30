@@ -56,6 +56,19 @@ export function SocialFormPaymentCard({
             />
           </Field>
 
+          <Field label={t("form.paymentQrUrl")}> 
+            <Input
+              value={formData.paymentQrUrl}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  paymentQrUrl: e.target.value,
+                }))
+              }
+              placeholder={t("form.paymentQrUrlPlaceholder")}
+            />
+          </Field>
+
           <Field label={t("form.paymentInstructions")}>
             <Textarea
               rows={2}

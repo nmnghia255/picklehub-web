@@ -1,9 +1,8 @@
 "use client"
 
-import { Activity, Plus } from "lucide-react"
+import { Activity } from "lucide-react"
 import React from "react"
 
-import { Button } from "@/components/ui/button"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import MatchCard from "./MatchCard"
@@ -31,7 +30,6 @@ function SectionLabel({
 export default function PlaySessionMatches({
   isHost,
   matches,
-  onCreateMatch,
 }: {
   isHost: boolean
   matches: {
@@ -39,7 +37,6 @@ export default function PlaySessionMatches({
     scheduled: Parameters<typeof MatchCard>[0]["match"][]
     completed: Parameters<typeof MatchCard>[0]["match"][]
   }
-  onCreateMatch: () => void
 }) {
   const { t } = useSocialsTranslation()
 
@@ -52,12 +49,6 @@ export default function PlaySessionMatches({
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold">{t("matches.title")}</h2>
-        {isHost && (
-          <Button size="sm" onClick={onCreateMatch}>
-            <Plus className="size-4" />
-            {t("matches.createMatch")}
-          </Button>
-        )}
       </div>
 
       <div className="mt-4 space-y-4">
