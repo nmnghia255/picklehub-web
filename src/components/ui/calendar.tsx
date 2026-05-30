@@ -11,6 +11,7 @@ import {
   DayPicker,
   getDefaultClassNames,
 } from "react-day-picker"
+import { vi } from "date-fns/locale/vi"
 
 import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -31,6 +32,7 @@ function Calendar({
 
   return (
     <DayPicker
+      locale={vi}
       showOutsideDays={showOutsideDays}
       className={cn(
         "group/calendar bg-background p-3 [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
@@ -40,8 +42,13 @@ function Calendar({
       )}
       captionLayout={captionLayout}
       formatters={{
-        formatMonthDropdown: (date) =>
-          date.toLocaleString("default", { month: "short" }),
+        formatMonthDropdown: (date) => `Tháng ${date.getMonth() + 1}`,
+        formatMonthCaption: (date) => `Tháng ${date.getMonth() + 1} năm ${date.getFullYear()}`,
+        formatWeekdayName: (date) => {
+          // Map to Vietnamese short weekday labels: T2..T7, CN
+          const map = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"]
+          return map[date.getDay()]
+        },
         ...formatters,
       }}
       classNames={{

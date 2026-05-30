@@ -1,14 +1,15 @@
 "use client"
 
 import { Filter, Plus, Search } from "lucide-react"
+import { useDeferredValue, useMemo } from "react"
 import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { mockSocials } from "@/features/socials/mock-data/mockData"
 import useSocialsStore from "@/features/socials/stores/social-listing-store"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
+import { useSocialListQuery } from "../../api/social-queries"
 import FiltersDrawer from "./FiltersDrawer"
 import SocialCard from "./SocialCard"
 
@@ -21,25 +22,39 @@ export default function SocialListing() {
   const setFilterDrawerOpen = useSocialsStore((s) => s.setFilterDrawerOpen)
   const filters = useSocialsStore((s) => s.filters)
   const setFilters = useSocialsStore((s) => s.setFilters)
+  const deferredSearchQuery = useDeferredValue(searchQuery)
 
-  const filteredSocials = mockSocials.filter((social) => {
-    if (
-      searchQuery &&
-      !social.title.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+  const queryParams = useMemo(
+    () => ({
+      search: deferredSearchQuery.trim() || undefined,
+      genderPolicy:
+        filters.genderPolicy === "ALL"
+          ? undefined
+          : (filters.genderPolicy as
+              | "ANY"
+              | "MALE_ONLY"
+              | "FEMALE_ONLY"
+              | "MIXED_ONLY"),
+      ageGroup:
+        filters.ageGroup === "ALL"
+          ? undefined
+          : (filters.ageGroup as "ANY" | "JUNIOR" | "ADULT" | "SENIOR"),
+      format:
+        filters.format === "ALL"
+          ? undefined
+          : (filters.format as "SOCIAL" | "SINGLES"),
+      hasAvailableSlots: filters.availableSlots || undefined,
+    }),
+    [deferredSearchQuery, filters]
+  )
+
+  const { data, isLoading, isError } = useSocialListQuery(queryParams)
+  const socials = data?.data ?? []
+
+  const filteredSocials = socials.filter((social) => {
+    if (filters.status !== "ALL" && social.status !== filters.status) {
       return false
-    if (filters.status !== "ALL" && social.status !== filters.status)
-      return false
-    if (
-      filters.genderPolicy !== "ALL" &&
-      social.genderPolicy !== filters.genderPolicy
-    )
-      return false
-    if (filters.ageGroup !== "ALL" && social.ageGroup !== filters.ageGroup)
-      return false
-    if (filters.format !== "ALL" && social.format !== filters.format)
-      return false
-    if (filters.availableSlots && !social.hasAvailableSlots) return false
+    }
     return true
   })
 
@@ -83,7 +98,20 @@ export default function SocialListing() {
         </Button>
       </div>
 
-      {hasNoResults ? (
+      {isLoading ? (
+        <div className="rounded-3xl border border-dashed border-border px-6 py-14 text-center text-sm text-muted-foreground">
+          {t("listing.loading")}
+        </div>
+      ) : isError ? (
+        <div className="rounded-3xl border border-destructive/30 bg-destructive/5 px-6 py-14 text-center">
+          <h2 className="text-lg font-semibold text-destructive">
+            {t("listing.loadErrorTitle")}
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {t("listing.loadErrorDescription")}
+          </p>
+        </div>
+      ) : hasNoResults ? (
         <div className="rounded-3xl border border-dashed border-border px-6 py-14 text-center">
           <h2 className="text-lg font-semibold">
             {t("listing.noResultsTitle")}

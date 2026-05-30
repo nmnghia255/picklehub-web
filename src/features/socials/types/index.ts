@@ -1,18 +1,19 @@
-export type GenderPolicy = "MALE_ONLY" | "FEMALE_ONLY" | "MIXED"
-export type AgeGroup = "JUNIOR" | "ADULT" | "SENIOR"
-export type SocialFormat = "SOCIAL" | "TOURNAMENT" | "TRAINING"
+export type GenderPolicy =
+  | "ANY"
+  | "MALE_ONLY"
+  | "FEMALE_ONLY"
+  | "MIXED_ONLY"
+export type AgeGroup = "ANY" | "JUNIOR" | "ADULT" | "SENIOR"
+export type SocialFormat = "SOCIAL" | "SINGLES"
 export type SocialStatus = "DRAFT" | "PUBLISHED" | "COMPLETED" | "CANCELLED"
 export type HostRole = "HOST_ONLY" | "HOST_AND_PLAY"
 export type ParticipantStatus =
-  | "PENDING"
   | "CONFIRMED"
+  | "WAITLISTED"
+  | "ON_HOLD"
   | "CANCELLED"
-  | "REJECTED"
-export type PlaySessionStatus =
-  | "DRAFT"
-  | "PUBLISHED"
-  | "COMPLETED"
-  | "CANCELLED"
+export type SocialPaymentStatus = "UNPAID" | "PENDING_REVIEW" | "PAID"
+export type PlaySessionStatus = "ACTIVE" | "CANCELLED"
 
 export interface User {
   id: string
@@ -25,8 +26,13 @@ export interface PlaySession {
   id: string
   title: string
   status: PlaySessionStatus
-  maxSlots: number
   joinedCount: number
+  maxSlots?: number
+  bookingIds: string[]
+  numberOfCourts: number
+  courtNames?: string | null
+  location?: string | null
+  sessionFee: number
   startTime: string
   endTime: string
   creatorId: string
@@ -38,10 +44,12 @@ export interface PlaySession {
 export interface SessionParticipant {
   id: string
   userId: string
-  user: User
   status: ParticipantStatus
   joinedAt: string
-  skillLevel?: number
+  isHost?: boolean
+  paymentStatus?: SocialPaymentStatus
+  totalFee?: number
+  paymentReceiptUrl?: string | null
 }
 
 export type MatchStatus =
@@ -74,19 +82,24 @@ export interface Match {
 export interface Participant {
   id: string
   userId: string
-  user: User
   status: ParticipantStatus
   joinedAt: string
+  isHost?: boolean
+  paymentStatus?: SocialPaymentStatus
+  totalFee?: number
+  paymentReceiptUrl?: string | null
 }
 
 export interface Social {
   id: string
   title: string
-  note: string
-  groupId: string
-  startTime: string
-  endTime: string
-  totalExpense?: number
+  note: string | null
+  groupId: string | null
+  startTime: string | null
+  endTime: string | null
+  totalBookingCost: number
+  discountedPackageFee: number
+  totalExpense: number
   paymentQrUrl?: string
   paymentCode?: string
   paymentNote?: string
@@ -100,17 +113,21 @@ export interface Social {
   isPrivate: boolean
   autoApproveJoinRequests: boolean
   hostRole: HostRole
-  cancellationFreezeHours: number
+  cancellationFreezeHours: number | null
   maxSlots: number
   joinedCount: number
   status: SocialStatus
   creatorId: string
   createdAt: string
   updatedAt: string
-  organizers: User[]
-  participants: Participant[]
-  playSessions: PlaySession[]
+  organizers?: Array<{ userId: string }>
+  participants?: Participant[]
+  playSessions?: PlaySession[]
   isHost?: boolean
   isParticipant?: boolean
-  myParticipantStatus?: ParticipantStatus
+  MyParticipantStatus?: ParticipantStatus | null
+  _count?: {
+    participants: number
+    playSessions: number
+  }
 }

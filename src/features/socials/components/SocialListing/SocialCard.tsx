@@ -5,7 +5,6 @@ import { Check, LockKeyhole } from "lucide-react"
 import { useRouter } from "next/navigation"
 import React from "react"
 
-import { AvatarGroup } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
@@ -13,7 +12,6 @@ import type { Social } from "@/features/socials/types"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import ProgressBar from "./ProgressBar"
-import UserAvatar from "./UserAvatar"
 
 function getStatusClasses(status: string) {
   switch (status) {
@@ -36,15 +34,22 @@ export default function SocialCard({ social }: SocialCardProps) {
   const router = useRouter()
   const { t } = useSocialsTranslation()
 
-  const formatLabel = t(`labels.${social.format.toLowerCase()}`)
-  const ageGroupLabel = t(`labels.${social.ageGroup.toLowerCase()}`)
+  const formatLabel =
+    social.format === "SINGLES"
+      ? t("labels.singles")
+      : t(`labels.${social.format.toLowerCase()}`)
+  const ageGroupLabel = social.ageGroup === "ANY" ? t("filters.all") : t(`labels.${social.ageGroup.toLowerCase()}`)
 
   const getGenderPolicyLabel = () => {
     switch (social.genderPolicy) {
+      case "ANY":
+        return t("filters.all")
       case "MALE_ONLY":
         return t("labels.menOnly")
       case "FEMALE_ONLY":
         return t("labels.womenOnly")
+      case "MIXED_ONLY":
+        return t("labels.mixed")
       default:
         return t("labels.mixed")
     }
@@ -93,9 +98,9 @@ export default function SocialCard({ social }: SocialCardProps) {
 
       <CardContent className="flex-1 px-5 pt-4 pb-5">
         <p className="mb-4 line-clamp-2 min-h-10 text-sm text-muted-foreground">
-          {social.note.length > 80
-            ? `${social.note.slice(0, 80)}...`
-            : social.note}
+          {(social.note ?? "").length > 80
+            ? `${(social.note ?? "").slice(0, 80)}...`
+            : social.note ?? t("common.na")}
         </p>
 
         <div className="mb-4 flex flex-wrap gap-2">
@@ -105,16 +110,24 @@ export default function SocialCard({ social }: SocialCardProps) {
         </div>
 
         <div className="space-y-3 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <div className="size-4">📅</div>
-            <span>
-              {format(new Date(social.startTime), "MMM d, yyyy • h:mm a")}
-            </span>
-          </div>
+          {social.startTime && (
+            <div className="flex items-center gap-2">
+              <div className="size-4">📅</div>
+              <span>{format(new Date(social.startTime), "MMM d, yyyy • h:mm a")}</span>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <div className="size-4">👥</div>
             <span>
-              {t("listing.sessionCount", { count: social.playSessions.length })}
+              {t("listing.sessionCount", {
+                count: social._count?.playSessions ?? social.playSessions?.length ?? 0,
+              })}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="size-4">🧑‍🤝‍🧑</div>
+            <span>
+              {social._count?.participants ?? social.joinedCount} / {social.maxSlots}
             </span>
           </div>
         </div>
@@ -129,31 +142,9 @@ export default function SocialCard({ social }: SocialCardProps) {
           <ProgressBar value={(social.joinedCount / social.maxSlots) * 100} />
         </div>
 
-        {social.organizers.length > 0 && (
-          <div className="mt-5 flex items-center gap-3">
-            <AvatarGroup>
-              {social.organizers.slice(0, 3).map((organizer) => (
-                <UserAvatar
-                  key={organizer.id}
-                  name={organizer.name}
-                  avatar={organizer.avatar}
-                />
-              ))}
-            </AvatarGroup>
-            <div className="min-w-0 text-sm">
-              <p className="truncate text-foreground">
-                {t("sidebar.hostedBy")} {social.organizers[0].name}
-              </p>
-              {social.organizers.length > 1 && (
-                <p className="text-muted-foreground">
-                  {t("listing.organizerCount", {
-                    count: social.organizers.length,
-                  })}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
+        <div className="mt-5 text-sm text-muted-foreground">
+          {t("sidebar.hostedBy")} {social.creatorId}
+        </div>
       </CardContent>
 
       <CardFooter className="px-5 pb-5">

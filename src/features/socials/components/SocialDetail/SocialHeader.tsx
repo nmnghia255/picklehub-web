@@ -24,9 +24,7 @@ function getStatusClasses(status: SocialStatus) {
 
 function getFormatIcon(formatType: SocialFormat) {
   switch (formatType) {
-    case "TOURNAMENT":
-      return <Trophy className="size-4" />
-    case "TRAINING":
+    case "SINGLES":
       return <Users className="size-4" />
     default:
       return <Users className="size-4" />
@@ -67,10 +65,8 @@ export default function SocialHeader({
 
   const getFormatLabel = () => {
     switch (format) {
-      case "TOURNAMENT":
-        return t("labels.tournament")
-      case "TRAINING":
-        return t("labels.training")
+      case "SINGLES":
+        return t("labels.singles")
       default:
         return t("labels.social")
     }

@@ -1,4 +1,5 @@
 "use client"
+"use client"
 
 import { differenceInMinutes } from "date-fns"
 import { ArrowLeft } from "lucide-react"
@@ -8,13 +9,9 @@ import React from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { mockSocials } from "@/features/socials/mock-data/mockData"
-import { getSessionWithDetails } from "@/features/socials/mock-data/mockSessionData"
-import usePlaySessionStore from "@/features/socials/stores/play-session-store"
-import type { Match } from "@/features/socials/types"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import CreateMatchDialog from "./CreateMatchDialog"
+import { usePlaySessionsQuery, useSocialDetailQuery } from "../../api/social-queries"
 import PlaySessionMatches from "./PlaySessionMatches"
 import PlaySessionOverview from "./PlaySessionOverview"
 import PlaySessionParticipants from "./PlaySessionParticipants"
@@ -22,15 +19,10 @@ import PlaySessionSidebar from "./PlaySessionSidebar"
 
 function getSessionStatusClasses(status: string) {
   switch (status) {
-    case "PUBLISHED":
-    case "SCHEDULED":
+    case "ACTIVE":
       return "border-primary/30 bg-primary/10 text-primary"
-    case "COMPLETED":
-      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
     case "CANCELLED":
       return "border-destructive/30 bg-destructive/10 text-destructive"
-    case "IN_PROGRESS":
-      return "border-amber-500/30 bg-amber-500/10 text-amber-600"
     default:
       return "border-border bg-muted text-muted-foreground"
   }
@@ -38,18 +30,12 @@ function getSessionStatusClasses(status: string) {
 
 function getSessionStatusLabel(status: string, t: (key: string) => string) {
   switch (status) {
-    case "PUBLISHED":
-      return t("labels.published")
-    case "COMPLETED":
-      return t("labels.completed")
+    case "ACTIVE":
+      return t("labels.scheduled")
     case "CANCELLED":
       return t("labels.cancelled")
-    case "IN_PROGRESS":
-      return t("labels.inProgress")
-    case "SCHEDULED":
-      return t("labels.scheduled")
     default:
-      return t("labels.draft")
+      return status
   }
 }
 
@@ -57,17 +43,13 @@ export default function PlaySessionDetail() {
   const params = useParams()
   const router = useRouter()
   const { t } = useSocialsTranslation()
-  const tabValue = usePlaySessionStore((s) => s.tabValue)
-  const setTabValue = usePlaySessionStore((s) => s.setTabValue)
-  const matchDialogOpen = usePlaySessionStore((s) => s.matchDialogOpen)
-  const setMatchDialogOpen = usePlaySessionStore((s) => s.setMatchDialogOpen)
+  const [tabValue, setTabValue] = React.useState("0")
 
   const socialId = params.socialId as string | undefined
   const sessionId = params.playSessionId as string | undefined
-  const social = mockSocials.find((item) => item.id === socialId)
-  const session = sessionId
-    ? getSessionWithDetails(sessionId, socialId || "")
-    : undefined
+  const { data: social } = useSocialDetailQuery(socialId)
+  const { data: sessions = [] } = usePlaySessionsQuery(socialId)
+  const session = sessionId ? sessions.find((item) => item.id === sessionId) : undefined
 
   if (!social || !session) {
     return (
@@ -83,23 +65,7 @@ export default function PlaySessionDetail() {
     )
   }
 
-  const isHost = Boolean(social.isHost)
-  const duration = differenceInMinutes(
-    new Date(session.endTime),
-    new Date(session.startTime)
-  )
-  const completedMatches: Match[] =
-    (session.matches?.filter(
-      (match: Match) => match.status === "COMPLETED"
-    ) as Match[]) || []
-  const inProgressMatches: Match[] =
-    (session.matches?.filter(
-      (match: Match) => match.status === "IN_PROGRESS"
-    ) as Match[]) || []
-  const scheduledMatches: Match[] =
-    (session.matches?.filter(
-      (match: Match) => match.status === "SCHEDULED"
-    ) as Match[]) || []
+  const duration = differenceInMinutes(new Date(session.endTime), new Date(session.startTime))
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
@@ -141,14 +107,13 @@ export default function PlaySessionDetail() {
                     className={`rounded-md px-3 py-1.5 ${tabValue === "1" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                     onClick={() => setTabValue("1")}
                   >
-                    {t("matches.title")} ({session.matches?.length || 0})
+                    {t("matches.title")}
                   </button>
                   <button
                     className={`rounded-md px-3 py-1.5 ${tabValue === "2" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                     onClick={() => setTabValue("2")}
                   >
-                    {t("detail.participants")} (
-                    {session.participants?.length || 0})
+                    {t("detail.participants")}
                   </button>
                 </div>
               </div>
@@ -158,27 +123,28 @@ export default function PlaySessionDetail() {
                   <PlaySessionOverview
                     session={session}
                     duration={duration}
-                    completedMatchesCount={completedMatches.length}
-                    activeMatchesCount={inProgressMatches.length}
-                    upcomingMatchesCount={scheduledMatches.length}
+                    completedMatchesCount={0}
+                    activeMatchesCount={0}
+                    upcomingMatchesCount={0}
                   />
                 )}
 
                 {tabValue === "1" && (
                   <PlaySessionMatches
-                    isHost={isHost}
-                    matches={{
-                      inProgress: inProgressMatches,
-                      scheduled: scheduledMatches,
-                      completed: completedMatches,
-                    }}
-                    onCreateMatch={() => setMatchDialogOpen(true)}
+                    isHost={Boolean(social.isHost)}
+                    matches={{ inProgress: [], scheduled: [], completed: [] }}
                   />
                 )}
 
                 {tabValue === "2" && (
                   <PlaySessionParticipants
-                    participants={session.participants}
+                    participants={session.participants?.map((p) => ({
+                      id: p.id,
+                      user: { name: p.userId, avatar: undefined },
+                      status: p.status,
+                      skillLevel: undefined,
+                      joinedAt: p.joinedAt,
+                    }))}
                   />
                 )}
               </div>
@@ -187,17 +153,15 @@ export default function PlaySessionDetail() {
         </div>
 
         <PlaySessionSidebar
-          session={session}
+          session={{
+            joinedCount: session.joinedCount,
+            maxSlots: social.maxSlots,
+          }}
           social={social}
           onJoin={() => alert(t("sidebar.joinSession"))}
           onLeave={() => alert(t("sidebar.leaveSession"))}
         />
       </div>
-
-      <CreateMatchDialog
-        open={matchDialogOpen}
-        onOpenChange={setMatchDialogOpen}
-      />
     </div>
   )
 }

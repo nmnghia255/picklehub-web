@@ -76,7 +76,6 @@ export default function FiltersDrawer({
                     <SelectItem value="CANCELLED">
                       {t("labels.cancelled")}
                     </SelectItem>
-                    <SelectItem value="DRAFT">{t("labels.draft")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -96,13 +95,14 @@ export default function FiltersDrawer({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="ALL">{t("filters.all")}</SelectItem>
-                    <SelectItem value="MIXED">{t("labels.mixed")}</SelectItem>
+                    <SelectItem value="ANY">{t("filters.all")}</SelectItem>
                     <SelectItem value="MALE_ONLY">
                       {t("labels.menOnly")}
                     </SelectItem>
                     <SelectItem value="FEMALE_ONLY">
                       {t("labels.womenOnly")}
                     </SelectItem>
+                    <SelectItem value="MIXED_ONLY">{t("labels.mixed")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -120,6 +120,7 @@ export default function FiltersDrawer({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="ALL">{t("filters.all")}</SelectItem>
+                    <SelectItem value="ANY">{t("filters.all")}</SelectItem>
                     <SelectItem value="JUNIOR">{t("labels.junior")}</SelectItem>
                     <SelectItem value="ADULT">{t("labels.adult")}</SelectItem>
                     <SelectItem value="SENIOR">{t("labels.senior")}</SelectItem>
@@ -141,11 +142,8 @@ export default function FiltersDrawer({
                   <SelectContent>
                     <SelectItem value="ALL">{t("filters.all")}</SelectItem>
                     <SelectItem value="SOCIAL">{t("labels.social")}</SelectItem>
-                    <SelectItem value="TOURNAMENT">
-                      {t("labels.tournament")}
-                    </SelectItem>
-                    <SelectItem value="TRAINING">
-                      {t("labels.training")}
+                    <SelectItem value="SINGLES">
+                      {t("labels.singles")}
                     </SelectItem>
                   </SelectContent>
                 </Select>
