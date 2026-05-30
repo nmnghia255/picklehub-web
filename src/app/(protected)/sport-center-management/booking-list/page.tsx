@@ -94,7 +94,7 @@ function BookingListPageContent({
         const response = await listBookingListAction(
           centerId,
           "",
-          "all",
+          "",
           "",
           offset,
           PAGE_SIZE

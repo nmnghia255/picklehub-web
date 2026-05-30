@@ -4,6 +4,8 @@ import { cookies } from "next/headers"
 export interface SessionUser {
   id: string
   email: string
+  name?: string | null
+  phoneNumber?: string | null
 }
 
 export interface SessionData {

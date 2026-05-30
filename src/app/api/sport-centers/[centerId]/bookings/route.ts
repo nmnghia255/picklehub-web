@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 
+import { BookingService as SportCenterBookingService } from "@/features/sport-center/api/booking-service"
+import type { CreateBookingRequest } from "@/features/sport-center/types/booking"
 import { BookingService } from "@/features/sport-center-management/api/booking-service"
 import type { BookingStatus } from "@/features/sport-center-management/types/booking"
 
@@ -34,6 +36,29 @@ export async function GET(request: Request, context: RouteContext) {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Failed to load bookings"
+    const status =
+      message === "Not authenticated" || message === "Session expired"
+        ? 401
+        : 500
+
+    return NextResponse.json({ message }, { status })
+  }
+}
+
+export async function POST(request: Request, context: RouteContext) {
+  try {
+    const { centerId } = await context.params
+    const body = (await request.json()) as CreateBookingRequest
+
+    const booking = await SportCenterBookingService.createBookings(
+      centerId,
+      body
+    )
+
+    return NextResponse.json(booking, { status: 200 })
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to create booking"
     const status =
       message === "Not authenticated" || message === "Session expired"
         ? 401

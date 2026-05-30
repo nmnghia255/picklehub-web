@@ -5,7 +5,7 @@ import { useMemo, useState } from "react"
 
 import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
-import { submitBookingsAction } from "@/features/sport-center/booking-store-actions"
+import { submitBookingsAction } from "@/features/sport-center/actions/submit-booking"
 import { BookingConfirmationBookedSlotsCard } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-booked-slots-card"
 import { BookingConfirmationDetailsCard } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-details-card"
 import { BookingConfirmationEmptyState } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-empty-state"
@@ -21,7 +21,6 @@ import { useSportCenterStore } from "@/features/sport-center/stores/sport-center
 import type { BulkCourtAvailability } from "@/features/sport-center/types/court"
 import type { Product } from "@/features/sport-center/types/product"
 import type { Service } from "@/features/sport-center/types/service"
-// removed unused SportCenter type import
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 type BookingDraft = {
@@ -51,10 +50,21 @@ function toNumber(value: number | string | null | undefined) {
   return Number.isFinite(parsed) ? parsed : 0
 }
 
+function formatBookingDate(value: Date | undefined) {
+  if (!value) return ""
+
+  const year = value.getFullYear()
+  const month = String(value.getMonth() + 1).padStart(2, "0")
+  const day = String(value.getDate()).padStart(2, "0")
+
+  return `${year}-${month}-${day}`
+}
+
 export default function BookingConfirmationPage() {
   const router = useRouter()
   const params = useParams<{ id?: string | string[] }>()
   const centerId = Array.isArray(params.id) ? params.id[0] : params.id
+  const [submitError, setSubmitError] = useState("")
 
   const [bookingDraft] = useState<BookingDraft>(() => {
     const state = useBookingStore.getState()
@@ -142,6 +152,55 @@ export default function BookingConfirmationPage() {
   const canConfirm =
     totalSlots > 0 && !!bookingDraft.selectedDate && !isSubmitting
 
+  const handleCreateBooking = async () => {
+    if (!centerId) {
+      setSubmitError("Không tìm thấy mã sân.")
+      return
+    }
+
+    setIsSubmitting(true)
+    setSubmitError("")
+
+    try {
+      const submitted = await submitBookingsAction({
+        centerId: centerId,
+        selectedDate: formatBookingDate(bookingDraft.selectedDate),
+        selectedCourts: Object.fromEntries(
+          Object.entries(bookingDraft.selectedCourts).map(
+            ([courtId, slots]) => [courtId, Array.from(slots)]
+          )
+        ),
+        selectedServices: bookingDraft.selectedServices,
+        selectedProducts: bookingDraft.selectedProducts,
+        note: bookingDraft.bookingNote,
+        useCredit: useBookingStore.getState().useCredit,
+        serviceItems: bookingDraft.services,
+        productItems: bookingDraft.products,
+      })
+
+      if (!submitted.success) {
+        setSubmitError(submitted.error ?? "Không thể tạo booking.")
+        return
+      }
+
+      const bookingId = submitted.booking?.id ?? ""
+      useBookingStore.setState({
+        lastBookingId: bookingId || null,
+        submitMessage:
+          submitted.message ?? "Đã gửi yêu cầu đặt sân thành công.",
+      })
+      const paymentPath = `/sport-center/${centerId}/booking/confirmation/payment`
+
+      router.push(paymentPath)
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : "Không thể tạo booking."
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const selectedServices = useMemo(
     () =>
       bookingDraft.services
@@ -189,8 +248,6 @@ export default function BookingConfirmationPage() {
     [bookingDraft.courtAvailability?.courts, bookingDraft.selectedCourts]
   )
 
-  // booking creation handled on payment page
-
   if (!sportCenter || totalSlots === 0) {
     console.log("Booking Draft:", bookingDraft)
     return <BookingConfirmationEmptyState />
@@ -234,15 +291,14 @@ export default function BookingConfirmationPage() {
         <div>
           <Button
             className="w-full"
-            onClick={() =>
-              router.push(
-                `/sport-center/${centerId}/booking/confirmation/payment`
-              )
-            }
+            onClick={() => void handleCreateBooking()}
             disabled={!canConfirm}
           >
-            Xác nhận và thanh toán
+            Xác nhận và chuyển sang thanh toán
           </Button>
+          {submitError ? (
+            <p className="mt-2 text-sm text-destructive">{submitError}</p>
+          ) : null}
         </div>
       </section>
     </PageContainer>

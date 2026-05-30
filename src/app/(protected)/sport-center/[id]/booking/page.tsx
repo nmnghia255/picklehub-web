@@ -6,11 +6,9 @@ import { useEffect } from "react"
 
 import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
-import {
-  fetchCourtAvailabilityAction,
-  fetchProductsAction,
-  fetchServicesAction,
-} from "@/features/sport-center/booking-store-actions"
+import { fetchBulkCourtAvailabilityAction } from "@/features/sport-center/actions/fetch-bulk-court-availability"
+import { fetchSportCenterProductsAction } from "@/features/sport-center/actions/fetch-sport-center-products"
+import { fetchSportCenterServicesAction } from "@/features/sport-center/actions/fetch-sport-center-services"
 import { BookingServicesCard } from "@/features/sport-center/components/booking/booking-add-ons-card"
 import { BookingAvailableCourtsCard } from "@/features/sport-center/components/booking/booking-available-courts-card"
 import { BookingCourtInfoCard } from "@/features/sport-center/components/booking/booking-court-info-card"
@@ -32,16 +30,102 @@ export default function BookingPage() {
   const setBookingNote = useBookingStore((state) => state.setBookingNote)
 
   useEffect(() => {
+    let isActive = true
+
     if (centerId) {
       initializeBooking()
-      void fetchServicesAction(centerId)
-      void fetchProductsAction(centerId)
+
+      void (async () => {
+        try {
+          const [services, products] = await Promise.all([
+            fetchSportCenterServicesAction(centerId),
+            fetchSportCenterProductsAction(centerId),
+          ])
+
+          if (!isActive) return
+
+          const selectedServices = services.reduce<Record<string, boolean>>(
+            (acc, service) => {
+              acc[service.id] = false
+              return acc
+            },
+            {}
+          )
+
+          const selectedProducts = products.reduce<Record<string, number>>(
+            (acc, product) => {
+              acc[product.id] = 0
+              return acc
+            },
+            {}
+          )
+
+          useBookingStore.setState({
+            services,
+            selectedServices,
+            products,
+            selectedProducts,
+          })
+          useBookingStore.getState().recalculateTotal()
+        } catch {
+          if (!isActive) return
+
+          useBookingStore.setState({
+            services: [],
+            selectedServices: {},
+            products: [],
+            selectedProducts: {},
+          })
+          useBookingStore.getState().recalculateTotal()
+        }
+      })()
+    }
+
+    return () => {
+      isActive = false
     }
   }, [centerId, initializeBooking])
 
   useEffect(() => {
+    let isActive = true
+
     if (centerId && selectedDate) {
-      void fetchCourtAvailabilityAction(centerId, selectedDate)
+      useBookingStore.setState({
+        isLoadingAvailability: true,
+        availabilityError: "",
+      })
+
+      void (async () => {
+        try {
+          const courtAvailability = await fetchBulkCourtAvailabilityAction(
+            centerId,
+            selectedDate
+          )
+
+          if (!isActive) return
+
+          useBookingStore.setState({ courtAvailability })
+          useBookingStore.getState().recalculateTotal()
+        } catch (error) {
+          if (!isActive) return
+
+          useBookingStore.setState({
+            courtAvailability: null,
+            availabilityError:
+              error instanceof Error
+                ? error.message
+                : "Không thể tải danh sách sân trống.",
+          })
+        } finally {
+          if (isActive) {
+            useBookingStore.setState({ isLoadingAvailability: false })
+          }
+        }
+      })()
+    }
+
+    return () => {
+      isActive = false
     }
   }, [centerId, selectedDate])
 

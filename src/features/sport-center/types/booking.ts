@@ -36,6 +36,7 @@ export interface BookingCourtItem {
 export interface CreateBookingRequest {
   date: string
   note: string
+  playerName: string
   phoneNumber: string
   useCredit: boolean
   paymentProof?: string

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 export function BookingServicesCard() {
   const services = useBookingStore((state) => state.services)
@@ -53,7 +54,9 @@ export function BookingServicesCard() {
                   </span>
                 )}
               </div>
-              <span className="text-sm font-medium">+{service.price} VND</span>
+              <span className="text-sm font-medium">
+                + {formatCurrencyVnd(service.price)}
+              </span>
             </label>
           ))
         )}

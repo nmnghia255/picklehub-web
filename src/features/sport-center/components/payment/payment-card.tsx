@@ -25,10 +25,12 @@ type BookingConfirmationPaymentCardProps = {
   creditError: string
   canConfirm: boolean
   isSubmitting: boolean
+  isUploadingProof: boolean
   submitMessage: string
   submitError: string
   hasCreatedBooking: boolean
-  onConfirm: (paymentProofFile: File | null) => void | Promise<void>
+  onProofSelected: (paymentProofFile: File | null) => void | Promise<void>
+  onConfirm: () => void | Promise<void>
 }
 
 export function BookingConfirmationPaymentCard({
@@ -42,13 +44,14 @@ export function BookingConfirmationPaymentCard({
   creditError,
   canConfirm,
   isSubmitting,
+  isUploadingProof,
   submitMessage,
   submitError,
   hasCreatedBooking,
+  onProofSelected,
   onConfirm,
 }: BookingConfirmationPaymentCardProps) {
   const useCredit = useBookingStore((state) => state.useCredit)
-  const setUseCredit = useBookingStore((state) => state.setUseCredit)
   const availableCredit = creditBalance ?? 0
   const isCreditInsufficient = useCredit && availableCredit < totalAmount
   const requiresProof = !useCredit || isCreditInsufficient
@@ -89,6 +92,8 @@ export function BookingConfirmationPaymentCard({
 
     setPaymentProofFile(file)
     setPaymentProofPreviewUrl(URL.createObjectURL(file))
+
+    void onProofSelected(file)
   }
 
   const handleConfirm = async () => {
@@ -98,8 +103,7 @@ export function BookingConfirmationPaymentCard({
         return
       }
 
-      // Pass the File to parent; parent will upload it if needed
-      await onConfirm(paymentProofFile ?? null)
+      await onConfirm()
     } catch (error) {
       setPaymentProofError(
         error instanceof Error
@@ -125,11 +129,6 @@ export function BookingConfirmationPaymentCard({
           paymentBankName={paymentBankName}
           paymentAccountName={paymentAccountName}
           paymentAccountNumber={paymentAccountNumber}
-        />
-
-        <PaymentMethodSelector
-          useCredit={useCredit}
-          setUseCredit={setUseCredit}
         />
 
         {useCredit ? (
@@ -163,20 +162,23 @@ export function BookingConfirmationPaymentCard({
           disabled={
             !canConfirm ||
             isSubmitting ||
+            isUploadingProof ||
             hasCreatedBooking ||
             isPreparingProof ||
             (requiresProof && !paymentProofFile)
           }
         >
-          {isSubmitting || isPreparingProof ? (
+          {isSubmitting || isPreparingProof || isUploadingProof ? (
             <>
               <Spinner className="mr-2 size-4" />
-              {isPreparingProof
-                ? "Đang đọc ảnh chứng từ..."
-                : "Đang tạo booking..."}
+              {isUploadingProof
+                ? "Đang tải ảnh chứng từ..."
+                : isPreparingProof
+                  ? "Đang đọc ảnh chứng từ..."
+                  : "Đang tạo booking..."}
             </>
           ) : (
-            "Xác nhận và tạo booking"
+            "Xác nhận"
           )}
         </Button>
 

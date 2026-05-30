@@ -1,12 +1,12 @@
 "use client"
 
-import { useParams, useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 
 import { PageContainer } from "@/components/page-container"
 import { Card, CardContent } from "@/components/ui/card"
-import { MediaService } from "@/features/sport-center/api/media-service"
-import { submitBookingsAction } from "@/features/sport-center/booking-store-actions"
+import { uploadImageAction } from "@/features/sport-center/actions/upload-image-action"
+import { submitPaymentProofAction } from "@/features/sport-center/actions/upload-payment-proof-action"
 import { BookingConfirmationHeader } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-header"
 import { BookingConfirmationPaymentCard } from "@/features/sport-center/components/payment/payment-card"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
@@ -17,17 +17,22 @@ import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 export default function PaymentPage() {
   const router = useRouter()
-  const params = useParams<{ id?: string | string[] }>()
+  const searchParams = useSearchParams()
 
   const sportCenter = useSportCenterStore((s) => s.sportCenter)
+  const lastBookingId = useBookingStore((state) => state.lastBookingId)
+  const useCredit = useBookingStore((state) => state.useCredit)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitMessage, setSubmitMessage] = useState("")
   const [submitError, setSubmitError] = useState("")
-  const [createdBookingId, setCreatedBookingId] = useState("")
+  const [hasCompleted, setHasCompleted] = useState(false)
+  const [paymentProofUrl, setPaymentProofUrl] = useState("")
+  const [isUploadingProof, setIsUploadingProof] = useState(false)
   const [creditBalance, setCreditBalance] = useState<number | null>(null)
   const [creditLoading, setCreditLoading] = useState(false)
   const [creditError, setCreditError] = useState("")
+  const bookingId = searchParams.get("bookingId") ?? lastBookingId ?? ""
 
   // snapshot booking draft from store to calculate totals
   const [bookingDraft] = useState(() => {
@@ -105,6 +110,8 @@ export default function PaymentPage() {
 
   const total = courtTotal + serviceTotal + productTotal
   const totalDisplay = formatCurrencyVnd(total)
+  const requiresProof =
+    !useCredit || (creditBalance !== null && creditBalance < total)
 
   useEffect(() => {
     let isActive = true
@@ -157,38 +164,59 @@ export default function PaymentPage() {
     }
   }, [])
 
-  const handleCreateBooking = async (paymentProofFile: File | null) => {
+  const handlePaymentProofSelected = async (paymentProofFile: File | null) => {
+    setSubmitError("")
+    setPaymentProofUrl("")
+
+    if (!paymentProofFile) {
+      return
+    }
+
+    setIsUploadingProof(true)
+
+    try {
+      const uploadedUrl = await uploadImageAction(paymentProofFile)
+      setPaymentProofUrl(uploadedUrl)
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Không thể tải được ảnh."
+      setSubmitError(message)
+      return error
+    } finally {
+      setIsUploadingProof(false)
+    }
+  }
+
+  const handleSubmitPaymentProof = async () => {
     setIsSubmitting(true)
     setSubmitMessage("")
     setSubmitError("")
 
     try {
-      let paymentProofUrl: string | undefined = undefined
-
-      if (paymentProofFile) {
-        paymentProofUrl = await MediaService.uploadImage(paymentProofFile)
+      if (!bookingId) {
+        throw new Error("Không tìm thấy mã đặt sân để tải lên minh chứng.")
       }
 
-      const submitted = await submitBookingsAction(paymentProofUrl)
-      if (!submitted) {
-        setSubmitError(useBookingStore.getState().submitError)
+      if (!requiresProof) {
+        setSubmitMessage("Đã hoàn tất booking bằng credit.")
+        setHasCompleted(true)
         return
       }
 
-      const bookingId = useBookingStore.getState().lastBookingId ?? ""
-      setCreatedBookingId(bookingId)
-      setSubmitMessage(
-        bookingId
-          ? `Đã tạo booking thành công. Mã đặt sân: ${bookingId}.`
-          : "Đã tạo booking thành công."
-      )
+      if (!paymentProofUrl) {
+        throw new Error("Vui lòng tải lên ảnh minh chứng thanh toán.")
+      }
+      await submitPaymentProofAction(bookingId, paymentProofUrl)
 
-      // return to confirmation overview
-      router.back()
+      setSubmitMessage("Đã tải lên minh chứng thanh toán thành công.")
+      setHasCompleted(true)
     } catch (error) {
-      setSubmitError(
-        error instanceof Error ? error.message : "Không thể tạo booking."
-      )
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Không thể tải lên minh chứng thanh toán."
+      setSubmitError(message)
+      return error
     } finally {
       setIsSubmitting(false)
     }
@@ -241,12 +269,14 @@ export default function PaymentPage() {
           creditBalance={creditBalance}
           creditLoading={creditLoading}
           creditError={creditError}
-          canConfirm={true}
+          canConfirm={Boolean(bookingId)}
           isSubmitting={isSubmitting}
+          isUploadingProof={isUploadingProof}
           submitMessage={submitMessage}
           submitError={submitError}
-          hasCreatedBooking={Boolean(createdBookingId)}
-          onConfirm={(file) => void handleCreateBooking(file)}
+          hasCreatedBooking={hasCompleted}
+          onProofSelected={(file) => void handlePaymentProofSelected(file)}
+          onConfirm={() => void handleSubmitPaymentProof()}
         />
       </section>
     </PageContainer>

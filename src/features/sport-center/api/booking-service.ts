@@ -69,12 +69,12 @@ export const BookingService = {
 
   submitPaymentProof: async (
     bookingId: string,
-    paymentProof: string
+    paymentProofUrl: string
   ): Promise<BookingResponse> => {
     const axios = await getAuthenticatedAxios()
     const response = await axios.post(
       `/api/bookings/${bookingId}/payment-proof`,
-      { paymentProof }
+      { paymentProofUrl }
     )
     return unwrapApiResponse(response.data)
   },
