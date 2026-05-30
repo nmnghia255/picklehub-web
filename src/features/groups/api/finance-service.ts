@@ -91,10 +91,14 @@ export async function listFunds(
   } = {}
 ): Promise<ListFundsResult> {
   const axios = await getAuthenticatedAxios()
-  const response = await axios.get<ApiEnvelope<FundItem[]>>(
-    `/api/groups/${groupId}/funds`,
-    { params }
-  )
+  const sendParams = { ...params }
+  // backend field is `requiredAmount`; translate frontend `amount` to backend `requiredAmount`
+  if (params.sortBy === "amount") {
+    // @ts-ignore
+    sendParams.sortBy = "requiredAmount"
+  }
+
+  const response = await axios.get<ApiEnvelope<FundItem[]>>(`/api/groups/${groupId}/funds`, { params: sendParams })
 
   return {
     data: unwrapListResponse<FundItem>(response.data),
@@ -191,15 +195,14 @@ export async function createFund(
   payload: {
     title: string
     description?: string
-    amount: string
+    requiredAmount: string | number
     deadline?: string
+    targetMembers: { userId: string; requiredAmount?: number }[]
+    useCredit?: boolean
   }
 ): Promise<FundItem> {
   const axios = await getAuthenticatedAxios()
-  const response = await axios.post<ApiEnvelope<FundItem>>(
-    `/api/groups/${groupId}/funds`,
-    payload
-  )
+  const response = await axios.post<ApiEnvelope<FundItem>>(`/api/groups/${groupId}/funds`, payload)
   return unwrapData(response.data)
 }
 
@@ -209,8 +212,9 @@ export async function updateFund(
   payload: {
     title?: string
     description?: string | null
-    amount?: string
+    requiredAmount?: string | number
     deadline?: string
+    targetMembers?: { userId: string; requiredAmount?: number }[]
   }
 ): Promise<FundItem> {
   const axios = await getAuthenticatedAxios()
@@ -249,7 +253,7 @@ export async function verifyFundPayment(
   groupId: string,
   fundId: string,
   paymentId: string,
-  payload: { status: "PAID" | "REJECTED" }
+  payload: { status: "PAID" | "REJECTED"; amountPaid?: number }
 ): Promise<{ message: string }> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.post<{ message: string }>(

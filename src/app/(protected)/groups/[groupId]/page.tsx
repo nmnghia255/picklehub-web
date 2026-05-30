@@ -3,6 +3,7 @@ import { ErrorSection } from "@/components/error-section"
 import { PageContainer } from "@/components/page-container"
 import {
   getGroup,
+  getGroupMembers,
   getGroupInvitations,
 } from "@/features/groups/api/groups-service"
 import { GroupDetailActionsMenu } from "@/features/groups/components/group-detail-actions-menu"
@@ -45,13 +46,23 @@ export default async function GroupDetailPage({
   const defaultTab = view === "chat" ? "chat" : "overview"
 
   let group
+  let members = []
   let invitations = []
   let isOwner = false
   let upcomingSessions: GroupPlaySession[] = []
   let hasUpcomingSessionsError = false
 
   try {
-    group = await getGroup(groupId)
+    const [groupResult, membersResult] = await Promise.all([
+      getGroup(groupId),
+      getGroupMembers(groupId).catch((error) => {
+        console.error("Error loading group members:", error)
+        return []
+      }),
+    ])
+
+    group = groupResult
+    members = membersResult
 
     isOwner = group.role === "owner"
     invitations = isOwner ? await getGroupInvitations(groupId) : []
@@ -137,6 +148,7 @@ export default async function GroupDetailPage({
         <GroupDetailPanels
           groupId={groupId}
           group={group}
+          members={members}
           currentUserId={session.user?.id ?? ""}
           currentUserRole={group.role ?? null}
           invitations={invitations}

@@ -28,6 +28,8 @@ export interface FundPayment {
   fundId: string
   userId: string
   amountPaid: string | number
+  requiredAmount?: string | number
+  creditUsed?: string | number
   paymentReceiptUrl?: string | null
   status: string
   verifiedById?: string | null
@@ -42,7 +44,7 @@ export interface FundItem {
   groupId: string
   title: string
   description?: string | null
-  amount: string | number
+  requiredAmount: string | number
   deadline?: string | null
   createdById: string
   createdAt: string

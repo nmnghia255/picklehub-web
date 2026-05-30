@@ -1,7 +1,6 @@
 "use server"
 
 import axios from "axios"
-import { revalidatePath } from "next/cache"
 
 import {
   createExpense,
@@ -56,14 +55,73 @@ export async function createFundAction(
   formData: FormData
 ): Promise<FinanceActionState> {
   try {
-    await createFund(groupId, {
-      title: formData.get("title")?.toString().trim() ?? "",
-      description: formData.get("description")?.toString().trim() || undefined,
-      amount: formData.get("amount")?.toString().trim() ?? "",
-      deadline: formData.get("deadline")?.toString().trim() || undefined,
+    const normalizedGroupId = groupId.trim()
+    const title = formData.get("title")?.toString().trim() ?? ""
+    const description = formData.get("description")?.toString().trim() || undefined
+    const deadline = formData.get("deadline")?.toString().trim() || undefined
+    const requiredAmountRaw = formData.get("requiredAmount")?.toString().trim() ?? ""
+    const requiredAmount = Number(requiredAmountRaw)
+
+    const targetMembersRaw = formData.get("targetMembers")?.toString() || ""
+    let targetMembers: { userId: string; requiredAmount?: number }[] = []
+    try {
+      targetMembers = targetMembersRaw ? JSON.parse(targetMembersRaw) : []
+    } catch {
+      return { error: "Dữ liệu thành viên không hợp lệ." }
+    }
+
+    if (!Array.isArray(targetMembers) || targetMembers.length === 0) {
+      return { error: "Vui lòng chọn ít nhất một thành viên cho quỹ." }
+    }
+
+    for (const member of targetMembers) {
+      if (!member.userId) {
+        return { error: "Thành viên không hợp lệ." }
+      }
+
+      if (
+        member.requiredAmount === undefined ||
+        Number.isNaN(Number(member.requiredAmount)) ||
+        Number(member.requiredAmount) < 0
+      ) {
+        return { error: "Số tiền của từng thành viên không hợp lệ." }
+      }
+    }
+
+    const sum = targetMembers.reduce(
+      (total, member) => total + Number(member.requiredAmount || 0),
+      0
+    )
+    if (sum !== requiredAmount) {
+      return { error: "Tổng số tiền thành viên phải khớp với tổng quỹ." }
+    }
+
+    const endpoint = `/api/groups/${normalizedGroupId}/funds`
+    const payload = {
+      title,
+      description,
+      requiredAmount,
+      deadline,
+      targetMembers,
+      useCredit: formData.get("useCredit")?.toString() === "true",
+    }
+
+    console.log("[finance] createFundAction request", {
+      groupId: normalizedGroupId,
+      endpoint,
+      payload,
     })
 
-    revalidatePath(`/groups/${groupId}`)
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        normalizedGroupId
+      )
+    ) {
+      return { error: `groupId không hợp lệ: ${normalizedGroupId}` }
+    }
+
+    await createFund(normalizedGroupId, payload)
+
     return { success: true }
   } catch (error) {
     return { error: getMessage(error, "Tạo fund thất bại. Vui lòng thử lại.") }
@@ -79,19 +137,44 @@ export async function updateFundAction(
   try {
     const title = formData.get("title")?.toString().trim()
     const description = formData.get("description")?.toString().trim()
-    const amount = formData.get("amount")?.toString().trim()
     const deadline = formData.get("deadline")?.toString().trim()
+    const requiredAmountRaw = formData.get("requiredAmount")?.toString().trim()
+    const requiredAmount = requiredAmountRaw ? Number(requiredAmountRaw) : undefined
+
+    const targetMembersRaw = formData.get("targetMembers")?.toString() || ""
+    let targetMembers: { userId: string; requiredAmount?: number }[] | undefined
+
+    if (targetMembersRaw) {
+      try {
+        const parsed = JSON.parse(targetMembersRaw)
+        if (Array.isArray(parsed)) {
+          targetMembers = parsed
+        }
+      } catch {
+        return { error: "Dữ liệu thành viên không hợp lệ." }
+      }
+    }
+
+    if (targetMembers && targetMembers.length > 0 && requiredAmount !== undefined) {
+      const sum = targetMembers.reduce(
+        (total, member) => total + Number(member.requiredAmount || 0),
+        0
+      )
+      if (sum !== requiredAmount) {
+        return { error: "Tổng số tiền thành viên phải khớp với tổng quỹ." }
+      }
+    }
 
     await updateFund(groupId, fundId, {
       ...(title ? { title } : {}),
       ...(description !== undefined
         ? { description: description.length > 0 ? description : null }
         : {}),
-      ...(amount ? { amount } : {}),
+      ...(requiredAmount !== undefined ? { requiredAmount } : {}),
       ...(deadline ? { deadline } : {}),
+      ...(targetMembers ? { targetMembers } : {}),
     })
 
-    revalidatePath(`/groups/${groupId}`)
     return { success: true }
   } catch (error) {
     return {
@@ -108,7 +191,6 @@ export async function deleteFundAction(
 ): Promise<FinanceActionState> {
   try {
     await deleteFund(groupId, fundId)
-    revalidatePath(`/groups/${groupId}`)
     return { success: true }
   } catch (error) {
     return { error: getMessage(error, "Xóa fund thất bại. Vui lòng thử lại.") }
@@ -124,8 +206,7 @@ export async function payFundAction(
   try {
     const paymentReceiptFileField = formData.get("paymentReceiptFile")
     const paymentReceiptFile =
-      paymentReceiptFileField instanceof File &&
-      paymentReceiptFileField.size > 0
+      paymentReceiptFileField instanceof File && paymentReceiptFileField.size > 0
         ? paymentReceiptFileField
         : null
 
@@ -140,7 +221,6 @@ export async function payFundAction(
       paymentReceiptUrl,
     })
 
-    revalidatePath(`/groups/${groupId}`)
     return { success: true }
   } catch (error) {
     return { error: getMessage(error, "Gửi yêu cầu thanh toán thất bại.") }
@@ -164,8 +244,10 @@ export async function verifyFundPaymentAction(
       return { error: "Thiếu trạng thái xác nhận payment." }
     }
 
-    await verifyFundPayment(groupId, fundId, paymentId, { status })
-    revalidatePath(`/groups/${groupId}`)
+    const amountPaidRaw = formData.get("amountPaid")?.toString().trim()
+    const amountPaid = amountPaidRaw ? Number(amountPaidRaw) : undefined
+
+    await verifyFundPayment(groupId, fundId, paymentId, { status, amountPaid })
     return { success: true }
   } catch (error) {
     return { error: getMessage(error, "Xác nhận payment thất bại.") }
@@ -178,7 +260,6 @@ export async function createExpenseAction(
   formData: FormData
 ): Promise<FinanceActionState> {
   try {
-    // Support file upload for expense receipt: field name `receiptFile`.
     const receiptFileField = formData.get("receiptFile")
     const receiptFile =
       receiptFileField instanceof File && receiptFileField.size > 0
@@ -201,7 +282,6 @@ export async function createExpenseAction(
       expenseDate: formData.get("expenseDate")?.toString().trim() || undefined,
     })
 
-    revalidatePath(`/groups/${groupId}`)
     return { success: true }
   } catch (error) {
     return {
@@ -222,7 +302,6 @@ export async function updateExpenseAction(
     const amount = formData.get("amount")?.toString().trim()
     const expenseDate = formData.get("expenseDate")?.toString().trim()
 
-    // Handle receipt file upload if provided
     const receiptFileField = formData.get("receiptFile")
     const receiptFile =
       receiptFileField instanceof File && receiptFileField.size > 0
@@ -248,7 +327,6 @@ export async function updateExpenseAction(
       ...(expenseDate ? { expenseDate } : {}),
     })
 
-    revalidatePath(`/groups/${groupId}`)
     return { success: true }
   } catch (error) {
     return {
@@ -265,7 +343,6 @@ export async function deleteExpenseAction(
 ): Promise<FinanceActionState> {
   try {
     await deleteExpense(groupId, expenseId)
-    revalidatePath(`/groups/${groupId}`)
     return { success: true }
   } catch (error) {
     return {

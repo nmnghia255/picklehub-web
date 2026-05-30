@@ -1,3 +1,7 @@
+"use client"
+
+import { useMemo } from "react"
+
 import {
   Accordion,
   AccordionContent,
@@ -17,16 +21,21 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useQueries, useQuery } from "@tanstack/react-query"
 
 import {
-  getFinanceSummary,
-  listExpenses,
-  listFundPayments,
-  listFunds,
-  listMyFunds,
-} from "../api/finance-service"
+  financeQueryKeys,
+  getFinanceSummaryClient,
+  getGroupMembersClient,
+  listExpensesClient,
+  listFundPaymentsClient,
+  listFundsClient,
+  listMyFundsClient,
+} from "../api/finance-client"
 import type { ExpenseItem, FundItem, FundPayment } from "../types/finance"
+import type { Member } from "../types"
 import { isArchivedGroup } from "../utils/group-status"
+import { useGroupDetailActiveTab } from "./group-detail-tabs"
 import {
   CreateExpenseButton,
   CreateFundButton,
@@ -289,34 +298,49 @@ function FundPaymentPreviewList({
 function FundListItemCard({
   groupId,
   fund,
+  members,
   canManage,
   canPay,
   currentUserId,
 }: {
   groupId: string
   fund: FundItem & { payments: FundPayment[] }
+  members: Member[]
   canManage: boolean
   canPay: boolean
   currentUserId: string
 }) {
   const payments = fund.payments ?? []
-  const paymentStats = getFundPaymentStats(payments)
-  const paymentProgressPercent =
-    paymentStats.totalMembers > 0
-      ? Math.round((paymentStats.paid / paymentStats.totalMembers) * 100)
-      : 0
-
-  const sortedPreviewPayments = [...payments].sort((a, b) => {
-    return getPaymentSortRank(a.status) - getPaymentSortRank(b.status)
-  })
-  const pendingPayments = getPendingPayments(sortedPreviewPayments)
-
-  const myPayment = payments.find((payment) => payment.userId === currentUserId)
-  const myStatus = myPayment?.status?.toUpperCase() ?? null
-  const canSubmitPayment =
-    !!myPayment && myStatus !== "PAID" && myStatus !== "PENDING"
-  const canPayThisFund = canPay && canSubmitPayment
-  const defaultPreviewCount = paymentStats.totalMembers > 8 ? 3 : 4
+  const {
+    paymentStats,
+    paymentProgressPercent,
+    sortedPreviewPayments,
+    pendingPayments,
+    canPayThisFund,
+    defaultPreviewCount,
+  } = useMemo(() => {
+    const nextPaymentStats = getFundPaymentStats(payments)
+    const nextPaymentProgressPercent =
+      nextPaymentStats.totalMembers > 0
+        ? Math.round((nextPaymentStats.paid / nextPaymentStats.totalMembers) * 100)
+        : 0
+    const nextSortedPreviewPayments = [...payments].sort((a, b) => {
+      return getPaymentSortRank(a.status) - getPaymentSortRank(b.status)
+    })
+    const nextPendingPayments = getPendingPayments(nextSortedPreviewPayments)
+    const myPayment = payments.find((payment) => payment.userId === currentUserId)
+    const myStatus = myPayment?.status?.toUpperCase() ?? null
+    const nextCanSubmitPayment =
+      !!myPayment && myStatus !== "PAID" && myStatus !== "PENDING"
+    return {
+      paymentStats: nextPaymentStats,
+      paymentProgressPercent: nextPaymentProgressPercent,
+      sortedPreviewPayments: nextSortedPreviewPayments,
+      pendingPayments: nextPendingPayments,
+      canPayThisFund: canPay && nextCanSubmitPayment,
+      defaultPreviewCount: nextPaymentStats.totalMembers > 8 ? 3 : 4,
+    }
+  }, [canPay, currentUserId, payments])
 
   return (
     <AccordionItem
@@ -333,7 +357,7 @@ function FundListItemCard({
               </p>
             )}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-              <span>Số tiền: {formatCurrency(fund.amount)}</span>
+              <span>Số tiền: {formatCurrency(fund.requiredAmount)}</span>
               <span>Hạn chót: {formatDate(fund.deadline ?? null)}</span>
               <span>Tạo bởi: {fund.createdBy?.name ?? "-"}</span>
             </div>
@@ -389,6 +413,7 @@ function FundListItemCard({
             <FundRowActions
               groupId={groupId}
               fund={fund}
+              members={members}
               canManage={canManage}
               canPay={canPayThisFund}
               payments={payments}
@@ -456,49 +481,137 @@ function SummaryCard({
   )
 }
 
-export async function GroupFinanceSection({
+export function GroupFinanceSection({
   groupId,
+  members,
   currentUserId,
   currentUserRole,
   groupStatus,
 }: {
   groupId: string
+  members: Member[]
   currentUserId: string
   currentUserRole: string | null
   groupStatus?: string | null
 }) {
+  const activeTab = useGroupDetailActiveTab()
   const normalizedRole = currentUserRole?.toLowerCase() ?? ""
   const canManage =
     !isArchivedGroup(groupStatus) &&
     (normalizedRole === "owner" || normalizedRole === "admin")
 
-  const [summaryResult, fundsResult, myFundsResult, expensesResult] =
-    await Promise.all([
-      getFinanceSummary(groupId).catch(() => null),
-      listFunds(groupId).catch(() => null),
-      listMyFunds(groupId).catch(() => null),
-      listExpenses(groupId).catch(() => null),
-    ])
+  const isFinanceActive = activeTab === "finance"
 
-  if (!summaryResult || !fundsResult || !myFundsResult || !expensesResult) {
+  const summaryQuery = useQuery({
+    queryKey: financeQueryKeys.summary(groupId),
+    queryFn: () => getFinanceSummaryClient(groupId),
+    enabled: isFinanceActive,
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  })
+
+  const fundsQuery = useQuery({
+    queryKey: financeQueryKeys.funds(groupId),
+    queryFn: () => listFundsClient(groupId),
+    enabled: isFinanceActive,
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  })
+
+  const myFundsQuery = useQuery({
+    queryKey: financeQueryKeys.myFunds(groupId),
+    queryFn: () => listMyFundsClient(groupId),
+    enabled: isFinanceActive,
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  })
+
+  const expensesQuery = useQuery({
+    queryKey: financeQueryKeys.expenses(groupId),
+    queryFn: () => listExpensesClient(groupId),
+    enabled: isFinanceActive,
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  })
+
+  const funds = fundsQuery.data?.data ?? []
+  const myFunds = myFundsQuery.data?.data ?? []
+  const expenses = expensesQuery.data?.data ?? []
+  const membersQuery = useQuery({
+    queryKey: financeQueryKeys.members(groupId),
+    queryFn: () => getGroupMembersClient(groupId),
+    enabled: isFinanceActive && members.length === 0,
+    initialData: members.length > 0 ? members : undefined,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  })
+  const resolvedMembers = members.length > 0 ? members : membersQuery.data ?? []
+
+  const fundPaymentsQueries = useQueries({
+    queries: funds.map((fund) => ({
+      queryKey: financeQueryKeys.fundPayments(groupId, fund.id),
+      queryFn: () => listFundPaymentsClient(groupId, fund.id),
+      enabled: isFinanceActive,
+      staleTime: 60 * 1000,
+      gcTime: 5 * 60 * 1000,
+    })),
+  })
+
+  const fundsWithPayments: Array<FundItem & { payments: FundPayment[] }> =
+    useMemo(
+      () =>
+        funds.map((fund, index) => ({
+          ...fund,
+          payments: fundPaymentsQueries[index]?.data?.data ?? [],
+        })),
+      [fundPaymentsQueries, funds]
+    )
+
+  if (!isFinanceActive) {
+    return (
+      <Card className="mt-6 shadow-sm">
+        <CardHeader className="border-b">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <CardTitle>Thu chi nhóm</CardTitle>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Tổng quan tài chính, quỹ và khoản chi của nhóm.
+              </p>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <p className="text-sm text-muted-foreground">
+            Mở tab Thu chi để tải dữ liệu tài chính khi cần.
+          </p>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (
+    summaryQuery.isError ||
+    fundsQuery.isError ||
+    myFundsQuery.isError ||
+    expensesQuery.isError
+  ) {
     return null
   }
 
-  const funds = fundsResult.data ?? []
-  const myFunds = myFundsResult.data ?? []
-  const expenses = expensesResult.data ?? []
-  const fundsWithPayments: Array<FundItem & { payments: FundPayment[] }> =
-    await Promise.all(
-      funds.map(async (fund) => {
-        const paymentResult = await listFundPayments(groupId, fund.id).catch(
-          () => null
-        )
-        return {
-          ...fund,
-          payments: paymentResult?.data ?? [],
-        }
-      })
+  const summaryResult = summaryQuery.data
+
+  if (!summaryResult) {
+    return (
+      <Card className="mt-6 shadow-sm">
+        <CardHeader className="border-b">
+          <CardTitle>Thu chi nhóm</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <p className="text-sm text-muted-foreground">Đang tải dữ liệu tài chính...</p>
+        </CardContent>
+      </Card>
     )
+  }
 
   return (
     <Card className="mt-6 shadow-sm">
@@ -512,7 +625,7 @@ export async function GroupFinanceSection({
           </div>
           {canManage && !isArchivedGroup(groupStatus) && (
             <div className="flex flex-wrap gap-2">
-              <CreateFundButton groupId={groupId} />
+              <CreateFundButton groupId={groupId} members={resolvedMembers} />
               <CreateExpenseButton groupId={groupId} />
             </div>
           )}
@@ -557,6 +670,7 @@ export async function GroupFinanceSection({
             <FinanceFundsTable
               groupId={groupId}
               funds={fundsWithPayments}
+              members={resolvedMembers}
               canManage={canManage}
               // Only allow pay when group is not archived AND current user has a payment record
               // whose status allows submitting a payment (UNPAID or REJECTED). Backend rejects PAID and PENDING.
@@ -573,6 +687,7 @@ export async function GroupFinanceSection({
             <FinanceMyFundsTable
               groupId={groupId}
               funds={myFunds}
+              members={resolvedMembers}
               canPay={!isArchivedGroup(groupStatus)}
               currentUserId={currentUserId}
             />
@@ -613,12 +728,14 @@ function FinanceTableHeader({
 function FinanceFundsTable({
   groupId,
   funds,
+  members,
   canManage,
   canPay,
   currentUserId,
 }: {
   groupId: string
   funds: Array<FundItem & { payments: FundPayment[] }>
+  members: Member[]
   canManage: boolean
   canPay: boolean
   currentUserId: string
@@ -638,6 +755,7 @@ function FinanceFundsTable({
           key={fund.id}
           groupId={groupId}
           fund={fund}
+          members={members}
           canManage={canManage}
           canPay={canPay}
           currentUserId={currentUserId}
@@ -650,11 +768,13 @@ function FinanceFundsTable({
 function FinanceMyFundsTable({
   groupId,
   funds,
+  members,
   canPay,
   currentUserId,
 }: {
   groupId: string
   funds: FundItem[]
+  members: Member[]
   canPay: boolean
   currentUserId: string
 }) {
@@ -681,7 +801,7 @@ function FinanceMyFundsTable({
           return (
             <TableRow key={fund.id} className="border-b last:border-b-0">
               <TableCell className="font-medium">{fund.title}</TableCell>
-              <TableCell>{formatCurrency(fund.amount)}</TableCell>
+              <TableCell>{formatCurrency(fund.requiredAmount)}</TableCell>
               <TableCell>
                 {(() => {
                   const status = payment?.status?.toUpperCase() ?? null
@@ -710,6 +830,7 @@ function FinanceMyFundsTable({
                     <FundRowActions
                       groupId={groupId}
                       fund={fund}
+                      members={members}
                       canManage={false}
                       canPay={canPay && !!payment?.id && canSubmitPayment}
                       payments={fund.payments ?? []}

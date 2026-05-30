@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { GroupActivitySchedulePage } from "@/features/group-activity-schedule/components/group-activity-schedule-page"
 import { GroupChat } from "@/features/groups/components/group-chat"
-import type { Group, Invitation } from "@/features/groups/types"
+import type { Group, Invitation, Member } from "@/features/groups/types"
 import { GroupFeedNotificationsContainer } from "@/features/notifications/components/group-feed-notifications-container"
 import type { GroupPlaySession } from "@/features/play-sessions/types"
 
@@ -19,6 +19,7 @@ import { UpcomingPlaySessionsSection } from "./upcoming-play-sessions-section"
 interface GroupDetailPanelsProps {
   groupId: string
   group: Group
+  members: Member[]
   currentUserId: string
   currentUserRole: string | null
   invitations: Invitation[]
@@ -30,6 +31,7 @@ interface GroupDetailPanelsProps {
 export async function GroupDetailPanels({
   groupId,
   group,
+  members,
   currentUserId,
   currentUserRole,
   invitations,
@@ -45,6 +47,7 @@ export async function GroupDetailPanels({
 
       <GroupMembersCard
         groupId={groupId}
+        members={members}
         currentUserId={currentUserId}
         currentUserRole={currentUserRole}
         groupStatus={group.status}
@@ -101,6 +104,7 @@ export async function GroupDetailPanels({
         <div className="min-w-0">
           <GroupFinanceSection
             groupId={groupId}
+            members={members}
             currentUserId={currentUserId}
             currentUserRole={currentUserRole}
             groupStatus={group.status}

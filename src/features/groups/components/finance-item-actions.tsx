@@ -1,7 +1,8 @@
 "use client"
 
 import { Loader2, MoreHorizontal, Plus } from "lucide-react"
-import { useActionState, useEffect, useRef, useState } from "react"
+import { useQueryClient } from "@tanstack/react-query"
+import { useActionState, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -34,7 +35,9 @@ import {
   updateFundAction,
   verifyFundPaymentAction,
 } from "../actions/finance-actions"
+import { financeQueryKeys } from "../api/finance-client"
 import type { ExpenseItem, FundItem, FundPayment } from "../types/finance"
+import type { Member } from "../types"
 
 function formatDateInput(value?: string | null) {
   if (!value) return ""
@@ -198,6 +201,36 @@ function useToastState(
   }, [onSuccess, state.error, state.success, successMessage])
 }
 
+function useFinanceInvalidation(groupId: string) {
+  const queryClient = useQueryClient()
+
+  return {
+    refreshFunds() {
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: financeQueryKeys.summary(groupId) }),
+        queryClient.invalidateQueries({ queryKey: financeQueryKeys.funds(groupId) }),
+        queryClient.invalidateQueries({ queryKey: financeQueryKeys.myFunds(groupId) }),
+      ])
+    },
+    refreshExpenses() {
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: financeQueryKeys.summary(groupId) }),
+        queryClient.invalidateQueries({ queryKey: financeQueryKeys.expenses(groupId) }),
+      ])
+    },
+    refreshFundPayments(fundId: string) {
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: financeQueryKeys.summary(groupId) }),
+        queryClient.invalidateQueries({ queryKey: financeQueryKeys.funds(groupId) }),
+        queryClient.invalidateQueries({ queryKey: financeQueryKeys.myFunds(groupId) }),
+        queryClient.invalidateQueries({
+          queryKey: financeQueryKeys.fundPayments(groupId, fundId),
+        }),
+      ])
+    },
+  }
+}
+
 function FinanceDialogShell({
   open,
   onOpenChange,
@@ -228,12 +261,14 @@ function FundForm({
   groupId,
   mode,
   fund,
+  members,
   hasExistingPayments,
   onDone,
 }: {
   groupId: string
   mode: DialogMode
   fund?: FundItem
+  members: Member[]
   hasExistingPayments?: boolean
   onDone: () => void
 }) {
@@ -250,8 +285,100 @@ function FundForm({
     onDone
   )
 
+  const [selectedMap, setSelectedMap] = useState<Record<string, boolean>>({})
+  const [amountMap, setAmountMap] = useState<Record<string, string>>({})
+  const [requiredAmountInput, setRequiredAmountInput] = useState<string>(
+    String(fund?.requiredAmount ?? "")
+  )
+  const [useCredit, setUseCredit] = useState<boolean>(false)
+  const [formError, setFormError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (mode !== "edit" || !fund?.payments) {
+      setSelectedMap({})
+      setAmountMap({})
+      return
+    }
+
+    const nextSelectedMap: Record<string, boolean> = {}
+    const nextAmountMap: Record<string, string> = {}
+
+    for (const payment of fund.payments) {
+      nextSelectedMap[payment.userId] = true
+      nextAmountMap[payment.userId] = String(
+        payment.requiredAmount ?? payment.amountPaid ?? 0
+      )
+    }
+
+    setSelectedMap(nextSelectedMap)
+    setAmountMap(nextAmountMap)
+  }, [fund, mode])
+
+  useEffect(() => {
+    setRequiredAmountInput(String(fund?.requiredAmount ?? ""))
+  }, [fund?.requiredAmount, mode])
+
+  const targetMembersPayload = useMemo(
+    () =>
+      members
+        .filter((member) => selectedMap[member.userId])
+        .map((member) => ({
+          userId: member.userId,
+          requiredAmount: Number(amountMap[member.userId] || 0),
+        })),
+    [amountMap, members, selectedMap]
+  )
+
+  const requiredAmountNumber = Number(requiredAmountInput)
+  const targetMembersTotal = targetMembersPayload.reduce(
+    (total, item) => total + Number(item.requiredAmount || 0),
+    0
+  )
+  const isClientPayloadValid =
+    targetMembersPayload.length > 0 &&
+    !Number.isNaN(requiredAmountNumber) &&
+    requiredAmountNumber >= 0 &&
+    targetMembersTotal === requiredAmountNumber
+
+  useEffect(() => {
+    if (!isClientPayloadValid) {
+      if (targetMembersPayload.length === 0) {
+        setFormError(null)
+        return
+      }
+
+      if (Number.isNaN(requiredAmountNumber) || requiredAmountNumber < 0) {
+        setFormError("Số tiền quỹ không hợp lệ.")
+        return
+      }
+
+      setFormError("Tổng số tiền thành viên phải khớp với tổng quỹ.")
+      return
+    }
+
+    setFormError(null)
+  }, [isClientPayloadValid, requiredAmountNumber, targetMembersPayload.length])
+
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+    const endpoint = `/api/groups/${groupId}/funds`
+
+    console.log("[finance] createFund form submit", {
+      groupId,
+      endpoint,
+      payload: {
+        requiredAmount: requiredAmountNumber,
+        targetMembers: targetMembersPayload,
+        useCredit,
+      },
+    })
+
+    if (!isClientPayloadValid) {
+      event.preventDefault()
+    }
+  }
+
   return (
-    <form action={formAction}>
+    <form action={formAction} onSubmit={handleSubmit}>
       <div className="space-y-4 py-2">
         <FieldGroup>
           <Field>
@@ -275,9 +402,10 @@ function FundForm({
               <FieldLabel htmlFor="fund-amount">Số tiền</FieldLabel>
               <Input
                 id="fund-amount"
-                name="amount"
-                type="text"
-                defaultValue={fund?.amount?.toString() ?? ""}
+                name="requiredAmount"
+                type="number"
+                value={requiredAmountInput}
+                onChange={(event) => setRequiredAmountInput(event.target.value)}
                 disabled={mode === "edit" && !!hasExistingPayments}
               />
               {mode === "edit" && hasExistingPayments ? (
@@ -296,11 +424,88 @@ function FundForm({
               />
             </Field>
           </div>
+
+          <Field>
+            <FieldLabel>Thành viên tham gia quỹ</FieldLabel>
+            <div className="max-h-48 space-y-2 overflow-y-auto rounded-md border p-2">
+              {members.length === 0 ? (
+                <p className="text-xs text-muted-foreground">
+                  Không có thành viên.
+                </p>
+              ) : (
+                members.map((member) => {
+                  const checked = !!selectedMap[member.userId]
+
+                  return (
+                    <div key={member.userId} className="flex items-center gap-3">
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(event) =>
+                            setSelectedMap((current) => ({
+                              ...current,
+                              [member.userId]: event.target.checked,
+                            }))
+                          }
+                        />
+                        <span className="text-sm">{member.name ?? member.userId}</span>
+                      </label>
+                      <div className="ml-auto flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">
+                          Credit: {formatCurrency((member as any).creditBalance ?? 0)}
+                        </span>
+                        <Input
+                          type="number"
+                          placeholder="Số tiền"
+                          value={amountMap[member.userId] ?? ""}
+                          onChange={(event) =>
+                            setAmountMap((current) => ({
+                              ...current,
+                              [member.userId]: event.target.value,
+                            }))
+                          }
+                          disabled={!checked}
+                          className="w-28"
+                        />
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Chọn từng thành viên và nhập số tiền yêu cầu riêng cho họ.
+            </p>
+          </Field>
+
+          <Field>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                name="useCreditUi"
+                checked={useCredit}
+                onChange={(event) => setUseCredit(event.target.checked)}
+              />
+              <span className="text-sm">
+                Áp dụng credit sẵn có của thành viên (useCredit)
+              </span>
+            </label>
+          </Field>
+
+          {formError ? <p className="text-sm text-destructive">{formError}</p> : null}
         </FieldGroup>
       </div>
 
+      <input
+        type="hidden"
+        name="targetMembers"
+        value={JSON.stringify(targetMembersPayload)}
+      />
+      <input type="hidden" name="useCredit" value={useCredit ? "true" : "false"} />
+
       <DialogFooter showCloseButton>
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={isPending || !isClientPayloadValid}>
           {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
           {mode === "create" ? "Tạo quỹ" : "Lưu thay đổi"}
         </Button>
@@ -415,6 +620,7 @@ function PayFundForm({
   const [selectedImagePreviewUrl, setSelectedImagePreviewUrl] = useState<
     string | null
   >(null)
+  const invalidation = useFinanceInvalidation(groupId)
 
   useEffect(() => {
     return () => {
@@ -424,7 +630,10 @@ function PayFundForm({
     }
   }, [selectedImagePreviewUrl])
 
-  useToastState(state, "Đã gửi yêu cầu thanh toán.", onDone)
+  useToastState(state, "Đã gửi yêu cầu thanh toán.", () => {
+    void invalidation.refreshFundPayments(fund.id)
+    onDone()
+  })
 
   const handleReceiptFileChange: React.ChangeEventHandler<HTMLInputElement> = (
     event
@@ -553,12 +762,16 @@ export function PaymentVerifyRow({
 }) {
   const normalizedStatus = payment.status?.toUpperCase()
   const canVerify = normalizedStatus === "PENDING"
+  const invalidation = useFinanceInvalidation(groupId)
   const [state, formAction, isPending] = useActionState(
     verifyFundPaymentAction.bind(null, groupId, fundId, payment.id),
     {}
   )
 
-  useToastState(state, "Đã cập nhật thanh toán.", onDone ?? (() => {}))
+  useToastState(state, "Đã cập nhật thanh toán.", () => {
+    void invalidation.refreshFundPayments(fundId)
+    onDone?.()
+  })
 
   if (!canVerify) {
     return null
@@ -569,6 +782,21 @@ export function PaymentVerifyRow({
       className={`flex flex-wrap items-center justify-end gap-2 ${className ?? ""}`}
     >
       <form action={formAction} className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2">
+          <Input
+            name="amountPaid"
+            type="number"
+            placeholder="Số thực nộp (để trống = required)"
+            className="w-32"
+          />
+          <div className="text-xs text-muted-foreground">
+            {(() => {
+              const required = Number(payment.requiredAmount ?? 0)
+              const creditUsed = Number(payment.creditUsed ?? 0)
+              return <span>Yêu cầu: {formatCurrency(required)} | Credit dùng: {formatCurrency(creditUsed)}</span>
+            })()}
+          </div>
+        </div>
         <Button
           type="submit"
           name="status"
@@ -594,8 +822,15 @@ export function PaymentVerifyRow({
   )
 }
 
-export function CreateFundButton({ groupId }: { groupId: string }) {
+export function CreateFundButton({
+  groupId,
+  members,
+}: {
+  groupId: string
+  members: Member[]
+}) {
   const [open, setOpen] = useState(false)
+  const invalidation = useFinanceInvalidation(groupId)
 
   return (
     <>
@@ -612,7 +847,11 @@ export function CreateFundButton({ groupId }: { groupId: string }) {
         <FundForm
           groupId={groupId}
           mode="create"
-          onDone={() => setOpen(false)}
+          members={members}
+          onDone={() => {
+            void invalidation.refreshFunds()
+            setOpen(false)
+          }}
         />
       </FinanceDialogShell>
     </>
@@ -621,6 +860,7 @@ export function CreateFundButton({ groupId }: { groupId: string }) {
 
 export function CreateExpenseButton({ groupId }: { groupId: string }) {
   const [open, setOpen] = useState(false)
+  const invalidation = useFinanceInvalidation(groupId)
 
   return (
     <>
@@ -637,7 +877,10 @@ export function CreateExpenseButton({ groupId }: { groupId: string }) {
         <ExpenseForm
           groupId={groupId}
           mode="create"
-          onDone={() => setOpen(false)}
+          onDone={() => {
+            void invalidation.refreshExpenses()
+            setOpen(false)
+          }}
         />
       </FinanceDialogShell>
     </>
@@ -647,12 +890,14 @@ export function CreateExpenseButton({ groupId }: { groupId: string }) {
 export function FundRowActions({
   groupId,
   fund,
+  members,
   canManage,
   canPay,
   payments,
 }: {
   groupId: string
   fund: FundItem
+  members: Member[]
   canManage: boolean
   canPay: boolean
   payments: FundPayment[]
@@ -661,6 +906,7 @@ export function FundRowActions({
   const [payOpen, setPayOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [paymentsOpen, setPaymentsOpen] = useState(false)
+  const invalidation = useFinanceInvalidation(groupId)
   const hasActions = canPay || canManage
 
   if (!hasActions) {
@@ -725,8 +971,12 @@ export function FundRowActions({
           groupId={groupId}
           mode="edit"
           fund={fund}
+          members={members}
           hasExistingPayments={payments.length > 0}
-          onDone={() => setEditOpen(false)}
+          onDone={() => {
+            void invalidation.refreshFunds()
+            setEditOpen(false)
+          }}
         />
       </FinanceDialogShell>
 
@@ -739,7 +989,10 @@ export function FundRowActions({
         <PayFundForm
           groupId={groupId}
           fund={fund}
-          onDone={() => setPayOpen(false)}
+          onDone={() => {
+            void invalidation.refreshFundPayments(fund.id)
+            setPayOpen(false)
+          }}
         />
       </FinanceDialogShell>
 
@@ -752,7 +1005,10 @@ export function FundRowActions({
         <DeleteForm
           label={`Bạn có chắc muốn xóa quỹ "${fund.title}" không?`}
           action={deleteFundAction.bind(null, groupId, fund.id)}
-          onDone={() => setDeleteOpen(false)}
+          onDone={() => {
+            void invalidation.refreshFunds()
+            setDeleteOpen(false)
+          }}
         />
       </FinanceDialogShell>
 
@@ -791,7 +1047,10 @@ export function FundRowActions({
                     groupId={groupId}
                     fundId={fund.id}
                     payment={payment}
-                    onDone={() => setPaymentsOpen(false)}
+                    onDone={() => {
+                      void invalidation.refreshFundPayments(fund.id)
+                      setPaymentsOpen(false)
+                    }}
                   />
                 </div>
               </div>
@@ -817,6 +1076,7 @@ export function ExpenseRowActions({
   const [viewOpen, setViewOpen] = useState(false)
   const [detailLoading, setDetailLoading] = useState(false)
   const [expenseDetail, setExpenseDetail] = useState<ExpenseItem | null>(null)
+  const invalidation = useFinanceInvalidation(groupId)
 
   return (
     <>
@@ -902,7 +1162,10 @@ export function ExpenseRowActions({
           groupId={groupId}
           mode="edit"
           expense={expense}
-          onDone={() => setEditOpen(false)}
+          onDone={() => {
+            void invalidation.refreshExpenses()
+            setEditOpen(false)
+          }}
         />
       </FinanceDialogShell>
 
@@ -915,7 +1178,10 @@ export function ExpenseRowActions({
         <DeleteForm
           label={`Bạn có chắc muốn xóa khoản chi "${expense.title}" không?`}
           action={deleteExpenseAction.bind(null, groupId, expense.id)}
-          onDone={() => setDeleteOpen(false)}
+          onDone={() => {
+            void invalidation.refreshExpenses()
+            setDeleteOpen(false)
+          }}
         />
       </FinanceDialogShell>
 
