@@ -1,6 +1,5 @@
-import { CreditCard } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 
 type BookingConfirmationHeaderProps = {
@@ -15,18 +14,17 @@ export function BookingConfirmationHeader({
       <div className="space-y-3">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
-            Xác nhận đặt sân
+            Xác nhận thông tin
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground md:text-base">
-            Kiểm tra lại toàn bộ thông tin đặt sân và thông tin thanh toán trước
-            khi đặt sân
+            Kiểm tra lại toàn bộ thông tin đặt sân trước khi đặt sân
           </p>
         </div>
       </div>
 
       <div className="flex flex-col gap-3">
         <Button variant="outline" onClick={onBack}>
-          Quay lại đặt sân
+          <ArrowLeft className="size-4" /> Quay lại
         </Button>
       </div>
     </div>

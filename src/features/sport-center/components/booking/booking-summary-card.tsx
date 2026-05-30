@@ -8,6 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
 import { useSportCenterStore } from "@/features/sport-center/stores/sport-center-store"
+import type { CourtSlot } from "@/features/sport-center/types/court"
+import type { Product } from "@/features/sport-center/types/product"
+import type { Service } from "@/features/sport-center/types/service"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 function toAmount(value: number | string | null | undefined) {
@@ -28,6 +31,7 @@ export function BookingSummaryCard() {
   const products = useBookingStore((state) => state.products)
   const selectedServices = useBookingStore((state) => state.selectedServices)
   const selectedProducts = useBookingStore((state) => state.selectedProducts)
+  const total = useBookingStore((state) => state.total)
   const isSubmitting = useBookingStore((state) => state.isSubmitting)
   const statusMessage = useBookingStore((state) => state.submitMessage)
   const errorMessage = useBookingStore((state) => state.submitError)
@@ -50,15 +54,18 @@ export function BookingSummaryCard() {
   }, [selectedCourts])
 
   const courtTotal = useMemo(() => {
+    const toNum = (v: number | string | null | undefined) => toAmount(v)
+
     if (!courtAvailability) {
-      return totalSlots * toAmount(sportCenter?.basePrice)
+      return totalSlots * toNum(sportCenter?.basePrice)
     }
 
     return Object.entries(selectedCourts).reduce(
       (courtSum, [courtId, slots]) => {
-        const court = courtAvailability.courts.find(
-          (court) => court.courtId === courtId
+        const court = courtAvailability?.courts.find(
+          (c) => c.courtId === courtId
         )
+
         const slotTotal = Array.from(slots).reduce((slotSum, selectedSlot) => {
           const [startTime = "", endTime = ""] = selectedSlot.split(" - ")
           const slot = court?.slots.find(
@@ -67,32 +74,29 @@ export function BookingSummaryCard() {
               availableSlot.endTime === endTime
           )
 
-          return (
-            slotSum + toAmount(slot?.pricePerHour ?? sportCenter?.basePrice)
-          )
+          return slotSum + toNum(slot?.pricePerHour ?? sportCenter?.basePrice)
         }, 0)
 
         return courtSum + slotTotal
       },
       0
     )
-  }, [courtAvailability, selectedCourts, sportCenter?.basePrice, totalSlots])
+  }, [selectedCourts, courtAvailability, sportCenter?.basePrice, totalSlots])
 
   const serviceTotal = useMemo(() => {
-    return services.reduce((sum, service) => {
+    return services.reduce((sum, service: Service) => {
       if (!selectedServices[service.id]) return sum
       return sum + toAmount(service.price)
     }, 0)
-  }, [selectedServices, services])
+  }, [services, selectedServices])
 
   const productTotal = useMemo(() => {
-    return products.reduce((sum, product) => {
+    return products.reduce((sum, product: Product) => {
       const quantity = selectedProducts[product.id] ?? 0
       return sum + toAmount(product.price) * quantity
     }, 0)
   }, [products, selectedProducts])
 
-  const total = courtTotal + serviceTotal + productTotal
   const canConfirm = totalSlots > 0 && !!selectedDate && !isSubmitting
 
   const handleContinue = () => {

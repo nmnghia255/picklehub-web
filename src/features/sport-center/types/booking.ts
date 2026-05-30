@@ -38,6 +38,7 @@ export interface CreateBookingRequest {
   note: string
   phoneNumber: string
   useCredit: boolean
+  paymentProof?: string
   serviceItems: ServiceItem[]
   productItems: ProductItem[]
   items: BookingCourtItem[]

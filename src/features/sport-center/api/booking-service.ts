@@ -7,6 +7,7 @@ import type {
   MyBookingsResponse,
   PreviewBookingRequest,
 } from "../types/booking"
+import type { Credit } from "../types/credit"
 
 interface ApiResponse<T> {
   success: boolean
@@ -87,6 +88,12 @@ export const BookingService = {
       `/api/sport-centers/${centerId}/bookings/preview`,
       bookingRequest
     )
+    return unwrapApiResponse(response.data)
+  },
+
+  getCreditBalance: async (): Promise<Credit> => {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.get(`/api/bookings/credits`)
     return unwrapApiResponse(response.data)
   },
 }

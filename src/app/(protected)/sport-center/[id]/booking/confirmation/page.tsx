@@ -4,13 +4,13 @@ import { useParams, useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 
 import { PageContainer } from "@/components/page-container"
+import { Button } from "@/components/ui/button"
 import { submitBookingsAction } from "@/features/sport-center/booking-store-actions"
 import { BookingConfirmationBookedSlotsCard } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-booked-slots-card"
 import { BookingConfirmationDetailsCard } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-details-card"
 import { BookingConfirmationEmptyState } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-empty-state"
 import { BookingConfirmationHeader } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-header"
 import { BookingConfirmationItemsCard } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-items-card"
-import { BookingConfirmationPaymentCard } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-payment-card"
 import type {
   ProductSelectionState,
   SelectedCourts,
@@ -21,7 +21,7 @@ import { useSportCenterStore } from "@/features/sport-center/stores/sport-center
 import type { BulkCourtAvailability } from "@/features/sport-center/types/court"
 import type { Product } from "@/features/sport-center/types/product"
 import type { Service } from "@/features/sport-center/types/service"
-import type { SportCenter } from "@/features/sport-center/types/sport-center"
+// removed unused SportCenter type import
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 type BookingDraft = {
@@ -44,6 +44,11 @@ function formatDate(value: Date | undefined) {
     month: "2-digit",
     year: "numeric",
   })
+}
+
+function toNumber(value: number | string | null | undefined) {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : 0
 }
 
 export default function BookingConfirmationPage() {
@@ -69,9 +74,6 @@ export default function BookingConfirmationPage() {
   const sportCenter = useSportCenterStore((s) => s.sportCenter)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitMessage, setSubmitMessage] = useState("")
-  const [submitError, setSubmitError] = useState("")
-  const [createdBookingId, setCreatedBookingId] = useState("")
 
   const selectedDateText = useMemo(
     () => formatDate(bookingDraft.selectedDate),
@@ -87,7 +89,7 @@ export default function BookingConfirmationPage() {
 
   const courtTotal = useMemo(() => {
     if (!bookingDraft.courtAvailability) {
-      return totalSlots * (sportCenter?.basePrice ?? 0)
+      return totalSlots * toNumber(sportCenter?.basePrice)
     }
 
     return Object.entries(bookingDraft.selectedCourts).reduce(
@@ -104,7 +106,9 @@ export default function BookingConfirmationPage() {
               availableSlot.endTime === endTime
           )
 
-          return slotSum + (slot?.pricePerHour ?? sportCenter?.basePrice ?? 0)
+          return (
+            slotSum + toNumber(slot?.pricePerHour ?? sportCenter?.basePrice)
+          )
         }, 0)
 
         return courtSum + slotTotal
@@ -121,14 +125,14 @@ export default function BookingConfirmationPage() {
   const serviceTotal = useMemo(() => {
     return bookingDraft.services.reduce((sum, service) => {
       if (!bookingDraft.selectedServices[service.id]) return sum
-      return sum + service.price
+      return sum + toNumber(service.price)
     }, 0)
   }, [bookingDraft.selectedServices, bookingDraft.services])
 
   const productTotal = useMemo(() => {
     return bookingDraft.products.reduce((sum, product) => {
       const quantity = bookingDraft.selectedProducts[product.id] ?? 0
-      return sum + product.price * quantity
+      return sum + toNumber(product.price) * quantity
     }, 0)
   }, [bookingDraft.products, bookingDraft.selectedProducts])
 
@@ -185,29 +189,7 @@ export default function BookingConfirmationPage() {
     [bookingDraft.courtAvailability?.courts, bookingDraft.selectedCourts]
   )
 
-  const handleCreateBooking = async () => {
-    setIsSubmitting(true)
-    setSubmitMessage("")
-    setSubmitError("")
-
-    try {
-      const submitted = await submitBookingsAction()
-      if (!submitted) {
-        setSubmitError(useBookingStore.getState().submitError)
-        return
-      }
-
-      const bookingId = useBookingStore.getState().lastBookingId ?? ""
-      setCreatedBookingId(bookingId)
-      setSubmitMessage(
-        bookingId
-          ? `Đã tạo booking thành công. Mã đặt sân: ${bookingId}.`
-          : "Đã tạo booking thành công."
-      )
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
+  // booking creation handled on payment page
 
   if (!sportCenter || totalSlots === 0) {
     console.log("Booking Draft:", bookingDraft)
@@ -220,9 +202,7 @@ export default function BookingConfirmationPage() {
       className="flex min-h-screen flex-col gap-6 py-8"
     >
       <section>
-        <BookingConfirmationHeader
-          onBack={() => router.push(`/sport-center/${centerId}/booking`)}
-        />
+        <BookingConfirmationHeader onBack={() => router.back()} />
       </section>
 
       <section className="space-y-6">
@@ -251,18 +231,19 @@ export default function BookingConfirmationPage() {
           selectedProducts={selectedProducts}
         />
 
-        <BookingConfirmationPaymentCard
-          paymentAccountName={sportCenter.paymentAccountName}
-          paymentBankName={sportCenter.paymentBankName}
-          paymentAccountNumber={sportCenter.paymentAccountNumber}
-          paymentQrUrl={sportCenter.paymentQrUrl}
-          canConfirm={canConfirm}
-          isSubmitting={isSubmitting}
-          submitMessage={submitMessage}
-          submitError={submitError}
-          hasCreatedBooking={Boolean(createdBookingId)}
-          onConfirm={() => void handleCreateBooking()}
-        />
+        <div>
+          <Button
+            className="w-full"
+            onClick={() =>
+              router.push(
+                `/sport-center/${centerId}/booking/confirmation/payment`
+              )
+            }
+            disabled={!canConfirm}
+          >
+            Xác nhận và thanh toán
+          </Button>
+        </div>
       </section>
     </PageContainer>
   )

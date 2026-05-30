@@ -1,9 +1,4 @@
 "use client"
-
-import { createSportCenterBookingsAction } from "@/features/sport-center/actions/create-booking"
-import { fetchBulkCourtAvailabilityAction } from "@/features/sport-center/actions/fetch-bulk-court-availability"
-import { fetchSportCenterProductsAction } from "@/features/sport-center/actions/fetch-sport-center-products"
-import { fetchSportCenterServicesAction } from "@/features/sport-center/actions/fetch-sport-center-services"
 import {
   type ProductSelectionState,
   type SelectedCourts,
@@ -37,6 +32,7 @@ function buildBookingRequest(
   selectedProducts: ProductSelectionState,
   bookingNote: string,
   useCredit: boolean,
+  paymentProof: string | undefined,
   services: Service[],
   products: Product[],
   availability: BulkCourtAvailability | null,
@@ -111,6 +107,7 @@ function buildBookingRequest(
     note,
     phoneNumber: "",
     useCredit,
+    paymentProof,
     serviceItems,
     productItems: productItems.map(({ productId, quantity }) => ({
       productId,
@@ -130,12 +127,15 @@ export async function fetchCourtAvailabilityAction(
   })
 
   try {
+    const { fetchBulkCourtAvailabilityAction } =
+      await import("@/features/sport-center/actions/fetch-bulk-court-availability")
     const courtAvailability = await fetchBulkCourtAvailabilityAction(
       centerId,
       date
     )
 
     useBookingStore.setState({ courtAvailability })
+    useBookingStore.getState().recalculateTotal()
   } catch (error) {
     useBookingStore.setState({
       courtAvailability: null,
@@ -151,6 +151,8 @@ export async function fetchCourtAvailabilityAction(
 
 export async function fetchServicesAction(centerId: string) {
   try {
+    const { fetchSportCenterServicesAction } =
+      await import("@/features/sport-center/actions/fetch-sport-center-services")
     const services = (await fetchSportCenterServicesAction(centerId)).filter(
       (service) => service.isActive
     )
@@ -163,13 +165,17 @@ export async function fetchServicesAction(centerId: string) {
     )
 
     useBookingStore.setState({ services, selectedServices })
+    useBookingStore.getState().recalculateTotal()
   } catch {
     useBookingStore.setState({ services: [], selectedServices: {} })
+    useBookingStore.getState().recalculateTotal()
   }
 }
 
 export async function fetchProductsAction(centerId: string) {
   try {
+    const { fetchSportCenterProductsAction } =
+      await import("@/features/sport-center/actions/fetch-sport-center-products")
     const products = (await fetchSportCenterProductsAction(centerId)).filter(
       (product) => product.isActive
     )
@@ -182,12 +188,14 @@ export async function fetchProductsAction(centerId: string) {
     )
 
     useBookingStore.setState({ products, selectedProducts })
+    useBookingStore.getState().recalculateTotal()
   } catch {
     useBookingStore.setState({ products: [], selectedProducts: {} })
+    useBookingStore.getState().recalculateTotal()
   }
 }
 
-export async function submitBookingsAction() {
+export async function submitBookingsAction(paymentProof?: string) {
   const {
     selectedDate,
     selectedCourts,
@@ -220,6 +228,7 @@ export async function submitBookingsAction() {
     selectedProducts,
     bookingNote,
     useCredit,
+    paymentProof,
     services,
     products,
     courtAvailability,
@@ -244,6 +253,8 @@ export async function submitBookingsAction() {
 
   try {
     console.log("Submitting booking request for centerId:", bookingRequest)
+    const { createSportCenterBookingsAction } =
+      await import("@/features/sport-center/actions/create-booking")
     const result = await createSportCenterBookingsAction({
       centerId,
       bookingRequest,
@@ -275,6 +286,7 @@ export async function submitBookingsAction() {
       bookingNote: "",
       lastBookingId: result.booking?.id ?? null,
       submitMessage: result.message ?? "Đã gửi yêu cầu đặt sân thành công.",
+      total: 0,
     })
 
     return true

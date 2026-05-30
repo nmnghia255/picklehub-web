@@ -3,6 +3,7 @@
 import type { Dispatch, SetStateAction } from "react"
 import { create } from "zustand"
 
+import { useSportCenterStore } from "@/features/sport-center/stores/sport-center-store"
 import type { BulkCourtAvailability } from "@/features/sport-center/types/court"
 import type { Product } from "@/features/sport-center/types/product"
 import type { Service } from "@/features/sport-center/types/service"
@@ -11,6 +12,59 @@ import type { SportCenter } from "@/features/sport-center/types/sport-center"
 export type SelectedCourts = Record<string, Set<string>>
 export type ServiceSelectionState = Record<string, boolean>
 export type ProductSelectionState = Record<string, number>
+
+type BookingTotalSource = {
+  selectedCourts: SelectedCourts
+  courtAvailability: BulkCourtAvailability | null
+  services: Service[]
+  products: Product[]
+  selectedServices: ServiceSelectionState
+  selectedProducts: ProductSelectionState
+}
+
+function toAmount(value: number | string | null | undefined) {
+  const normalized = Number(value ?? 0)
+  return Number.isFinite(normalized) ? normalized : 0
+}
+
+export function calculateBookingTotal(state: BookingTotalSource) {
+  const sportCenter = useSportCenterStore.getState().sportCenter
+  const basePrice = toAmount(sportCenter?.basePrice)
+
+  const totalCourtAmount = Object.entries(state.selectedCourts).reduce(
+    (courtSum, [courtId, slots]) => {
+      const court = state.courtAvailability?.courts.find(
+        (item) => item.courtId === courtId
+      )
+
+      const slotTotal = Array.from(slots).reduce((slotSum, selectedSlot) => {
+        const [startTime = "", endTime = ""] = selectedSlot.split(" - ")
+        const slot = court?.slots.find(
+          (availableSlot) =>
+            availableSlot.startTime === startTime &&
+            availableSlot.endTime === endTime
+        )
+
+        return slotSum + toAmount(slot?.pricePerHour ?? basePrice)
+      }, 0)
+
+      return courtSum + slotTotal
+    },
+    0
+  )
+
+  const serviceTotal = state.services.reduce((sum, service) => {
+    if (!state.selectedServices[service.id]) return sum
+    return sum + toAmount(service.price)
+  }, 0)
+
+  const productTotal = state.products.reduce((sum, product) => {
+    const quantity = state.selectedProducts[product.id] ?? 0
+    return sum + toAmount(product.price) * quantity
+  }, 0)
+
+  return totalCourtAmount + serviceTotal + productTotal
+}
 
 interface BookingStore {
   selectedDate: Date | undefined
@@ -24,6 +78,7 @@ interface BookingStore {
   selectedProducts: ProductSelectionState
   bookingNote: string
   useCredit: boolean
+  total: number
   isSubmitting: boolean
   submitMessage: string
   submitError: string
@@ -36,6 +91,7 @@ interface BookingStore {
   setBookingNote: (note: string) => void
   setUseCredit: (useCredit: boolean) => void
   clearSubmissionFeedback: () => void
+  recalculateTotal: () => void
 }
 
 function getDefaultState() {
@@ -51,6 +107,7 @@ function getDefaultState() {
     selectedProducts: {},
     bookingNote: "",
     useCredit: false,
+    total: 0,
     isSubmitting: false,
     submitMessage: "",
     submitError: "",
@@ -58,7 +115,7 @@ function getDefaultState() {
   }
 }
 
-export const useBookingStore = create<BookingStore>((set, get) => ({
+export const useBookingStore = create<BookingStore>((set, _get) => ({
   ...getDefaultState(),
 
   initializeBooking: () =>
@@ -67,12 +124,24 @@ export const useBookingStore = create<BookingStore>((set, get) => ({
     })),
 
   setSelectedDate: (selectedDate) =>
-    set({
-      selectedDate,
-      selectedCourts: {},
-      submitMessage: "",
-      submitError: "",
-      lastBookingId: null,
+    set((state) => {
+      const nextState = {
+        ...state,
+        selectedDate,
+        selectedCourts: {},
+        submitMessage: "",
+        submitError: "",
+        lastBookingId: null,
+      }
+
+      return {
+        selectedDate,
+        selectedCourts: {},
+        submitMessage: "",
+        submitError: "",
+        lastBookingId: null,
+        total: calculateBookingTotal(nextState),
+      }
     }),
 
   toggleCourtSlot: (courtId, slot) => {
@@ -94,26 +163,50 @@ export const useBookingStore = create<BookingStore>((set, get) => ({
         nextSelectedCourts[courtId].add(slot)
       }
 
-      return { selectedCourts: nextSelectedCourts }
+      const nextState = {
+        ...state,
+        selectedCourts: nextSelectedCourts,
+      }
+
+      return {
+        selectedCourts: nextSelectedCourts,
+        total: calculateBookingTotal(nextState),
+      }
     })
   },
 
   setSelectedServices: (nextSelection) => {
-    set((state) => ({
-      selectedServices:
+    set((state) => {
+      const selectedServices =
         typeof nextSelection === "function"
           ? nextSelection(state.selectedServices)
-          : nextSelection,
-    }))
+          : nextSelection
+
+      return {
+        selectedServices,
+        total: calculateBookingTotal({
+          ...state,
+          selectedServices,
+        }),
+      }
+    })
   },
 
   setSelectedProducts: (nextSelection) => {
-    set((state) => ({
-      selectedProducts:
+    set((state) => {
+      const selectedProducts =
         typeof nextSelection === "function"
           ? nextSelection(state.selectedProducts)
-          : nextSelection,
-    }))
+          : nextSelection
+
+      return {
+        selectedProducts,
+        total: calculateBookingTotal({
+          ...state,
+          selectedProducts,
+        }),
+      }
+    })
   },
 
   setBookingNote: (bookingNote) => set({ bookingNote }),
@@ -121,6 +214,11 @@ export const useBookingStore = create<BookingStore>((set, get) => ({
   setUseCredit: (useCredit) => set({ useCredit }),
 
   clearSubmissionFeedback: () => set({ submitMessage: "", submitError: "" }),
+
+  recalculateTotal: () =>
+    set((state) => ({
+      total: calculateBookingTotal(state),
+    })),
 }))
 
 export type { BookingStore }
