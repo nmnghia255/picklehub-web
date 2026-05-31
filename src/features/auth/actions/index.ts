@@ -50,7 +50,12 @@ export async function loginAction(
     const { accessToken, refreshToken, expiresIn, user } = response.data
 
     const session = await getSession()
-    session.user = { id: user.id, email: user.email }
+    session.user = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      phoneNumber: user.phoneNumber,
+    }
     session.accessToken = accessToken
     session.refreshToken = refreshToken
     session.accessTokenExpiresAt = Date.now() + expiresIn * 1000
