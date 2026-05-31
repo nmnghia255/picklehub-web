@@ -2,15 +2,13 @@
 
 import React from "react"
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import ProgressBar from "@/features/socials/components/SocialListing/ProgressBar"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("vi-VN").format(value)
-}
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 function SettingRow({ label, value }: { label: string; value: string }) {
   return (
@@ -29,18 +27,15 @@ export default function SocialSidebar({
 }: {
   session: {
     joinedCount: number
-    maxSlots?: number
+    maxSlots: number
   }
   social: {
-    creatorId: string
+    organizers: Array<{ name: string; avatar?: string | null }>
     hostRole: string
     autoApproveJoinRequests: boolean
-    cancellationFreezeHours: number | null
+    cancellationFreezeHours: number
     isPrivate: boolean
     totalExpense?: number | null
-    paymentQrUrl?: string | null
-    paymentCode?: string | null
-    paymentNote?: string | null
     isParticipant?: boolean
     status: string
     hasAvailableSlots: boolean
@@ -50,10 +45,6 @@ export default function SocialSidebar({
 }) {
   const { t } = useSocialsTranslation()
 
-  const hasPaymentInfo = Boolean(
-    social.totalExpense || social.paymentQrUrl || social.paymentCode || social.paymentNote
-  )
-
   return (
     <Card className="sticky top-6 h-fit p-0">
       <CardContent className="space-y-5 p-6">
@@ -62,13 +53,15 @@ export default function SocialSidebar({
             {t("sidebar.participants")}
           </p>
           <h2 className="mt-1 text-3xl font-semibold">
-            {session.joinedCount} / {session.maxSlots ?? "-"}
+            {session.joinedCount} / {session.maxSlots}
           </h2>
           <div className="mt-3 space-y-2">
-            <ProgressBar value={session.maxSlots ? (session.joinedCount / session.maxSlots) * 100 : 0} />
+            <ProgressBar
+              value={(session.joinedCount / session.maxSlots) * 100}
+            />
             <p className="text-xs text-muted-foreground">
               {t("sidebar.spotsRemaining", {
-                count: session.maxSlots ? session.maxSlots - session.joinedCount : 0,
+                count: session.maxSlots - session.joinedCount,
               })}
             </p>
           </div>
@@ -81,8 +74,19 @@ export default function SocialSidebar({
             {t("sidebar.hostedBy")}
           </p>
           <div className="mt-3 flex items-center gap-3">
+            <Avatar className="size-11">
+              <AvatarImage
+                src={social.organizers[0]?.avatar ?? undefined}
+                alt={social.organizers[0]?.name ?? "Host"}
+              />
+              <AvatarFallback>
+                {(social.organizers[0]?.name ?? "H").slice(0, 1)}
+              </AvatarFallback>
+            </Avatar>
             <div>
-              <p className="text-sm font-medium">{social.creatorId}</p>
+              <p className="text-sm font-medium">
+                {social.organizers[0]?.name}
+              </p>
               <p className="text-xs text-muted-foreground">
                 {social.hostRole === "HOST_AND_PLAY"
                   ? t("sidebar.hostRoleHostAndPlay")
@@ -109,20 +113,20 @@ export default function SocialSidebar({
             />
             <SettingRow
               label={t("sidebar.cancellationPolicy")}
-              value={
-                social.cancellationFreezeHours === null
-                  ? t("common.na")
-                  : `${t("common.hours", { count: social.cancellationFreezeHours })} ${t("common.beforeEvent")}`
-              }
+              value={`${t("common.hours", {
+                count: social.cancellationFreezeHours,
+              })} ${t("common.beforeEvent")}`}
             />
             <SettingRow
               label={t("sidebar.visibility")}
-              value={social.isPrivate ? t("badges.private") : t("badges.public")}
+              value={
+                social.isPrivate ? t("badges.private") : t("badges.public")
+              }
             />
           </div>
         </div>
 
-        {hasPaymentInfo && (
+        {social.totalExpense && (
           <>
             <Separator />
             <div className="space-y-2">
@@ -130,11 +134,8 @@ export default function SocialSidebar({
                 {t("sidebar.payment")}
               </p>
               <div className="text-3xl font-semibold text-primary">
-                {social.totalExpense ? formatCurrency(social.totalExpense) : t("common.na")}
+                {formatCurrencyVnd(social.totalExpense)}
               </div>
-              {social.paymentCode && (
-                <p className="text-sm text-muted-foreground">{social.paymentCode}</p>
-              )}
             </div>
           </>
         )}

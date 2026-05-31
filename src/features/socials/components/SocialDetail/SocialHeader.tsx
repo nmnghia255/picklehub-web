@@ -1,6 +1,6 @@
 "use client"
 
-import { Check, Edit, Share2, Trophy, Users } from "lucide-react"
+import { ArrowLeft, Check, Edit, Trophy, Users } from "lucide-react"
 import React from "react"
 
 import { Badge } from "@/components/ui/badge"
@@ -37,7 +37,7 @@ export default function SocialHeader({
   format,
   isHost,
   isParticipant,
-  onShare,
+  onBack,
   onEdit,
 }: {
   title: string
@@ -45,7 +45,7 @@ export default function SocialHeader({
   format: SocialFormat
   isHost: boolean
   isParticipant?: boolean
-  onShare: () => void
+  onBack: () => void
   onEdit: () => void
 }) {
   const { t } = useSocialsTranslation()
@@ -100,8 +100,8 @@ export default function SocialHeader({
           </div>
 
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" onClick={onShare}>
-              <Share2 className="size-4" />
+            <Button variant="ghost" size="icon" onClick={onBack}>
+              <ArrowLeft className="size-4" />
             </Button>
             {isHost && (
               <Button variant="ghost" size="icon" onClick={onEdit}>

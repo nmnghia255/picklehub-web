@@ -1,7 +1,7 @@
 "use client"
 
-import { CourtScheduleWrapper } from "../../../../features/sport-center-management/components/CourtScheduleWrapper"
-import { SportCenterSelector } from "../../../../features/sport-center-management/components/SportCenterSelector"
+import { CourtScheduleWrapper } from "../../../../features/sport-center-management/components/courts-management/court-schedule-wrapper"
+import { SportCenterSelector } from "../../../../features/sport-center-management/components/courts-management/sport-center-selector"
 import { useCourtScheduleStore } from "../../../../features/sport-center-management/stores/court-schedule-store"
 
 export default function Page() {

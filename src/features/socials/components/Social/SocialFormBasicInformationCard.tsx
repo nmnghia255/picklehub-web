@@ -1,6 +1,6 @@
 "use client"
 
-import type { Dispatch, SetStateAction } from "react"
+import { type Dispatch, type SetStateAction, useEffect } from "react"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -32,16 +32,6 @@ export function SocialFormBasicInformationCard({
       <CardContent className="space-y-5 p-6">
         <h2 className="text-lg font-semibold">{t("form.basicInformation")}</h2>
         <div className="space-y-4">
-          <Field label={t("form.groupId")}>
-            <Input
-              value={formData.groupId}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, groupId: e.target.value }))
-              }
-              placeholder={t("form.groupIdPlaceholder")}
-            />
-          </Field>
-
           <Field label={t("form.socialTitle")}>
             <Input
               value={formData.title}
@@ -66,23 +56,30 @@ export function SocialFormBasicInformationCard({
           </Field>
 
           <Field label={t("form.format")}>
-            <Select
-              value={formData.format}
-              onValueChange={(value) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  format: value as SocialFormat,
-                }))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t("form.format")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="SOCIAL">{t("labels.social")}</SelectItem>
-                <SelectItem value="SINGLES">{t("labels.singles")}</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="w-full">
+              <Select
+                value={formData.format}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    format: value as SocialFormat,
+                  }))
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={t("form.format")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="SOCIAL">{t("labels.social")}</SelectItem>
+                  <SelectItem value="TOURNAMENT">
+                    {t("labels.tournament")}
+                  </SelectItem>
+                  <SelectItem value="TRAINING">
+                    {t("labels.training")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </Field>
         </div>
       </CardContent>

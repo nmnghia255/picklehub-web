@@ -1,7 +1,7 @@
 "use client"
 
 import { ChevronDown, ChevronUp, Loader2, Trash2 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -62,10 +62,6 @@ export function InvitationsTable({
   const [isListVisible, setIsListVisible] = useState(true)
   const [invitationToRevoke, setInvitationToRevoke] =
     useState<Invitation | null>(null)
-
-  useEffect(() => {
-    setInvitations(initialInvitations)
-  }, [initialInvitations])
 
   const handleRevoke = async (invitationId: string) => {
     setRevokingId(invitationId)

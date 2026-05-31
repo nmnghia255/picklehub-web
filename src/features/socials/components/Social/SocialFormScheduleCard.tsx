@@ -1,14 +1,56 @@
 "use client"
 
 import type { Dispatch, SetStateAction } from "react"
+import { useEffect } from "react"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { useCourtScheduleStore } from "@/features/sport-center-management/stores/court-schedule-store"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import Field from "../SocialDetail/Field"
 import type { SocialFormData } from "./SocialForm.types"
+
+function SportCenterSelect({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value?: string
+  onChange: (val: string) => void
+  placeholder?: string
+}) {
+  const { sportCenters, fetchSportCenters } = useCourtScheduleStore()
+
+  useEffect(() => {
+    if (!sportCenters || sportCenters.length === 0) fetchSportCenters()
+  }, [sportCenters, fetchSportCenters])
+
+  return (
+    <div className="w-full">
+      <Select value={value} onValueChange={(v) => onChange(v)}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent className="w-full">
+          {sportCenters.map((center) => (
+            <SelectItem key={center.id} value={center.id}>
+              {center.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  )
+}
 
 export function SocialFormScheduleCard({
   formData,
@@ -70,6 +112,16 @@ export function SocialFormScheduleCard({
               }
               min={0}
               max={168}
+            />
+          </Field>
+
+          <Field label={t("form.bookedSportCenter")}>
+            <SportCenterSelect
+              value={formData.bookedSportCenter}
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, bookedSportCenter: value }))
+              }
+              placeholder={t("form.bookedSportCenterPlaceholder")}
             />
           </Field>
         </div>
