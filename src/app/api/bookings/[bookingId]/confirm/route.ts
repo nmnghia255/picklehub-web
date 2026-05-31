@@ -6,7 +6,7 @@ type RouteContext = {
   params: Promise<{ bookingId: string }>
 }
 
-export async function POST(_request: Request, context: RouteContext) {
+export async function PATCH(_request: Request, context: RouteContext) {
   try {
     const { bookingId } = await context.params
     const booking = await BookingService.confirmBooking(bookingId)

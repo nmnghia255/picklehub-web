@@ -140,9 +140,8 @@ export const BookingService = {
     cancelReason?: string
   ): Promise<Booking> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post<Booking>(
-      `/api/bookings/${bookingId}/cancel-by-owner`,
-      { reason: cancelReason }
+    const response = await axios.patch<Booking>(
+      `/api/bookings/${bookingId}/cancel-by-owner?cancel_reason=${encodeURIComponent(cancelReason || "")}`
     )
     return unwrapApiResponse(response.data)
   },
@@ -163,7 +162,7 @@ export const BookingService = {
     bookingId: string
   ): Promise<Booking> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post<Booking>(
+    const response = await axios.patch<Booking>(
       `/api/bookings/${bookingId}/confirm`
     )
     return unwrapApiResponse(response.data)

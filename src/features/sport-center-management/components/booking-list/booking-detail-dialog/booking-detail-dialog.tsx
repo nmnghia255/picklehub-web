@@ -1,18 +1,5 @@
 "use client"
 
-import {
-  CalendarDays,
-  Clock3,
-  Coins,
-  History,
-  MapPinned,
-  ReceiptText,
-  ShieldCheck,
-  UserRound,
-} from "lucide-react"
-
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 
 import type { Booking } from "../../../types/booking"
@@ -22,10 +9,8 @@ import {
   formatCurrency,
   getBookingDisplayNote,
 } from "../booking-list.utils"
-import { BookingStatusBadge } from "../booking-status-badge"
 import { BookingCancellationSection } from "./booking-cancellation-section"
 import { BookingCustomerSection } from "./booking-customer-section"
-import { BookingDetailField } from "./booking-detail-field"
 import { BookingDetailHeader } from "./booking-detail-header"
 import { BookingFooterActions } from "./booking-footer-actions"
 import { BookingInfoSection } from "./booking-info-section"
@@ -37,11 +22,13 @@ import { BookingSummarySection } from "./booking-summary-section"
 interface BookingDetailDialogProps {
   booking: Booking | null
   onClose: () => void
+  onActionSuccess: () => void
 }
 
 export function BookingDetailDialog({
   booking,
   onClose,
+  onActionSuccess,
 }: BookingDetailDialogProps) {
   if (!booking) return null
 
@@ -79,14 +66,20 @@ export function BookingDetailDialog({
               productCount={productCount}
             />
 
-            <BookingCancellationSection
-              booking={booking}
-              displayNote={displayNote}
-            />
+            {booking.status === "CANCELLED" && (
+              <BookingCancellationSection
+                booking={booking}
+                displayNote={displayNote}
+              />
+            )}
 
             <BookingScheduleServices booking={booking} />
 
-            <BookingFooterActions onClose={onClose} />
+            <BookingFooterActions
+              booking={booking}
+              onClose={onClose}
+              onActionSuccess={onActionSuccess}
+            />
           </div>
         </div>
       </DialogContent>

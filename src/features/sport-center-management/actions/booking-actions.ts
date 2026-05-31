@@ -1,6 +1,9 @@
 import type { Booking } from "../types/booking"
 import type { BookingStatus } from "../types/booking"
 
+export { cancelBookingAction } from "./cancel-booking-action"
+export { confirmBookingAction } from "./confirm-booking-action"
+
 export type Pagination = {
   total: number
   offset: number
@@ -112,16 +115,4 @@ export async function listBookingListAction(
       `/api/sport-centers/${centerId}/bookings?${searchParams.toString()}`
     )
   )
-}
-
-export async function confirmBookingAction(bookingId: string) {
-  return apiRequest<Booking>(`/api/bookings/${bookingId}/confirm`, {
-    method: "POST",
-  })
-}
-
-export async function cancelBookingAction(bookingId: string) {
-  return apiRequest<Booking>(`/api/bookings/${bookingId}/cancel-by-owner`, {
-    method: "POST",
-  })
 }

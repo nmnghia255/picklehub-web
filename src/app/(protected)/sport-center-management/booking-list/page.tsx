@@ -76,6 +76,7 @@ function BookingListPageContent({
   const resetFilters = useBookingListStore((state) => state.resetFilters)
 
   const [currentPage, setCurrentPage] = useState(1)
+  const [refreshKey, setRefreshKey] = useState(0)
   const [pagination, setPagination] = useState<BookingListPagination | null>(
     null
   )
@@ -124,7 +125,14 @@ function BookingListPageContent({
     return () => {
       active = false
     }
-  }, [centerId, currentPage, setBookings, setIsLoadingBookings, setLoadError])
+  }, [
+    centerId,
+    currentPage,
+    refreshKey,
+    setBookings,
+    setIsLoadingBookings,
+    setLoadError,
+  ])
 
   const selectedCenter = useMemo(
     () => sportCenters.find((center) => center.id === centerId) ?? null,
@@ -168,26 +176,18 @@ function BookingListPageContent({
 
   const hasActiveFilters = createdAtFilter !== "all" || statusFilter !== "all"
 
-  const handleConfirmBooking = (booking: Booking) => {
-    void confirmBookingAction(booking.id)
+  const refreshBookings = () => {
+    setRefreshKey((value) => value + 1)
+  }
+
+  const handleConfirmBooking = async (booking: Booking) => {
+    await confirmBookingAction(booking.id)
+    refreshBookings()
   }
 
   const handleCancelBooking = (booking: Booking) => {
-    void cancelBookingAction(booking.id)
-  }
-
-  const shouldShowSkeleton = loadingSportCenters || isLoadingBookings
-
-  if (shouldShowSkeleton) {
-    return (
-      <PageContainer
-        variant="wide"
-        className="relative min-h-screen overflow-hidden"
-      >
-        <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.16),transparent_32%),radial-gradient(circle_at_top_right,rgba(16,185,129,0.12),transparent_28%),linear-gradient(to_bottom,rgba(2,6,23,0.02),transparent)]" />
-        <BookingListSkeleton />
-      </PageContainer>
-    )
+    // Refresh the booking list after cancellation without reloading the page.
+    refreshBookings()
   }
 
   return (
@@ -213,14 +213,16 @@ function BookingListPageContent({
         />
 
         <BookingListResults
+          isLoading={loadingSportCenters || isLoadingBookings}
           loadError={loadError}
           activeBookings={activeBookings}
           hasActiveFilters={hasActiveFilters}
           pagination={paginationView}
           onConfirmBooking={handleConfirmBooking}
           onCancelBooking={handleCancelBooking}
+          onRefreshBookings={refreshBookings}
           onResetFilters={resetFilters}
-          onRetry={() => window.location.reload()}
+          onRetry={refreshBookings}
           onPreviousPage={() => {
             if (!centerId || !paginationView.hasPreviousPage) return
             setCurrentPage((page) => Math.max(1, page - 1))

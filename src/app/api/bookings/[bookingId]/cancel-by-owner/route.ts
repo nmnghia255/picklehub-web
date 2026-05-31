@@ -6,14 +6,19 @@ type RouteContext = {
   params: Promise<{ bookingId: string }>
 }
 
-export async function POST(request: Request, context: RouteContext) {
+export async function PATCH(request: Request, context: RouteContext) {
   try {
     const { bookingId } = await context.params
+    const url = new URL(request.url)
+    const queryReason = url.searchParams.get("cancel_reason") ?? undefined
     const body = (await request.json().catch(() => ({}))) as {
       reason?: string
     }
 
-    const booking = await BookingService.cancelBooking(bookingId, body.reason)
+    const booking = await BookingService.cancelBooking(
+      bookingId,
+      queryReason ?? body.reason
+    )
 
     return NextResponse.json({ data: booking }, { status: 200 })
   } catch (error) {

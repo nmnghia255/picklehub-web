@@ -38,7 +38,7 @@ export async function cancelBookingAction(
 ) {
   try {
     await fetch(`/api/bookings/${bookingId}/cancel-by-owner`, {
-      method: "POST",
+      method: "PATCH",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
     })
