@@ -63,6 +63,11 @@ export interface CreditTransaction {
   transactions: Transaction[]
 }
 
+export type CreditTransactionType =
+  | "CANCELLATION_REFUND"
+  | "MANUAL_ADJUSTMENT"
+  | "BOOKING_PAYMENT"
+
 export type CreditStatus = "ACTIVE" | "PARTIALLY_USED" | "USED" | "EXPIRED"
 
 export type CancellationReason =
@@ -124,4 +129,13 @@ export interface CreditRecord {
 export interface CourtOption {
   value: string
   label: string
+}
+
+export interface CreditWallet {
+  centerId: string
+  centerName: string
+
+  creditBalance: number
+
+  latestCreditTransaction: CreditTransaction | null
 }

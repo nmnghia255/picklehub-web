@@ -3,7 +3,7 @@
 import type { DateRange } from "react-day-picker"
 import { create } from "zustand"
 
-import { MOCK_RESERVATIONS } from "../../../app/(protected)/sport-center-management/reservation-management/mock-data"
+import { MOCK_RESERVATIONS } from "../../../app/(protected)/sport-center-management/customer-management/mock-data"
 import type {
   ReservationRecord,
   ReservationStatus,
