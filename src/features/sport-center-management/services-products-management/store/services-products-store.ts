@@ -2,9 +2,10 @@
 
 import { create } from "zustand"
 
-import type { SportCenter } from "@/features/sport-center-management/api/sport-center-service"
-import { listOwnerSportCenters } from "@/features/sport-center-management/api/sport-center-service"
-
+import { listOwnerSportCentersAction } from "../../actions/sport-center-actions"
+import type { SportCenter } from "../../types/sport-center"
+// import type { SportCenter } from "@/features/sport-center-management/api/sport-center-service"
+// import { listOwnerSportCenters } from "@/features/sport-center-management/api/sport-center-service"
 import {
   createCenterProduct,
   createCenterService,
@@ -110,7 +111,7 @@ export const useServicesProductsStore = create<ServicesProductsState>(
       set({ loadingCenters: true })
 
       try {
-        const centers = await listOwnerSportCenters()
+        const centers = await listOwnerSportCentersAction()
         set({ centers })
 
         const { selectedCenterId } = get()

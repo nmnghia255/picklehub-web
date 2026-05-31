@@ -10,15 +10,16 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { formatDateTime } from "@/features/sport-center-management/revenue-report/utils/format"
-import type { Court } from "@/features/sport-center-management/types"
 
+import type { Court } from "../../types/court"
+// import type { Court } from "@/features/sport-center-management/types"
 import { CourtStatusBadge, CourtTypeBadge } from "./court-badges"
 
 function DetailBlock({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border bg-muted/20 p-3">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 text-sm font-medium break-words text-foreground">
+      <p className="mt-1 text-sm font-medium wrap-break-word text-foreground">
         {value}
       </p>
     </div>

@@ -58,3 +58,28 @@ export interface BulkCourtAvailability {
   courtCount: number
   courts: CourtAvailability[]
 }
+
+/**
+ * Pagination metadata for court list responses
+ */
+export interface CourtPaginationMeta {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
+
+/**
+ * Paginated court response from API
+ */
+export interface PaginatedCourtResponse {
+  data: Court[]
+  meta: CourtPaginationMeta
+}
+
+/**
+ * Envelope response with court array
+ */
+export interface CourtEnvelopeResponse {
+  data: Court[]
+}

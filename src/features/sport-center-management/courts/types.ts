@@ -1,4 +1,4 @@
-import type { Court } from "@/features/sport-center-management/types"
+import type { Court } from "@/features/sport-center-management/types/court"
 
 // ============================================================================
 // Court enums (aligned with sport-centers API)

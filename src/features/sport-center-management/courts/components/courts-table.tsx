@@ -12,8 +12,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import type { Court } from "@/features/sport-center-management/types"
 
+import type { Court } from "../../types/court"
 import { CourtStatusBadge, CourtTypeBadge } from "./court-badges"
 
 export function CourtsTable({

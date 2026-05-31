@@ -2,9 +2,10 @@
 
 import { create } from "zustand"
 
-import type { SportCenter } from "@/features/sport-center-management/api/sport-center-service"
-import { listOwnerSportCenters } from "@/features/sport-center-management/api/sport-center-service"
-
+import { listOwnerSportCentersAction } from "../../actions/sport-center-actions"
+import type { SportCenter } from "../../types/sport-center"
+// import type { SportCenter } from "@/features/sport-center-management/api/sport-center-service"
+// import { listOwnerSportCenters } from "@/features/sport-center-management/api/sport-center-service"
 import {
   exportRevenueCsv,
   getRevenueCancellations,
@@ -116,7 +117,7 @@ export const useRevenueReportStore = create<RevenueReportState>((set, get) => ({
     set({ loadingCenters: true })
 
     try {
-      const centers = await listOwnerSportCenters()
+      const centers = await listOwnerSportCentersAction()
       set({ centers })
     } catch (error) {
       console.error("[RevenueReport] fetchCenters error:", error)

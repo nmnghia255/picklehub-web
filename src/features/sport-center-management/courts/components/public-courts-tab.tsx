@@ -6,12 +6,12 @@ import { useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { useSession } from "@/features/auth/hooks/use-session"
+
 import type {
   Court,
   CourtEnvelopeResponse,
   PaginatedCourtResponse,
-} from "@/features/sport-center-management/types"
-
+} from "../../types/court"
 import { CourtDetailDrawer } from "./court-detail-drawer"
 import { CourtsTable } from "./courts-table"
 

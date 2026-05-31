@@ -8,8 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
-
-import { formatVnd } from "./expense-utils"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 export function ExpenseBreakdownCard({
   totalCourtExpense,
@@ -39,7 +38,7 @@ export function ExpenseBreakdownCard({
               {t("expenses.breakdown.totalExpense")}
             </p>
             <p className="mt-3 text-2xl font-semibold">
-              {formatVnd(totalCourtExpense)}
+              {formatCurrencyVnd(totalCourtExpense)}
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
               {t("expenses.breakdown.totalExpenseDescription")}
@@ -77,11 +76,11 @@ export function ExpenseBreakdownCard({
               {t("expenses.breakdown.costPerParticipant")}
             </p>
             <p className="mt-3 text-2xl font-semibold text-primary">
-              {formatVnd(costPerParticipant)}
+              {formatCurrencyVnd(costPerParticipant)}
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
               {t("expenses.breakdown.equation", {
-                total: formatVnd(totalCourtExpense),
+                total: formatCurrencyVnd(totalCourtExpense),
                 count: confirmedParticipants,
               })}
             </p>

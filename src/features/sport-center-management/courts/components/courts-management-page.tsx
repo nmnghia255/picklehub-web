@@ -137,9 +137,9 @@ export function CourtsManagementPage() {
                   className="flex flex-col items-start"
                 >
                   <span className="font-medium">{center.name}</span>
-                  {center.location ? (
+                  {center.address ? (
                     <span className="text-xs text-muted-foreground">
-                      {center.location}
+                      {center.address}
                     </span>
                   ) : null}
                 </DropdownMenuItem>

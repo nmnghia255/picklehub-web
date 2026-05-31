@@ -2,21 +2,23 @@
 
 import { create } from "zustand"
 
-import { listCenterCourts } from "@/features/sport-center-management/api/court-service"
-import type { SportCenter } from "@/features/sport-center-management/api/sport-center-service"
-import { listOwnerSportCenters } from "@/features/sport-center-management/api/sport-center-service"
-import type { Court } from "@/features/sport-center-management/types"
-
+import { listOwnerSportCentersAction } from "../../actions/sport-center-actions"
+import type { Court } from "../../types/court"
+import type { SportCenter } from "../../types/sport-center"
+// import { listCenterCourts } from "@/features/sport-center-management/api/court-service"
+// import type { SportCenter } from "@/features/sport-center-management/api/sport-center-service"
+// import { listOwnerSportCenters } from "@/features/sport-center-management/api/sport-center-service"
+// import type { Court } from "@/features/sport-center-management/types"
 import type { CourtStatus, CourtType } from "../types"
 
 export type CourtStatusFilter = CourtStatus | "all"
 export type CourtTypeFilter = CourtType | "all"
 
-function isPermissionError(error: unknown) {
-  if (!error || typeof error !== "object") return false
-  const status = (error as { response?: { status?: number } }).response?.status
-  return status === 401 || status === 403
-}
+// function isPermissionError(error: unknown) {
+//   if (!error || typeof error !== "object") return false
+//   const status = (error as { response?: { status?: number } }).response?.status
+//   return status === 401 || status === 403
+// }
 
 export type CourtsState = {
   centers: SportCenter[]
@@ -60,7 +62,7 @@ export const useCourtsStore = create<CourtsState>((set, get) => ({
     set({ loadingCenters: true })
 
     try {
-      const centers = await listOwnerSportCenters()
+      const centers = await listOwnerSportCentersAction()
       set({ centers })
 
       // Auto-select the first center when none is selected yet.
@@ -77,28 +79,25 @@ export const useCourtsStore = create<CourtsState>((set, get) => ({
   },
 
   fetchCourts: async () => {
-    const { selectedCenterId } = get()
-
-    if (!selectedCenterId) {
-      set({ courts: [] })
-      return
-    }
-
-    set({ loadingCourts: true })
-
-    try {
-      const { courts } = await listCenterCourts(selectedCenterId)
-      set({ courts, permissionDenied: false })
-    } catch (error) {
-      console.error("[Courts] fetchCourts error:", error)
-      set({
-        courts: [],
-        permissionDenied: isPermissionError(error),
-        error: "Không thể tải danh sách sân.",
-      })
-    } finally {
-      set({ loadingCourts: false })
-    }
+    // const { selectedCenterId } = get()
+    // if (!selectedCenterId) {
+    //   set({ courts: [] })
+    //   return
+    // }
+    // set({ loadingCourts: true })
+    // try {
+    //   // const { courts } = await listCenterCourts(selectedCenterId)
+    //   set({ courts, permissionDenied: false })
+    // } catch (error) {
+    //   console.error("[Courts] fetchCourts error:", error)
+    //   set({
+    //     courts: [],
+    //     permissionDenied: isPermissionError(error),
+    //     error: "Không thể tải danh sách sân.",
+    //   })
+    // } finally {
+    //   set({ loadingCourts: false })
+    // }
   },
 
   setSelectedCenter: (centerId) =>

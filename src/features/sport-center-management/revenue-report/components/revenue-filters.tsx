@@ -18,8 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import type { SportCenter } from "@/features/sport-center-management/api/sport-center-service"
+import type { SportCenter } from "@/features/sport-center/types/sport-center"
 
+// import type { SportCenter } from "@/features/sport-center-management/api/sport-center-service"
 import type { RevenueFilters } from "../store/revenue-store"
 import type { RevenueMethod, RevenueStatus } from "../types"
 
@@ -151,7 +152,7 @@ export function RevenueFiltersBar({
                         {center.name}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {center.location ?? "Không có địa chỉ"}
+                        {center.address ?? "Không có địa chỉ"}
                       </span>
                     </div>
                   </DropdownMenuCheckboxItem>

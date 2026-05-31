@@ -1,6 +1,6 @@
 import { Calendar, Filter } from "lucide-react"
 
-import type { Court } from "../../types"
+import type { Court } from "../../types/court"
 
 interface FiltersProps {
   date: string
