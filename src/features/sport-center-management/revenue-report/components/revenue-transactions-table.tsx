@@ -94,65 +94,63 @@ export function RevenueTransactionsTable({
   return (
     <div className="space-y-4">
       <div className="overflow-hidden rounded-3xl border bg-card shadow-sm">
-        <div className="max-h-[65vh] overflow-auto">
-          <Table>
-            <TableHeader className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/85">
-              <TableRow>
-                <TableHead>Mã giao dịch</TableHead>
-                <TableHead>Trung tâm</TableHead>
-                <TableHead>Ngày thanh toán</TableHead>
-                <TableHead>Trạng thái</TableHead>
-                <TableHead className="text-right">Tổng tiền</TableHead>
-                <TableHead className="text-right">Phí</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {transactions.map((transaction) => {
-                const fee = resolveFee(transaction)
-                return (
-                  <TableRow
-                    key={transaction.id}
-                    className={cn(
-                      "group cursor-pointer transition-colors hover:bg-accent/50"
-                    )}
-                    onClick={() => onRowClick(transaction)}
-                  >
-                    <TableCell className="font-medium text-foreground">
-                      {transaction.id}
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <p className="font-medium text-foreground">
-                          {transaction.center?.name ?? transaction.centerId}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {transaction.bookingId}
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {formatDate(resolveTransactionDate(transaction))}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={resolveStatusTone(transaction.status)}
-                      >
-                        {resolveStatusLabel(transaction.status)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {formatCurrencyVnd(transaction.amount)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {fee === null ? "-" : formatCurrencyVnd(fee)}
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-        </div>
+        <Table className="table-auto">
+          <TableHeader className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/85">
+            <TableRow>
+              <TableHead>Mã giao dịch</TableHead>
+              <TableHead>Trung tâm</TableHead>
+              <TableHead>Ngày thanh toán</TableHead>
+              <TableHead>Trạng thái</TableHead>
+              <TableHead className="text-right">Tổng tiền</TableHead>
+              <TableHead className="text-right">Phí</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {transactions.map((transaction) => {
+              const fee = resolveFee(transaction)
+              return (
+                <TableRow
+                  key={transaction.id}
+                  className={cn(
+                    "group cursor-pointer transition-colors hover:bg-accent/50"
+                  )}
+                  onClick={() => onRowClick(transaction)}
+                >
+                  <TableCell className="font-medium text-foreground">
+                    {transaction.id}
+                  </TableCell>
+                  <TableCell>
+                    <div className="space-y-1">
+                      <p className="font-medium text-foreground">
+                        {transaction.center?.name ?? transaction.centerId}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {transaction.bookingId}
+                      </p>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {formatDate(resolveTransactionDate(transaction))}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={resolveStatusTone(transaction.status)}
+                    >
+                      {resolveStatusLabel(transaction.status)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {formatCurrencyVnd(transaction.amount)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {fee === null ? "-" : formatCurrencyVnd(fee)}
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-card/60 px-4 py-3 text-sm text-muted-foreground">

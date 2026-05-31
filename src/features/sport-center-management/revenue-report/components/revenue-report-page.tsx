@@ -232,7 +232,7 @@ export function RevenueReportPage() {
           <TabsList>
             <TabsTrigger value="summary">Tổng quan</TabsTrigger>
             <TabsTrigger value="transactions">Giao dịch</TabsTrigger>
-            <TabsTrigger value="cancellations">Hủy/Hoàn tiền</TabsTrigger>
+            <TabsTrigger value="cancellations">Hủy / Hoàn tiền</TabsTrigger>
           </TabsList>
 
           <TabsContent value="summary" className="space-y-6">

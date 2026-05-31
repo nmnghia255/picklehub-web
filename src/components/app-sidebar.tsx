@@ -78,10 +78,6 @@ const sportCenterManagementMenuItems = [
     href: "/sport-center-management/courts",
   },
   {
-    title: "Dịch vụ & Sản phẩm",
-    href: "/sport-center-management/services-products",
-  },
-  {
     title: "Bảo lưu sân",
     href: "/sport-center-management/reservation-management",
   },
@@ -93,6 +89,10 @@ const sportCenterManagementMenuItems = [
     title: "Danh sách đặt sân",
     href: "/sport-center-management/booking-list",
     icon: CalendarClock,
+  },
+  {
+    title: "Dịch vụ & Sản phẩm",
+    href: "/sport-center-management/services-products",
   },
   {
     title: "Báo cáo doanh thu",

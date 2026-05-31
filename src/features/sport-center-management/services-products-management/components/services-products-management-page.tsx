@@ -316,9 +316,9 @@ export function ServicesProductsManagementPage() {
       <Tabs
         value={activeTab}
         onValueChange={(value) => setActiveTab(value as InventoryKind)}
-        className="space-y-4"
+        className="gap-4"
       >
-        <TabsList className="grid w-full grid-cols-2 sm:w-auto">
+        <TabsList>
           <TabsTrigger value="product" className="gap-2">
             Sản phẩm
             <Badge variant="secondary">{products.length}</Badge>
