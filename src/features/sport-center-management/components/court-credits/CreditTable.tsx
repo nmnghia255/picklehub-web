@@ -1,5 +1,7 @@
 "use client"
 
+import { formatDate } from "date-fns"
+
 import { Badge } from "@/components/ui/badge"
 import {
   Table,
@@ -11,11 +13,8 @@ import {
 } from "@/components/ui/table"
 import { useCourtCreditsTranslation } from "@/i18n/use-court-credits-translation"
 import { cn } from "@/lib/utils"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
-import {
-  formatCreditDate,
-  formatCurrencyVnd,
-} from "../../credit-management/court-credits-data"
 import type { CreditRecord } from "../../types/credit"
 import { ReasonBadge } from "./Badges"
 import CreditActionsDropdown from "./CreditActionsDropdown"
@@ -33,7 +32,7 @@ export function CreditTable({
   onCancelCredit: (credit: CreditRecord) => void
   onCreateManualCredit: (credit: CreditRecord) => void
 }) {
-  const { t, i18n } = useCourtCreditsTranslation()
+  const { t } = useCourtCreditsTranslation()
 
   return (
     <div className="overflow-hidden rounded-3xl border bg-card shadow-sm">
@@ -81,7 +80,7 @@ export function CreditTable({
                   {formatCurrencyVnd(credit.remainingAmount)}
                 </TableCell>
                 <TableCell>
-                  {formatCreditDate(credit.createdAt, i18n.language)}
+                  {formatDate(credit.createdAt, "MMMM d, yyyy")}
                 </TableCell>
                 <TableCell>
                   <ReasonBadge reason={credit.cancellationReason} />

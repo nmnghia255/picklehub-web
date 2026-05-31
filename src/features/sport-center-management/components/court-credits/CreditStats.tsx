@@ -4,8 +4,7 @@ import { BadgeDollarSign, Coins } from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { useCourtCreditsTranslation } from "@/i18n/use-court-credits-translation"
-
-import { formatCurrencyVnd } from "../../credit-management/court-credits-data"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 export function CreditStats({
   totalCreditValue,

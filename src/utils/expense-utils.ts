@@ -1,5 +1,3 @@
-import { BadgeCheck, Landmark } from "lucide-react"
-
 export type PaymentStatus = "paid" | "unpaid" | "refunded"
 
 // Backwards-compatible alias used across the expense components

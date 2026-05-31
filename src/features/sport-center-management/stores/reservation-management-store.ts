@@ -3,7 +3,7 @@
 import type { DateRange } from "react-day-picker"
 import { create } from "zustand"
 
-import { MOCK_RESERVATIONS } from "../../../app/(protected)/sport-center-management/customer-management/mock-data"
+// import { MOCK_RESERVATIONS } from "../../../app/(protected)/sport-center-management/customer-management/mock-data"
 import type {
   ReservationRecord,
   ReservationStatus,
@@ -22,6 +22,8 @@ export const DEFAULT_RESERVATION_STATUS_FILTER: "all" | ReservationStatus =
   "all"
 export const DEFAULT_RESERVATION_COURT_FILTER = "all"
 export const DEFAULT_RESERVATION_SORT: ReservationSortValue = "latest-hold"
+
+const MOCK_RESERVATIONS: ReservationRecord[] = []
 
 function createInitialReservations() {
   return MOCK_RESERVATIONS.map((reservation) => ({

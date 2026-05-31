@@ -3,7 +3,7 @@
 import type { DateRange } from "react-day-picker"
 import { create } from "zustand"
 
-import { MOCK_CREDITS } from "../credit-management/court-credits-data"
+// import { MOCK_CREDITS } from "../credit-management/court-credits-data"
 import type {
   CancellationReason,
   CreditRecord,
@@ -23,6 +23,8 @@ export const DEFAULT_CREDIT_STATUS_FILTER: "all" | CreditStatus = "all"
 export const DEFAULT_CANCELLATION_REASON_FILTER: "all" | CancellationReason =
   "all"
 export const DEFAULT_CREDIT_SORT: CreditSortValue = "latest-created"
+
+const MOCK_CREDITS: CreditRecord[] = []
 
 function cloneCredits() {
   return MOCK_CREDITS.map((credit) => ({

@@ -1,5 +1,6 @@
 "use client"
 
+import { formatDate } from "date-fns"
 import {
   CalendarDays,
   Coins,
@@ -18,12 +19,8 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { useCourtCreditsTranslation } from "@/i18n/use-court-credits-translation"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
-import {
-  formatCreditDate,
-  formatCreditDateTime,
-  formatCurrencyVnd,
-} from "../../credit-management/court-credits-data"
 import type { CreditRecord } from "../../types/credit"
 
 function DetailBlock({ label, value }: { label: string; value: string }) {
@@ -46,7 +43,7 @@ export function CreditDetailDrawer({
   onOpenChange: (open: boolean) => void
   onCancelCredit: (credit: CreditRecord) => void
 }) {
-  const { t, i18n } = useCourtCreditsTranslation()
+  const { t } = useCourtCreditsTranslation()
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -98,7 +95,7 @@ export function CreditDetailDrawer({
                   />
                   <DetailBlock
                     label={t("detail.bookingDate")}
-                    value={formatCreditDate(credit.bookingDate, i18n.language)}
+                    value={formatDate(credit.bookingDate, "MMMM d, yyyy")}
                   />
                   <DetailBlock
                     label={t("detail.timeSlot")}
@@ -123,10 +120,7 @@ export function CreditDetailDrawer({
                   />
                   <DetailBlock
                     label={t("detail.createdDate")}
-                    value={formatCreditDateTime(
-                      credit.createdAt,
-                      i18n.language
-                    )}
+                    value={formatDate(credit.createdAt, "MMMM d, yyyy")}
                   />
                 </div>
               </section>
@@ -178,10 +172,7 @@ export function CreditDetailDrawer({
                               })}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {formatCreditDateTime(
-                                entry.timestamp,
-                                i18n.language
-                              )}
+                              {formatDate(entry.timestamp, "MMMM d, yyyy")}
                               {" · "}
                               {t("detail.bookingLabel", {
                                 bookingId: entry.bookingId,

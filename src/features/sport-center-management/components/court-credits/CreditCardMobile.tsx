@@ -1,5 +1,6 @@
 "use client"
 
+import { formatDate } from "date-fns"
 import { CalendarDays, ReceiptText, ShieldCheck, UserRound } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -8,10 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useCourtCreditsTranslation } from "@/i18n/use-court-credits-translation"
 import { cn } from "@/lib/utils"
 
-import {
-  formatCreditDate,
-  formatCurrencyVnd,
-} from "../../credit-management/court-credits-data"
+import { formatCurrencyVnd } from "../../revenue-report/utils/format"
 import type { CreditRecord } from "../../types/credit"
 import { ReasonBadge } from "./Badges"
 import CreditActionsDropdown from "./CreditActionsDropdown"
@@ -29,7 +27,7 @@ export function CreditCardMobile({
   onCancelCredit: (credit: CreditRecord) => void
   onCreateManualCredit: (credit: CreditRecord) => void
 }) {
-  const { t, i18n } = useCourtCreditsTranslation()
+  const { t } = useCourtCreditsTranslation()
 
   return (
     <Card
@@ -56,7 +54,7 @@ export function CreditCardMobile({
               {t("mobile.created")}
             </div>
             <p className="font-medium">
-              {formatCreditDate(credit.createdAt, i18n.language)}
+              {formatDate(credit.createdAt, "MMMM d, yyyy")}
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
               {t("mobile.booking", { bookingId: credit.originalBookingId })}
