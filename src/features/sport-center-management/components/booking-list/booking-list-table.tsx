@@ -30,13 +30,13 @@ export function BookingListTable({
         <Table>
           <TableHeader className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/85">
             <TableRow>
-              <TableHead>Khách hàng</TableHead>
-              <TableHead>Số điện thoại</TableHead>
-              <TableHead>Ngày đặt</TableHead>
-              <TableHead>Tổng tiền</TableHead>
-              <TableHead>Ngày tạo</TableHead>
-              <TableHead>Trạng thái</TableHead>
-              <TableHead>Thao tác</TableHead>
+              <TableHead className="w-[20%]">Khách hàng</TableHead>
+              <TableHead className="w-[14%]">Số điện thoại</TableHead>
+              <TableHead className="w-[12%]">Ngày đặt</TableHead>
+              <TableHead className="w-[12%]">Tổng tiền</TableHead>
+              <TableHead className="w-[18%]">Ngày tạo</TableHead>
+              <TableHead className="w-[14%]">Trạng thái</TableHead>
+              <TableHead className="w-14 px-2 text-center">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

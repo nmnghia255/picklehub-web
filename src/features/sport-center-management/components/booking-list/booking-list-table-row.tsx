@@ -35,31 +35,37 @@ export function BookingListTableRow({
       )}
       onClick={() => onView(booking)}
     >
-      <TableCell>
+      <TableCell className="w-[28%]">
         <div className="space-y-1">
-          <p className="font-medium text-foreground">{booking.playerName}</p>
+          <p className="truncate font-medium text-foreground">
+            {booking.playerName}
+          </p>
         </div>
       </TableCell>
 
-      <TableCell>
+      <TableCell className="w-[14%]">
         <div className="space-y-1">
-          <p className="text-medium text-foreground">
+          <p className="text-medium truncate text-foreground">
             {booking.phoneNumber || "Chưa cập nhật"}
           </p>
         </div>
       </TableCell>
 
-      <TableCell>
+      <TableCell className="w-[12%]">
         <p className="text-medium text-foreground">
           {getDateOnly(booking.date)}
         </p>
       </TableCell>
 
-      <TableCell>{formatCurrency(booking.totalPrice)}</TableCell>
+      <TableCell className="w-[12%]">
+        {formatCurrency(booking.totalPrice)}
+      </TableCell>
 
-      <TableCell>{formatBookingCreatedAt(booking.createdAt)}</TableCell>
+      <TableCell className="w-[18%]">
+        {formatBookingCreatedAt(booking.createdAt)}
+      </TableCell>
 
-      <TableCell className="font-medium text-foreground">
+      <TableCell className="w-[14%] font-medium text-foreground">
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <BookingStatusBadge status={booking.status} />
@@ -67,7 +73,10 @@ export function BookingListTableRow({
         </div>
       </TableCell>
 
-      <TableCell onClick={(event) => event.stopPropagation()}>
+      <TableCell
+        className="w-14 px-2 text-center"
+        onClick={(event) => event.stopPropagation()}
+      >
         <BookingActionsDropdown
           booking={booking}
           onView={onView}

@@ -172,6 +172,7 @@ export default function Page() {
             if (!paginationView.hasNextPage) return
             setCurrentPage((page) => page + 1)
           }}
+          onRefresh={refreshBookings}
         />
       </section>
     </PageContainer>

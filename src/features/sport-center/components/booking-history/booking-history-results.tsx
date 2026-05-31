@@ -1,3 +1,7 @@
+"use client"
+
+import { useState } from "react"
+
 import {
   Pagination,
   PaginationContent,
@@ -7,8 +11,10 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import type { BookingResponse } from "@/features/sport-center/types/booking"
+import CancelReasonDialog from "@/features/sport-center-management/components/booking-list/cancel-reason-dialog"
 
 import type { BookingHistoryPagination } from "../../../../app/(protected)/sport-center/booking-history/booking-history.types"
+import { BookingHistoryDetailDialog } from "./booking-history-detail-dialog"
 import { BookingHistoryEmptyState } from "./booking-history-empty-state"
 import { BookingHistorySkeleton } from "./booking-history-skeleton"
 import { BookingHistoryTable } from "./booking-history-table"
@@ -23,6 +29,7 @@ interface BookingHistoryResultsProps {
   onResetFilters: () => void
   onPreviousPage: () => void
   onNextPage: () => void
+  onRefresh: () => void
 }
 
 export function BookingHistoryResults({
@@ -35,7 +42,12 @@ export function BookingHistoryResults({
   onResetFilters,
   onPreviousPage,
   onNextPage,
+  onRefresh,
 }: BookingHistoryResultsProps) {
+  const [selectedBooking, setSelectedBooking] =
+    useState<BookingResponse | null>(null)
+  const [cancelTarget, setCancelTarget] = useState<BookingResponse | null>(null)
+
   if (isLoading) {
     return <BookingHistorySkeleton />
   }
@@ -49,6 +61,29 @@ export function BookingHistoryResults({
         onAction={onRetry}
       />
     )
+  }
+
+  const handleCancelBooking = async (reason: string) => {
+    if (!cancelTarget) return
+
+    const response = await fetch(`/api/bookings/${cancelTarget.id}/cancel`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ reason }),
+    })
+
+    const payload = (await response.json().catch(() => ({}))) as {
+      message?: string
+    }
+
+    if (!response.ok) {
+      throw new Error(payload.message || "Không thể hủy lượt đặt sân")
+    }
+
+    setCancelTarget(null)
+    onRefresh()
   }
 
   if (bookings.length === 0) {
@@ -70,7 +105,26 @@ export function BookingHistoryResults({
 
   return (
     <>
-      <BookingHistoryTable bookings={bookings} />
+      <BookingHistoryTable
+        bookings={bookings}
+        onView={setSelectedBooking}
+        onCancel={setCancelTarget}
+      />
+
+      <BookingHistoryDetailDialog
+        booking={selectedBooking}
+        onClose={() => setSelectedBooking(null)}
+        onActionSuccess={onRefresh}
+      />
+
+      <CancelReasonDialog
+        open={Boolean(cancelTarget)}
+        onOpenChange={(open) => !open && setCancelTarget(null)}
+        title="Hủy lượt đặt sân"
+        description="Nhập lý do hủy để hệ thống ghi nhận lịch sử đặt sân của bạn."
+        submitLabel="Xác nhận hủy"
+        onSubmit={handleCancelBooking}
+      />
 
       {pagination.totalPages > 1 && (
         <div className="mt-auto flex justify-center pt-2">

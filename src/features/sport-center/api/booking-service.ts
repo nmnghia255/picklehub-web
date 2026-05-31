@@ -78,8 +78,8 @@ export const BookingService = {
     cancelReason: string
   ): Promise<BookingResponse> => {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.put(
-      `/api/bookings/${bookingId}/cancel?cancel_reason=${cancelReason}`
+    const response = await axios.patch(
+      `/api/bookings/${bookingId}/cancel?cancel_reason=${encodeURIComponent(cancelReason)}`
     )
     return unwrapApiResponse(response.data)
   },
