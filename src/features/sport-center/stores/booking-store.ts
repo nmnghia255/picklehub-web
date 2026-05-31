@@ -67,6 +67,7 @@ export function calculateBookingTotal(state: BookingTotalSource) {
 }
 
 interface BookingStore {
+  draftCenterId: string | null
   selectedDate: Date | undefined
   selectedCourts: SelectedCourts
   courtAvailability: BulkCourtAvailability | null
@@ -83,7 +84,7 @@ interface BookingStore {
   submitMessage: string
   submitError: string
   lastBookingId: string | null
-  initializeBooking: () => void
+  initializeBooking: (centerId?: string) => void
   setSelectedDate: (date: Date | undefined) => void
   toggleCourtSlot: (courtId: string, slot: string) => void
   setSelectedServices: Dispatch<SetStateAction<ServiceSelectionState>>
@@ -96,6 +97,7 @@ interface BookingStore {
 
 function getDefaultState() {
   return {
+    draftCenterId: null,
     selectedDate: new Date(),
     selectedCourts: {},
     courtAvailability: null,
@@ -118,10 +120,17 @@ function getDefaultState() {
 export const useBookingStore = create<BookingStore>((set, _get) => ({
   ...getDefaultState(),
 
-  initializeBooking: () =>
-    set(() => ({
-      ...getDefaultState(),
-    })),
+  initializeBooking: (centerId) =>
+    set((state) => {
+      if (centerId && state.draftCenterId === centerId) {
+        return state
+      }
+
+      return {
+        ...getDefaultState(),
+        draftCenterId: centerId ?? null,
+      }
+    }),
 
   setSelectedDate: (selectedDate) =>
     set((state) => {

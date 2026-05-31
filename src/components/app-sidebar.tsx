@@ -67,11 +67,6 @@ const coachMenuItems = [
 
 const sportCenterManagementMenuItems = [
   {
-    title: "Danh sách trung tâm",
-    href: "/sport-center-management/sport-center-list",
-    icon: Building2,
-  },
-  {
     title: "Quản lý sân",
     href: "/sport-center-management/courts-management",
   },

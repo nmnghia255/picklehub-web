@@ -33,7 +33,7 @@ export default function BookingPage() {
     let isActive = true
 
     if (centerId) {
-      initializeBooking()
+      initializeBooking(centerId)
 
       void (async () => {
         try {

@@ -15,7 +15,7 @@ type ProductSelectionState = Record<string, number>
 
 export type SubmitBookingPayload = {
   centerId: string
-  selectedDate: string
+  selectedDate: Date | undefined
   selectedCourts: SelectedCourts
   selectedServices: ServiceSelectionState
   selectedProducts: ProductSelectionState
@@ -46,31 +46,14 @@ async function buildBookingRequest(
     }))
     .filter((item) => item.quantity > 0)
 
-  const selectedServiceNames = payload.serviceItems
-    .filter((service) => payload.selectedServices[service.id])
-    .map((service) => service.name)
-
-  const selectedProductLines = payload.productItems
-    .map((product) => {
-      const quantity = payload.selectedProducts[product.id] ?? 0
-      return quantity > 0 ? `${product.name} x${quantity}` : ""
-    })
-    .filter(Boolean)
-
-  const noteParts = [payload.note.trim()]
-
   const session = await getSession()
   const sessionUser = session.user
   const playerName = sessionUser?.name ?? "Khách vãng lai"
   const phoneNumber = sessionUser?.phoneNumber ?? "0123456789"
-
-  if (selectedServiceNames.length > 0) {
-    noteParts.push(`Dịch vụ: ${selectedServiceNames.join(", ")}`)
-  }
-
-  if (selectedProductLines.length > 0) {
-    noteParts.push(`Sản phẩm: ${selectedProductLines.join(", ")}`)
-  }
+  const selectedDate = payload.selectedDate
+  const formattedDate = selectedDate
+    ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`
+    : ""
 
   const courtItems = Object.entries(payload.selectedCourts).flatMap(
     ([courtId, slots]) =>
@@ -86,8 +69,8 @@ async function buildBookingRequest(
   )
 
   return {
-    date: payload.selectedDate,
-    note: noteParts.filter(Boolean).join("\n"),
+    date: formattedDate,
+    note: payload.note.trim(),
     playerName: playerName,
     phoneNumber: phoneNumber,
     useCredit: payload.useCredit,

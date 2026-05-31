@@ -72,7 +72,7 @@ export const BookingService = {
     paymentProofUrl: string
   ): Promise<BookingResponse> => {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post(
+    const response = await axios.patch(
       `/api/bookings/${bookingId}/payment-proof`,
       { paymentProofUrl }
     )

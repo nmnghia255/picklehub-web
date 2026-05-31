@@ -6,18 +6,18 @@ type RouteContext = {
   params: Promise<{ bookingId: string }>
 }
 
-export async function POST(request: Request, context: RouteContext) {
+export async function PATCH(request: Request, context: RouteContext) {
   try {
     const { bookingId } = await context.params
     const body = (await request.json().catch(() => ({}))) as {
-      paymentProof?: string
+      paymentProofUrl?: string
     }
 
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post(
+    const response = await axios.patch(
       `/api/bookings/${bookingId}/payment-proof`,
       {
-        paymentProof: body.paymentProof,
+        paymentProofUrl: body.paymentProofUrl,
       }
     )
 

@@ -1,9 +1,9 @@
 "use client"
 
-import { CheckCircle2, Landmark } from "lucide-react"
-import { type ChangeEvent, useEffect, useState } from "react"
+import { Landmark } from "lucide-react"
+import { type ChangeEvent, useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
@@ -59,6 +59,8 @@ export function BookingConfirmationPaymentCard({
   const [paymentProofPreviewUrl, setPaymentProofPreviewUrl] = useState("")
   const [paymentProofError, setPaymentProofError] = useState("")
   const [isPreparingProof, setIsPreparingProof] = useState(false)
+  const loadingToastId = useRef<string | number | undefined>(undefined)
+  const wasSubmitting = useRef(false)
 
   useEffect(() => {
     return () => {
@@ -67,6 +69,45 @@ export function BookingConfirmationPaymentCard({
       }
     }
   }, [paymentProofPreviewUrl])
+
+  useEffect(() => {
+    if (isSubmitting && !wasSubmitting.current) {
+      loadingToastId.current = toast.loading("Đang gửi thanh toán...")
+    }
+
+    if (!isSubmitting && wasSubmitting.current && loadingToastId.current) {
+      toast.dismiss(loadingToastId.current)
+      loadingToastId.current = undefined
+    }
+
+    wasSubmitting.current = isSubmitting
+  }, [isSubmitting])
+
+  useEffect(() => {
+    if (!submitMessage) return
+
+    if (loadingToastId.current) {
+      toast.dismiss(loadingToastId.current)
+      loadingToastId.current = undefined
+    }
+
+    toast.success("Hoàn tất", {
+      description: submitMessage,
+    })
+  }, [submitMessage])
+
+  useEffect(() => {
+    if (!submitError) return
+
+    if (loadingToastId.current) {
+      toast.dismiss(loadingToastId.current)
+      loadingToastId.current = undefined
+    }
+
+    toast.error("Có lỗi xảy ra", {
+      description: submitError,
+    })
+  }, [submitError])
 
   const handlePaymentProofChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null
@@ -99,7 +140,7 @@ export function BookingConfirmationPaymentCard({
   const handleConfirm = async () => {
     try {
       if (requiresProof && !paymentProofFile) {
-        setPaymentProofError("Vui lòng tải lên ảnh chứng từ thanh toán.")
+        setPaymentProofError("Vui lòng tải lên ảnh minh chứng thanh toán.")
         return
       }
 
@@ -108,7 +149,7 @@ export function BookingConfirmationPaymentCard({
       setPaymentProofError(
         error instanceof Error
           ? error.message
-          : "Không thể xử lý ảnh chứng từ thanh toán."
+          : "Không thể xử lý ảnh minh chứng thanh toán."
       )
     } finally {
       setIsPreparingProof(false)
@@ -172,30 +213,15 @@ export function BookingConfirmationPaymentCard({
             <>
               <Spinner className="mr-2 size-4" />
               {isUploadingProof
-                ? "Đang tải ảnh chứng từ..."
+                ? "Đang tải ảnh minh chứng..."
                 : isPreparingProof
-                  ? "Đang đọc ảnh chứng từ..."
-                  : "Đang tạo booking..."}
+                  ? "Đang đọc ảnh minh chứng..."
+                  : "Đang tải..."}
             </>
           ) : (
             "Xác nhận"
           )}
         </Button>
-
-        {submitMessage && (
-          <Alert>
-            <CheckCircle2 className="size-4" />
-            <AlertTitle>Hoàn tất</AlertTitle>
-            <AlertDescription>{submitMessage}</AlertDescription>
-          </Alert>
-        )}
-
-        {submitError && (
-          <Alert variant="destructive">
-            <AlertTitle>Có lỗi xảy ra</AlertTitle>
-            <AlertDescription>{submitError}</AlertDescription>
-          </Alert>
-        )}
       </CardContent>
     </Card>
   )

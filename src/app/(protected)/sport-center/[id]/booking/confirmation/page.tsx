@@ -5,7 +5,7 @@ import { useMemo, useState } from "react"
 
 import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
-import { submitBookingsAction } from "@/features/sport-center/actions/submit-booking"
+import { submitBookingsAction } from "@/features/sport-center/actions/submit-booking-action"
 import { BookingConfirmationBookedSlotsCard } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-booked-slots-card"
 import { BookingConfirmationDetailsCard } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-details-card"
 import { BookingConfirmationEmptyState } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-empty-state"
@@ -48,16 +48,6 @@ function formatDate(value: Date | undefined) {
 function toNumber(value: number | string | null | undefined) {
   const parsed = Number(value)
   return Number.isFinite(parsed) ? parsed : 0
-}
-
-function formatBookingDate(value: Date | undefined) {
-  if (!value) return ""
-
-  const year = value.getFullYear()
-  const month = String(value.getMonth() + 1).padStart(2, "0")
-  const day = String(value.getDate()).padStart(2, "0")
-
-  return `${year}-${month}-${day}`
 }
 
 export default function BookingConfirmationPage() {
@@ -164,7 +154,7 @@ export default function BookingConfirmationPage() {
     try {
       const submitted = await submitBookingsAction({
         centerId: centerId,
-        selectedDate: formatBookingDate(bookingDraft.selectedDate),
+        selectedDate: bookingDraft.selectedDate,
         selectedCourts: Object.fromEntries(
           Object.entries(bookingDraft.selectedCourts).map(
             ([courtId, slots]) => [courtId, Array.from(slots)]
