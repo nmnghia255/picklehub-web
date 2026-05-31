@@ -72,6 +72,10 @@ const sportCenterManagementMenuItems = [
     title: "Bảo lưu sân",
     href: "/sport-center-management/reservation-management",
   },
+  {
+    title: "Báo cáo doanh thu",
+    href: "/sport-center-management/analytics",
+  },
 ]
 
 const COACH_MENU_STORAGE_KEY = "isCoachMenuOpen"
