@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useCourtCreditsTranslation } from "@/i18n/use-court-credits-translation"
 
-import type { CreditRecord } from "../../credit-management/court-credits-data"
+import type { CreditRecord } from "../../types/credit"
 
 export default function CreditActionsDropdown({
   credit,

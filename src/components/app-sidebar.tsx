@@ -3,6 +3,8 @@
 import { useAtomValue } from "jotai"
 import {
   BellRing,
+  Building2,
+  CalendarClock,
   CalendarDays,
   ChevronDown,
   History,
@@ -44,12 +46,15 @@ type SidebarItem = {
 const sidebarItems: SidebarItem[] = [
   { title: "Trang chủ", href: "/home", icon: House },
   { title: "Hồ sơ", href: "/profile", icon: UserRound },
-  { title: "Sân", href: "/sport-center", icon: MapPinned },
   { title: "Lịch sử", href: "/history", icon: History },
   { title: "Buổi chơi", href: "/socials", icon: CalendarDays },
   { title: "Nhóm", href: "/groups", icon: Users },
   { title: "Bạn bè", href: "/friend", icon: Users },
   { title: "Thông báo", href: "/feed", icon: BellRing },
+]
+const sportCenterMenuItems = [
+  { title: "Danh sách sân", href: "/sport-center" },
+  { title: "Lịch sử đặt sân", href: "/sport-center/booking-history" },
 ]
 
 const coachMenuItems = [
@@ -81,12 +86,22 @@ const sportCenterManagementMenuItems = [
     href: "/sport-center-management/reservation-management",
   },
   {
+    title: "Quản lý khách hàng",
+    href: "/sport-center-management/customer-management",
+  },
+  {
+    title: "Danh sách đặt sân",
+    href: "/sport-center-management/booking-list",
+    icon: CalendarClock,
+  },
+  {
     title: "Báo cáo doanh thu",
     href: "/sport-center-management/analytics",
   },
 ]
 
 const COACH_MENU_STORAGE_KEY = "isCoachMenuOpen"
+const SPORT_CENTER_MENU_STORAGE_KEY = "isSportCenterMenuOpen"
 const SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY =
   "isSportCenterManagementMenuOpen"
 
@@ -151,6 +166,15 @@ export function AppSidebar() {
 
     return window.sessionStorage.getItem(COACH_MENU_STORAGE_KEY) === "true"
   })
+  const [isSportCenterMenuOpen, setIsSportCenterMenuOpen] = useState(() => {
+    if (typeof window === "undefined") {
+      return false
+    }
+
+    return (
+      window.sessionStorage.getItem(SPORT_CENTER_MENU_STORAGE_KEY) === "true"
+    )
+  })
   const [isSportCenterManagementMenuOpen, setIsSportCenterManagementMenuOpen] =
     useState(() => {
       if (typeof window === "undefined") {
@@ -164,10 +188,12 @@ export function AppSidebar() {
       )
     })
   const isCoachPath = isActivePath(pathname, "/coach")
+  const isSportCenterPath = isActivePath(pathname, "/sport-center")
   const isSportCenterManagementPath = isActivePath(
     pathname,
     "/sport-center-management"
   )
+  const shouldShowSportCenterMenu = isSportCenterPath || isSportCenterMenuOpen
   const shouldShowCoachMenu = isCoachPath || isCoachMenuOpen
   const shouldShowSportCenterManagementMenu =
     isSportCenterManagementPath || isSportCenterManagementMenuOpen
@@ -187,7 +213,45 @@ export function AppSidebar() {
     })
   }
 
+  const handleSportCenterMenuToggle = () => {
+    setIsSportCenterMenuOpen((prev) => {
+      const next = !prev
+
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(
+          SPORT_CENTER_MENU_STORAGE_KEY,
+          String(next)
+        )
+      }
+
+      return next
+    })
+  }
+
+  const handleSportCenterManagementMenuToggle = () => {
+    setIsSportCenterManagementMenuOpen((prev) => {
+      const next = !prev
+
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(
+          SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY,
+          String(next)
+        )
+      }
+
+      return next
+    })
+  }
+
   const handlePrimaryItemClick = () => {
+    if (isSportCenterMenuOpen) {
+      setIsSportCenterMenuOpen(false)
+
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(SPORT_CENTER_MENU_STORAGE_KEY, "false")
+      }
+    }
+
     if (isCoachMenuOpen) {
       setIsCoachMenuOpen(false)
 
@@ -208,33 +272,70 @@ export function AppSidebar() {
     }
   }
 
-  const handleSportCenterManagementMenuToggle = () => {
-    setIsSportCenterManagementMenuOpen((prev) => {
-      const next = !prev
-
-      if (typeof window !== "undefined") {
-        window.sessionStorage.setItem(
-          SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY,
-          String(next)
-        )
-      }
-
-      return next
-    })
-  }
-
   return (
     <Sidebar variant="inset" collapsible="icon">
       <SidebarHeader>
         <SidebarLogo />
       </SidebarHeader>
 
-      {/* Sidebar Content */}
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {sidebarItems.map((item) => (
+              {sidebarItems.slice(0, 2).map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isActivePath(pathname, item.href)}
+                    tooltip={item.title}
+                  >
+                    <Link href={item.href} onClick={handlePrimaryItemClick}>
+                      <span className="relative inline-flex items-center justify-center">
+                        <item.icon className="size-4" />
+                      </span>
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={shouldShowSportCenterMenu}
+                  tooltip="Sân"
+                  onClick={handleSportCenterMenuToggle}
+                >
+                  <Building2 className="size-4" />
+                  <span>Sân</span>
+                  <ChevronDown
+                    className={cn(
+                      "ml-auto size-4 transition-transform",
+                      shouldShowSportCenterMenu && "rotate-180"
+                    )}
+                  />
+                </SidebarMenuButton>
+                {shouldShowSportCenterMenu && (
+                  <SidebarMenuSub>
+                    {sportCenterMenuItems.map((item) => (
+                      <SidebarMenuSubItem key={item.href}>
+                        <SidebarMenuSubButton
+                          asChild
+                          isActive={isActivePath(pathname, item.href)}
+                        >
+                          <Link
+                            href={item.href}
+                            onClick={handlePrimaryItemClick}
+                          >
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                )}
+              </SidebarMenuItem>
+
+              {sidebarItems.slice(2).map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
@@ -277,7 +378,10 @@ export function AppSidebar() {
                           asChild
                           isActive={isActivePath(pathname, item.href)}
                         >
-                          <Link href={item.href}>
+                          <Link
+                            href={item.href}
+                            onClick={handlePrimaryItemClick}
+                          >
                             <span>{item.title}</span>
                           </Link>
                         </SidebarMenuSubButton>

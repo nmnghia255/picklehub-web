@@ -13,10 +13,7 @@ import {
 } from "@/components/ui/select"
 import { useCourtCreditsTranslation } from "@/i18n/use-court-credits-translation"
 
-import type {
-  CancellationReason,
-  CourtOption,
-} from "../../credit-management/court-credits-data"
+import type { CancellationReason, CourtOption } from "../../types/credit"
 
 export function CreditFilters({
   search,

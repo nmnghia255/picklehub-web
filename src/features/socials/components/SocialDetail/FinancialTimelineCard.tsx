@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
-import { formatVnd } from "@/utils/expense-utils"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import type { FinancialTimelineRow } from "../../mock-data/expense-types"
 
@@ -64,7 +64,7 @@ export function FinancialTimelineCard({
                       variant="outline"
                       className="w-fit rounded-full px-3 py-1"
                     >
-                      {formatVnd(event.amount)}
+                      {formatCurrencyVnd(event.amount)}
                     </Badge>
                   </div>
                   <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">

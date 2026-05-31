@@ -4,10 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { useCourtCreditsTranslation } from "@/i18n/use-court-credits-translation"
 import { cn } from "@/lib/utils"
 
-import type {
-  CancellationReason,
-  CreditStatus,
-} from "../../credit-management/court-credits-data"
+import type { CancellationReason, CreditStatus } from "../../types/credit"
 
 export function CreditStatusBadge({
   status,
