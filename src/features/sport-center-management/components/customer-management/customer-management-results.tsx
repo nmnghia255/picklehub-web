@@ -18,6 +18,7 @@ interface CustomerManagementResultsProps {
   onResetFilters: () => void
   onPreviousPage: () => void
   onNextPage: () => void
+  onCustomerSelect: (customerId: string) => void
 }
 
 export function CustomerManagementResults({
@@ -30,6 +31,7 @@ export function CustomerManagementResults({
   onResetFilters,
   onPreviousPage,
   onNextPage,
+  onCustomerSelect,
 }: CustomerManagementResultsProps) {
   if (isPageLoading) {
     return <CustomerManagementSkeleton />
@@ -67,7 +69,10 @@ export function CustomerManagementResults({
 
   return (
     <>
-      <CustomerManagementTable customers={customers} />
+      <CustomerManagementTable
+        customers={customers}
+        onCustomerSelect={onCustomerSelect}
+      />
       <CustomerManagementPagination
         pagination={pagination}
         onPreviousPage={onPreviousPage}

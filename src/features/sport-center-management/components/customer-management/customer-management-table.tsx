@@ -13,10 +13,12 @@ import { CustomerManagementTableRow } from "./customer-management-table-row"
 
 interface CustomerManagementTableProps {
   customers: CustomerListItem[]
+  onCustomerSelect: (customerId: string) => void
 }
 
 export function CustomerManagementTable({
   customers,
+  onCustomerSelect,
 }: CustomerManagementTableProps) {
   return (
     <div className="overflow-hidden rounded-3xl border bg-card shadow-sm">
@@ -37,6 +39,7 @@ export function CustomerManagementTable({
               <CustomerManagementTableRow
                 key={customer.customer.id}
                 customer={customer}
+                onSelect={onCustomerSelect}
               />
             ))}
           </TableBody>

@@ -1,4 +1,5 @@
 import type { CustomerListResponse } from "../types/customer"
+import type { CustomerDetailResponse } from "../types/customer"
 
 interface ErrorPayload {
   message?: string
@@ -42,6 +43,66 @@ function normalizeListCustomersPayload(payload: unknown): CustomerListResponse {
     scope: { centerId: null, centers: [] },
     data: [],
     pagination: { total: 0, limit: 20, offset: 0 },
+  }
+}
+
+function normalizeCustomerDetailPayload(
+  payload: unknown
+): CustomerDetailResponse {
+  if (payload && typeof payload === "object") {
+    if (
+      "scope" in payload &&
+      "customer" in payload &&
+      "summary" in payload &&
+      "byCenter" in payload &&
+      "recentBookings" in payload &&
+      "creditWallets" in payload
+    ) {
+      return payload as CustomerDetailResponse
+    }
+
+    if ("data" in payload) {
+      const nested = (payload as { data?: unknown }).data
+      if (
+        nested &&
+        typeof nested === "object" &&
+        "scope" in nested &&
+        "customer" in nested &&
+        "summary" in nested &&
+        "byCenter" in nested &&
+        "recentBookings" in nested &&
+        "creditWallets" in nested
+      ) {
+        return nested as CustomerDetailResponse
+      }
+    }
+  }
+
+  return {
+    scope: { centerId: null, centers: [] },
+    customer: {
+      id: "",
+      name: "",
+      email: "",
+      avatarUrl: null,
+      phoneNumber: "",
+    },
+    summary: {
+      visitCount: 0,
+      completedVisitCount: 0,
+      confirmedVisitCount: 0,
+      pendingVisitCount: 0,
+      cancelledVisitCount: 0,
+      totalSpend: 0,
+      cancelledSpend: 0,
+      creditBalance: 0,
+      cancelledRefundAmount: 0,
+      firstVisitAt: null,
+      lastVisitAt: null,
+    },
+    byCenter: [],
+    recentBookings: [],
+    creditWallets: [],
   }
 }
 
@@ -103,5 +164,34 @@ export const CustomerService = {
     }
 
     return normalizeListCustomersPayload(payload)
+  },
+
+  getCustomerDetail: async function getCustomerDetail(
+    customerId: string
+  ): Promise<CustomerDetailResponse> {
+    const response = await fetch(`/api/sport-centers/customers/${customerId}`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+
+    const payload = (await response.json().catch(() => ({}))) as
+      | ErrorPayload
+      | CustomerDetailResponse
+      | { data?: unknown }
+
+    if (!response.ok) {
+      const message =
+        payload &&
+        typeof payload === "object" &&
+        "message" in payload &&
+        typeof (payload as ErrorPayload).message === "string"
+          ? (payload as ErrorPayload).message
+          : "Không thể tải chi tiết khách hàng"
+
+      throw new Error(message)
+    }
+
+    return normalizeCustomerDetailPayload(payload)
   },
 }

@@ -1,20 +1,20 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { useEffect, useMemo } from "react"
 
 import { PageContainer } from "@/components/page-container"
 import { CustomerManagementFilters } from "@/features/sport-center-management/components/customer-management/customer-management-filters"
 import { CustomerManagementPageHeader } from "@/features/sport-center-management/components/customer-management/customer-management-page-header"
 import { CustomerManagementResults } from "@/features/sport-center-management/components/customer-management/customer-management-results"
-import { CustomerManagementStatsCards } from "@/features/sport-center-management/components/customer-management/customer-management-stats-cards"
 import { useCourtScheduleStore } from "@/features/sport-center-management/stores/court-schedule-store"
 import { useCustomerManagementStore } from "@/features/sport-center-management/stores/customer-management-store"
 
 const PAGE_SIZE = 20
 
 export default function CustomerManagementPage() {
+  const router = useRouter()
   const sportCenters = useCourtScheduleStore((state) => state.sportCenters)
-  const centerId = useCourtScheduleStore((state) => state.centerId)
   const loadingSportCenters = useCourtScheduleStore(
     (state) => state.loadingSportCenters
   )
@@ -73,29 +73,6 @@ export default function CustomerManagementPage() {
     }
   }, [customers.length, currentPage, pagination?.limit, pagination?.total])
 
-  const stats = useMemo(() => {
-    const totalVisits = customers.reduce(
-      (sum, item) => sum + item.summary.visitCount,
-      0
-    )
-    const totalSpend = customers.reduce(
-      (sum, item) => sum + item.summary.totalSpend,
-      0
-    )
-    const totalCreditBalance = customers.reduce(
-      (sum, item) => sum + item.summary.creditBalance,
-      0
-    )
-
-    return {
-      totalCustomers: pagination?.total ?? customers.length,
-      visibleCustomers: customers.length,
-      totalVisits,
-      totalSpend,
-      totalCreditBalance,
-    }
-  }, [customers, pagination?.total])
-
   const hasActiveFilters = keyword.trim().length > 0
 
   const isPageLoading = loadingSportCenters || isLoading
@@ -110,8 +87,6 @@ export default function CustomerManagementPage() {
       <div className="pointer-events-none absolute top-16 right-0 -z-10 h-56 w-56 rounded-full bg-sky-500/10 blur-3xl" />
 
       <CustomerManagementPageHeader selectedCenterName={selectedCenterName} />
-
-      {/* <CustomerManagementStatsCards stats={stats} /> */}
 
       <section className="space-y-5">
         <CustomerManagementFilters
@@ -137,6 +112,11 @@ export default function CustomerManagementPage() {
           onNextPage={() => {
             if (!paginationView.hasNextPage) return
             setCurrentPage(currentPage + 1)
+          }}
+          onCustomerSelect={(customerId) => {
+            router.push(
+              `/sport-center-management/customer-management/${customerId}`
+            )
           }}
         />
       </section>

@@ -1,6 +1,5 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
 import { TableCell, TableRow } from "@/components/ui/table"
 import { formatCurrency } from "@/features/sport-center-management/components/booking-list/booking-list.utils"
 import { BookingStatusBadge } from "@/features/sport-center-management/components/booking-list/booking-status-badge"
@@ -14,15 +13,31 @@ import {
 
 interface CustomerManagementTableRowProps {
   customer: CustomerListItem
+  onSelect: (customerId: string) => void
 }
 
 export function CustomerManagementTableRow({
   customer,
+  onSelect,
 }: CustomerManagementTableRowProps) {
   const { summary, latestBooking } = customer
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTableRowElement>) => {
+    if (event.key !== "Enter" && event.key !== " ") return
+
+    event.preventDefault()
+    onSelect(customer.customer.id)
+  }
+
   return (
-    <TableRow className={cn("transition-colors hover:bg-accent/50")}>
+    <TableRow
+      className={cn(
+        "cursor-pointer transition-colors hover:bg-accent/50 focus-visible:bg-accent/50 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none focus-visible:ring-inset"
+      )}
+      tabIndex={0}
+      onClick={() => onSelect(customer.customer.id)}
+      onKeyDown={handleKeyDown}
+    >
       <TableCell className="w-[30%] whitespace-normal">
         <div className="space-y-1">
           <p className="font-medium text-foreground">
