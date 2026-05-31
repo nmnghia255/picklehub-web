@@ -41,17 +41,34 @@ export const BookingService = {
     return unwrapApiResponse(response.data)
   },
 
-  getMyBookings: async (
-    status: BookingStatus,
-    courtId: string,
-    centerId: string,
-    date: string,
-    limit: number,
-    offset: number
-  ): Promise<MyBookingsResponse> => {
+  getMyBookings: async ({
+    status,
+    courtId,
+    centerId,
+    date,
+    limit = 20,
+    offset = 0,
+  }: {
+    status?: BookingStatus | ""
+    courtId?: string
+    centerId?: string
+    date?: string
+    limit?: number
+    offset?: number
+  } = {}): Promise<MyBookingsResponse> => {
     const axios = await getAuthenticatedAxios()
+    const searchParams = new URLSearchParams()
+
+    if (status) searchParams.set("status", status)
+    if (courtId) searchParams.set("courtId", courtId)
+    if (centerId) searchParams.set("centerId", centerId)
+    if (date) searchParams.set("date", date)
+
+    searchParams.set("limit", String(limit))
+    searchParams.set("offset", String(offset))
+
     const response = await axios.get(
-      `/api/bookings/me?status=${status}&courtId=${courtId}&centerId=${centerId}&date=${date}&limit=${limit}&offset=${offset}`
+      `/api/bookings/me?${searchParams.toString()}`
     )
     return unwrapApiResponse(response.data)
   },
