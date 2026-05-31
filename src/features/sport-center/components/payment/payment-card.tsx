@@ -9,10 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
 
-import BankTransferProof from "./BankTransferProof"
-import CreditPaymentInfo from "./CreditPaymentInfo"
-import PaymentBankInfo from "./PaymentBankInfo"
-import PaymentMethodSelector from "./PaymentMethodSelector"
+import BankTransferProof from "./bank-transfer-proof"
+import CreditPaymentInfo from "./credit-payment-info"
+import PaymentBankInfo from "./payment-bank-info"
 
 type BookingConfirmationPaymentCardProps = {
   paymentAccountName: string

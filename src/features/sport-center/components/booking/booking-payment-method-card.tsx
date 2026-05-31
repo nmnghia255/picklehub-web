@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 import { useBookingStore } from "../../stores/booking-store"
-import { PaymentMethodSelector } from "../payment/PaymentMethodSelector"
+import { PaymentMethodSelector } from "../booking-confirmation/payment-method-selector"
 
 export function BookingPaymentMethodCard() {
   const useCredit = useBookingStore((state) => state.useCredit)

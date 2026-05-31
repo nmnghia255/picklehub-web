@@ -10,31 +10,25 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BookingTabContent } from "@/features/sport-center/components/sport-center-listing/booking-tab-content"
+import {} from /* Tabs removed */ "@/components/ui/tabs"
 import { SportCenterTabContent } from "@/features/sport-center/components/sport-center-listing/sport-center-tab-content"
 import {
   type SportCenterPaginationState,
-  type SportCenterTab,
   useSportCenterStore,
 } from "@/features/sport-center/stores/sport-center-store"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
 
 interface SportCenterBrowserProps {
   sportCenters: SportCenter[]
-  bookedSportCenters: SportCenter[]
   favoriteOnly: boolean
   pagination: SportCenterPaginationState
 }
 
 export function SportCenterBrowser({
   sportCenters,
-  bookedSportCenters,
   favoriteOnly,
   pagination,
 }: SportCenterBrowserProps) {
-  const activeTab = useSportCenterStore((state) => state.activeTab)
-  const setActiveTab = useSportCenterStore((state) => state.setActiveTab)
   const searchQuery = useSportCenterStore((state) => state.searchQuery)
   const setSearchQuery = useSportCenterStore((state) => state.setSearchQuery)
   const setFavoriteFilter = useSportCenterStore(
@@ -72,30 +66,20 @@ export function SportCenterBrowser({
 
   return (
     <div className="flex flex-1 flex-col">
-      <Tabs
-        value={activeTab}
-        onValueChange={(value) => setActiveTab(value as SportCenterTab)}
-      >
-        <div className="mb-6 flex justify-center">
-          <TabsList className="w-full max-w-xl">
-            <TabsTrigger value="sport-center">Sân</TabsTrigger>
-            <TabsTrigger value="booking">Sân đã đặt</TabsTrigger>
-          </TabsList>
+      <div className="mb-6 flex justify-center">
+        <div className="w-full max-w-xl">
+          <h2 className="sr-only">Sân</h2>
         </div>
+      </div>
 
-        <TabsContent value="sport-center" className="space-y-6">
-          <SportCenterTabContent
-            filteredSportCenters={filteredSportCenters}
-            activePagination={activePagination}
-            searchQuery={searchQuery}
-            onSearchQueryChange={setSearchQuery}
-          />
-        </TabsContent>
-
-        <TabsContent value="booking" className="space-y-4">
-          <BookingTabContent bookedSportCenters={bookedSportCenters} />
-        </TabsContent>
-      </Tabs>
+      <div className="space-y-6">
+        <SportCenterTabContent
+          filteredSportCenters={filteredSportCenters}
+          activePagination={activePagination}
+          searchQuery={searchQuery}
+          onSearchQueryChange={setSearchQuery}
+        />
+      </div>
 
       <div className="mt-auto flex justify-center pt-6">
         <Pagination className="w-full">
