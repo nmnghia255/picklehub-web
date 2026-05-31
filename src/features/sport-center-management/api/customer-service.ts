@@ -1,43 +1,68 @@
-import { getAuthenticatedAxios } from "@/lib/server-api"
+import type { CustomerListResponse } from "../types/customer"
 
-import type {
-  CustomerDetailResponse,
-  CustomerListResponse,
-} from "../types/customer"
-
-interface ApiResponse<T> {
-  success: boolean
-  message: string
-  data: T
+interface ErrorPayload {
+  message?: string
 }
 
-function unwrapApiResponse<T>(payload: ApiResponse<T> | T): T {
-  if (
-    payload &&
-    typeof payload === "object" &&
-    "success" in payload &&
-    "data" in payload
-  ) {
-    return (payload as ApiResponse<T>).data
+type ListCustomersParams = {
+  centerId?: string | null
+  keyword?: string | null
+  name?: string | null
+  phone?: string | null
+  email?: string | null
+  lastVisitFrom?: string | null
+  lastVisitTo?: string | null
+  minSpend?: number | null
+  maxSpend?: number | null
+  limit: number
+  offset: number
+}
+
+function normalizeListCustomersPayload(payload: unknown): CustomerListResponse {
+  if (payload && typeof payload === "object") {
+    if ("scope" in payload && "data" in payload && "pagination" in payload) {
+      return payload as CustomerListResponse
+    }
+
+    if ("data" in payload) {
+      const nested = (payload as { data?: unknown }).data
+      if (
+        nested &&
+        typeof nested === "object" &&
+        "scope" in nested &&
+        "data" in nested &&
+        "pagination" in nested
+      ) {
+        return nested as CustomerListResponse
+      }
+    }
   }
-  return payload as T
+
+  return {
+    scope: { centerId: null, centers: [] },
+    data: [],
+    pagination: { total: 0, limit: 20, offset: 0 },
+  }
 }
 
 export const CustomerService = {
   listCustomers: async function listCustomers(
-    centerId?: string,
-    keyword?: string | null,
-    name?: string | null,
-    phone?: string | null,
-    email?: string | null,
-    lastVisitFrom?: string | null,
-    lastVisitTo?: string | null,
-    minSpend?: number | null,
-    maxSpend?: number | null,
-    limit: number = 20,
-    offset: number = 0
+    params?: ListCustomersParams
   ): Promise<CustomerListResponse> {
-    const axios = await getAuthenticatedAxios()
+    const {
+      centerId,
+      keyword,
+      name,
+      phone,
+      email,
+      lastVisitFrom,
+      lastVisitTo,
+      minSpend,
+      maxSpend,
+      limit = 20,
+      offset = 0,
+    } = params ?? {}
+
     const searchParams = new URLSearchParams()
     if (centerId) searchParams.set("centerId", centerId)
     if (keyword) searchParams.set("keyword", keyword)
@@ -51,22 +76,32 @@ export const CustomerService = {
     searchParams.set("limit", String(limit))
     searchParams.set("offset", String(offset))
 
-    const response = await axios.get(
-      `/api/sport-centers/customers/list?${searchParams.toString()}`
+    const response = await fetch(
+      `/api/sport-centers/customers/list?${searchParams.toString()}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
     )
-    return unwrapApiResponse(response.data)
-  },
 
-  getCustomerProfile: async function getCustomerProfile(
-    customerId: string,
-    centerId?: string | null
-  ): Promise<CustomerDetailResponse> {
-    const axios = await getAuthenticatedAxios()
-    const searchParams = new URLSearchParams()
-    if (centerId) searchParams.set("centerId", centerId)
-    const response = await axios.get(
-      `/api/customers/${customerId}/profile?${searchParams.toString()}`
-    )
-    return unwrapApiResponse(response.data)
+    const payload = (await response.json().catch(() => ({}))) as
+      | ErrorPayload
+      | CustomerListResponse
+      | { data?: unknown }
+
+    if (!response.ok) {
+      const message =
+        payload &&
+        typeof payload === "object" &&
+        "message" in payload &&
+        typeof (payload as ErrorPayload).message === "string"
+          ? (payload as ErrorPayload).message
+          : "Không thể tải danh sách khách hàng"
+
+      throw new Error(message)
+    }
+
+    return normalizeListCustomersPayload(payload)
   },
 }

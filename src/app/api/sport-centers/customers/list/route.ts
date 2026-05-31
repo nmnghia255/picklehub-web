@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { CustomerService } from "@/features/sport-center-management/api/customer-service"
-
-type RouteContext = {
-  params: Promise<{ centerId: string }>
-}
+import { getAuthenticatedAxios } from "@/lib/server-api"
 
 function parseNumberOrNull(value: string | null) {
   if (value == null || value.trim() === "") return null
@@ -13,9 +9,8 @@ function parseNumberOrNull(value: string | null) {
   return Number.isNaN(parsed) ? null : parsed
 }
 
-export async function GET(request: Request, context: RouteContext) {
+export async function GET(request: Request) {
   try {
-    const { centerId } = await context.params
     const url = new URL(request.url)
 
     const keyword = url.searchParams.get("keyword")
@@ -29,21 +24,23 @@ export async function GET(request: Request, context: RouteContext) {
     const limit = parseNumberOrNull(url.searchParams.get("limit")) ?? 20
     const offset = parseNumberOrNull(url.searchParams.get("offset")) ?? 0
 
-    const response = await CustomerService.listCustomers(
-      centerId,
-      keyword,
-      name,
-      phone,
-      email,
-      lastVisitFrom,
-      lastVisitTo,
-      minSpend,
-      maxSpend,
-      limit,
-      offset
-    )
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.get("/api/sport-centers/customers/list", {
+      params: {
+        keyword,
+        name,
+        phone,
+        email,
+        lastVisitFrom,
+        lastVisitTo,
+        minSpend,
+        maxSpend,
+        limit,
+        offset,
+      },
+    })
 
-    return NextResponse.json(response, { status: 200 })
+    return NextResponse.json(response.data, { status: 200 })
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Failed to load customers"

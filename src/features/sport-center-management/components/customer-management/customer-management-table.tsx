@@ -24,11 +24,12 @@ export function CustomerManagementTable({
         <Table>
           <TableHeader className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/85">
             <TableRow>
-              <TableHead className="w-[30%]">Khách hàng</TableHead>
-              <TableHead className="w-[16%]">Liên hệ</TableHead>
-              <TableHead className="w-[20%]">Lượt ghé thăm</TableHead>
-              <TableHead className="w-[16%]">Chi tiêu</TableHead>
-              <TableHead className="w-[18%]">Lần gần nhất</TableHead>
+              <TableHead className="w-[18%]">Khách hàng</TableHead>
+              <TableHead className="w-[14%]">Liên hệ</TableHead>
+              <TableHead className="w-[14%]">Lượt ghé thăm</TableHead>
+              <TableHead className="w-[18%]">Số lần đặt sân</TableHead>
+              <TableHead className="w-[14%]">Chi tiêu</TableHead>
+              <TableHead className="w-[14%]">Lần gần nhất</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

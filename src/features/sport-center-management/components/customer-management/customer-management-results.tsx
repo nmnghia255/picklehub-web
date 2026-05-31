@@ -10,7 +10,6 @@ import { CustomerManagementTable } from "./customer-management-table"
 
 interface CustomerManagementResultsProps {
   isPageLoading: boolean
-  centerId: string | null
   loadError: string | null
   customers: CustomerListItem[]
   hasActiveFilters: boolean
@@ -23,7 +22,6 @@ interface CustomerManagementResultsProps {
 
 export function CustomerManagementResults({
   isPageLoading,
-  centerId,
   loadError,
   customers,
   hasActiveFilters,
@@ -35,17 +33,6 @@ export function CustomerManagementResults({
 }: CustomerManagementResultsProps) {
   if (isPageLoading) {
     return <CustomerManagementSkeleton />
-  }
-
-  if (!centerId) {
-    return (
-      <CustomerManagementEmptyState
-        title="Chọn sân để xem khách hàng"
-        description="Danh sách khách hàng sẽ thay đổi theo sân bạn đang quản lý."
-        actionLabel="Làm mới"
-        onAction={onRefreshCustomers}
-      />
-    )
   }
 
   if (loadError) {

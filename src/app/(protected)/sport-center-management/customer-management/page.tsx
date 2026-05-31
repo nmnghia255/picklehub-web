@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo } from "react"
 
 import { PageContainer } from "@/components/page-container"
 import { CustomerManagementFilters } from "@/features/sport-center-management/components/customer-management/customer-management-filters"
@@ -22,6 +22,9 @@ export default function CustomerManagementPage() {
     (state) => state.fetchSportCenters
   )
   const customers = useCustomerManagementStore((state) => state.customers)
+  const centerFilterId = useCustomerManagementStore(
+    (state) => state.centerFilterId
+  )
   const isLoading = useCustomerManagementStore((state) => state.isLoading)
   const loadError = useCustomerManagementStore((state) => state.loadError)
   const keyword = useCustomerManagementStore((state) => state.keyword)
@@ -47,16 +50,12 @@ export default function CustomerManagementPage() {
   }, [fetchSportCenters, sportCenters.length])
 
   useEffect(() => {
-    setCurrentPage(1)
-  }, [centerId])
-
-  useEffect(() => {
-    void loadCustomers(centerId, PAGE_SIZE)
-  }, [centerId, currentPage, keyword, refreshKey, loadCustomers])
+    void loadCustomers(PAGE_SIZE)
+  }, [centerFilterId, currentPage, keyword, refreshKey, loadCustomers])
 
   const selectedCenter = useMemo(
-    () => sportCenters.find((center) => center.id === centerId) ?? null,
-    [centerId, sportCenters]
+    () => sportCenters.find((center) => center.id === centerFilterId) ?? null,
+    [centerFilterId, sportCenters]
   )
 
   const paginationView = useMemo(() => {
@@ -100,7 +99,7 @@ export default function CustomerManagementPage() {
   const hasActiveFilters = keyword.trim().length > 0
 
   const isPageLoading = loadingSportCenters || isLoading
-  const selectedCenterName = selectedCenter?.name ?? "Chọn sân"
+  const selectedCenterName = selectedCenter?.name ?? "Tất cả sân"
 
   return (
     <PageContainer
@@ -112,7 +111,7 @@ export default function CustomerManagementPage() {
 
       <CustomerManagementPageHeader selectedCenterName={selectedCenterName} />
 
-      <CustomerManagementStatsCards stats={stats} />
+      {/* <CustomerManagementStatsCards stats={stats} /> */}
 
       <section className="space-y-5">
         <CustomerManagementFilters
@@ -125,7 +124,6 @@ export default function CustomerManagementPage() {
 
         <CustomerManagementResults
           isPageLoading={isPageLoading}
-          centerId={centerId}
           loadError={loadError}
           customers={customers}
           hasActiveFilters={hasActiveFilters}

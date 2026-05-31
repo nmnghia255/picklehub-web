@@ -31,7 +31,7 @@ export function CustomerManagementTableRow({
           <p className="text-sm text-muted-foreground">
             {customer.customer.email}
           </p>
-          <div className="flex flex-wrap items-center gap-2 pt-1">
+          {/* <div className="flex flex-wrap items-center gap-2 pt-1">
             <Badge variant="outline" className="rounded-full">
               {summary.centerCount} trung tâm
             </Badge>
@@ -43,7 +43,7 @@ export function CustomerManagementTableRow({
                 {center.centerName}
               </span>
             ))}
-          </div>
+          </div> */}
         </div>
       </TableCell>
 
@@ -58,12 +58,22 @@ export function CustomerManagementTableRow({
           <p className="font-medium text-foreground">
             {summary.visitCount} lượt
           </p>
-          <p className="text-sm text-muted-foreground">
-            {formatVisitBreakdown(summary)}
-          </p>
           <p className="text-xs text-muted-foreground">
             Lần cuối: {formatDateTimeLong(summary.lastVisitAt)}
           </p>
+        </div>
+      </TableCell>
+
+      <TableCell className="w-[18%] whitespace-normal">
+        <div className="space-y-2">
+          <p className="font-medium text-foreground">
+            Tổng: {summary.visitCount}
+          </p>
+          <div className="flex flex-wrap gap-1">
+            <p className="text-sm text-muted-foreground">
+              {formatVisitBreakdown(summary)}
+            </p>
+          </div>
         </div>
       </TableCell>
 
