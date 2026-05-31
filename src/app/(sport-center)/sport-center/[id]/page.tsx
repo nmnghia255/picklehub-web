@@ -2,6 +2,7 @@
 
 import { Clock3, Heart, Mail, MapPin, Phone, Star } from "lucide-react"
 import Link from "next/link"
+import { useParams } from "next/navigation"
 
 import { PageContainer } from "@/components/page-container"
 import { Badge } from "@/components/ui/badge"
@@ -9,11 +10,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { sportCenterInfo } from "@/features/sport-center/mock-data/sport-center-info"
+import { PublicCourtsTab } from "@/features/sport-center-management/courts/components/public-courts-tab"
 import { ProductCard } from "@/features/sport-center-management/services-products/components/product-card"
 import { ServiceCard } from "@/features/sport-center-management/services-products/components/service-card"
 import { MOCK_COURT_INVENTORY } from "@/features/sport-center-management/services-products/mock-data"
 
 export default function SportCenterInformationPage() {
+  const params = useParams<{ id: string }>()
+  const centerId = params?.id ?? ""
   return (
     <PageContainer variant="wide" className="space-y-6">
       <Card className="overflow-hidden py-0">
@@ -74,6 +78,7 @@ export default function SportCenterInformationPage() {
       <Tabs defaultValue="introduction" className="w-full">
         <TabsList className="h-auto w-full flex-wrap justify-start">
           <TabsTrigger value="introduction">Giới thiệu</TabsTrigger>
+          <TabsTrigger value="courts">Sân</TabsTrigger>
           <TabsTrigger value="service">Dịch vụ</TabsTrigger>
           <TabsTrigger value="images">Hình ảnh</TabsTrigger>
           <TabsTrigger value="policy">Điều khoản & quy định</TabsTrigger>
@@ -87,6 +92,21 @@ export default function SportCenterInformationPage() {
               <p className="text-sm text-muted-foreground">
                 {sportCenterInfo.introduction}
               </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="courts">
+          <Card>
+            <CardContent className="space-y-4 p-6">
+              <div>
+                <h2 className="text-lg font-semibold">Danh sách sân</h2>
+                <p className="text-sm text-muted-foreground">
+                  Xem các sân hiện có tại trung tâm này.
+                </p>
+              </div>
+
+              <PublicCourtsTab centerId={centerId} />
             </CardContent>
           </Card>
         </TabsContent>
