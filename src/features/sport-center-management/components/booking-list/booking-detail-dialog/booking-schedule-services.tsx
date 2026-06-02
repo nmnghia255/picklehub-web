@@ -12,13 +12,13 @@ interface Props {
 export function BookingScheduleServices({ booking }: Props) {
   return (
     <section className="space-y-4 rounded-3xl border bg-card p-4 shadow-sm">
-      <div className="flex items-center gap-2 text-sm font-semibold">
-        <ReceiptText className="size-4 text-slate-500" />
+      <div className="text-md flex items-center gap-2 font-semibold">
+        <ReceiptText className="size-5 text-slate-500" />
         Chi tiết lịch và dịch vụ
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border bg-muted/20 p-4">
-          <div className="mb-3 text-sm font-medium">Danh sách sân</div>
+          <div className="text-md mb-3 font-medium">Danh sách sân</div>
           <div className="space-y-2 text-sm text-muted-foreground">
             {(booking.bookingItems?.length ?? 0) > 0 ? (
               booking.bookingItems.map((item) => (
@@ -41,7 +41,7 @@ export function BookingScheduleServices({ booking }: Props) {
         </div>
 
         <div className="rounded-2xl border bg-muted/20 p-4">
-          <div className="mb-3 text-sm font-medium">Dịch vụ và sản phẩm</div>
+          <div className="text-md mb-3 font-medium">Dịch vụ và sản phẩm</div>
           <div className="space-y-4 text-sm text-muted-foreground">
             <div>
               <div className="mb-2 flex items-center gap-2 font-medium text-foreground">

@@ -1,6 +1,6 @@
 "use client"
 
-import { CalendarDays, Clock3 } from "lucide-react"
+import { CalendarDays, Clock3, NotepadText } from "lucide-react"
 
 import type { Booking } from "../../../types/booking"
 import { formatBookingDate } from "../booking-list.utils"
@@ -8,15 +8,15 @@ import { BookingDetailField } from "./booking-detail-field"
 
 interface Props {
   booking: Booking
-  courtName: string
-  timeRange: string
+  note: string
+  startTime: string
 }
 
-export function BookingInfoSection({ booking, courtName, timeRange }: Props) {
+export function BookingInfoSection({ booking, note, startTime }: Props) {
   return (
     <section className="space-y-4 rounded-3xl border bg-card p-4 shadow-sm">
-      <div className="flex items-center gap-2 text-sm font-semibold">
-        <CalendarDays className="size-4 text-emerald-500" />
+      <div className="text-md flex items-center gap-2 font-semibold">
+        <CalendarDays className="size-5 text-emerald-500" />
         Thông tin đặt sân
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -27,9 +27,9 @@ export function BookingInfoSection({ booking, courtName, timeRange }: Props) {
           toneClassName="text-emerald-500"
         />
         <BookingDetailField
-          label="Tên sân"
-          value={courtName}
-          icon={CalendarDays}
+          label="Giờ bắt đầu"
+          value={startTime}
+          icon={Clock3}
           toneClassName="text-emerald-500"
         />
         <BookingDetailField
@@ -39,9 +39,9 @@ export function BookingInfoSection({ booking, courtName, timeRange }: Props) {
           toneClassName="text-emerald-500"
         />
         <BookingDetailField
-          label="Khung giờ"
-          value={timeRange}
-          icon={Clock3}
+          label="Ghi chú"
+          value={note}
+          icon={NotepadText}
           toneClassName="text-emerald-500"
         />
       </div>
