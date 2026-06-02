@@ -124,7 +124,7 @@ function SidebarLogo() {
   const isDark = resolvedTheme === "dark"
 
   return (
-    <div className="flex items-center gap-2 px-3 py-4">
+    <div className="flex items-center gap-2 py-4">
       <div
         className={cn(
           "flex shrink-0 items-center justify-center rounded-xl transition-colors",

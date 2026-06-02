@@ -7,15 +7,13 @@ import { BookingHistoryFilters } from "@/features/sport-center/components/bookin
 import { BookingHistoryPageHeader } from "@/features/sport-center/components/booking-history/booking-history-page-header"
 import { BookingHistoryResults } from "@/features/sport-center/components/booking-history/booking-history-results"
 import type {
+  BookingHistoryPagination,
+  BookingHistoryStatusFilter,
   BookingResponse,
   MyBookingsResponse,
 } from "@/features/sport-center/types/booking"
 
-import type {
-  BookingHistoryPagination,
-  BookingHistoryStatusFilter,
-} from "./booking-history.types"
-import { sortBookingsByNewest } from "./booking-history.utils"
+import { sortBookingsByNewest } from "../../../../features/sport-center/components/booking-history/booking-history.utils"
 
 const PAGE_SIZE = 20
 
@@ -152,7 +150,6 @@ export default function Page() {
             setCurrentPage(1)
             setDateFilter(value)
           }}
-          onRefresh={refreshBookings}
           onResetFilters={resetFilters}
         />
 

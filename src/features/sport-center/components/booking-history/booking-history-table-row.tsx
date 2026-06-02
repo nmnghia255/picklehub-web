@@ -12,7 +12,7 @@ import {
   formatBookingCourtSummary,
   formatBookingTimeSummary,
   getBookingHistoryItems,
-} from "../../../../app/(protected)/sport-center/booking-history/booking-history.utils"
+} from "./booking-history.utils"
 import { BookingHistoryActionsDropdown } from "./booking-history-actions-dropdown"
 
 interface BookingHistoryTableRowProps {
