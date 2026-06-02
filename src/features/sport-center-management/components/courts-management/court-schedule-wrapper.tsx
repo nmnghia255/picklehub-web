@@ -34,7 +34,7 @@ export function CourtScheduleWrapper({
     return (
       <div className="rounded-md border border-border bg-background p-6 text-center">
         <p className="text-sm text-muted-foreground">
-          Vui lòng chọn sân bạn quản lý để xem lịch và đặt sân.
+          Vui lòng chọn trung tâm bạn quản lý để xem lịch và đặt sân.
         </p>
       </div>
     )

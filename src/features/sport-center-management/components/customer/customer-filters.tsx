@@ -1,4 +1,4 @@
-import { FilterX, Search } from "lucide-react"
+import { Filter, FilterX, Search } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -8,24 +8,26 @@ import { CustomerSportCenterSelector } from "./customer-sport-center-selector"
 
 interface CustomerManagementFiltersProps {
   keyword: string
-  hasActiveFilters: boolean
   onKeywordChange: (value: string) => void
   onResetFilters: () => void
-  onRefreshCustomers: () => void
 }
 
 export function CustomerManagementFilters({
   keyword,
-  hasActiveFilters,
   onKeywordChange,
   onResetFilters,
-  onRefreshCustomers,
 }: CustomerManagementFiltersProps) {
   return (
-    <div className="sticky top-4 z-30 -mx-1">
-      <Card className="border bg-background/95 shadow-lg shadow-slate-950/5 backdrop-blur supports-backdrop-filter:bg-background/85">
-        <CardContent className="flex flex-wrap items-center gap-3 p-4 sm:p-5">
-          <div className="relative min-w-55 flex-1">
+    <section className="space-y-4 rounded-3xl border bg-card/60 p-4 shadow-sm">
+      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+        <Filter className="size-4" />
+        <span>Bộ lọc</span>
+      </div>
+
+      <div className="grid gap-3 lg:grid-cols-[minmax(200px,1.3fr)_auto_auto]">
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">Từ khóa</p>
+          <div className="relative">
             <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={keyword}
@@ -34,20 +36,21 @@ export function CustomerManagementFilters({
               className="pl-9"
             />
           </div>
+        </div>
 
-          <div className="w-full sm:w-auto">
-            <CustomerSportCenterSelector />
-          </div>
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">Trung tâm</p>
+          <CustomerSportCenterSelector />
+        </div>
 
-          <div className="ml-auto flex">
-            <Button variant="outline" onClick={onResetFilters}>
-              <FilterX className="size-4" />
-              <span className="ml-2">Xóa bộ lọc</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+        <div className="flex items-end gap-2">
+          <Button variant="outline" onClick={onResetFilters}>
+            <FilterX className="size-4" />
+            <span className="ml-2">Đặt lại</span>
+          </Button>
+        </div>
+      </div>
+    </section>
   )
 }
 

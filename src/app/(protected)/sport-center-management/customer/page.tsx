@@ -95,10 +95,8 @@ export default function CustomerManagementPage() {
       <section className="space-y-5">
         <CustomerManagementFilters
           keyword={keyword}
-          hasActiveFilters={hasActiveFilters}
           onKeywordChange={setKeyword}
           onResetFilters={resetFilters}
-          onRefreshCustomers={refreshCustomers}
         />
 
         <CustomerManagementResults

@@ -43,19 +43,6 @@ export function CustomerManagementTableRow({
           <p className="text-sm text-muted-foreground">
             {customer.customer.email}
           </p>
-          {/* <div className="flex flex-wrap items-center gap-2 pt-1">
-            <Badge variant="outline" className="rounded-full">
-              {summary.centerCount} trung tâm
-            </Badge>
-            {customer.centers.slice(0, 2).map((center) => (
-              <span
-                key={center.centerId}
-                className="text-xs text-muted-foreground"
-              >
-                {center.centerName}
-              </span>
-            ))}
-          </div> */}
         </div>
       </TableCell>
 
@@ -95,7 +82,7 @@ export function CustomerManagementTableRow({
             {formatCurrency(summary.totalSpend)}
           </p>
           <p className="text-sm text-muted-foreground">
-            Dư credit: {formatCurrency(summary.creditBalance)}
+            Số dư: {formatCurrency(summary.creditBalance)}
           </p>
         </div>
       </TableCell>
@@ -111,7 +98,7 @@ export function CustomerManagementTableRow({
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Chưa có booking gần nhất
+            Chưa có đặt sân gần nhất
           </p>
         )}
       </TableCell>

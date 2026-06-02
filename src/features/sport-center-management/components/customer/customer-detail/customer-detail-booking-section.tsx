@@ -19,13 +19,13 @@ export function CustomerDetailBookingSection({
   recentBookings,
 }: CustomerDetailBookingSectionProps) {
   return (
-    <section className="space-y-4 rounded-3xl border bg-card p-4 shadow-sm">
+    <section className="space-y-3 rounded-3xl border bg-card p-4 shadow-sm">
       <CustomerDetailSectionTitle
         icon={CalendarDays}
         title="Lịch sử đặt sân gần đây"
         toneClassName="text-violet-500"
       />
-      <div className="space-y-3">
+      <div className="space-y-2">
         {recentBookings.length > 0 ? (
           recentBookings.map((booking) => (
             <RecentBookingCard key={booking.id} booking={booking} />
@@ -40,18 +40,18 @@ export function CustomerDetailBookingSection({
 
 function RecentBookingCard({ booking }: { booking: RecentBooking }) {
   return (
-    <div className="space-y-3 rounded-2xl border bg-background/80 p-4 shadow-sm">
+    <div className="space-y-2 rounded-2xl border bg-background/80 p-3 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-medium text-foreground">{booking.center.name}</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {formatDateTimeLong(booking.createdAt)}
           </p>
         </div>
         <BookingStatusBadge status={booking.status} />
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-2 sm:grid-cols-3">
         <CustomerDetailValueCard
           label="Tổng tiền"
           value={formatCurrency(booking.totalPrice)}

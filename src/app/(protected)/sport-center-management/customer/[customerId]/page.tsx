@@ -61,12 +61,13 @@ export default function CustomerDetailPage() {
   }
 
   return (
-    <PageContainer variant="wide" className="space-y-6 py-6">
+    <PageContainer
+      variant="wide"
+      className="space-y-4 py-4 text-[15px] md:space-y-5 md:py-6 md:text-base"
+    >
       <CustomerDetailPageHeader
         customerName={customerName}
-        onBack={() =>
-          router.push("/sport-center-management/customer-management")
-        }
+        onBack={() => router.back()}
       />
 
       {!customerId ? (
@@ -74,12 +75,7 @@ export default function CustomerDetailPage() {
           title="Không tìm thấy khách hàng"
           description="Mã khách hàng không hợp lệ hoặc bị thiếu trong đường dẫn."
         >
-          <Button
-            variant="outline"
-            onClick={() =>
-              router.push("/sport-center-management/customer-management")
-            }
-          >
+          <Button variant="outline" onClick={() => router.back()}>
             Quay lại danh sách
           </Button>
         </CustomerDetailNoticeCard>
@@ -108,7 +104,7 @@ export default function CustomerDetailPage() {
       ) : null}
 
       {!isLoading && detail ? (
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-5">
           <CustomerDetailProfileCard detail={detail} />
           <CustomerDetailSummaryGrid detail={detail} />
           <CustomerDetailBasicInfoSection detail={detail} />

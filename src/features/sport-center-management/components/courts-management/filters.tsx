@@ -31,6 +31,8 @@ export function Filters({
     <div className="dark:bg-surface flex items-center justify-between border-b border-border bg-background p-4">
       <div className="flex items-center gap-4">
         <Filter className="h-4 w-4 text-muted-foreground" />
+        <span className="text-sm text-muted-foreground">Bộ lọc</span>
+
         <div className="flex items-center gap-2">
           {/* Calendar Filter */}
           <DropdownMenu>

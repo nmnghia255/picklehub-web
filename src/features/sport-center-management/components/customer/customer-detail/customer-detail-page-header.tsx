@@ -14,8 +14,8 @@ export function CustomerDetailPageHeader({
   onBack,
 }: CustomerDetailPageHeaderProps) {
   return (
-    <section className="flex flex-wrap items-start justify-between gap-4">
-      <div className="space-y-2">
+    <section className="flex flex-wrap items-start justify-between gap-3">
+      <div className="space-y-1.5">
         <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur">
           <UserRound className="size-3.5 text-sky-500" />
           Chi tiết khách hàng
@@ -24,7 +24,7 @@ export function CustomerDetailPageHeader({
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
             {customerName || "Đang tải khách hàng"}
           </h1>
-          <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
+          <p className="max-w-2xl text-base text-muted-foreground sm:text-lg">
             Trang tổng quan khách hàng riêng, gọn hơn dialog để xem nhanh hồ sơ,
             thống kê và lịch sử gần đây.
           </p>
