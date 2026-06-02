@@ -41,19 +41,16 @@ export function CourtScheduleWrapper({
   }
 
   return (
-    <div className="flex w-full flex-col gap-0 overflow-hidden">
-      <div className="shrink-0 pb-4">
-        <Filters
-          date={date}
-          setDate={setDate}
-          courtFilter={courtFilter}
-          setCourtFilter={setCourtFilter}
-          courts={courts}
-        />
-      </div>
-      <div className="min-h-0 flex-1 overflow-hidden">
-        <CourtSchedule ownerMode={ownerMode} center={selectedCenter} />
-      </div>
+    <div className="mt-4 w-full min-w-0 gap-0 overflow-hidden">
+      <Filters
+        date={date}
+        setDate={setDate}
+        courtFilter={courtFilter}
+        setCourtFilter={setCourtFilter}
+        courts={courts}
+      />
+
+      <CourtSchedule ownerMode={ownerMode} center={selectedCenter} />
     </div>
   )
 }

@@ -5,7 +5,7 @@ import { CalendarDays, Coins, Wallet } from "lucide-react"
 import { formatCurrency } from "@/features/sport-center-management/components/booking-list/booking-list.utils"
 import type { CustomerCenter } from "@/features/sport-center-management/types/customer"
 
-import { formatDateTimeLong } from "../customer-management.utils"
+import { formatDateTimeLong } from "../customer.utils"
 import { CustomerDetailEmptyState } from "./customer-detail-empty-state"
 import { CustomerDetailSectionTitle } from "./customer-detail-section-title"
 import { CustomerDetailValueCard } from "./customer-detail-value-card"

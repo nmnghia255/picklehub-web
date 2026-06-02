@@ -6,7 +6,7 @@ import { formatCurrency } from "@/features/sport-center-management/components/bo
 import { BookingStatusBadge } from "@/features/sport-center-management/components/booking-list/booking-status-badge"
 import type { RecentBooking } from "@/features/sport-center-management/types/customer"
 
-import { formatDateTimeLong } from "../customer-management.utils"
+import { formatDateTimeLong } from "../customer.utils"
 import { CustomerDetailEmptyState } from "./customer-detail-empty-state"
 import { CustomerDetailSectionTitle } from "./customer-detail-section-title"
 import { CustomerDetailValueCard } from "./customer-detail-value-card"

@@ -4,9 +4,9 @@ import { useRouter } from "next/navigation"
 import { useEffect, useMemo } from "react"
 
 import { PageContainer } from "@/components/page-container"
-import { CustomerManagementFilters } from "@/features/sport-center-management/components/customer-management/customer-management-filters"
-import { CustomerManagementPageHeader } from "@/features/sport-center-management/components/customer-management/customer-management-page-header"
-import { CustomerManagementResults } from "@/features/sport-center-management/components/customer-management/customer-management-results"
+import { CustomerManagementFilters } from "@/features/sport-center-management/components/customer/customer-filters"
+import { CustomerManagementPageHeader } from "@/features/sport-center-management/components/customer/customer-page-header"
+import { CustomerManagementResults } from "@/features/sport-center-management/components/customer/customer-results"
 import { useCourtScheduleStore } from "@/features/sport-center-management/stores/court-schedule-store"
 import { useCustomerManagementStore } from "@/features/sport-center-management/stores/customer-management-store"
 
@@ -78,6 +78,10 @@ export default function CustomerManagementPage() {
   const isPageLoading = loadingSportCenters || isLoading
   const selectedCenterName = selectedCenter?.name ?? "Tất cả sân"
 
+  const handleCustomerSelect = (customerId: string) => {
+    router.push(`/sport-center-management/customer/${customerId}`)
+  }
+
   return (
     <PageContainer
       variant="wide"
@@ -113,11 +117,7 @@ export default function CustomerManagementPage() {
             if (!paginationView.hasNextPage) return
             setCurrentPage(currentPage + 1)
           }}
-          onCustomerSelect={(customerId) => {
-            router.push(
-              `/sport-center-management/customer-management/${customerId}`
-            )
-          }}
+          onCustomerSelect={handleCustomerSelect}
         />
       </section>
     </PageContainer>

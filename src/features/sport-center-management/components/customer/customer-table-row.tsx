@@ -6,10 +6,7 @@ import { BookingStatusBadge } from "@/features/sport-center-management/component
 import type { CustomerListItem } from "@/features/sport-center-management/types/customer"
 import { cn } from "@/lib/utils"
 
-import {
-  formatDateTimeLong,
-  formatVisitBreakdown,
-} from "./customer-management.utils"
+import { formatDateTimeLong, formatVisitBreakdown } from "./customer.utils"
 
 interface CustomerManagementTableRowProps {
   customer: CustomerListItem

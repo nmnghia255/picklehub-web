@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import type { CustomerDetailResponse } from "@/features/sport-center-management/types/customer"
 
-import { formatDateTimeLong } from "../customer-management.utils"
+import { formatDateTimeLong } from "../customer.utils"
 
 interface CustomerDetailProfileCardProps {
   detail: CustomerDetailResponse

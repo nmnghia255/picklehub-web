@@ -101,12 +101,11 @@ export function CourtSchedule({
   }
 
   return (
-    <div className="max-w-full overflow-hidden">
+    <div className="w-full overflow-x-auto">
       <div
         className="grid gap-px bg-border"
         style={{
-          width: "max-content",
-          gridTemplateColumns: `120px repeat(${timeSlots.length}, minmax(120px, 1fr))`,
+          gridTemplateColumns: `120px repeat(${timeSlots.length}, 140px)`,
         }}
       >
         {/* Header Row */}
@@ -114,7 +113,7 @@ export function CourtSchedule({
         {timeSlots.map((time) => (
           <div
             key={time}
-            className="dark:bg-surface bg-background p-4 text-center text-sm text-muted-foreground"
+            className="dark:bg-surface bg-background p-4 text-center text-sm text-foreground"
           >
             {time}
           </div>
@@ -145,7 +144,7 @@ export function CourtSchedule({
           ))}
       </div>
 
-      {/* <BookingDetailModal
+      <BookingDetailModal
         booking={selectedBooking}
         onClose={closeBooking}
         onCancel={handleCancelBooking}
@@ -155,7 +154,7 @@ export function CourtSchedule({
       <QuickBookingModal
         onClose={closeQuickBooking}
         onCreate={handleCreateBooking}
-      /> */}
+      />
     </div>
   )
 }

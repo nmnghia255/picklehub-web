@@ -28,7 +28,7 @@ export function Filters({
   courts,
 }: FiltersProps) {
   return (
-    <div className="dark:bg-surface flex max-w-full items-center justify-between overflow-hidden border-b border-border bg-background p-4">
+    <div className="dark:bg-surface flex items-center justify-between border-b border-border bg-background p-4">
       <div className="flex items-center gap-4">
         <Filter className="h-4 w-4 text-muted-foreground" />
         <div className="flex items-center gap-2">
