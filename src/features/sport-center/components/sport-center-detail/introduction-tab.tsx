@@ -32,7 +32,7 @@ function getCourtTypeBadgeClassName(court: CourtResponse) {
 
 export function IntroductionTab({ description, courts }: IntroductionTabProps) {
   return (
-    <Card>
+    <Card className="gap-0 py-0">
       <CardContent className="space-y-3 p-6">
         <div className="space-y-2">
           <h2 className="text-lg font-semibold tracking-tight">Giới thiệu</h2>

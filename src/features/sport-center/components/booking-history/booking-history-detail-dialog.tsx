@@ -90,7 +90,7 @@ export function BookingHistoryDetailDialog({
                 note={displayNote}
                 startTime={startTime}
               />
-
+              {/* 
               <section className="space-y-4 rounded-3xl border bg-card p-4 shadow-sm">
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="rounded-2xl border bg-background/80 p-3 shadow-sm">
@@ -124,7 +124,7 @@ export function BookingHistoryDetailDialog({
                     {displayNote}
                   </p>
                 </div>
-              </section>
+              </section> */}
 
               <BookingPaymentSection booking={booking} />
 

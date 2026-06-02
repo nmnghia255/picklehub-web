@@ -17,7 +17,7 @@ export function FeedbackTab({ reviews, centerId }: FeedbackTabProps) {
   const [reviewList, setReviewList] = useState(reviews)
 
   return (
-    <Card>
+    <Card className="gap-0 py-0">
       <CardContent className="space-y-4 p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-semibold">Đánh giá</h2>

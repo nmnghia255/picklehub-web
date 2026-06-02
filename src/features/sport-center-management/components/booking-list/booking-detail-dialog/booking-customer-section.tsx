@@ -1,6 +1,6 @@
 "use client"
 
-import { UserRound } from "lucide-react"
+import { Phone, UserRound } from "lucide-react"
 
 import type { Booking } from "../../../types/booking"
 import { BookingDetailField } from "./booking-detail-field"
@@ -26,7 +26,7 @@ export function BookingCustomerSection({ booking }: Props) {
         <BookingDetailField
           label="Số điện thoại"
           value={booking.phoneNumber || "Chưa cập nhật"}
-          icon={UserRound}
+          icon={Phone}
           toneClassName="text-sky-500"
         />
       </div>
