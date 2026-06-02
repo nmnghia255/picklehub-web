@@ -4,19 +4,21 @@ import { useEffect } from "react"
 
 import { useCourtScheduleStore } from "../../stores/court-schedule-store"
 import { CourtSchedule } from "./court-schedule"
+import { Filters } from "./filters"
 
 type CourtScheduleWrapperProps = {
   ownerMode?: boolean
-  centerId?: string
 }
 
 export function CourtScheduleWrapper({
   ownerMode = false,
-  centerId,
 }: CourtScheduleWrapperProps) {
   const sportCenters = useCourtScheduleStore((s) => s.sportCenters)
   const selectedCenterId = useCourtScheduleStore((s) => s.centerId)
   const fetchSportCenters = useCourtScheduleStore((s) => s.fetchSportCenters)
+
+  const { courts, date, courtFilter, setDate, setCourtFilter } =
+    useCourtScheduleStore()
 
   useEffect(() => {
     // ensure sport centers are loaded so selection state is accurate
@@ -24,6 +26,7 @@ export function CourtScheduleWrapper({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const centerId = useCourtScheduleStore((state) => state.centerId)
   const activeCenterId = centerId ?? selectedCenterId
   const selectedCenter = sportCenters.find((c) => c.id === activeCenterId)
 
@@ -37,5 +40,20 @@ export function CourtScheduleWrapper({
     )
   }
 
-  return <CourtSchedule ownerMode={ownerMode} />
+  return (
+    <div className="flex w-full flex-col gap-0 overflow-hidden">
+      <div className="shrink-0 pb-4">
+        <Filters
+          date={date}
+          setDate={setDate}
+          courtFilter={courtFilter}
+          setCourtFilter={setCourtFilter}
+          courts={courts}
+        />
+      </div>
+      <div className="min-h-0 flex-1 overflow-hidden">
+        <CourtSchedule ownerMode={ownerMode} center={selectedCenter} />
+      </div>
+    </div>
+  )
 }
