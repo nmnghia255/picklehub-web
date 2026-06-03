@@ -1,7 +1,5 @@
 "use client"
 
-import React from "react"
-
 import SocialListing from "@/features/socials/components/social-listing"
 
 export default function Page() {

@@ -44,6 +44,7 @@ export function Header({ user }: HeaderProps) {
   const [notifications, setNotifications] = useAtom(notificationFeedAtom)
 
   useLayoutEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true)
   }, [])
 

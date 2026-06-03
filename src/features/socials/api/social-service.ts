@@ -26,10 +26,22 @@ function unwrapApiResponse<T>(payload: ApiResponse<T> | T): T {
 }
 
 export const SocialService = {
-  listMySocials: async function (): Promise<ListSocialResponse[]> {
+  listMySocials: async function (
+    tab: string | null,
+    role: string | null,
+    page: number | null,
+    limit: number | null
+  ): Promise<ListSocialResponse[]> {
     const axios = await getAuthenticatedAxios()
+    const searchParams = new URLSearchParams()
+    if (tab) searchParams.set("tab", tab)
+    if (role) searchParams.set("role", role)
+    if (page !== null) searchParams.set("page", page.toString())
+    if (limit !== null) searchParams.set("limit", limit.toString())
+
     const response = await axios.get<ApiResponse<ListSocialResponse[]>>(
-      "/api/events/socials/my-schedule"
+      "/api/events/socials/my-schedule",
+      { params: searchParams }
     )
     return unwrapApiResponse(response.data)
   },

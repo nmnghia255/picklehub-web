@@ -24,7 +24,15 @@
       "senior": "Cao tuổi",
       "social": "Giao lưu",
       "tournament": "Giải đấu",
-      "training": "Huấn luyện"
+      "training": "Huấn luyện",
+      "minimumLevel": "Trình độ tối thiểu",
+      "maximumLevel": "Trình độ tối đa",
+      "hasAvailableSlots": "Chỗ trống",
+      "status": "Trạng thái",
+      "genderPolicy": "Giới tính",
+      "ageGroup": "Nhóm tuổi",
+      "format": "Hình thức",
+      "upcoming": "Sắp diễn ra"
     },
     "listing": {
       "title": "Social",
@@ -43,16 +51,32 @@
     },
     "filters": {
       "title": "Bộ lọc",
-      "status": "Trạng thái",
       "selectStatus": "Chọn trạng thái",
-      "genderPolicy": "Giới tính",
       "selectGenderPolicy": "Chọn giới tính",
-      "ageGroup": "Nhóm tuổi",
       "selectAgeGroup": "Chọn nhóm tuổi",
-      "format": "Hình thức",
       "selectFormat": "Chọn hình thức",
       "all": "Tất cả",
-      "clearAll": "Xóa tất cả"
+      "clearAll": "Đặt lại",
+      "notYet": "Chọn",
+      "close": "Đóng",
+      "upcomingOptions": {
+        "notYet": "Chọn",
+        "yes": "Có",
+        "no": "Không"
+      },
+      "hasAvailableSlotsOptions": {
+        "notYet": "Chọn",
+        "yes": "Còn chỗ trống",
+        "no": "Không còn chỗ trống"
+      },
+      "levelOptions": {
+        "notYet": "Chọn",
+        "1": "1 - Mới bắt đầu",
+        "2": "2 - Người mới chơi",
+        "3": "3 - Trung cấp",
+        "4": "4 - Nâng cao",
+        "5": "5 - Chuyên nghiệp"
+      }
     },
     "detail": {
       "notFoundTitle": "Không tìm thấy social",

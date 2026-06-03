@@ -3,47 +3,78 @@
 import { Filter, Plus, Search } from "lucide-react"
 import { useRouter } from "next/navigation"
 
+import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { mockSocials } from "@/features/socials/mock-data/mockData"
-import useSocialsStore from "@/features/socials/stores/social-listing-store"
+import { useSocialsStore } from "@/features/socials/stores/social-listing-store"
+// import { SocialService } from "@/features/socials/api/social-service"
+import type { ListSocialResponse as Social } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import FiltersDrawer from "./FiltersDrawer"
+import { FiltersDrawer } from "./FiltersDrawer"
 import SocialCard from "./SocialCard"
 
 export default function SocialListing() {
   const router = useRouter()
   const { t } = useSocialsTranslation()
-  const searchQuery = useSocialsStore((s) => s.searchQuery)
-  const setSearchQuery = useSocialsStore((s) => s.setSearchQuery)
+
   const filterDrawerOpen = useSocialsStore((s) => s.filterDrawerOpen)
   const setFilterDrawerOpen = useSocialsStore((s) => s.setFilterDrawerOpen)
   const filters = useSocialsStore((s) => s.filters)
-  const setFilters = useSocialsStore((s) => s.setFilters)
 
-  const filteredSocials = mockSocials.filter((social) => {
-    if (
-      searchQuery &&
-      !social.title.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-      return false
-    if (filters.status !== "ALL" && social.status !== filters.status)
-      return false
-    if (
-      filters.genderPolicy !== "ALL" &&
-      social.genderPolicy !== filters.genderPolicy
-    )
-      return false
-    if (filters.ageGroup !== "ALL" && social.ageGroup !== filters.ageGroup)
-      return false
-    if (filters.format !== "ALL" && social.format !== filters.format)
-      return false
-    if (filters.availableSlots && !social.hasAvailableSlots) return false
-    return true
-  })
+  const { setFilters, updateSingleFilter } = useSocialsStore()
+  const resetFilters = useSocialsStore((state) => state.resetFilters)
 
-  const hasNoResults = filteredSocials.length === 0
+  const socials: Social[] = []
+
+  // try {
+  //   const fetchSocials = async () => {
+  //     const response = await SocialService.listMySocials(
+  //       null,
+  //       null,
+  //       null,
+  //       null
+  //     )
+  //     socials = response
+  //   }
+  // }
+  // catch (error) {
+  //   console.error("Error fetching socials:", error)
+  //   return (
+  //     < PageContainer variant="wide" >
+  //       <div className="p-4">
+  //         <p className="text-red-500">
+  //           Không thể tải danh sách buổi chơi. Vui lòng thử lại sau.
+  //         </p>
+  //       </div>
+  //     </PageContainer >
+  //   )
+  // }
+
+  const hasNoResults = socials.length === 0
+
+  // const filteredSocials = mockSocials.filter((social) => {
+  //   if (
+  //     searchQuery &&
+  //     !social.title.toLowerCase().includes(searchQuery.toLowerCase())
+  //   )
+  //     return false
+  //   if (filters.status !== "ALL" && social.status !== filters.status)
+  //     return false
+  //   if (
+  //     filters.genderPolicy !== "ALL" &&
+  //     social.genderPolicy !== filters.genderPolicy
+  //   )
+  //     return false
+  //   if (filters.ageGroup !== "ALL" && social.ageGroup !== filters.ageGroup)
+  //     return false
+  //   if (filters.format !== "ALL" && social.format !== filters.format)
+  //     return false
+  //   if (filters.availableSlots && !social.hasAvailableSlots) return false
+  //   return true
+  // })
+  // const hasNoResults = filteredSocials.length === 0
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8">
@@ -62,8 +93,8 @@ export default function SocialListing() {
           <Input
             className="h-11 pl-10"
             placeholder={t("listing.searchPlaceholder")}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={filters.search ?? ""}
+            onChange={(e) => updateSingleFilter("search", e.target.value)}
           />
         </div>
         <Button
@@ -94,9 +125,9 @@ export default function SocialListing() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {filteredSocials.map((social) => (
+          {/* {socials.map((social) => (
             <SocialCard key={social.id} social={social} />
-          ))}
+          ))} */}
         </div>
       )}
 
@@ -105,6 +136,7 @@ export default function SocialListing() {
         onOpenChange={setFilterDrawerOpen}
         filters={filters}
         setFilters={setFilters}
+        resetFilters={resetFilters}
       />
     </div>
   )

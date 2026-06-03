@@ -1,5 +1,9 @@
-export type GenderPolicy = "ANY" | "MALE" | "FEMALE"
-export type AgeGroup = "ANY" | "CHILD" | "ADULT" | "SENIOR"
+import type { PlaySession } from "./play-session"
+
+export type GenderPolicy = "ANY" | "MALE_ONLY" | "FEMALE_ONLY" | "MIXED"
+export type AgeGroup = "ANY" | "JUNIOR" | "ADULT" | "SENIOR"
+export type SocialFormat = "SINGLE" | "SOCIAL"
+export type SocialStatus = "PUBLISHED" | "COMPLETED" | "CANCELED"
 
 export interface CreateSocialResponse {
   id: string
@@ -27,11 +31,11 @@ export interface CreateSocialResponse {
   cancellationFreezeHours: null
   maxSlots: number
   joinedCount: number
-  status: string
+  status: SocialStatus
   creatorId: string
   createdAt: string
   updatedAt: string
-  playSessions: [] // ??
+  playSessions: PlaySession[]
   participants: SocialParticipant[]
 }
 
@@ -61,7 +65,7 @@ export interface ListSocialResponse {
   cancellationFreezeHours: null
   maxSlots: number
   joinedCount: number
-  status: string
+  status: SocialStatus
   creatorId: string
   createdAt: string
   updatedAt: string
