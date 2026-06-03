@@ -1,6 +1,12 @@
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
-import type { Social } from "../types"
+import type {
+  CreateSocialResponse,
+  DuplicateSessionRequest,
+  LeaveSocialResponse,
+  ListSocialResponse,
+  SocialParticipant,
+} from "../types/social"
 
 interface ApiResponse<T> {
   meta: {
@@ -19,54 +25,65 @@ function unwrapApiResponse<T>(payload: ApiResponse<T> | T): T {
   return payload as T
 }
 
-export const socialService = {
-  listMySocials: async function (): Promise<Social[]> {
+export const SocialService = {
+  listMySocials: async function (): Promise<ListSocialResponse[]> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<Social[]>>(
+    const response = await axios.get<ApiResponse<ListSocialResponse[]>>(
       "/api/events/socials/my-schedule"
     )
     return unwrapApiResponse(response.data)
   },
-  createSocial: async function (payload: unknown): Promise<Social> {
+
+  createSocial: async function (
+    payload: unknown
+  ): Promise<CreateSocialResponse> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post<ApiResponse<Social>>(
+    const response = await axios.post<ApiResponse<CreateSocialResponse>>(
       "/api/events/socials",
       payload
     )
     return unwrapApiResponse(response.data)
   },
+
   discover: async function (
     params?: Record<string, unknown>
-  ): Promise<Social[]> {
+  ): Promise<ListSocialResponse[]> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<Social[]>>(
+    const response = await axios.get<ApiResponse<ListSocialResponse[]>>(
       "/api/events/socials/discover",
       { params }
     )
     return unwrapApiResponse(response.data)
   },
-  listAll: async function (): Promise<Social[]> {
+
+  listAll: async function (): Promise<ListSocialResponse[]> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<Social[]>>(
+    const response = await axios.get<ApiResponse<ListSocialResponse[]>>(
       "/api/events/socials/all"
     )
     return unwrapApiResponse(response.data)
   },
-  getSocial: async function (id: string): Promise<Social> {
+
+  getSocial: async function (id: string): Promise<ListSocialResponse> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<Social>>(
+    const response = await axios.get<ApiResponse<ListSocialResponse>>(
       `/api/events/socials/${id}`
     )
     return unwrapApiResponse(response.data)
   },
-  updateSocial: async function (id: string, payload: unknown): Promise<Social> {
+
+  updateSocial: async function (
+    id: string,
+    payload: unknown
+  ): Promise<CreateSocialResponse> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.patch<ApiResponse<Social>>(
+    const response = await axios.patch<ApiResponse<CreateSocialResponse>>(
       `/api/events/socials/${id}`,
       payload
     )
     return unwrapApiResponse(response.data)
   },
+
   deleteSocial: async function (id: string): Promise<{ message: string }> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.delete<ApiResponse<{ message: string }>>(
@@ -74,81 +91,75 @@ export const socialService = {
     )
     return unwrapApiResponse(response.data)
   },
-  publishSocial: async function (id: string): Promise<Social> {
+
+  publishSocial: async function (id: string): Promise<CreateSocialResponse> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.patch<ApiResponse<Social>>(
+    const response = await axios.patch<ApiResponse<CreateSocialResponse>>(
       `/api/events/socials/${id}/publish`
     )
     return unwrapApiResponse(response.data)
   },
+
   duplicateSocial: async function (
     id: string,
-    payload: unknown
-  ): Promise<Social> {
+    payload: DuplicateSessionRequest
+  ): Promise<CreateSocialResponse> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post<ApiResponse<Social>>(
+    const response = await axios.post<ApiResponse<CreateSocialResponse>>(
       `/api/events/socials/${id}/duplicate`,
       payload
     )
     return unwrapApiResponse(response.data)
   },
-  createPlaySession: async function (
+
+  listSocialParticipants: async function (
     socialId: string,
-    payload: unknown
-  ): Promise<unknown> {
+    status?: string
+  ): Promise<SocialParticipant[]> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post<ApiResponse<unknown>>(
-      `/api/events/socials/${socialId}/play-sessions`,
-      payload
+    const searchParams = new URLSearchParams()
+    if (status) searchParams.set("status", status)
+
+    const response = await axios.get<ApiResponse<SocialParticipant[]>>(
+      `/api/events/socials/${socialId}/participants?${searchParams.toString()}`
     )
     return unwrapApiResponse(response.data)
   },
-  listPlaySessions: async function (socialId: string): Promise<unknown[]> {
+
+  joinSocial: async function (socialId: string): Promise<SocialParticipant> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<unknown[]>>(
-      `/api/events/socials/${socialId}/play-sessions`
+    const response = await axios.post<ApiResponse<SocialParticipant>>(
+      `/api/events/socials/${socialId}/join`
     )
     return unwrapApiResponse(response.data)
   },
-  getPlaySession: async function (
-    socialId: string,
-    sessionId: string
-  ): Promise<unknown> {
+
+  leaveSocial: async function (socialId: string): Promise<LeaveSocialResponse> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<unknown>>(
-      `/api/events/socials/${socialId}/play-sessions/${sessionId}`
+    const response = await axios.delete<ApiResponse<LeaveSocialResponse>>(
+      `/api/events/socials/${socialId}/leave`
     )
     return unwrapApiResponse(response.data)
   },
-  updatePlaySession: async function (
+
+  approveJoinRequest: async function (
     socialId: string,
-    sessionId: string,
-    payload: unknown
-  ): Promise<unknown> {
+    participantId: string
+  ): Promise<SocialParticipant> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.patch<ApiResponse<unknown>>(
-      `/api/events/socials/${socialId}/play-sessions/${sessionId}`,
-      payload
+    const response = await axios.patch<ApiResponse<SocialParticipant>>(
+      `/api/events/socials/${socialId}/participants/${participantId}/approve`
     )
     return unwrapApiResponse(response.data)
   },
-  deletePlaySession: async function (
+
+  kickParticipant: async function (
     socialId: string,
-    sessionId: string
-  ): Promise<{ message: string }> {
+    participantId: string
+  ): Promise<SocialParticipant> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.delete<ApiResponse<{ message: string }>>(
-      `/api/events/socials/${socialId}/play-sessions/${sessionId}`
-    )
-    return unwrapApiResponse(response.data)
-  },
-  cancelPlaySession: async function (
-    socialId: string,
-    sessionId: string
-  ): Promise<unknown> {
-    const axios = await getAuthenticatedAxios()
-    const response = await axios.patch<ApiResponse<unknown>>(
-      `/api/events/socials/${socialId}/play-sessions/${sessionId}/cancel`
+    const response = await axios.delete<ApiResponse<SocialParticipant>>(
+      `/api/events/socials/${socialId}/participants/${participantId}/kick`
     )
     return unwrapApiResponse(response.data)
   },

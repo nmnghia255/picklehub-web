@@ -2,7 +2,7 @@
 
 import React from "react"
 
-import SocialListing from "@/features/socials/components/SocialListing"
+import SocialListing from "@/features/socials/components/social-listing"
 
 export default function Page() {
   return (

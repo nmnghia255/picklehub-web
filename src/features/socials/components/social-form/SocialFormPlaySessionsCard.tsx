@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import Field from "../SocialDetail/Field"
+import Field from "../social-detail/Field"
 import type { PlaySessionDraft } from "./SocialForm.types"
 
 export function SocialFormPlaySessionsCard({

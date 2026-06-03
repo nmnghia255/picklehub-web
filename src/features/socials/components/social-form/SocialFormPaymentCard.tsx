@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import Field from "../SocialDetail/Field"
+import Field from "../social-detail/Field"
 import type { SocialFormData } from "./SocialForm.types"
 
 export function SocialFormPaymentCard({

@@ -120,12 +120,12 @@ export function SocialForm() {
             formData={formData}
             setFormData={setFormData}
           />
-          <SocialFormPlaySessionsCard
+          {/* <SocialFormPlaySessionsCard
             playSessions={playSessions}
             setPlaySessions={setPlaySessions}
             startTime={formData.startTime}
             endTime={formData.endTime}
-          />
+          /> */}
         </div>
 
         <SocialFormSidebar

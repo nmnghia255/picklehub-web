@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import React from "react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { PlaySessionModal } from "@/features/socials/components/PlaySessions/PlaySessionModal"
+import { PlaySessionModal } from "@/features/socials/components/play-session/PlaySessionModal"
 import { mockSocials } from "@/features/socials/mock-data/mockData"
 import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
 import type { Match } from "@/features/socials/types"

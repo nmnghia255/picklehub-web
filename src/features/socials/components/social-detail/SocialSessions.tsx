@@ -7,7 +7,7 @@ import React from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import ProgressBar from "@/features/socials/components/SocialListing/ProgressBar"
+import ProgressBar from "@/features/socials/components/social-listing/ProgressBar"
 import type { Match, PlaySession } from "@/features/socials/types"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 

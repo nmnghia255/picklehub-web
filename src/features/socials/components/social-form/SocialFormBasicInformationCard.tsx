@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import type { SocialFormat } from "../../types"
-import Field from "../SocialDetail/Field"
+import Field from "../social-detail/Field"
 import type { SocialFormData } from "./SocialForm.types"
 
 export function SocialFormBasicInformationCard({

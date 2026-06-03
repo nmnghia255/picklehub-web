@@ -14,7 +14,7 @@ import {
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import type { AgeGroup, GenderPolicy, HostRole } from "../../types"
-import Field from "../SocialDetail/Field"
+import Field from "../social-detail/Field"
 import type { SocialFormData } from "./SocialForm.types"
 import { SocialFormToggleRow } from "./SocialFormToggleRow"
 
