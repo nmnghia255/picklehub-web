@@ -1,3 +1,4 @@
+import { format } from "date-fns"
 import { Calendar as CalendarIcon, ChevronDown, Filter } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -51,7 +52,9 @@ export function Filters({
                 mode="single"
                 selected={date ? new Date(date) : undefined}
                 onSelect={(d) => {
-                  if (d instanceof Date) setDate(d.toISOString().slice(0, 10))
+                  if (d) {
+                    setDate(format(d, "yyyy-MM-dd"))
+                  }
                 }}
               />
             </DropdownMenuContent>

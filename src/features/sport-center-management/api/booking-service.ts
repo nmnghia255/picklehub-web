@@ -152,7 +152,7 @@ export const BookingService = {
   ): Promise<Booking> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.post<Booking>(
-      `/api/sport-centers/${centerId}/bookings`,
+      `/api/sport-centers/${centerId}/bookings/by-owner`,
       bookingData
     )
     return unwrapApiResponse(response.data)

@@ -4,7 +4,6 @@ import { useEffect } from "react"
 
 import { useCourtScheduleStore } from "../../stores/court-schedule-store"
 import type { Booking } from "../../types/booking"
-import type { SportCenter } from "../../types/sport-center"
 import { BookingDetailModal } from "./booking-modal"
 import { TimeSlot } from "./court-slot"
 import { QuickBookingModal } from "./quick-booking-modal"
@@ -33,13 +32,7 @@ function generateTimeSlots(
   return slots
 }
 
-export function CourtSchedule({
-  ownerMode = false,
-  center,
-}: {
-  ownerMode?: boolean
-  center: SportCenter
-}) {
+export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
   const {
     courts,
     bookings,
@@ -54,21 +47,32 @@ export function CourtSchedule({
     fetchBookings,
     fetchCourts,
     cancelBooking,
-    createBooking,
     createBookingByOwner,
   } = useCourtScheduleStore()
 
-  const selectedCenter = center
+  const selectedCenter = useCourtScheduleStore((state) => state.selectedCenter)
+
+  useEffect(() => {
+    if (!selectedCenter) return
+
+    fetchCourts()
+    fetchBookings()
+  }, [date, selectedCenter])
+
+  if (!selectedCenter) {
+    return (
+      <div className="rounded-md border border-border bg-background p-6 text-center">
+        <p className="text-sm text-muted-foreground">
+          Vui lòng chọn trung tâm bạn quản lý để xem lịch và đặt sân.
+        </p>
+      </div>
+    )
+  }
+
   const openTime = selectedCenter.openTime
   const closeTime = selectedCenter.closeTime
 
   const timeSlots = generateTimeSlots(openTime, closeTime, 30)
-
-  useEffect(() => {
-    fetchCourts()
-    fetchBookings()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date])
 
   const handleSlotClick = (
     courtId: string,
@@ -78,7 +82,7 @@ export function CourtSchedule({
     const booking = bookings[`${courtName}-${time}`]
 
     if (booking) {
-      openBooking(booking)
+      openBooking(booking, { courtId, courtName, time })
     } else {
       openQuickBooking({ courtId, courtName, time })
     }
@@ -92,12 +96,12 @@ export function CourtSchedule({
     await cancelBooking(bookingId)
   }
 
-  const handleCreateBooking = async (playerName: string, contact: string) => {
-    if (ownerMode) {
-      await createBookingByOwner(playerName, contact)
-    } else {
-      await createBooking(playerName, contact)
-    }
+  const handleCreateBooking = async (
+    playerName: string,
+    contact: string,
+    note: string
+  ) => {
+    await createBookingByOwner(playerName, contact, note)
   }
 
   return (
