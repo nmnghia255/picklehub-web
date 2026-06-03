@@ -23,6 +23,9 @@ export function SportCenterSelector() {
     (state) => state.fetchSportCenters
   )
   const setCenterId = useCourtScheduleStore((state) => state.setCenterId)
+  const setSelectedCenter = useCourtScheduleStore(
+    (state) => state.setSelectedCenter
+  )
 
   useEffect(() => {
     fetchSportCenters()
@@ -57,7 +60,10 @@ export function SportCenterSelector() {
           sportCenters.map((center) => (
             <DropdownMenuItem
               key={center.id}
-              onClick={() => setCenterId(center.id)}
+              onClick={() => {
+                setCenterId(center.id)
+                setSelectedCenter(center)
+              }}
               className="flex flex-col items-start"
             >
               <span className="font-medium">{center.name}</span>

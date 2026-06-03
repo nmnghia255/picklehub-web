@@ -9,14 +9,14 @@ import {
 } from "@/components/ui/table"
 import type { CustomerListItem } from "@/features/sport-center-management/types/customer"
 
-import { CustomerManagementTableRow } from "./customer-management-table-row"
+import { CustomerManagementTableRow } from "./customer-table-row"
 
 interface CustomerManagementTableProps {
   customers: CustomerListItem[]
   onCustomerSelect: (customerId: string) => void
 }
 
-export function CustomerManagementTable({
+export function CustomerTable({
   customers,
   onCustomerSelect,
 }: CustomerManagementTableProps) {
@@ -49,4 +49,4 @@ export function CustomerManagementTable({
   )
 }
 
-export default CustomerManagementTable
+export default CustomerTable

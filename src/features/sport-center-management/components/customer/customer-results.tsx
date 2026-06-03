@@ -1,12 +1,12 @@
 import type { CustomerListItem } from "@/features/sport-center-management/types/customer"
 
-import { CustomerManagementEmptyState } from "./customer-management-empty-state"
+import { CustomerEmptyState } from "./customer-empty-state"
 import {
   CustomerManagementPagination,
   type CustomerManagementPaginationView,
-} from "./customer-management-pagination"
-import { CustomerManagementSkeleton } from "./customer-management-skeleton"
-import { CustomerManagementTable } from "./customer-management-table"
+} from "./customer-pagination"
+import { CustomerManagementSkeleton } from "./customer-skeleton"
+import { CustomerTable } from "./customer-table"
 
 interface CustomerManagementResultsProps {
   isPageLoading: boolean
@@ -39,7 +39,7 @@ export function CustomerManagementResults({
 
   if (loadError) {
     return (
-      <CustomerManagementEmptyState
+      <CustomerEmptyState
         title="Không thể tải danh sách khách hàng"
         description={loadError}
         actionLabel="Thử lại"
@@ -50,7 +50,7 @@ export function CustomerManagementResults({
 
   if (customers.length === 0) {
     return (
-      <CustomerManagementEmptyState
+      <CustomerEmptyState
         title={
           hasActiveFilters
             ? "Không có kết quả phù hợp"
@@ -69,7 +69,7 @@ export function CustomerManagementResults({
 
   return (
     <>
-      <CustomerManagementTable
+      <CustomerTable
         customers={customers}
         onCustomerSelect={onCustomerSelect}
       />

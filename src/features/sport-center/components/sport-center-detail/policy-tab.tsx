@@ -6,7 +6,7 @@ interface PolicyTabProps {
 
 export function PolicyTab({ rules }: PolicyTabProps) {
   return (
-    <Card>
+    <Card className="gap-0 py-0">
       <CardContent className="space-y-3 p-6">
         <h2 className="text-lg font-semibold">Điều khoản & quy định</h2>
         <ul className="space-y-2 text-sm text-muted-foreground">

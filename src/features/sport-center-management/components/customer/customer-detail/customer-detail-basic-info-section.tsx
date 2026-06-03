@@ -18,13 +18,13 @@ export function CustomerDetailBasicInfoSection({
   const { customer } = detail
 
   return (
-    <section className="space-y-4 rounded-3xl border bg-card p-4 shadow-sm">
+    <section className="space-y-3 rounded-3xl border bg-card p-4 shadow-sm">
       <CustomerDetailSectionTitle
         icon={UserRound}
         title="Thông tin cơ bản"
         toneClassName="text-sky-500"
       />
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-2 sm:grid-cols-2">
         <CustomerDetailValueCard
           label="Họ và tên"
           value={customer.name ?? "—"}

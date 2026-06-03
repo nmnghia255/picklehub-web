@@ -1,6 +1,6 @@
 "use client"
 
-import { User } from "lucide-react"
+import { Phone, User } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -15,7 +15,7 @@ import { useCourtScheduleStore } from "../../stores/court-schedule-store"
 
 interface QuickBookingModalProps {
   onClose: () => void
-  onCreate: (playerName: string, note: string) => void
+  onCreate: (playerName: string, phone: string, note: string) => Promise<void>
 }
 
 export function QuickBookingModal({
@@ -28,11 +28,17 @@ export function QuickBookingModal({
   const quickBookingPlayerName = useCourtScheduleStore(
     (state) => state.quickBookingPlayerName
   )
+  const quickBookingPhone = useCourtScheduleStore(
+    (state) => state.quickBookingPhone
+  )
   const quickBookingNote = useCourtScheduleStore(
     (state) => state.quickBookingNote
   )
   const setQuickBookingPlayerName = useCourtScheduleStore(
     (state) => state.setQuickBookingPlayerName
+  )
+  const setQuickBookingPhone = useCourtScheduleStore(
+    (state) => state.setQuickBookingPhone
   )
   const setQuickBookingNote = useCourtScheduleStore(
     (state) => state.setQuickBookingNote
@@ -43,11 +49,23 @@ export function QuickBookingModal({
 
   if (!quickBookingSlot) return null
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (quickBookingPlayerName.trim() && quickBookingNote.trim()) {
-      onCreate(quickBookingPlayerName, quickBookingNote)
-      closeQuickBooking()
+    if (
+      quickBookingPlayerName.trim() &&
+      quickBookingPhone.trim() &&
+      quickBookingNote.trim()
+    ) {
+      try {
+        await onCreate(
+          quickBookingPlayerName,
+          quickBookingPhone,
+          quickBookingNote
+        )
+        closeQuickBooking()
+      } catch (error) {
+        console.error("Create Booking error:", error)
+      }
     }
   }
 
@@ -77,6 +95,7 @@ export function QuickBookingModal({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Player Name */}
           <div>
             <label className="mb-2 block text-sm text-muted-foreground">
               Tên người chơi
@@ -88,6 +107,23 @@ export function QuickBookingModal({
                 value={quickBookingPlayerName}
                 onChange={(e) => setQuickBookingPlayerName(e.target.value)}
                 placeholder="Nhập tên người chơi"
+                className="bg-input-background w-full rounded-lg border border-border py-2 pr-4 pl-10 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                required
+              />
+            </div>
+          </div>
+          {/* Phone number */}
+          <div>
+            <label className="mb-2 block text-sm text-muted-foreground">
+              Số điện thoại
+            </label>
+            <div className="relative">
+              <Phone className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                value={quickBookingPhone}
+                onChange={(e) => setQuickBookingPhone(e.target.value)}
+                placeholder="Nhập số điện thoại"
                 className="bg-input-background w-full rounded-lg border border-border py-2 pr-4 pl-10 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 required
               />

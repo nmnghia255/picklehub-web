@@ -39,7 +39,7 @@ export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
                 alt={`${sportCenter.name} logo`}
                 className="transition-transform duration-200 group-hover:scale-105"
               />
-              <AvatarFallback>
+              <AvatarFallback className="bg-slate-200 text-base font-semibold text-slate-700">
                 {sportCenter.name
                   .split(" ")
                   .slice(0, 2)
@@ -60,7 +60,9 @@ export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
 
               <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
                 <Clock3 className="size-4 shrink-0" />
-                <span>{sportCenter.openTime}</span>
+                <span>
+                  {sportCenter.openTime} - {sportCenter.closeTime}
+                </span>
               </p>
             </div>
           </div>

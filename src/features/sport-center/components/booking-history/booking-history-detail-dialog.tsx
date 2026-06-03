@@ -41,10 +41,8 @@ export function BookingHistoryDetailDialog({
 
   const displayNote = getBookingDisplayNote(booking)
   const firstBookingItem = booking.bookingItems?.[0]
-  const courtName =
-    firstBookingItem?.court?.name ?? booking.center?.name ?? "Sân"
-  const timeRange = firstBookingItem
-    ? `${firstBookingItem.startTime} - ${firstBookingItem.endTime}`
+  const startTime = firstBookingItem
+    ? `${firstBookingItem.startTime}`
     : booking.items.length > 0
       ? `${booking.items[0].startTime} - ${booking.items[0].endTime}`
       : "—"
@@ -78,7 +76,7 @@ export function BookingHistoryDetailDialog({
         open={Boolean(booking)}
         onOpenChange={(open) => !open && onClose()}
       >
-        <DialogContent className="max-h-[90vh] w-[96vw]! max-w-[96vw]! overflow-y-auto p-0 sm:w-[88vw]! sm:max-w-[88vw]! lg:w-[75vw]! lg:max-w-[75vw]!">
+        <DialogContent className="max-h-[90vh] w-[92vw] max-w-[92vw] overflow-y-auto p-0 sm:w-[80vw] sm:max-w-[80vw] lg:w-[60vw] lg:max-w-[60vw]">
           <div className="flex h-full flex-col bg-background">
             <BookingDetailHeader booking={booking} />
 
@@ -89,10 +87,10 @@ export function BookingHistoryDetailDialog({
 
               <BookingInfoSection
                 booking={booking}
-                courtName={courtName}
-                timeRange={timeRange}
+                note={displayNote}
+                startTime={startTime}
               />
-
+              {/* 
               <section className="space-y-4 rounded-3xl border bg-card p-4 shadow-sm">
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="rounded-2xl border bg-background/80 p-3 shadow-sm">
@@ -126,7 +124,7 @@ export function BookingHistoryDetailDialog({
                     {displayNote}
                   </p>
                 </div>
-              </section>
+              </section> */}
 
               <BookingPaymentSection booking={booking} />
 

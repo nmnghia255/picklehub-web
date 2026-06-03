@@ -20,22 +20,6 @@ function parseLocalDateTime(value: string | undefined | null): Date | null {
   return Number.isNaN(parsed.getTime()) ? null : parsed
 }
 
-function startOfDay(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate())
-}
-
-function endOfDay(date: Date) {
-  return new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-    23,
-    59,
-    59,
-    999
-  )
-}
-
 function formatDateKey(date: Date) {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, "0")

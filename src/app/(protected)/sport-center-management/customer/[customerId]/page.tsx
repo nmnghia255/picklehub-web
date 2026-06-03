@@ -7,14 +7,14 @@ import { useEffect, useState } from "react"
 import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
 import { CustomerService } from "@/features/sport-center-management/api/customer-service"
-import { CustomerDetailBasicInfoSection } from "@/features/sport-center-management/components/customer-management/customer-detail/customer-detail-basic-info-section"
-import { CustomerDetailBookingSection } from "@/features/sport-center-management/components/customer-management/customer-detail/customer-detail-booking-section"
-import { CustomerDetailCenterSection } from "@/features/sport-center-management/components/customer-management/customer-detail/customer-detail-center-section"
-import { CustomerDetailNoticeCard } from "@/features/sport-center-management/components/customer-management/customer-detail/customer-detail-notice-card"
-import { CustomerDetailPageHeader } from "@/features/sport-center-management/components/customer-management/customer-detail/customer-detail-page-header"
-import { CustomerDetailPageSkeleton } from "@/features/sport-center-management/components/customer-management/customer-detail/customer-detail-page-skeleton"
-import { CustomerDetailProfileCard } from "@/features/sport-center-management/components/customer-management/customer-detail/customer-detail-profile-card"
-import { CustomerDetailSummaryGrid } from "@/features/sport-center-management/components/customer-management/customer-detail/customer-detail-summary-grid"
+import { CustomerDetailBasicInfoSection } from "@/features/sport-center-management/components/customer/customer-detail/customer-detail-basic-info-section"
+import { CustomerDetailBookingSection } from "@/features/sport-center-management/components/customer/customer-detail/customer-detail-booking-section"
+import { CustomerDetailCenterSection } from "@/features/sport-center-management/components/customer/customer-detail/customer-detail-center-section"
+import { CustomerDetailNoticeCard } from "@/features/sport-center-management/components/customer/customer-detail/customer-detail-notice-card"
+import { CustomerDetailPageHeader } from "@/features/sport-center-management/components/customer/customer-detail/customer-detail-page-header"
+import { CustomerDetailPageSkeleton } from "@/features/sport-center-management/components/customer/customer-detail/customer-detail-page-skeleton"
+import { CustomerDetailProfileCard } from "@/features/sport-center-management/components/customer/customer-detail/customer-detail-profile-card"
+import { CustomerDetailSummaryGrid } from "@/features/sport-center-management/components/customer/customer-detail/customer-detail-summary-grid"
 import type { CustomerDetailResponse } from "@/features/sport-center-management/types/customer"
 
 export default function CustomerDetailPage() {
@@ -61,12 +61,13 @@ export default function CustomerDetailPage() {
   }
 
   return (
-    <PageContainer variant="wide" className="space-y-6 py-6">
+    <PageContainer
+      variant="wide"
+      className="space-y-4 py-4 text-[15px] md:space-y-5 md:py-6 md:text-base"
+    >
       <CustomerDetailPageHeader
         customerName={customerName}
-        onBack={() =>
-          router.push("/sport-center-management/customer-management")
-        }
+        onBack={() => router.back()}
       />
 
       {!customerId ? (
@@ -74,12 +75,7 @@ export default function CustomerDetailPage() {
           title="Không tìm thấy khách hàng"
           description="Mã khách hàng không hợp lệ hoặc bị thiếu trong đường dẫn."
         >
-          <Button
-            variant="outline"
-            onClick={() =>
-              router.push("/sport-center-management/customer-management")
-            }
-          >
+          <Button variant="outline" onClick={() => router.back()}>
             Quay lại danh sách
           </Button>
         </CustomerDetailNoticeCard>
@@ -108,7 +104,7 @@ export default function CustomerDetailPage() {
       ) : null}
 
       {!isLoading && detail ? (
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-5">
           <CustomerDetailProfileCard detail={detail} />
           <CustomerDetailSummaryGrid detail={detail} />
           <CustomerDetailBasicInfoSection detail={detail} />
