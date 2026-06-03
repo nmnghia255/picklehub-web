@@ -1,6 +1,6 @@
 "use client"
 
-import { ShieldCheck } from "lucide-react"
+import { Calendar, CreditCard, ShieldX } from "lucide-react"
 
 import type { Booking } from "../../../types/booking"
 import { formatBookingCreatedAt } from "../booking-list.utils"
@@ -14,8 +14,8 @@ interface Props {
 export function BookingCancellationSection({ booking, displayNote }: Props) {
   return (
     <section className="space-y-4 rounded-3xl border bg-card p-4 shadow-sm">
-      <div className="flex items-center gap-2 text-sm font-semibold">
-        <ShieldCheck className="size-4 text-rose-500" />
+      <div className="text-md flex items-center gap-2 font-semibold">
+        <ShieldX className="size-5 text-rose-500" />
         Thông tin hủy
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -24,37 +24,33 @@ export function BookingCancellationSection({ booking, displayNote }: Props) {
           value={
             booking.cancelledAt
               ? formatBookingCreatedAt(booking.cancelledAt)
-              : "—"
+              : "Chưa cập nhật"
           }
-          icon={ShieldCheck}
+          icon={Calendar}
           toneClassName="text-rose-500"
         />
         <BookingDetailField
           label="Lý do hủy"
-          value={booking.cancelReason ?? "—"}
-          icon={ShieldCheck}
+          value={booking.cancelReason ?? "Không có lý do"}
+          icon={ShieldX}
           toneClassName="text-rose-500"
         />
         <BookingDetailField
-          label="Thanh toán proof"
+          label="Thanh toán"
           value={booking.paymentProofUrl ? "Có" : "Không"}
-          icon={ShieldCheck}
+          icon={CreditCard}
           toneClassName="text-rose-500"
         />
         <BookingDetailField
-          label="Đã upload proof"
+          label="Ngày tải lên minh chứng thanh toán"
           value={
             booking.paymentProofUploadedAt
               ? formatBookingCreatedAt(booking.paymentProofUploadedAt)
-              : "—"
+              : "Chưa cập nhật"
           }
-          icon={ShieldCheck}
+          icon={Calendar}
           toneClassName="text-rose-500"
         />
-      </div>
-      <div className="rounded-2xl border bg-muted/20 p-3">
-        <p className="text-xs text-muted-foreground">Ghi chú</p>
-        <p className="mt-1 text-sm leading-6 text-foreground">{displayNote}</p>
       </div>
     </section>
   )

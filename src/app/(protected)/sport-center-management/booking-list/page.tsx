@@ -5,15 +5,13 @@ import { useEffect, useMemo, useState } from "react"
 import { PageContainer } from "@/components/page-container"
 import type { Pagination as BookingListPagination } from "@/features/sport-center-management/actions/booking-actions"
 import {
-  cancelBookingAction,
   confirmBookingAction,
   listBookingListAction,
 } from "@/features/sport-center-management/actions/booking-actions"
 import {
-  BookingListFiltersPanel,
+  BookingFilters,
   BookingListPageHeader,
   BookingListResults,
-  BookingListSkeleton,
 } from "@/features/sport-center-management/components/booking-list"
 import type { BookingCreatedAtFilter } from "@/features/sport-center-management/components/booking-list/booking-list.utils"
 import { sortBookingsByNewest } from "@/features/sport-center-management/components/booking-list/booking-list.utils"
@@ -198,13 +196,10 @@ function BookingListPageContent({
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.16),transparent_32%),radial-gradient(circle_at_top_right,rgba(16,185,129,0.12),transparent_28%),linear-gradient(to_bottom,rgba(2,6,23,0.02),transparent)]" />
       <div className="pointer-events-none absolute top-16 right-0 -z-10 h-56 w-56 rounded-full bg-emerald-500/10 blur-3xl" />
 
-      <BookingListPageHeader
-        centerName={selectedCenter?.name ?? null}
-        totalBookings={bookingCounts.total}
-      />
+      <BookingListPageHeader totalBookings={bookingCounts.total} />
 
       <section className="space-y-5">
-        <BookingListFiltersPanel
+        <BookingFilters
           createdAtFilter={createdAtFilter}
           statusFilter={statusFilter}
           onCreatedAtFilterChange={setCreatedAtFilter}

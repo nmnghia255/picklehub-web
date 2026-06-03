@@ -12,7 +12,7 @@ interface CustomerManagementEmptyStateProps {
   onAction: () => void
 }
 
-export function CustomerManagementEmptyState({
+export function CustomerEmptyState({
   title,
   description,
   actionLabel,
@@ -38,4 +38,4 @@ export function CustomerManagementEmptyState({
   )
 }
 
-export default CustomerManagementEmptyState
+export default CustomerEmptyState

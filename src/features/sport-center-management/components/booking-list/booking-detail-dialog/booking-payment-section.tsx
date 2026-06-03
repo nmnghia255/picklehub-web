@@ -1,6 +1,12 @@
 "use client"
 
-import { CalendarDays, Coins } from "lucide-react"
+import {
+  CalendarDays,
+  Coins,
+  CreditCard,
+  DollarSign,
+  Image,
+} from "lucide-react"
 
 import type { Booking } from "../../../types/booking"
 import { formatBookingCreatedAt, formatCurrency } from "../booking-list.utils"
@@ -13,15 +19,15 @@ interface Props {
 export function BookingPaymentSection({ booking }: Props) {
   return (
     <section className="space-y-4 rounded-3xl border bg-card p-4 shadow-sm">
-      <div className="flex items-center gap-2 text-sm font-semibold">
-        <Coins className="size-4 text-orange-500" />
+      <div className="text-md flex items-center gap-2 font-semibold">
+        <CreditCard className="size-5 text-orange-500" />
         Thông tin thanh toán
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <BookingDetailField
           label="Tổng tiền"
           value={formatCurrency(booking.totalPrice)}
-          icon={Coins}
+          icon={DollarSign}
           toneClassName="text-orange-500"
         />
         <BookingDetailField
@@ -44,9 +50,9 @@ export function BookingPaymentSection({ booking }: Props) {
         />
         {booking.paymentProofUrl ? (
           <div className="rounded-2xl border bg-background/80 p-3 shadow-sm">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Coins className="size-3.5 text-orange-500" />
-              <span>Ảnh chứng từ</span>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Image className="size-4 text-orange-500" />
+              <span>Ảnh minh chứng</span>
             </div>
             <div className="mt-2">
               <a
@@ -67,7 +73,7 @@ export function BookingPaymentSection({ booking }: Props) {
           <BookingDetailField
             label="Ảnh minh chứng"
             value="Chưa thanh toán"
-            icon={Coins}
+            icon={Image}
             toneClassName="text-orange-500"
           />
         )}

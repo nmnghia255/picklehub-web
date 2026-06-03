@@ -14,13 +14,13 @@ export function CustomerDetailNoticeCard({
   children,
 }: CustomerDetailNoticeCardProps) {
   return (
-    <section className="rounded-3xl border bg-card p-6 shadow-sm">
-      <div className="space-y-2">
-        <p className="font-semibold text-foreground">{title}</p>
-        <p className="text-sm text-muted-foreground">{description}</p>
+    <section className="rounded-3xl border bg-card p-5 shadow-sm">
+      <div className="space-y-1.5">
+        <p className="text-lg font-semibold text-foreground">{title}</p>
+        <p className="text-base text-muted-foreground">{description}</p>
       </div>
       {children ? (
-        <div className="mt-4 flex justify-end gap-2">{children}</div>
+        <div className="mt-3 flex justify-end gap-2">{children}</div>
       ) : null}
     </section>
   )

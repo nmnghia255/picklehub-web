@@ -1,11 +1,17 @@
 "use client"
 
-import { FilterX } from "lucide-react"
+import { CalendarIcon, ChevronDown, Filter, FilterX } from "lucide-react"
 import { CalendarDays } from "lucide-react"
 import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import {
   Popover,
@@ -21,6 +27,7 @@ import {
 } from "@/components/ui/select"
 
 import type { BookingStatus } from "../../types/booking"
+import { SportCenterSelector } from "../courts-management/sport-center-selector"
 import type { BookingCreatedAtFilter } from "./booking-list.utils"
 import {
   bookingStatusOptions,
@@ -29,14 +36,6 @@ import {
 } from "./booking-list.utils"
 
 interface BookingFiltersProps {
-  createdAtFilter: BookingCreatedAtFilter
-  statusFilter: "all" | BookingStatus
-  onCreatedAtFilterChange: (value: BookingCreatedAtFilter) => void
-  onStatusFilterChange: (value: "all" | BookingStatus) => void
-  onResetFilters: () => void
-}
-
-interface BookingListFiltersPanelProps {
   createdAtFilter: BookingCreatedAtFilter
   statusFilter: "all" | BookingStatus
   onCreatedAtFilterChange: (value: BookingCreatedAtFilter) => void
@@ -57,31 +56,32 @@ export function BookingFilters({
     createdAtFilter === "all" ? undefined : new Date(createdAtFilter)
 
   return (
-    <div className="grid items-end gap-3 lg:grid-cols-[minmax(0,1fr)_220px_auto]">
-      {/* Date filter */}
-      <div className="w-full">
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <div className="relative">
-              <Input
-                id={createdAtInputId}
-                readOnly
-                value={
-                  createdAtFilter === "all"
-                    ? ""
-                    : formatBookingDate(createdAtFilter)
-                }
-                placeholder="Chọn ngày"
-                className="h-10 w-full pr-10"
-                aria-label="Ngày tạo"
-              />
+    <section className="space-y-4 rounded-3xl border bg-card/60 p-4 shadow-sm">
+      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+        <Filter className="size-4" />
+        <span>Bộ lọc</span>
+      </div>
 
-              <CalendarDays className="absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            </div>
-          </PopoverTrigger>
+      <div className="grid gap-3 lg:grid-cols-[minmax(200px,1.3fr)_auto_auto_auto]">
+        {/* Date filter */}
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">Ngày tạo</p>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild className="w-full">
+              <Button variant="outline" className="flex items-center gap-2">
+                <CalendarDays className="h-4 w-4 text-muted-foreground" />
 
-          <PopoverContent className="w-auto p-0">
-            <div className="p-2">
+                <span className="text-sm">
+                  {createdAtFilter === "all"
+                    ? "Chọn ngày"
+                    : formatBookingDate(createdAtFilter)}
+                </span>
+
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent className="p-2">
               <Calendar
                 mode="single"
                 selected={selectedDate}
@@ -96,81 +96,72 @@ export function BookingFilters({
                     `${year}-${month}-${day}` as BookingCreatedAtFilter
 
                   onCreatedAtFilterChange(key)
-                  setOpen(false)
                 }}
               />
 
-              <div className="flex justify-end p-2">
+              <div className="mt-2 flex justify-end border-t pt-2">
                 <Button
                   variant="ghost"
-                  onClick={() => {
-                    onCreatedAtFilterChange("all")
-                    setOpen(false)
-                  }}
+                  size="sm"
+                  onClick={() => onCreatedAtFilterChange("all")}
                 >
                   Đặt lại
                 </Button>
               </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* Sport center filter */}
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">Trung tâm</p>
+          <SportCenterSelector />
+        </div>
+
+        {/* Status filter */}
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">
+            Trạng thái
+          </p>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2">
+                <span>
+                  {statusFilter === "all"
+                    ? "Tất cả trạng thái"
+                    : getBookingStatusLabel(statusFilter)}
+                </span>
+
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent className="w-56">
+              {bookingStatusOptions.map((option) => (
+                <DropdownMenuItem
+                  key={option.value}
+                  onClick={() =>
+                    onStatusFilterChange(option.value as "all" | BookingStatus)
+                  }
+                >
+                  {option.value === "all"
+                    ? option.label
+                    : getBookingStatusLabel(option.value)}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* Reset button */}
+        <div className="flex items-end gap-2">
+          <Button variant="outline" onClick={onResetFilters}>
+            <FilterX className="size-4" />
+            <span className="ml-2">Đặt lại</span>
+          </Button>
+        </div>
       </div>
-
-      {/* Status filter */}
-      <div className="h-10 w-full">
-        <Select
-          value={statusFilter}
-          onValueChange={(value) =>
-            onStatusFilterChange(value as "all" | BookingStatus)
-          }
-        >
-          <SelectTrigger className="h-10! w-full py-0">
-            <SelectValue placeholder="Lọc theo trạng thái" />
-          </SelectTrigger>
-
-          <SelectContent>
-            {bookingStatusOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.value === "all"
-                  ? option.label
-                  : getBookingStatusLabel(option.value)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Reset button */}
-      <Button
-        variant="outline"
-        className="h-10 whitespace-nowrap"
-        onClick={onResetFilters}
-      >
-        <FilterX className="size-4" />
-        Đặt lại
-      </Button>
-    </div>
-  )
-}
-
-export function BookingListFiltersPanel({
-  createdAtFilter,
-  statusFilter,
-  onCreatedAtFilterChange,
-  onStatusFilterChange,
-  onResetFilters,
-}: BookingListFiltersPanelProps) {
-  return (
-    <div className="sticky top-4 z-30 -mx-1">
-      <div className="space-y-4 rounded-3xl border bg-background/95 p-4 shadow-lg shadow-slate-950/5 backdrop-blur supports-backdrop-filter:bg-background/85 sm:p-5">
-        <BookingFilters
-          createdAtFilter={createdAtFilter}
-          statusFilter={statusFilter}
-          onCreatedAtFilterChange={onCreatedAtFilterChange}
-          onStatusFilterChange={onStatusFilterChange}
-          onResetFilters={onResetFilters}
-        />
-      </div>
-    </div>
+    </section>
   )
 }

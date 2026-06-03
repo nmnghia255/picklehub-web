@@ -16,7 +16,7 @@ export function CustomerDetailSectionTitle({
   toneClassName,
 }: CustomerDetailSectionTitleProps) {
   return (
-    <div className="flex items-center gap-2 text-sm font-semibold">
+    <div className="flex items-center gap-2 text-base font-semibold">
       <Icon className={cn("size-4", toneClassName)} />
       {title}
     </div>

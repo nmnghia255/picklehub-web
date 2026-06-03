@@ -2,8 +2,9 @@
 
 import { create } from "zustand"
 
+import { createBookingAction } from "../actions/create-booking-action"
 import { listOwnerSportCentersAction } from "../actions/sport-center-actions"
-import type { Booking, BookingStatus } from "../types/booking"
+import type { Booking, BookingSlot, BookingStatus } from "../types/booking"
 import type { Court } from "../types/court"
 import type { SportCenter } from "../types/sport-center"
 // booking actions implemented locally to avoid missing module and to use client fetch
@@ -50,73 +51,65 @@ export async function cancelBookingAction(
   }
 }
 
-export async function createBookingAction(
+export async function createBookingByOwnerAction(
   playerName: string,
+  contact: string,
   note: string,
-  set: SetState,
   get: GetState
 ) {
-  const { centerId, quickBookingSlot } = get()
-  if (!centerId || !quickBookingSlot) return
+  const { quickBookingSlot, date } = get()
+  if (!quickBookingSlot) return
+  const { centerId } = get()
 
   const startTime = quickBookingSlot.time
-  // naive 1-hour endTime
+  // naive 0.5-hour endTime
   const endTime = (() => {
     try {
       const [h, m] = startTime.split(":").map(Number)
+
       const dt = new Date()
-      dt.setHours(h + 1, m)
-      return dt.toTimeString().slice(0, 5)
+      dt.setHours(h, m)
+      dt.setMinutes(dt.getMinutes() + 30)
+
+      const hours = String(dt.getHours()).padStart(2, "0")
+      const minutes = String(dt.getMinutes()).padStart(2, "0")
+
+      return `${hours}:${minutes}`
     } catch {
       return startTime
     }
   })()
 
-  const body = {
-    date: get().date,
-    items: [{ courtId: quickBookingSlot.courtId, startTime, endTime }],
+  const bookingSlot: BookingSlot = {
+    courtId: quickBookingSlot.courtId,
+    startTime,
+    endTime,
+  }
+
+  return createBookingAction(
+    centerId,
+    date,
     playerName,
-    phoneNumber: "",
+    contact,
     note,
-  }
-
-  try {
-    await fetch(`/api/sport-centers/${centerId}/bookings`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    })
-    get().fetchBookings()
-  } catch (error) {
-    console.error("Create Booking error:", error)
-    throw error
-  }
+    bookingSlot
+  )
 }
 
-export async function createBookingByOwnerAction(
-  playerName: string,
-  note: string,
-  set: SetState,
-  get: GetState
-) {
-  // alias to createBookingAction for now
-  return createBookingAction(playerName, note, set, get)
-}
-
-// --- Local helpers/types ---
-export type QuickBookingSlot = {
+export interface Slot {
   courtId: string
   courtName: string
   time: string
-} | null
+}
 
 export interface CourtScheduleState {
   courts: Court[]
   bookings: Record<string, Booking>
   selectedBooking: Booking | null
-  quickBookingSlot: QuickBookingSlot
+  selectedSlot: Slot | null
+  quickBookingSlot: Slot | null
   quickBookingPlayerName: string
+  quickBookingPhone: string
   quickBookingNote: string
   date: string
   courtFilter: string
@@ -125,23 +118,29 @@ export interface CourtScheduleState {
   sportCenters: SportCenter[]
   loadingSportCenters: boolean
   sportCentersAttempted: boolean
+  selectedCenter: SportCenter | null
   retryFetchSportCenters: () => void
+  setSelectedCenter: (center: SportCenter | null) => void
   setDate: (date: string) => void
   setCourtFilter: (courtFilter: string) => void
   setQuickBookingPlayerName: (playerName: string) => void
+  setQuickBookingPhone: (phone: string) => void
   setQuickBookingNote: (note: string) => void
   setCenterId: (centerId: string) => void
   fetchSportCenters: () => Promise<void>
   fetchCourts: () => Promise<void>
-  openBooking: (booking: Booking) => void
+  openBooking: (booking: Booking, slot: Slot) => void
   closeBooking: () => void
-  openQuickBooking: (slot: NonNullable<QuickBookingSlot>) => void
+  openQuickBooking: (slot: NonNullable<Slot>) => void
   closeQuickBooking: () => void
   rebookFromCancelled: (booking: Booking) => void
   fetchBookings: () => Promise<void>
   cancelBooking: (bookingId: string) => Promise<void>
-  createBooking: (playerName: string, note: string) => Promise<void>
-  createBookingByOwner: (playerName: string, note: string) => Promise<void>
+  createBookingByOwner: (
+    playerName: string,
+    contact: string,
+    note: string
+  ) => Promise<Booking | void>
 }
 
 export type { Booking, BookingStatus }
@@ -151,6 +150,7 @@ export function buildBookingKey(court: string, time: string) {
 }
 
 export function mapBookings(items: Booking[]) {
+  if (!items || items.length === 0) return {}
   return items.reduce<Record<string, Booking>>((accumulator, booking) => {
     const item = booking.bookingItems?.[0]
     const courtName = item?.court?.name ?? booking.center?.name ?? "Sân"
@@ -183,18 +183,16 @@ export async function fetchCourtsAction(set: SetState, get: GetState) {
   }
 }
 
-export function openBookingAction(booking: Booking, set: SetState) {
+export function openBookingAction(booking: Booking, slot: Slot, set: SetState) {
   set({ selectedBooking: booking })
+  set({ selectedSlot: slot })
 }
 
 export function closeBookingAction(set: SetState) {
   set({ selectedBooking: null })
 }
 
-export function openQuickBookingAction(
-  slot: NonNullable<QuickBookingSlot>,
-  set: SetState
-) {
+export function openQuickBookingAction(slot: NonNullable<Slot>, set: SetState) {
   set({ quickBookingSlot: slot })
 }
 
@@ -231,21 +229,26 @@ export const useCourtScheduleStore = create<CourtScheduleState>((set, get) => ({
   courts: [],
   bookings: {},
   selectedBooking: null,
+  selectedSlot: null,
   quickBookingSlot: null,
   quickBookingPlayerName: "",
+  quickBookingPhone: "",
   quickBookingNote: "",
   date: getDefaultDate(),
   courtFilter: "all",
   loading: false,
   sportCenters: [],
+  selectedCenter: null,
   loadingSportCenters: false,
   sportCentersAttempted: false,
   centerId: "",
 
+  setSelectedCenter: (center) => set({ selectedCenter: center }),
   setDate: (date) => set({ date }),
   setCourtFilter: (courtFilter) => set({ courtFilter }),
   setQuickBookingPlayerName: (quickBookingPlayerName) =>
     set({ quickBookingPlayerName }),
+  setQuickBookingPhone: (quickBookingPhone) => set({ quickBookingPhone }),
   setQuickBookingNote: (quickBookingNote) => set({ quickBookingNote }),
   setCenterId: (centerId) => {
     set({ centerId })
@@ -276,7 +279,7 @@ export const useCourtScheduleStore = create<CourtScheduleState>((set, get) => ({
     set({ sportCentersAttempted: false })
   },
   fetchCourts: async () => fetchCourtsAction(set, get),
-  openBooking: (booking) => openBookingAction(booking, set),
+  openBooking: (booking, slot) => openBookingAction(booking, slot, set),
   closeBooking: () => closeBookingAction(set),
   openQuickBooking: (slot) => openQuickBookingAction(slot, set),
   closeQuickBooking: () => closeQuickBookingAction(set),
@@ -284,8 +287,6 @@ export const useCourtScheduleStore = create<CourtScheduleState>((set, get) => ({
     rebookFromCancelledAction(booking, set, get),
   fetchBookings: async () => fetchBookingsAction(set, get),
   cancelBooking: async (bookingId) => cancelBookingAction(bookingId, set, get),
-  createBooking: async (playerName, note) =>
-    createBookingAction(playerName, note, set, get),
-  createBookingByOwner: async (playerName, note) =>
-    createBookingByOwnerAction(playerName, note, set, get),
+  createBookingByOwner: async (playerName, contact, note) =>
+    await createBookingByOwnerAction(playerName, contact, note, get),
 }))

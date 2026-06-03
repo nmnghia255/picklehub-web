@@ -177,3 +177,14 @@ export interface MyBookingsResponse {
     total: number
   }
 }
+
+export type BookingHistoryStatusFilter = "all" | BookingStatus
+
+export type BookingHistoryPagination = {
+  currentPage: number
+  totalPages: number
+  total: number
+  pageSize: number
+  hasPreviousPage: boolean
+  hasNextPage: boolean
+}

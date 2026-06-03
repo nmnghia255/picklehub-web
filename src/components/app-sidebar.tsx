@@ -78,12 +78,8 @@ const sportCenterManagementMenuItems = [
     href: "/sport-center-management/courts",
   },
   {
-    title: "Bảo lưu sân",
-    href: "/sport-center-management/reservation-management",
-  },
-  {
     title: "Quản lý khách hàng",
-    href: "/sport-center-management/customer-management",
+    href: "/sport-center-management/customer",
   },
   {
     title: "Danh sách đặt sân",
@@ -128,27 +124,22 @@ function SidebarLogo() {
   const isDark = resolvedTheme === "dark"
 
   return (
-    <div className="flex items-center gap-2 px-3 py-4">
+    <div className="flex items-center gap-2 py-4">
       <div
         className={cn(
-          "flex shrink-0 items-center justify-center rounded p-1.5 transition-colors",
+          "flex shrink-0 items-center justify-center rounded-xl transition-colors",
           isDark && "bg-white"
         )}
       >
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 40 40"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className={isDark ? "text-gray-900" : "text-sidebar-foreground"}
-        >
-          <polygon points="20,4 36,32 4,32" fill="currentColor" />
-        </svg>
+        <img
+          src={isDark ? "/logo-dark.png" : "/logo-light.png"}
+          alt="PickleHub Logo"
+          className="h-10 w-auto rounded-xl"
+        />
       </div>
 
       {state !== "collapsed" && (
-        <div className="text-sm font-semibold tracking-wide whitespace-nowrap text-sidebar-foreground">
+        <div className="text-md ml-1 font-semibold tracking-wide whitespace-nowrap text-sidebar-foreground">
           PickleHub
         </div>
       )}

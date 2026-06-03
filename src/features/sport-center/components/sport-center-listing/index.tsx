@@ -10,7 +10,6 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import {} from /* Tabs removed */ "@/components/ui/tabs"
 import { SportCenterTabContent } from "@/features/sport-center/components/sport-center-listing/sport-center-tab-content"
 import {
   type SportCenterPaginationState,

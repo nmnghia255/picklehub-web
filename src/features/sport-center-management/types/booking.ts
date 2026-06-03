@@ -181,7 +181,7 @@ export interface BookingDetail extends Booking {
 // Sport Center Owner Booking
 // ============================================
 
-interface OwnerBookingItem {
+export interface BookingSlot {
   courtId: string
   startTime: string
   endTime: string
@@ -199,7 +199,7 @@ interface OwnerBookingProductItem {
 
 export interface OwnerBooking {
   date: string
-  items: OwnerBookingItem[]
+  items: BookingSlot[]
   playerName: string
   phoneNumber: string
   serviceItems: OwnerBookingServiceItem[]

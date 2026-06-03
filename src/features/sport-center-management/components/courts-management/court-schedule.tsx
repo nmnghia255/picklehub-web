@@ -6,13 +6,31 @@ import { useCourtScheduleStore } from "../../stores/court-schedule-store"
 import type { Booking } from "../../types/booking"
 import { BookingDetailModal } from "./booking-modal"
 import { TimeSlot } from "./court-slot"
-import { Filters } from "./filters"
 import { QuickBookingModal } from "./quick-booking-modal"
 
-const timeSlots = Array.from({ length: 16 }, (_, i) => {
-  const hour = i + 6
-  return `${hour.toString().padStart(2, "0")}:00`
-})
+function generateTimeSlots(
+  openTime: string,
+  closeTime: string,
+  intervalMinutes = 30
+) {
+  const [oh, om] = openTime.split(":").map(Number)
+  const [ch, cm] = closeTime.split(":").map(Number)
+
+  const start = new Date()
+  start.setHours(oh, om, 0, 0)
+  const end = new Date()
+  end.setHours(ch, cm, 0, 0)
+
+  const slots: string[] = []
+  const cur = new Date(start)
+  while (cur < end) {
+    const hh = cur.getHours().toString().padStart(2, "0")
+    const mm = cur.getMinutes().toString().padStart(2, "0")
+    slots.push(`${hh}:${mm}`)
+    cur.setMinutes(cur.getMinutes() + intervalMinutes)
+  }
+  return slots
+}
 
 export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
   const {
@@ -21,8 +39,6 @@ export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
     selectedBooking,
     date,
     courtFilter,
-    setDate,
-    setCourtFilter,
     openBooking,
     closeBooking,
     closeQuickBooking,
@@ -31,15 +47,32 @@ export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
     fetchBookings,
     fetchCourts,
     cancelBooking,
-    createBooking,
     createBookingByOwner,
   } = useCourtScheduleStore()
 
+  const selectedCenter = useCourtScheduleStore((state) => state.selectedCenter)
+
   useEffect(() => {
+    if (!selectedCenter) return
+
     fetchCourts()
     fetchBookings()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date])
+  }, [date, selectedCenter])
+
+  if (!selectedCenter) {
+    return (
+      <div className="rounded-md border border-border bg-background p-6 text-center">
+        <p className="text-sm text-muted-foreground">
+          Vui lòng chọn trung tâm bạn quản lý để xem lịch và đặt sân.
+        </p>
+      </div>
+    )
+  }
+
+  const openTime = selectedCenter.openTime
+  const closeTime = selectedCenter.closeTime
+
+  const timeSlots = generateTimeSlots(openTime, closeTime, 30)
 
   const handleSlotClick = (
     courtId: string,
@@ -49,7 +82,7 @@ export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
     const booking = bookings[`${courtName}-${time}`]
 
     if (booking) {
-      openBooking(booking)
+      openBooking(booking, { courtId, courtName, time })
     } else {
       openQuickBooking({ courtId, courtName, time })
     }
@@ -63,66 +96,56 @@ export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
     await cancelBooking(bookingId)
   }
 
-  const handleCreateBooking = async (playerName: string, contact: string) => {
-    if (ownerMode) {
-      await createBookingByOwner(playerName, contact)
-    } else {
-      await createBooking(playerName, contact)
-    }
+  const handleCreateBooking = async (
+    playerName: string,
+    contact: string,
+    note: string
+  ) => {
+    await createBookingByOwner(playerName, contact, note)
   }
 
   return (
-    <>
-      <div className="mb-4">
-        <Filters
-          date={date}
-          setDate={setDate}
-          courtFilter={courtFilter}
-          setCourtFilter={setCourtFilter}
-          courts={courts}
-        />
-      </div>
-      <div className="overflow-x-auto">
-        <div className="inline-block min-w-full">
-          <div className="grid grid-cols-[120px_repeat(16,minmax(140px,1fr))] gap-px bg-border">
-            {/* Header Row */}
-            <div className="dark:bg-surface sticky left-0 z-0 bg-background p-4" />
-            {timeSlots.map((time) => (
-              <div
-                key={time}
-                className="dark:bg-surface bg-background p-4 text-center text-sm text-muted-foreground"
-              >
-                {time}
-              </div>
-            ))}
-
-            {/* Court Rows */}
-            {courts
-              .filter((c) =>
-                courtFilter === "all" ? true : c.name === courtFilter
-              )
-              .map((court) => (
-                <div key={court.name} className="contents">
-                  <div className="dark:bg-surface sticky left-0 z-0 flex items-center bg-background p-4 text-foreground">
-                    {court.name}
-                  </div>
-                  {timeSlots.map((time) => {
-                    const bookingKey = `${court.name}-${time}`
-                    const booking = bookings[bookingKey]
-                    return (
-                      <TimeSlot
-                        key={`${court.name}-${time}`}
-                        booking={booking}
-                        onClick={() =>
-                          handleSlotClick(court.id, court.name, time)
-                        }
-                      />
-                    )
-                  })}
-                </div>
-              ))}
+    <div className="w-full overflow-x-auto">
+      <div
+        className="grid gap-px bg-border"
+        style={{
+          gridTemplateColumns: `120px repeat(${timeSlots.length}, 140px)`,
+        }}
+      >
+        {/* Header Row */}
+        <div className="dark:bg-surface sticky left-0 z-0 bg-background p-4" />
+        {timeSlots.map((time) => (
+          <div
+            key={time}
+            className="dark:bg-surface bg-background p-4 text-center text-sm text-foreground"
+          >
+            {time}
           </div>
-        </div>
+        ))}
+
+        {/* Court Rows */}
+        {courts
+          .filter((c) =>
+            courtFilter === "all" ? true : c.name === courtFilter
+          )
+          .map((court) => (
+            <div key={court.name} className="contents">
+              <div className="dark:bg-surface sticky left-0 z-0 flex items-center bg-background p-4 text-foreground">
+                {court.name}
+              </div>
+              {timeSlots.map((time) => {
+                const bookingKey = `${court.name}-${time}`
+                const booking = bookings[bookingKey]
+                return (
+                  <TimeSlot
+                    key={`${court.name}-${time}`}
+                    booking={booking}
+                    onClick={() => handleSlotClick(court.id, court.name, time)}
+                  />
+                )
+              })}
+            </div>
+          ))}
       </div>
 
       <BookingDetailModal
@@ -136,6 +159,6 @@ export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
         onClose={closeQuickBooking}
         onCreate={handleCreateBooking}
       />
-    </>
+    </div>
   )
 }
