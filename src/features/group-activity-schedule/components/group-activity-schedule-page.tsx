@@ -1,13 +1,21 @@
 "use client"
 
+import { useQueryClient } from "@tanstack/react-query"
 import { format, startOfMonth } from "date-fns"
 import { Plus } from "lucide-react"
 import { useMemo, useState } from "react"
-import { useQueryClient } from "@tanstack/react-query"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxTrigger,
+} from "@/components/ui/combobox"
 import {
   Dialog,
   DialogContent,
@@ -16,15 +24,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
-import { useSocialsTranslation } from "@/i18n/use-socials-translation"
-import {
-  socialQueryKeys,
-  useSocialListQuery,
-} from "@/features/socials/api/social-queries"
-import { SocialForm } from "@/features/socials/components/Social/SocialForm"
-import type { Social } from "@/features/socials/types"
-
-import { GroupActivityCalendarView } from "./group-activity-calendar-view"
 import {
   Select,
   SelectContent,
@@ -33,13 +32,14 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
-  Combobox,
-  ComboboxInput,
-  ComboboxList,
-  ComboboxItem,
-  ComboboxContent,
-  ComboboxTrigger,
-} from "@/components/ui/combobox"
+  socialQueryKeys,
+  useSocialListQuery,
+} from "@/features/socials/api/social-queries"
+import { SocialForm } from "@/features/socials/components/Social"
+import type { Social } from "@/features/socials/types"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
+
+import { GroupActivityCalendarView } from "./group-activity-calendar-view"
 
 interface GroupActivitySchedulePageProps {
   initialGroupId?: string

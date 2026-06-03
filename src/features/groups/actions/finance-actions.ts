@@ -96,13 +96,19 @@ export async function createFundAction(
       return { error: "Tổng số tiền thành viên phải khớp với tổng quỹ." }
     }
 
+    // Normalize numeric fields to match backend DTO types
+    const normalizedTargetMembers = targetMembers.map((m) => ({
+      userId: String(m.userId),
+      requiredAmount: Number(m.requiredAmount),
+    }))
+
     const endpoint = `/api/groups/${normalizedGroupId}/funds`
     const payload = {
       title,
       description,
       requiredAmount,
       deadline,
-      targetMembers,
+      targetMembers: normalizedTargetMembers,
       useCredit: formData.get("useCredit")?.toString() === "true",
     }
 
@@ -148,7 +154,11 @@ export async function updateFundAction(
       try {
         const parsed = JSON.parse(targetMembersRaw)
         if (Array.isArray(parsed)) {
-          targetMembers = parsed
+          // normalize requiredAmount to number when updating
+          targetMembers = parsed.map((m: { userId: unknown; requiredAmount?: unknown }) => ({
+            userId: String(m.userId),
+            requiredAmount: Number(m.requiredAmount),
+          }))
         }
       } catch {
         return { error: "Dữ liệu thành viên không hợp lệ." }

@@ -1,5 +1,6 @@
 "use client"
 
+import { useQueries, useQuery } from "@tanstack/react-query"
 import { useMemo } from "react"
 
 import {
@@ -21,21 +22,20 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useQueries, useQuery } from "@tanstack/react-query"
 
 import {
   financeQueryKeys,
   getFinanceSummaryClient,
   getGroupMembersClient,
+  listCreditBalancesClient,
   listExpensesClient,
   listFundPaymentsClient,
   listFundsClient,
   listMyFundsClient,
 } from "../api/finance-client"
-import type { ExpenseItem, FundItem, FundPayment } from "../types/finance"
 import type { Member } from "../types"
+import type { ExpenseItem, FundItem, FundPayment } from "../types/finance"
 import { isArchivedGroup } from "../utils/group-status"
-import { useGroupDetailActiveTab } from "./group-detail-tabs"
 import {
   CreateExpenseButton,
   CreateFundButton,
@@ -44,6 +44,7 @@ import {
   PaymentReceiptPreview,
   PaymentVerifyRow,
 } from "./finance-item-actions"
+import { useGroupDetailActiveTab } from "./group-detail-tabs"
 
 function formatCurrency(value?: string | number | null) {
   if (value === undefined || value === null || value === "") return "-"
@@ -213,6 +214,7 @@ function FundPaymentPreviewList({
   canManage,
   emptyLabel,
   showQuickActions,
+  members,
 }: {
   groupId: string
   fundId: string
@@ -221,6 +223,7 @@ function FundPaymentPreviewList({
   canManage: boolean
   emptyLabel: string
   showQuickActions: boolean
+  members: Member[]
 }) {
   if (!payments.length) {
     return <p className="text-xs text-muted-foreground">{emptyLabel}</p>
@@ -258,7 +261,21 @@ function FundPaymentPreviewList({
                     </Badge>
                   </div>
                   <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                    <span>Số tiền: {formatCurrency(payment.amountPaid)}</span>
+                    <span>Yêu cầu: {formatCurrency(payment.requiredAmount ?? 0)}</span>
+                    <span>Đã dùng credit: {formatCurrency(payment.creditUsed ?? 0)}</span>
+                    <span>Đã đóng: {formatCurrency(payment.amountPaid ?? 0)}</span>
+                    <span>
+                      Còn thiếu: {formatCurrency(Math.max(0, Number(payment.requiredAmount ?? 0) - Number(payment.creditUsed ?? 0) - Number(payment.amountPaid ?? 0)))}
+                    </span>
+                    <span>
+                      Số dư hiện có: {formatCurrency(
+                        (
+                          members.find(
+                            (mm) => mm.userId === payment.userId
+                          ) as Member & { creditBalance?: number }
+                        )?.creditBalance ?? 0
+                      )}
+                    </span>
                     <span>
                       Gửi lúc: {formatDateTime(payment.paidAt ?? null)}
                     </span>
@@ -425,11 +442,12 @@ function FundListItemCard({
           <FundPaymentPreviewList
             groupId={groupId}
             fundId={fund.id}
-            payments={pendingPayments}
+              payments={pendingPayments}
             previewCount={Math.min(pendingPayments.length, defaultPreviewCount)}
             canManage={canManage}
             emptyLabel="Chưa có yêu cầu thanh toán nào đang chờ duyệt."
             showQuickActions
+              members={members}
           />
         </div>
       </div>
@@ -450,6 +468,7 @@ function FundListItemCard({
             canManage={canManage}
             emptyLabel="Chưa có dữ liệu thanh toán của thành viên."
             showQuickActions={false}
+            members={members}
           />
         </div>
       </AccordionContent>
@@ -545,7 +564,20 @@ export function GroupFinanceSection({
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   })
-  const resolvedMembers = members.length > 0 ? members : membersQuery.data ?? []
+  const creditBalancesQuery = useQuery({
+    queryKey: financeQueryKeys.creditBalances(groupId),
+    queryFn: () => listCreditBalancesClient(groupId, { limit: 1000 }),
+    enabled: isFinanceActive,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  })
+
+  const baseMembers = members.length > 0 ? members : membersQuery.data ?? []
+
+  const resolvedMembers = baseMembers.map((m) => {
+    const found = creditBalancesQuery.data?.data?.find((b) => b.userId === m.userId)
+    return { ...m, creditBalance: found?.creditBalance ?? 0 }
+  })
 
   const fundPaymentsQueries = useQueries({
     queries: funds.map((fund) => ({
@@ -791,31 +823,38 @@ function FinanceMyFundsTable({
       <TableHeader>
         <TableRow>
           <TableHead>Tên</TableHead>
-          <TableHead>Số tiền</TableHead>
+          <TableHead>Tổng quỹ</TableHead>
+          <TableHead>Tôi phải đóng</TableHead>
+          <TableHead>Đã dùng credit</TableHead>
+          <TableHead>Đã đóng</TableHead>
+          <TableHead>Còn thiếu</TableHead>
           <TableHead>Trạng thái</TableHead>
+          <TableHead />
         </TableRow>
       </TableHeader>
       <TableBody>
         {funds.map((fund) => {
           const payment = fund.payments?.[0]
+          const required = Number(payment?.requiredAmount ?? 0)
+          const paid = Number(payment?.amountPaid ?? 0)
+          const creditUsed = Number(payment?.creditUsed ?? 0)
+          const remaining = Math.max(0, required - creditUsed - paid)
+
           return (
             <TableRow key={fund.id} className="border-b last:border-b-0">
               <TableCell className="font-medium">{fund.title}</TableCell>
               <TableCell>{formatCurrency(fund.requiredAmount)}</TableCell>
+              <TableCell>{formatCurrency(required)}</TableCell>
+              <TableCell>{formatCurrency(creditUsed)}</TableCell>
+              <TableCell>{formatCurrency(paid)}</TableCell>
+              <TableCell>{formatCurrency(remaining)}</TableCell>
               <TableCell>
                 {(() => {
-                  const status = payment?.status?.toUpperCase() ?? null
-                  const statusLabel = formatPaymentStatus(
-                    payment?.status ?? null
-                  )
-                  const badgeVariant =
-                    status === "PAID"
-                      ? "default"
-                      : status === "PENDING"
-                        ? "secondary"
-                        : status === "REJECTED"
-                          ? "destructive"
-                          : "outline"
+                  // Determine status based on backend status and computed remaining
+                  const backendStatus = payment?.status?.toUpperCase() ?? null
+                  const computedPaidOff = remaining <= 0
+                  const statusLabel = computedPaidOff ? "Đã thanh toán" : formatPaymentStatus(payment?.status ?? null)
+                  const badgeVariant = computedPaidOff ? "default" : (backendStatus === "PENDING" ? "secondary" : backendStatus === "REJECTED" ? "destructive" : "outline")
 
                   return <Badge variant={badgeVariant}>{statusLabel}</Badge>
                 })()}

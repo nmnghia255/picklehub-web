@@ -1,7 +1,7 @@
 "use client"
 
-import { Loader2, MoreHorizontal, Plus } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
+import { Loader2, MoreHorizontal, Plus } from "lucide-react"
 import { useActionState, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 
@@ -36,8 +36,8 @@ import {
   verifyFundPaymentAction,
 } from "../actions/finance-actions"
 import { financeQueryKeys } from "../api/finance-client"
-import type { ExpenseItem, FundItem, FundPayment } from "../types/finance"
 import type { Member } from "../types"
+import type { ExpenseItem, FundItem, FundPayment } from "../types/finance"
 
 function formatDateInput(value?: string | null) {
   if (!value) return ""
@@ -452,22 +452,39 @@ function FundForm({
                         <span className="text-sm">{member.name ?? member.userId}</span>
                       </label>
                       <div className="ml-auto flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">
-                          Credit: {formatCurrency((member as any).creditBalance ?? 0)}
-                        </span>
-                        <Input
-                          type="number"
-                          placeholder="Số tiền"
-                          value={amountMap[member.userId] ?? ""}
-                          onChange={(event) =>
-                            setAmountMap((current) => ({
-                              ...current,
-                              [member.userId]: event.target.value,
-                            }))
-                          }
-                          disabled={!checked}
-                          className="w-28"
-                        />
+                        {(() => {
+                           const requiredNum = Number(amountMap[member.userId] ?? 0)
+                           const creditBal = Number(
+                             (member as Member & { creditBalance?: number })
+                               .creditBalance ?? 0
+                           )
+                           const creditWillUse = useCredit ? Math.min(creditBal, requiredNum) : 0
+                          const remainingAfterCredit = Math.max(0, requiredNum - creditWillUse)
+
+                          return (
+                            <div className="flex items-center gap-2">
+                              <div className="flex flex-col items-end">
+                                <span className="text-xs text-muted-foreground">Số dư: {formatCurrency(creditBal)}</span>
+                                {checked ? (
+                                  <span className="text-xs text-muted-foreground">Sau khi dùng số dư: {formatCurrency(remainingAfterCredit)}</span>
+                                ) : null}
+                              </div>
+                              <Input
+                                type="number"
+                                placeholder="Số tiền"
+                                value={amountMap[member.userId] ?? ""}
+                                onChange={(event) =>
+                                  setAmountMap((current) => ({
+                                    ...current,
+                                    [member.userId]: event.target.value,
+                                  }))
+                                }
+                                disabled={!checked}
+                                className="w-28"
+                              />
+                            </div>
+                          )
+                        })()}
                       </div>
                     </div>
                   )
@@ -480,15 +497,18 @@ function FundForm({
           </Field>
 
           <Field>
-            <label className="flex items-center gap-2">
+            <label className="flex items-start gap-2">
               <input
                 type="checkbox"
                 name="useCreditUi"
                 checked={useCredit}
                 onChange={(event) => setUseCredit(event.target.checked)}
+                className="mt-1"
               />
-              <span className="text-sm">
-                Áp dụng credit sẵn có của thành viên (useCredit)
+              <span className="space-y-1 text-sm">
+                <span className="block font-medium text-foreground">
+                  Tự động dùng số dư hiện có của thành viên
+                </span>
               </span>
             </label>
           </Field>
@@ -793,7 +813,7 @@ export function PaymentVerifyRow({
             {(() => {
               const required = Number(payment.requiredAmount ?? 0)
               const creditUsed = Number(payment.creditUsed ?? 0)
-              return <span>Yêu cầu: {formatCurrency(required)} | Credit dùng: {formatCurrency(creditUsed)}</span>
+              return <span>Yêu cầu: {formatCurrency(required)} | Số dư đã dùng: {formatCurrency(creditUsed)}</span>
             })()}
           </div>
         </div>

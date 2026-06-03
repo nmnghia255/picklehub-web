@@ -1,3 +1,4 @@
+import type { Member } from "../types"
 import type {
   FinanceSummary,
   FundPayment,
@@ -5,7 +6,6 @@ import type {
   ListFundsResult,
   ListMyFundsResult,
 } from "../types/finance"
-import type { Member } from "../types"
 
 type QueryParams = Record<string, string | number | boolean | null | undefined>
 
@@ -50,6 +50,7 @@ export const financeQueryKeys = {
   expenses: (groupId: string) => ["group-finance", groupId, "expenses"] as const,
   fundPayments: (groupId: string, fundId: string) =>
     ["group-finance", groupId, "fund-payments", fundId] as const,
+  creditBalances: (groupId: string) => ["group-finance", groupId, "credit-balances"] as const,
 }
 
 export async function getFinanceSummaryClient(
@@ -130,4 +131,24 @@ export async function listFundPaymentsClient(
 
 export async function getGroupMembersClient(groupId: string): Promise<Member[]> {
   return fetchJson<Member[]>(`/api/groups/${groupId}/members`)
+}
+
+export async function listCreditBalancesClient(
+  groupId: string,
+  params: {
+    page?: number
+    limit?: number
+    minCredit?: number
+    userId?: string
+  } = {}
+): Promise<{
+  data: Array<{ userId: string; creditBalance: number; user?: Member }>
+  meta: { page: number; limit: number; total: number; totalPages: number }
+}> {
+  const searchParams = toSearchParams(params)
+  const suffix = searchParams.toString() ? `?${searchParams.toString()}` : ""
+  return fetchJson<{
+    data: Array<{ userId: string; creditBalance: number; user?: Member }>
+    meta: { page: number; limit: number; total: number; totalPages: number }
+  }>(`/api/groups/${groupId}/finances/credit-balances${suffix}`)
 }
