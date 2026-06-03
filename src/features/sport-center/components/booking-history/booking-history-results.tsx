@@ -13,7 +13,15 @@ import {
 import type { BookingResponse } from "@/features/sport-center/types/booking"
 import CancelReasonDialog from "@/features/sport-center-management/components/booking-list/cancel-reason-dialog"
 
-import type { BookingHistoryPagination } from "../../../../app/(protected)/sport-center/booking-history/booking-history.types"
+// BookingHistoryPagination type lives in app route types which may not be
+// available to this feature at build-time. Define a local minimal shape
+// used by this component to avoid fragile cross-folder imports.
+type BookingHistoryPagination = {
+  currentPage: number
+  totalPages: number
+  hasPreviousPage: boolean
+  hasNextPage: boolean
+}
 import { BookingHistoryDetailDialog } from "./booking-history-detail-dialog"
 import { BookingHistoryEmptyState } from "./booking-history-empty-state"
 import { BookingHistorySkeleton } from "./booking-history-skeleton"

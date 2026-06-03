@@ -13,7 +13,11 @@ export type ParticipantStatus =
   | "ON_HOLD"
   | "CANCELLED"
 export type SocialPaymentStatus = "UNPAID" | "PENDING_REVIEW" | "PAID"
-export type PlaySessionStatus = "ACTIVE" | "CANCELLED"
+export type PlaySessionStatus =
+  | "ACTIVE"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "CANCELLED"
 
 export interface User {
   id: string
@@ -27,7 +31,8 @@ export interface PlaySession {
   title: string
   status: PlaySessionStatus
   joinedCount: number
-  maxSlots?: number
+  // backend schema defines maxSlots as non-nullable Int
+  maxSlots: number
   bookingIds: string[]
   numberOfCourts: number
   courtNames?: string | null

@@ -15,11 +15,11 @@ import { CalendarRange, MapPin } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import type {
   CalendarView,
 } from "@/features/group-activity-schedule/group-activity-schedule.types"
 import type { Social } from "@/features/socials/types"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 interface GroupActivityCalendarViewProps {
   socials: Social[]

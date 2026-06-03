@@ -3,8 +3,8 @@ import { ErrorSection } from "@/components/error-section"
 import { PageContainer } from "@/components/page-container"
 import {
   getGroup,
-  getGroupMembers,
   getGroupInvitations,
+  getGroupMembers,
 } from "@/features/groups/api/groups-service"
 import { GroupDetailActionsMenu } from "@/features/groups/components/group-detail-actions-menu"
 import { GroupDetailHeader } from "@/features/groups/components/group-detail-header"

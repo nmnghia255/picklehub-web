@@ -3,10 +3,12 @@ import axiosLib from "axios"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type {
+  CreditBalanceEntry,
   ExpenseItem,
   FinanceSummary,
   FundItem,
   FundPayment,
+  ListCreditBalancesResult,
   ListExpensesResult,
   ListFundsResult,
   ListMyFundsResult,
@@ -94,7 +96,7 @@ export async function listFunds(
   const sendParams = { ...params }
   // backend field is `requiredAmount`; translate frontend `amount` to backend `requiredAmount`
   if (params.sortBy === "amount") {
-    // @ts-ignore
+    // @ts-expect-error: translate frontend sortBy to backend field
     sendParams.sortBy = "requiredAmount"
   }
 
@@ -368,4 +370,44 @@ export async function getExpenseById(
   )
 
   return unwrapData(response.data)
+}
+
+export async function listCreditBalances(
+  groupId: string,
+  params: {
+    page?: number
+    limit?: number
+    minCredit?: number
+    userId?: string
+  } = {}
+): Promise<ListCreditBalancesResult> {
+  const axios = await getAuthenticatedAxios()
+
+  // Strip undefined values so axios doesn't serialize them as "undefined" strings
+  const cleanParams = Object.fromEntries(
+    Object.entries(params).filter(([, v]) => v !== undefined)
+  )
+
+  try {
+    const response = await axios.get<ApiEnvelope<CreditBalanceEntry[]>>(
+      `/api/groups/${groupId}/finances/credit-balances`,
+      { params: cleanParams }
+    )
+
+    return {
+      data: unwrapListResponse<CreditBalanceEntry>(response.data),
+      meta: normalizeMeta(response.data),
+      message: (response.data as { message?: string })?.message,
+    }
+  } catch (error) {
+    if (axiosLib.isAxiosError(error)) {
+      console.error("Credit balance API error", {
+        url: error.config?.url,
+        status: error.response?.status,
+        data: error.response?.data,
+      })
+    }
+
+    throw error
+  }
 }

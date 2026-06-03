@@ -58,28 +58,27 @@ export default function SocialDetail() {
   }
 
   const isHost = Boolean(social.isHost)
-  const duration = differenceInHours(
-    new Date(social.endTime),
-    new Date(social.startTime)
-  )
+  const startDate = new Date(social.startTime ?? new Date().toISOString())
+  const endDate = new Date(social.endTime ?? social.startTime ?? new Date().toISOString())
+  const duration = differenceInHours(endDate, startDate)
   const overviewSocial = {
     ...social,
     minimumLevel: social.minimumLevel ?? "N/A",
     maximumLevel: social.maximumLevel ?? "N/A",
   }
-  const completedMatches: Match[] = social.playSessions.flatMap(
+  const completedMatches: Match[] = (social.playSessions ?? []).flatMap(
     (session) =>
       session.matches?.filter((match) => match.status === "COMPLETED") ?? []
   )
-  const inProgressMatches: Match[] = social.playSessions.flatMap(
+  const inProgressMatches: Match[] = (social.playSessions ?? []).flatMap(
     (session) =>
       session.matches?.filter((match) => match.status === "IN_PROGRESS") ?? []
   )
-  const scheduledMatches: Match[] = social.playSessions.flatMap(
+  const scheduledMatches: Match[] = (social.playSessions ?? []).flatMap(
     (session) =>
       session.matches?.filter((match) => match.status === "SCHEDULED") ?? []
   )
-  const currentSession = selectedSession ?? social.playSessions[0]
+  const currentSession = selectedSession ?? (social.playSessions ?? [])[0]
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
@@ -110,9 +109,9 @@ export default function SocialDetail() {
             </TabsList>
 
             <TabsContent value="0" className="space-y-4">
-              <SocialOverview social={overviewSocial} duration={duration} />
+              <SocialOverview social={overviewSocial} />
               <SocialSessions
-                sessions={social.playSessions}
+                sessions={social.playSessions ?? []}
                 isHost={isHost}
                 matchesByStatus={{
                   inProgress: inProgressMatches,
@@ -144,7 +143,11 @@ export default function SocialDetail() {
         </div>
 
         <SocialSidebar
-          session={currentSession ?? { joinedCount: 0, maxSlots: 1 }}
+          session={
+            currentSession
+              ? { ...currentSession, maxSlots: currentSession.maxSlots ?? 1 }
+              : { joinedCount: 0, maxSlots: 1 }
+          }
           social={social}
           onJoin={() => setJoinDialogOpen(true)}
           onLeave={() => alert("Leave social")}

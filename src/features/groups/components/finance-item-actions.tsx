@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client"
 
 import { useQueryClient } from "@tanstack/react-query"
@@ -184,6 +185,8 @@ function useToastState(
 ) {
   const handledRef = useRef(false)
 
+  // some code intentionally updates local state from incoming props
+   
   useEffect(() => {
     if (state.success && !handledRef.current) {
       handledRef.current = true
@@ -293,6 +296,8 @@ function FundForm({
   const [useCredit, setUseCredit] = useState<boolean>(false)
   const [formError, setFormError] = useState<string | null>(null)
 
+  // initialize selection/amount maps from fund payments when editing
+   
   useEffect(() => {
     if (mode !== "edit" || !fund?.payments) {
       setSelectedMap({})
@@ -314,6 +319,8 @@ function FundForm({
     setAmountMap(nextAmountMap)
   }, [fund, mode])
 
+  // keep input synced when editing existing fund
+   
   useEffect(() => {
     setRequiredAmountInput(String(fund?.requiredAmount ?? ""))
   }, [fund?.requiredAmount, mode])
@@ -340,6 +347,8 @@ function FundForm({
     requiredAmountNumber >= 0 &&
     targetMembersTotal === requiredAmountNumber
 
+  // synchronize client-side validation state
+   
   useEffect(() => {
     if (!isClientPayloadValid) {
       if (targetMembersPayload.length === 0) {
@@ -799,44 +808,37 @@ export function PaymentVerifyRow({
 
   return (
     <div
-      className={`flex flex-wrap items-center justify-end gap-2 ${className ?? ""}`}
+      className={`flex flex-wrap items-center justify-end gap-2 md:flex-nowrap ${className ?? ""}`}
     >
-      <form action={formAction} className="flex flex-wrap items-center gap-2">
-        <div className="flex items-center gap-2">
-          <Input
-            name="amountPaid"
-            type="number"
-            placeholder="Số thực nộp (để trống = required)"
-            className="w-32"
-          />
-          <div className="text-xs text-muted-foreground">
-            {(() => {
-              const required = Number(payment.requiredAmount ?? 0)
-              const creditUsed = Number(payment.creditUsed ?? 0)
-              return <span>Yêu cầu: {formatCurrency(required)} | Số dư đã dùng: {formatCurrency(creditUsed)}</span>
-            })()}
-          </div>
+      <form action={formAction} className="flex min-w-0 flex-wrap items-center justify-end gap-2 md:flex-nowrap">
+        <Input
+          name="amountPaid"
+          type="number"
+          placeholder="Thực tế đã đóng"
+          className="w-32 shrink-0 sm:w-40"
+        />
+        <div className="flex shrink-0 flex-nowrap items-center gap-2">
+          <Button
+            type="submit"
+            name="status"
+            value="PAID"
+            size={compact ? "xs" : "sm"}
+            disabled={isPending}
+          >
+            {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+            Duyệt
+          </Button>
+          <Button
+            type="submit"
+            name="status"
+            value="REJECTED"
+            size={compact ? "xs" : "sm"}
+            variant="destructive"
+            disabled={isPending}
+          >
+            Từ chối
+          </Button>
         </div>
-        <Button
-          type="submit"
-          name="status"
-          value="PAID"
-          size={compact ? "xs" : "sm"}
-          disabled={isPending}
-        >
-          {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-          Duyệt
-        </Button>
-        <Button
-          type="submit"
-          name="status"
-          value="REJECTED"
-          size={compact ? "xs" : "sm"}
-          variant="destructive"
-          disabled={isPending}
-        >
-          Từ chối
-        </Button>
       </form>
     </div>
   )

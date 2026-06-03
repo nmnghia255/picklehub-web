@@ -1,5 +1,6 @@
 "use client"
 
+import { vi } from "date-fns/locale/vi"
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -11,7 +12,6 @@ import {
   DayPicker,
   getDefaultClassNames,
 } from "react-day-picker"
-import { vi } from "date-fns/locale/vi"
 
 import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"

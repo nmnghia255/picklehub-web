@@ -30,10 +30,11 @@ export default function SocialSidebar({
     maxSlots: number
   }
   social: {
-    organizers: Array<{ name: string; avatar?: string | null }>
+    // organizers from API contain userId; avoid assuming enriched user data here
+    organizers?: Array<{ userId: string }>
     hostRole: string
     autoApproveJoinRequests: boolean
-    cancellationFreezeHours: number
+    cancellationFreezeHours?: number | null
     isPrivate: boolean
     totalExpense?: number | null
     isParticipant?: boolean
@@ -75,17 +76,14 @@ export default function SocialSidebar({
           </p>
           <div className="mt-3 flex items-center gap-3">
             <Avatar className="size-11">
-              <AvatarImage
-                src={social.organizers[0]?.avatar ?? undefined}
-                alt={social.organizers[0]?.name ?? "Host"}
-              />
+              {/* Show fallback using organizer userId when name/avatar are not available */}
               <AvatarFallback>
-                {(social.organizers[0]?.name ?? "H").slice(0, 1)}
+                {(social.organizers?.[0]?.userId ?? "U").slice(0, 1).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div>
               <p className="text-sm font-medium">
-                {social.organizers[0]?.name}
+                {social.organizers?.[0]?.userId ?? "Host"}
               </p>
               <p className="text-xs text-muted-foreground">
                 {social.hostRole === "HOST_AND_PLAY"
@@ -114,7 +112,7 @@ export default function SocialSidebar({
             <SettingRow
               label={t("sidebar.cancellationPolicy")}
               value={`${t("common.hours", {
-                count: social.cancellationFreezeHours,
+                count: social.cancellationFreezeHours ?? 0,
               })} ${t("common.beforeEvent")}`}
             />
             <SettingRow

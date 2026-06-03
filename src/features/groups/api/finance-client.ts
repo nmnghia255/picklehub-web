@@ -1,6 +1,7 @@
 import type { Member } from "../types"
 import type {
   FinanceSummary,
+  FinanceUserSummary,
   FundPayment,
   ListExpensesResult,
   ListFundsResult,
@@ -8,6 +9,12 @@ import type {
 } from "../types/finance"
 
 type QueryParams = Record<string, string | number | boolean | null | undefined>
+
+type FetchJsonError = Error & {
+  status?: number
+  data?: unknown
+  url?: string
+}
 
 function toSearchParams(params?: QueryParams) {
   const searchParams = new URLSearchParams()
@@ -35,7 +42,33 @@ async function fetchJson<T>(url: string): Promise<T> {
 
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}))
-    throw new Error(payload?.message || "Không thể tải dữ liệu tài chính.")
+    const payloadMessage = (() => {
+      if (!payload || typeof payload !== "object") {
+        return null
+      }
+
+      const message = (payload as { message?: unknown }).message
+      if (typeof message === "string") {
+        return message
+      }
+
+      if (Array.isArray(message)) {
+        return message
+          .map((item) => (typeof item === "string" ? item : null))
+          .filter(Boolean)
+          .join(", ")
+      }
+
+      return null
+    })()
+
+    const error = new Error(
+      payloadMessage || "Không thể tải dữ liệu tài chính."
+    ) as FetchJsonError
+    error.status = response.status
+    error.data = payload
+    error.url = url
+    throw error
   }
 
   return (await response.json()) as T
@@ -142,13 +175,21 @@ export async function listCreditBalancesClient(
     userId?: string
   } = {}
 ): Promise<{
-  data: Array<{ userId: string; creditBalance: number; user?: Member }>
+  data: Array<{
+    userId: string
+    creditBalance: number
+    user?: FinanceUserSummary | null
+  }>
   meta: { page: number; limit: number; total: number; totalPages: number }
 }> {
   const searchParams = toSearchParams(params)
   const suffix = searchParams.toString() ? `?${searchParams.toString()}` : ""
   return fetchJson<{
-    data: Array<{ userId: string; creditBalance: number; user?: Member }>
+    data: Array<{
+      userId: string
+      creditBalance: number
+      user?: FinanceUserSummary | null
+    }>
     meta: { page: number; limit: number; total: number; totalPages: number }
   }>(`/api/groups/${groupId}/finances/credit-balances${suffix}`)
 }

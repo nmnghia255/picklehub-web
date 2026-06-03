@@ -4,7 +4,7 @@ import { useEffect } from "react"
 import { I18nextProvider } from "react-i18next"
 
 import i18n from "@/i18n/client"
-import { languageStorageKey, defaultLanguage } from "@/i18n/settings"
+import { defaultLanguage,languageStorageKey } from "@/i18n/settings"
 
 function getStoredLanguage() {
   if (typeof window === "undefined") {

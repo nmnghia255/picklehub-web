@@ -55,14 +55,14 @@ function getSessionStatusLabel(
   t: (key: string) => string
 ) {
   switch (status) {
-    case "PUBLISHED":
-      return t("labels.published")
+    case "IN_PROGRESS":
+      return t("labels.inProgress")
     case "COMPLETED":
       return t("labels.completed")
     case "CANCELLED":
       return t("labels.cancelled")
-    case "DRAFT":
-      return t("labels.draft")
+    case "ACTIVE":
+      return t("labels.active")
     default:
       return t("labels.scheduled")
   }
@@ -161,26 +161,26 @@ export default function SocialSessions({
                         )}
                       </div>
 
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          <span>{t("sessions.participants")}</span>
-                          <span>
-                            {session.joinedCount} / {session.maxSlots}
-                          </span>
-                        </div>
-                        <ProgressBar
-                          value={(session.joinedCount / session.maxSlots) * 100}
-                        />
-                      </div>
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                <span>{t("sessions.participants")}</span>
+                                <span>
+                                  {session.joinedCount} / {session.maxSlots ?? 1}
+                                </span>
+                              </div>
+                              <ProgressBar
+                                value={(session.joinedCount / (session.maxSlots ?? 1)) * 100}
+                              />
+                            </div>
 
                       <Button
                         variant="outline"
                         size="sm"
                         className="w-full"
-                        disabled={session.joinedCount >= session.maxSlots}
+                        disabled={session.joinedCount >= (session.maxSlots ?? 1)}
                         onClick={() => onOpenSession(session.id)}
                       >
-                        {session.joinedCount >= session.maxSlots
+                        {session.joinedCount >= (session.maxSlots ?? 1)
                           ? t("sessions.full")
                           : t("sessions.viewDetails")}
                       </Button>

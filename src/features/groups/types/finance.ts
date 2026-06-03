@@ -84,3 +84,15 @@ export interface ListExpensesResult {
   meta: FinancePaginationMeta
   message?: string
 }
+
+export interface CreditBalanceEntry {
+  userId: string
+  creditBalance: number
+  user?: FinanceUserSummary | null
+}
+
+export interface ListCreditBalancesResult {
+  data: CreditBalanceEntry[]
+  meta: FinancePaginationMeta
+  message?: string
+}

@@ -182,7 +182,13 @@ export default function PlaySessionDetail() {
 
                 {tabValue === "2" && (
                   <PlaySessionParticipants
-                    participants={session.participants}
+                    participants={session.participants?.map((p) => ({
+                      id: p.id,
+                      user: { name: String(p.userId), avatar: undefined },
+                      status: p.status,
+                      skillLevel: undefined,
+                      joinedAt: p.joinedAt,
+                    }))}
                   />
                 )}
               </div>
@@ -191,7 +197,7 @@ export default function PlaySessionDetail() {
         </div>
 
         <PlaySessionSidebar
-          session={session}
+          session={session as { joinedCount: number; maxSlots: number }}
           social={social}
           onJoin={() => alert(t("sidebar.joinSession"))}
           onLeave={() => alert(t("sidebar.leaveSession"))}

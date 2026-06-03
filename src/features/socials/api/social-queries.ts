@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { socialService, type SocialListQuery } from "./social-service.client"
+import { type SocialListQuery,socialService } from "./social-service.client"
 
 export const socialQueryKeys = {
   all: ["socials"] as const,
