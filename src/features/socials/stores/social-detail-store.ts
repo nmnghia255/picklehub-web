@@ -1,6 +1,6 @@
 import { create } from "zustand"
 
-import type { PlaySession } from "@/features/socials/types"
+import type { PlaySession } from "@/features/socials/types/play-session"
 
 interface SocialDetailState {
   joinDialogOpen: boolean

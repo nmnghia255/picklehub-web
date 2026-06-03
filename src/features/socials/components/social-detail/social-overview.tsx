@@ -7,24 +7,17 @@ import React from "react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import type { GenderPolicy } from "@/features/socials/types"
+import type { GenderPolicy } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import InfoRow from "./InfoRow"
+import type { ListSocialResponse as Social } from "../../types/social"
+import InfoRow from "./infor-row"
 
 export default function SocialOverview({
   social,
   duration,
 }: {
-  social: {
-    startTime: string | Date
-    note: string
-    genderPolicy: GenderPolicy
-    ageGroup: string
-    minimumLevel?: string | number
-    maximumLevel?: string | number
-    submitDupr?: boolean
-  }
+  social: Social
   duration: number
 }) {
   const { t } = useSocialsTranslation()

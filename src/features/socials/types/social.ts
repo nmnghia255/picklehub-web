@@ -43,7 +43,7 @@ export interface ListSocialResponse {
   id: string
   title: string
   note: string
-  groupId: null
+  groupId: string | null
   startTime: string
   endTime: string
   totalBookingCost: number
@@ -55,7 +55,7 @@ export interface ListSocialResponse {
   hasAvailableSlots: boolean
   genderPolicy: GenderPolicy
   ageGroup: AgeGroup
-  format: string
+  format: SocialFormat
   submitDupr: boolean
   minimumLevel: string
   maximumLevel: string
@@ -100,6 +100,9 @@ export interface SocialParticipant {
   paymentStatus: string
   joinedAt: string
   isHost: boolean
+  name: string
+  avatarUrl: string | null
+  selfRating: number | null
 }
 
 export interface DuplicateSessionRequest {
@@ -113,4 +116,10 @@ export interface LeaveSocialResponse {
   socialId: string
   userId: string
   promotedUserId: string
+}
+
+export interface Host {
+  id: string
+  name: string
+  avatarUrl?: string | null
 }

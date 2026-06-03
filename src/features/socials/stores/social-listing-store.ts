@@ -3,6 +3,7 @@ import { create } from "zustand"
 import type {
   AgeGroup,
   GenderPolicy,
+  ListSocialResponse as Social,
   SocialFormat,
   SocialStatus,
 } from "../types/social"
@@ -28,6 +29,8 @@ export type Filters = {
 }
 
 interface SocialsState {
+  selectedSocial: Social | null
+  setSelectedSocial: (social: Social | null) => void
   filterDrawerOpen: boolean
   setFilterDrawerOpen: (open: boolean) => void
   filters: Filters
@@ -65,6 +68,8 @@ export const useSocialsStore = create<SocialsState>((set) => ({
   setFilterDrawerOpen: (open: boolean) => set({ filterDrawerOpen: open }),
 
   filters: defaultFilters,
+  selectedSocial: null,
+  setSelectedSocial: (social: Social | null) => set({ selectedSocial: social }),
 
   setFilters: (update) =>
     set((state) => {

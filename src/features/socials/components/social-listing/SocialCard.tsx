@@ -3,30 +3,17 @@
 import { format } from "date-fns"
 import { Check, LockKeyhole } from "lucide-react"
 import { useRouter } from "next/navigation"
-import React from "react"
 
-import { AvatarGroup } from "@/components/ui/avatar"
+// import { AvatarGroup } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import type { Social } from "@/features/socials/types"
+import type { ListSocialResponse as Social } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
+import { getStatusClasses } from "../../utils"
 import ProgressBar from "./ProgressBar"
-import UserAvatar from "./UserAvatar"
-
-function getStatusClasses(status: string) {
-  switch (status) {
-    case "PUBLISHED":
-      return "border-primary/30 bg-primary/10 text-primary"
-    case "COMPLETED":
-      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
-    case "CANCELLED":
-      return "border-destructive/30 bg-destructive/10 text-destructive"
-    default:
-      return "border-border bg-muted text-muted-foreground"
-  }
-}
+// import UserAvatar from "./UserAvatar"
 
 interface SocialCardProps {
   social: Social
@@ -114,7 +101,7 @@ export default function SocialCard({ social }: SocialCardProps) {
           <div className="flex items-center gap-2">
             <div className="size-4">👥</div>
             <span>
-              {t("listing.sessionCount", { count: social.playSessions.length })}
+              {t("listing.sessionCount", { count: social._count.playSessions })}
             </span>
           </div>
         </div>
@@ -129,7 +116,7 @@ export default function SocialCard({ social }: SocialCardProps) {
           <ProgressBar value={(social.joinedCount / social.maxSlots) * 100} />
         </div>
 
-        {social.organizers.length > 0 && (
+        {/* {social.organizers.length > 0 && (
           <div className="mt-5 flex items-center gap-3">
             <AvatarGroup>
               {social.organizers.slice(0, 3).map((organizer) => (
@@ -153,7 +140,7 @@ export default function SocialCard({ social }: SocialCardProps) {
               )}
             </div>
           </div>
-        )}
+        )} */}
       </CardContent>
 
       <CardFooter className="px-5 pb-5">

@@ -1,6 +1,5 @@
-import { Building2, CalendarDays } from "lucide-react"
+import { CalendarDays } from "lucide-react"
 
-import { Badge } from "@/components/ui/badge"
 import {
   Card,
   CardContent,

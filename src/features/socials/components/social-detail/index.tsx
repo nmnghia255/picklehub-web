@@ -5,19 +5,21 @@ import { useParams, useRouter } from "next/navigation"
 import React from "react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { PlaySessionModal } from "@/features/socials/components/play-session/PlaySessionModal"
+// import { PlaySessionModal } from "@/features/socials/components/play-session/PlaySessionModal"
 import { mockSocials } from "@/features/socials/mock-data/mockData"
 import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
-import type { Match } from "@/features/socials/types"
+import { useSocialsStore } from "@/features/socials/stores/social-listing-store"
+// import type { ListSocialResponse as Social } from "@/features/socials/types/social"
+import type { SocialParticipant } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
+import SocialOverview from "./social-overview"
+import SocialParticipantsTab from "./social-participants-tab"
 import SocialExpenseTab from "./SocialExpenseTab"
 import SocialHeader from "./SocialHeader"
 import SocialHero from "./SocialHero"
 import SocialJoinDialog from "./SocialJoinDialog"
-import SocialOverview from "./SocialOverview"
-import SocialParticipants from "./SocialParticipants"
-import SocialSessions from "./SocialSessions"
+// import SocialSessions from "./SocialSessions"
 import SocialSidebar from "./SocialSidebar"
 
 export default function SocialDetail() {
@@ -26,6 +28,7 @@ export default function SocialDetail() {
   const { t } = useSocialsTranslation()
   const joinDialogOpen = useSocialDetailStore((s) => s.joinDialogOpen)
   const setJoinDialogOpen = useSocialDetailStore((s) => s.setJoinDialogOpen)
+  /*
   const playSessionModalOpen = useSocialDetailStore(
     (s) => s.playSessionModalOpen
   )
@@ -34,8 +37,11 @@ export default function SocialDetail() {
   )
   const selectedSession = useSocialDetailStore((s) => s.selectedSession)
   const setSelectedSession = useSocialDetailStore((s) => s.setSelectedSession)
+  */
   const tabValue = useSocialDetailStore((s) => s.tabValue)
   const setTabValue = useSocialDetailStore((s) => s.setTabValue)
+
+  // const selectedSocial = useSocialsStore((s) => s.selectedSocial)
 
   const socialId = params.socialId as string | undefined
   const social = mockSocials.find((item) => item.id === socialId)
@@ -49,7 +55,7 @@ export default function SocialDetail() {
         </p>
         <button
           className="mt-6 rounded-md border px-4 py-2 text-sm"
-          onClick={() => router.push("/socials")}
+          onClick={() => router.back()}
         >
           {t("detail.backToSocials")}
         </button>
@@ -62,24 +68,22 @@ export default function SocialDetail() {
     new Date(social.endTime),
     new Date(social.startTime)
   )
-  const overviewSocial = {
-    ...social,
-    minimumLevel: social.minimumLevel ?? "N/A",
-    maximumLevel: social.maximumLevel ?? "N/A",
-  }
-  const completedMatches: Match[] = social.playSessions.flatMap(
-    (session) =>
-      session.matches?.filter((match) => match.status === "COMPLETED") ?? []
-  )
-  const inProgressMatches: Match[] = social.playSessions.flatMap(
-    (session) =>
-      session.matches?.filter((match) => match.status === "IN_PROGRESS") ?? []
-  )
-  const scheduledMatches: Match[] = social.playSessions.flatMap(
-    (session) =>
-      session.matches?.filter((match) => match.status === "SCHEDULED") ?? []
-  )
-  const currentSession = selectedSession ?? social.playSessions[0]
+
+  // const completedMatches: Match[] = social.playSessions.flatMap(
+  //   (session) =>
+  //     session.matches?.filter((match) => match.status === "COMPLETED") ?? []
+  // )
+  // const inProgressMatches: Match[] = social.playSessions.flatMap(
+  //   (session) =>
+  //     session.matches?.filter((match) => match.status === "IN_PROGRESS") ?? []
+  // )
+  // const scheduledMatches: Match[] = social.playSessions.flatMap(
+  //   (session) =>
+  //     session.matches?.filter((match) => match.status === "SCHEDULED") ?? []
+  // )
+  // const currentSession = selectedSession ?? social.playSessions[0]
+
+  const socialParticipants = [] as SocialParticipant[]
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
@@ -110,8 +114,8 @@ export default function SocialDetail() {
             </TabsList>
 
             <TabsContent value="0" className="space-y-4">
-              <SocialOverview social={overviewSocial} duration={duration} />
-              <SocialSessions
+              <SocialOverview social={social} duration={duration} />
+              {/* <SocialSessions
                 sessions={social.playSessions}
                 isHost={isHost}
                 matchesByStatus={{
@@ -130,11 +134,11 @@ export default function SocialDetail() {
                 onOpenSession={(sessionId) =>
                   router.push(`/socials/${social.id}/play-session/${sessionId}`)
                 }
-              />
+              /> */}
             </TabsContent>
 
             <TabsContent value="1" className="space-y-4">
-              <SocialParticipants participants={currentSession?.participants} />
+              <SocialParticipantsTab participants={socialParticipants} />
             </TabsContent>
 
             <TabsContent value="2" className="space-y-4">
@@ -144,7 +148,6 @@ export default function SocialDetail() {
         </div>
 
         <SocialSidebar
-          session={currentSession ?? { joinedCount: 0, maxSlots: 1 }}
           social={social}
           onJoin={() => setJoinDialogOpen(true)}
           onLeave={() => alert("Leave social")}
@@ -158,7 +161,7 @@ export default function SocialDetail() {
         autoApproveJoinRequests={social.autoApproveJoinRequests}
       />
 
-      <PlaySessionModal
+      {/* <PlaySessionModal
         open={playSessionModalOpen}
         onClose={() => {
           setPlaySessionModalOpen(false)
@@ -166,7 +169,7 @@ export default function SocialDetail() {
         }}
         session={selectedSession}
         socialId={social.id}
-      />
+      /> */}
     </div>
   )
 }

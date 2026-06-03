@@ -1,8 +1,7 @@
 "use client"
 
-import { Download, Plus, RefreshCcw, TrendingUp } from "lucide-react"
+import { Download, TrendingUp } from "lucide-react"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -20,7 +19,6 @@ import {
   timelineRows,
 } from "../../mock-data/expense-data"
 import { CourtBookingExpensesCard } from "./CourtBookingExpensesCard"
-import { ExpenseBreakdownCard } from "./ExpenseBreakdownCard"
 import { ExpenseSummaryGrid } from "./ExpenseSummaryGrid"
 import { FinancialTimelineCard } from "./FinancialTimelineCard"
 import { ParticipantPaymentTrackingCard } from "./ParticipantPaymentTrackingCard"

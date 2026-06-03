@@ -11,13 +11,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import { paymentPlan } from "../../mock-data/expense-data"
 
 export function PaymentInformationCard({
-  collectionProgress,
+  collectionProgress: _collectionProgress,
 }: {
   collectionProgress: number
 }) {

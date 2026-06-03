@@ -1,7 +1,7 @@
 "use client"
 
 import { differenceInHours, format } from "date-fns"
-import { Activity, Edit, Plus, Users } from "lucide-react"
+import { Edit, Plus, Users } from "lucide-react"
 import React from "react"
 
 import { Badge } from "@/components/ui/badge"
@@ -11,8 +11,9 @@ import ProgressBar from "@/features/socials/components/social-listing/ProgressBa
 import type { Match, PlaySession } from "@/features/socials/types"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import MatchCard from "./MatchCard"
+// import MatchCard from "./MatchCard"
 
+/*
 function SectionLabel({
   children,
   tone,
@@ -49,6 +50,7 @@ function getMatchSectionLabel(
       return t("labels.scheduled")
   }
 }
+*/
 
 function getSessionStatusLabel(
   status: PlaySession["status"],
@@ -89,10 +91,12 @@ export default function SocialSessions({
 }) {
   const { t } = useSocialsTranslation()
 
+  /*
   const totalMatches =
     matchesByStatus.inProgress.length +
     matchesByStatus.scheduled.length +
     matchesByStatus.completed.length
+  */
 
   return (
     <div className="space-y-6">

@@ -3,7 +3,6 @@
 import { Filter, Plus, Search } from "lucide-react"
 import { useRouter } from "next/navigation"
 
-import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { mockSocials } from "@/features/socials/mock-data/mockData"
@@ -26,7 +25,7 @@ export default function SocialListing() {
   const { setFilters, updateSingleFilter } = useSocialsStore()
   const resetFilters = useSocialsStore((state) => state.resetFilters)
 
-  const socials: Social[] = []
+  const socials: Social[] = mockSocials
 
   // try {
   //   const fetchSocials = async () => {
@@ -53,28 +52,6 @@ export default function SocialListing() {
   // }
 
   const hasNoResults = socials.length === 0
-
-  // const filteredSocials = mockSocials.filter((social) => {
-  //   if (
-  //     searchQuery &&
-  //     !social.title.toLowerCase().includes(searchQuery.toLowerCase())
-  //   )
-  //     return false
-  //   if (filters.status !== "ALL" && social.status !== filters.status)
-  //     return false
-  //   if (
-  //     filters.genderPolicy !== "ALL" &&
-  //     social.genderPolicy !== filters.genderPolicy
-  //   )
-  //     return false
-  //   if (filters.ageGroup !== "ALL" && social.ageGroup !== filters.ageGroup)
-  //     return false
-  //   if (filters.format !== "ALL" && social.format !== filters.format)
-  //     return false
-  //   if (filters.availableSlots && !social.hasAvailableSlots) return false
-  //   return true
-  // })
-  // const hasNoResults = filteredSocials.length === 0
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8">
@@ -125,9 +102,9 @@ export default function SocialListing() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {/* {socials.map((social) => (
+          {socials.map((social) => (
             <SocialCard key={social.id} social={social} />
-          ))} */}
+          ))}
         </div>
       )}
 

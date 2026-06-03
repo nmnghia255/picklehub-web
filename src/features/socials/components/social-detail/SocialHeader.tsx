@@ -1,36 +1,37 @@
 "use client"
 
 import { ArrowLeft, Check, Edit, Trophy, Users } from "lucide-react"
-import React from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import type { SocialFormat, SocialStatus } from "@/features/socials/types"
+import type {
+  SocialFormat,
+  SocialStatus,
+} from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-function getStatusClasses(status: SocialStatus) {
-  switch (status) {
-    case "PUBLISHED":
-      return "border-primary/30 bg-primary/10 text-primary"
-    case "COMPLETED":
-      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
-    case "CANCELLED":
-      return "border-destructive/30 bg-destructive/10 text-destructive"
+import { getFormatLabel, getStatusClasses, getStatusLabel } from "../../utils"
+
+export function getFormatIcon(formatType: SocialFormat) {
+  switch (formatType) {
+    case "SINGLE":
+      return <Trophy className="size-4" />
+    case "SOCIAL":
+      return <Users className="size-4" />
     default:
-      return "border-border bg-muted text-muted-foreground"
+      return <Users className="size-4" />
   }
 }
 
-function getFormatIcon(formatType: SocialFormat) {
-  switch (formatType) {
-    case "TOURNAMENT":
-      return <Trophy className="size-4" />
-    case "TRAINING":
-      return <Users className="size-4" />
-    default:
-      return <Users className="size-4" />
-  }
+interface SocialHeaderProps {
+  title: string
+  status: SocialStatus
+  format: SocialFormat
+  isHost: boolean
+  isParticipant?: boolean
+  onBack: () => void
+  onEdit: () => void
 }
 
 export default function SocialHeader({
@@ -41,40 +42,8 @@ export default function SocialHeader({
   isParticipant,
   onBack,
   onEdit,
-}: {
-  title: string
-  status: SocialStatus
-  format: SocialFormat
-  isHost: boolean
-  isParticipant?: boolean
-  onBack: () => void
-  onEdit: () => void
-}) {
+}: SocialHeaderProps) {
   const { t } = useSocialsTranslation()
-
-  const getStatusLabel = () => {
-    switch (status) {
-      case "PUBLISHED":
-        return t("labels.published")
-      case "COMPLETED":
-        return t("labels.completed")
-      case "CANCELLED":
-        return t("labels.cancelled")
-      default:
-        return t("labels.draft")
-    }
-  }
-
-  const getFormatLabel = () => {
-    switch (format) {
-      case "TOURNAMENT":
-        return t("labels.tournament")
-      case "TRAINING":
-        return t("labels.training")
-      default:
-        return t("labels.social")
-    }
-  }
 
   return (
     <Card className="p-0">
@@ -84,11 +53,11 @@ export default function SocialHeader({
             <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
             <div className="flex flex-wrap gap-2">
               <Badge className={getStatusClasses(status)} variant="outline">
-                {getStatusLabel()}
+                {getStatusLabel(status, t)}
               </Badge>
               <Badge variant="outline" className="gap-1">
                 {getFormatIcon(format)}
-                {getFormatLabel()}
+                {getFormatLabel(format, t)}
               </Badge>
               {isHost && <Badge>{t("badges.hosting")}</Badge>}
               {isParticipant && !isHost && (
