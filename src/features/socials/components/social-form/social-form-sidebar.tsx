@@ -15,9 +15,8 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import type { SocialStatus } from "../../types"
-import type { SocialFormData } from "./SocialForm.types"
-import { SocialFormToggleRow } from "./SocialFormToggleRow"
+import type { CreateSocialRequest as SocialFormData } from "../../types/social"
+import { SocialFormToggleRow } from "./social-form-toggle-row"
 
 export function SocialFormSidebar({
   formData,
@@ -42,7 +41,7 @@ export function SocialFormSidebar({
         </h2>
 
         <div className="space-y-3">
-          <div className="grid gap-2">
+          {/* <div className="grid gap-2">
             <span className="text-sm font-medium">{t("form.status")}</span>
             <Select
               value={formData.status}
@@ -69,7 +68,7 @@ export function SocialFormSidebar({
                 </SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
 
           <Separator />
 

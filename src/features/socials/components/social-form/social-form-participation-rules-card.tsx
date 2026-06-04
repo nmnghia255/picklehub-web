@@ -13,10 +13,14 @@ import {
 } from "@/components/ui/select"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import type { AgeGroup, GenderPolicy, HostRole } from "../../types"
+import type {
+  AgeGroup,
+  CreateSocialRequest as SocialFormData,
+  GenderPolicy,
+  HostRole,
+} from "../../types/social"
 import Field from "../social-detail/Field"
-import type { SocialFormData } from "./SocialForm.types"
-import { SocialFormToggleRow } from "./SocialFormToggleRow"
+import { SocialFormToggleRow } from "./social-form-toggle-row"
 
 export function SocialFormParticipationRulesCard({
   formData,
@@ -102,7 +106,7 @@ export function SocialFormParticipationRulesCard({
             <Field label={t("form.minimumSkillLevel")}>
               <Input
                 type="number"
-                value={formData.minimumLevel}
+                value={formData.minimumLevel || 2}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -117,7 +121,7 @@ export function SocialFormParticipationRulesCard({
             <Field label={t("form.maximumSkillLevel")}>
               <Input
                 type="number"
-                value={formData.maximumLevel}
+                value={formData.maximumLevel || 5}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,

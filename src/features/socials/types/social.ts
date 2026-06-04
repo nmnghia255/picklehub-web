@@ -4,6 +4,29 @@ export type GenderPolicy = "ANY" | "MALE_ONLY" | "FEMALE_ONLY" | "MIXED"
 export type AgeGroup = "ANY" | "JUNIOR" | "ADULT" | "SENIOR"
 export type SocialFormat = "SINGLE" | "SOCIAL"
 export type SocialStatus = "PUBLISHED" | "COMPLETED" | "CANCELED"
+export type HostRole = "HOST_AND_PLAY" | "HOST_ONLY" | "PLAY_ONLY"
+
+export interface CreateSocialRequest {
+  groupId: string | null
+  title: string
+  note: string
+  startTime: string
+  endTime: string
+  format: SocialFormat
+  isPrivate: boolean
+  maxSlots: number
+  submitDupr: boolean
+  minimumLevel: number | null
+  maximumLevel: number | null
+  genderPolicy: GenderPolicy
+  ageGroup: AgeGroup
+  hostRole: string
+  cancellationFreezeHours: number | null
+  autoApproveJoinRequests: boolean
+  paymentQrUrl: string | null
+  paymentCode: string | null
+  paymentNote: string | null
+}
 
 export interface CreateSocialResponse {
   id: string
@@ -23,12 +46,12 @@ export interface CreateSocialResponse {
   ageGroup: AgeGroup
   format: string
   submitDupr: boolean
-  minimumLevel: null
-  maximumLevel: null
+  minimumLevel: number | null
+  maximumLevel: number | null
   isPrivate: false
   autoApproveJoinRequests: true
   hostRole: string
-  cancellationFreezeHours: null
+  cancellationFreezeHours: number | null
   maxSlots: number
   joinedCount: number
   status: SocialStatus
@@ -57,12 +80,12 @@ export interface ListSocialResponse {
   ageGroup: AgeGroup
   format: SocialFormat
   submitDupr: boolean
-  minimumLevel: string
-  maximumLevel: string
+  minimumLevel: number | null
+  maximumLevel: number | null
   isPrivate: boolean
   autoApproveJoinRequests: boolean
   hostRole: string
-  cancellationFreezeHours: null
+  cancellationFreezeHours: number | null
   maxSlots: number
   joinedCount: number
   status: SocialStatus

@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import ProgressBar from "@/features/socials/components/social-listing/ProgressBar"
+import ProgressBar from "@/features/socials/components/social-listing/progress-bar"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
@@ -114,7 +114,7 @@ export default function SocialSidebar({
           </div>
         </div>
 
-        {social.totalExpense && (
+        {/* {social.totalExpense && (
           <>
             <Separator />
             <div className="space-y-2">
@@ -126,7 +126,7 @@ export default function SocialSidebar({
               </div>
             </div>
           </>
-        )}
+        )} */}
 
         {!social.isParticipant && social.status === "PUBLISHED" && (
           <Button

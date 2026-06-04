@@ -15,12 +15,12 @@ import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import SocialOverview from "./social-overview"
 import SocialParticipantsTab from "./social-participants-tab"
+// import SocialSessions from "./SocialSessions"
+import SocialSidebar from "./social-sidebar"
 import SocialExpenseTab from "./SocialExpenseTab"
 import SocialHeader from "./SocialHeader"
 import SocialHero from "./SocialHero"
 import SocialJoinDialog from "./SocialJoinDialog"
-// import SocialSessions from "./SocialSessions"
-import SocialSidebar from "./SocialSidebar"
 
 export default function SocialDetail() {
   const params = useParams()

@@ -16,8 +16,8 @@ import {
 import { useCourtScheduleStore } from "@/features/sport-center-management/stores/court-schedule-store"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
+import type { CreateSocialRequest as SocialFormData } from "../../types/social"
 import Field from "../social-detail/Field"
-import type { SocialFormData } from "./SocialForm.types"
 
 function SportCenterSelect({
   value,
@@ -103,7 +103,7 @@ export function SocialFormScheduleCard({
           <Field label={t("form.cancellationFreeze")}>
             <Input
               type="number"
-              value={formData.cancellationFreezeHours}
+              value={formData.cancellationFreezeHours ?? 0}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -115,7 +115,7 @@ export function SocialFormScheduleCard({
             />
           </Field>
 
-          <Field label={t("form.bookedSportCenter")}>
+          {/* <Field label={t("form.bookedSportCenter")}>
             <SportCenterSelect
               value={formData.bookedSportCenter}
               onChange={(value) =>
@@ -123,7 +123,7 @@ export function SocialFormScheduleCard({
               }
               placeholder={t("form.bookedSportCenterPlaceholder")}
             />
-          </Field>
+          </Field> */}
         </div>
       </CardContent>
     </Card>

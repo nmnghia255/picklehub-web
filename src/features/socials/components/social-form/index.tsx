@@ -6,61 +6,64 @@ import { startTransition, useEffect, useState } from "react"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import { mockSocials } from "../../mock-data/mockData"
-import type { Social } from "../../types"
-import type { PlaySessionDraft, SocialFormData } from "./SocialForm.types"
-import { SocialFormBasicInformationCard } from "./SocialFormBasicInformationCard"
-import { SocialFormHeader } from "./SocialFormHeader"
-import { SocialFormParticipationRulesCard } from "./SocialFormParticipationRulesCard"
-import { SocialFormPaymentCard } from "./SocialFormPaymentCard"
-import { SocialFormPlaySessionsCard } from "./SocialFormPlaySessionsCard"
-import { SocialFormScheduleCard } from "./SocialFormScheduleCard"
-import { SocialFormSidebar } from "./SocialFormSidebar"
+import type {
+  CreateSocialRequest,
+  ListSocialResponse as Social,
+} from "../../types/social"
+// import type { PlaySessionDraft, SocialFormData } from "./SocialForm.types"
+import { SocialFormBasicInformationCard } from "./social-form-basic-information-card"
+import { SocialFormHeader } from "./social-form-header"
+import { SocialFormParticipationRulesCard } from "./social-form-participation-rules-card"
+import { SocialFormPaymentCard } from "./social-form-payment-card"
+import { SocialFormPlaySessionsCard } from "./social-form-play-sessions-card"
+import { SocialFormScheduleCard } from "./social-form-schedule-card"
+import { SocialFormSidebar } from "./social-form-sidebar"
 
-function createInitialFormData(): SocialFormData {
+function createInitialFormData(): CreateSocialRequest {
   return {
+    groupId: null,
     title: "",
     note: "",
-    format: "SOCIAL",
     startTime: "",
     endTime: "",
-    genderPolicy: "MIXED",
-    ageGroup: "ADULT",
-    minimumLevel: 2.0,
-    maximumLevel: 4.0,
-    maxSlots: 24,
-    hostRole: "HOST_AND_PLAY",
+    format: "SOCIAL",
     isPrivate: false,
-    autoApproveJoinRequests: true,
+    maxSlots: 20,
     submitDupr: false,
-    cancellationFreezeHours: 24,
-    totalExpense: 0,
+    minimumLevel: 2,
+    maximumLevel: 5,
+    genderPolicy: "ANY",
+    ageGroup: "ANY",
+    hostRole: "HOST_AND_PLAY",
+    cancellationFreezeHours: 2,
+    autoApproveJoinRequests: true,
+    paymentQrUrl: "",
     paymentCode: "",
     paymentNote: "",
-    status: "DRAFT",
   }
 }
 
-function mapSocialToFormData(social: Social): SocialFormData {
+function mapSocialToFormData(social: Social): CreateSocialRequest {
   return {
+    groupId: social.groupId,
     title: social.title,
     note: social.note,
-    format: social.format,
     startTime: new Date(social.startTime).toISOString().slice(0, 16),
     endTime: new Date(social.endTime).toISOString().slice(0, 16),
+    format: social.format,
+    isPrivate: social.isPrivate,
+    maxSlots: social.maxSlots,
+    submitDupr: social.submitDupr,
+    minimumLevel: social.minimumLevel,
+    maximumLevel: social.maximumLevel,
     genderPolicy: social.genderPolicy,
     ageGroup: social.ageGroup,
-    minimumLevel: social.minimumLevel || 2.0,
-    maximumLevel: social.maximumLevel || 4.0,
-    maxSlots: social.maxSlots,
     hostRole: social.hostRole,
-    isPrivate: social.isPrivate,
-    autoApproveJoinRequests: social.autoApproveJoinRequests,
-    submitDupr: social.submitDupr,
     cancellationFreezeHours: social.cancellationFreezeHours,
-    totalExpense: social.totalExpense || 0,
-    paymentCode: social.paymentCode || "",
-    paymentNote: social.paymentNote || "",
-    status: social.status,
+    autoApproveJoinRequests: social.autoApproveJoinRequests,
+    paymentQrUrl: social.paymentQrUrl,
+    paymentCode: social.paymentCode,
+    paymentNote: social.paymentNote,
   }
 }
 
@@ -72,11 +75,9 @@ export function SocialForm() {
   const isEditMode = Boolean(id)
   const social = isEditMode ? mockSocials.find((s) => s.id === id) : null
 
-  const [formData, setFormData] = useState<SocialFormData>(
+  const [formData, setFormData] = useState<CreateSocialRequest>(
     createInitialFormData
   )
-  const [playSessions, setPlaySessions] = useState<PlaySessionDraft[]>([])
-
   useEffect(() => {
     if (!social) return
 
@@ -86,7 +87,7 @@ export function SocialForm() {
   }, [social])
 
   const handleSubmit = () => {
-    console.log("Saving social:", formData, playSessions)
+    console.log("Saving social:", formData)
     alert(isEditMode ? t("form.updateSuccess") : t("form.createSuccess"))
     router.push("/socials")
   }

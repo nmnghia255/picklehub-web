@@ -12,7 +12,7 @@ import type { ListSocialResponse as Social } from "@/features/socials/types/soci
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import { getStatusClasses } from "../../utils"
-import ProgressBar from "./ProgressBar"
+import ProgressBar from "./progress-bar"
 // import UserAvatar from "./UserAvatar"
 
 interface SocialCardProps {

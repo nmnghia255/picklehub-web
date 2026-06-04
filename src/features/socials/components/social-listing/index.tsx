@@ -11,8 +11,8 @@ import { useSocialsStore } from "@/features/socials/stores/social-listing-store"
 import type { ListSocialResponse as Social } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import { FiltersDrawer } from "./FiltersDrawer"
-import SocialCard from "./SocialCard"
+import { FiltersDrawer } from "./filters-drawer"
+import SocialCard from "./social-card"
 
 export default function SocialListing() {
   const router = useRouter()
