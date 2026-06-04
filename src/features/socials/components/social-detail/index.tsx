@@ -5,17 +5,24 @@ import { useParams, useRouter } from "next/navigation"
 import React from "react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-// import { PlaySessionModal } from "@/features/socials/components/play-session/PlaySessionModal"
+import { PlaySessionModal } from "@/features/socials/components/play-session/PlaySessionModal"
 import { mockSocials } from "@/features/socials/mock-data/mockData"
+import {
+  Match,
+  mockMatches,
+  mockPlaySessions,
+} from "@/features/socials/mock-data/mockSessionData"
 import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
 import { useSocialsStore } from "@/features/socials/stores/social-listing-store"
 // import type { ListSocialResponse as Social } from "@/features/socials/types/social"
 import type { SocialParticipant } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
+import { mockSocialParticipants } from "../../mock-data/mockSocialParticipant"
+import { PlaySession } from "../../types/play-session"
 import SocialOverview from "./social-overview"
 import SocialParticipantsTab from "./social-participants-tab"
-// import SocialSessions from "./SocialSessions"
+import SocialSessions from "./social-session"
 import SocialSidebar from "./social-sidebar"
 import SocialExpenseTab from "./SocialExpenseTab"
 import SocialHeader from "./SocialHeader"
@@ -28,7 +35,7 @@ export default function SocialDetail() {
   const { t } = useSocialsTranslation()
   const joinDialogOpen = useSocialDetailStore((s) => s.joinDialogOpen)
   const setJoinDialogOpen = useSocialDetailStore((s) => s.setJoinDialogOpen)
-  /*
+
   const playSessionModalOpen = useSocialDetailStore(
     (s) => s.playSessionModalOpen
   )
@@ -37,7 +44,7 @@ export default function SocialDetail() {
   )
   const selectedSession = useSocialDetailStore((s) => s.selectedSession)
   const setSelectedSession = useSocialDetailStore((s) => s.setSelectedSession)
-  */
+
   const tabValue = useSocialDetailStore((s) => s.tabValue)
   const setTabValue = useSocialDetailStore((s) => s.setTabValue)
 
@@ -69,21 +76,9 @@ export default function SocialDetail() {
     new Date(social.startTime)
   )
 
-  // const completedMatches: Match[] = social.playSessions.flatMap(
-  //   (session) =>
-  //     session.matches?.filter((match) => match.status === "COMPLETED") ?? []
-  // )
-  // const inProgressMatches: Match[] = social.playSessions.flatMap(
-  //   (session) =>
-  //     session.matches?.filter((match) => match.status === "IN_PROGRESS") ?? []
-  // )
-  // const scheduledMatches: Match[] = social.playSessions.flatMap(
-  //   (session) =>
-  //     session.matches?.filter((match) => match.status === "SCHEDULED") ?? []
-  // )
-  // const currentSession = selectedSession ?? social.playSessions[0]
-
-  const socialParticipants = [] as SocialParticipant[]
+  const socialParticipants = mockSocialParticipants
+  const sessions = mockPlaySessions
+  const maxSlots = social.maxSlots
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
@@ -109,20 +104,15 @@ export default function SocialDetail() {
             <TabsList>
               <TabsTrigger value="0">{t("detail.overview")}</TabsTrigger>
               <TabsTrigger value="1">{t("detail.participants")}</TabsTrigger>
-
               <TabsTrigger value="2">{t("expenses.tab")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="0" className="space-y-4">
               <SocialOverview social={social} duration={duration} />
-              {/* <SocialSessions
-                sessions={social.playSessions}
+              <SocialSessions
+                maxSlots={maxSlots}
+                sessions={sessions}
                 isHost={isHost}
-                matchesByStatus={{
-                  inProgress: inProgressMatches,
-                  scheduled: scheduledMatches,
-                  completed: completedMatches,
-                }}
                 onCreateSession={() => {
                   setSelectedSession(null)
                   setPlaySessionModalOpen(true)
@@ -134,7 +124,7 @@ export default function SocialDetail() {
                 onOpenSession={(sessionId) =>
                   router.push(`/socials/${social.id}/play-session/${sessionId}`)
                 }
-              /> */}
+              />
             </TabsContent>
 
             <TabsContent value="1" className="space-y-4">
@@ -161,7 +151,7 @@ export default function SocialDetail() {
         autoApproveJoinRequests={social.autoApproveJoinRequests}
       />
 
-      {/* <PlaySessionModal
+      <PlaySessionModal
         open={playSessionModalOpen}
         onClose={() => {
           setPlaySessionModalOpen(false)
@@ -169,7 +159,7 @@ export default function SocialDetail() {
         }}
         session={selectedSession}
         socialId={social.id}
-      /> */}
+      />
     </div>
   )
 }

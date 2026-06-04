@@ -32,6 +32,9 @@ export interface PlaySessionParticipant {
   guestName: string | null
   skillLevel: number | null
   joinedAt: string
+  name: string
+  avatarUrl: string | null
+  selfRating: number | null
 }
 
 interface Session {

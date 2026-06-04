@@ -67,11 +67,8 @@ export default function SocialSidebar({
           </p>
           <div className="mt-3 flex items-center gap-3">
             <Avatar className="size-11">
-              <AvatarImage
-                src={host.avatarUrl ?? undefined}
-                alt={host.name ?? "Host"}
-              />
-              <AvatarFallback>{(host.name ?? "H").slice(0, 1)}</AvatarFallback>
+              <AvatarImage src={host.avatarUrl ?? undefined} alt={host.name} />
+              <AvatarFallback>{host.name.slice(0, 1)}</AvatarFallback>
             </Avatar>
             <div>
               <p className="text-sm font-medium">{host.name}</p>

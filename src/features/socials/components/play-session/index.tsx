@@ -9,14 +9,18 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { mockSocials } from "@/features/socials/mock-data/mockData"
-import { getSessionWithDetails } from "@/features/socials/mock-data/mockSessionData"
+import type { Match } from "@/features/socials/mock-data/mockSessionData"
+import {
+  mockMatches,
+  mockPlaySessions,
+  mockSessionParticipants,
+} from "@/features/socials/mock-data/mockSessionData"
 import usePlaySessionStore from "@/features/socials/stores/play-session-store"
-import type { Match } from "@/features/socials/types"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
+import PlaySessionParticipants from "./play-session-participants"
 import PlaySessionMatches from "./PlaySessionMatches"
 import PlaySessionOverview from "./PlaySessionOverview"
-import PlaySessionParticipants from "./PlaySessionParticipants"
 import PlaySessionSidebar from "./PlaySessionSidebar"
 
 function getSessionStatusClasses(status: string) {
@@ -61,10 +65,8 @@ export default function PlaySessionDetail() {
 
   const socialId = params.socialId as string | undefined
   const sessionId = params.playSessionId as string | undefined
-  const social = mockSocials.find((item) => item.id === socialId)
-  const session = sessionId
-    ? getSessionWithDetails(sessionId, socialId || "")
-    : undefined
+  const social = mockSocials[0]
+  const session = mockPlaySessions[0]
 
   if (!social || !session) {
     return (
@@ -85,18 +87,22 @@ export default function PlaySessionDetail() {
     new Date(session.endTime),
     new Date(session.startTime)
   )
+
+  const matches = mockMatches
   const completedMatches: Match[] =
-    (session.matches?.filter(
+    (matches.filter(
       (match: Match) => match.status === "COMPLETED"
     ) as Match[]) || []
   const inProgressMatches: Match[] =
-    (session.matches?.filter(
+    (matches.filter(
       (match: Match) => match.status === "IN_PROGRESS"
     ) as Match[]) || []
   const scheduledMatches: Match[] =
-    (session.matches?.filter(
+    (matches.filter(
       (match: Match) => match.status === "SCHEDULED"
     ) as Match[]) || []
+
+  const participants = mockSessionParticipants
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
@@ -141,14 +147,13 @@ export default function PlaySessionDetail() {
                     className={`rounded-md px-3 py-1.5 ${tabValue === "1" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                     onClick={() => setTabValue("1")}
                   >
-                    {t("matches.title")} ({session.matches?.length || 0})
+                    {t("matches.title")}
                   </button>
                   <button
                     className={`rounded-md px-3 py-1.5 ${tabValue === "2" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                     onClick={() => setTabValue("2")}
                   >
-                    {t("detail.participants")} (
-                    {session.participants?.length || 0})
+                    {t("detail.participants")}
                   </button>
                 </div>
               </div>
@@ -181,9 +186,7 @@ export default function PlaySessionDetail() {
                 )}
 
                 {tabValue === "2" && (
-                  <PlaySessionParticipants
-                    participants={session.participants}
-                  />
+                  <PlaySessionParticipants participants={participants} />
                 )}
               </div>
             </CardContent>

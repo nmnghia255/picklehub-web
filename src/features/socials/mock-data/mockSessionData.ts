@@ -1,4 +1,11 @@
-import type { Match, PlaySession, SessionParticipant, User } from "../types"
+import type { PlaySession, PlaySessionParticipant } from "../types/play-session"
+
+interface User {
+  id: string
+  name: string
+  email: string
+  avatar: string | null
+}
 
 const mockUsers: User[] = [
   {
@@ -59,72 +66,141 @@ const mockUsers: User[] = [
   },
 ]
 
-export const mockSessionParticipants: SessionParticipant[] = [
+export const mockSessionParticipants: PlaySessionParticipant[] = [
   {
     id: "sp-1",
+    playSessionId: "session-1",
     userId: "user-101",
-    user: mockUsers[0],
     status: "CONFIRMED",
+    isGuest: false,
+    guestName: null,
     joinedAt: "2026-05-15T10:00:00Z",
     skillLevel: 3.5,
+    name: "Alex Johnson",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop",
+    selfRating: 3.5,
   },
   {
     id: "sp-2",
+    playSessionId: "session-1",
     userId: "user-102",
-    user: mockUsers[1],
     status: "CONFIRMED",
+    isGuest: false,
+    guestName: null,
     joinedAt: "2026-05-15T10:30:00Z",
     skillLevel: 3.8,
+    name: "Sarah Martinez",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+    selfRating: 3.8,
   },
   {
     id: "sp-3",
+    playSessionId: "session-1",
     userId: "user-103",
-    user: mockUsers[2],
     status: "CONFIRMED",
+    isGuest: false,
+    guestName: null,
     joinedAt: "2026-05-15T11:00:00Z",
     skillLevel: 4.2,
+    name: "Mike Chen",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+    selfRating: 4.2,
   },
   {
     id: "sp-4",
+    playSessionId: "session-1",
     userId: "user-104",
-    user: mockUsers[3],
     status: "CONFIRMED",
+    isGuest: false,
+    guestName: null,
     joinedAt: "2026-05-15T11:30:00Z",
     skillLevel: 3.3,
+    name: "Emma Wilson",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
+    selfRating: 3.3,
   },
   {
     id: "sp-5",
+    playSessionId: "session-1",
     userId: "user-105",
-    user: mockUsers[4],
     status: "CONFIRMED",
+    isGuest: false,
+    guestName: null,
     joinedAt: "2026-05-15T12:00:00Z",
     skillLevel: 3.9,
+    name: "James Brown",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop",
+    selfRating: 3.9,
   },
   {
     id: "sp-6",
+    playSessionId: "session-1",
     userId: "user-106",
-    user: mockUsers[5],
     status: "CONFIRMED",
+    isGuest: false,
+    guestName: null,
     joinedAt: "2026-05-15T12:30:00Z",
     skillLevel: 3.6,
+    name: "Lisa Anderson",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop",
+    selfRating: 3.6,
   },
   {
     id: "sp-7",
+    playSessionId: "session-1",
     userId: "user-107",
-    user: mockUsers[6],
     status: "CONFIRMED",
+    isGuest: false,
+    guestName: null,
     joinedAt: "2026-05-15T13:00:00Z",
     skillLevel: 4.0,
+    name: "David Lee",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop",
+    selfRating: 4.0,
   },
   {
     id: "sp-8",
+    playSessionId: "session-1",
     userId: "user-108",
-    user: mockUsers[7],
     status: "CONFIRMED",
+    isGuest: false,
+    guestName: null,
     joinedAt: "2026-05-15T13:30:00Z",
     skillLevel: 3.7,
+    name: "Maria Garcia",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100&h=100&fit=crop",
+    selfRating: 3.7,
   },
 ]
+
+export interface Match {
+  id: string
+  playSessionId: string
+  courtNumber: number
+  status: "SCHEDULED" | "IN_PROGRESS" | "COMPLETED"
+  startTime: string
+  endTime?: string
+  team1: {
+    player1: User
+    player2: User
+  }
+  team2: {
+    player1: User
+    player2: User
+  }
+  score?: {
+    team1Score: number
+    team2Score: number
+  }
+}
 
 export const mockMatches: Match[] = [
   {
@@ -229,45 +305,39 @@ export const mockMatches: Match[] = [
   },
 ]
 
-export function getSessionWithDetails(
-  sessionId: string,
-  socialId: string
-): PlaySession | undefined {
-  const session2Participants: SessionParticipant[] = mockSessionParticipants
-    .slice(0, 6)
-    .map((p, idx) => ({
-      ...p,
-      id: `sp-session2-${idx + 1}`,
-    }))
-
-  const sessions: Record<string, PlaySession> = {
-    "session-1": {
-      id: "session-1",
-      title: "Morning Session - Courts 1 & 2",
-      status: "PUBLISHED",
-      maxSlots: 16,
-      joinedCount: 10,
-      startTime: "2026-05-24T09:00:00Z",
-      endTime: "2026-05-24T11:00:00Z",
-      creatorId: "user-2",
-      socialId: "social-1",
-      participants: mockSessionParticipants,
-      matches: mockMatches,
-    },
-    "session-2": {
-      id: "session-2",
-      title: "Late Morning Session - Courts 3 & 4",
-      status: "PUBLISHED",
-      maxSlots: 16,
-      joinedCount: 8,
-      startTime: "2026-05-24T11:00:00Z",
-      endTime: "2026-05-24T13:00:00Z",
-      creatorId: "user-2",
-      socialId: "social-1",
-      participants: session2Participants,
-      matches: [],
-    },
-  }
-
-  return sessions[sessionId]
-}
+export const mockPlaySessions: PlaySession[] = [
+  {
+    id: "session-001",
+    title: "Pickleball Morning Session",
+    socialId: "social-001",
+    bookingIds: ["booking-001", "booking-002"],
+    joinedCount: 12,
+    numberOfCourts: 2,
+    courtNames: "Court A, Court B",
+    location: "PickleHub Dĩ An",
+    sessionFee: 50000,
+    startTime: "2026-06-05T07:00:00Z",
+    endTime: "2026-06-05T09:00:00Z",
+    status: "ACTIVE",
+    creatorId: "user-001",
+    createdAt: "2026-06-01T08:00:00Z",
+    updatedAt: "2026-06-04T10:30:00Z",
+  },
+  {
+    id: "session-002",
+    title: "Evening Competitive Match",
+    socialId: "social-002",
+    bookingIds: ["booking-003"],
+    joinedCount: 8,
+    numberOfCourts: 1,
+    courtNames: "Court C",
+    location: "PickleHub Thủ Đức",
+    sessionFee: 80000,
+    startTime: "2026-06-06T17:30:00Z",
+    endTime: "2026-06-06T20:00:00Z",
+    status: "COMPLETED",
+    creatorId: "user-002",
+    createdAt: "2026-06-02T14:15:00Z",
+    updatedAt: "2026-06-06T20:05:00Z",
+  },
+]

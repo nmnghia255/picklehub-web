@@ -7,31 +7,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
+import type { PlaySessionParticipant } from "../../types/play-session"
+import { getParticipantStatusLabel } from "../../utils"
+
 export default function PlaySessionParticipants({
   participants,
 }: {
-  participants?: Array<{
-    id: string
-    user: { name: string; avatar?: string | null }
-    status: string
-    skillLevel?: string | number | null
-    joinedAt: string | Date
-  }>
+  participants: Array<PlaySessionParticipant>
 }) {
   const { t } = useSocialsTranslation()
-
-  const getParticipantStatusLabel = (status: string) => {
-    switch (status) {
-      case "CONFIRMED":
-        return t("participantStatus.confirmed")
-      case "CANCELLED":
-        return t("participantStatus.cancelled")
-      case "REJECTED":
-        return t("participantStatus.rejected")
-      default:
-        return t("participantStatus.pending")
-    }
-  }
 
   return (
     <div className="space-y-4">
@@ -50,15 +34,15 @@ export default function PlaySessionParticipants({
               <div className="flex items-center gap-3">
                 <Avatar className="size-10">
                   <AvatarImage
-                    src={participant.user.avatar ?? undefined}
-                    alt={participant.user.name}
+                    src={participant.avatarUrl ?? undefined}
+                    alt={participant.name}
                   />
                   <AvatarFallback>
-                    {participant.user.name.slice(0, 1)}
+                    {participant.name.slice(0, 1) ?? "-"}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-sm font-medium">{participant.user.name}</p>
+                  <p className="text-sm font-medium">{participant.name}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <Badge
                       className={
@@ -68,7 +52,7 @@ export default function PlaySessionParticipants({
                       }
                       variant="outline"
                     >
-                      {getParticipantStatusLabel(participant.status)}
+                      {getParticipantStatusLabel(participant.status, t)}
                     </Badge>
                     {participant.skillLevel && (
                       <Badge variant="outline">

@@ -2,13 +2,12 @@
 
 import { differenceInHours, format } from "date-fns"
 import { Edit, Plus, Users } from "lucide-react"
-import React from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import ProgressBar from "@/features/socials/components/social-listing/progress-bar"
-import type { Match, PlaySession } from "@/features/socials/types"
+import type { PlaySession } from "@/features/socials/types/play-session"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 // import MatchCard from "./MatchCard"
@@ -71,20 +70,16 @@ function getSessionStatusLabel(
 }
 
 export default function SocialSessions({
+  maxSlots,
   isHost,
   sessions,
-  matchesByStatus,
   onCreateSession,
   onEditSession,
   onOpenSession,
 }: {
+  maxSlots: number
   isHost: boolean
   sessions: PlaySession[]
-  matchesByStatus: {
-    inProgress: Match[]
-    scheduled: Match[]
-    completed: Match[]
-  }
   onCreateSession: () => void
   onEditSession: (session: PlaySession) => void
   onOpenSession: (sessionId: string) => void
@@ -169,11 +164,11 @@ export default function SocialSessions({
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span>{t("sessions.participants")}</span>
                           <span>
-                            {session.joinedCount} / {session.maxSlots}
+                            {session.joinedCount} / {maxSlots}
                           </span>
                         </div>
                         <ProgressBar
-                          value={(session.joinedCount / session.maxSlots) * 100}
+                          value={(session.joinedCount / maxSlots) * 100}
                         />
                       </div>
 
@@ -181,10 +176,10 @@ export default function SocialSessions({
                         variant="outline"
                         size="sm"
                         className="w-full"
-                        disabled={session.joinedCount >= session.maxSlots}
+                        disabled={session.joinedCount >= maxSlots}
                         onClick={() => onOpenSession(session.id)}
                       >
-                        {session.joinedCount >= session.maxSlots
+                        {session.joinedCount >= maxSlots
                           ? t("sessions.full")
                           : t("sessions.viewDetails")}
                       </Button>

@@ -9,6 +9,8 @@ import { Separator } from "@/components/ui/separator"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
+import type { PlaySession } from "../../types/play-session"
+import type { Host, ListSocialResponse as Social } from "../../types/social"
 import ProgressBar from "./ProgressBar"
 
 function SettingRow({ label, value }: { label: string; value: string }) {
@@ -26,25 +28,19 @@ export default function PlaySessionSidebar({
   onJoin,
   onLeave,
 }: {
-  session: {
-    joinedCount: number
-    maxSlots: number
-  }
-  social: {
-    organizers: Array<{ name: string; avatar?: string | null }>
-    hostRole: string
-    autoApproveJoinRequests: boolean
-    cancellationFreezeHours: number
-    isPrivate: boolean
-    totalExpense?: number | null
-    isParticipant?: boolean
-    status: string
-    hasAvailableSlots: boolean
-  }
+  session: PlaySession
+  social: Social
   onJoin: () => void
   onLeave: () => void
 }) {
   const { t } = useSocialsTranslation()
+  const hostId = social.organizers[0] || social.creatorId
+  const host: Host = {
+    id: hostId.userId,
+    name: "Sarah Martinez",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+  }
 
   return (
     <Card className="sticky top-6 h-fit p-0">
@@ -54,15 +50,15 @@ export default function PlaySessionSidebar({
             {t("sidebar.participants")}
           </p>
           <h2 className="mt-1 text-3xl font-semibold">
-            {session.joinedCount} / {session.maxSlots}
+            {session.joinedCount} / {social.maxSlots}
           </h2>
           <div className="mt-3 space-y-2">
             <ProgressBar
-              value={(session.joinedCount / session.maxSlots) * 100}
+              value={(session.joinedCount / social.maxSlots) * 100}
             />
             <p className="text-xs text-muted-foreground">
               {t("sidebar.spotsRemaining", {
-                count: session.maxSlots - session.joinedCount,
+                count: social.maxSlots - session.joinedCount,
               })}
             </p>
           </div>
@@ -77,17 +73,13 @@ export default function PlaySessionSidebar({
           <div className="mt-3 flex items-center gap-3">
             <Avatar className="size-11">
               <AvatarImage
-                src={social.organizers[0]?.avatar ?? undefined}
-                alt={social.organizers[0]?.name ?? t("sidebar.hostedBy")}
+                src={host.avatarUrl ?? undefined}
+                alt={host.name ?? "Host"}
               />
-              <AvatarFallback>
-                {(social.organizers[0]?.name ?? "H").slice(0, 1)}
-              </AvatarFallback>
+              <AvatarFallback>{host.name.slice(0, 1)}</AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-sm font-medium">
-                {social.organizers[0]?.name}
-              </p>
+              <p className="text-sm font-medium">{host.name}</p>
               <p className="text-xs text-muted-foreground">
                 {social.hostRole === "HOST_AND_PLAY"
                   ? t("sidebar.hostRoleHostAndPlay")

@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import { mockSocialParticipants } from "../../mock-data/mockSocialParticipant"
 import type { SocialParticipant } from "../../types/social"
 import { getParticipantStatusLabel } from "../../utils"
 
@@ -17,7 +16,6 @@ export default function SocialParticipantsTab({
   participants: SocialParticipant[]
 }) {
   const { t } = useSocialsTranslation()
-  participants = mockSocialParticipants
 
   return (
     <Card className="p-0">
