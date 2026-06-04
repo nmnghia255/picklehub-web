@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { MediaService } from "@/features/sport-center/api/media-service"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
+import { UploadImageAction } from "../../action/upload-image-action"
 import type { CreateSocialRequest as SocialFormData } from "../../types/social"
 import Field from "../social-detail/Field"
 
@@ -53,7 +54,7 @@ export function SocialFormPaymentCard({
     setIsUploadingPaymentQr(true)
 
     try {
-      const paymentQrUrl = await MediaService.uploadImage(file)
+      const paymentQrUrl = await UploadImageAction(file)
       setFormData((prev) => ({
         ...prev,
         paymentQrUrl,
