@@ -3,12 +3,13 @@ import { PersonalCalendarPage } from "@/features/personal-calendar/components/pe
 
 export const metadata = {
   title: "Lịch của tôi | PickleHub",
-  description: "Quản lý và xem lịch trình các hoạt động Pickleball cá nhân của bạn.",
+  description:
+    "Quản lý và xem lịch trình các hoạt động Pickleball cá nhân của bạn.",
 }
 
 export default function CalendarRoutePage() {
   return (
-    <PageContainer>
+    <PageContainer variant="wide">
       <PersonalCalendarPage />
     </PageContainer>
   )
