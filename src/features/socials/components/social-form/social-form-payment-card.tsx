@@ -19,7 +19,7 @@ import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import { UploadImageAction } from "../../action/upload-image-action"
 import type { CreateSocialRequest as SocialFormData } from "../../types/social"
-import Field from "../social-detail/Field"
+import Field from "../social-detail/field"
 
 export function SocialFormPaymentCard({
   formData,

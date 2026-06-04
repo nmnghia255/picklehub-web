@@ -76,11 +76,11 @@ export default function SocialHeader({
             <Button variant="ghost" size="icon" onClick={onBack}>
               <ArrowLeft className="size-4" />
             </Button>
-            {isHost && (
-              <Button variant="ghost" size="icon" onClick={onEdit}>
-                <Edit className="size-4" />
-              </Button>
-            )}
+            {/* {isHost && ( */}
+            <Button variant="ghost" size="icon" onClick={onEdit}>
+              <Edit className="size-4" />
+            </Button>
+            {/* )} */}
           </div>
         </div>
       </CardContent>

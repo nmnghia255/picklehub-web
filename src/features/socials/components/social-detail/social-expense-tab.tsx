@@ -18,12 +18,12 @@ import {
   participantRows,
   timelineRows,
 } from "../../mock-data/expense-data"
-import { CourtBookingExpensesCard } from "./CourtBookingExpensesCard"
-import { ExpenseSummaryGrid } from "./ExpenseSummaryGrid"
-import { FinancialTimelineCard } from "./FinancialTimelineCard"
-import { ParticipantPaymentTrackingCard } from "./ParticipantPaymentTrackingCard"
-import { PaymentInformationCard } from "./PaymentInformationCard"
-import { SocialExpenseTabSkeleton } from "./SocialExpenseTabSkeleton"
+import { CourtBookingExpensesCard } from "./court-booking-expenses-card"
+import { ExpenseSummaryGrid } from "./expense-summary-grid"
+import { FinancialTimelineCard } from "./financial-timeline-card"
+import { ParticipantPaymentTrackingCard } from "./participant-payment-tracking-card"
+import { PaymentInformationCard } from "./payment-information-card"
+import { SocialExpenseTabSkeleton } from "./social-expense-tab-skeleton"
 
 export default function SocialExpenseTab() {
   const { t } = useSocialsTranslation()

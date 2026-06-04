@@ -11,7 +11,7 @@ import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import type { PlaySession } from "../../types/play-session"
 import type { Host, ListSocialResponse as Social } from "../../types/social"
-import ProgressBar from "./ProgressBar"
+import ProgressBar from "./progress-bar"
 
 function SettingRow({ label, value }: { label: string; value: string }) {
   return (

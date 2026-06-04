@@ -18,7 +18,7 @@ import type {
   CreateSocialRequest as SocialFormData,
   SocialFormat,
 } from "../../types/social"
-import Field from "../social-detail/Field"
+import Field from "../social-detail/field"
 
 export function SocialFormBasicInformationCard({
   formData,

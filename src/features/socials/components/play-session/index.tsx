@@ -3,9 +3,7 @@
 import { differenceInMinutes } from "date-fns"
 import { ArrowLeft } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
-import React from "react"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { mockSocials } from "@/features/socials/mock-data/mockData"
@@ -18,43 +16,10 @@ import {
 import usePlaySessionStore from "@/features/socials/stores/play-session-store"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
+import PlaySessionMatches from "./play-session-matches"
+import PlaySessionOverview from "./play-session-overview"
 import PlaySessionParticipants from "./play-session-participants"
-import PlaySessionMatches from "./PlaySessionMatches"
-import PlaySessionOverview from "./PlaySessionOverview"
-import PlaySessionSidebar from "./PlaySessionSidebar"
-
-function getSessionStatusClasses(status: string) {
-  switch (status) {
-    case "PUBLISHED":
-    case "SCHEDULED":
-      return "border-primary/30 bg-primary/10 text-primary"
-    case "COMPLETED":
-      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
-    case "CANCELLED":
-      return "border-destructive/30 bg-destructive/10 text-destructive"
-    case "IN_PROGRESS":
-      return "border-amber-500/30 bg-amber-500/10 text-amber-600"
-    default:
-      return "border-border bg-muted text-muted-foreground"
-  }
-}
-
-function getSessionStatusLabel(status: string, t: (key: string) => string) {
-  switch (status) {
-    case "PUBLISHED":
-      return t("labels.published")
-    case "COMPLETED":
-      return t("labels.completed")
-    case "CANCELLED":
-      return t("labels.cancelled")
-    case "IN_PROGRESS":
-      return t("labels.inProgress")
-    case "SCHEDULED":
-      return t("labels.scheduled")
-    default:
-      return t("labels.draft")
-  }
-}
+import PlaySessionSidebar from "./play-session-sidebar"
 
 export default function PlaySessionDetail() {
   const params = useParams()
@@ -113,12 +78,6 @@ export default function PlaySessionDetail() {
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">{social.title}</p>
         </div>
-        {/* <Badge
-          className={getSessionStatusClasses(session.status)}
-          variant="outline"
-        >
-          {getSessionStatusLabel(session.status, t)}
-        </Badge> */}
 
         <Button
           variant="outline"

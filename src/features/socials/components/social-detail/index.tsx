@@ -5,13 +5,9 @@ import { useParams, useRouter } from "next/navigation"
 import React from "react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { PlaySessionModal } from "@/features/socials/components/play-session/PlaySessionModal"
+import { PlaySessionModal } from "@/features/socials/components/play-session/play-session-modal"
 import { mockSocials } from "@/features/socials/mock-data/mockData"
-import {
-  Match,
-  mockMatches,
-  mockPlaySessions,
-} from "@/features/socials/mock-data/mockSessionData"
+import { mockPlaySessions } from "@/features/socials/mock-data/mockSessionData"
 import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
 import { useSocialsStore } from "@/features/socials/stores/social-listing-store"
 // import type { ListSocialResponse as Social } from "@/features/socials/types/social"
@@ -20,14 +16,14 @@ import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import { mockSocialParticipants } from "../../mock-data/mockSocialParticipant"
 import { PlaySession } from "../../types/play-session"
+import SocialExpenseTab from "./social-expense-tab"
+import SocialHeader from "./social-header"
+import SocialHero from "./social-hero"
+import SocialJoinDialog from "./social-join-dialog"
 import SocialOverview from "./social-overview"
 import SocialParticipantsTab from "./social-participants-tab"
 import SocialSessions from "./social-session"
 import SocialSidebar from "./social-sidebar"
-import SocialExpenseTab from "./SocialExpenseTab"
-import SocialHeader from "./SocialHeader"
-import SocialHero from "./SocialHero"
-import SocialJoinDialog from "./SocialJoinDialog"
 
 export default function SocialDetail() {
   const params = useParams()

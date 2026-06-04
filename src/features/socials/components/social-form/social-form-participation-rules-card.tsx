@@ -19,7 +19,7 @@ import type {
   GenderPolicy,
   HostRole,
 } from "../../types/social"
-import Field from "../social-detail/Field"
+import Field from "../social-detail/field"
 import { SocialFormToggleRow } from "./social-form-toggle-row"
 
 export function SocialFormParticipationRulesCard({

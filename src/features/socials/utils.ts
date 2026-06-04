@@ -50,3 +50,20 @@ export const getParticipantStatusLabel = (
       return t("participantStatus.pending")
   }
 }
+
+export function getMatchStatusClasses(status: string) {
+  switch (status) {
+    case "PUBLISHED":
+      return "border-primary/30 bg-primary/10 text-primary"
+    case "SCHEDULED":
+      return "border-primary/30 bg-primary/10 text-primary"
+    case "COMPLETED":
+      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
+    case "CANCELLED":
+      return "border-destructive/30 bg-destructive/10 text-destructive"
+    case "IN_PROGRESS":
+      return "border-amber-500/30 bg-amber-500/10 text-amber-600"
+    default:
+      return "border-border bg-muted text-muted-foreground"
+  }
+}

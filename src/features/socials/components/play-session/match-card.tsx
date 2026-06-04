@@ -1,39 +1,23 @@
 "use client"
 
 import { differenceInMinutes, format } from "date-fns"
-import { Edit, Trophy, Users } from "lucide-react"
-import React from "react"
+import { Edit, ShieldAlert, Trophy } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import type { PlaySession } from "@/features/socials/types"
+import type { Match } from "@/features/socials/mock-data/mockSessionData"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import PlayerRow from "./PlayerRow"
-
-function getPlaySessionStatusClasses(status: string) {
-  switch (status) {
-    case "PUBLISHED":
-    case "SCHEDULED":
-      return "border-primary/30 bg-primary/10 text-primary"
-    case "COMPLETED":
-      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
-    case "CANCELLED":
-      return "border-destructive/30 bg-destructive/10 text-destructive"
-    case "IN_PROGRESS":
-      return "border-amber-500/30 bg-amber-500/10 text-amber-600"
-    default:
-      return "border-border bg-muted text-muted-foreground"
-  }
-}
+import { getMatchStatusClasses } from "../../utils"
+import { PlayerRow } from "./player-row"
 
 export default function MatchCard({
   match,
   isHost,
-  completed = false,
+  completed,
 }: {
-  match: NonNullable<NonNullable<PlaySession["matches"]>[number]>
+  match: Match
   isHost: boolean
   completed?: boolean
 }) {
@@ -45,8 +29,6 @@ export default function MatchCard({
         return t("labels.completed")
       case "IN_PROGRESS":
         return t("labels.inProgress")
-      case "CANCELLED":
-        return t("labels.cancelled")
       default:
         return t("labels.scheduled")
     }
@@ -73,7 +55,7 @@ export default function MatchCard({
               {t("matches.court", { number: match.courtNumber ?? 0 })}
             </Badge>
             <Badge
-              className={getPlaySessionStatusClasses(match.status)}
+              className={getMatchStatusClasses(match.status)}
               variant="outline"
             >
               {getStatusLabel()}
@@ -128,7 +110,7 @@ export default function MatchCard({
               size="icon"
               className="text-destructive hover:text-destructive"
             >
-              <Users className="size-4" />
+              <ShieldAlert className="size-4" />
             </Button>
           </div>
         )}

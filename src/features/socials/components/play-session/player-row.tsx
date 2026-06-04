@@ -1,16 +1,14 @@
 "use client"
 
-import React from "react"
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-export default function PlayerRow({
+export const PlayerRow = ({
   user,
   alignRight = false,
 }: {
   user: { name: string; avatar?: string | null }
   alignRight?: boolean
-}) {
+}) => {
   return (
     <div
       className={`flex items-center gap-2 ${alignRight ? "justify-end" : ""}`}

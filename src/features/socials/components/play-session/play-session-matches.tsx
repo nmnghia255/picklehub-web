@@ -6,7 +6,7 @@ import React from "react"
 import { Button } from "@/components/ui/button"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import MatchCard from "./MatchCard"
+import MatchCard from "./match-card"
 
 function SectionLabel({
   children,

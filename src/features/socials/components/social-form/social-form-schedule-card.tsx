@@ -17,7 +17,7 @@ import { useCourtScheduleStore } from "@/features/sport-center-management/stores
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import type { CreateSocialRequest as SocialFormData } from "../../types/social"
-import Field from "../social-detail/Field"
+import Field from "../social-detail/field"
 
 function SportCenterSelect({
   value,
