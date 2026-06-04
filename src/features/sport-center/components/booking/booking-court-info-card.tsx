@@ -4,6 +4,7 @@ import { FallbackImage } from "@/components/fallback-image"
 import { Card, CardContent } from "@/components/ui/card"
 import { useSportCenterStore } from "@/features/sport-center/stores/sport-center-store"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 type BookingCourtInfoCardProps = {
   sportCenter: SportCenter | null
@@ -12,20 +13,24 @@ type BookingCourtInfoCardProps = {
 export function BookingCourtInfoCard({
   sportCenter,
 }: BookingCourtInfoCardProps) {
+  const { t } = useSportCenterTranslation()
   const storeCenter = useSportCenterStore((s) => s.sportCenter)
   const center = sportCenter ?? storeCenter ?? null
 
   const imageSrc =
     center?.images?.[0] ??
     "https://images.unsplash.com/photo-1611224923853-80b023f02d71?auto=format&fit=crop&w=240&q=80"
-  const centerName = center?.name || "Chưa cập nhật tên trung tâm"
-  const centerAddress = center?.address || "Chưa cập nhật địa chỉ"
-  const centerPhone = center?.phone || "Chưa cập nhật số điện thoại"
+  const centerName = center?.name || t("booking.courtInfo.noName")
+  const centerAddress = center?.address || t("booking.courtInfo.noAddress")
+  const centerPhone = center?.phone || t("booking.courtInfo.noPhone")
 
   const hasHours = Boolean(center?.openTime && center?.closeTime)
   const centerHours = hasHours
-    ? `Giờ hoạt động: ${center!.openTime} - ${center!.closeTime}`
-    : "Open daily: 08:00 - 22:00"
+    ? t("detail.header.operatingHours", {
+        openTime: center!.openTime,
+        closeTime: center!.closeTime,
+      })
+    : t("booking.courtInfo.openDaily")
 
   return (
     <Card>

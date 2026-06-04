@@ -1,13 +1,14 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 export function BookingConfirmationEmptyState() {
+  const { t } = useSportCenterTranslation()
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl items-center px-4 py-12 md:px-6">
       <Alert variant="destructive" className="border-destructive/20">
-        <AlertTitle>Không thể tải dữ liệu</AlertTitle>
+        <AlertTitle>{t("booking.confirmation.emptyStateTitle")}</AlertTitle>
         <AlertDescription>
-          Không tìm thấy dữ liệu đặt sân. Vui lòng quay lại trang đặt sân và thử
-          lại.
+          {t("booking.confirmation.emptyStateDesc")}
         </AlertDescription>
       </Alert>
     </div>

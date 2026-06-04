@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { toggleFavoriteSportCenterAction } from "@/features/sport-center/actions/toggle-favorite-sport-center"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
 import { useToast } from "@/hooks/use-toast"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 interface SportCenterHeaderCardProps {
   sportCenter: SportCenter
@@ -19,6 +20,7 @@ interface SportCenterHeaderCardProps {
 export function SportCenterHeaderCard({
   sportCenter,
 }: SportCenterHeaderCardProps) {
+  const { t } = useSportCenterTranslation()
   const { toast } = useToast()
 
   const [favoriteState, formAction, isPending] = useActionState(
@@ -65,12 +67,18 @@ export function SportCenterHeaderCard({
               <div className="flex flex-wrap gap-2">
                 <Badge variant="secondary">
                   {sportCenter.status === "ACTIVE"
-                    ? "Đang hoạt động"
-                    : "Tạm ngưng"}
+                    ? t("detail.header.statusActive")
+                    : t("detail.header.statusInactive")}
                 </Badge>
-                <Badge variant="outline">{sportCenter._count.courts} sân</Badge>
                 <Badge variant="outline">
-                  {sportCenter.averageRating.toFixed(1)} sao
+                  {t("detail.header.courtsCount", {
+                    count: sportCenter._count.courts,
+                  })}
+                </Badge>
+                <Badge variant="outline">
+                  {t("detail.header.rating", {
+                    rating: sportCenter.averageRating.toFixed(1),
+                  })}
                 </Badge>
               </div>
             </div>
@@ -83,7 +91,7 @@ export function SportCenterHeaderCard({
                 router.push(`/sport-center/${sportCenter.id}/booking`)
               }}
             >
-              Đặt sân
+              {t("detail.header.bookCourt")}
             </Button>
             <form
               action={(formData) => {
@@ -101,15 +109,15 @@ export function SportCenterHeaderCard({
                   className={favoriteState.isFavourite ? "fill-current" : ""}
                 />
                 {isPending
-                  ? "Đang cập nhật..."
+                  ? t("detail.header.updating")
                   : favoriteState.isFavourite
-                    ? "Đã yêu thích"
-                    : "Yêu thích"}
+                    ? t("detail.header.favorited")
+                    : t("detail.header.favorite")}
               </Button>
             </form>
             <Button variant="outline" onClick={() => router.back()}>
               <ArrowLeft className="size-4" />
-              Quay lại
+              {t("detail.header.back")}
             </Button>
           </div>
         </div>
@@ -121,7 +129,10 @@ export function SportCenterHeaderCard({
           </p>
           <p className="flex items-center gap-2">
             <Clock3 className="size-4" />
-            Giờ hoạt động: {sportCenter.openTime} - {sportCenter.closeTime}
+            {t("detail.header.operatingHours", {
+              openTime: sportCenter.openTime,
+              closeTime: sportCenter.closeTime,
+            })}
           </p>
           <p className="flex items-center gap-2">
             <Phone className="size-4" />

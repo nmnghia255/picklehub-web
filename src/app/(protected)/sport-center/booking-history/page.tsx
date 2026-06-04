@@ -12,12 +12,14 @@ import type {
   BookingResponse,
   MyBookingsResponse,
 } from "@/features/sport-center/types/booking"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 import { sortBookingsByNewest } from "../../../../features/sport-center/components/booking-history/booking-history.utils"
 
 const PAGE_SIZE = 20
 
 export default function Page() {
+  const { t } = useSportCenterTranslation()
   const [bookings, setBookings] = useState<BookingResponse[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -64,7 +66,9 @@ export default function Page() {
         }
 
         if (!response.ok) {
-          throw new Error(payload.message || "Không thể tải lịch sử đặt sân")
+          throw new Error(
+            payload.message || t("booking.history.loadErrorTitle")
+          )
         }
 
         if (!active) return
@@ -77,7 +81,7 @@ export default function Page() {
         setLoadError(
           error instanceof Error
             ? error.message
-            : "Không thể tải lịch sử đặt sân"
+            : t("booking.history.loadErrorTitle")
         )
       } finally {
         if (active) {
@@ -91,7 +95,7 @@ export default function Page() {
     return () => {
       active = false
     }
-  }, [currentPage, dateFilter, refreshKey, statusFilter])
+  }, [currentPage, dateFilter, refreshKey, statusFilter, t])
 
   const sortedBookings = useMemo(
     () => sortBookingsByNewest(bookings),

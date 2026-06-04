@@ -5,14 +5,11 @@ import {
   formatCurrency,
 } from "@/features/sport-center-management/components/booking-list/booking-list.utils"
 import { BookingStatusBadge } from "@/features/sport-center-management/components/booking-list/booking-status-badge"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 import { cn } from "@/lib/utils"
 import { getDateOnly } from "@/utils/time-helper"
 
-import {
-  formatBookingCourtSummary,
-  formatBookingTimeSummary,
-  getBookingHistoryItems,
-} from "./booking-history.utils"
+import { getBookingHistoryItems } from "./booking-history.utils"
 import { BookingHistoryActionsDropdown } from "./booking-history-actions-dropdown"
 
 interface BookingHistoryTableRowProps {
@@ -26,6 +23,7 @@ export function BookingHistoryTableRow({
   onView,
   onCancel,
 }: BookingHistoryTableRowProps) {
+  const { t } = useSportCenterTranslation()
   const items = getBookingHistoryItems(booking)
 
   return (
@@ -53,8 +51,8 @@ export function BookingHistoryTableRow({
           </p>
           <p className="text-sm text-muted-foreground">
             {items.length > 0
-              ? `${items.length} khung giờ`
-              : "Chưa có khung giờ"}
+              ? t("booking.history.slotsCount", { count: items.length })
+              : t("booking.history.noSlots")}
           </p>
         </div>
       </TableCell>

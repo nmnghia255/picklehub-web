@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 type CourtRow = {
   courtId: string
@@ -17,19 +18,20 @@ export function BookingConfirmationBookedSlotsCard({
   selectedCourtCount,
   courtRows,
 }: BookingConfirmationBookedSlotsCardProps) {
+  const { t } = useSportCenterTranslation()
   return (
     <Card className="border shadow-lg shadow-black/5">
       <CardHeader>
         <div className="flex items-center justify-between gap-2">
           <CardTitle className="flex items-center gap-2 text-xl">
-            Lịch đặt
+            {t("booking.confirmation.scheduleTitle")}
           </CardTitle>
           <div className="flex items-center gap-2">
             <p className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
-              {totalSlots} khung giờ
+              {t("booking.confirmation.slotsCount", { count: totalSlots })}
             </p>
             <p className="rounded-full bg-sky-100 px-3 py-1 text-sm font-medium text-sky-700 dark:bg-sky-500/15 dark:text-sky-300">
-              {selectedCourtCount} sân
+              {t("detail.header.courtsCount", { count: selectedCourtCount })}
             </p>
           </div>
         </div>

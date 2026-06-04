@@ -24,11 +24,12 @@ export function sortBookingsByNewest(bookings: BookingResponse[]) {
   })
 }
 
-export function formatBookingTimeSummary(booking: BookingResponse) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function formatBookingTimeSummary(booking: BookingResponse, t: any) {
   const items = getBookingHistoryItems(booking)
 
   if (items.length === 0) {
-    return "Chưa có khung giờ"
+    return t("booking.history.noSlots")
   }
 
   const firstItem = items[0]
@@ -39,14 +40,15 @@ export function formatBookingTimeSummary(booking: BookingResponse) {
     return `${startTime} - ${endTime}`
   }
 
-  return `${startTime} - ${endTime} + ${items.length - 1} khung giờ`
+  return `${startTime} - ${endTime} ${t("booking.history.moreSlots", { count: items.length - 1 })}`
 }
 
-export function formatBookingCourtSummary(booking: BookingResponse) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function formatBookingCourtSummary(booking: BookingResponse, t: any) {
   const items = getBookingHistoryItems(booking)
 
   if (items.length === 0) {
-    return "Không có thông tin sân"
+    return t("booking.history.noCourtInfo")
   }
 
   const courtNames = items
@@ -57,5 +59,5 @@ export function formatBookingCourtSummary(booking: BookingResponse) {
     return courtNames[0]
   }
 
-  return `${courtNames[0]} + ${courtNames.length - 1} sân khác`
+  return `${courtNames[0]} ${t("booking.history.moreCourts", { count: courtNames.length - 1 })}`
 }

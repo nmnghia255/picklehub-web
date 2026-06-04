@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 export function BookingServicesCard() {
+  const { t } = useSportCenterTranslation()
   const services = useBookingStore((state) => state.services)
   const products = useBookingStore((state) => state.products)
   const selectedServices = useBookingStore((state) => state.selectedServices)
@@ -21,12 +23,16 @@ export function BookingServicesCard() {
   return (
     <Card className="space-y-0">
       <CardHeader>
-        <CardTitle className="text-lg">Dịch vụ và sản phẩm</CardTitle>
+        <CardTitle className="text-lg">{t("booking.addOns.title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <h3 className="text-sm font-semibold text-muted-foreground">Dịch vụ</h3>
+        <h3 className="text-sm font-semibold text-muted-foreground">
+          {t("booking.addOns.services")}
+        </h3>
         {services.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Không có dịch vụ.</p>
+          <p className="text-sm text-muted-foreground">
+            {t("booking.addOns.noServices")}
+          </p>
         ) : (
           services.map((service) => (
             <label
@@ -63,11 +69,11 @@ export function BookingServicesCard() {
 
         <div className="pt-2">
           <h3 className="text-sm font-semibold text-muted-foreground">
-            Sản phẩm
+            {t("booking.addOns.products")}
           </h3>
           {products.length === 0 ? (
             <p className="mt-2 text-sm text-muted-foreground">
-              Không có sản phẩm.
+              {t("booking.addOns.noProducts")}
             </p>
           ) : (
             <div className="mt-2 space-y-3">
@@ -88,7 +94,7 @@ export function BookingServicesCard() {
                         </p>
                       )}
                       <p className="mt-1 text-xs text-muted-foreground">
-                        Tồn kho: {product.stock}
+                        {t("booking.addOns.stock", { count: product.stock })}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">

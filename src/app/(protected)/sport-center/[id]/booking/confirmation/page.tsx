@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
@@ -21,6 +22,7 @@ import { useSportCenterStore } from "@/features/sport-center/stores/sport-center
 import type { BulkCourtAvailability } from "@/features/sport-center/types/court"
 import type { Product } from "@/features/sport-center/types/product"
 import type { Service } from "@/features/sport-center/types/service"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 type BookingDraft = {
@@ -34,10 +36,14 @@ type BookingDraft = {
   bookingNote: string
 }
 
-function formatDate(value: Date | undefined) {
-  if (!value) return "Chưa chọn ngày"
+function formatDate(
+  value: Date | undefined,
+  t: (key: string, options?: Record<string, unknown>) => string,
+  i18n: { language: string }
+) {
+  if (!value) return t("booking.confirmation.noDate")
 
-  return value.toLocaleDateString("vi-VN", {
+  return value.toLocaleDateString(i18n.language === "vi" ? "vi-VN" : "en-US", {
     weekday: "long",
     day: "2-digit",
     month: "2-digit",
@@ -51,6 +57,8 @@ function toNumber(value: number | string | null | undefined) {
 }
 
 export default function BookingConfirmationPage() {
+  const { t } = useSportCenterTranslation()
+  const { i18n } = useTranslation()
   const router = useRouter()
   const params = useParams<{ id?: string | string[] }>()
   const centerId = Array.isArray(params.id) ? params.id[0] : params.id
@@ -76,8 +84,8 @@ export default function BookingConfirmationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const selectedDateText = useMemo(
-    () => formatDate(bookingDraft.selectedDate),
-    [bookingDraft.selectedDate]
+    () => formatDate(bookingDraft.selectedDate, t, i18n),
+    [bookingDraft.selectedDate, t, i18n]
   )
 
   const totalSlots = useMemo(() => {
@@ -138,13 +146,14 @@ export default function BookingConfirmationPage() {
 
   const total = courtTotal + serviceTotal + productTotal
   const totalDisplay = formatCurrencyVnd(total)
-  const centerName = sportCenter?.name ?? "Sân pickleball"
+  const centerName =
+    sportCenter?.name ?? t("booking.confirmation.defaultCenterName")
   const canConfirm =
     totalSlots > 0 && !!bookingDraft.selectedDate && !isSubmitting
 
   const handleCreateBooking = async () => {
     if (!centerId) {
-      setSubmitError("Không tìm thấy mã sân.")
+      setSubmitError(t("booking.confirmation.errorNoCenterId"))
       return
     }
 
@@ -169,7 +178,9 @@ export default function BookingConfirmationPage() {
       })
 
       if (!submitted.success) {
-        setSubmitError(submitted.error ?? "Không thể tạo booking.")
+        setSubmitError(
+          submitted.error ?? t("booking.confirmation.errorCreateBooking")
+        )
         return
       }
 
@@ -177,14 +188,16 @@ export default function BookingConfirmationPage() {
       useBookingStore.setState({
         lastBookingId: bookingId || null,
         submitMessage:
-          submitted.message ?? "Đã gửi yêu cầu đặt sân thành công.",
+          submitted.message ?? t("booking.confirmation.successSubmit"),
       })
       const paymentPath = `/sport-center/${centerId}/booking/confirmation/payment`
 
       router.push(paymentPath)
     } catch (error) {
       setSubmitError(
-        error instanceof Error ? error.message : "Không thể tạo booking."
+        error instanceof Error
+          ? error.message
+          : t("booking.confirmation.errorCreateBooking")
       )
     } finally {
       setIsSubmitting(false)
@@ -232,10 +245,10 @@ export default function BookingConfirmationPage() {
         courtName:
           bookingDraft.courtAvailability?.courts.find(
             (court) => court.courtId === courtId
-          )?.courtName ?? `Sân ${courtId}`,
+          )?.courtName ?? t("booking.summary.courtId", { id: courtId }),
         slots: Array.from(slots),
       })),
-    [bookingDraft.courtAvailability?.courts, bookingDraft.selectedCourts]
+    [bookingDraft.courtAvailability?.courts, bookingDraft.selectedCourts, t]
   )
 
   if (!sportCenter || totalSlots === 0) {
@@ -284,7 +297,7 @@ export default function BookingConfirmationPage() {
             onClick={() => void handleCreateBooking()}
             disabled={!canConfirm}
           >
-            Xác nhận và chuyển sang thanh toán
+            {t("booking.confirmation.confirmAndPayBtn")}
           </Button>
           {submitError ? (
             <p className="mt-2 text-sm text-destructive">{submitError}</p>

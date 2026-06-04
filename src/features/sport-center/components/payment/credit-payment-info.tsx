@@ -3,6 +3,7 @@
 import { CheckCircle2 } from "lucide-react"
 import React from "react"
 
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 type CreditPaymentInfoProps = {
@@ -18,6 +19,7 @@ export function CreditPaymentInfo({
   creditLoading = false,
   creditError = "",
 }: CreditPaymentInfoProps) {
+  const { t } = useSportCenterTranslation()
   const availableCredit = creditBalance ?? 0
   const remainingAmount = Math.max(totalAmount - availableCredit, 0)
   const isEnough = availableCredit >= totalAmount
@@ -29,34 +31,36 @@ export function CreditPaymentInfo({
           <CheckCircle2 className="size-4" />
         </div>
         <div className="space-y-2">
-          <p className="font-semibold">Thanh toán bằng credit</p>
+          <p className="font-semibold">{t("booking.payment.payWithCredit")}</p>
           <p className="text-sm text-muted-foreground">
-            Hệ thống sẽ dùng số credit khả dụng của bạn để tạo booking.
+            {t("booking.payment.payWithCreditDesc")}
           </p>
           <div className="rounded-xl bg-muted/50 px-3 py-2 text-sm">
             {creditLoading ? (
-              <p className="text-muted-foreground">Đang tải số dư credit...</p>
+              <p className="text-muted-foreground">
+                {t("booking.payment.loadingCredit")}
+              </p>
             ) : creditError ? (
               <p className="text-destructive">{creditError}</p>
             ) : isEnough ? (
               <p>
-                Số dư credit của bạn là{" "}
-                <span className="font-semibold">
-                  {formatCurrencyVnd(availableCredit)}
-                </span>{" "}
-                và đã đủ để thanh toán.
-              </p>
-            ) : (
-              <p>
-                Số dư credit của bạn là{" "}
+                {t("booking.payment.creditBalanceIs")}
                 <span className="font-semibold">
                   {formatCurrencyVnd(availableCredit)}
                 </span>
-                . Bạn cần thanh toán thêm{" "}
+                {t("booking.payment.andEnough")}
+              </p>
+            ) : (
+              <p>
+                {t("booking.payment.creditBalanceIs")}
+                <span className="font-semibold">
+                  {formatCurrencyVnd(availableCredit)}
+                </span>
+                {t("booking.payment.needToPayMore")}
                 <span className="font-semibold text-foreground">
                   {formatCurrencyVnd(remainingAmount)}
-                </span>{" "}
-                để đủ tổng tiền.
+                </span>
+                {t("booking.payment.toCompleteTotal")}
               </p>
             )}
           </div>

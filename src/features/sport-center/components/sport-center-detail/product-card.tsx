@@ -1,10 +1,11 @@
 "use client"
 
-import { CalendarClock, Package2 } from "lucide-react"
+import { Package2 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Product } from "@/features/sport-center/types/product"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 interface ProductCardProps {
@@ -12,6 +13,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ item }: ProductCardProps) {
+  const { t } = useSportCenterTranslation()
   const isOutOfStock = !item.isActive || item.stock <= 0
 
   return (
@@ -29,7 +31,9 @@ export function ProductCard({ item }: ProductCardProps) {
               <div className="flex size-12 items-center justify-center rounded-full bg-background shadow-sm">
                 <Package2 className="size-5" />
               </div>
-              <span className="text-sm font-medium">Chưa có ảnh</span>
+              <span className="text-sm font-medium">
+                {t("detail.service.noImage")}
+              </span>
             </div>
           )}
 
@@ -41,13 +45,17 @@ export function ProductCard({ item }: ProductCardProps) {
                   : "border-emerald-200 bg-emerald-50 text-emerald-700"
               }
             >
-              {isOutOfStock ? "Hết hàng" : "Còn hàng"}
+              {isOutOfStock
+                ? t("detail.service.outOfStock")
+                : t("detail.service.inStock")}
             </Badge>
             <Badge
               variant="secondary"
               className="bg-background/90 text-foreground"
             >
-              {item.type === "BEVERAGE" ? "Đồ uống" : item.type}
+              {item.type === "BEVERAGE"
+                ? t("detail.service.beverage")
+                : item.type}
             </Badge>
           </div>
         </div>
@@ -58,14 +66,14 @@ export function ProductCard({ item }: ProductCardProps) {
               {item.name}
             </p>
             <p className="line-clamp-2 text-sm text-muted-foreground">
-              {item.description || "Sản phẩm bổ sung cho sân và người chơi."}
+              {item.description || t("detail.service.defaultProductDesc")}
             </p>
           </div>
 
           <div className="mt-auto flex items-end justify-between gap-3">
             <div>
               <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                Giá bán
+                {t("detail.service.sellingPrice")}
               </p>
               <p className="text-xl font-semibold text-foreground">
                 {formatCurrencyVnd(item.price)}
@@ -73,9 +81,13 @@ export function ProductCard({ item }: ProductCardProps) {
             </div>
 
             <div className="text-right">
-              <p className="text-xs text-muted-foreground">Tồn kho</p>
+              <p className="text-xs text-muted-foreground">
+                {t("detail.service.stock")}
+              </p>
               <p className="text-sm font-semibold">
-                {isOutOfStock ? "Hết hàng" : `${item.stock} ${item.unit}`}
+                {isOutOfStock
+                  ? t("detail.service.outOfStock")
+                  : `${item.stock} ${item.unit}`}
               </p>
             </div>
           </div>

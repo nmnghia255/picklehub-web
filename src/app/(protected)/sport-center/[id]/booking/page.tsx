@@ -17,8 +17,10 @@ import { BookingNote } from "@/features/sport-center/components/booking/booking-
 import { BookingSummaryCard } from "@/features/sport-center/components/booking/booking-summary-card"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
 import { useSportCenterStore } from "@/features/sport-center/stores/sport-center-store"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 export default function BookingPage() {
+  const { t } = useSportCenterTranslation()
   const router = useRouter()
   const params = useParams<{ id?: string | string[] }>()
   const centerId = Array.isArray(params.id) ? params.id[0] : params.id
@@ -114,7 +116,7 @@ export default function BookingPage() {
             availabilityError:
               error instanceof Error
                 ? error.message
-                : "Không thể tải danh sách sân trống.",
+                : t("booking.errorLoadAvailability"),
           })
         } finally {
           if (isActive) {
@@ -127,20 +129,21 @@ export default function BookingPage() {
     return () => {
       isActive = false
     }
-  }, [centerId, selectedDate])
+  }, [centerId, selectedDate, t])
 
   return (
     <PageContainer variant="wide" className="flex flex-col">
       <section className="mb-6 flex items-start justify-between gap-4 space-y-2">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Đặt sân</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            {t("booking.title")}
+          </h1>
           <p className="text-sm text-muted-foreground">
-            Chọn ngày, sân và khung giờ bạn muốn đặt. Bạn cũng có thể thêm các
-            dịch vụ bổ sung.
+            {t("booking.description")}
           </p>
         </div>
         <Button variant="outline" onClick={() => router.back()}>
-          <ArrowLeft className="size-4" /> Quay lại
+          <ArrowLeft className="size-4" /> {t("detail.header.back")}
         </Button>
       </section>
 

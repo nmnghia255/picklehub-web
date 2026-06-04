@@ -3,12 +3,15 @@
 import { CheckCircle2, Landmark } from "lucide-react"
 import React from "react"
 
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
+
 type Props = {
   useCredit: boolean
   setUseCredit: (v: boolean) => void
 }
 
 export function PaymentMethodSelector({ useCredit, setUseCredit }: Props) {
+  const { t } = useSportCenterTranslation()
   return (
     <div className="grid gap-3 md:grid-cols-2">
       <button
@@ -25,9 +28,9 @@ export function PaymentMethodSelector({ useCredit, setUseCredit }: Props) {
             <CheckCircle2 className="size-4" />
           </div>
           <div className="space-y-1">
-            <p className="font-semibold">Dùng credit</p>
+            <p className="font-semibold">{t("booking.payment.useCredit")}</p>
             <p className="text-sm text-muted-foreground">
-              Thanh toán bằng số credit hiện có của bạn.
+              {t("booking.payment.useCreditDesc")}
             </p>
           </div>
         </div>
@@ -47,9 +50,9 @@ export function PaymentMethodSelector({ useCredit, setUseCredit }: Props) {
             <Landmark className="size-4" />
           </div>
           <div className="space-y-1">
-            <p className="font-semibold">Chuyển khoản ngân hàng</p>
+            <p className="font-semibold">{t("booking.payment.bankTransfer")}</p>
             <p className="text-sm text-muted-foreground">
-              Thanh toán theo thông tin ngân hàng của sân.
+              {t("booking.payment.bankTransferDesc")}
             </p>
           </div>
         </div>

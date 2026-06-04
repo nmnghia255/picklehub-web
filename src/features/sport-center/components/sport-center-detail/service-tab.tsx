@@ -1,3 +1,5 @@
+"use client"
+
 import { Card, CardContent } from "@/components/ui/card"
 import { getSportCenterPriceSlots } from "@/features/sport-center/api/sport-center-service"
 import { ProductCard } from "@/features/sport-center/components/sport-center-detail/product-card"
@@ -6,6 +8,7 @@ import type {
   PriceSlot,
   SportCenter,
 } from "@/features/sport-center/types/sport-center"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 interface ServiceTabProps {
@@ -13,21 +16,17 @@ interface ServiceTabProps {
   sportCenterName: string
   products: SportCenter["products"]
   services: SportCenter["services"]
+  priceSlots: PriceSlot[]
 }
 
-export async function ServiceTab({
+export function ServiceTab({
   sportCenterId,
   sportCenterName,
   products,
   services,
+  priceSlots,
 }: ServiceTabProps) {
-  let priceSlots: PriceSlot[] = []
-
-  try {
-    priceSlots = await getSportCenterPriceSlots(sportCenterId)
-  } catch (error) {
-    console.error("Failed to fetch sport center price slots:", error)
-  }
+  const { t } = useSportCenterTranslation()
 
   return (
     <Card className="gap-0 py-0">
@@ -35,9 +34,13 @@ export async function ServiceTab({
         {/* Price Slots */}
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold">Bảng giá</h2>
+            <h2 className="text-lg font-semibold">
+              {t("detail.service.priceTable")}
+            </h2>
             <span className="text-xs text-muted-foreground">
-              {priceSlots.length} khung giờ
+              {t("detail.service.priceSlotsCount", {
+                count: priceSlots.length,
+              })}
             </span>
           </div>
           <section className="space-y-3">
@@ -50,17 +53,22 @@ export async function ServiceTab({
                         {slot.startTime} - {slot.endTime}
                       </p>
                       <p className="text-sm font-semibold">
-                        {formatCurrencyVnd(slot.pricePerHour)} / giờ
+                        {formatCurrencyVnd(slot.pricePerHour)}
+                        {t("detail.service.perHour")}
                       </p>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Áp dụng cho {sportCenterName}
+                      {t("detail.service.appliedFor", {
+                        name: sportCenterName,
+                      })}
                     </p>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">Chưa có bảng giá.</p>
+              <p className="text-sm text-muted-foreground">
+                {t("detail.service.noPriceTable")}
+              </p>
             )}
           </section>
         </div>
@@ -68,9 +76,11 @@ export async function ServiceTab({
         {/* Products */}
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold">Sản phẩm</h2>
+            <h2 className="text-lg font-semibold">
+              {t("detail.service.products")}
+            </h2>
             <span className="text-xs text-muted-foreground">
-              {products.length} mục
+              {t("detail.service.itemsCount", { count: products.length })}
             </span>
           </div>
 
@@ -82,7 +92,7 @@ export async function ServiceTab({
                 ))
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  Chưa có sản phẩm.
+                  {t("detail.service.noProducts")}
                 </p>
               )}
             </div>
@@ -92,9 +102,11 @@ export async function ServiceTab({
         {/* Services */}
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold">Dịch vụ</h2>
+            <h2 className="text-lg font-semibold">
+              {t("detail.service.services")}
+            </h2>
             <span className="text-xs text-muted-foreground">
-              {services.length} mục
+              {t("detail.service.itemsCount", { count: services.length })}
             </span>
           </div>
 
@@ -106,7 +118,7 @@ export async function ServiceTab({
                 ))
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  Chưa có dịch vụ.
+                  {t("detail.service.noServices")}
                 </p>
               )}
             </div>

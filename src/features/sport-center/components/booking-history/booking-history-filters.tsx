@@ -1,11 +1,4 @@
-import {
-  CalendarDays,
-  ChevronDown,
-  Filter,
-  FilterX,
-  RefreshCw as RefreshCwIcon,
-} from "lucide-react"
-import { useState } from "react"
+import { CalendarDays, ChevronDown, Filter, FilterX } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -20,6 +13,7 @@ import {
   bookingStatusOptions,
   formatBookingDate,
 } from "@/features/sport-center-management/components/booking-list/booking-list.utils"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 interface BookingHistoryFiltersProps {
   statusFilter: BookingHistoryStatusFilter
@@ -37,7 +31,7 @@ export function BookingHistoryFilters({
   onDateFilterChange,
   onResetFilters,
 }: BookingHistoryFiltersProps) {
-  const [open, setOpen] = useState(false)
+  const { t } = useSportCenterTranslation()
   const selectedDate = dateFilter ? new Date(dateFilter) : undefined
 
   return (
@@ -45,14 +39,14 @@ export function BookingHistoryFilters({
       <section className="space-y-4 rounded-3xl border bg-card/60 p-4 shadow-sm">
         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           <Filter className="size-4" />
-          <span>Bộ lọc</span>
+          <span>{t("booking.history.filtersTitle")}</span>
         </div>
 
         <div className="grid gap-3 lg:grid-cols-[minmax(200px,1fr)_auto_auto]">
           {/* Date filter */}
           <div className="space-y-2">
             <p className="text-xs font-medium text-muted-foreground">
-              Ngày tạo
+              {t("booking.history.createdAtTitle")}
             </p>
 
             <DropdownMenu>
@@ -61,7 +55,9 @@ export function BookingHistoryFilters({
                   <div className="flex items-center gap-2">
                     <CalendarDays className="h-4 w-4 text-muted-foreground" />
                     <span>
-                      {dateFilter ? formatBookingDate(dateFilter) : "Chọn ngày"}
+                      {dateFilter
+                        ? formatBookingDate(dateFilter)
+                        : t("booking.history.selectDate")}
                     </span>
                   </div>
 
@@ -90,7 +86,7 @@ export function BookingHistoryFilters({
                     size="sm"
                     onClick={() => onDateFilterChange("")}
                   >
-                    Đặt lại
+                    {t("booking.history.reset")}
                   </Button>
                 </div>
               </DropdownMenuContent>
@@ -100,7 +96,7 @@ export function BookingHistoryFilters({
           {/* Status filter */}
           <div className="space-y-2">
             <p className="text-xs font-medium text-muted-foreground">
-              Trạng thái
+              {t("booking.history.statusTitle")}
             </p>
 
             <DropdownMenu>
@@ -109,7 +105,7 @@ export function BookingHistoryFilters({
                   <span>
                     {bookingStatusOptions.find(
                       (option) => option.value === statusFilter
-                    )?.label ?? "Tất cả trạng thái"}
+                    )?.label ?? t("booking.history.allStatus")}
                   </span>
 
                   <ChevronDown className="h-4 w-4" />
@@ -137,7 +133,7 @@ export function BookingHistoryFilters({
           <div className="flex items-end">
             <Button variant="outline" onClick={onResetFilters}>
               <FilterX className="size-4" />
-              <span className="ml-2">Đặt lại</span>
+              <span className="ml-2">{t("booking.history.reset")}</span>
             </Button>
           </div>
         </div>

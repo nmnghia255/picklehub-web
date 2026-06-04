@@ -5,6 +5,7 @@ import { CalendarClock, Settings2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Service } from "@/features/sport-center/types/service"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 interface ServiceCardProps {
@@ -12,6 +13,7 @@ interface ServiceCardProps {
 }
 
 export function ServiceCard({ item }: ServiceCardProps) {
+  const { t } = useSportCenterTranslation()
   const isPaused = !item.isActive
 
   return (
@@ -29,7 +31,9 @@ export function ServiceCard({ item }: ServiceCardProps) {
               <div className="flex size-12 items-center justify-center rounded-full bg-background shadow-sm">
                 <Settings2 className="size-5" />
               </div>
-              <span className="text-sm font-medium">Chưa có ảnh</span>
+              <span className="text-sm font-medium">
+                {t("detail.service.noImage")}
+              </span>
             </div>
           )}
 
@@ -41,13 +45,17 @@ export function ServiceCard({ item }: ServiceCardProps) {
                   : "border-emerald-200 bg-emerald-50 text-emerald-700"
               }
             >
-              {isPaused ? "Tạm ngưng" : "Đang hoạt động"}
+              {isPaused
+                ? t("detail.header.statusInactive")
+                : t("detail.header.statusActive")}
             </Badge>
             <Badge
               variant="secondary"
               className="bg-background/90 text-foreground"
             >
-              {item.type === "COACHING" ? "Huấn luyện" : "Thuê thiết bị"}
+              {item.type === "COACHING"
+                ? t("detail.service.coaching")
+                : t("detail.service.equipment")}
             </Badge>
           </div>
         </div>
@@ -58,14 +66,14 @@ export function ServiceCard({ item }: ServiceCardProps) {
               {item.name}
             </p>
             <p className="line-clamp-2 text-sm text-muted-foreground">
-              {item.description || "Dịch vụ hỗ trợ và nâng cao trải nghiệm."}
+              {item.description || t("detail.service.defaultServiceDesc")}
             </p>
           </div>
 
           <div className="mt-auto flex items-end justify-between gap-3">
             <div>
               <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                Giá dịch vụ
+                {t("detail.service.servicePrice")}
               </p>
               <p className="text-xl font-semibold text-foreground">
                 {formatCurrencyVnd(item.price)}
@@ -73,9 +81,13 @@ export function ServiceCard({ item }: ServiceCardProps) {
             </div>
 
             <div className="text-right">
-              <p className="text-xs text-muted-foreground">Loại dịch vụ</p>
+              <p className="text-xs text-muted-foreground">
+                {t("detail.service.serviceType")}
+              </p>
               <p className="text-sm font-semibold">
-                {item.type === "COACHING" ? "Huấn luyện" : "Thuê thiết bị"}
+                {item.type === "COACHING"
+                  ? t("detail.service.coaching")
+                  : t("detail.service.equipment")}
               </p>
             </div>
           </div>
