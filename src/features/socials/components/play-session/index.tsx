@@ -121,6 +121,7 @@ export default function PlaySessionDetail() {
                 {tabValue === "0" && (
                   <PlaySessionOverview
                     session={session}
+                    participants={participants}
                     duration={duration}
                     completedMatchesCount={completedMatches.length}
                     activeMatchesCount={inProgressMatches.length}

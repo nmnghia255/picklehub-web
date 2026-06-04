@@ -1,3 +1,5 @@
+import type { PlaySession } from "./types/play-session"
+
 export function getStatusClasses(status: string) {
   switch (status) {
     case "PUBLISHED":
@@ -65,5 +67,23 @@ export function getMatchStatusClasses(status: string) {
       return "border-amber-500/30 bg-amber-500/10 text-amber-600"
     default:
       return "border-border bg-muted text-muted-foreground"
+  }
+}
+
+export function getSessionStatusLabel(
+  status: PlaySession["status"],
+  t: (key: string) => string
+) {
+  switch (status) {
+    case "PUBLISHED":
+      return t("labels.published")
+    case "COMPLETED":
+      return t("labels.completed")
+    case "CANCELLED":
+      return t("labels.cancelled")
+    case "DRAFT":
+      return t("labels.draft")
+    default:
+      return t("labels.scheduled")
   }
 }

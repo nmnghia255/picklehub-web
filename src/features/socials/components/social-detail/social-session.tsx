@@ -10,64 +10,7 @@ import ProgressBar from "@/features/socials/components/social-listing/progress-b
 import type { PlaySession } from "@/features/socials/types/play-session"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-// import MatchCard from "./MatchCard"
-
-/*
-function SectionLabel({
-  children,
-  tone,
-}: {
-  children: React.ReactNode
-  tone: "warning" | "primary" | "success"
-}) {
-  const classes =
-    tone === "warning"
-      ? "text-amber-600"
-      : tone === "primary"
-        ? "text-primary"
-        : "text-emerald-600"
-
-  return (
-    <p className={`text-xs font-semibold tracking-[0.2em] ${classes}`}>
-      {children}
-    </p>
-  )
-}
-
-function getMatchSectionLabel(
-  status: Match["status"],
-  t: (key: string) => string
-) {
-  switch (status) {
-    case "IN_PROGRESS":
-      return t("labels.inProgress")
-    case "COMPLETED":
-      return t("labels.completed")
-    case "CANCELLED":
-      return t("labels.cancelled")
-    default:
-      return t("labels.scheduled")
-  }
-}
-*/
-
-function getSessionStatusLabel(
-  status: PlaySession["status"],
-  t: (key: string) => string
-) {
-  switch (status) {
-    case "PUBLISHED":
-      return t("labels.published")
-    case "COMPLETED":
-      return t("labels.completed")
-    case "CANCELLED":
-      return t("labels.cancelled")
-    case "DRAFT":
-      return t("labels.draft")
-    default:
-      return t("labels.scheduled")
-  }
-}
+import { getSessionStatusLabel } from "../../utils"
 
 export default function SocialSessions({
   maxSlots,
@@ -85,13 +28,6 @@ export default function SocialSessions({
   onOpenSession: (sessionId: string) => void
 }) {
   const { t } = useSocialsTranslation()
-
-  /*
-  const totalMatches =
-    matchesByStatus.inProgress.length +
-    matchesByStatus.scheduled.length +
-    matchesByStatus.completed.length
-  */
 
   return (
     <div className="space-y-6">
@@ -120,7 +56,11 @@ export default function SocialSessions({
                 )
 
                 return (
-                  <Card key={session.id} className="p-0">
+                  <Card
+                    key={session.id}
+                    className="cursor-pointer border-primary/20 p-0 transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-md"
+                    onClick={() => onOpenSession(session.id)}
+                  >
                     <CardContent className="space-y-4 p-5">
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
@@ -131,7 +71,20 @@ export default function SocialSessions({
                           </p>
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {t("common.hours", { count: duration })}
+                          {/* {isHost && ( */}
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onEditSession(session)
+                              }}
+                            >
+                              <Edit className="size-4" />
+                            </Button>
+                          </div>
+                          {/* )} */}
                         </div>
                       </div>
 
@@ -139,25 +92,6 @@ export default function SocialSessions({
                         <Badge variant="outline">
                           {getSessionStatusLabel(session.status, t)}
                         </Badge>
-                        {isHost && (
-                          <div className="flex items-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => onEditSession(session)}
-                            >
-                              <Edit className="size-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-destructive hover:text-destructive"
-                              onClick={() => onOpenSession(session.id)}
-                            >
-                              <Users className="size-4" />
-                            </Button>
-                          </div>
-                        )}
                       </div>
 
                       <div className="space-y-2">
@@ -171,18 +105,6 @@ export default function SocialSessions({
                           value={(session.joinedCount / maxSlots) * 100}
                         />
                       </div>
-
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        disabled={session.joinedCount >= maxSlots}
-                        onClick={() => onOpenSession(session.id)}
-                      >
-                        {session.joinedCount >= maxSlots
-                          ? t("sessions.full")
-                          : t("sessions.viewDetails")}
-                      </Button>
                     </CardContent>
                   </Card>
                 )
@@ -191,54 +113,6 @@ export default function SocialSessions({
           )}
         </CardContent>
       </Card>
-
-      {/* <Card className="p-0">
-        <CardContent className="space-y-4 p-6">
-          <h2 className="text-lg font-semibold">{t("matches.title")}</h2>
-          <div className="space-y-4">
-            {totalMatches === 0 ? (
-              <div className="rounded-2xl border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">
-                <Activity className="mx-auto mb-3 size-10 text-muted-foreground" />
-                {t("matches.noMatches")}
-              </div>
-            ) : (
-              <>
-                {matchesByStatus.inProgress.length > 0 && (
-                  <SectionLabel tone="warning">
-                    {getMatchSectionLabel("IN_PROGRESS", t)}
-                  </SectionLabel>
-                )}
-                {matchesByStatus.inProgress.map((match) => (
-                  <MatchCard key={match.id} match={match} isHost={isHost} />
-                ))}
-
-                {matchesByStatus.scheduled.length > 0 && (
-                  <SectionLabel tone="primary">
-                    {getMatchSectionLabel("SCHEDULED", t)}
-                  </SectionLabel>
-                )}
-                {matchesByStatus.scheduled.map((match) => (
-                  <MatchCard key={match.id} match={match} isHost={isHost} />
-                ))}
-
-                {matchesByStatus.completed.length > 0 && (
-                  <SectionLabel tone="success">
-                    {getMatchSectionLabel("COMPLETED", t)}
-                  </SectionLabel>
-                )}
-                {matchesByStatus.completed.map((match) => (
-                  <MatchCard
-                    key={match.id}
-                    match={match}
-                    isHost={isHost}
-                    completed
-                  />
-                ))}
-              </>
-            )}
-          </div>
-        </CardContent>
-      </Card> */}
     </div>
   )
 }

@@ -2,7 +2,6 @@
 
 import { format } from "date-fns"
 import { Check, Clock3, Info } from "lucide-react"
-import React from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -11,7 +10,7 @@ import type { GenderPolicy } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import type { ListSocialResponse as Social } from "../../types/social"
-import InfoRow from "./infor-row"
+import { InfoRow } from "./infor-row"
 
 export default function SocialOverview({
   social,
@@ -49,24 +48,28 @@ export default function SocialOverview({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <InfoRow
-            icon={<Clock3 className="size-4" />}
+            icon={<Clock3 className="size-5" />}
             label={t("detail.schedule")}
             value={format(new Date(social.startTime), "MMM d, yyyy • h:mm a")}
+            iconClassName="bg-blue-500/10 text-blue-600 dark:text-blue-400"
           />
           <InfoRow
-            icon={<Clock3 className="size-4" />}
+            icon={<Clock3 className="size-5" />}
             label={t("detail.duration")}
             value={t("common.hours", { count: duration })}
+            iconClassName="bg-purple-500/10 text-purple-600 dark:text-purple-400"
           />
           <InfoRow
-            icon={<Info className="size-4" />}
+            icon={<Info className="size-5" />}
             label={t("detail.genderPolicy")}
             value={getGenderPolicyLabel(social.genderPolicy)}
+            iconClassName="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
           />
           <InfoRow
-            icon={<Info className="size-4" />}
+            icon={<Info className="size-5" />}
             label={t("detail.ageGroup")}
             value={t(`labels.${social.ageGroup.toLowerCase()}`)}
+            iconClassName="bg-orange-500/10 text-orange-600 dark:text-orange-400"
           />
         </div>
 

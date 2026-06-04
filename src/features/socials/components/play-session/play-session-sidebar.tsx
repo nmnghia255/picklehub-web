@@ -119,7 +119,7 @@ export default function PlaySessionSidebar({
           </div>
         </div>
 
-        {social.totalExpense && (
+        {session.sessionFee && (
           <>
             <Separator />
             <div className="space-y-2">
@@ -127,7 +127,7 @@ export default function PlaySessionSidebar({
                 {t("sidebar.payment")}
               </p>
               <div className="text-3xl font-semibold text-primary">
-                {formatCurrencyVnd(social.totalExpense)}
+                {formatCurrencyVnd(session.sessionFee)}
               </div>
             </div>
           </>

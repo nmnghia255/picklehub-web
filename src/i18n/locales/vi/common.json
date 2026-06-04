@@ -364,7 +364,8 @@
       "completed": "Hoàn tất",
       "upcomingActive": "Sắp diễn ra / Đang diễn ra",
       "date": "Ngày",
-      "time": "Thời gian"
+      "time": "Thời gian",
+      "location": "Vị trí"
     },
     "hero": {
       "privateEvent": "Sự kiện riêng tư"
@@ -427,7 +428,10 @@
       "updateSuccess": "Cập nhật thành công!",
       "save": "Lưu",
       "create": "Tạo",
-      "update": "Cập nhật"
+      "update": "Cập nhật",
+      "fee": "Phí tham gia",
+      "bookings": "Sân đã đặt",
+      "location": "Vị trí"
     }
   },
   "sportCenterManagement": {

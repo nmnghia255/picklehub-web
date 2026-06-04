@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import type { PlaySession, PlaySessionStatus } from "../../types"
+import type { PlaySession } from "../../types/play-session"
 
 interface PlaySessionModalProps {
   open: boolean
@@ -39,10 +39,11 @@ export function PlaySessionModal({
   const { t } = useSocialsTranslation()
   const [formData, setFormData] = useState({
     title: "",
-    status: "DRAFT" as PlaySessionStatus,
-    maxSlots: 16,
+    location: "",
     startTime: "",
     endTime: "",
+    fee: "",
+    bookings: "",
   })
 
   useEffect(() => {
@@ -50,18 +51,20 @@ export function PlaySessionModal({
       if (session) {
         setFormData({
           title: session.title,
-          status: session.status,
-          maxSlots: session.maxSlots,
+          location: session.location,
           startTime: new Date(session.startTime).toISOString().slice(0, 16),
           endTime: new Date(session.endTime).toISOString().slice(0, 16),
+          fee: session.sessionFee.toString(),
+          bookings: "",
         })
       } else {
         setFormData({
           title: "",
-          status: "DRAFT",
-          maxSlots: 16,
+          location: "",
           startTime: "",
           endTime: "",
+          fee: "",
+          bookings: "",
         })
       }
     })
@@ -71,19 +74,6 @@ export function PlaySessionModal({
     console.log("Saving play session:", formData, socialId)
     alert(session ? t("form.updateSuccess") : t("form.createSuccess"))
     onClose()
-  }
-
-  const getStatusLabel = (status: PlaySessionStatus) => {
-    switch (status) {
-      case "DRAFT":
-        return t("labels.draft")
-      case "PUBLISHED":
-        return t("labels.published")
-      case "COMPLETED":
-        return t("labels.completed")
-      case "CANCELLED":
-        return t("labels.cancelled")
-    }
   }
 
   return (
@@ -111,42 +101,14 @@ export function PlaySessionModal({
           </div>
 
           <div className="grid gap-2">
-            <Label>{t("filters.status")}</Label>
-            <Select
-              value={formData.status}
-              onValueChange={(value) =>
-                setFormData({ ...formData, status: value as PlaySessionStatus })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t("filters.selectStatus")} />
-              </SelectTrigger>
-              <SelectContent>
-                {(
-                  ["DRAFT", "PUBLISHED", "COMPLETED", "CANCELLED"] as const
-                ).map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {getStatusLabel(status)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="play-session-max-slots">{t("form.maxSlots")}</Label>
+            <Label htmlFor="play-session-title">{t("form.location")}</Label>
             <Input
-              id="play-session-max-slots"
-              type="number"
-              value={formData.maxSlots}
+              id="play-session-title"
+              value={formData.location}
               onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  maxSlots: parseInt(e.target.value) || 0,
-                })
+                setFormData({ ...formData, location: e.target.value })
               }
-              min={1}
-              max={100}
+              placeholder="Sports Center ABC, 123 Main St"
               required
             />
           </div>
@@ -179,6 +141,21 @@ export function PlaySessionModal({
             />
           </div>
 
+          <div className="grid gap-2">
+            <Label htmlFor="play-session-fee">{t("form.fee")}</Label>
+            <Input
+              id="play-session-fee"
+              type="number"
+              value={formData.fee}
+              onChange={(e) =>
+                setFormData({ ...formData, fee: e.target.value })
+              }
+              min={0}
+              step={0.01}
+              required
+            />
+          </div>
+
           {formData.startTime &&
             formData.endTime &&
             new Date(formData.endTime) <= new Date(formData.startTime) && (
@@ -188,6 +165,20 @@ export function PlaySessionModal({
                 </AlertDescription>
               </Alert>
             )}
+        </div>
+
+        <div className="grid gap-2">
+          <Label htmlFor="play-session-fee">{t("form.bookings")}</Label>
+          <Select>
+            <SelectTrigger id="play-session-booking" className="w-full">
+              <SelectValue placeholder={t("form.bookings")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="court1">{t("courts.court1")}</SelectItem>
+              <SelectItem value="court2">{t("courts.court2")}</SelectItem>
+              <SelectItem value="court3">{t("courts.court3")}</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <DialogFooter>
@@ -200,7 +191,6 @@ export function PlaySessionModal({
               !formData.title ||
               !formData.startTime ||
               !formData.endTime ||
-              formData.maxSlots < 1 ||
               new Date(formData.endTime) <= new Date(formData.startTime)
             }
           >

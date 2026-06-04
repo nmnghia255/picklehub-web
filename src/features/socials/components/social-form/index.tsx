@@ -67,13 +67,23 @@ function mapSocialToFormData(social: Social): CreateSocialRequest {
   }
 }
 
-export function SocialForm() {
+export interface SocialFormProps {
+  initialData?: Social | null
+  socialId?: string
+}
+
+export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
   const { t } = useSocialsTranslation()
-  const params = useParams() as { id?: string }
+  const params = useParams() as { id?: string; socialId?: string }
   const router = useRouter()
-  const id = params.id as string | undefined
+  const id = socialId || params.id || params.socialId
   const isEditMode = Boolean(id)
-  const social = isEditMode ? mockSocials.find((s) => s.id === id) : null
+  const social =
+    initialData !== undefined
+      ? initialData
+      : isEditMode
+        ? mockSocials.find((s) => s.id === id)
+        : null
 
   const [formData, setFormData] = useState<CreateSocialRequest>(
     createInitialFormData
