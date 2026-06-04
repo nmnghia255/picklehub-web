@@ -8,6 +8,7 @@ import { FilterSidebar } from "@/features/sport-center/components/sport-center-l
 import { SportCenterCard } from "@/features/sport-center/components/sport-center-listing/sport-center-card"
 import type { SportCenterPaginationState } from "@/features/sport-center/stores/sport-center-store"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 interface SportCenterTabContentProps {
   filteredSportCenters: SportCenter[]
@@ -22,6 +23,8 @@ export function SportCenterTabContent({
   searchQuery,
   onSearchQueryChange,
 }: SportCenterTabContentProps) {
+  const { t } = useSportCenterTranslation()
+
   return (
     <section className="space-y-4">
       <div className="space-y-4">
@@ -31,7 +34,7 @@ export function SportCenterTabContent({
             <Input
               value={searchQuery}
               onChange={(event) => onSearchQueryChange(event.target.value)}
-              placeholder="Tìm kiếm theo tên sân hoặc địa chỉ"
+              placeholder={t("listing.searchPlaceholder")}
               className="pl-9"
             />
           </div>
@@ -41,14 +44,16 @@ export function SportCenterTabContent({
 
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-medium text-muted-foreground">
-            {filteredSportCenters.length} kết quả phù hợp
+            {t("listing.resultsMatch", { count: filteredSportCenters.length })}
           </h2>
           <p className="text-sm text-muted-foreground">
-            Trang {activePagination.currentPage} /{" "}
-            {Math.max(
-              1,
-              Math.ceil(activePagination.total / activePagination.pageSize)
-            )}
+            {t("listing.pageInfo", {
+              currentPage: activePagination.currentPage,
+              totalPages: Math.max(
+                1,
+                Math.ceil(activePagination.total / activePagination.pageSize)
+              ),
+            })}
           </p>
         </div>
 

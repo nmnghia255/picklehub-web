@@ -4,6 +4,7 @@ import {
   type ListSportCentersResult,
 } from "@/features/sport-center/api/sport-center-service"
 import { SportCenterBrowser } from "@/features/sport-center/components/sport-center-listing"
+import { SportCenterError } from "@/features/sport-center/components/sport-center-listing/error-state"
 
 const PAGE_SIZE = 20
 // booked sport centers tab removed; booking fetch removed
@@ -37,11 +38,7 @@ export default async function SportCenterPage({ searchParams }: PageProps) {
     console.error("Failed to fetch sport centers or bookings:", error)
     return (
       <PageContainer variant="wide">
-        <div className="p-4">
-          <p className="text-red-500">
-            Không thể tải danh sách trung tâm thể thao. Vui lòng thử lại sau.
-          </p>
-        </div>
+        <SportCenterError />
       </PageContainer>
     )
   }

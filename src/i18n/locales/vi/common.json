@@ -550,5 +550,24 @@
         "OTHER": "Khác"
       }
     }
+  },
+  "sportCenter": {
+    "listing": {
+      "errorLoading": "Không thể tải danh sách trung tâm thể thao. Vui lòng thử lại sau.",
+      "title": "Sân",
+      "searchPlaceholder": "Tìm kiếm theo tên sân hoặc địa chỉ",
+      "filters": "Bộ lọc",
+      "filterDescription": "Chọn tiêu chí lọc để tìm sân phù hợp nhanh hơn.",
+      "favorite": "Yêu thích",
+      "showFavoriteOnly": "Chỉ hiển thị sân yêu thích",
+      "confirm": "Xác nhận",
+      "resultsMatch": "{{count}} kết quả phù hợp",
+      "pageInfo": "Trang {{currentPage}} / {{totalPages}}",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Trang {{page}}",
+      "emptyTitle": "Không tìm thấy kết quả phù hợp",
+      "emptyDescription": "Bạn có thể thay đổi từ khóa hoặc bộ lọc để có kết quả như ý nhé."
+    }
   }
 }
