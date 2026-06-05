@@ -6,14 +6,14 @@ import { useParams, useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { mockSocials } from "@/features/socials/mock-data/mockData"
 import type { Match } from "@/features/socials/mock-data/mockSessionData"
-import {
-  mockMatches,
-  mockPlaySessions,
-  mockSessionParticipants,
-} from "@/features/socials/mock-data/mockSessionData"
+import { mockMatches } from "@/features/socials/mock-data/mockSessionData"
 import usePlaySessionStore from "@/features/socials/stores/play-session-store"
+import type {
+  PlaySession,
+  PlaySessionParticipant,
+} from "@/features/socials/types/play-session"
+import type { ListSocialResponse as Social } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import PlaySessionMatches from "./play-session-matches"
@@ -21,7 +21,17 @@ import PlaySessionOverview from "./play-session-overview"
 import PlaySessionParticipants from "./play-session-participants"
 import PlaySessionSidebar from "./play-session-sidebar"
 
-export default function PlaySessionDetail() {
+interface PlaySessionDetailProps {
+  initialSocial: Social | null
+  initialSession: PlaySession | null
+  initialParticipants: PlaySessionParticipant[]
+}
+
+export default function PlaySessionDetail({
+  initialSocial,
+  initialSession,
+  initialParticipants,
+}: PlaySessionDetailProps) {
   const params = useParams()
   const router = useRouter()
   const { t } = useSocialsTranslation()
@@ -30,8 +40,8 @@ export default function PlaySessionDetail() {
 
   const socialId = params.socialId as string | undefined
   const sessionId = params.playSessionId as string | undefined
-  const social = mockSocials[0]
-  const session = mockPlaySessions[0]
+  const social = initialSocial
+  const session = initialSession
 
   if (!social || !session) {
     return (
@@ -67,7 +77,7 @@ export default function PlaySessionDetail() {
       (match: Match) => match.status === "SCHEDULED"
     ) as Match[]) || []
 
-  const participants = mockSessionParticipants
+  const participants = initialParticipants
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">

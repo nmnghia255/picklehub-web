@@ -8,7 +8,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import ProgressBar from "@/features/socials/components/social-listing/progress-bar"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
-import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import type { Host, ListSocialResponse as Social } from "../../types/social"
 
@@ -31,16 +30,16 @@ export default function SocialSidebar({
   onLeave: () => void
 }) {
   const { t } = useSocialsTranslation()
-  const hostId = social.organizers[0] || social.creatorId
+  const hostId = social.creatorId
   const host: Host = {
-    id: hostId.userId,
+    id: hostId,
     name: "Sarah Martinez",
     avatarUrl:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
   }
 
   return (
-    <Card className="sticky top-6 h-fit p-0">
+    <Card className="sticky top-16 h-fit p-0">
       <CardContent className="space-y-5 p-6">
         <div>
           <p className="text-sm text-muted-foreground">
@@ -140,7 +139,7 @@ export default function SocialSidebar({
 
         {social.isParticipant && (
           <Button
-            className="w-full"
+            className="w-full border-red-500 bg-red-500/10 text-red-600 hover:bg-red-500/20"
             size="lg"
             variant="outline"
             onClick={onLeave}

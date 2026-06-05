@@ -1,21 +1,52 @@
 "use client"
 
 import { Filter, Plus, Search } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { Input } from "@/components/ui/input"
-import { mockSocials } from "@/features/socials/mock-data/mockData"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 import { useSocialsStore } from "@/features/socials/stores/social-listing-store"
-// import { SocialService } from "@/features/socials/api/social-service"
 import type { ListSocialResponse as Social } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import { FiltersDrawer } from "./filters-drawer"
 import SocialCard from "./social-card"
 
-export default function SocialListing() {
+interface PaginationMeta {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
+
+interface SocialListingProps {
+  initialSocials: Social[]
+  pagination?: PaginationMeta
+}
+
+export default function SocialListing({
+  initialSocials,
+  pagination,
+}: SocialListingProps) {
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const { t } = useSocialsTranslation()
 
   const filterDrawerOpen = useSocialsStore((s) => s.filterDrawerOpen)
@@ -24,34 +55,25 @@ export default function SocialListing() {
 
   const { setFilters, updateSingleFilter } = useSocialsStore()
   const resetFilters = useSocialsStore((state) => state.resetFilters)
+  const setSelectedSocial = useSocialsStore((s) => s.setSelectedSocial)
 
-  const socials: Social[] = mockSocials
-
-  // try {
-  //   const fetchSocials = async () => {
-  //     const response = await SocialService.listMySocials(
-  //       null,
-  //       null,
-  //       null,
-  //       null
-  //     )
-  //     socials = response
-  //   }
-  // }
-  // catch (error) {
-  //   console.error("Error fetching socials:", error)
-  //   return (
-  //     < PageContainer variant="wide" >
-  //       <div className="p-4">
-  //         <p className="text-red-500">
-  //           Không thể tải danh sách buổi chơi. Vui lòng thử lại sau.
-  //         </p>
-  //       </div>
-  //     </PageContainer >
-  //   )
-  // }
+  const socials: Social[] = initialSocials
 
   const hasNoResults = socials.length === 0
+
+  const handleCardClick = (social: Social) => {
+    setSelectedSocial(social)
+    router.push(`/socials/${social.id}`)
+  }
+
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("page", newPage.toString())
+    router.push(`${pathname}?${params.toString()}`)
+  }
+
+  const hasNextPage = pagination && pagination.page < pagination.totalPages
+  const hasPrevPage = pagination && pagination.page > 1
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8">
@@ -92,20 +114,83 @@ export default function SocialListing() {
       </div>
 
       {hasNoResults ? (
-        <div className="rounded-3xl border border-dashed border-border px-6 py-14 text-center">
-          <h2 className="text-lg font-semibold">
-            {t("listing.noResultsTitle")}
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {t("listing.noResultsDescription")}
-          </p>
-        </div>
+        <Empty className="my-10 border-dashed">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Search className="size-6 text-muted-foreground" />
+            </EmptyMedia>
+            <EmptyTitle>{t("listing.noResultsTitle")}</EmptyTitle>
+            <EmptyDescription>
+              {t("listing.noResultsDescription")}
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button variant="outline" onClick={() => resetFilters()}>
+              {t("common.clearFilters", { defaultValue: "Clear Filters" })}
+            </Button>
+          </EmptyContent>
+        </Empty>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {socials.map((social) => (
-            <SocialCard key={social.id} social={social} />
-          ))}
-        </div>
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {socials.map((social) => (
+              <SocialCard
+                key={social.id}
+                social={social}
+                onClick={() => handleCardClick(social)}
+              />
+            ))}
+          </div>
+
+          {pagination && pagination.totalPages > 1 && (
+            <div className="mt-8 flex justify-center">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    {hasPrevPage ? (
+                      <PaginationPrevious
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          handlePageChange(pagination.page - 1)
+                        }}
+                      />
+                    ) : (
+                      <span className="inline-flex h-10 items-center justify-center rounded-md border border-transparent px-2.5 text-sm font-medium opacity-50">
+                        {t("common.previous", { defaultValue: "Previous" })}
+                      </span>
+                    )}
+                  </PaginationItem>
+
+                  <PaginationItem>
+                    <PaginationLink isActive size="default" href="#">
+                      {t("common.page", {
+                        page: pagination.page,
+                        defaultValue: `Trang ${pagination.page}`,
+                      })}
+                    </PaginationLink>
+                  </PaginationItem>
+
+                  <PaginationItem>
+                    {hasNextPage ? (
+                      <PaginationNext
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          handlePageChange(pagination.page + 1)
+                        }}
+                      />
+                    ) : (
+                      <span className="inline-flex h-10 items-center justify-center rounded-md border border-transparent px-2.5 text-sm font-medium opacity-50">
+                        {t("common.next", { defaultValue: "Next" })}
+                      </span>
+                    )}
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
+        </>
       )}
 
       <FiltersDrawer

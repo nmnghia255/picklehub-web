@@ -1,10 +1,18 @@
 "use client"
 
 import { format } from "date-fns"
+import { UserX } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import type { SocialParticipant } from "../../types/social"
@@ -18,19 +26,29 @@ export default function SocialParticipantsTab({
   const { t } = useSocialsTranslation()
 
   return (
-    <Card className="p-0">
+    <Card className="sticky top-6 h-fit p-0">
       <CardContent className="space-y-6 p-6">
         <h2 className="text-lg font-semibold">{t("detail.participants")}</h2>
         {!participants || participants.length === 0 ? (
-          <div className="mt-4 rounded-2xl border border-dashed border-border px-6 py-12 text-center text-sm text-muted-foreground">
-            {t("detail.noParticipants")}
-          </div>
+          <Empty className="my-6 border-dashed">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <UserX className="size-6 text-muted-foreground" />
+              </EmptyMedia>
+              <EmptyTitle>{t("detail.noParticipants")}</EmptyTitle>
+              <EmptyDescription>
+                {t("detail.noParticipantsDescription", {
+                  defaultValue: "No one has joined this social yet.",
+                })}
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
         ) : (
           <div className="mt-4 space-y-3">
             {participants.map((participant) => (
               <div
                 key={participant.id}
-                className="flex items-center justify-between rounded-2xl border border-border/60 p-4"
+                className="flex items-center justify-between rounded-2xl border border-border/40 bg-card p-4 transition-all hover:border-border hover:shadow-sm"
               >
                 <div className="flex items-center gap-3">
                   <Avatar className="size-10">
@@ -39,11 +57,13 @@ export default function SocialParticipantsTab({
                       alt={participant.name}
                     />
                     <AvatarFallback>
-                      {participant.name.slice(0, 1)}
+                      {participant.name ? participant.name.slice(0, 1) : "?"}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="text-sm font-medium">{participant.name}</p>
+                    <p className="text-sm font-medium">
+                      {participant.name ? participant.name : "Unknown User"}
+                    </p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       <Badge
                         className={
@@ -57,8 +77,7 @@ export default function SocialParticipantsTab({
                       </Badge>
                       {participant.selfRating !== null && (
                         <Badge variant="outline">
-                          {t("common.level")}{" "}
-                          {participant.selfRating.toFixed(1)}
+                          {t("common.level")} {participant.selfRating}
                         </Badge>
                       )}
                     </div>

@@ -1,32 +1,40 @@
 "use client"
 
 import { differenceInHours } from "date-fns"
-import { useParams, useRouter } from "next/navigation"
-import React from "react"
+import { useRouter } from "next/navigation"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PlaySessionModal } from "@/features/socials/components/play-session/play-session-modal"
-import { mockSocials } from "@/features/socials/mock-data/mockData"
-import { mockPlaySessions } from "@/features/socials/mock-data/mockSessionData"
 import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
 import { useSocialsStore } from "@/features/socials/stores/social-listing-store"
-// import type { ListSocialResponse as Social } from "@/features/socials/types/social"
-import type { SocialParticipant } from "@/features/socials/types/social"
+import type { PlaySession } from "@/features/socials/types/play-session"
+import type {
+  ListSocialResponse as Social,
+  SocialParticipant,
+} from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import { mockSocialParticipants } from "../../mock-data/mockSocialParticipant"
-import { PlaySession } from "../../types/play-session"
 import SocialExpenseTab from "./social-expense-tab"
 import SocialHeader from "./social-header"
 import SocialHero from "./social-hero"
 import SocialJoinDialog from "./social-join-dialog"
 import SocialOverview from "./social-overview"
 import SocialParticipantsTab from "./social-participants-tab"
+import SocialPaymentTab from "./social-payment-tab"
 import SocialSessions from "./social-session"
 import SocialSidebar from "./social-sidebar"
 
-export default function SocialDetail() {
-  const params = useParams()
+interface SocialDetailProps {
+  initialSocial: Social | null
+  initialParticipants: SocialParticipant[]
+  initialPlaySessions: PlaySession[]
+}
+
+export default function SocialDetail({
+  initialSocial,
+  initialParticipants,
+  initialPlaySessions,
+}: SocialDetailProps) {
   const router = useRouter()
   const { t } = useSocialsTranslation()
   const joinDialogOpen = useSocialDetailStore((s) => s.joinDialogOpen)
@@ -44,10 +52,9 @@ export default function SocialDetail() {
   const tabValue = useSocialDetailStore((s) => s.tabValue)
   const setTabValue = useSocialDetailStore((s) => s.setTabValue)
 
-  // const selectedSocial = useSocialsStore((s) => s.selectedSocial)
+  const selectedSocial = useSocialsStore((s) => s.selectedSocial)
 
-  const socialId = params.socialId as string | undefined
-  const social = mockSocials.find((item) => item.id === socialId)
+  const social = initialSocial || selectedSocial
 
   if (!social) {
     return (
@@ -72,9 +79,10 @@ export default function SocialDetail() {
     new Date(social.startTime)
   )
 
-  const socialParticipants = mockSocialParticipants
-  const sessions = mockPlaySessions
+  const socialParticipants = initialParticipants
+  const sessions = initialPlaySessions
   const maxSlots = social.maxSlots
+  console.log("SocialDetail render", { social, socialParticipants, sessions })
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
@@ -101,6 +109,9 @@ export default function SocialDetail() {
               <TabsTrigger value="0">{t("detail.overview")}</TabsTrigger>
               <TabsTrigger value="1">{t("detail.participants")}</TabsTrigger>
               <TabsTrigger value="2">{t("expenses.tab")}</TabsTrigger>
+              <TabsTrigger value="3">
+                {t("payment.tab", { defaultValue: "Payment" })}
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="0" className="space-y-4">
@@ -129,6 +140,10 @@ export default function SocialDetail() {
 
             <TabsContent value="2" className="space-y-4">
               <SocialExpenseTab />
+            </TabsContent>
+
+            <TabsContent value="3" className="space-y-4">
+              <SocialPaymentTab social={social} />
             </TabsContent>
           </Tabs>
         </div>

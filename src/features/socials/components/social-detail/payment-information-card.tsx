@@ -14,18 +14,26 @@ import {
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import { paymentPlan } from "../../mock-data/expense-data"
+import type { ListSocialResponse as Social } from "../../types/social"
 
 export function PaymentInformationCard({
-  collectionProgress: _collectionProgress,
+  social,
+  showEditAction = true,
 }: {
-  collectionProgress: number
+  social?: Social | null
+  showEditAction?: boolean
 }) {
   const { t } = useSocialsTranslation()
   const [copied, setCopied] = React.useState(false)
 
+  const accountNumber = social?.paymentCode || paymentPlan.accountNumber
+  const bankName = paymentPlan.bankName // Fallback since social doesn't have bank name
+  const paymentNote = social?.paymentNote || paymentPlan.paymentNote
+  const qrUrl = social?.paymentQrUrl
+
   const handleCopyPaymentCode = async () => {
     try {
-      await navigator.clipboard.writeText(paymentPlan.accountNumber)
+      await navigator.clipboard.writeText(accountNumber)
       setCopied(true)
       window.setTimeout(() => setCopied(false), 1800)
     } catch {
@@ -52,7 +60,7 @@ export function PaymentInformationCard({
                 {t("expenses.paymentInfo.bankName")}
               </p>
               <p className="mt-2 text-base font-semibold text-foreground">
-                {paymentPlan.bankName}
+                {bankName}
               </p>
             </div>
 
@@ -62,7 +70,7 @@ export function PaymentInformationCard({
               </p>
               <div className="mt-2 flex items-center gap-2">
                 <p className="mt-2 text-base font-semibold text-foreground">
-                  {paymentPlan.accountNumber}
+                  {accountNumber}
                 </p>
               </div>
             </div>
@@ -72,25 +80,33 @@ export function PaymentInformationCard({
                 {t("expenses.paymentInfo.paymentNote")}
               </p>
               <p className="mt-2 text-base font-medium text-foreground">
-                {paymentPlan.paymentNote}
+                {paymentNote}
               </p>
             </div>
           </div>
 
           <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/70 bg-card p-4 text-center">
-            <div className="flex size-32 items-center justify-center rounded-2xl bg-linear-to-br from-primary/10 via-primary/5 to-transparent p-4 shadow-inner">
-              <div className="grid w-full grid-cols-6 gap-1">
-                {Array.from({ length: 36 }).map((_, index) => (
-                  <span
-                    key={index}
-                    className={`aspect-square rounded-[3px] ${
-                      index % 2 === 0 || index % 7 === 0
-                        ? "bg-foreground"
-                        : "bg-muted-foreground/20"
-                    }`}
-                  />
-                ))}
-              </div>
+            <div className="relative flex size-32 items-center justify-center overflow-hidden rounded-2xl bg-linear-to-br from-primary/10 via-primary/5 to-transparent p-4 shadow-inner">
+              {qrUrl ? (
+                <img
+                  src={qrUrl}
+                  alt="Payment QR"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="grid w-full grid-cols-6 gap-1">
+                  {Array.from({ length: 36 }).map((_, index) => (
+                    <span
+                      key={index}
+                      className={`aspect-square rounded-[3px] ${
+                        index % 2 === 0 || index % 7 === 0
+                          ? "bg-foreground"
+                          : "bg-muted-foreground/20"
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
             <div>
               <p className="text-sm font-medium">
@@ -103,22 +119,28 @@ export function PaymentInformationCard({
           </div>
         </div>
 
-        <div className="grid gap-2 sm:grid-cols-2">
-          <Button variant="outline" className="gap-2" type="button">
-            <PenLine className="size-4" />
-            {t("expenses.paymentInfo.edit")}
-          </Button>
-          <Button
-            variant="secondary"
-            className="gap-2"
-            type="button"
-            onClick={handleCopyPaymentCode}
-          >
-            <Copy className="size-4" />
-            {copied
-              ? t("expenses.paymentInfo.copied")
-              : t("expenses.paymentInfo.copyAccountNumber")}
-          </Button>
+        <div
+          className={`grid gap-2 ${showEditAction ? "sm:grid-cols-2" : "sm:grid-cols-1"}`}
+        >
+          {showEditAction && (
+            <Button variant="outline" className="gap-2" type="button">
+              <PenLine className="size-4" />
+              {t("expenses.paymentInfo.edit")}
+            </Button>
+          )}
+          {showEditAction && (
+            <Button
+              variant="secondary"
+              className="gap-2"
+              type="button"
+              onClick={handleCopyPaymentCode}
+            >
+              <Copy className="size-4" />
+              {copied
+                ? t("expenses.paymentInfo.copied")
+                : t("expenses.paymentInfo.copyAccountNumber")}
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

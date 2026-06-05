@@ -13,6 +13,7 @@ interface ApiResponse<T> {
     total: number
     page: number
     limit: number
+    totalPages: number
   }
   message: string
   data: T
@@ -31,7 +32,10 @@ export const SocialService = {
     role: string | null,
     page: number | null,
     limit: number | null
-  ): Promise<ListSocialResponse[]> {
+  ): Promise<{
+    data: ListSocialResponse[]
+    meta: ApiResponse<ListSocialResponse[]>["meta"]
+  }> {
     const axios = await getAuthenticatedAxios()
     const searchParams = new URLSearchParams()
     if (tab) searchParams.set("tab", tab)
@@ -43,7 +47,7 @@ export const SocialService = {
       "/api/events/socials/my-schedule",
       { params: searchParams }
     )
-    return unwrapApiResponse(response.data)
+    return { data: response.data.data, meta: response.data.meta }
   },
 
   createSocial: async function (
@@ -59,13 +63,16 @@ export const SocialService = {
 
   discover: async function (
     params?: Record<string, unknown>
-  ): Promise<ListSocialResponse[]> {
+  ): Promise<{
+    data: ListSocialResponse[]
+    meta: ApiResponse<ListSocialResponse[]>["meta"]
+  }> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.get<ApiResponse<ListSocialResponse[]>>(
       "/api/events/socials/discover",
       { params }
     )
-    return unwrapApiResponse(response.data)
+    return { data: response.data.data, meta: response.data.meta }
   },
 
   listAll: async function (): Promise<ListSocialResponse[]> {

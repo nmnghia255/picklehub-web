@@ -34,9 +34,10 @@ export default function PlaySessionSidebar({
   onLeave: () => void
 }) {
   const { t } = useSocialsTranslation()
-  const hostId = social.organizers[0] || social.creatorId
+  const organizer = social.organizers?.[0]
+  const hostIdString = organizer?.userId || social.creatorId
   const host: Host = {
-    id: hostId.userId,
+    id: hostIdString,
     name: "Sarah Martinez",
     avatarUrl:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",

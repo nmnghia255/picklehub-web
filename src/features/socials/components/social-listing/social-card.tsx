@@ -2,7 +2,6 @@
 
 import { format } from "date-fns"
 import { Check, LockKeyhole } from "lucide-react"
-import { useRouter } from "next/navigation"
 
 // import { AvatarGroup } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -11,40 +10,32 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import type { ListSocialResponse as Social } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import { getStatusClasses } from "../../utils"
+import { getGenderPolicyLabel, getStatusClasses } from "../../utils"
 import ProgressBar from "./progress-bar"
 // import UserAvatar from "./UserAvatar"
 
 interface SocialCardProps {
   social: Social
+  onClick?: () => void
 }
 
-export default function SocialCard({ social }: SocialCardProps) {
-  const router = useRouter()
+export default function SocialCard({ social, onClick }: SocialCardProps) {
   const { t } = useSocialsTranslation()
 
   const formatLabel = t(`labels.${social.format.toLowerCase()}`)
   const ageGroupLabel = t(`labels.${social.ageGroup.toLowerCase()}`)
-
-  const getGenderPolicyLabel = () => {
-    switch (social.genderPolicy) {
-      case "MALE_ONLY":
-        return t("labels.menOnly")
-      case "FEMALE_ONLY":
-        return t("labels.womenOnly")
-      default:
-        return t("labels.mixed")
-    }
-  }
+  const genderPolicyLabel = getGenderPolicyLabel(social, t)
 
   return (
     <Card
       key={social.id}
-      className="group flex h-full cursor-pointer flex-col overflow-hidden border-border/60 p-0 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
-      onClick={() => router.push(`/socials/${social.id}`)}
+      className="group flex h-full cursor-pointer flex-col gap-0 overflow-hidden border-border/40 bg-card p-0 transition-all duration-300 hover:-translate-y-1 hover:border-border/80 hover:shadow-md"
+      onClick={onClick}
     >
-      <div className="relative flex h-48 items-center justify-center bg-linear-to-br from-sky-500 via-blue-600 to-violet-600">
-        <span className="text-5xl drop-shadow-sm">🏓</span>
+      <div className="relative flex h-48 items-center justify-center overflow-hidden bg-linear-to-br from-sky-500 via-blue-600 to-violet-600">
+        <span className="text-6xl drop-shadow-sm transition-transform duration-300 group-hover:scale-110">
+          🏓
+        </span>
         {social.isPrivate && (
           <Badge
             className="absolute top-3 right-3 gap-1 border-white/20 bg-black/60 text-white backdrop-blur"
@@ -67,9 +58,9 @@ export default function SocialCard({ social }: SocialCardProps) {
         )}
       </div>
 
-      <CardHeader className="space-y-0 px-5 pt-5 pb-0">
+      <CardHeader className="space-y-0 pt-6 pb-0">
         <div className="flex items-start justify-between gap-3">
-          <h2 className="line-clamp-2 min-h-14 text-lg font-semibold">
+          <h2 className="line-clamp-2 min-h-14 text-lg font-semibold tracking-tight transition-colors group-hover:text-primary">
             {social.title}
           </h2>
           <Badge className={getStatusClasses(social.status)} variant="outline">
@@ -78,8 +69,8 @@ export default function SocialCard({ social }: SocialCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1 px-5 pt-4 pb-5">
-        <p className="mb-4 line-clamp-2 min-h-10 text-sm text-muted-foreground">
+      <CardContent className="flex-1 pt-4 pb-6">
+        <p className="mb-4 line-clamp-2 min-h-10 text-sm/relaxed text-muted-foreground">
           {social.note.length > 80
             ? `${social.note.slice(0, 80)}...`
             : social.note}
@@ -87,7 +78,7 @@ export default function SocialCard({ social }: SocialCardProps) {
 
         <div className="mb-4 flex flex-wrap gap-2">
           <Badge variant="outline">{formatLabel}</Badge>
-          <Badge variant="outline">{getGenderPolicyLabel()}</Badge>
+          <Badge variant="outline">{genderPolicyLabel}</Badge>
           <Badge variant="outline">{ageGroupLabel}</Badge>
         </div>
 
@@ -115,35 +106,9 @@ export default function SocialCard({ social }: SocialCardProps) {
           </div>
           <ProgressBar value={(social.joinedCount / social.maxSlots) * 100} />
         </div>
-
-        {/* {social.organizers.length > 0 && (
-          <div className="mt-5 flex items-center gap-3">
-            <AvatarGroup>
-              {social.organizers.slice(0, 3).map((organizer) => (
-                <UserAvatar
-                  key={organizer.id}
-                  name={organizer.name}
-                  avatar={organizer.avatar}
-                />
-              ))}
-            </AvatarGroup>
-            <div className="min-w-0 text-sm">
-              <p className="truncate text-foreground">
-                {t("sidebar.hostedBy")} {social.organizers[0].name}
-              </p>
-              {social.organizers.length > 1 && (
-                <p className="text-muted-foreground">
-                  {t("listing.organizerCount", {
-                    count: social.organizers.length,
-                  })}
-                </p>
-              )}
-            </div>
-          </div>
-        )} */}
       </CardContent>
 
-      <CardFooter className="px-5 pb-5">
+      <CardFooter className="px-6 pt-0 pb-6">
         <Button
           className="w-full"
           variant={social.hasAvailableSlots ? "default" : "destructive"}

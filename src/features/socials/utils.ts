@@ -1,4 +1,5 @@
 import type { PlaySession } from "./types/play-session"
+import type { ListSocialResponse as Social } from "./types/social"
 
 export function getStatusClasses(status: string) {
   switch (status) {
@@ -28,10 +29,10 @@ export const getStatusLabel = (status: string, t: (key: string) => string) => {
 
 export const getFormatLabel = (format: string, t: (key: string) => string) => {
   switch (format) {
-    case "TOURNAMENT":
-      return t("labels.tournament")
-    case "TRAINING":
-      return t("labels.training")
+    case "SOCIAL":
+      return t("labels.social")
+    case "SINGLES":
+      return t("labels.singles")
     default:
       return t("labels.social")
   }
@@ -85,5 +86,23 @@ export function getSessionStatusLabel(
       return t("labels.draft")
     default:
       return t("labels.scheduled")
+  }
+}
+
+export const getGenderPolicyLabel = (
+  social: Social,
+  t: (key: string) => string
+) => {
+  switch (social.genderPolicy) {
+    case "MALE_ONLY":
+      return t("labels.menOnly")
+    case "FEMALE_ONLY":
+      return t("labels.womenOnly")
+    case "ANY":
+      return t("labels.any")
+    case "MIXED_ONLY":
+      return t("labels.mixed_only")
+    default:
+      return t("labels.mixed")
   }
 }
