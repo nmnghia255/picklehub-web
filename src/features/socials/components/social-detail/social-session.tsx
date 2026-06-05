@@ -35,12 +35,12 @@ export default function SocialSessions({
         <CardContent className="space-y-4 p-6">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-semibold">{t("sessions.title")}</h2>
-            {isHost && (
-              <Button size="sm" onClick={onCreateSession}>
-                <Plus className="mr-2 size-4" />
-                {t("sessions.addSession")}
-              </Button>
-            )}
+            {/* {isHost && ( */}
+            <Button size="sm" onClick={onCreateSession}>
+              <Plus className="mr-2 size-4" />
+              {t("sessions.addSession")}
+            </Button>
+            {/* )} */}
           </div>
 
           {sessions.length === 0 ? (

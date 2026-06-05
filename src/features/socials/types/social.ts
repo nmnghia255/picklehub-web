@@ -113,11 +113,18 @@ export interface ListSocialResponse {
   MyParticipantStatus: string
 }
 
+export type SocialParticipantStatus =
+  | "CONFIRMED"
+  | "WAITLISTED"
+  | "ON_HOLD"
+  | "CANCELLED"
+export type PaymentStatus = "PAID" | "PENDING" | "FAILED"
+
 export interface SocialParticipant {
   id: string
   socialId: string
   userId: string
-  status: string
+  status: SocialParticipantStatus
   totalFee: number
   paymentReceiptUrl: string | null
   paymentStatus: string

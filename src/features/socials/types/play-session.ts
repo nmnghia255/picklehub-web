@@ -2,7 +2,7 @@ export interface PlaySession {
   id: string
   title: string
   socialId: string
-  bookingIds: string[]
+  bookingIds: string
   joinedCount: number
   numberOfCourts: number
   courtNames: string
@@ -18,7 +18,7 @@ export interface PlaySession {
 
 export interface PlaySessionRequest {
   title: string
-  bookingIds: string[]
+  bookingIds: string
   startTime: string
   endTime: string
 }

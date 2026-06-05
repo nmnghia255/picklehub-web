@@ -10,11 +10,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import type { BookingResponse } from "@/features/sport-center/types/booking"
+import type {
+  BookingHistoryPagination,
+  BookingResponse,
+} from "@/features/sport-center/types/booking"
 import CancelReasonDialog from "@/features/sport-center-management/components/booking-list/cancel-reason-dialog"
 import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
-import type { BookingHistoryPagination } from "../../../../app/(protected)/sport-center/booking-history/booking-history.types"
 import { BookingHistoryDetailDialog } from "./booking-history-detail-dialog"
 import { BookingHistoryEmptyState } from "./booking-history-empty-state"
 import { BookingHistorySkeleton } from "./booking-history-skeleton"
