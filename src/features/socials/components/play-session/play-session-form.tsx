@@ -1,8 +1,9 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -17,6 +18,11 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import {
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
   Form,
   FormControl,
   FormField,
@@ -25,56 +31,88 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { MultiSelect } from "@/components/ui/multi-select"
 import { createSocialPlaySessionAction } from "@/features/socials/actions/create-play-session"
-import type { PlaySessionRequest } from "@/features/socials/types/play-session"
+import type {
+  PlaySession,
+  PlaySessionRequest,
+} from "@/features/socials/types/play-session"
+import { getMyBookingsAction } from "@/features/sport-center/actions/get-my-bookings"
 
-interface CreatePlaySessionFormProps {
+interface PlaySessionFormProps {
   socialId: string
+  session?: PlaySession | null
   showCard?: boolean
   onCancel?: () => void
   onSuccess?: () => void
 }
 
-const formSchema = z
-  .object({
-    title: z.string().min(1, "Vui lòng nhập tên buổi chơi"),
-    bookingIds: z.string().min(1, "Vui lòng nhập mã đặt sân"),
-    startTime: z.string().min(1, "Vui lòng chọn thời gian bắt đầu"),
-    endTime: z.string().min(1, "Vui lòng chọn thời gian kết thúc"),
-  })
-  .refine(
-    (data) => {
-      const start = new Date(data.startTime)
-      const end = new Date(data.endTime)
-      return end > start
-    },
-    {
-      message: "Thời gian kết thúc phải sau thời gian bắt đầu",
-      path: ["endTime"],
-    }
-  )
+const formSchema = z.object({
+  title: z.string().min(1, "Vui lòng nhập tên buổi chơi"),
+  bookingIds: z.array(z.string()).min(1, "Vui lòng chọn ít nhất 1 mã đặt sân"),
+  pricePerPlayer: z.coerce.number().min(0, "Giá mỗi người chơi không hợp lệ"),
+  sessionFee: z.coerce.number().min(0, "Phí buổi chơi không hợp lệ"),
+})
 
 type FormData = z.infer<typeof formSchema>
 
-export function CreatePlaySessionForm({
+export function PlaySessionForm({
   socialId,
+  session,
   showCard = true,
   onCancel,
   onSuccess,
-}: CreatePlaySessionFormProps) {
+}: PlaySessionFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const { data: bookingsResponse } = useQuery({
+    queryKey: ["my-bookings", "CONFIRMED"],
+    queryFn: () =>
+      getMyBookingsAction({ status: "CONFIRMED", limit: 20, offset: 0 }),
+  })
+  const bookings = bookingsResponse?.data || []
+
+  console.log("Bookings: ", bookings)
+
+  const bookingOptions = bookings.map((b) => ({
+    value: b.id,
+    label: `${b.center?.name || "Sân"} - ${new Date(b.date).toLocaleDateString("vi-VN")}`,
+    description: `Giờ: ${b.items?.map((i) => `${i.startTime}-${i.endTime}`).join(", ")}`,
+  }))
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      bookingIds: "",
-      startTime: "",
-      endTime: "",
+      title: session?.title || "",
+      bookingIds: session?.bookingIds || [],
+      pricePerPlayer: session?.pricePerPlayer || 0,
+      sessionFee: session?.sessionFee || 0,
     },
   })
+
+  useEffect(() => {
+    if (session) {
+      form.reset({
+        title: session.title,
+        bookingIds: session.bookingIds,
+        pricePerPlayer: session.pricePerPlayer,
+        sessionFee: session.sessionFee,
+      })
+    } else {
+      form.reset({
+        title: "",
+        bookingIds: [],
+        pricePerPlayer: 0,
+        sessionFee: 0,
+      })
+    }
+  }, [session, form])
+
+  const isEditing = !!session
+  const formTitle = isEditing ? "Cập nhật buổi chơi" : "Tạo buổi chơi"
+  const buttonText = isEditing ? "Cập nhật" : "Tạo buổi chơi"
 
   const onSubmit = async (data: FormData) => {
     setIsLoading(true)
@@ -84,8 +122,17 @@ export function CreatePlaySessionForm({
       const createInput: PlaySessionRequest = {
         title: data.title,
         bookingIds: data.bookingIds,
-        startTime: new Date(data.startTime).toISOString(),
-        endTime: new Date(data.endTime).toISOString(),
+        pricePerPlayer: data.pricePerPlayer,
+        sessionFee: data.sessionFee,
+      }
+
+      if (isEditing) {
+        toast.success("Cập nhật buổi chơi thành công")
+        if (onSuccess) {
+          onSuccess()
+          router.refresh()
+        }
+        return
       }
 
       const result = await createSocialPlaySessionAction(socialId, createInput)
@@ -116,13 +163,20 @@ export function CreatePlaySessionForm({
 
   const formContent = (
     <>
-      {showCard && (
+      {showCard ? (
         <CardHeader>
-          <CardTitle>Tạo buổi chơi</CardTitle>
+          <CardTitle>{formTitle}</CardTitle>
           <CardDescription>
-            Nhập thông tin chi tiết cho buổi chơi mới
+            Nhập thông tin chi tiết cho phiên chơi
           </CardDescription>
         </CardHeader>
+      ) : (
+        <DialogHeader className="mb-4">
+          <DialogTitle>{formTitle}</DialogTitle>
+          <DialogDescription>
+            Nhập thông tin chi tiết cho phiên chơi
+          </DialogDescription>
+        </DialogHeader>
       )}
       <CardContent className={showCard ? undefined : "p-0"}>
         <Form {...form}>
@@ -154,7 +208,12 @@ export function CreatePlaySessionForm({
                 <FormItem>
                   <FormLabel>Mã đặt sân *</FormLabel>
                   <FormControl>
-                    <Input placeholder="Nhập mã đặt sân" {...field} />
+                    <MultiSelect
+                      options={bookingOptions}
+                      selected={field.value}
+                      onSelectionChange={field.onChange}
+                      placeholder="Chọn mã đặt sân"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -162,28 +221,28 @@ export function CreatePlaySessionForm({
             />
 
             <div className="grid grid-cols-2 gap-6">
-              <FormField
+              {/* <FormField
                 control={form.control}
-                name="startTime"
+                name="pricePerPlayer"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Thời gian bắt đầu *</FormLabel>
+                    <FormLabel>Phí mỗi người chơi *</FormLabel>
                     <FormControl>
-                      <Input type="datetime-local" {...field} />
+                      <Input type="number" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
 
               <FormField
                 control={form.control}
-                name="endTime"
+                name="sessionFee"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Thời gian kết thúc *</FormLabel>
+                    <FormLabel>Phí buổi chơi *</FormLabel>
                     <FormControl>
-                      <Input type="datetime-local" {...field} />
+                      <Input type="number" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -191,7 +250,7 @@ export function CreatePlaySessionForm({
               />
             </div>
 
-            <div className="flex gap-2 pt-4">
+            <div className="flex justify-end gap-2 pt-4">
               <Button
                 type="button"
                 variant="outline"
@@ -212,7 +271,7 @@ export function CreatePlaySessionForm({
                 disabled={isLoading}
                 className="cursor-pointer"
               >
-                {isLoading ? "Đang tạo..." : "Tạo buổi chơi"}
+                {isLoading ? "Đang xử lý..." : buttonText}
               </Button>
             </div>
           </form>

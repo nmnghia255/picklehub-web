@@ -10,7 +10,7 @@ import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import type { PlaySession } from "../../types/play-session"
-import type { Host, ListSocial as Social } from "../../types/social"
+import type { SocialDetail } from "../../types/social"
 import ProgressBar from "./progress-bar"
 
 function SettingRow({ label, value }: { label: string; value: string }) {
@@ -29,19 +29,15 @@ export default function PlaySessionSidebar({
   onLeave,
 }: {
   session: PlaySession
-  social: Social
+  social: SocialDetail
   onJoin: () => void
   onLeave: () => void
 }) {
   const { t } = useSocialsTranslation()
-  const organizer = social.organizers?.[0]
-  const hostIdString = organizer?.userId || social.creatorId
-  const host: Host = {
-    id: hostIdString,
-    name: "Sarah Martinez",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
-  }
+  const host = social.creator
+  const isParticipant =
+    social.myParticipantInfo?.joinedSessionIds?.includes(session.id as never) ??
+    false
 
   return (
     <Card className="sticky top-6 h-fit p-0">
@@ -134,7 +130,7 @@ export default function PlaySessionSidebar({
           </>
         )}
 
-        {!social.isParticipant && social.status === "PUBLISHED" && (
+        {!isParticipant && social.status === "PUBLISHED" && (
           <Button
             className="w-full"
             size="lg"
@@ -147,7 +143,7 @@ export default function PlaySessionSidebar({
           </Button>
         )}
 
-        {social.isParticipant && (
+        {isParticipant && (
           <Button
             className="w-full"
             size="lg"

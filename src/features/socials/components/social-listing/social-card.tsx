@@ -123,7 +123,7 @@ export default function SocialCard({ social, onClick }: SocialCardProps) {
           disabled={!social.hasAvailableSlots}
         >
           {social.hasAvailableSlots
-            ? t("sidebar.joinSocial")
+            ? t("sidebar.viewDetails")
             : t("sidebar.full")}
         </Button>
       </CardFooter>

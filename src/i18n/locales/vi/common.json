@@ -253,7 +253,8 @@
       "joinSession": "Tham gia phiên",
       "leaveSession": "Rời phiên",
       "full": "Đầy",
-      "publishSocial": "Đăng sự kiện"
+      "publishSocial": "Đăng sự kiện",
+      "viewDetails": "Xem chi tiết"
     },
     "dialogs": {
       "joinTitle": "Tham gia {{title}}",

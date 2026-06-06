@@ -4,6 +4,7 @@ import type {
   CompletePlaySessionResponse,
   PlaySession,
   PlaySessionParticipant,
+  PlaySessionRequest,
   StartPlaySessionResponse,
 } from "../types/play-session"
 
@@ -27,10 +28,10 @@ function unwrapApiResponse<T>(payload: ApiResponse<T> | T): T {
 export const PlaySessionService = {
   createPlaySession: async function (
     socialId: string,
-    payload: unknown
-  ): Promise<unknown> {
+    payload: PlaySessionRequest
+  ): Promise<PlaySession> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post<ApiResponse<unknown>>(
+    const response = await axios.post<ApiResponse<PlaySession>>(
       `/api/events/socials/${socialId}/play-sessions`,
       payload
     )
@@ -59,7 +60,7 @@ export const PlaySessionService = {
   updatePlaySession: async function (
     socialId: string,
     sessionId: string,
-    payload: unknown
+    payload: PlaySessionRequest
   ): Promise<PlaySession> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.patch<ApiResponse<PlaySession>>(

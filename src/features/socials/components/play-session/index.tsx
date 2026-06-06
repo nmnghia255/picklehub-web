@@ -13,7 +13,7 @@ import type {
   PlaySession,
   PlaySessionParticipant,
 } from "@/features/socials/types/play-session"
-import type { ListSocial as Social } from "@/features/socials/types/social"
+import type { SocialDetail } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import PlaySessionMatches from "./play-session-matches"
@@ -22,7 +22,7 @@ import PlaySessionParticipants from "./play-session-participants"
 import PlaySessionSidebar from "./play-session-sidebar"
 
 interface PlaySessionDetailProps {
-  initialSocial: Social | null
+  initialSocial: SocialDetail | null
   initialSession: PlaySession | null
   initialParticipants: PlaySessionParticipant[]
 }

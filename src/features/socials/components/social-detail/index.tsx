@@ -15,10 +15,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { joinSocialAction } from "@/features/socials/actions/join-social"
 import { leaveSocialAction } from "@/features/socials/actions/leave-social"
-import { PlaySessionModal } from "@/features/socials/components/play-session/play-session-modal"
+import { PlaySessionForm } from "@/features/socials/components/play-session/play-session-form"
 import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
 import { useSocialsStore } from "@/features/socials/stores/social-listing-store"
 import type { PlaySession } from "@/features/socials/types/play-session"
@@ -239,15 +240,31 @@ export default function SocialDetail({
         isJoining={isJoining}
       />
 
-      <PlaySessionModal
+      <Dialog
         open={playSessionModalOpen}
-        onClose={() => {
-          setPlaySessionModalOpen(false)
-          setSelectedSession(null)
+        onOpenChange={(open) => {
+          if (!open) {
+            setPlaySessionModalOpen(false)
+            setSelectedSession(null)
+          }
         }}
-        session={selectedSession}
-        socialId={social.id}
-      />
+      >
+        <DialogContent className="sm:max-w-[600px]">
+          <PlaySessionForm
+            socialId={social.id}
+            session={selectedSession}
+            showCard={false}
+            onCancel={() => {
+              setPlaySessionModalOpen(false)
+              setSelectedSession(null)
+            }}
+            onSuccess={() => {
+              setPlaySessionModalOpen(false)
+              setSelectedSession(null)
+            }}
+          />
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={leaveDialogOpen} onOpenChange={setLeaveDialogOpen}>
         <AlertDialogContent>

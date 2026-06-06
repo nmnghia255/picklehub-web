@@ -22,9 +22,7 @@ export interface PlaySession {
 
 export interface PlaySessionRequest {
   title: string
-  bookingIds: string
-  startTime: string
-  endTime: string
+  bookingIds: string[]
   pricePerPlayer: number
   sessionFee: number
 }
