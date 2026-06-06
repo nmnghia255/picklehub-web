@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowLeft, Check, Edit, Trophy, Users } from "lucide-react"
+import { ArrowLeft, Check, Edit, Users } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -15,8 +15,8 @@ import { getFormatLabel, getStatusClasses, getStatusLabel } from "../../utils"
 
 export function getFormatIcon(formatType: SocialFormat) {
   switch (formatType) {
-    case "SINGLE":
-      return <Trophy className="size-4" />
+    case "SINGLES":
+      return <Users className="size-4" />
     case "SOCIAL":
       return <Users className="size-4" />
     default:
@@ -76,11 +76,11 @@ export default function SocialHeader({
             <Button variant="ghost" size="icon" onClick={onBack}>
               <ArrowLeft className="size-4" />
             </Button>
-            {/* {isHost && ( */}
-            <Button variant="ghost" size="icon" onClick={onEdit}>
-              <Edit className="size-4" />
-            </Button>
-            {/* )} */}
+            {isHost && (
+              <Button variant="ghost" size="icon" onClick={onEdit}>
+                <Edit className="size-4" />
+              </Button>
+            )}
           </div>
         </div>
       </CardContent>

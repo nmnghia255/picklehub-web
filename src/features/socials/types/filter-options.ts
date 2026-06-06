@@ -28,7 +28,7 @@ export function getGenderPolicyOptions(
 ): FilterOption<GenderPolicy | null>[] {
   return [
     { value: null, label: t("filters.notYet") },
-    { value: "MIXED", label: t("labels.mixed") },
+    { value: "MIXED_ONLY", label: t("labels.mixed") },
     { value: "MALE_ONLY", label: t("labels.menOnly") },
     { value: "FEMALE_ONLY", label: t("labels.womenOnly") },
   ]
@@ -51,6 +51,6 @@ export function getFormatOptions(
   return [
     { value: null, label: t("filters.notYet") },
     { value: "SOCIAL", label: t("labels.social") },
-    { value: "SINGLE", label: t("labels.tournament") },
+    { value: "SINGLES", label: t("labels.tournament") },
   ]
 }

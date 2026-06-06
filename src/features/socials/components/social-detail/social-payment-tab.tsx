@@ -2,7 +2,9 @@
 
 import { format } from "date-fns"
 import { CheckCircle2, UploadCloud } from "lucide-react"
+import { useRouter } from "next/navigation"
 import React, { useState } from "react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -15,12 +17,21 @@ import {
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
+import { submitPaymentAction } from "../../actions/payment-actions"
+import { UploadImageAction } from "../../actions/upload-image-action"
 import type { PlaySession } from "../../types/play-session"
 import type { SocialDetail } from "../../types/social"
 import { PaymentInformationCard } from "./payment-information-card"
 
-function UploadPaymentProofCard() {
+function UploadPaymentProofCard({
+  socialId,
+  amount,
+}: {
+  socialId?: string
+  amount: number
+}) {
   const { t } = useSocialsTranslation()
+  const router = useRouter()
   const [file, setFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
@@ -32,31 +43,33 @@ function UploadPaymentProofCard() {
     }
   }
 
-  const handleUpload = () => {
-    if (!file) return
+  const handleUpload = async () => {
+    if (!file || !socialId) return
 
     setIsUploading(true)
-    // Simulate upload delay
-    setTimeout(() => {
-      setIsUploading(false)
+    try {
+      const url = await UploadImageAction(file)
+      await submitPaymentAction(socialId, url, amount)
       setIsSuccess(true)
       setFile(null)
-    }, 1500)
+      router.refresh()
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to submit payment proof."
+      )
+    } finally {
+      setIsUploading(false)
+    }
   }
 
   return (
     <Card className="overflow-hidden">
       <CardHeader className="border-b border-border/60 bg-muted/20">
-        <CardTitle className="text-xl">
-          {t("expenses.paymentInfo.uploadProof", {
-            defaultValue: "Upload Payment Proof",
-          })}
-        </CardTitle>
+        <CardTitle className="text-xl">{t("payment.uploadProof")}</CardTitle>
         <CardDescription className="mt-1">
-          {t("expenses.paymentInfo.uploadDescription", {
-            defaultValue:
-              "Please upload a screenshot or image of your successful payment transaction.",
-          })}
+          {t("payment.uploadDescription")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5 p-6">
@@ -86,10 +99,10 @@ function UploadPaymentProofCard() {
             </div>
             <div>
               <p className="text-sm font-medium">
-                Click to upload or drag and drop
+                {t("payment.clickToUpload")}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                SVG, PNG, JPG or GIF (max. 5MB)
+                {t("payment.clickToUploadDescription")}
               </p>
             </div>
             <div className="relative mt-2">
@@ -100,7 +113,7 @@ function UploadPaymentProofCard() {
                 onChange={handleFileChange}
               />
               <Button variant="outline" type="button">
-                {file ? file.name : "Select File"}
+                {file ? file.name : t("payment.selectFile")}
               </Button>
             </div>
           </div>
@@ -108,7 +121,7 @@ function UploadPaymentProofCard() {
         {!isSuccess && (
           <div className="flex justify-end pt-2">
             <Button disabled={!file || isUploading} onClick={handleUpload}>
-              {isUploading ? "Uploading..." : "Submit Proof"}
+              {isUploading ? t("common.uploading") : t("payment.submitProof")}
             </Button>
           </div>
         )}
@@ -117,13 +130,15 @@ function UploadPaymentProofCard() {
   )
 }
 
-function JoinedSessionsSection({ sessions }: { sessions?: PlaySession[] }) {
+function JoinedSessionsSection({
+  sessions,
+  totalFee,
+}: {
+  sessions?: PlaySession[]
+  totalFee: number
+}) {
   const { t } = useSocialsTranslation()
   const joinedSessions = sessions || []
-  const totalFee = joinedSessions.reduce(
-    (acc, session) => acc + (session.sessionFee || 0),
-    0
-  )
 
   if (joinedSessions.length === 0) return null
 
@@ -185,6 +200,10 @@ export default function SocialPaymentTab({
   joinedSessions?: PlaySession[]
 }) {
   const { t } = useSocialsTranslation()
+  const totalFee = (joinedSessions || []).reduce(
+    (acc, session) => acc + (session.sessionFee || 0),
+    0
+  )
 
   return (
     <div className="space-y-6">
@@ -194,18 +213,15 @@ export default function SocialPaymentTab({
             {t("payment.title", { defaultValue: "Payment Details" })}
           </CardTitle>
           <CardDescription className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            {t("payment.subtitle", {
-              defaultValue:
-                "View the payment information and upload your receipt.",
-            })}
+            {t("payment.subtitle")}
           </CardDescription>
         </CardHeader>
       </Card>
 
       <CardContent className="flex flex-col gap-6 p-0">
-        <JoinedSessionsSection sessions={joinedSessions} />
+        <JoinedSessionsSection sessions={joinedSessions} totalFee={totalFee} />
         <PaymentInformationCard social={social} showEditAction={false} />
-        <UploadPaymentProofCard />
+        <UploadPaymentProofCard socialId={social?.id} amount={totalFee} />
       </CardContent>
     </div>
   )

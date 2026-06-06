@@ -1,3 +1,4 @@
+import type { PaymentStatus } from "./payment"
 import type { PlaySession } from "./play-session"
 
 export type GenderPolicy = "ANY" | "MALE_ONLY" | "FEMALE_ONLY" | "MIXED_ONLY"
@@ -5,12 +6,6 @@ export type AgeGroup = "ANY" | "JUNIOR" | "ADULT" | "SENIOR"
 export type SocialFormat = "SINGLES" | "SOCIAL"
 export type SocialStatus = "PUBLISHED" | "COMPLETED" | "CANCELED" | "DRAFT"
 export type HostRole = "HOST_AND_PLAY" | "HOST_ONLY" | "PLAY_ONLY"
-export type PaymentStatus =
-  | "PAID"
-  | "UNPAID"
-  | "PARTIALLY_PAID"
-  | "OVERPAID"
-  | "REFUNDED"
 export type SocialParticipantStatus =
   | "CONFIRMED"
   | "WAITLISTED"

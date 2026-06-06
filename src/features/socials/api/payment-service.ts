@@ -1,5 +1,11 @@
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
+import type {
+  PaymentRecord,
+  PaymentStatus,
+  VerifyPaymentRequest,
+} from "../types/payment"
+
 interface ApiResponse<T> {
   meta: {
     total: number
@@ -36,11 +42,11 @@ export const PaymentService = {
     socialId: string,
     participantId: string,
     paymentId: string,
-    status: string,
+    status: PaymentStatus,
     amountPaid: number
-  ): Promise<void> {
+  ): Promise<VerifyPaymentRequest> {
     const axios = await getAuthenticatedAxios()
-    await axios.post(
+    const response = await axios.post(
       `/api/events/socials/${socialId}/participants/${participantId}/verify`,
       {
         paymentId,
@@ -48,22 +54,22 @@ export const PaymentService = {
         amountPaid,
       }
     )
-    return unwrapApiResponse<void>(undefined)
+    return unwrapApiResponse<VerifyPaymentRequest>(response.data)
   },
 
   refundPayment: async function (
     socialId: string,
     participantId: string,
     amount: number
-  ): Promise<void> {
+  ): Promise<number> {
     const axios = await getAuthenticatedAxios()
-    await axios.post(
+    const response = await axios.post(
       `/api/events/socials/${socialId}/participants/${participantId}/refund`,
       {
         amount,
       }
     )
-    return unwrapApiResponse<void>(undefined)
+    return unwrapApiResponse<number>(response.data)
   },
 
   recordPayment: async function (
@@ -71,15 +77,15 @@ export const PaymentService = {
     participantId: string,
     amount: number,
     receiptUrl?: string
-  ): Promise<void> {
+  ): Promise<PaymentRecord> {
     const axios = await getAuthenticatedAxios()
-    await axios.post(
+    const response = await axios.post(
       `/api/events/socials/${socialId}/participants/${participantId}/record-payment`,
       {
         amount,
         receiptUrl,
       }
     )
-    return unwrapApiResponse<void>(undefined)
+    return unwrapApiResponse<PaymentRecord>(response.data)
   },
 }

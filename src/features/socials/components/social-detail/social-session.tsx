@@ -59,9 +59,7 @@ export default function SocialSessions({
                 </EmptyMedia>
                 <EmptyTitle>{t("sessions.noSessions")}</EmptyTitle>
                 <EmptyDescription>
-                  {t("sessions.noSessionsDescription", {
-                    defaultValue: "There are no play sessions created yet.",
-                  })}
+                  {t("sessions.noSessionsDescription")}
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>

@@ -87,13 +87,13 @@
       "backToSocials": "Quay lại Social",
       "overview": "Tổng quan",
       "participants": "Người tham gia",
-      "aboutThisSocial": "Về social này",
+      "aboutThisSocial": "Về buổi chơi này",
       "schedule": "Lịch trình",
       "duration": "Thời lượng",
       "genderPolicy": "Giới tính",
       "ageGroup": "Nhóm tuổi",
       "skillLevel": "Trình độ",
-      "skillLevelDescription": "Social này dành cho người chơi có DUPR từ {{minimum}} đến {{maximum}}.",
+      "skillLevelDescription": "Buổi chơi này dành cho người chơi có trình độ từ khoảng {{minimum}} đến {{maximum}}.",
       "submitDupr": "Gửi lên DUPR",
       "joinedOn": "Tham gia ngày {{date}}",
       "noParticipants": "Chưa có người tham gia."
@@ -191,7 +191,7 @@
         "bankName": "Tên ngân hàng",
         "accountNumber": "Số tài khoản",
         "paymentNote": "Ghi chú thanh toán",
-        "qrPreviewLabel": "Xem trước mã QR",
+        "qrPreviewLabel": "Mã QR thanh toán",
         "qrDescription": "Bản xem trước thân thiện với việc quét cho quy trình thanh toán của người tham gia.",
         "collectionProgress": "Tiến độ thu tiền",
         "edit": "Chỉnh sửa thông tin thanh toán",
@@ -206,6 +206,22 @@
         "ledgerNote": "Được lưu trên sổ cái tài chính"
       }
     },
+    "payment": {
+      "title": "Thanh toán",
+      "subtitle": "Thanh toán chi phí tham gia buổi chơi này",
+      "description": "Xem lại chi phí đặt sân, tính phần chia cho người tham gia, theo dõi thanh toán và giữ sự kiện social luôn gọn gàng về tài chính.",
+      "checkInfoBeforeConfirm": "Kiểm tra lại thông tin đặt sân, sau đó xác nhận để tạo booking.",
+      "uploadingProof": "Đang tải ảnh minh chứng...",
+      "uploadProof": "Tải ảnh minh chứng thanh toán",
+      "uploadDescription": "Ảnh này sẽ được gửi đến người tổ chức như một phần của yêu cầu tham gia của bạn.",
+      "uploading": "Đang tải...",
+      "confirm": "Xác nhận",
+      "submitProof": "Gửi ảnh minh chứng",
+      "selectFile": "Chọn file ảnh",
+      "clickToUpload": "Nhấp để tải lên",
+      "clickToUploadDescription": "PNG, JPG hoặc JPEG dưới 5MB",
+      "tab": "Thanh toán"
+    },
     "participantStatus": {
       "pending": "Chờ duyệt",
       "confirmed": "Đã xác nhận",
@@ -213,7 +229,7 @@
       "rejected": "Bị từ chối"
     },
     "badges": {
-      "hosting": "Bạn đang tổ chức",
+      "hosting": "Tổ chức",
       "joined": "Đã tham gia",
       "private": "Riêng tư",
       "public": "Công khai"
@@ -241,7 +257,7 @@
     },
     "dialogs": {
       "joinTitle": "Tham gia {{title}}",
-      "joinDescription": "Bạn sắp tham gia sự kiện social này. Sau khi xác nhận, bạn có thể chọn các phiên chơi cụ thể.",
+      "joinDescription": "Bạn sắp tham gia sự kiện này. Sau khi xác nhận, bạn có thể chọn các phiên chơi cụ thể.",
       "autoApproved": "Yêu cầu của bạn sẽ được tự động duyệt.",
       "manualApproval": "Sự kiện này cần duyệt thủ công. Bạn sẽ nhận thông báo sau khi chủ nhà xem xét yêu cầu.",
       "cancel": "Hủy",
@@ -251,6 +267,7 @@
       "title": "Phiên chơi",
       "addSession": "Thêm phiên",
       "noSessions": "Chưa có phiên chơi nào được lên lịch.",
+      "noSessionsDescription": "Hãy tạo một phiên chơi mới.",
       "participants": "Người tham gia",
       "viewDetails": "Xem chi tiết phiên",
       "full": "Đầy",
@@ -408,7 +425,7 @@
       "paymentQrUploading": "Đang tải lên...",
       "paymentQrUploaded": "Đã tải mã QR thanh toán",
       "paymentQrUploadedHint": "Ảnh QR này sẽ hiển thị cho người tham gia.",
-      "paymentQrPreview": "Xem trước mã QR thanh toán",
+      "paymentQrPreview": "Mã QR thanh toán",
       "paymentQrRemove": "Xóa mã QR thanh toán",
       "paymentQrInvalidFile": "Vui lòng chọn file ảnh hợp lệ.",
       "paymentQrUploadFailed": "Không thể tải lên ảnh mã QR thanh toán.",

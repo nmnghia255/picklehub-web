@@ -181,10 +181,10 @@ export default function SocialDetail({
             <TabsList>
               <TabsTrigger value="0">{t("detail.overview")}</TabsTrigger>
               <TabsTrigger value="1">{t("detail.participants")}</TabsTrigger>
-              <TabsTrigger value="2">{t("expenses.tab")}</TabsTrigger>
-              <TabsTrigger value="3">
-                {t("payment.tab", { defaultValue: "Payment" })}
-              </TabsTrigger>
+              <TabsTrigger value="2">{t("payment.tab")}</TabsTrigger>
+              {isHost && (
+                <TabsTrigger value="3">{t("expenses.tab")}</TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="0" className="space-y-4">
@@ -212,11 +212,11 @@ export default function SocialDetail({
             </TabsContent>
 
             <TabsContent value="2" className="space-y-4">
-              <SocialExpenseTab />
+              <SocialPaymentTab social={social} joinedSessions={sessions} />
             </TabsContent>
 
             <TabsContent value="3" className="space-y-4">
-              <SocialPaymentTab social={social} joinedSessions={sessions} />
+              <SocialExpenseTab />
             </TabsContent>
           </Tabs>
         </div>

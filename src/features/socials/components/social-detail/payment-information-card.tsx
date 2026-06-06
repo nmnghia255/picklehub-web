@@ -55,7 +55,7 @@ export function PaymentInformationCard({
       </CardHeader>
 
       <CardContent className="space-y-5 p-6">
-        <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_176px]">
+        <div className="grid gap-6 sm:grid-cols-[1fr_minmax(240px,300px)]">
           <div className="space-y-4">
             <div className="rounded-2xl border border-primary/10 bg-primary/5 p-4">
               <p className="text-sm font-medium text-muted-foreground">
@@ -89,24 +89,15 @@ export function PaymentInformationCard({
                 </p>
               </div>
             )}
-
-            <div className="rounded-2xl border border-primary/10 bg-primary/5 p-4">
-              <p className="text-sm font-medium text-muted-foreground">
-                {t("expenses.paymentInfo.paymentNote")}
-              </p>
-              <p className="mt-2 text-base font-medium text-foreground">
-                {paymentNote}
-              </p>
-            </div>
           </div>
 
-          <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/70 bg-card p-4 text-center">
-            <div className="relative flex size-32 items-center justify-center overflow-hidden rounded-2xl bg-linear-to-br from-primary/10 via-primary/5 to-transparent p-4 shadow-inner">
+          <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-border/70 bg-card p-0 text-center">
+            <div className="relative flex aspect-square w-full max-w-[250px] items-center justify-center overflow-hidden rounded-2xl bg-linear-to-br from-primary/10 via-primary/5 to-transparent p-0 shadow-inner">
               {qrUrl ? (
                 <img
                   src={qrUrl}
                   alt="Payment QR"
-                  className="h-full w-full object-cover"
+                  className="h-full w-full rounded-xl object-cover"
                 />
               ) : (
                 <div className="grid w-full grid-cols-6 gap-1">
@@ -127,11 +118,17 @@ export function PaymentInformationCard({
               <p className="text-sm font-medium">
                 {t("expenses.paymentInfo.qrPreviewLabel")}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {t("expenses.paymentInfo.qrDescription")}
-              </p>
             </div>
           </div>
+        </div>
+
+        <div className="rounded-2xl border border-primary/10 bg-primary/5 p-4">
+          <p className="text-sm font-medium text-muted-foreground">
+            {t("expenses.paymentInfo.paymentNote")}
+          </p>
+          <p className="mt-2 text-base font-medium whitespace-pre-line text-foreground">
+            {paymentNote}
+          </p>
         </div>
 
         <div
