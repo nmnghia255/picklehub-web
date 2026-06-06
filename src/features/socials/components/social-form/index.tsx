@@ -71,8 +71,10 @@ function mapSocialToFormData(social: SocialDetail): SocialFormData {
     paymentAccountNumber: social.paymentAccountNumber,
     paymentAccountName: social.paymentAccountName,
     paymentNote: social.paymentNote,
-    pakageFee: social.packageFee,
+    packageFee: social.packageFee,
     isFree: social.isFree,
+    totalExpense: social.totalExpense,
+    status: social.status,
   }
 }
 
@@ -105,14 +107,57 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
     setIsSubmitting(true)
     try {
       if (isEditMode) {
-        // Need to cast or construct UpdateSocialRequest since allowGuests is required
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { startTime, endTime, hostRole, ...updateData } = formData
+
+        // Ensure numeric fields are correctly typed
+        updateData.minimumLevel =
+          updateData.minimumLevel != null
+            ? Number(updateData.minimumLevel)
+            : null
+        updateData.maximumLevel =
+          updateData.maximumLevel != null
+            ? Number(updateData.maximumLevel)
+            : null
+        updateData.packageFee =
+          updateData.packageFee != null ? Number(updateData.packageFee) : null
+        updateData.totalExpense =
+          updateData.totalExpense != null
+            ? Number(updateData.totalExpense)
+            : undefined
+        updateData.maxSlots =
+          updateData.maxSlots != null ? Number(updateData.maxSlots) : 0
+        updateData.cancellationFreezeHours =
+          updateData.cancellationFreezeHours != null
+            ? Number(updateData.cancellationFreezeHours)
+            : null
+
         await updateSocialAction(id as string, {
-          ...formData,
-          allowGuests: false,
+          ...updateData,
+          allowGuests: formData.allowGuests ?? true,
         })
         toast.success(t("form.updateSuccess"))
       } else {
-        const { pakageFee, ...createData } = formData
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { packageFee, totalExpense, status, allowGuests, ...createData } =
+          formData
+
+        // Ensure numeric fields are correctly typed
+        createData.minimumLevel =
+          createData.minimumLevel != null
+            ? Number(createData.minimumLevel)
+            : null
+        createData.maximumLevel =
+          createData.maximumLevel != null
+            ? Number(createData.maximumLevel)
+            : null
+        createData.maxSlots =
+          createData.maxSlots != null ? Number(createData.maxSlots) : 0
+        createData.cancellationFreezeHours =
+          createData.cancellationFreezeHours != null
+            ? Number(createData.cancellationFreezeHours)
+            : null
+
         await createSocialAction(createData)
         toast.success(t("form.createSuccess"))
       }
@@ -166,10 +211,12 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
           <SocialFormScheduleCard
             formData={formData}
             setFormData={setFormData}
+            isEditMode={isEditMode}
           />
           <SocialFormParticipationRulesCard
             formData={formData}
             setFormData={setFormData}
+            isEditMode={isEditMode}
           />
           <SocialFormPaymentCard
             formData={formData}

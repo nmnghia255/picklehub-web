@@ -25,9 +25,11 @@ import { SocialFormToggleRow } from "./social-form-toggle-row"
 export function SocialFormParticipationRulesCard({
   formData,
   setFormData,
+  isEditMode,
 }: {
   formData: SocialFormData
   setFormData: Dispatch<SetStateAction<SocialFormData>>
+  isEditMode?: boolean
 }) {
   const { t } = useSocialsTranslation()
 
@@ -141,6 +143,7 @@ export function SocialFormParticipationRulesCard({
 
           <Field label={t("form.hostRole")}>
             <Select
+              disabled={isEditMode}
               value={formData.hostRole}
               onValueChange={(value) =>
                 setFormData((prev) => ({

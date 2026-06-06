@@ -179,18 +179,14 @@ export function SocialFormPaymentCard({
                     pakageFee: e.target.value ? Number(e.target.value) : null,
                   }))
                 }
-                placeholder={t("form.packageFeePlaceholder", {
-                  defaultValue: "Enter package fee",
-                })}
+                placeholder={t("form.packageFeePlaceholder")}
               />
             </Field>
           )}
 
           {!formData.isFree && (
             <>
-              <Field
-                label={t("form.paymentBankName", { defaultValue: "Bank Name" })}
-              >
+              <Field label={t("form.bankName")}>
                 <Input
                   value={formData.paymentBankName || ""}
                   onChange={(e) =>
@@ -199,17 +195,11 @@ export function SocialFormPaymentCard({
                       paymentBankName: e.target.value,
                     }))
                   }
-                  placeholder={t("form.paymentBankNamePlaceholder", {
-                    defaultValue: "Enter bank name",
-                  })}
+                  placeholder={t("form.bankNamePlaceholder")}
                 />
               </Field>
 
-              <Field
-                label={t("form.paymentAccountNumber", {
-                  defaultValue: "Account Number",
-                })}
-              >
+              <Field label={t("form.accountNumber")}>
                 <Input
                   value={formData.paymentAccountNumber || ""}
                   onChange={(e) =>
@@ -218,17 +208,11 @@ export function SocialFormPaymentCard({
                       paymentAccountNumber: e.target.value,
                     }))
                   }
-                  placeholder={t("form.paymentAccountNumberPlaceholder", {
-                    defaultValue: "Enter account number",
-                  })}
+                  placeholder={t("form.accountNumberPlaceholder")}
                 />
               </Field>
 
-              <Field
-                label={t("form.paymentAccountName", {
-                  defaultValue: "Account Name",
-                })}
-              >
+              <Field label={t("form.accountName")}>
                 <Input
                   value={formData.paymentAccountName || ""}
                   onChange={(e) =>
@@ -237,15 +221,13 @@ export function SocialFormPaymentCard({
                       paymentAccountName: e.target.value,
                     }))
                   }
-                  placeholder={t("form.paymentAccountNamePlaceholder", {
-                    defaultValue: "Enter account name",
-                  })}
+                  placeholder={t("form.accountNamePlaceholder")}
                 />
               </Field>
             </>
           )}
 
-          <Field label={t("form.paymentInstructions")}>
+          <Field label={t("form.paymentNote")}>
             <Textarea
               rows={2}
               value={formData.paymentNote || ""}
@@ -255,7 +237,7 @@ export function SocialFormPaymentCard({
                   paymentNote: e.target.value,
                 }))
               }
-              placeholder={t("form.paymentInstructionsPlaceholder")}
+              placeholder={t("form.paymentNotePlaceholder")}
             />
           </Field>
         </div>

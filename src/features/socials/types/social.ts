@@ -70,12 +70,37 @@ export interface CreateSocialResponse {
   participants: []
 }
 
-export interface UpdateSocialRequest extends Partial<CreateSocialRequest> {
+export interface UpdateSocialRequest {
+  title?: string
+  note?: string
+  format?: SocialFormat
+  maxSlots?: number
+  isPrivate?: boolean
+  isFree?: boolean
+  minimumLevel?: number | null
+  maximumLevel?: number | null
+  genderPolicy?: GenderPolicy
+  ageGroup?: AgeGroup
+  allowGuests?: boolean
+  submitDupr?: boolean
+  cancellationFreezeHours?: number | null
+  autoApproveJoinRequests?: boolean
+  totalExpense?: number
+  paymentBankName?: string | null
+  paymentAccountName?: string | null
+  paymentAccountNumber?: string | null
+  paymentQrUrl?: string | null
+  paymentNote?: string | null
   status?: SocialStatus
-  pakageFee?: number | null
+  packageFee?: number | null
 }
 
-export type SocialFormData = CreateSocialRequest & { pakageFee?: number | null }
+export type SocialFormData = CreateSocialRequest & {
+  packageFee?: number | null
+  allowGuests?: boolean
+  totalExpense?: number
+  status?: SocialStatus
+}
 
 export interface User {
   id: string
@@ -180,11 +205,6 @@ export interface SocialDetail {
   playSessions: PlaySession[]
   isHost: true
   myParticipantInfo: ParticipantInfo
-}
-
-export interface UpdateSocialRequest extends Partial<CreateSocialRequest> {
-  status?: SocialStatus
-  allowGuests: boolean
 }
 
 export interface Payment {

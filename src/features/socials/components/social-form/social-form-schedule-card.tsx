@@ -1,11 +1,21 @@
 "use client"
 
+import { format } from "date-fns"
+import { enUS, vi } from "date-fns/locale"
+import { CalendarIcon } from "lucide-react"
 import type { Dispatch, SetStateAction } from "react"
 import { useEffect } from "react"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import {
   Select,
   SelectContent,
@@ -13,41 +23,95 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useCourtScheduleStore } from "@/features/sport-center-management/stores/court-schedule-store"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
+import { cn } from "@/lib/utils"
 
 import type { SocialFormData } from "../../types/social"
 import Field from "../social-detail/field"
 
-function SportCenterSelect({
+function DateTimePicker({
   value,
   onChange,
-  placeholder,
+  disabled,
 }: {
-  value?: string
-  onChange: (val: string) => void
-  placeholder?: string
+  value: string
+  onChange: (value: string) => void
+  disabled?: boolean
 }) {
-  const { sportCenters, fetchSportCenters } = useCourtScheduleStore()
+  const { t, i18n } = useSocialsTranslation()
+  const dateLocale = i18n.language === "vi" ? vi : enUS
 
-  useEffect(() => {
-    if (!sportCenters || sportCenters.length === 0) fetchSportCenters()
-  }, [sportCenters, fetchSportCenters])
+  const dateValue = value ? new Date(value) : undefined
+
+  const handleDateSelect = (date: Date | undefined) => {
+    if (!date) return
+    const newDate = new Date(date)
+    if (dateValue) {
+      newDate.setHours(dateValue.getHours())
+      newDate.setMinutes(dateValue.getMinutes())
+    } else {
+      newDate.setHours(12, 0, 0, 0)
+    }
+    const offset = newDate.getTimezoneOffset()
+    const dateLocal = new Date(newDate.getTime() - offset * 60 * 1000)
+    onChange(dateLocal.toISOString().slice(0, 16))
+  }
+
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = e.target.value
+    if (!time) return
+    const [hours, mins] = time.split(":")
+    const newDate = dateValue ? new Date(dateValue) : new Date()
+    newDate.setHours(parseInt(hours), parseInt(mins), 0, 0)
+    const offset = newDate.getTimezoneOffset()
+    const dateLocal = new Date(newDate.getTime() - offset * 60 * 1000)
+    onChange(dateLocal.toISOString().slice(0, 16))
+  }
 
   return (
-    <div className="w-full">
-      <Select value={value} onValueChange={(v) => onChange(v)}>
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent className="w-full">
-          {sportCenters.map((center) => (
-            <SelectItem key={center.id} value={center.id}>
-              {center.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <div className="flex w-full items-center gap-2">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            disabled={disabled}
+            className={cn(
+              "flex-1 justify-start text-left font-normal",
+              !value && "text-muted-foreground"
+            )}
+            type="button"
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {value ? (
+              format(dateValue!, "PPP", { locale: dateLocale })
+            ) : (
+              <span>{t("form.pickDate", { defaultValue: "Pick a date" })}</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={dateValue}
+            onSelect={handleDateSelect}
+            locale={dateLocale}
+          />
+        </PopoverContent>
+      </Popover>
+      <Input
+        type="time"
+        disabled={disabled}
+        value={value ? format(dateValue!, "HH:mm") : ""}
+        onChange={handleTimeChange}
+        className="w-40"
+        onClick={(e) => {
+          try {
+            e.currentTarget.showPicker()
+          } catch (_err) {
+            // Ignore if showPicker is not supported
+          }
+        }}
+      />
     </div>
   )
 }
@@ -55,9 +119,11 @@ function SportCenterSelect({
 export function SocialFormScheduleCard({
   formData,
   setFormData,
+  isEditMode,
 }: {
   formData: SocialFormData
   setFormData: Dispatch<SetStateAction<SocialFormData>>
+  isEditMode?: boolean
 }) {
   const { t } = useSocialsTranslation()
   const hasInvalidTimeRange =
@@ -71,24 +137,22 @@ export function SocialFormScheduleCard({
         <h2 className="text-lg font-semibold">{t("form.schedule")}</h2>
         <div className="space-y-4">
           <Field label={t("form.startTime")}>
-            <Input
-              type="datetime-local"
+            <DateTimePicker
+              disabled={isEditMode}
               value={formData.startTime}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, startTime: e.target.value }))
+              onChange={(val) =>
+                setFormData((prev) => ({ ...prev, startTime: val }))
               }
-              required
             />
           </Field>
 
           <Field label={t("form.endTime")}>
-            <Input
-              type="datetime-local"
+            <DateTimePicker
+              disabled={isEditMode}
               value={formData.endTime}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, endTime: e.target.value }))
+              onChange={(val) =>
+                setFormData((prev) => ({ ...prev, endTime: val }))
               }
-              required
             />
           </Field>
 
@@ -114,16 +178,6 @@ export function SocialFormScheduleCard({
               max={168}
             />
           </Field>
-
-          {/* <Field label={t("form.bookedSportCenter")}>
-            <SportCenterSelect
-              value={formData.bookedSportCenter}
-              onChange={(value) =>
-                setFormData((prev) => ({ ...prev, bookedSportCenter: value }))
-              }
-              placeholder={t("form.bookedSportCenterPlaceholder")}
-            />
-          </Field> */}
         </div>
       </CardContent>
     </Card>
