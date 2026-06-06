@@ -15,7 +15,6 @@ import { SocialFormBasicInformationCard } from "./social-form-basic-information-
 import { SocialFormHeader } from "./social-form-header"
 import { SocialFormParticipationRulesCard } from "./social-form-participation-rules-card"
 import { SocialFormPaymentCard } from "./social-form-payment-card"
-import { SocialFormPlaySessionsCard } from "./social-form-play-sessions-card"
 import { SocialFormScheduleCard } from "./social-form-schedule-card"
 import { SocialFormSidebar } from "./social-form-sidebar"
 
@@ -97,7 +96,6 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
   }, [social])
 
   const handleSubmit = () => {
-    console.log("Saving social:", formData)
     alert(isEditMode ? t("form.updateSuccess") : t("form.createSuccess"))
     router.push("/socials")
   }

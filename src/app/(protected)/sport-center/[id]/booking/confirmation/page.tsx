@@ -252,7 +252,6 @@ export default function BookingConfirmationPage() {
   )
 
   if (!sportCenter || totalSlots === 0) {
-    console.log("Booking Draft:", bookingDraft)
     return <BookingConfirmationEmptyState />
   }
 

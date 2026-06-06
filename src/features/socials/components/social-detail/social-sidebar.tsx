@@ -24,10 +24,12 @@ export default function SocialSidebar({
   social,
   onJoin,
   onLeave,
+  isLeaving,
 }: {
   social: Social
   onJoin: () => void
   onLeave: () => void
+  isLeaving?: boolean
 }) {
   const { t } = useSocialsTranslation()
   const hostId = social.creatorId
@@ -37,6 +39,18 @@ export default function SocialSidebar({
     avatarUrl:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
   }
+
+  if (!social) {
+    return (
+      <Card className="sticky top-16 h-fit p-0">
+        <CardContent className="space-y-5 p-6">
+          <p className="text-sm text-muted-foreground">{t("sidebar.noData")}</p>
+        </CardContent>
+      </Card>
+    )
+  }
+  const isParticipant =
+    social.isParticipant || social.participants.some((p) => p.userId === hostId)
 
   return (
     <Card className="sticky top-16 h-fit p-0">
@@ -110,21 +124,7 @@ export default function SocialSidebar({
           </div>
         </div>
 
-        {/* {social.totalExpense && (
-          <>
-            <Separator />
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">
-                {t("sidebar.payment")}
-              </p>
-              <div className="text-3xl font-semibold text-primary">
-                {formatCurrencyVnd(social.totalExpense)}
-              </div>
-            </div>
-          </>
-        )} */}
-
-        {!social.isParticipant && social.status === "PUBLISHED" && (
+        {!isParticipant && social.status === "PUBLISHED" && (
           <Button
             className="w-full"
             size="lg"
@@ -137,14 +137,17 @@ export default function SocialSidebar({
           </Button>
         )}
 
-        {social.isParticipant && (
+        {isParticipant && (
           <Button
             className="w-full border-red-500 bg-red-500/10 text-red-600 hover:bg-red-500/20"
             size="lg"
             variant="outline"
             onClick={onLeave}
+            disabled={isLeaving}
           >
-            {t("sidebar.leaveSocial")}
+            {isLeaving
+              ? t("sidebar.leaving", { defaultValue: "Leaving..." })
+              : t("sidebar.leaveSocial")}
           </Button>
         )}
       </CardContent>

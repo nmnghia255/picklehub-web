@@ -61,9 +61,7 @@ export const SocialService = {
     return unwrapApiResponse(response.data)
   },
 
-  discover: async function (
-    params?: Record<string, unknown>
-  ): Promise<{
+  discover: async function (params?: Record<string, unknown>): Promise<{
     data: ListSocialResponse[]
     meta: ApiResponse<ListSocialResponse[]>["meta"]
   }> {
@@ -145,10 +143,14 @@ export const SocialService = {
     return unwrapApiResponse(response.data)
   },
 
-  joinSocial: async function (socialId: string): Promise<SocialParticipant> {
+  joinSocial: async function (
+    socialId: string,
+    playSessionIds?: string[]
+  ): Promise<SocialParticipant> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.post<ApiResponse<SocialParticipant>>(
-      `/api/events/socials/${socialId}/join`
+      `/api/events/socials/${socialId}/join`,
+      { playSessionIds }
     )
     return unwrapApiResponse(response.data)
   },

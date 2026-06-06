@@ -1,6 +1,6 @@
 import type { PlaySession } from "./play-session"
 
-export type GenderPolicy = "ANY" | "MALE_ONLY" | "FEMALE_ONLY" | "MIXED"
+export type GenderPolicy = "ANY" | "MALE_ONLY" | "FEMALE_ONLY" | "MIXED_ONLY"
 export type AgeGroup = "ANY" | "JUNIOR" | "ADULT" | "SENIOR"
 export type SocialFormat = "SINGLE" | "SOCIAL"
 export type SocialStatus = "PUBLISHED" | "COMPLETED" | "CANCELED"

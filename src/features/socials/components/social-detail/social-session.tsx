@@ -22,12 +22,15 @@ import { getSessionStatusLabel } from "../../utils"
 export default function SocialSessions({
   maxSlots,
   sessions,
+  isHost,
   onCreateSession,
   onEditSession,
   onOpenSession,
 }: {
   maxSlots: number
   sessions: PlaySession[]
+
+  isHost: boolean
   onCreateSession: () => void
   onEditSession: (session: PlaySession) => void
   onOpenSession: (sessionId: string) => void

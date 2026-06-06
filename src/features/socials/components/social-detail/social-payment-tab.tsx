@@ -1,5 +1,6 @@
 "use client"
 
+import { format } from "date-fns"
 import { CheckCircle2, UploadCloud } from "lucide-react"
 import React, { useState } from "react"
 
@@ -12,7 +13,9 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
+import type { PlaySession } from "../../types/play-session"
 import type { ListSocialResponse as Social } from "../../types/social"
 import { PaymentInformationCard } from "./payment-information-card"
 
@@ -114,10 +117,72 @@ function UploadPaymentProofCard() {
   )
 }
 
+function JoinedSessionsSection({ sessions }: { sessions?: PlaySession[] }) {
+  const { t } = useSocialsTranslation()
+  const joinedSessions = sessions || []
+  const totalFee = joinedSessions.reduce(
+    (acc, session) => acc + (session.sessionFee || 0),
+    0
+  )
+
+  if (joinedSessions.length === 0) return null
+
+  return (
+    <Card className="overflow-hidden">
+      <CardHeader className="border-b border-border/60 bg-muted/20">
+        <CardTitle className="text-xl">
+          {t("payment.joinedSessions", {
+            defaultValue: "Joined Play Sessions",
+          })}
+        </CardTitle>
+        <CardDescription className="mt-1">
+          {t("payment.joinedSessionsDescription", {
+            defaultValue:
+              "Below are the play sessions you have joined and their respective fees.",
+          })}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-0">
+        <div className="divide-y divide-border/60">
+          {joinedSessions.map((session) => (
+            <div
+              key={session.id}
+              className="flex items-center justify-between p-4 transition-colors hover:bg-muted/10 sm:p-6"
+            >
+              <div>
+                <p className="font-medium">
+                  {session.title || t("common.playSession")}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {format(new Date(session.startTime), "PPp")} -{" "}
+                  {format(new Date(session.endTime), "p")}
+                </p>
+              </div>
+              <div className="text-lg font-semibold text-primary">
+                {formatCurrencyVnd(session.sessionFee || 0)}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center justify-between border-t-2 border-border/60 bg-muted/20 p-4 sm:p-6">
+          <p className="text-lg font-semibold">
+            {t("payment.totalFeeToPay", { defaultValue: "Total Fee to Pay" })}
+          </p>
+          <p className="text-2xl font-bold text-primary">
+            {formatCurrencyVnd(totalFee)}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
 export default function SocialPaymentTab({
   social,
+  joinedSessions,
 }: {
   social: Social | null
+  joinedSessions?: PlaySession[]
 }) {
   const { t } = useSocialsTranslation()
 
@@ -138,6 +203,7 @@ export default function SocialPaymentTab({
       </Card>
 
       <CardContent className="flex flex-col gap-6 p-0">
+        <JoinedSessionsSection sessions={joinedSessions} />
         <PaymentInformationCard social={social} showEditAction={false} />
         <UploadPaymentProofCard />
       </CardContent>

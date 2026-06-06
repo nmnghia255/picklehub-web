@@ -34,6 +34,7 @@ export function PlaySessionModal({
   open,
   onClose,
   session,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   socialId,
 }: PlaySessionModalProps) {
   const { t } = useSocialsTranslation()
@@ -71,7 +72,6 @@ export function PlaySessionModal({
   }, [session, open])
 
   const handleSubmit = () => {
-    console.log("Saving play session:", formData, socialId)
     alert(session ? t("form.updateSuccess") : t("form.createSuccess"))
     onClose()
   }
