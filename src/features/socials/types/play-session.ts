@@ -2,12 +2,16 @@ export interface PlaySession {
   id: string
   title: string
   socialId: string
-  bookingIds: string
+  bookingIds: string[]
   joinedCount: number
   numberOfCourts: number
-  courtNames: string
+  courtNames: string[]
+  courtSchedule: string | null
   location: string
+  centerId: string | null
+  centerName: string | null
   sessionFee: number
+  pricePerPlayer: number
   startTime: string
   endTime: string
   status: string
@@ -21,6 +25,8 @@ export interface PlaySessionRequest {
   bookingIds: string
   startTime: string
   endTime: string
+  pricePerPlayer: number
+  sessionFee: number
 }
 
 export interface PlaySessionParticipant {
@@ -32,9 +38,11 @@ export interface PlaySessionParticipant {
   guestName: string | null
   skillLevel: number | null
   joinedAt: string
-  name: string
-  avatarUrl: string | null
-  selfRating: number | null
+  user: {
+    id: string
+    name: string
+    avatarUrl: string | null
+  }
 }
 
 interface Session {

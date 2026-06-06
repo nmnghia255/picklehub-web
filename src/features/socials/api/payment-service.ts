@@ -1,15 +1,5 @@
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
-import type {
-  CreateSocialResponse,
-  DuplicateSessionRequest,
-  LeaveSocialResponse,
-  ListSocial,
-  SocialDetail,
-  SocialParticipant,
-  UpdateSocialRequest,
-} from "../types/social"
-
 interface ApiResponse<T> {
   meta: {
     total: number
@@ -39,6 +29,7 @@ export const PaymentService = {
       receiptUrl,
       amount,
     })
+    return unwrapApiResponse<void>(undefined)
   },
 
   verifyPayment: async function (
@@ -57,6 +48,7 @@ export const PaymentService = {
         amountPaid,
       }
     )
+    return unwrapApiResponse<void>(undefined)
   },
 
   refundPayment: async function (
@@ -71,6 +63,7 @@ export const PaymentService = {
         amount,
       }
     )
+    return unwrapApiResponse<void>(undefined)
   },
 
   recordPayment: async function (
@@ -87,5 +80,6 @@ export const PaymentService = {
         receiptUrl,
       }
     )
+    return unwrapApiResponse<void>(undefined)
   },
 }
