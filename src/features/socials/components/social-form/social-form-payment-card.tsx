@@ -13,21 +13,21 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
-import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
-import { MediaService } from "@/features/sport-center/api/media-service"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import { UploadImageAction } from "../../actions/upload-image-action"
-import type { CreateSocialRequest as SocialFormData } from "../../types/social"
+import type { SocialFormData } from "../../types/social"
 import Field from "../social-detail/field"
 
 export function SocialFormPaymentCard({
   formData,
   setFormData,
+  isEditMode,
 }: {
   formData: SocialFormData
   setFormData: Dispatch<SetStateAction<SocialFormData>>
+  isEditMode: boolean
 }) {
   const { t } = useSocialsTranslation()
   const paymentQrInputRef = useRef<HTMLInputElement | null>(null)
@@ -166,45 +166,28 @@ export function SocialFormPaymentCard({
             </div>
           </Field>
 
-          <div className="flex items-center justify-between rounded-lg border p-4">
-            <div className="space-y-0.5">
-              <label className="text-base font-medium">
-                {t("form.isFree", { defaultValue: "Free Event" })}
-              </label>
-              <p className="text-sm text-muted-foreground">
-                {t("form.isFreeHint", {
-                  defaultValue: "Turn on if this event requires no payment.",
+          {isEditMode && (
+            <Field
+              label={t("form.packageFee", { defaultValue: "Package Fee" })}
+            >
+              <Input
+                type="number"
+                value={formData.pakageFee || ""}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    pakageFee: e.target.value ? Number(e.target.value) : null,
+                  }))
+                }
+                placeholder={t("form.packageFeePlaceholder", {
+                  defaultValue: "Enter package fee",
                 })}
-              </p>
-            </div>
-            <Switch
-              checked={formData.isFree}
-              onCheckedChange={(checked) =>
-                setFormData((prev) => ({ ...prev, isFree: checked }))
-              }
-            />
-          </div>
+              />
+            </Field>
+          )}
 
           {!formData.isFree && (
             <>
-              <Field
-                label={t("form.packageFee", { defaultValue: "Package Fee" })}
-              >
-                <Input
-                  type="number"
-                  value={formData.pakageFee || ""}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      pakageFee: e.target.value ? Number(e.target.value) : null,
-                    }))
-                  }
-                  placeholder={t("form.packageFeePlaceholder", {
-                    defaultValue: "Enter package fee",
-                  })}
-                />
-              </Field>
-
               <Field
                 label={t("form.paymentBankName", { defaultValue: "Bank Name" })}
               >

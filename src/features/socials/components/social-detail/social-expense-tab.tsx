@@ -129,7 +129,7 @@ export default function SocialExpenseTab() {
         </div>
 
         <div className="space-y-6">
-          <PaymentInformationCard collectionProgress={collectionProgress} />
+          <PaymentInformationCard />
           <FinancialTimelineCard timelineRows={timelineRows} />
         </div>
       </section>

@@ -2,8 +2,8 @@ import type { PlaySession } from "./play-session"
 
 export type GenderPolicy = "ANY" | "MALE_ONLY" | "FEMALE_ONLY" | "MIXED_ONLY"
 export type AgeGroup = "ANY" | "JUNIOR" | "ADULT" | "SENIOR"
-export type SocialFormat = "SINGLE" | "SOCIAL"
-export type SocialStatus = "PUBLISHED" | "COMPLETED" | "CANCELED"
+export type SocialFormat = "SINGLES" | "SOCIAL"
+export type SocialStatus = "PUBLISHED" | "COMPLETED" | "CANCELED" | "DRAFT"
 export type HostRole = "HOST_AND_PLAY" | "HOST_ONLY" | "PLAY_ONLY"
 export type PaymentStatus =
   | "PAID"
@@ -39,7 +39,6 @@ export interface CreateSocialRequest {
   paymentAccountName: string | null
   paymentQrUrl: string | null
   paymentNote: string | null
-  pakageFee: number | null
 }
 
 export interface CreateSocialResponse {
@@ -75,6 +74,13 @@ export interface CreateSocialResponse {
   playSessions: []
   participants: []
 }
+
+export interface UpdateSocialRequest extends Partial<CreateSocialRequest> {
+  status?: SocialStatus
+  pakageFee?: number | null
+}
+
+export type SocialFormData = CreateSocialRequest & { pakageFee?: number | null }
 
 export interface User {
   id: string
@@ -227,10 +233,4 @@ export interface LeaveSocialResponse {
   socialId: string
   userId: string
   promotedUserId: string
-}
-
-export interface Host {
-  id: string
-  name: string
-  avatarUrl?: string | null
 }

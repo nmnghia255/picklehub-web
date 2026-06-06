@@ -1,6 +1,8 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import React from "react"
+import { toast } from "sonner"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -9,7 +11,8 @@ import { Separator } from "@/components/ui/separator"
 import ProgressBar from "@/features/socials/components/social-listing/progress-bar"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import type { Host, SocialDetail } from "../../types/social"
+import { publishSocialAction } from "../../actions/social-form-actions"
+import type { SocialDetail, User as Host } from "../../types/social"
 
 function SettingRow({ label, value }: { label: string; value: string }) {
   return (
@@ -32,13 +35,28 @@ export default function SocialSidebar({
   isLeaving?: boolean
 }) {
   const { t } = useSocialsTranslation()
-  const hostId = social.creatorId
-  const host: Host = {
-    id: hostId,
-    name: "Sarah Martinez",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+  const router = useRouter()
+  const [isPublishing, setIsPublishing] = React.useState(false)
+
+  const handlePublish = async () => {
+    setIsPublishing(true)
+    try {
+      await publishSocialAction(social.id)
+      toast.success(
+        t("sidebar.publishSuccess", {
+          defaultValue: "Social published successfully",
+        })
+      )
+      router.refresh()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to publish")
+    } finally {
+      setIsPublishing(false)
+    }
   }
+
+  const host: Host = social.creator
+  const playSessions = social.playSessions
 
   if (!social) {
     return (
@@ -122,6 +140,19 @@ export default function SocialSidebar({
             />
           </div>
         </div>
+
+        {social.isHost && social.status == "DRAFT" && (
+          <Button
+            className="w-full"
+            size="lg"
+            onClick={handlePublish}
+            disabled={isPublishing}
+          >
+            {isPublishing
+              ? t("sidebar.publishing", { defaultValue: "Publishing..." })
+              : t("sidebar.publishSocial")}
+          </Button>
+        )}
 
         {!isParticipant && social.status === "PUBLISHED" && (
           <Button

@@ -15,9 +15,9 @@ import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import type {
   AgeGroup,
-  CreateSocialRequest as SocialFormData,
   GenderPolicy,
   HostRole,
+  SocialFormData,
 } from "../../types/social"
 import Field from "../social-detail/field"
 import { SocialFormToggleRow } from "./social-form-toggle-row"
@@ -69,7 +69,10 @@ export function SocialFormParticipationRulesCard({
                   <SelectValue placeholder={t("filters.selectGenderPolicy")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="MIXED">{t("labels.mixed")}</SelectItem>
+                  <SelectItem value="ANY">{t("labels.any")}</SelectItem>
+                  <SelectItem value="MIXED_ONLY">
+                    {t("labels.mixed")}
+                  </SelectItem>
                   <SelectItem value="MALE_ONLY">
                     {t("labels.menOnly")}
                   </SelectItem>
@@ -94,6 +97,7 @@ export function SocialFormParticipationRulesCard({
                   <SelectValue placeholder={t("filters.selectAgeGroup")} />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="ANY">{t("labels.any")}</SelectItem>
                   <SelectItem value="JUNIOR">{t("labels.junior")}</SelectItem>
                   <SelectItem value="ADULT">{t("labels.adult")}</SelectItem>
                   <SelectItem value="SENIOR">{t("labels.senior")}</SelectItem>

@@ -5,71 +5,37 @@ import type { Dispatch, SetStateAction } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import type { CreateSocialRequest as SocialFormData } from "../../types/social"
+import type { SocialFormData } from "../../types/social"
 import { SocialFormToggleRow } from "./social-form-toggle-row"
 
 export function SocialFormSidebar({
   formData,
   setFormData,
   isEditMode,
+  isSubmitting,
   onSubmit,
   onDelete,
 }: {
   formData: SocialFormData
   setFormData: Dispatch<SetStateAction<SocialFormData>>
   isEditMode: boolean
+  isSubmitting?: boolean
   onSubmit: () => void
   onDelete: () => void
 }) {
   const { t } = useSocialsTranslation()
 
   return (
-    <Card className="sticky top-6 h-fit p-0">
+    <Card className="sticky top-16 h-fit p-0">
       <CardContent className="space-y-5 p-6">
         <h2 className="text-lg font-semibold">
           {t("form.settingsAndPublish")}
         </h2>
 
         <div className="space-y-3">
-          {/* <div className="grid gap-2">
-            <span className="text-sm font-medium">{t("form.status")}</span>
-            <Select
-              value={formData.status}
-              onValueChange={(value) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  status: value as SocialStatus,
-                }))
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder={t("filters.selectStatus")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="DRAFT">{t("labels.draft")}</SelectItem>
-                <SelectItem value="PUBLISHED">
-                  {t("labels.published")}
-                </SelectItem>
-                <SelectItem value="COMPLETED">
-                  {t("labels.completed")}
-                </SelectItem>
-                <SelectItem value="CANCELLED">
-                  {t("labels.cancelled")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div> */}
-
           <Separator />
 
           <SocialFormToggleRow
@@ -77,6 +43,14 @@ export function SocialFormSidebar({
             checked={formData.isPrivate}
             onCheckedChange={(checked) =>
               setFormData((prev) => ({ ...prev, isPrivate: checked }))
+            }
+          />
+
+          <SocialFormToggleRow
+            label={t("form.isFree")}
+            checked={formData.isFree}
+            onCheckedChange={(checked) =>
+              setFormData((prev) => ({ ...prev, isFree: checked }))
             }
           />
 
@@ -98,6 +72,7 @@ export function SocialFormSidebar({
             className="w-full"
             onClick={onSubmit}
             disabled={
+              isSubmitting ||
               !formData.title ||
               !formData.note ||
               !formData.startTime ||
@@ -106,7 +81,11 @@ export function SocialFormSidebar({
               new Date(formData.endTime) <= new Date(formData.startTime)
             }
           >
-            <Save className="size-4" />
+            {isSubmitting ? (
+              <span className="mr-2 size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            ) : (
+              <Save className="mr-2 size-4" />
+            )}
             {isEditMode ? t("form.update") : t("form.create")}
           </Button>
 
@@ -115,6 +94,7 @@ export function SocialFormSidebar({
               variant="outline"
               className="w-full text-destructive hover:text-destructive"
               onClick={onDelete}
+              disabled={isSubmitting}
             >
               {t("form.deleteSocial")}
             </Button>

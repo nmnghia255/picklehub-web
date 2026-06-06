@@ -2,15 +2,20 @@
 
 import { useParams, useRouter } from "next/navigation"
 import { startTransition, useEffect, useState } from "react"
+import { toast } from "sonner"
 
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import { mockSocials } from "../../mock-data/mockData"
+import {
+  createSocialAction,
+  deleteSocialAction,
+  updateSocialAction,
+} from "../../actions/social-form-actions"
 import type {
   CreateSocialRequest,
-  ListSocial as Social,
+  SocialDetail,
+  SocialFormData,
 } from "../../types/social"
-// import type { PlaySessionDraft, SocialFormData } from "./SocialForm.types"
 import { SocialFormBasicInformationCard } from "./social-form-basic-information-card"
 import { SocialFormHeader } from "./social-form-header"
 import { SocialFormParticipationRulesCard } from "./social-form-participation-rules-card"
@@ -40,12 +45,11 @@ function createInitialFormData(): CreateSocialRequest {
     paymentAccountNumber: "",
     paymentAccountName: "",
     paymentNote: "",
-    pakageFee: null,
     isFree: false,
   }
 }
 
-function mapSocialToFormData(social: Social): CreateSocialRequest {
+function mapSocialToFormData(social: SocialDetail): SocialFormData {
   return {
     title: social.title,
     note: social.note,
@@ -73,7 +77,7 @@ function mapSocialToFormData(social: Social): CreateSocialRequest {
 }
 
 export interface SocialFormProps {
-  initialData?: Social | null
+  initialData?: SocialDetail | null
   socialId?: string
 }
 
@@ -83,16 +87,12 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
   const router = useRouter()
   const id = socialId || params.id || params.socialId
   const isEditMode = Boolean(id)
-  const social =
-    initialData !== undefined
-      ? initialData
-      : isEditMode
-        ? mockSocials.find((s) => s.id === id)
-        : null
-
-  const [formData, setFormData] = useState<CreateSocialRequest>(
+  const social = initialData ?? null
+  const [formData, setFormData] = useState<SocialFormData>(
     createInitialFormData
   )
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   useEffect(() => {
     if (!social) return
 
@@ -101,15 +101,55 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
     })
   }, [social])
 
-  const handleSubmit = () => {
-    alert(isEditMode ? t("form.updateSuccess") : t("form.createSuccess"))
-    router.push("/socials")
+  const handleSubmit = async () => {
+    setIsSubmitting(true)
+    try {
+      if (isEditMode) {
+        // Need to cast or construct UpdateSocialRequest since allowGuests is required
+        await updateSocialAction(id as string, {
+          ...formData,
+          allowGuests: false,
+        })
+        toast.success(t("form.updateSuccess"))
+      } else {
+        const { pakageFee, ...createData } = formData
+        await createSocialAction(createData)
+        toast.success(t("form.createSuccess"))
+      }
+      router.push("/socials")
+      router.refresh()
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("form.submitError", {
+              defaultValue: "Failed to save social event.",
+            })
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (confirm(t("form.confirmDeleteSocial"))) {
-      alert(t("form.deleteSocial"))
-      router.push("/socials")
+      setIsSubmitting(true)
+      try {
+        await deleteSocialAction(id as string)
+        toast.success(t("form.deleteSocial"))
+        router.push("/socials")
+        router.refresh()
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : t("form.deleteError", {
+                defaultValue: "Failed to delete social event.",
+              })
+        )
+      } finally {
+        setIsSubmitting(false)
+      }
     }
   }
 
@@ -134,6 +174,7 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
           <SocialFormPaymentCard
             formData={formData}
             setFormData={setFormData}
+            isEditMode={isEditMode}
           />
           {/* <SocialFormPlaySessionsCard
             playSessions={playSessions}
@@ -147,8 +188,9 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
           formData={formData}
           setFormData={setFormData}
           isEditMode={isEditMode}
-          onSubmit={handleSubmit}
-          onDelete={handleDelete}
+          isSubmitting={isSubmitting}
+          onSubmit={() => void handleSubmit()}
+          onDelete={() => void handleDelete()}
         />
       </div>
     </div>

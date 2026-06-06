@@ -14,10 +14,8 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import type {
-  CreateSocialRequest as SocialFormData,
-  SocialFormat,
-} from "../../types/social"
+import type { SocialFormData } from "../../types/social"
+import type { SocialFormat } from "../../types/social"
 import Field from "../social-detail/field"
 
 export function SocialFormBasicInformationCard({
@@ -73,12 +71,7 @@ export function SocialFormBasicInformationCard({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="SOCIAL">{t("labels.social")}</SelectItem>
-                  <SelectItem value="TOURNAMENT">
-                    {t("labels.tournament")}
-                  </SelectItem>
-                  <SelectItem value="TRAINING">
-                    {t("labels.training")}
-                  </SelectItem>
+                  <SelectItem value="SINGLES">{t("labels.singles")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
