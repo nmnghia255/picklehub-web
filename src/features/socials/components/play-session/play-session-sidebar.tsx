@@ -10,7 +10,7 @@ import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import type { PlaySession } from "../../types/play-session"
-import type { Host, ListSocialResponse as Social } from "../../types/social"
+import type { Host, ListSocial as Social } from "../../types/social"
 import ProgressBar from "./progress-bar"
 
 function SettingRow({ label, value }: { label: string; value: string }) {

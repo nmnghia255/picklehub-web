@@ -3,7 +3,7 @@ import { create } from "zustand"
 import type {
   AgeGroup,
   GenderPolicy,
-  ListSocialResponse as Social,
+  ListSocial as Social,
   SocialFormat,
   SocialStatus,
 } from "../types/social"

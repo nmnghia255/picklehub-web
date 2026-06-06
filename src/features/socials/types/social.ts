@@ -5,16 +5,27 @@ export type AgeGroup = "ANY" | "JUNIOR" | "ADULT" | "SENIOR"
 export type SocialFormat = "SINGLE" | "SOCIAL"
 export type SocialStatus = "PUBLISHED" | "COMPLETED" | "CANCELED"
 export type HostRole = "HOST_AND_PLAY" | "HOST_ONLY" | "PLAY_ONLY"
+export type PaymentStatus =
+  | "PAID"
+  | "UNPAID"
+  | "PARTIALLY_PAID"
+  | "OVERPAID"
+  | "REFUNDED"
+export type SocialParticipantStatus =
+  | "CONFIRMED"
+  | "WAITLISTED"
+  | "ON_HOLD"
+  | "CANCELLED"
 
 export interface CreateSocialRequest {
-  groupId: string | null
   title: string
   note: string
+  format: SocialFormat
+  maxSlots: number
   startTime: string
   endTime: string
-  format: SocialFormat
   isPrivate: boolean
-  maxSlots: number
+  isFree: boolean
   submitDupr: boolean
   minimumLevel: number | null
   maximumLevel: number | null
@@ -23,9 +34,12 @@ export interface CreateSocialRequest {
   hostRole: string
   cancellationFreezeHours: number | null
   autoApproveJoinRequests: boolean
+  paymentBankName: string | null
+  paymentAccountNumber: string | null
+  paymentAccountName: string | null
   paymentQrUrl: string | null
-  paymentCode: string | null
   paymentNote: string | null
+  pakageFee: number | null
 }
 
 export interface CreateSocialResponse {
@@ -58,22 +72,31 @@ export interface CreateSocialResponse {
   creatorId: string
   createdAt: string
   updatedAt: string
-  playSessions: PlaySession[]
-  participants: SocialParticipant[]
+  playSessions: []
+  participants: []
 }
 
-export interface ListSocialResponse {
+export interface User {
+  id: string
+  name: string
+  email: string
+  avatarUrl: string | null
+}
+
+export interface ListSocial {
   id: string
   title: string
   note: string
-  groupId: string | null
+  // groupId: string | null
   startTime: string
   endTime: string
   totalBookingCost: number
-  discountedPackageFee: number
+  packageFee: number
   totalExpense: number
+  paymentBankName: string | null
+  paymentAccountNumber: string | null
+  paymentAccountName: string | null
   paymentQrUrl: string | null
-  paymentCode: string | null
   paymentNote: string | null
   hasAvailableSlots: boolean
   genderPolicy: GenderPolicy
@@ -83,6 +106,7 @@ export interface ListSocialResponse {
   minimumLevel: number | null
   maximumLevel: number | null
   isPrivate: boolean
+  isFree: boolean
   autoApproveJoinRequests: boolean
   hostRole: string
   cancellationFreezeHours: number | null
@@ -92,33 +116,88 @@ export interface ListSocialResponse {
   creatorId: string
   createdAt: string
   updatedAt: string
+  creator: User
 
   _count: {
     participants: number
     playSessions: number
   }
-  organizers: [
-    {
-      userId: string
-    },
-  ]
-  participants: [
-    {
-      userId: string
-      status: string
-    },
-  ]
+
   isHost: boolean
   isParticipant: boolean
-  MyParticipantStatus: string
+  MyParticipantStatus: SocialParticipantStatus
 }
 
-export type SocialParticipantStatus =
-  | "CONFIRMED"
-  | "WAITLISTED"
-  | "ON_HOLD"
-  | "CANCELLED"
-export type PaymentStatus = "PAID" | "PENDING" | "FAILED"
+export interface ParticipantInfo {
+  status: SocialParticipantStatus
+  totalFee: number
+  amountPaid: number
+  amountRefunded: number
+  amountDue: number
+  amountOverpaid: number
+  paymentStatus: PaymentStatus
+  joinedSessionIds: []
+}
+
+export interface SocialDetail {
+  id: string
+  title: string
+  note: string
+  startTime: string
+  endTime: string
+  totalBookingCost: number
+  packageFee: number | null
+  totalExpense: number
+  paymentBankName: string | null
+  paymentAccountName: string | null
+  paymentAccountNumber: string | null
+  paymentQrUrl: string | null
+  paymentNote: string | null
+  hasAvailableSlots: boolean
+  genderPolicy: GenderPolicy
+  ageGroup: AgeGroup
+  format: SocialFormat
+  submitDupr: boolean
+  minimumLevel: number | null
+  maximumLevel: number | null
+  isPrivate: boolean
+  isFree: boolean
+  autoApproveJoinRequests: boolean
+  hostRole: string
+  cancellationFreezeHours: number | null
+  maxSlots: number
+  joinedCount: 8
+  status: SocialStatus
+  creatorId: string
+  createdAt: string
+  updatedAt: string
+  creator: User
+  _count: {
+    participants: number
+    playSessions: number
+  }
+  playSessions: PlaySession[]
+  isHost: true
+  myParticipantInfo: ParticipantInfo
+}
+
+export interface UpdateSocialRequest extends Partial<CreateSocialRequest> {
+  status?: SocialStatus
+  allowGuests: boolean
+}
+
+export interface Payment {
+  id: string
+  socialParticipantId: string
+  amount: number
+  receiptUrl: string | null
+  status: PaymentStatus
+  transactionType: string
+  createdById: string
+  verifiedById: string
+  createdAt: string
+  updatedAt: string
+}
 
 export interface SocialParticipant {
   id: string
@@ -126,13 +205,15 @@ export interface SocialParticipant {
   userId: string
   status: SocialParticipantStatus
   totalFee: number
-  paymentReceiptUrl: string | null
-  paymentStatus: string
+  amountPaid: number
+  amountRefunded: number
+  amountDue: number
+  amountOverpaid: number
+  isFullPakage: boolean
+  paymentStatus: PaymentStatus
   joinedAt: string
   isHost: boolean
-  name: string
-  avatarUrl: string | null
-  selfRating: number | null
+  user: User
 }
 
 export interface DuplicateSessionRequest {

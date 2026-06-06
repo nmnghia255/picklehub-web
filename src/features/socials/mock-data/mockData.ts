@@ -1,12 +1,12 @@
 import type {
   AgeGroup,
   GenderPolicy,
-  ListSocialResponse,
+  ListSocial,
   SocialFormat,
   SocialStatus,
 } from "../types/social"
 
-export const mockSocials: ListSocialResponse[] = [
+export const mockSocials: ListSocial[] = [
   {
     id: "social-1",
     title: "Sunday Morning Pickleball Social",

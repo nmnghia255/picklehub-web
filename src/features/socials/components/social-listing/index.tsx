@@ -22,7 +22,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { useSocialsStore } from "@/features/socials/stores/social-listing-store"
-import type { ListSocialResponse as Social } from "@/features/socials/types/social"
+import type { ListSocial as Social } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import { FiltersDrawer } from "./filters-drawer"

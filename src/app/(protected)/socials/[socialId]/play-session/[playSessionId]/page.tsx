@@ -5,14 +5,14 @@ import type {
   PlaySession,
   PlaySessionParticipant,
 } from "@/features/socials/types/play-session"
-import type { ListSocialResponse } from "@/features/socials/types/social"
+import type { ListSocial } from "@/features/socials/types/social"
 
 export default async function Page(props: {
   params: Promise<{ socialId: string; playSessionId: string }>
 }) {
   const params = await props.params
 
-  let social: ListSocialResponse | null = null
+  let social: ListSocial | null = null
   let session: PlaySession | null = null
   let participants: PlaySessionParticipant[] = []
 

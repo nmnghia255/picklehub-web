@@ -1,5 +1,5 @@
 import type { PlaySession } from "./types/play-session"
-import type { ListSocialResponse as Social } from "./types/social"
+import type { ListSocial as Social } from "./types/social"
 
 export function getStatusClasses(status: string) {
   switch (status) {

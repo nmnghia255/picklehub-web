@@ -9,14 +9,14 @@ import { Separator } from "@/components/ui/separator"
 import type { GenderPolicy } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import type { ListSocialResponse as Social } from "../../types/social"
+import type { ListSocial as Social, SocialDetail } from "../../types/social"
 import { InfoRow } from "./infor-row"
 
 export default function SocialOverview({
   social,
   duration,
 }: {
-  social: Social
+  social: SocialDetail
   duration: number
 }) {
   const { t } = useSocialsTranslation()
@@ -77,27 +77,37 @@ export default function SocialOverview({
 
         <div className="space-y-4">
           <h3 className="text-base font-semibold">{t("detail.skillLevel")}</h3>
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge
-              className="border-primary/20 bg-primary/10 text-primary"
-              variant="outline"
-            >
-              {social.minimumLevel ?? t("common.na")} -{" "}
-              {social.maximumLevel ?? t("common.na")}
-            </Badge>
-            {social.submitDupr && (
-              <Badge variant="outline" className="gap-1">
-                <Check className="size-3.5" />
-                {t("detail.submitDupr")}
-              </Badge>
-            )}
-          </div>
-          <p className="text-sm text-muted-foreground">
-            {t("detail.skillLevelDescription", {
-              minimum: social.minimumLevel ?? t("common.na"),
-              maximum: social.maximumLevel ?? t("common.na"),
-            })}
-          </p>
+          {social.minimumLevel === null && social.maximumLevel === null ? (
+            <p className="text-sm text-muted-foreground">
+              {t("detail.noSkillLevelLimit", {
+                defaultValue: "All skill levels welcome",
+              })}
+            </p>
+          ) : (
+            <>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge
+                  className="border-primary/20 bg-primary/10 text-primary"
+                  variant="outline"
+                >
+                  {social.minimumLevel ?? t("common.na")} -{" "}
+                  {social.maximumLevel ?? t("common.na")}
+                </Badge>
+                {social.submitDupr && (
+                  <Badge variant="outline" className="gap-1">
+                    <Check className="size-3.5" />
+                    {t("detail.submitDupr")}
+                  </Badge>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {t("detail.skillLevelDescription", {
+                  minimum: social.minimumLevel ?? t("common.na"),
+                  maximum: social.maximumLevel ?? t("common.na"),
+                })}
+              </p>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>

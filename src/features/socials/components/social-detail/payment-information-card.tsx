@@ -14,20 +14,22 @@ import {
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import { paymentPlan } from "../../mock-data/expense-data"
-import type { ListSocialResponse as Social } from "../../types/social"
+import type { SocialDetail } from "../../types/social"
 
 export function PaymentInformationCard({
   social,
   showEditAction = true,
 }: {
-  social?: Social | null
+  social?: SocialDetail | null
   showEditAction?: boolean
 }) {
   const { t } = useSocialsTranslation()
   const [copied, setCopied] = React.useState(false)
 
-  const accountNumber = social?.paymentCode || paymentPlan.accountNumber
-  const bankName = paymentPlan.bankName // Fallback since social doesn't have bank name
+  const accountNumber =
+    social?.paymentAccountNumber || paymentPlan.accountNumber
+  const bankName = social?.paymentBankName || paymentPlan.bankName
+  const accountName = social?.paymentAccountName
   const paymentNote = social?.paymentNote || paymentPlan.paymentNote
   const qrUrl = social?.paymentQrUrl
 
@@ -74,6 +76,19 @@ export function PaymentInformationCard({
                 </p>
               </div>
             </div>
+
+            {accountName && (
+              <div className="rounded-2xl border border-primary/10 bg-primary/5 p-4">
+                <p className="text-sm font-medium text-muted-foreground">
+                  {t("expenses.paymentInfo.accountName", {
+                    defaultValue: "Account Name",
+                  })}
+                </p>
+                <p className="mt-2 text-base font-semibold text-foreground">
+                  {accountName}
+                </p>
+              </div>
+            )}
 
             <div className="rounded-2xl border border-primary/10 bg-primary/5 p-4">
               <p className="text-sm font-medium text-muted-foreground">

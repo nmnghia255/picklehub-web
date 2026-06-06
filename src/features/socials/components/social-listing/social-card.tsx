@@ -7,7 +7,7 @@ import { Check, LockKeyhole } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import type { ListSocialResponse as Social } from "@/features/socials/types/social"
+import type { ListSocial as Social } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import { getGenderPolicyLabel, getStatusClasses } from "../../utils"
@@ -80,6 +80,14 @@ export default function SocialCard({ social, onClick }: SocialCardProps) {
           <Badge variant="outline">{formatLabel}</Badge>
           <Badge variant="outline">{genderPolicyLabel}</Badge>
           <Badge variant="outline">{ageGroupLabel}</Badge>
+          {social.isFree && (
+            <Badge
+              variant="default"
+              className="bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
+            >
+              {t("badges.free", { defaultValue: "Free" })}
+            </Badge>
+          )}
         </div>
 
         <div className="space-y-3 text-sm text-muted-foreground">

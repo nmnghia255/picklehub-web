@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
+import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { MediaService } from "@/features/sport-center/api/media-service"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
@@ -165,18 +166,101 @@ export function SocialFormPaymentCard({
             </div>
           </Field>
 
-          <Field label={t("form.paymentCode")}>
-            <Input
-              value={formData.paymentCode || ""}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  paymentCode: e.target.value,
-                }))
+          <div className="flex items-center justify-between rounded-lg border p-4">
+            <div className="space-y-0.5">
+              <label className="text-base font-medium">
+                {t("form.isFree", { defaultValue: "Free Event" })}
+              </label>
+              <p className="text-sm text-muted-foreground">
+                {t("form.isFreeHint", {
+                  defaultValue: "Turn on if this event requires no payment.",
+                })}
+              </p>
+            </div>
+            <Switch
+              checked={formData.isFree}
+              onCheckedChange={(checked) =>
+                setFormData((prev) => ({ ...prev, isFree: checked }))
               }
-              placeholder={t("form.paymentCodePlaceholder")}
             />
-          </Field>
+          </div>
+
+          {!formData.isFree && (
+            <>
+              <Field
+                label={t("form.packageFee", { defaultValue: "Package Fee" })}
+              >
+                <Input
+                  type="number"
+                  value={formData.pakageFee || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      pakageFee: e.target.value ? Number(e.target.value) : null,
+                    }))
+                  }
+                  placeholder={t("form.packageFeePlaceholder", {
+                    defaultValue: "Enter package fee",
+                  })}
+                />
+              </Field>
+
+              <Field
+                label={t("form.paymentBankName", { defaultValue: "Bank Name" })}
+              >
+                <Input
+                  value={formData.paymentBankName || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      paymentBankName: e.target.value,
+                    }))
+                  }
+                  placeholder={t("form.paymentBankNamePlaceholder", {
+                    defaultValue: "Enter bank name",
+                  })}
+                />
+              </Field>
+
+              <Field
+                label={t("form.paymentAccountNumber", {
+                  defaultValue: "Account Number",
+                })}
+              >
+                <Input
+                  value={formData.paymentAccountNumber || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      paymentAccountNumber: e.target.value,
+                    }))
+                  }
+                  placeholder={t("form.paymentAccountNumberPlaceholder", {
+                    defaultValue: "Enter account number",
+                  })}
+                />
+              </Field>
+
+              <Field
+                label={t("form.paymentAccountName", {
+                  defaultValue: "Account Name",
+                })}
+              >
+                <Input
+                  value={formData.paymentAccountName || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      paymentAccountName: e.target.value,
+                    }))
+                  }
+                  placeholder={t("form.paymentAccountNamePlaceholder", {
+                    defaultValue: "Enter account name",
+                  })}
+                />
+              </Field>
+            </>
+          )}
 
           <Field label={t("form.paymentInstructions")}>
             <Textarea

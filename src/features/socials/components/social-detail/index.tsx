@@ -23,7 +23,8 @@ import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
 import { useSocialsStore } from "@/features/socials/stores/social-listing-store"
 import type { PlaySession } from "@/features/socials/types/play-session"
 import type {
-  ListSocialResponse as Social,
+  ListSocial as Social,
+  SocialDetail,
   SocialParticipant,
 } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
@@ -39,7 +40,7 @@ import SocialSessions from "./social-session"
 import SocialSidebar from "./social-sidebar"
 
 interface SocialDetailProps {
-  initialSocial: Social | null
+  initialSocial: SocialDetail | null
   initialParticipants: SocialParticipant[]
   initialPlaySessions: PlaySession[]
 }
@@ -68,7 +69,7 @@ export default function SocialDetail({
 
   const selectedSocial = useSocialsStore((s) => s.selectedSocial)
 
-  const social = initialSocial || selectedSocial
+  const social = initialSocial
 
   const [isJoining, setIsJoining] = useState(false)
   const [isLeaving, setIsLeaving] = useState(false)
@@ -95,6 +96,9 @@ export default function SocialDetail({
   const duration = differenceInHours(
     new Date(social.endTime),
     new Date(social.startTime)
+  )
+  const isParticipant = initialParticipants.some(
+    (p) => p.userId === "currentUserId"
   )
 
   const socialParticipants = initialParticipants
@@ -164,7 +168,7 @@ export default function SocialDetail({
             status={social.status}
             format={social.format}
             isHost={isHost}
-            isParticipant={social.isParticipant}
+            isParticipant={isParticipant}
             onBack={() => router.back()}
             onEdit={() => router.push(`/socials/${social.id}/edit`)}
           />

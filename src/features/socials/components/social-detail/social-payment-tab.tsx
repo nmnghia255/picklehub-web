@@ -16,7 +16,7 @@ import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import type { PlaySession } from "../../types/play-session"
-import type { ListSocialResponse as Social } from "../../types/social"
+import type { SocialDetail } from "../../types/social"
 import { PaymentInformationCard } from "./payment-information-card"
 
 function UploadPaymentProofCard() {
@@ -181,7 +181,7 @@ export default function SocialPaymentTab({
   social,
   joinedSessions,
 }: {
-  social: Social | null
+  social: SocialDetail | null
   joinedSessions?: PlaySession[]
 }) {
   const { t } = useSocialsTranslation()

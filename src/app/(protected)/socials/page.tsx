@@ -1,6 +1,6 @@
 import { SocialService } from "@/features/socials/api/social-service"
 import SocialListing from "@/features/socials/components/social-listing"
-import type { ListSocialResponse } from "@/features/socials/types/social"
+import type { ListSocial } from "@/features/socials/types/social"
 
 export default async function Page(props: {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
@@ -10,7 +10,7 @@ export default async function Page(props: {
     ? parseInt(searchParams.page as string, 10)
     : 1
 
-  let socials = [] as ListSocialResponse[]
+  let socials = [] as ListSocial[]
   let pagination = { page: 1, limit: 10, total: 0, totalPages: 1 }
 
   try {

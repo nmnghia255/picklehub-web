@@ -3,7 +3,8 @@ import { SocialService } from "@/features/socials/api/social-service"
 import SocialDetail from "@/features/socials/components/social-detail/index"
 import type { PlaySession } from "@/features/socials/types/play-session"
 import type {
-  ListSocialResponse as Social,
+  ListSocial as Social,
+  SocialDetail as SocialDetailType,
   SocialParticipant,
 } from "@/features/socials/types/social"
 
@@ -13,7 +14,7 @@ export default async function Page(props: {
   const params = await props.params
   let participants: SocialParticipant[] = []
   let playSessions: PlaySession[] = []
-  let social: Social | null = null
+  let social: SocialDetailType | null = null
 
   try {
     social = await SocialService.getSocial(params.socialId)

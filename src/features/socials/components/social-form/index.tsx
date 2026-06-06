@@ -8,7 +8,7 @@ import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { mockSocials } from "../../mock-data/mockData"
 import type {
   CreateSocialRequest,
-  ListSocialResponse as Social,
+  ListSocial as Social,
 } from "../../types/social"
 // import type { PlaySessionDraft, SocialFormData } from "./SocialForm.types"
 import { SocialFormBasicInformationCard } from "./social-form-basic-information-card"
@@ -20,7 +20,6 @@ import { SocialFormSidebar } from "./social-form-sidebar"
 
 function createInitialFormData(): CreateSocialRequest {
   return {
-    groupId: null,
     title: "",
     note: "",
     startTime: "",
@@ -37,14 +36,17 @@ function createInitialFormData(): CreateSocialRequest {
     cancellationFreezeHours: 2,
     autoApproveJoinRequests: true,
     paymentQrUrl: "",
-    paymentCode: "",
+    paymentBankName: "",
+    paymentAccountNumber: "",
+    paymentAccountName: "",
     paymentNote: "",
+    pakageFee: null,
+    isFree: false,
   }
 }
 
 function mapSocialToFormData(social: Social): CreateSocialRequest {
   return {
-    groupId: social.groupId,
     title: social.title,
     note: social.note,
     startTime: new Date(social.startTime).toISOString().slice(0, 16),
@@ -61,8 +63,12 @@ function mapSocialToFormData(social: Social): CreateSocialRequest {
     cancellationFreezeHours: social.cancellationFreezeHours,
     autoApproveJoinRequests: social.autoApproveJoinRequests,
     paymentQrUrl: social.paymentQrUrl,
-    paymentCode: social.paymentCode,
+    paymentBankName: social.paymentBankName,
+    paymentAccountNumber: social.paymentAccountNumber,
+    paymentAccountName: social.paymentAccountName,
     paymentNote: social.paymentNote,
+    pakageFee: social.packageFee,
+    isFree: social.isFree,
   }
 }
 

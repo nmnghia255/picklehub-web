@@ -4,8 +4,10 @@ import type {
   CreateSocialResponse,
   DuplicateSessionRequest,
   LeaveSocialResponse,
-  ListSocialResponse,
+  ListSocial,
+  SocialDetail,
   SocialParticipant,
+  UpdateSocialRequest,
 } from "../types/social"
 
 interface ApiResponse<T> {
@@ -33,8 +35,8 @@ export const SocialService = {
     page: number | null,
     limit: number | null
   ): Promise<{
-    data: ListSocialResponse[]
-    meta: ApiResponse<ListSocialResponse[]>["meta"]
+    data: ListSocial[]
+    meta: ApiResponse<ListSocial[]>["meta"]
   }> {
     const axios = await getAuthenticatedAxios()
     const searchParams = new URLSearchParams()
@@ -43,7 +45,7 @@ export const SocialService = {
     if (page !== null) searchParams.set("page", page.toString())
     if (limit !== null) searchParams.set("limit", limit.toString())
 
-    const response = await axios.get<ApiResponse<ListSocialResponse[]>>(
+    const response = await axios.get<ApiResponse<ListSocial[]>>(
       "/api/events/socials/my-schedule",
       { params: searchParams }
     )
@@ -62,28 +64,28 @@ export const SocialService = {
   },
 
   discover: async function (params?: Record<string, unknown>): Promise<{
-    data: ListSocialResponse[]
-    meta: ApiResponse<ListSocialResponse[]>["meta"]
+    data: ListSocial[]
+    meta: ApiResponse<ListSocial[]>["meta"]
   }> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<ListSocialResponse[]>>(
+    const response = await axios.get<ApiResponse<ListSocial[]>>(
       "/api/events/socials/discover",
       { params }
     )
     return { data: response.data.data, meta: response.data.meta }
   },
 
-  listAll: async function (): Promise<ListSocialResponse[]> {
+  listAll: async function (): Promise<ListSocial[]> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<ListSocialResponse[]>>(
+    const response = await axios.get<ApiResponse<ListSocial[]>>(
       "/api/events/socials/all"
     )
     return unwrapApiResponse(response.data)
   },
 
-  getSocial: async function (id: string): Promise<ListSocialResponse> {
+  getSocial: async function (id: string): Promise<SocialDetail> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<ListSocialResponse>>(
+    const response = await axios.get<ApiResponse<SocialDetail>>(
       `/api/events/socials/${id}`
     )
     return unwrapApiResponse(response.data)
@@ -91,7 +93,7 @@ export const SocialService = {
 
   updateSocial: async function (
     id: string,
-    payload: unknown
+    payload: UpdateSocialRequest
   ): Promise<CreateSocialResponse> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.patch<ApiResponse<CreateSocialResponse>>(

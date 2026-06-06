@@ -13,7 +13,7 @@ import type {
   PlaySession,
   PlaySessionParticipant,
 } from "@/features/socials/types/play-session"
-import type { ListSocialResponse as Social } from "@/features/socials/types/social"
+import type { ListSocial as Social } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import PlaySessionMatches from "./play-session-matches"

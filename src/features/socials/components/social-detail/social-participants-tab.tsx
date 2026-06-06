@@ -53,16 +53,20 @@ export default function SocialParticipantsTab({
                 <div className="flex items-center gap-3">
                   <Avatar className="size-10">
                     <AvatarImage
-                      src={participant.avatarUrl ?? undefined}
-                      alt={participant.name}
+                      src={participant.user.avatarUrl ?? undefined}
+                      alt={participant.user.name}
                     />
                     <AvatarFallback>
-                      {participant.name ? participant.name.slice(0, 1) : "?"}
+                      {participant.user.name
+                        ? participant.user.name.slice(0, 1)
+                        : "?"}
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <p className="text-sm font-medium">
-                      {participant.name ? participant.name : "Unknown User"}
+                      {participant.user.name
+                        ? participant.user.name
+                        : "Unknown User"}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       <Badge
@@ -75,11 +79,11 @@ export default function SocialParticipantsTab({
                       >
                         {getParticipantStatusLabel(participant.status, t)}
                       </Badge>
-                      {participant.selfRating !== null && (
+                      {/* {participant.user.selfRating !== null && (
                         <Badge variant="outline">
-                          {t("common.level")} {participant.selfRating}
+                          {t("common.level")} {participant.user.selfRating}
                         </Badge>
-                      )}
+                      )} */}
                     </div>
                   </div>
                 </div>

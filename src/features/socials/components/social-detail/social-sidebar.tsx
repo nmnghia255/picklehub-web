@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator"
 import ProgressBar from "@/features/socials/components/social-listing/progress-bar"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import type { Host, ListSocialResponse as Social } from "../../types/social"
+import type { Host, SocialDetail } from "../../types/social"
 
 function SettingRow({ label, value }: { label: string; value: string }) {
   return (
@@ -26,7 +26,7 @@ export default function SocialSidebar({
   onLeave,
   isLeaving,
 }: {
-  social: Social
+  social: SocialDetail
   onJoin: () => void
   onLeave: () => void
   isLeaving?: boolean
@@ -49,8 +49,7 @@ export default function SocialSidebar({
       </Card>
     )
   }
-  const isParticipant =
-    social.isParticipant || social.participants.some((p) => p.userId === hostId)
+  const isParticipant = false
 
   return (
     <Card className="sticky top-16 h-fit p-0">
