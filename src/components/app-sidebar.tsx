@@ -4,6 +4,7 @@ import { useAtomValue } from "jotai"
 import {
   BellRing,
   Building2,
+  CalendarCheck,
   CalendarClock,
   CalendarDays,
   ChevronDown,
@@ -46,6 +47,7 @@ type SidebarItem = {
 const sidebarItems: SidebarItem[] = [
   { title: "Trang chủ", href: "/home", icon: House },
   { title: "Hồ sơ", href: "/profile", icon: UserRound },
+  { title: "Lịch của tôi", href: "/calendar", icon: CalendarCheck },
   { title: "Lịch sử", href: "/history", icon: History },
   { title: "Buổi chơi", href: "/socials", icon: CalendarDays },
   { title: "Nhóm", href: "/groups", icon: Users },
@@ -72,10 +74,6 @@ const sportCenterManagementMenuItems = [
   {
     title: "Quản lý sân",
     href: "/sport-center-management/courts-management",
-  },
-  {
-    title: "Danh sách sân",
-    href: "/sport-center-management/courts",
   },
   {
     title: "Quản lý khách hàng",

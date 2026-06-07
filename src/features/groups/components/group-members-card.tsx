@@ -1,4 +1,3 @@
-import { ErrorSection } from "@/components/error-section"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Table,
@@ -9,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-import { getGroupMembers } from "../api/groups-service"
+import type { Member } from "../types"
 import { isArchivedGroup } from "../utils/group-status"
 import { GroupMemberActions } from "./group-member-actions"
 
@@ -28,27 +27,20 @@ function normalizeRole(role: string | null | undefined) {
 
 interface GroupMembersCardProps {
   groupId: string
+  members?: Member[]
   currentUserId: string
   currentUserRole: string | null
   groupStatus?: string | null
 }
 
-export async function GroupMembersCard({
+export function GroupMembersCard({
   groupId,
+  members,
   currentUserId,
   currentUserRole,
   groupStatus,
 }: GroupMembersCardProps) {
-  const members = await getGroupMembers(groupId).catch((error) => {
-    console.error("Error loading group members:", error)
-    return null
-  })
-
-  if (!members) {
-    return (
-      <ErrorSection message="Đã xảy ra lỗi khi tải thông tin thành viên. Vui lòng thử lại sau." />
-    )
-  }
+  const resolvedMembers = members ?? []
 
   const normalizedUserRole = currentUserRole?.toLowerCase()
   const canManageMembers =
@@ -81,7 +73,7 @@ export async function GroupMembersCard({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {members.map((member) => (
+            {resolvedMembers.map((member) => (
               <TableRow key={member.userId}>
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">

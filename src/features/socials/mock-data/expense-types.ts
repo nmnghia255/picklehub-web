@@ -1,31 +1,28 @@
-export type ExpenseType = "COURT_BOOKING"
-
-export type PaymentStatus = "paid" | "unpaid" | "refunded"
-
-export type TimelineEventType = "court-booking" | "participant-payment"
-
-export interface CourtExpenseRow {
+export type CourtExpenseRow = {
   id: string
-  type: ExpenseType
   courtName: string
+  type: "COURT_BOOKING" | "OTHER"
   date: string
   time: string
   duration: string
   cost: number
 }
 
-export interface ParticipantPaymentRow {
+export type PaymentStatus = "paid" | "unpaid" | "refunded"
+
+export type ParticipantPaymentRow = {
   id: string
   participant: string
-  participantStatus: string
+  participantStatus: "CONFIRMED" | "WAITLISTED" | "ON_HOLD" | "CANCELLED"
   amountDue: number
   paymentStatus: PaymentStatus
 }
 
-export interface FinancialTimelineRow {
+export type FinancialTimelineRow = {
   id: string
-  type: TimelineEventType
-  title: string
+  type: "court-booking" | "participant-payment"
   timestamp: string
   amount: number
 }
+
+export default CourtExpenseRow

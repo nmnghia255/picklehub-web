@@ -1,9 +1,13 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client"
 
-import { Loader2, MoreHorizontal, Plus } from "lucide-react"
-import { useActionState, useEffect, useRef, useState } from "react"
+import { useQueryClient } from "@tanstack/react-query"
+import { Loader2, MoreHorizontal, Plus, Send } from "lucide-react"
+import { useActionState, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -23,25 +27,23 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import {
   createExpenseAction,
-  createFundAction,
+  createTransactionAction,
   deleteExpenseAction,
-  deleteFundAction,
-  payFundAction,
+  remindDebtAction,
   updateExpenseAction,
-  updateFundAction,
-  verifyFundPaymentAction,
+  verifyTransactionAction,
 } from "../actions/finance-actions"
-import type { ExpenseItem, FundItem, FundPayment } from "../types/finance"
-
-function formatDateInput(value?: string | null) {
-  if (!value) return ""
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return ""
-  return date.toISOString().slice(0, 16)
-}
+import { financeQueryKeys } from "../api/finance-client"
+import type { Member } from "../types"
+import type {
+  ExpenseItem,
+  Transaction,
+  TransactionStatus,
+} from "../types/finance"
 
 function formatDateOnly(value?: string | null) {
   if (!value) return ""
@@ -69,30 +71,25 @@ function formatCurrency(value?: string | number | null) {
     return String(value ?? "-")
   }
 
-  return new Intl.NumberFormat("vi-VN").format(numericValue)
+  return formatCurrencyVnd(numericValue)
 }
 
-function formatPaymentStatus(status?: string | null) {
-  const normalized = status?.toUpperCase()
-
-  if (normalized === "PAID") {
-    return "Đã thanh toán"
-  }
-
-  if (normalized === "REJECTED") {
-    return "Đã từ chối"
-  }
-
-  if (normalized === "PENDING") {
-    return "Đang chờ"
-  }
-
+function formatTransactionStatus(status?: TransactionStatus | null) {
+  if (status === "VERIFIED") return "Đã xác nhận"
+  if (status === "REJECTED") return "Đã từ chối"
+  if (status === "PENDING_REVIEW") return "Đang chờ duyệt"
   return status ?? "-"
+}
+
+function getInitials(name: string) {
+  const words = name.trim().split(/\s+/).filter(Boolean)
+  if (!words.length) return "TV"
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
+  return `${words[0][0] ?? ""}${words[1][0] ?? ""}`.toUpperCase()
 }
 
 function isImageReceiptUrl(url?: string | null) {
   if (!url) return false
-
   const normalized = url.toLowerCase()
   return (
     normalized.includes(".jpg") ||
@@ -104,60 +101,59 @@ function isImageReceiptUrl(url?: string | null) {
   )
 }
 
-function PaymentReceiptViewer({ receiptUrl }: { receiptUrl: string }) {
+export function PaymentReceiptPreview({ receiptUrl }: { receiptUrl: string }) {
   const [open, setOpen] = useState(false)
-
-  if (!isImageReceiptUrl(receiptUrl)) {
-    return (
-      <a
-        href={receiptUrl}
-        target="_blank"
-        rel="noreferrer"
-        className="text-xs text-primary underline underline-offset-2"
-      >
-        Xem chứng từ
-      </a>
-    )
-  }
+  const isImage = isImageReceiptUrl(receiptUrl)
 
   return (
     <>
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="xs"
+        className="h-7 rounded-full px-2.5"
         onClick={() => setOpen(true)}
-        className="block w-fit"
       >
-        <img
-          src={receiptUrl}
-          alt="Biên lai thanh toán"
-          className="h-20 w-20 rounded-md border object-cover"
-        />
-      </button>
+        {isImage ? "Xem ảnh" : "Xem chứng từ"}
+      </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Ảnh chứng từ thanh toán</DialogTitle>
-            <DialogDescription>
-              Xem ảnh biên lai ở kích thước lớn.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-center">
-            <img
-              src={receiptUrl}
-              alt="Ảnh chứng từ thanh toán"
-              className="max-h-[70vh] w-auto rounded-md object-contain"
-            />
-          </div>
-          <div className="text-right">
-            <a
-              href={receiptUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="text-xs text-primary underline underline-offset-2"
-            >
-              Mở ảnh ở tab mới
-            </a>
+        <DialogContent className="max-h-[90vh] overflow-hidden p-0 sm:max-w-4xl">
+          <div className="grid max-h-[90vh] gap-0 overflow-hidden md:grid-cols-[minmax(0,1fr)_280px]">
+            <div className="flex items-center justify-center bg-black/90 p-4 md:min-h-[70vh]">
+              {isImage ? (
+                <img
+                  src={receiptUrl}
+                  alt="Biên lai thanh toán"
+                  className="max-h-[78vh] w-full max-w-full rounded-md object-contain"
+                />
+              ) : (
+                <iframe
+                  src={receiptUrl}
+                  title="Biên lai thanh toán"
+                  className="h-[78vh] w-full rounded-md bg-white"
+                />
+              )}
+            </div>
+
+            <div className="flex flex-col gap-4 border-t p-5 md:border-t-0 md:border-l">
+              <DialogHeader className="text-left">
+                <DialogTitle>Chứng từ thanh toán</DialogTitle>
+                <DialogDescription>
+                  Xem chứng từ ngay trong trang hiện tại.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="mt-auto flex justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
+                  Đóng
+                </Button>
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
@@ -191,6 +187,43 @@ function useToastState(
   }, [onSuccess, state.error, state.success, successMessage])
 }
 
+function useFinanceInvalidation(groupId: string) {
+  const queryClient = useQueryClient()
+
+  return {
+    refreshSummary() {
+      return queryClient.invalidateQueries({
+        queryKey: financeQueryKeys.summary(groupId),
+      })
+    },
+    refreshTransactions() {
+      return Promise.all([
+        this.refreshSummary(),
+        queryClient.invalidateQueries({
+          queryKey: financeQueryKeys.transactions(groupId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: financeQueryKeys.creditBalances(groupId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: financeQueryKeys.myDebt(groupId),
+        }),
+      ])
+    },
+    refreshExpenses() {
+      return Promise.all([
+        this.refreshSummary(),
+        queryClient.invalidateQueries({
+          queryKey: financeQueryKeys.expenses(groupId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: financeQueryKeys.myDebt(groupId),
+        }),
+      ])
+    },
+  }
+}
+
 function FinanceDialogShell({
   open,
   onOpenChange,
@@ -217,85 +250,46 @@ function FinanceDialogShell({
   )
 }
 
-function FundForm({
+function TransactionForm({
   groupId,
-  mode,
-  fund,
-  hasExistingPayments,
   onDone,
 }: {
   groupId: string
-  mode: DialogMode
-  fund?: FundItem
-  hasExistingPayments?: boolean
   onDone: () => void
 }) {
   const [state, formAction, isPending] = useActionState(
-    mode === "create"
-      ? createFundAction.bind(null, groupId)
-      : updateFundAction.bind(null, groupId, fund?.id ?? ""),
+    createTransactionAction.bind(null, groupId),
     {}
   )
 
-  useToastState(
-    state,
-    mode === "create" ? "Đã tạo quỹ." : "Đã cập nhật quỹ.",
-    onDone
-  )
+  useToastState(state, "Đã gửi giao dịch thanh toán.", onDone)
 
   return (
     <form action={formAction}>
       <div className="space-y-4 py-2">
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="fund-title">Tên quỹ</FieldLabel>
-            <Input
-              id="fund-title"
-              name="title"
-              defaultValue={fund?.title ?? ""}
-            />
+            <FieldLabel htmlFor="tx-amount">Số tiền thanh toán</FieldLabel>
+            <Input id="tx-amount" name="amount" type="number" required />
           </Field>
           <Field>
-            <FieldLabel htmlFor="fund-description">Mô tả</FieldLabel>
-            <Textarea
-              id="fund-description"
-              name="description"
-              defaultValue={fund?.description ?? ""}
+            <FieldLabel htmlFor="tx-receipt-file">
+              Tệp biên lai (Tùy chọn)
+            </FieldLabel>
+            <Input
+              id="tx-receipt-file"
+              name="receiptFile"
+              type="file"
+              accept="image/*"
             />
           </Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field>
-              <FieldLabel htmlFor="fund-amount">Số tiền</FieldLabel>
-              <Input
-                id="fund-amount"
-                name="amount"
-                type="text"
-                defaultValue={fund?.amount?.toString() ?? ""}
-                disabled={mode === "edit" && !!hasExistingPayments}
-              />
-              {mode === "edit" && hasExistingPayments ? (
-                <p className="text-xs text-muted-foreground">
-                  Quỹ đã có thanh toán, không thể thay đổi số tiền.
-                </p>
-              ) : null}
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="fund-deadline">Hạn chót</FieldLabel>
-              <Input
-                id="fund-deadline"
-                name="deadline"
-                type="datetime-local"
-                defaultValue={formatDateInput(fund?.deadline ?? null)}
-              />
-            </Field>
-          </div>
         </FieldGroup>
       </div>
 
       <DialogFooter showCloseButton>
         <Button type="submit" disabled={isPending}>
           {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-          {mode === "create" ? "Tạo quỹ" : "Lưu thay đổi"}
+          Gửi thanh toán
         </Button>
       </DialogFooter>
     </form>
@@ -306,11 +300,13 @@ function ExpenseForm({
   groupId,
   mode,
   expense,
+  members,
   onDone,
 }: {
   groupId: string
   mode: DialogMode
   expense?: ExpenseItem
+  members: Member[]
   onDone: () => void
 }) {
   const [state, formAction, isPending] = useActionState(
@@ -322,9 +318,44 @@ function ExpenseForm({
 
   useToastState(
     state,
-    mode === "create" ? "Đã tạo khoản chi." : "Đã cập nhật khoản chi.",
+    mode === "create" ? "Đã tạo chi tiêu." : "Đã cập nhật chi tiêu.",
     onDone
   )
+
+  const [selectedMap, setSelectedMap] = useState<Record<string, boolean>>({})
+  const [feeMap, setFeeMap] = useState<Record<string, string>>({})
+  const [totalAmount, setTotalAmount] = useState<string>(
+    expense?.totalAmount?.toString() ?? ""
+  )
+
+  useEffect(() => {
+    if (mode === "edit" && expense?.allocations) {
+      const newSelected: Record<string, boolean> = {}
+      const newFees: Record<string, string> = {}
+      expense.allocations.forEach((a) => {
+        newSelected[a.userId] = true
+        newFees[a.userId] = a.requiredFee.toString()
+      })
+      setSelectedMap(newSelected)
+      setFeeMap(newFees)
+    }
+  }, [expense, mode])
+
+  const allocations = useMemo(
+    () =>
+      members
+        .filter((m) => selectedMap[m.userId])
+        .map((m) => ({
+          userId: m.userId,
+          requiredFee: Number(feeMap[m.userId] || 0),
+        })),
+    [feeMap, members, selectedMap]
+  )
+
+  const totalAllocated = allocations.reduce((sum, a) => sum + a.requiredFee, 0)
+  const totalAmountNum = Number(totalAmount)
+  const isTotalMatching =
+    totalAllocated === totalAmountNum && totalAmountNum > 0
 
   return (
     <form action={formAction}>
@@ -336,6 +367,7 @@ function ExpenseForm({
               id="expense-title"
               name="title"
               defaultValue={expense?.title ?? ""}
+              required
             />
           </Field>
           <Field>
@@ -348,12 +380,14 @@ function ExpenseForm({
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field>
-              <FieldLabel htmlFor="expense-amount">Số tiền</FieldLabel>
+              <FieldLabel htmlFor="expense-amount">Tổng số tiền</FieldLabel>
               <Input
                 id="expense-amount"
-                name="amount"
-                type="text"
-                defaultValue={expense?.amount?.toString() ?? ""}
+                name="totalAmount"
+                type="number"
+                value={totalAmount}
+                onChange={(e) => setTotalAmount(e.target.value)}
+                required
               />
             </Field>
             <Field>
@@ -363,127 +397,97 @@ function ExpenseForm({
                 name="expenseDate"
                 type="date"
                 defaultValue={formatDateOnly(expense?.expenseDate ?? null)}
+                required
               />
             </Field>
           </div>
+
+          <Field>
+            <FieldLabel>Phân bổ cho thành viên</FieldLabel>
+            <div className="max-h-60 space-y-2 overflow-y-auto rounded-md border p-2">
+              {members.map((member) => (
+                <div key={member.userId} className="flex items-center gap-3">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={!!selectedMap[member.userId]}
+                      onChange={(e) =>
+                        setSelectedMap((prev) => ({
+                          ...prev,
+                          [member.userId]: e.target.checked,
+                        }))
+                      }
+                    />
+                    <span className="text-sm">{member.name}</span>
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="Số tiền"
+                    className="ml-auto w-28"
+                    value={feeMap[member.userId] ?? ""}
+                    onChange={(e) =>
+                      setFeeMap((prev) => ({
+                        ...prev,
+                        [member.userId]: e.target.value,
+                      }))
+                    }
+                    disabled={!selectedMap[member.userId]}
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">
+                Đã phân bổ: {formatCurrency(totalAllocated)} /{" "}
+                {formatCurrency(totalAmountNum)}
+              </span>
+              <Button
+                type="button"
+                variant="link"
+                size="xs"
+                onClick={() => {
+                  if (totalAmountNum > 0 && allocations.length > 0) {
+                    const equalShare = Math.floor(
+                      totalAmountNum / allocations.length
+                    )
+                    const remainder = totalAmountNum % allocations.length
+                    const newFees: Record<string, string> = { ...feeMap }
+                    allocations.forEach((a, idx) => {
+                      newFees[a.userId] = (
+                        equalShare + (idx === 0 ? remainder : 0)
+                      ).toString()
+                    })
+                    setFeeMap(newFees)
+                  }
+                }}
+              >
+                Chia đều
+              </Button>
+            </div>
+          </Field>
+
           <Field>
             <FieldLabel htmlFor="expense-receipt-file">Tệp biên lai</FieldLabel>
             <Input
               id="expense-receipt-file"
               name="receiptFile"
               type="file"
-              accept="image/*,.doc,.docx,.xls,.xlsx,.pdf,.csv"
+              accept="image/*"
             />
-            <p className="text-xs text-muted-foreground">
-              Chọn tệp ảnh/PDF/Word/Excel làm chứng từ (tối đa 10MB).
-            </p>
           </Field>
         </FieldGroup>
       </div>
+
+      <input
+        type="hidden"
+        name="allocations"
+        value={JSON.stringify(allocations)}
+      />
 
       <DialogFooter showCloseButton>
         <Button type="submit" disabled={isPending}>
           {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
           {mode === "create" ? "Tạo khoản chi" : "Lưu thay đổi"}
-        </Button>
-      </DialogFooter>
-    </form>
-  )
-}
-
-function PayFundForm({
-  groupId,
-  fund,
-  onDone,
-}: {
-  groupId: string
-  fund: FundItem
-  onDone: () => void
-}) {
-  const [state, formAction, isPending] = useActionState(
-    payFundAction.bind(null, groupId, fund.id),
-    {}
-  )
-  const [selectedFileName, setSelectedFileName] = useState<string>("")
-  const [selectedImagePreviewUrl, setSelectedImagePreviewUrl] = useState<
-    string | null
-  >(null)
-
-  useEffect(() => {
-    return () => {
-      if (selectedImagePreviewUrl) {
-        URL.revokeObjectURL(selectedImagePreviewUrl)
-      }
-    }
-  }, [selectedImagePreviewUrl])
-
-  useToastState(state, "Đã gửi yêu cầu thanh toán.", onDone)
-
-  const handleReceiptFileChange: React.ChangeEventHandler<HTMLInputElement> = (
-    event
-  ) => {
-    const file = event.target.files?.[0]
-
-    if (selectedImagePreviewUrl) {
-      URL.revokeObjectURL(selectedImagePreviewUrl)
-      setSelectedImagePreviewUrl(null)
-    }
-
-    if (!file) {
-      setSelectedFileName("")
-      return
-    }
-
-    setSelectedFileName(file.name)
-
-    if (file.type.startsWith("image/")) {
-      setSelectedImagePreviewUrl(URL.createObjectURL(file))
-    }
-  }
-
-  return (
-    <form action={formAction}>
-      <div className="space-y-4 py-2">
-        <FieldGroup>
-          <Field>
-            <FieldLabel htmlFor="payment-receipt-file">Tệp biên lai</FieldLabel>
-            <Input
-              id="payment-receipt-file"
-              name="paymentReceiptFile"
-              type="file"
-              accept="image/*,.doc,.docx,.xls,.xlsx,.pdf,.csv"
-              onChange={handleReceiptFileChange}
-            />
-            <p className="text-xs text-muted-foreground">
-              Hỗ trợ ảnh, Word, Excel, PDF, CSV (tối đa 10MB).
-            </p>
-            {selectedFileName ? (
-              <p className="text-xs text-muted-foreground">
-                Đã chọn: {selectedFileName}
-              </p>
-            ) : null}
-            {selectedImagePreviewUrl ? (
-              <a
-                href={selectedImagePreviewUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="block w-fit"
-              >
-                <img
-                  src={selectedImagePreviewUrl}
-                  alt="Xem trước biên lai"
-                  className="mt-2 h-28 w-28 rounded-md border object-cover"
-                />
-              </a>
-            ) : null}
-          </Field>
-        </FieldGroup>
-      </div>
-
-      <DialogFooter showCloseButton>
-        <Button type="submit" disabled={isPending}>
-          {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-          Gửi yêu cầu thanh toán
         </Button>
       </DialogFooter>
     </form>
@@ -503,7 +507,6 @@ function DeleteForm({
   onDone: () => void
 }) {
   const [state, formAction, isPending] = useActionState(action, {})
-
   useToastState(state, "Đã xóa thành công.", onDone)
 
   return (
@@ -529,78 +532,43 @@ function DeleteForm({
   )
 }
 
-function PaymentVerifyRow({
-  groupId,
-  fundId,
-  payment,
-  onDone,
-}: {
-  groupId: string
-  fundId: string
-  payment: FundPayment
-  onDone: () => void
-}) {
-  const normalizedStatus = payment.status?.toUpperCase()
-  const canVerify = normalizedStatus === "PENDING"
-  const [status, setStatus] = useState<"PAID" | "REJECTED">("PAID")
-  const [state, formAction, isPending] = useActionState(
-    verifyFundPaymentAction.bind(null, groupId, fundId, payment.id),
-    {}
-  )
-
-  useToastState(state, "Đã cập nhật thanh toán.", onDone)
-
-  if (!canVerify) {
-    return null
-  }
-
-  return (
-    <form action={formAction} className="flex items-center justify-end gap-2">
-      <input type="hidden" name="status" value={status} />
-      <Button type="submit" size="sm" disabled={isPending}>
-        {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-        Duyệt
-      </Button>
-      <Button
-        type="submit"
-        size="sm"
-        variant="destructive"
-        disabled={isPending}
-        onClick={() => setStatus("REJECTED")}
-      >
-        Từ chối
-      </Button>
-    </form>
-  )
-}
-
-export function CreateFundButton({ groupId }: { groupId: string }) {
+export function CreateTransactionButton({ groupId }: { groupId: string }) {
   const [open, setOpen] = useState(false)
+  const invalidation = useFinanceInvalidation(groupId)
 
   return (
     <>
       <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
         <Plus className="mr-2 size-4" />
-        Tạo quỹ
+        Gửi thanh toán
       </Button>
       <FinanceDialogShell
         open={open}
         onOpenChange={setOpen}
-        title="Tạo quỹ"
-        description="Tạo khoản thu mới cho toàn nhóm."
+        title="Gửi thanh toán"
+        description="Gửi thông tin giao dịch bạn đã chuyển khoản cho nhóm."
       >
-        <FundForm
+        <TransactionForm
           groupId={groupId}
-          mode="create"
-          onDone={() => setOpen(false)}
+          onDone={() => {
+            void invalidation.refreshTransactions()
+            setOpen(false)
+          }}
         />
       </FinanceDialogShell>
     </>
   )
 }
 
-export function CreateExpenseButton({ groupId }: { groupId: string }) {
+export function CreateExpenseButton({
+  groupId,
+  members,
+}: {
+  groupId: string
+  members: Member[]
+}) {
   const [open, setOpen] = useState(false)
+  const invalidation = useFinanceInvalidation(groupId)
 
   return (
     <>
@@ -612,184 +580,164 @@ export function CreateExpenseButton({ groupId }: { groupId: string }) {
         open={open}
         onOpenChange={setOpen}
         title="Tạo khoản chi"
-        description="Tạo khoản chi mới cho nhóm."
+        description="Ghi nhận chi tiêu và phân bổ cho các thành viên."
       >
         <ExpenseForm
           groupId={groupId}
           mode="create"
-          onDone={() => setOpen(false)}
+          members={members}
+          onDone={() => {
+            void invalidation.refreshExpenses()
+            setOpen(false)
+          }}
         />
       </FinanceDialogShell>
     </>
   )
 }
 
-export function FundRowActions({
+export function RemindDebtButton({
   groupId,
-  fund,
-  canManage,
-  canPay,
-  payments,
+  members,
 }: {
   groupId: string
-  fund: FundItem
-  canManage: boolean
-  canPay: boolean
-  payments: FundPayment[]
+  members: Member[]
 }) {
-  const [editOpen, setEditOpen] = useState(false)
-  const [payOpen, setPayOpen] = useState(false)
-  const [deleteOpen, setDeleteOpen] = useState(false)
-  const [paymentsOpen, setPaymentsOpen] = useState(false)
-  const hasActions = canPay || canManage
+  const [open, setOpen] = useState(false)
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([])
+  const [sendEmail, setSendEmail] = useState(true)
+  const [state, formAction, isPending] = useActionState(
+    remindDebtAction.bind(null, groupId),
+    {}
+  )
 
-  if (!hasActions) {
-    return (
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 cursor-not-allowed opacity-40"
-        disabled
-        title="Không có quyền thao tác"
-      >
-        <MoreHorizontal className="size-4" />
-      </Button>
-    )
-  }
+  useToastState(state, "Đã gửi nhắc nợ thành công.", () => setOpen(false))
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <MoreHorizontal className="size-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          {canPay && (
-            <DropdownMenuItem onSelect={() => setPayOpen(true)}>
-              Thanh toán
-            </DropdownMenuItem>
-          )}
-          {canManage && (
-            <DropdownMenuItem onSelect={() => setPaymentsOpen(true)}>
-              Xem thanh toán
-            </DropdownMenuItem>
-          )}
-          {canManage && (
-            <DropdownMenuItem onSelect={() => setEditOpen(true)}>
-              Chỉnh sửa
-            </DropdownMenuItem>
-          )}
-          {canManage && (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                variant="destructive"
-                onSelect={() => setDeleteOpen(true)}
-              >
-                Xóa
-              </DropdownMenuItem>
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
-
+      <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+        <Send className="mr-2 size-4" />
+        Nhắc nợ
+      </Button>
       <FinanceDialogShell
-        open={editOpen}
-        onOpenChange={setEditOpen}
-        title="Chỉnh sửa quỹ"
-        description={`Cập nhật quỹ "${fund.title}".`}
+        open={open}
+        onOpenChange={setOpen}
+        title="Nhắc nợ thành viên"
+        description="Gửi thông báo nhắc nhở thành viên hoàn thành các khoản nợ."
       >
-        <FundForm
-          groupId={groupId}
-          mode="edit"
-          fund={fund}
-          hasExistingPayments={payments.length > 0}
-          onDone={() => setEditOpen(false)}
-        />
-      </FinanceDialogShell>
-
-      <FinanceDialogShell
-        open={payOpen}
-        onOpenChange={setPayOpen}
-        title="Thanh toán quỹ"
-        description={`Gửi yêu cầu thanh toán cho quỹ "${fund.title}".`}
-      >
-        <PayFundForm
-          groupId={groupId}
-          fund={fund}
-          onDone={() => setPayOpen(false)}
-        />
-      </FinanceDialogShell>
-
-      <FinanceDialogShell
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        title="Xóa quỹ"
-        description="Thao tác này không thể hoàn tác."
-      >
-        <DeleteForm
-          label={`Bạn có chắc muốn xóa quỹ "${fund.title}" không?`}
-          action={deleteFundAction.bind(null, groupId, fund.id)}
-          onDone={() => setDeleteOpen(false)}
-        />
-      </FinanceDialogShell>
-
-      <FinanceDialogShell
-        open={paymentsOpen}
-        onOpenChange={setPaymentsOpen}
-        title={`Thanh toán của quỹ ${fund.title}`}
-        description="Duyệt hoặc từ chối các lượt thanh toán đang chờ."
-      >
-        {payments.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Chưa có lượt thanh toán nào.
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {payments.map((payment) => (
-              <div key={payment.id} className="rounded-md border p-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="space-y-2 text-sm">
-                    <div className="font-medium">{payment.userId}</div>
-                    <div className="text-muted-foreground">
-                      {formatCurrency(payment.amountPaid)} -{" "}
-                      {formatPaymentStatus(payment.status)}
-                    </div>
-                    {payment.paymentReceiptUrl ? (
-                      <PaymentReceiptViewer
-                        receiptUrl={payment.paymentReceiptUrl}
-                      />
-                    ) : (
-                      <p className="text-xs text-muted-foreground">
-                        Chưa có chứng từ thanh toán.
-                      </p>
-                    )}
-                  </div>
-                  <PaymentVerifyRow
-                    groupId={groupId}
-                    fundId={fund.id}
-                    payment={payment}
-                    onDone={() => setPaymentsOpen(false)}
-                  />
-                </div>
+        <form action={formAction}>
+          <div className="space-y-4 py-2">
+            <Field>
+              <FieldLabel>Chọn thành viên</FieldLabel>
+              <div className="max-h-60 space-y-2 overflow-y-auto rounded-md border p-2">
+                {members.map((m) => (
+                  <label key={m.userId} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedUsers.includes(m.userId)}
+                      onChange={(e) => {
+                        if (e.target.checked)
+                          setSelectedUsers([...selectedUsers, m.userId])
+                        else
+                          setSelectedUsers(
+                            selectedUsers.filter((id) => id !== m.userId)
+                          )
+                      }}
+                    />
+                    <span className="text-sm">{m.name}</span>
+                  </label>
+                ))}
               </div>
-            ))}
+            </Field>
+            <Field>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={sendEmail}
+                  onChange={(e) => setSendEmail(e.target.checked)}
+                />
+                <span className="text-sm">Gửi kèm Email thông báo</span>
+              </label>
+            </Field>
           </div>
-        )}
+          <input
+            type="hidden"
+            name="userIds"
+            value={JSON.stringify(selectedUsers)}
+          />
+          <input type="hidden" name="sendEmail" value={String(sendEmail)} />
+          <DialogFooter showCloseButton>
+            <Button
+              type="submit"
+              disabled={isPending || selectedUsers.length === 0}
+            >
+              {isPending ? (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              ) : null}
+              Gửi nhắc nợ
+            </Button>
+          </DialogFooter>
+        </form>
       </FinanceDialogShell>
     </>
+  )
+}
+
+export function TransactionRowActions({
+  groupId,
+  transaction,
+  canManage,
+}: {
+  groupId: string
+  transaction: Transaction
+  canManage: boolean
+}) {
+  const invalidation = useFinanceInvalidation(groupId)
+  const [state, formAction, isPending] = useActionState(
+    verifyTransactionAction.bind(null, groupId, transaction.id),
+    {}
+  )
+
+  useToastState(state, "Đã cập nhật trạng thái giao dịch.", () =>
+    invalidation.refreshTransactions()
+  )
+
+  if (!canManage || transaction.status !== "PENDING_REVIEW") return null
+
+  return (
+    <form action={formAction} className="flex gap-2">
+      <Button
+        type="submit"
+        name="status"
+        value="VERIFIED"
+        size="xs"
+        disabled={isPending}
+      >
+        Duyệt
+      </Button>
+      <Button
+        type="submit"
+        name="status"
+        value="REJECTED"
+        size="xs"
+        variant="destructive"
+        disabled={isPending}
+      >
+        Từ chối
+      </Button>
+    </form>
   )
 }
 
 export function ExpenseRowActions({
   groupId,
   expense,
+  members,
   canManage,
 }: {
   groupId: string
   expense: ExpenseItem
+  members: Member[]
   canManage: boolean
 }) {
   const [editOpen, setEditOpen] = useState(false)
@@ -797,6 +745,21 @@ export function ExpenseRowActions({
   const [viewOpen, setViewOpen] = useState(false)
   const [detailLoading, setDetailLoading] = useState(false)
   const [expenseDetail, setExpenseDetail] = useState<ExpenseItem | null>(null)
+  const invalidation = useFinanceInvalidation(groupId)
+
+  const loadDetail = async () => {
+    if (expenseDetail) return
+    setDetailLoading(true)
+    try {
+      const res = await fetch(`/api/groups/${groupId}/expenses/${expense.id}`)
+      const json = await res.json()
+      setExpenseDetail(json.data)
+    } catch (err) {
+      toast.error("Không thể tải chi tiết khoản chi.")
+    } finally {
+      setDetailLoading(false)
+    }
+  }
 
   return (
     <>
@@ -809,50 +772,12 @@ export function ExpenseRowActions({
         <DropdownMenuContent align="end">
           <DropdownMenuItem
             onSelect={() => {
-              if (!groupId || !expense?.id) {
-                toast.error(
-                  "Thiếu thông tin khoản chi. Không thể tải chi tiết."
-                )
-                return
-              }
-
               setViewOpen(true)
-              if (!expenseDetail) {
-                setDetailLoading(true)
-                fetch(
-                  `/api/groups/${encodeURIComponent(groupId)}/expenses/${encodeURIComponent(
-                    expense.id
-                  )}`,
-                  {
-                    credentials: "same-origin",
-                  }
-                )
-                  .then(async (res) => {
-                    if (!res.ok) {
-                      const json = await res.json().catch(() => ({}))
-                      throw new Error(
-                        json?.message || "Không thể tải chi tiết khoản chi"
-                      )
-                    }
-
-                    const payload = await res.json()
-                    // API uses envelope { message, data }
-                    setExpenseDetail(payload?.data ?? payload)
-                  })
-                  .catch((err) => {
-                    console.error(err)
-                    toast.error(
-                      err?.message || "Không tải được chi tiết khoản chi."
-                    )
-                    setViewOpen(false)
-                  })
-                  .finally(() => setDetailLoading(false))
-              }
+              void loadDetail()
             }}
           >
             Xem chi tiết
           </DropdownMenuItem>
-
           {canManage && (
             <DropdownMenuItem onSelect={() => setEditOpen(true)}>
               Chỉnh sửa
@@ -873,6 +798,88 @@ export function ExpenseRowActions({
       </DropdownMenu>
 
       <FinanceDialogShell
+        open={viewOpen}
+        onOpenChange={setViewOpen}
+        title="Chi tiết khoản chi"
+        description={expense.title}
+      >
+        {detailLoading ? (
+          <div className="py-10 text-center">
+            <Loader2 className="mx-auto animate-spin" />
+          </div>
+        ) : expenseDetail ? (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-xs text-muted-foreground uppercase">
+                  Số tiền
+                </div>
+                <div className="font-semibold">
+                  {formatCurrency(expenseDetail.totalAmount)}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground uppercase">
+                  Ngày chi
+                </div>
+                <div className="font-semibold">
+                  {formatDate(expenseDetail.expenseDate)}
+                </div>
+              </div>
+            </div>
+            {expenseDetail.description && (
+              <div>
+                <div className="text-xs text-muted-foreground uppercase">
+                  Mô tả
+                </div>
+                <div className="text-sm">{expenseDetail.description}</div>
+              </div>
+            )}
+            {expenseDetail.receiptUrl && (
+              <div>
+                <div className="text-xs text-muted-foreground uppercase">
+                  Chứng từ
+                </div>
+                <PaymentReceiptPreview receiptUrl={expenseDetail.receiptUrl} />
+              </div>
+            )}
+            <div>
+              <div className="mb-2 text-xs text-muted-foreground uppercase">
+                Phân bổ
+              </div>
+              <div className="space-y-2">
+                {expenseDetail.allocations?.map((a) => (
+                  <div
+                    key={a.id}
+                    className="flex items-center justify-between rounded-md border p-2 text-sm"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Avatar>
+                        <AvatarImage src={a.user?.avatarUrl || ""} />
+                        <AvatarFallback>
+                          {getInitials(a.user?.name || "?")}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span>{a.user?.name}</span>
+                    </div>
+                    <div className="text-right">
+                      <div>{formatCurrency(a.requiredFee)}</div>
+                      <Badge
+                        variant={a.status === "PAID" ? "default" : "outline"}
+                        className="h-4 text-[10px]"
+                      >
+                        {a.status}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </FinanceDialogShell>
+
+      <FinanceDialogShell
         open={editOpen}
         onOpenChange={setEditOpen}
         title="Chỉnh sửa khoản chi"
@@ -882,7 +889,11 @@ export function ExpenseRowActions({
           groupId={groupId}
           mode="edit"
           expense={expense}
-          onDone={() => setEditOpen(false)}
+          members={members}
+          onDone={() => {
+            void invalidation.refreshExpenses()
+            setEditOpen(false)
+          }}
         />
       </FinanceDialogShell>
 
@@ -895,61 +906,11 @@ export function ExpenseRowActions({
         <DeleteForm
           label={`Bạn có chắc muốn xóa khoản chi "${expense.title}" không?`}
           action={deleteExpenseAction.bind(null, groupId, expense.id)}
-          onDone={() => setDeleteOpen(false)}
+          onDone={() => {
+            void invalidation.refreshExpenses()
+            setDeleteOpen(false)
+          }}
         />
-      </FinanceDialogShell>
-
-      <FinanceDialogShell
-        open={viewOpen}
-        onOpenChange={() => {
-          setViewOpen(false)
-          // keep detail cached
-        }}
-        title="Chi tiết khoản chi"
-        description={expense.title}
-      >
-        {detailLoading ? (
-          <div className="py-6 text-center">
-            <Loader2 className="mx-auto size-6 animate-spin" />
-          </div>
-        ) : expenseDetail ? (
-          <div className="space-y-4">
-            <div>
-              <div className="text-sm text-muted-foreground">Tên</div>
-              <div className="font-medium">{expenseDetail.title}</div>
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Số tiền</div>
-              <div className="font-medium">
-                {formatCurrency(expenseDetail.amount)}
-              </div>
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Ngày chi</div>
-              <div className="font-medium">
-                {formatDate(expenseDetail.expenseDate)}
-              </div>
-            </div>
-            {expenseDetail.description ? (
-              <div>
-                <div className="text-sm text-muted-foreground">Mô tả</div>
-                <div className="whitespace-pre-wrap">
-                  {expenseDetail.description}
-                </div>
-              </div>
-            ) : null}
-            {expenseDetail.receiptUrl ? (
-              <div>
-                <div className="text-sm text-muted-foreground">Chứng từ</div>
-                <PaymentReceiptViewer receiptUrl={expenseDetail.receiptUrl} />
-              </div>
-            ) : null}
-          </div>
-        ) : (
-          <div className="py-4 text-sm text-muted-foreground">
-            Không có dữ liệu.
-          </div>
-        )}
       </FinanceDialogShell>
     </>
   )

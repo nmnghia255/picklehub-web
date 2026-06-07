@@ -1,12 +1,14 @@
+export type TransactionStatus = "PENDING_REVIEW" | "VERIFIED" | "REJECTED"
+export type DebtStatus = "UNPAID" | "PARTIALLY_PAID" | "PAID" | "OVERPAID"
+
 export interface FinanceSummary {
-  totalFunds: string | number
-  totalCollected: string | number
-  totalExpenses: string | number
-  netBalance: string | number
-  totalOwed: string | number
-  totalPending: string | number
-  fundCount: number
-  expenseCount: number
+  totalExpense: number
+  totalRequiredCollection: number
+  totalExpectedRevenue: number
+  totalCollected: number
+  outstandingAmount: number
+  netBalance: number
+  creditBalanceList: CreditBalanceEntry[]
 }
 
 export interface FinancePaginationMeta {
@@ -23,29 +25,28 @@ export interface FinanceUserSummary {
   avatarUrl?: string | null
 }
 
-export interface FundPayment {
-  id: string
-  fundId: string
-  userId: string
-  amountPaid: string | number
-  paymentReceiptUrl?: string | null
-  status: string
-  verifiedById?: string | null
-  paidAt?: string | null
-}
-
-export interface FundItem {
+export interface Transaction {
   id: string
   groupId: string
-  title: string
-  description?: string | null
-  amount: string | number
-  deadline?: string | null
-  createdById: string
+  userId: string
+  amount: number
+  receiptUrl?: string | null
+  status: TransactionStatus
+  verifiedById?: string | null
+  verifiedAt?: string | null
   createdAt: string
-  updatedAt?: string
-  createdBy?: FinanceUserSummary | null
-  payments?: FundPayment[]
+  updatedAt: string
+  user?: FinanceUserSummary | null
+}
+
+export interface Allocation {
+  id: string
+  expenseId: string
+  userId: string
+  requiredFee: number
+  paidAmount: number
+  status: DebtStatus
+  user?: FinanceUserSummary | null
 }
 
 export interface ExpenseItem {
@@ -53,29 +54,50 @@ export interface ExpenseItem {
   groupId: string
   title: string
   description?: string | null
-  amount: string | number
+  totalAmount: number
   receiptUrl?: string | null
-  expenseDate?: string | null
+  expenseDate: string
   createdById: string
   createdAt: string
-  updatedAt?: string
+  updatedAt: string
   createdBy?: FinanceUserSummary | null
+  allocations?: Allocation[]
 }
 
-export interface ListFundsResult {
-  data: FundItem[]
-  meta: FinancePaginationMeta
-  message?: string
+export interface DebtItem {
+  expenseId: string
+  expenseTitle: string
+  requiredFee: number
+  paidAmount: number
+  status: DebtStatus
+  expenseDate: string
 }
 
-export interface ListMyFundsResult {
-  data: FundItem[]
+export interface MyDebt {
+  totalDebt: number
+  items: DebtItem[]
+}
+
+export interface CreditBalanceEntry {
+  userId: string
+  creditBalance: number
+  user?: FinanceUserSummary | null
+}
+
+export interface ListTransactionsResult {
+  data: Transaction[]
   meta: FinancePaginationMeta
   message?: string
 }
 
 export interface ListExpensesResult {
   data: ExpenseItem[]
+  meta: FinancePaginationMeta
+  message?: string
+}
+
+export interface ListCreditBalancesResult {
+  data: CreditBalanceEntry[]
   meta: FinancePaginationMeta
   message?: string
 }

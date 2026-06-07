@@ -1,312 +1,316 @@
 "use client"
 
-import { CalendarClock, TriangleAlert } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { format, startOfMonth } from "date-fns"
+import { Edit, Plus, Trash2 } from "lucide-react"
+import { useMemo, useState } from "react"
+import { toast } from "sonner"
 
-import { PageContainer } from "@/components/page-container"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty"
+import { CalendarNavigation } from "@/components/calendar-navigation"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+
 import {
   MOCK_EVENTS,
   MOCK_GROUPS,
   MOCK_MEMBERS,
   MOCK_VENUES,
-} from "@/features/group-activity-schedule/group-activity-schedule.mock"
-import type {
-  ActivityTypeFilter,
-  CalendarView,
-  GroupActivityGroup,
-  GroupEvent,
-  PeriodFilter,
-} from "@/features/group-activity-schedule/group-activity-schedule.types"
+} from "../group-activity-schedule.mock"
+import type { GroupEvent } from "../group-activity-schedule.types"
 import {
-  filterEvents,
-  getGroupById,
-  getGroupEvents,
-  getGroupMembers,
-  getGroupVenues,
-} from "@/features/group-activity-schedule/group-activity-schedule.utils"
-
+  getStatusBadgeClass,
+  getStatusLabel,
+} from "../group-activity-schedule.utils"
 import { GroupActivityCalendarView } from "./group-activity-calendar-view"
 import { GroupActivityDetailDrawer } from "./group-activity-detail-drawer"
 import { GroupActivityFormDialog } from "./group-activity-form-dialog"
-import { GroupActivityGroupContextCard } from "./group-activity-group-context-card"
-import { GroupActivityLoadingSkeleton } from "./group-activity-loading-skeleton"
-import { GroupActivityToolbar } from "./group-activity-toolbar"
-import { GroupActivityUpcomingList } from "./group-activity-upcoming-list"
 
 interface GroupActivitySchedulePageProps {
   initialGroupId?: string
+  embedded?: boolean
 }
 
 export function GroupActivitySchedulePage({
   initialGroupId,
+  embedded = false,
 }: GroupActivitySchedulePageProps) {
-  const [isLoading, setIsLoading] = useState(true)
-  const [events, setEvents] = useState<GroupEvent[]>(MOCK_EVENTS)
-  const [keyword, setKeyword] = useState("")
-  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>("week")
-  const [activityTypeFilter, setActivityTypeFilter] =
-    useState<ActivityTypeFilter>("all")
-  const [calendarView, setCalendarView] = useState<CalendarView>("month")
-  const activeGroupId = initialGroupId ?? MOCK_GROUPS[0]?.id ?? ""
-
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  const [editingEvent, setEditingEvent] = useState<GroupEvent | null>(null)
-  const [detailEvent, setDetailEvent] = useState<GroupEvent | null>(null)
-  const [deleteTarget, setDeleteTarget] = useState<GroupEvent | null>(null)
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 800)
-
-    return () => clearTimeout(timer)
-  }, [])
-
-  const activeGroup = useMemo<GroupActivityGroup | undefined>(
-    () => getGroupById(MOCK_GROUPS, activeGroupId) ?? MOCK_GROUPS[0],
-    [activeGroupId]
+  // Mock State Management
+  const [events, setEvents] = useState<GroupEvent[]>(() =>
+    initialGroupId
+      ? MOCK_EVENTS.filter((e) => e.groupId === initialGroupId)
+      : MOCK_EVENTS
   )
+  const [currentMonth, setCurrentMonth] = useState(() =>
+    startOfMonth(new Date())
+  )
+  const [selectedDate, setSelectedDate] = useState<Date>(() => new Date())
+  const [view, setView] = useState<"month" | "week" | "agenda">("month")
 
-  const groupEvents = useMemo(
-    () => getGroupEvents(events, activeGroup?.id ?? activeGroupId),
-    [activeGroup?.id, activeGroupId, events]
+  // Dialog & Drawer States
+  const [formOpen, setFormOpen] = useState(false)
+  const [editingEvent, setEditingEvent] = useState<GroupEvent | null>(null)
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [selectedEventForDetail, setSelectedEventForDetail] =
+    useState<GroupEvent | null>(null)
+
+  const activeGroup = useMemo(
+    () => MOCK_GROUPS.find((g) => g.id === initialGroupId) || MOCK_GROUPS[0],
+    [initialGroupId]
   )
 
   const groupMembers = useMemo(
-    () => getGroupMembers(MOCK_MEMBERS, activeGroup?.id ?? activeGroupId),
-    [activeGroup?.id, activeGroupId]
+    () =>
+      MOCK_MEMBERS.filter(
+        (m) => m.groupId === (initialGroupId || activeGroup.id)
+      ),
+    [initialGroupId, activeGroup.id]
   )
 
   const groupVenues = useMemo(
-    () => getGroupVenues(MOCK_VENUES, activeGroup?.id ?? activeGroupId),
-    [activeGroup?.id, activeGroupId]
-  )
-
-  const filteredEvents = useMemo(
     () =>
-      filterEvents(
-        groupEvents,
-        keyword,
-        periodFilter,
-        groupVenues,
-        activeGroup?.id ?? activeGroupId,
-        activityTypeFilter
+      MOCK_VENUES.filter(
+        (v) => v.groupId === (initialGroupId || activeGroup.id)
       ),
-    [
-      activeGroup?.id,
-      activeGroupId,
-      activityTypeFilter,
-      groupEvents,
-      groupVenues,
-      keyword,
-      periodFilter,
-    ]
+    [initialGroupId, activeGroup.id]
   )
 
-  const handleCreate = (
+  const socialsByDate = useMemo(() => {
+    return events.reduce<Record<string, GroupEvent[]>>((accumulator, event) => {
+      const key = format(new Date(event.startAt), "yyyy-MM-dd")
+      if (!accumulator[key]) accumulator[key] = []
+      accumulator[key].push(event)
+      return accumulator
+    }, {})
+  }, [events])
+
+  const selectedDateKey = format(selectedDate, "yyyy-MM-dd")
+  const selectedDayEvents = socialsByDate[selectedDateKey] ?? []
+
+  // Handlers
+  const handleCreateEvent = (
     payload: Omit<GroupEvent, "id" | "createdAt" | "updatedAt" | "updatedById">
   ) => {
-    const now = new Date().toISOString()
-    const activeGroupName = activeGroup?.name ?? ""
-
-    setEvents((prev) => [
-      {
-        ...payload,
-        groupId: activeGroup?.id ?? activeGroupId,
-        groupName: activeGroupName,
-        id: `evt-${Date.now()}`,
-        createdAt: now,
-        updatedAt: now,
-        updatedById: payload.createdById,
-      },
-      ...prev,
-    ])
+    const newEvent: GroupEvent = {
+      ...payload,
+      id: `e-${Math.random().toString(36).substr(2, 9)}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      updatedById: payload.createdById,
+    }
+    setEvents((prev) => [...prev, newEvent])
+    toast.success("Đã tạo sự kiện mới thành công")
   }
 
-  const handleUpdate = (
+  const handleUpdateEvent = (
     eventId: string,
     payload: Omit<GroupEvent, "id" | "createdAt" | "updatedAt" | "updatedById">
   ) => {
     setEvents((prev) =>
-      prev.map((event) =>
-        event.id === eventId
+      prev.map((e) =>
+        e.id === eventId
           ? {
-              ...event,
+              ...e,
               ...payload,
-              groupId: activeGroup?.id ?? activeGroupId,
-              groupName: activeGroup?.name ?? event.groupName,
               updatedAt: new Date().toISOString(),
               updatedById: payload.createdById,
             }
-          : event
+          : e
       )
     )
+    toast.success("Đã cập nhật sự kiện thành công")
   }
 
-  const handleDelete = () => {
-    if (!deleteTarget) {
-      return
-    }
-
-    setEvents((prev) => prev.filter((event) => event.id !== deleteTarget.id))
-    if (detailEvent?.id === deleteTarget.id) {
-      setDetailEvent(null)
-    }
-    if (editingEvent?.id === deleteTarget.id) {
-      setEditingEvent(null)
-    }
-    setDeleteTarget(null)
+  const handleDeleteEvent = (eventId: string) => {
+    setEvents((prev) => prev.filter((e) => e.id !== eventId))
+    toast.success("Đã xóa sự kiện")
   }
 
-  if (isLoading) {
-    return (
-      <PageContainer>
-        <GroupActivityLoadingSkeleton />
-      </PageContainer>
-    )
+  const openCreateDialog = () => {
+    setEditingEvent(null)
+    setFormOpen(true)
   }
 
-  return (
-    <PageContainer>
-      <div className="space-y-6 pb-8">
+  const openEditDialog = (event: GroupEvent) => {
+    setEditingEvent(event)
+    setFormOpen(true)
+  }
+
+  const openDetailDrawer = (event: GroupEvent) => {
+    setSelectedEventForDetail(event)
+    setDetailOpen(true)
+  }
+
+  const content = (
+    <div className={embedded ? "space-y-6" : "space-y-6 px-4 py-6 pb-8"}>
+      {!embedded && (
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">
             Lịch hoạt động nhóm
           </h1>
           <p className="text-muted-foreground">
-            Quản lý lịch chơi, social và các hoạt động của nhóm.
+            Quản lý và theo dõi các hoạt động chung của nhóm bạn.
           </p>
         </div>
+      )}
 
-        <GroupActivityGroupContextCard group={activeGroup ?? MOCK_GROUPS[0]} />
+      <Card className="mb-6 border-border bg-card/65 shadow-sm backdrop-blur-sm">
+        <CardContent className="flex flex-col items-center justify-between gap-6 p-4 md:flex-row">
+          <CalendarNavigation
+            currentDate={currentMonth}
+            onMonthChange={(month) =>
+              setCurrentMonth((prev) => new Date(prev.getFullYear(), month, 1))
+            }
+            onYearChange={(year) =>
+              setCurrentMonth((prev) => new Date(year, prev.getMonth(), 1))
+            }
+            onPrevMonth={() =>
+              setCurrentMonth((prev) => {
+                const d = new Date(prev)
+                d.setMonth(d.getMonth() - 1)
+                return d
+              })
+            }
+            onNextMonth={() =>
+              setCurrentMonth((prev) => {
+                const d = new Date(prev)
+                d.setMonth(d.getMonth() + 1)
+                return d
+              })
+            }
+            onToday={() => {
+              const now = new Date()
+              setCurrentMonth(startOfMonth(now))
+              setSelectedDate(now)
+            }}
+          />
 
-        <GroupActivityToolbar
-          keyword={keyword}
-          onKeywordChange={setKeyword}
-          period={periodFilter}
-          onPeriodChange={setPeriodFilter}
-          activityType={activityTypeFilter}
-          onActivityTypeChange={setActivityTypeFilter}
-          onCreate={() => {
-            setEditingEvent(null)
-            setIsFormOpen(true)
-          }}
+          <Button className="ml-auto" onClick={openCreateDialog}>
+            <Plus className="mr-2 size-4" />
+            Thêm sự kiện
+          </Button>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-6 lg:grid-cols-[1fr_350px]">
+        <GroupActivityCalendarView
+          events={events}
+          baseDate={currentMonth}
+          view={view}
+          selectedDate={selectedDate}
+          onViewChange={setView}
+          onSelectDate={setSelectedDate}
+          onOpenEvent={openDetailDrawer}
         />
 
-        {groupEvents.length === 0 ? (
-          <Empty className="border">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <CalendarClock className="size-5" />
-              </EmptyMedia>
-              <EmptyTitle>Nhóm này chưa có hoạt động nào</EmptyTitle>
-              <EmptyDescription>
-                Hãy tạo sự kiện đầu tiên cho nhóm pickleball hiện tại.
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        ) : filteredEvents.length === 0 ? (
-          <Empty className="border">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <CalendarClock className="size-5" />
-              </EmptyMedia>
-              <EmptyTitle>Không có sự kiện phù hợp</EmptyTitle>
-              <EmptyDescription>
-                Thử đổi bộ lọc thời gian hoặc từ khóa để xem thêm dữ liệu của
-                nhóm này.
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        ) : (
-          <>
-            <GroupActivityCalendarView
-              events={filteredEvents}
-              venues={groupVenues}
-              view={calendarView}
-              onViewChange={setCalendarView}
-              onOpenDetail={setDetailEvent}
-            />
+        <Card className="h-fit">
+          <CardContent className="space-y-4 p-4">
+            <div>
+              <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+                Sự kiện ngày {format(selectedDate, "dd/MM/yyyy")}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Có {selectedDayEvents.length} sự kiện được lên lịch
+              </p>
+            </div>
 
-            <GroupActivityUpcomingList
-              events={filteredEvents}
-              members={groupMembers}
-              venues={groupVenues}
-              onOpenDetail={setDetailEvent}
-              onEdit={(event) => {
-                setEditingEvent(event)
-                setIsFormOpen(true)
-              }}
-              onDelete={setDeleteTarget}
-            />
-          </>
-        )}
+            <Button
+              className="w-full"
+              variant="outline"
+              onClick={openCreateDialog}
+            >
+              <Plus className="mr-2 size-4" />
+              Tạo sự kiện cho ngày này
+            </Button>
+
+            {selectedDayEvents.length === 0 ? (
+              <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
+                Không có sự kiện nào trong ngày này.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {selectedDayEvents
+                  .slice()
+                  .sort(
+                    (a, b) =>
+                      new Date(a.startAt).getTime() -
+                      new Date(b.startAt).getTime()
+                  )
+                  .map((event) => (
+                    <div
+                      key={event.id}
+                      className="group relative rounded-lg border p-3 transition-colors hover:border-primary/50"
+                    >
+                      <div className="mb-2 flex items-start justify-between gap-2">
+                        <p className="line-clamp-2 text-sm font-bold">
+                          {event.title}
+                        </p>
+                        <Badge
+                          variant="outline"
+                          className={getStatusBadgeClass(event.status)}
+                        >
+                          {getStatusLabel(event.status)}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {format(new Date(event.startAt), "HH:mm")} -{" "}
+                        {format(new Date(event.endAt), "HH:mm")}
+                      </p>
+
+                      <div className="mt-3 flex items-center justify-end gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-8 text-muted-foreground hover:text-primary"
+                          onClick={() => openEditDialog(event)}
+                        >
+                          <Edit className="size-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-8 text-muted-foreground hover:text-destructive"
+                          onClick={() => handleDeleteEvent(event.id)}
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <GroupActivityFormDialog
-        open={isFormOpen}
-        onOpenChange={setIsFormOpen}
+        open={formOpen}
+        onOpenChange={setFormOpen}
         editingEvent={editingEvent}
-        activeGroupId={activeGroup?.id ?? activeGroupId}
-        activeGroupName={activeGroup?.name ?? ""}
+        activeGroupId={initialGroupId || activeGroup.id}
+        activeGroupName={activeGroup.name}
         members={groupMembers}
         venues={groupVenues}
-        onCreate={handleCreate}
-        onUpdate={handleUpdate}
+        onCreate={handleCreateEvent}
+        onUpdate={handleUpdateEvent}
       />
 
       <GroupActivityDetailDrawer
-        open={Boolean(detailEvent)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setDetailEvent(null)
-          }
-        }}
-        event={detailEvent}
-        members={groupMembers}
-        venues={groupVenues}
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        event={selectedEventForDetail}
+        members={MOCK_MEMBERS}
+        venues={MOCK_VENUES}
       />
-
-      <AlertDialog
-        open={Boolean(deleteTarget)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setDeleteTarget(null)
-          }
-        }}
-      >
-        <AlertDialogContent size="sm">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Xác nhận xóa sự kiện</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bạn có chắc muốn xóa sự kiện {deleteTarget?.title}? Thao tác này
-              không thể hoàn tác.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Không</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={handleDelete}>
-              <TriangleAlert className="size-4" />
-              Xóa sự kiện
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </PageContainer>
+    </div>
   )
+
+  return embedded ? (
+    content
+  ) : (
+    <div className="mx-auto w-full max-w-7xl">{content}</div>
+  )
+}
+
+export default function Page() {
+  return <GroupActivitySchedulePage />
 }
