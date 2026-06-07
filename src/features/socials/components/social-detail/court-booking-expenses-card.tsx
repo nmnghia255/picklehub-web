@@ -1,4 +1,4 @@
-import { format } from "date-fns"
+import { differenceInMinutes, format } from "date-fns"
 import { CalendarDays } from "lucide-react"
 
 import {
@@ -92,7 +92,22 @@ export function CourtBookingExpensesCard({
                     {format(new Date(row.endTime), "p")}
                   </TableCell>
                   <TableCell className="px-6 py-4 text-muted-foreground">
-                    {row.numberOfCourts} Courts
+                    {(() => {
+                      const diffInMinutes = differenceInMinutes(
+                        new Date(row.endTime),
+                        new Date(row.startTime)
+                      )
+                      const hours = Math.floor(diffInMinutes / 60)
+                      const minutes = diffInMinutes % 60
+
+                      if (hours > 0 && minutes > 0) {
+                        return `${t("common.hours", { count: hours })} ${t("common.minutes", { count: minutes })}`
+                      }
+                      if (hours > 0) {
+                        return t("common.hours", { count: hours })
+                      }
+                      return t("common.minutes", { count: minutes })
+                    })()}
                   </TableCell>
                   <TableCell className="px-6 py-4 text-right font-medium">
                     {formatCurrencyVnd(row.bookingCost)}

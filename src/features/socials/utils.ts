@@ -106,3 +106,23 @@ export const getGenderPolicyLabel = (
       return t("labels.mixed")
   }
 }
+
+export const getPaymentStatusLabel = (
+  status: string,
+  t: (key: string) => string
+) => {
+  switch (status) {
+    case "PAID":
+      return t("expenses.tracking.paid")
+    case "UNPAID":
+      return t("expenses.tracking.unpaid")
+    case "PARTIALLY_PAID":
+      return t("expenses.tracking.partiallyPaid")
+    case "OVERPAID":
+      return t("expenses.tracking.overpaid")
+    case "REFUNDED":
+      return t("expenses.tracking.refunded")
+    default:
+      return status
+  }
+}

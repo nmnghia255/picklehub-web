@@ -189,6 +189,7 @@ export default function SocialDetail({
               <SocialSessions
                 maxSlots={maxSlots}
                 sessions={sessions}
+                isHost={social.isHost}
                 onCreateSession={() => {
                   setSelectedSession(null)
                   setPlaySessionModalOpen(true)
@@ -220,6 +221,7 @@ export default function SocialDetail({
         <SocialSidebar
           social={social}
           onJoin={() => setJoinDialogOpen(true)}
+          isParticipant={isParticipant}
           onLeave={handleLeaveClick}
           isLeaving={isLeaving}
         />

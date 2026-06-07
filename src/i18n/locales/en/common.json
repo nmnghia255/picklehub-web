@@ -143,6 +143,8 @@
         "allStatuses": "All statuses",
         "paid": "Paid",
         "unpaid": "Unpaid",
+        "partiallyPaid": "Partially Paid",
+        "overpaid": "Overpaid",
         "refunded": "Refunded",
         "headers": {
           "participant": "Participant",

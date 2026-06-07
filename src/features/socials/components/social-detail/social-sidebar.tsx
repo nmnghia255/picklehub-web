@@ -25,11 +25,13 @@ function SettingRow({ label, value }: { label: string; value: string }) {
 
 export default function SocialSidebar({
   social,
+  isParticipant,
   onJoin,
   onLeave,
   isLeaving,
 }: {
   social: SocialDetail
+  isParticipant: boolean
   onJoin: () => void
   onLeave: () => void
   isLeaving?: boolean
@@ -66,7 +68,6 @@ export default function SocialSidebar({
       </Card>
     )
   }
-  const isParticipant = false
 
   return (
     <Card className="sticky top-16 h-fit p-0">

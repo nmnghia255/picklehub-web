@@ -106,8 +106,8 @@ export function PricingCalculatorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
+      <DialogContent className="max-h-[90vh] w-[60vw] overflow-y-auto p-0 sm:w-[70vw] sm:max-w-[70vw] lg:w-[50vw] lg:max-w-[50vw] xl:w-[30vw] xl:max-w-[30vw]">
+        <DialogHeader className="border-b px-6 pt-6 pb-4">
           <DialogTitle className="flex items-center gap-2">
             <Calculator className="size-5" />
             {t("expenses.pricing.title", {
@@ -122,7 +122,7 @@ export function PricingCalculatorDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-6 py-4">
+        <div className="grid gap-6 px-6 py-4">
           <div className="grid gap-2">
             <Label htmlFor="targetPlayers">
               {t("expenses.pricing.expectedPlayers", {
@@ -134,7 +134,7 @@ export function PricingCalculatorDialog({
               type="number"
               value={targetPlayers}
               onChange={(e) => setTargetPlayers(Number(e.target.value))}
-              className="w-full sm:w-1/3"
+              className="w-full"
             />
           </div>
 
@@ -143,8 +143,28 @@ export function PricingCalculatorDialog({
               <Loader2 className="size-6 animate-spin text-muted-foreground" />
             </div>
           ) : data ? (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 rounded-lg border bg-muted/20 p-4 sm:grid-cols-4">
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4 rounded-xl border bg-muted/30 p-5 sm:grid-cols-3">
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    {t("expenses.pricing.bookingCost", {
+                      defaultValue: "Booking Cost",
+                    })}
+                  </p>
+                  <p className="font-semibold">
+                    {formatCurrencyVnd(data.summary.totalBookingCost)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    {t("expenses.pricing.manualExpenses", {
+                      defaultValue: "Extra Expenses",
+                    })}
+                  </p>
+                  <p className="font-semibold">
+                    {formatCurrencyVnd(data.summary.totalManualExpenses)}
+                  </p>
+                </div>
                 <div>
                   <p className="text-xs text-muted-foreground">
                     {t("expenses.pricing.totalCost", {
@@ -167,6 +187,16 @@ export function PricingCalculatorDialog({
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">
+                    {t("expenses.pricing.suggestedPrices", {
+                      defaultValue: "Suggested Prices",
+                    })}
+                  </p>
+                  <p className="font-semibold">
+                    {formatCurrencyVnd(data.summary.sumSessionSuggestedPrices)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">
                     {t("expenses.pricing.estProfitPackage", {
                       defaultValue: "Est. Profit (Package)",
                     })}
@@ -179,7 +209,7 @@ export function PricingCalculatorDialog({
                 </div>
               </div>
 
-              <div className="grid gap-2">
+              <div className="space-y-3">
                 <Label className="flex items-center justify-between">
                   <span>
                     {t("expenses.pricing.fullPackagePrice", {
@@ -190,14 +220,21 @@ export function PricingCalculatorDialog({
                 </Label>
                 <div className="flex items-center gap-2">
                   <Input
-                    type="number"
-                    placeholder={String(data.summary.suggestedPackagePrice)}
-                    value={packageOverride}
-                    onChange={(e) =>
-                      setPackageOverride(
-                        e.target.value ? Number(e.target.value) : ""
-                      )
+                    type="text"
+                    placeholder={new Intl.NumberFormat("vi-VN").format(
+                      data.summary.suggestedPackagePrice
+                    )}
+                    value={
+                      packageOverride
+                        ? new Intl.NumberFormat("vi-VN").format(
+                            Number(packageOverride)
+                          )
+                        : ""
                     }
+                    onChange={(e) => {
+                      const numericVal = e.target.value.replace(/\D/g, "")
+                      setPackageOverride(numericVal ? Number(numericVal) : "")
+                    }}
                   />
                   <div className="text-sm text-muted-foreground">VND</div>
                 </div>
@@ -211,7 +248,7 @@ export function PricingCalculatorDialog({
                 )}
               </div>
 
-              <div className="mt-4 rounded-md border">
+              <div className="overflow-hidden rounded-xl border">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -221,8 +258,13 @@ export function PricingCalculatorDialog({
                         })}
                       </TableHead>
                       <TableHead>
-                        {t("expenses.pricing.headers.breakEven", {
-                          defaultValue: "Break-even",
+                        {t("expenses.pricing.headers.bookingCost", {
+                          defaultValue: "Booking Cost",
+                        })}
+                      </TableHead>
+                      <TableHead>
+                        {t("expenses.pricing.headers.currentFee", {
+                          defaultValue: "Current Fee",
                         })}
                       </TableHead>
                       <TableHead>
@@ -239,21 +281,36 @@ export function PricingCalculatorDialog({
                           {session.title || "Session"}
                         </TableCell>
                         <TableCell>
-                          {formatCurrencyVnd(session.breakEven)}
+                          {formatCurrencyVnd(session.bookingCost)}
+                        </TableCell>
+                        <TableCell>
+                          {formatCurrencyVnd(session.sessionFee)}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Input
-                              type="number"
-                              className="h-8 w-24"
-                              placeholder={String(session.suggestedPrice)}
-                              value={sessionOverrides[session.id] ?? ""}
-                              onChange={(e) =>
+                              type="text"
+                              className="h-8 w-28"
+                              placeholder={new Intl.NumberFormat(
+                                "vi-VN"
+                              ).format(session.suggestedPrice)}
+                              value={
+                                sessionOverrides[session.id]
+                                  ? new Intl.NumberFormat("vi-VN").format(
+                                      sessionOverrides[session.id]
+                                    )
+                                  : ""
+                              }
+                              onChange={(e) => {
+                                const numericVal = e.target.value.replace(
+                                  /\D/g,
+                                  ""
+                                )
                                 handleSessionOverrideChange(
                                   session.id,
-                                  e.target.value
+                                  numericVal
                                 )
-                              }
+                              }}
                             />
                             <span className="text-xs text-muted-foreground">
                               VND
@@ -269,7 +326,7 @@ export function PricingCalculatorDialog({
           ) : null}
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="border-t bg-muted/20 px-6 py-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {t("expenses.pricing.cancel", { defaultValue: "Cancel" })}
           </Button>

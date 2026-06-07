@@ -97,7 +97,7 @@ export const FinanceService = {
   ): Promise<ApplyPriceResponse> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.post(
-      `/api/events/socials/${socialId}/finances/apply-pricing`,
+      `/api/events/api/socials/${socialId}/finances/apply-pricing`,
       applyPriceRequest
     )
     return unwrapApiResponse<ApplyPriceResponse>(response.data)

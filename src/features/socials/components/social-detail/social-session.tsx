@@ -16,18 +16,21 @@ import {
 import ProgressBar from "@/features/socials/components/social-listing/progress-bar"
 import type { PlaySession } from "@/features/socials/types/play-session"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import { getSessionStatusLabel } from "../../utils"
 
 export default function SocialSessions({
   maxSlots,
   sessions,
+  isHost,
   onCreateSession,
   onEditSession,
   onOpenSession,
 }: {
   maxSlots: number
   sessions: PlaySession[]
+  isHost: boolean
   onCreateSession: () => void
   onEditSession: (session: PlaySession) => void
   onOpenSession: (sessionId: string) => void
@@ -40,12 +43,12 @@ export default function SocialSessions({
         <CardContent className="space-y-4 p-6">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-semibold">{t("sessions.title")}</h2>
-            {/* {isHost && ( */}
-            <Button size="sm" onClick={onCreateSession}>
-              <Plus className="mr-2 size-4" />
-              {t("sessions.addSession")}
-            </Button>
-            {/* )} */}
+            {isHost && (
+              <Button size="sm" onClick={onCreateSession}>
+                <Plus className="mr-2 size-4" />
+                {t("sessions.addSession")}
+              </Button>
+            )}
           </div>
 
           {sessions.length === 0 ? (
@@ -83,27 +86,32 @@ export default function SocialSessions({
                           </p>
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {/* {isHost && ( */}
-                          <div className="flex items-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                onEditSession(session)
-                              }}
-                            >
-                              <Edit className="size-4" />
-                            </Button>
-                          </div>
-                          {/* )} */}
+                          {isHost && (
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  onEditSession(session)
+                                }}
+                              >
+                                <Edit className="size-4" />
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">
-                          {getSessionStatusLabel(session.status, t)}
-                        </Badge>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-sm font-medium text-emerald-600 dark:text-emerald-500">
+                          {formatCurrencyVnd(session.sessionFee)}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline">
+                            {getSessionStatusLabel(session.status, t)}
+                          </Badge>
+                        </div>
                       </div>
 
                       <div className="space-y-2">

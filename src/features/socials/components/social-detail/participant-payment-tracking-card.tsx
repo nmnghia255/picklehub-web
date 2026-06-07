@@ -38,6 +38,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { listSocialParticipantsAction } from "@/features/socials/actions/social-participant-actions"
+import { getPaymentStatusLabel } from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd, getPaymentStatusTone } from "@/utils/expense-utils"
 
@@ -155,11 +156,21 @@ export function ParticipantPaymentTrackingCard({
                     defaultValue: "All Statuses",
                   })}
                 </SelectItem>
-                <SelectItem value="PAID">Paid</SelectItem>
-                <SelectItem value="UNPAID">Unpaid</SelectItem>
-                <SelectItem value="PARTIALLY_PAID">Partially Paid</SelectItem>
-                <SelectItem value="OVERPAID">Overpaid</SelectItem>
-                <SelectItem value="REFUNDED">Refunded</SelectItem>
+                <SelectItem value="PAID">
+                  {getPaymentStatusLabel("PAID", t)}
+                </SelectItem>
+                <SelectItem value="UNPAID">
+                  {getPaymentStatusLabel("UNPAID", t)}
+                </SelectItem>
+                <SelectItem value="PARTIALLY_PAID">
+                  {getPaymentStatusLabel("PARTIALLY_PAID", t)}
+                </SelectItem>
+                <SelectItem value="OVERPAID">
+                  {getPaymentStatusLabel("OVERPAID", t)}
+                </SelectItem>
+                <SelectItem value="REFUNDED">
+                  {getPaymentStatusLabel("REFUNDED", t)}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -236,7 +247,7 @@ export function ParticipantPaymentTrackingCard({
                         <Badge
                           className={getPaymentStatusTone(row.paymentStatus)}
                         >
-                          {row.paymentStatus}
+                          {getPaymentStatusLabel(row.paymentStatus, t)}
                         </Badge>
                       </TableCell>
                       <TableCell className="px-6 py-4 text-right">
