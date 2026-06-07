@@ -2,7 +2,7 @@ import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  allowedDevOrigins: ["chanhdai-macbook.local"],
+  devIndicators: false,
 }
 
 export default nextConfig
