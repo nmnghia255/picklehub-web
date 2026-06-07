@@ -4,14 +4,12 @@ import axios from "axios"
 
 import {
   createExpense,
-  createFund,
+  createTransaction,
   deleteExpense,
-  deleteFund,
-  payFund,
+  remindDebt,
   updateExpense,
-  updateFund,
   uploadFinanceReceiptFile,
-  verifyFundPayment,
+  verifyTransaction,
 } from "../api/finance-service"
 
 export interface FinanceActionState {
@@ -24,19 +22,11 @@ function getMessage(error: unknown, fallback: string) {
     const rawMessage = error.response?.data?.message
 
     if (typeof rawMessage === "string") {
-      if (rawMessage.includes("Payment record not found")) {
-        return "Không tìm thấy bản ghi thanh toán cho thành viên này trong quỹ."
-      }
-
-      if (
-        rawMessage.includes(
-          "Cannot update fund amount as there are existing payments"
-        )
-      ) {
-        return "Không thể cập nhật số tiền quỹ vì đã có thanh toán liên quan."
-      }
-
       return rawMessage
+    }
+
+    if (Array.isArray(rawMessage)) {
+      return rawMessage.join(", ")
     }
 
     return fallback
@@ -49,218 +39,79 @@ function getMessage(error: unknown, fallback: string) {
   return fallback
 }
 
-export async function createFundAction(
+export async function createTransactionAction(
   groupId: string,
   _prevState: FinanceActionState,
   formData: FormData
 ): Promise<FinanceActionState> {
   try {
-    const normalizedGroupId = groupId.trim()
-    const title = formData.get("title")?.toString().trim() ?? ""
-    const description = formData.get("description")?.toString().trim() || undefined
-    const deadline = formData.get("deadline")?.toString().trim() || undefined
-    const requiredAmountRaw = formData.get("requiredAmount")?.toString().trim() ?? ""
-    const requiredAmount = Number(requiredAmountRaw)
-
-    const targetMembersRaw = formData.get("targetMembers")?.toString() || ""
-    let targetMembers: { userId: string; requiredAmount?: number }[] = []
-    try {
-      targetMembers = targetMembersRaw ? JSON.parse(targetMembersRaw) : []
-    } catch {
-      return { error: "Dữ liệu thành viên không hợp lệ." }
+    const amount = Number(formData.get("amount")?.toString().trim() ?? "0")
+    if (isNaN(amount) || amount <= 0) {
+      return { error: "Số tiền không hợp lệ." }
     }
 
-    if (!Array.isArray(targetMembers) || targetMembers.length === 0) {
-      return { error: "Vui lòng chọn ít nhất một thành viên cho quỹ." }
-    }
-
-    for (const member of targetMembers) {
-      if (!member.userId) {
-        return { error: "Thành viên không hợp lệ." }
-      }
-
-      if (
-        member.requiredAmount === undefined ||
-        Number.isNaN(Number(member.requiredAmount)) ||
-        Number(member.requiredAmount) < 0
-      ) {
-        return { error: "Số tiền của từng thành viên không hợp lệ." }
-      }
-    }
-
-    const sum = targetMembers.reduce(
-      (total, member) => total + Number(member.requiredAmount || 0),
-      0
-    )
-    if (sum !== requiredAmount) {
-      return { error: "Tổng số tiền thành viên phải khớp với tổng quỹ." }
-    }
-
-    // Normalize numeric fields to match backend DTO types
-    const normalizedTargetMembers = targetMembers.map((m) => ({
-      userId: String(m.userId),
-      requiredAmount: Number(m.requiredAmount),
-    }))
-
-    const endpoint = `/api/groups/${normalizedGroupId}/funds`
-    const payload = {
-      title,
-      description,
-      requiredAmount,
-      deadline,
-      targetMembers: normalizedTargetMembers,
-      useCredit: formData.get("useCredit")?.toString() === "true",
-    }
-
-    console.log("[finance] createFundAction request", {
-      groupId: normalizedGroupId,
-      endpoint,
-      payload,
-    })
-
-    if (
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-        normalizedGroupId
-      )
-    ) {
-      return { error: `groupId không hợp lệ: ${normalizedGroupId}` }
-    }
-
-    await createFund(normalizedGroupId, payload)
-
-    return { success: true }
-  } catch (error) {
-    return { error: getMessage(error, "Tạo fund thất bại. Vui lòng thử lại.") }
-  }
-}
-
-export async function updateFundAction(
-  groupId: string,
-  fundId: string,
-  _prevState: FinanceActionState,
-  formData: FormData
-): Promise<FinanceActionState> {
-  try {
-    const title = formData.get("title")?.toString().trim()
-    const description = formData.get("description")?.toString().trim()
-    const deadline = formData.get("deadline")?.toString().trim()
-    const requiredAmountRaw = formData.get("requiredAmount")?.toString().trim()
-    const requiredAmount = requiredAmountRaw ? Number(requiredAmountRaw) : undefined
-
-    const targetMembersRaw = formData.get("targetMembers")?.toString() || ""
-    let targetMembers: { userId: string; requiredAmount?: number }[] | undefined
-
-    if (targetMembersRaw) {
-      try {
-        const parsed = JSON.parse(targetMembersRaw)
-        if (Array.isArray(parsed)) {
-          // normalize requiredAmount to number when updating
-          targetMembers = parsed.map((m: { userId: unknown; requiredAmount?: unknown }) => ({
-            userId: String(m.userId),
-            requiredAmount: Number(m.requiredAmount),
-          }))
-        }
-      } catch {
-        return { error: "Dữ liệu thành viên không hợp lệ." }
-      }
-    }
-
-    if (targetMembers && targetMembers.length > 0 && requiredAmount !== undefined) {
-      const sum = targetMembers.reduce(
-        (total, member) => total + Number(member.requiredAmount || 0),
-        0
-      )
-      if (sum !== requiredAmount) {
-        return { error: "Tổng số tiền thành viên phải khớp với tổng quỹ." }
-      }
-    }
-
-    await updateFund(groupId, fundId, {
-      ...(title ? { title } : {}),
-      ...(description !== undefined
-        ? { description: description.length > 0 ? description : null }
-        : {}),
-      ...(requiredAmount !== undefined ? { requiredAmount } : {}),
-      ...(deadline ? { deadline } : {}),
-      ...(targetMembers ? { targetMembers } : {}),
-    })
-
-    return { success: true }
-  } catch (error) {
-    return {
-      error: getMessage(error, "Cập nhật fund thất bại. Vui lòng thử lại."),
-    }
-  }
-}
-
-export async function deleteFundAction(
-  groupId: string,
-  fundId: string,
-  _prevState: FinanceActionState,
-  _formData: FormData
-): Promise<FinanceActionState> {
-  try {
-    await deleteFund(groupId, fundId)
-    return { success: true }
-  } catch (error) {
-    return { error: getMessage(error, "Xóa fund thất bại. Vui lòng thử lại.") }
-  }
-}
-
-export async function payFundAction(
-  groupId: string,
-  fundId: string,
-  _prevState: FinanceActionState,
-  formData: FormData
-): Promise<FinanceActionState> {
-  try {
-    const paymentReceiptFileField = formData.get("paymentReceiptFile")
-    const paymentReceiptFile =
-      paymentReceiptFileField instanceof File && paymentReceiptFileField.size > 0
-        ? paymentReceiptFileField
+    const receiptFileField = formData.get("receiptFile")
+    const receiptFile =
+      receiptFileField instanceof File && receiptFileField.size > 0
+        ? receiptFileField
         : null
 
-    let paymentReceiptUrl: string | undefined
+    let receiptUrl: string | undefined =
+      formData.get("receiptUrl")?.toString().trim() || undefined
 
-    if (paymentReceiptFile) {
-      const uploadResult = await uploadFinanceReceiptFile(paymentReceiptFile)
-      paymentReceiptUrl = uploadResult.url
+    if (receiptFile) {
+      const uploadResult = await uploadFinanceReceiptFile(receiptFile)
+      receiptUrl = uploadResult.url
     }
 
-    await payFund(groupId, fundId, {
-      paymentReceiptUrl,
+    await createTransaction(groupId, {
+      amount,
+      receiptUrl,
     })
 
     return { success: true }
   } catch (error) {
-    return { error: getMessage(error, "Gửi yêu cầu thanh toán thất bại.") }
+    return { error: getMessage(error, "Gửi giao dịch thất bại.") }
   }
 }
 
-export async function verifyFundPaymentAction(
+export async function verifyTransactionAction(
   groupId: string,
-  fundId: string,
-  paymentId: string,
+  txId: string,
   _prevState: FinanceActionState,
   formData: FormData
 ): Promise<FinanceActionState> {
   try {
-    const status = formData.get("status")?.toString() as
-      | "PAID"
-      | "REJECTED"
-      | null
-
+    const status = formData.get("status")?.toString() as "VERIFIED" | "REJECTED"
     if (!status) {
-      return { error: "Thiếu trạng thái xác nhận payment." }
+      return { error: "Thiếu trạng thái xác nhận." }
     }
 
-    const amountPaidRaw = formData.get("amountPaid")?.toString().trim()
-    const amountPaid = amountPaidRaw ? Number(amountPaidRaw) : undefined
-
-    await verifyFundPayment(groupId, fundId, paymentId, { status, amountPaid })
+    await verifyTransaction(groupId, txId, { status })
     return { success: true }
   } catch (error) {
-    return { error: getMessage(error, "Xác nhận payment thất bại.") }
+    return { error: getMessage(error, "Xác nhận giao dịch thất bại.") }
+  }
+}
+
+export async function remindDebtAction(
+  groupId: string,
+  _prevState: FinanceActionState,
+  formData: FormData
+): Promise<FinanceActionState> {
+  try {
+    const userIdsRaw = formData.get("userIds")?.toString() || ""
+    const userIds = userIdsRaw ? JSON.parse(userIdsRaw) : []
+    const sendEmail = formData.get("sendEmail")?.toString() === "true"
+
+    if (!Array.isArray(userIds) || userIds.length === 0) {
+      return { error: "Vui lòng chọn ít nhất một thành viên." }
+    }
+
+    await remindDebt(groupId, { userIds, sendEmail })
+    return { success: true }
+  } catch (error) {
+    return { error: getMessage(error, "Gửi nhắc nợ thất bại.") }
   }
 }
 
@@ -270,6 +121,25 @@ export async function createExpenseAction(
   formData: FormData
 ): Promise<FinanceActionState> {
   try {
+    const totalAmount = Number(
+      formData.get("totalAmount")?.toString().trim() ?? "0"
+    )
+    if (isNaN(totalAmount) || totalAmount <= 0) {
+      return { error: "Tổng số tiền không hợp lệ." }
+    }
+
+    const expenseDate = formData.get("expenseDate")?.toString().trim()
+    if (!expenseDate) {
+      return { error: "Vui lòng chọn ngày chi tiêu." }
+    }
+
+    const allocationsRaw = formData.get("allocations")?.toString() || ""
+    const allocations = allocationsRaw ? JSON.parse(allocationsRaw) : []
+
+    if (!Array.isArray(allocations) || allocations.length === 0) {
+      return { error: "Vui lòng chọn ít nhất một thành viên để phân bổ." }
+    }
+
     const receiptFileField = formData.get("receiptFile")
     const receiptFile =
       receiptFileField instanceof File && receiptFileField.size > 0
@@ -287,15 +157,16 @@ export async function createExpenseAction(
     await createExpense(groupId, {
       title: formData.get("title")?.toString().trim() ?? "",
       description: formData.get("description")?.toString().trim() || undefined,
-      amount: formData.get("amount")?.toString().trim() ?? "",
+      totalAmount,
       receiptUrl,
-      expenseDate: formData.get("expenseDate")?.toString().trim() || undefined,
+      expenseDate,
+      allocations,
     })
 
     return { success: true }
   } catch (error) {
     return {
-      error: getMessage(error, "Tạo expense thất bại. Vui lòng thử lại."),
+      error: getMessage(error, "Tạo chi tiêu thất bại. Vui lòng thử lại."),
     }
   }
 }
@@ -309,8 +180,12 @@ export async function updateExpenseAction(
   try {
     const title = formData.get("title")?.toString().trim()
     const description = formData.get("description")?.toString().trim()
-    const amount = formData.get("amount")?.toString().trim()
+    const totalAmountRaw = formData.get("totalAmount")?.toString().trim()
+    const totalAmount = totalAmountRaw ? Number(totalAmountRaw) : undefined
     const expenseDate = formData.get("expenseDate")?.toString().trim()
+
+    const allocationsRaw = formData.get("allocations")?.toString() || ""
+    const allocations = allocationsRaw ? JSON.parse(allocationsRaw) : undefined
 
     const receiptFileField = formData.get("receiptFile")
     const receiptFile =
@@ -330,17 +205,18 @@ export async function updateExpenseAction(
       ...(description !== undefined
         ? { description: description.length > 0 ? description : null }
         : {}),
-      ...(amount ? { amount } : {}),
+      ...(totalAmount !== undefined ? { totalAmount } : {}),
       ...(receiptUrl !== undefined
         ? { receiptUrl: receiptUrl.length > 0 ? receiptUrl : null }
         : {}),
       ...(expenseDate ? { expenseDate } : {}),
+      ...(allocations ? { allocations } : {}),
     })
 
     return { success: true }
   } catch (error) {
     return {
-      error: getMessage(error, "Cập nhật expense thất bại. Vui lòng thử lại."),
+      error: getMessage(error, "Cập nhật chi tiêu thất bại. Vui lòng thử lại."),
     }
   }
 }
@@ -356,7 +232,7 @@ export async function deleteExpenseAction(
     return { success: true }
   } catch (error) {
     return {
-      error: getMessage(error, "Xóa expense thất bại. Vui lòng thử lại."),
+      error: getMessage(error, "Xóa chi tiêu thất bại. Vui lòng thử lại."),
     }
   }
 }

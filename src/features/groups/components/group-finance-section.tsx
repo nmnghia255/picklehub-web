@@ -1,19 +1,12 @@
 "use client"
 
-import { useQueries, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { useMemo } from "react"
 
 import { ErrorSection } from "@/components/error-section"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
 import {
   Table,
   TableBody,
@@ -23,44 +16,41 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import {
   financeQueryKeys,
   getFinanceSummaryClient,
   getGroupMembersClient,
+  getMyDebtClient,
   listCreditBalancesClient,
   listExpensesClient,
-  listFundPaymentsClient,
-  listFundsClient,
-  listMyFundsClient,
+  listTransactionsClient,
 } from "../api/finance-client"
 import type { Member } from "../types"
 import type {
   CreditBalanceEntry,
+  DebtItem,
   ExpenseItem,
-  FundItem,
-  FundPayment,
+  MyDebt,
+  Transaction,
 } from "../types/finance"
 import { isArchivedGroup } from "../utils/group-status"
 import {
   CreateExpenseButton,
-  CreateFundButton,
+  CreateTransactionButton,
   ExpenseRowActions,
-  FundRowActions,
   PaymentReceiptPreview,
-  PaymentVerifyRow,
+  RemindDebtButton,
+  TransactionRowActions,
 } from "./finance-item-actions"
 import { useGroupDetailActiveTab } from "./group-detail-tabs"
 
 function formatCurrency(value?: string | number | null) {
   if (value === undefined || value === null || value === "") return "-"
-
   const numericValue = typeof value === "number" ? value : Number(value)
-  if (Number.isNaN(numericValue)) {
-    return String(value ?? "-")
-  }
-
-  return new Intl.NumberFormat("vi-VN").format(numericValue)
+  if (Number.isNaN(numericValue)) return String(value ?? "-")
+  return formatCurrencyVnd(numericValue)
 }
 
 function formatDate(value?: string | null) {
@@ -76,10 +66,8 @@ function formatDate(value?: string | null) {
 
 function formatDateTime(value?: string | null) {
   if (!value) return "-"
-
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return "-"
-
   return date.toLocaleString("vi-VN", {
     day: "2-digit",
     month: "2-digit",
@@ -89,380 +77,44 @@ function formatDateTime(value?: string | null) {
   })
 }
 
-function formatPaymentStatus(status?: string | null) {
+function formatTransactionStatus(status?: string | null) {
   const normalized = status?.toUpperCase()
-
-  if (normalized === "PAID") {
-    return "Đã thanh toán"
-  }
-
-  if (normalized === "UNPAID") {
-    return "Chưa thanh toán"
-  }
-
-  if (normalized === "REJECTED") {
-    return "Đã từ chối"
-  }
-
-  if (normalized === "PENDING") {
-    return "Đang chờ"
-  }
-
+  if (normalized === "VERIFIED") return "Đã xác nhận"
+  if (normalized === "REJECTED") return "Đã từ chối"
+  if (normalized === "PENDING_REVIEW") return "Chờ duyệt"
   return status ?? "-"
 }
 
-function getPaymentStatusVariant(status?: string | null) {
+function getTransactionStatusVariant(status?: string | null) {
   const normalized = status?.toUpperCase()
-
-  if (normalized === "PAID") {
-    return "default" as const
-  }
-
-  if (normalized === "PENDING") {
-    return "secondary" as const
-  }
-
-  if (normalized === "REJECTED") {
-    return "destructive" as const
-  }
-
+  if (normalized === "VERIFIED") return "default" as const
+  if (normalized === "PENDING_REVIEW") return "secondary" as const
+  if (normalized === "REJECTED") return "destructive" as const
   return "outline" as const
 }
 
-function getPaymentPayerName(payment: FundPayment) {
-  return (
-    payment.user?.name ||
-    payment.userName ||
-    (payment.userId ? `ID: ${payment.userId.slice(0, 8)}` : "Thành viên")
-  )
+function formatDebtStatus(status?: string | null) {
+  const normalized = status?.toUpperCase()
+  if (normalized === "PAID") return "Đã trả đủ"
+  if (normalized === "PARTIALLY_PAID") return "Trả một phần"
+  if (normalized === "UNPAID") return "Chưa trả"
+  if (normalized === "OVERPAID") return "Trả dư"
+  return status ?? "-"
 }
 
-function getPaymentPayerAvatar(payment: FundPayment) {
-  return payment.user?.avatarUrl || payment.userAvatarUrl || ""
+function getDebtStatusVariant(status?: string | null) {
+  const normalized = status?.toUpperCase()
+  if (normalized === "PAID") return "default" as const
+  if (normalized === "PARTIALLY_PAID") return "secondary" as const
+  if (normalized === "UNPAID") return "destructive" as const
+  return "outline" as const
 }
 
 function getInitials(name: string) {
   const words = name.trim().split(/\s+/).filter(Boolean)
-
-  if (!words.length) {
-    return "TV"
-  }
-
-  if (words.length === 1) {
-    return words[0].slice(0, 2).toUpperCase()
-  }
-
+  if (!words.length) return "TV"
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
   return `${words[0][0] ?? ""}${words[1][0] ?? ""}`.toUpperCase()
-}
-
-function getFundPaymentStats(payments: FundPayment[]) {
-  let paid = 0
-  let pending = 0
-
-  for (const payment of payments) {
-    const normalized = payment.status?.toUpperCase()
-    if (normalized === "PAID") {
-      paid += 1
-      continue
-    }
-
-    if (normalized === "PENDING") {
-      pending += 1
-    }
-  }
-
-  return {
-    paid,
-    pending,
-    totalMembers: payments.length,
-    unpaid: Math.max(payments.length - paid - pending, 0),
-  }
-}
-
-function getPaymentSortRank(status?: string | null) {
-  const normalized = status?.toUpperCase()
-
-  if (normalized === "PENDING") return 0
-  if (normalized === "REJECTED") return 1
-  if (normalized === "PAID") return 2
-
-  return 3
-}
-
-function getPendingPayments(payments: FundPayment[]) {
-  return payments.filter(
-    (payment) => payment.status?.toUpperCase() === "PENDING"
-  )
-}
-
-function PaymentCountChip({
-  label,
-  value,
-  variant,
-}: {
-  label: string
-  value: number
-  variant: "default" | "secondary" | "outline"
-}) {
-  return (
-    <div className="flex items-center gap-2 rounded-md border bg-muted/30 px-2.5 py-1.5">
-      <Badge variant={variant}>{value}</Badge>
-      <span className="text-xs text-muted-foreground">{label}</span>
-    </div>
-  )
-}
-
-function FundPaymentPreviewList({
-  groupId,
-  fundId,
-  payments,
-  previewCount,
-  canManage,
-  emptyLabel,
-  showQuickActions,
-  members,
-}: {
-  groupId: string
-  fundId: string
-  payments: FundPayment[]
-  previewCount: number
-  canManage: boolean
-  emptyLabel: string
-  showQuickActions: boolean
-  members: Member[]
-}) {
-  if (!payments.length) {
-    return <p className="text-xs text-muted-foreground">{emptyLabel}</p>
-  }
-
-  const previewItems = payments.slice(0, previewCount)
-  const moreCount = Math.max(payments.length - previewCount, 0)
-
-  return (
-    <div className="space-y-2">
-      {previewItems.map((payment) => {
-        const name = getPaymentPayerName(payment)
-        const statusLabel = formatPaymentStatus(payment.status)
-        const statusVariant = getPaymentStatusVariant(payment.status)
-
-        return (
-          <div
-            key={payment.id}
-            className="rounded-md border bg-background/60 p-3"
-          >
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
-              <div className="flex min-w-0 items-center gap-3">
-                <Avatar size="sm" className="shrink-0">
-                  <AvatarImage
-                    src={getPaymentPayerAvatar(payment)}
-                    alt={name}
-                  />
-                  <AvatarFallback>{getInitials(name)}</AvatarFallback>
-                </Avatar>
-                <div className="min-w-0 space-y-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="truncate text-sm font-medium">{name}</span>
-                    <Badge variant={statusVariant} className="shrink-0">
-                      {statusLabel}
-                    </Badge>
-                  </div>
-                  <div className="text-xs leading-5 text-muted-foreground md:whitespace-nowrap">
-                    Yêu cầu: {formatCurrency(payment.requiredAmount ?? 0)} | Số dư đã dùng: {formatCurrency(payment.creditUsed ?? 0)} | Gửi lúc: {formatDateTime(payment.paidAt ?? null)}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-end gap-2 md:ml-auto md:flex-nowrap md:self-center">
-                {payment.paymentReceiptUrl && (
-                  <PaymentReceiptPreview
-                    receiptUrl={payment.paymentReceiptUrl}
-                  />
-                )}
-
-                {showQuickActions && canManage && (
-                  <PaymentVerifyRow
-                    groupId={groupId}
-                    fundId={fundId}
-                    payment={payment}
-                    compact
-                    className="md:self-center"
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-        )
-      })}
-
-      {moreCount > 0 && (
-        <p className="text-xs text-muted-foreground">+{moreCount} người khác</p>
-      )}
-    </div>
-  )
-}
-
-function FundListItemCard({
-  groupId,
-  fund,
-  members,
-  canManage,
-  canPay,
-  currentUserId,
-}: {
-  groupId: string
-  fund: FundItem & { payments: FundPayment[] }
-  members: Member[]
-  canManage: boolean
-  canPay: boolean
-  currentUserId: string
-}) {
-  const payments = fund.payments ?? []
-  const {
-    paymentStats,
-    paymentProgressPercent,
-    sortedPreviewPayments,
-    pendingPayments,
-    canPayThisFund,
-    defaultPreviewCount,
-  } = useMemo(() => {
-    const nextPaymentStats = getFundPaymentStats(payments)
-    const nextPaymentProgressPercent =
-      nextPaymentStats.totalMembers > 0
-        ? Math.round((nextPaymentStats.paid / nextPaymentStats.totalMembers) * 100)
-        : 0
-    const nextSortedPreviewPayments = [...payments].sort((a, b) => {
-      return getPaymentSortRank(a.status) - getPaymentSortRank(b.status)
-    })
-    const nextPendingPayments = getPendingPayments(nextSortedPreviewPayments)
-    const myPayment = payments.find((payment) => payment.userId === currentUserId)
-    const myStatus = myPayment?.status?.toUpperCase() ?? null
-    const nextCanSubmitPayment =
-      !!myPayment && myStatus !== "PAID" && myStatus !== "PENDING"
-    return {
-      paymentStats: nextPaymentStats,
-      paymentProgressPercent: nextPaymentProgressPercent,
-      sortedPreviewPayments: nextSortedPreviewPayments,
-      pendingPayments: nextPendingPayments,
-      canPayThisFund: canPay && nextCanSubmitPayment,
-      defaultPreviewCount: nextPaymentStats.totalMembers > 8 ? 3 : 4,
-    }
-  }, [canPay, currentUserId, payments])
-
-  return (
-    <AccordionItem
-      value={fund.id}
-      className="overflow-hidden rounded-lg border bg-card data-[state=open]:border-primary/40"
-    >
-      <AccordionTrigger className="px-4 py-4 hover:no-underline">
-        <div className="flex w-full min-w-0 flex-col gap-3 pr-2 text-left">
-          <div className="min-w-0 space-y-1.5">
-            <p className="truncate text-base font-semibold">{fund.title}</p>
-            {fund.description && (
-              <p className="line-clamp-1 text-sm text-muted-foreground">
-                {fund.description}
-              </p>
-            )}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-              <span>Số tiền: {formatCurrency(fund.requiredAmount)}</span>
-              <span>Hạn chót: {formatDate(fund.deadline ?? null)}</span>
-              <span>Tạo bởi: {fund.createdBy?.name ?? "-"}</span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-              <span>
-                {paymentStats.paid}/{paymentStats.totalMembers} đã thanh toán
-              </span>
-              <span>{paymentProgressPercent}% hoàn thành</span>
-            </div>
-            <Progress value={paymentProgressPercent} />
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <PaymentCountChip
-              label="Đã thanh toán"
-              value={paymentStats.paid}
-              variant="default"
-            />
-            <PaymentCountChip
-              label="Chờ duyệt"
-              value={paymentStats.pending}
-              variant="secondary"
-            />
-            <PaymentCountChip
-              label="Chưa gửi"
-              value={paymentStats.unpaid}
-              variant="outline"
-            />
-          </div>
-        </div>
-      </AccordionTrigger>
-
-      <div className="border-t px-4 py-4">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div className="min-w-0 space-y-1.5">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-medium">Duyệt thanh toán nhanh</p>
-              <Badge
-                variant={paymentStats.pending > 0 ? "secondary" : "outline"}
-              >
-                {paymentStats.pending} chờ duyệt
-              </Badge>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Xem nhanh các yêu cầu đang chờ và duyệt ngay tại danh sách quỹ.
-            </p>
-          </div>
-
-          <div className="shrink-0 self-start lg:self-auto">
-            <FundRowActions
-              groupId={groupId}
-              fund={fund}
-              members={members}
-              canManage={canManage}
-              canPay={canPayThisFund}
-              payments={payments}
-            />
-          </div>
-        </div>
-
-        <div className="mt-4 space-y-2">
-          <FundPaymentPreviewList
-            groupId={groupId}
-            fundId={fund.id}
-              payments={pendingPayments}
-            previewCount={Math.min(pendingPayments.length, defaultPreviewCount)}
-            canManage={canManage}
-            emptyLabel="Chưa có yêu cầu thanh toán nào đang chờ duyệt."
-            showQuickActions
-              members={members}
-          />
-        </div>
-      </div>
-
-      <AccordionContent>
-        <div className="border-t px-4 pt-4">
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <p className="text-sm font-medium">Tất cả thanh toán</p>
-            <p className="text-xs text-muted-foreground">
-              {payments.length} giao dịch
-            </p>
-          </div>
-          <FundPaymentPreviewList
-            groupId={groupId}
-            fundId={fund.id}
-            payments={sortedPreviewPayments}
-            previewCount={Math.min(sortedPreviewPayments.length, 10)}
-            canManage={canManage}
-            emptyLabel="Chưa có dữ liệu thanh toán của thành viên."
-            showQuickActions={false}
-            members={members}
-          />
-        </div>
-      </AccordionContent>
-    </AccordionItem>
-  )
 }
 
 function SummaryCard({
@@ -490,146 +142,10 @@ function SummaryCard({
 }
 
 function getQueryErrorMessage(error: unknown, fallback: string) {
-  if (!error) {
-    return fallback
-  }
-
-  if (typeof error === "string") {
-    return error
-  }
-
-  if (error instanceof Error && error.message) {
-    return error.message
-  }
-
-  const responseData = (error as {
-    data?: unknown
-    response?: { data?: unknown }
-  }).data ?? (error as { response?: { data?: unknown } }).response?.data
-
-  if (!responseData || typeof responseData !== "object") {
-    return fallback
-  }
-
-  const message = (responseData as { message?: unknown }).message
-  if (typeof message === "string") {
-    return message
-  }
-
-  if (Array.isArray(message)) {
-    const messages = message.filter(
-      (item): item is string => typeof item === "string"
-    )
-
-    if (messages.length > 0) {
-      return messages.join(", ")
-    }
-  }
-
+  if (!error) return fallback
+  if (typeof error === "string") return error
+  if (error instanceof Error && error.message) return error.message
   return fallback
-}
-
-function CreditBalanceSection({
-  members,
-  isMembersLoading,
-  creditBalancesQuery,
-}: {
-  members: Member[]
-  isMembersLoading: boolean
-  creditBalancesQuery: {
-    data?: { data?: CreditBalanceEntry[]; meta?: { total?: number } }
-    isPending: boolean
-    isError: boolean
-    error: unknown
-  }
-}) {
-  const creditBalances = useMemo(
-    () =>
-      [...(creditBalancesQuery.data?.data ?? [])].sort(
-        (a, b) => b.creditBalance - a.creditBalance
-      ),
-    [creditBalancesQuery.data?.data]
-  )
-
-  return (
-    <Card className="shadow-sm">
-      <CardHeader className="border-b">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <CardTitle>Số dư tín dụng thành viên</CardTitle>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Danh sách thành viên đang có số dư credit trong nhóm.
-            </p>
-          </div>
-          <Badge variant="outline">
-            {creditBalancesQuery.data?.meta?.total ?? 0} người có số dư
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-6">
-        {isMembersLoading ? (
-          <p className="text-sm text-muted-foreground">
-            Đang tải số dư thành viên...
-          </p>
-        ) : creditBalancesQuery.isError ? (
-          <ErrorSection
-            title="Không thể tải số dư thành viên"
-            message={getQueryErrorMessage(
-              creditBalancesQuery.error,
-              "Vui lòng thử lại sau."
-            )}
-          />
-        ) : members.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Chưa có thành viên nào trong nhóm.
-          </p>
-        ) : creditBalancesQuery.isPending ? (
-          <p className="text-sm text-muted-foreground">
-            Đang tải số dư thành viên...
-          </p>
-        ) : creditBalances.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Chưa có thành viên nào có số dư credit.
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {creditBalances.map((entry) => {
-              const displayName = entry.user?.name || entry.userId
-              const avatarUrl = entry.user?.avatarUrl || ""
-
-              return (
-                <div
-                  key={entry.userId}
-                  className="flex items-center justify-between gap-3 rounded-lg border bg-background/60 px-4 py-3"
-                >
-                  <div className="flex min-w-0 items-center gap-3">
-                    <Avatar size="sm" className="shrink-0">
-                      <AvatarImage src={avatarUrl} alt={displayName} />
-                      <AvatarFallback>{getInitials(displayName)}</AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{displayName}</p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {entry.user?.email || entry.userId}
-                      </p>
-                    </div>
-                  </div>
-                  <Badge variant="secondary">
-                    {formatCurrency(entry.creditBalance)}
-                  </Badge>
-                </div>
-              )
-            })}
-            {members.length > 0 && (
-              <p className="text-xs text-muted-foreground">
-                Đang đối chiếu số dư với danh sách {members.length} thành viên.
-              </p>
-            )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  )
 }
 
 export function GroupFinanceSection({
@@ -656,106 +172,61 @@ export function GroupFinanceSection({
   const summaryQuery = useQuery({
     queryKey: financeQueryKeys.summary(groupId),
     queryFn: () => getFinanceSummaryClient(groupId),
-    enabled: isFinanceActive,
-    staleTime: 60 * 1000,
-    gcTime: 5 * 60 * 1000,
+    enabled: isFinanceActive && canManage,
   })
 
-  const fundsQuery = useQuery({
-    queryKey: financeQueryKeys.funds(groupId),
-    queryFn: () => listFundsClient(groupId),
-    enabled: isFinanceActive,
-    staleTime: 60 * 1000,
-    gcTime: 5 * 60 * 1000,
+  const transactionsQuery = useQuery({
+    queryKey: financeQueryKeys.transactions(groupId),
+    queryFn: () => listTransactionsClient(groupId),
+    enabled: isFinanceActive && canManage,
   })
 
-  const myFundsQuery = useQuery({
-    queryKey: financeQueryKeys.myFunds(groupId),
-    queryFn: () => listMyFundsClient(groupId),
+  const myDebtQuery = useQuery({
+    queryKey: financeQueryKeys.myDebt(groupId),
+    queryFn: () => getMyDebtClient(groupId),
     enabled: isFinanceActive,
-    staleTime: 60 * 1000,
-    gcTime: 5 * 60 * 1000,
   })
 
   const expensesQuery = useQuery({
     queryKey: financeQueryKeys.expenses(groupId),
     queryFn: () => listExpensesClient(groupId),
-    enabled: isFinanceActive,
-    staleTime: 60 * 1000,
-    gcTime: 5 * 60 * 1000,
+    enabled: isFinanceActive && canManage,
   })
 
-  const funds = fundsQuery.data?.data ?? []
-  const myFunds = myFundsQuery.data?.data ?? []
-  const expenses = expensesQuery.data?.data ?? []
+  const creditBalancesQuery = useQuery({
+    queryKey: financeQueryKeys.creditBalances(groupId),
+    queryFn: () => listCreditBalancesClient(groupId),
+    enabled: isFinanceActive && canManage,
+  })
+
   const membersQuery = useQuery({
     queryKey: financeQueryKeys.members(groupId),
     queryFn: () => getGroupMembersClient(groupId),
     enabled: isFinanceActive && members.length === 0,
     initialData: members.length > 0 ? members : undefined,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
   })
 
-  const baseMembers = members.length > 0 ? members : membersQuery.data ?? []
-
-  const creditBalancesQuery = useQuery({
-    queryKey: financeQueryKeys.creditBalances(groupId),
-    queryFn: () => listCreditBalancesClient(groupId),
-    enabled: isFinanceActive && baseMembers.length > 0,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-    retry: false,
-  })
-
-  const resolvedMembers = baseMembers.map((m) => {
-    const found = creditBalancesQuery.data?.data?.find((b) => b.userId === m.userId)
-    return { ...m, creditBalance: found?.creditBalance ?? 0 }
-  })
-
-  const fundPaymentsQueries = useQueries({
-    queries: funds.map((fund) => ({
-      queryKey: financeQueryKeys.fundPayments(groupId, fund.id),
-      queryFn: () => listFundPaymentsClient(groupId, fund.id),
-      enabled: isFinanceActive,
-      staleTime: 60 * 1000,
-      gcTime: 5 * 60 * 1000,
-    })),
-  })
-
-  const fundsWithPayments: Array<FundItem & { payments: FundPayment[] }> =
-    useMemo(
-      () =>
-        funds.map((fund, index) => ({
-          ...fund,
-          payments: fundPaymentsQueries[index]?.data?.data ?? [],
-        })),
-      [fundPaymentsQueries, funds]
-    )
+  const resolvedMembers = membersQuery.data ?? []
 
   if (!isFinanceActive) {
     return (
       <Card className="mt-6 shadow-sm">
         <CardHeader className="border-b">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <CardTitle>Thu chi nhóm</CardTitle>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Tổng quan tài chính, quỹ và khoản chi của nhóm.
-              </p>
-            </div>
-          </div>
+          <CardTitle>Thu chi nhóm</CardTitle>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Tổng quan tài chính nhóm.
+          </p>
         </CardHeader>
         <CardContent className="pt-6">
           <p className="text-sm text-muted-foreground">
-            Mở tab Thu chi để tải dữ liệu tài chính khi cần.
+            Mở tab Thu chi để tải dữ liệu.
           </p>
         </CardContent>
       </Card>
     )
   }
 
-  const summaryResult = summaryQuery.data
+  const summary = summaryQuery.data
 
   return (
     <Card className="mt-6 shadow-sm">
@@ -764,356 +235,300 @@ export function GroupFinanceSection({
           <div>
             <CardTitle>Thu chi nhóm</CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
-              Tổng quan tài chính, quỹ và khoản chi của nhóm.
+              {canManage
+                ? "Tổng quan tài chính, giao dịch và khoản nợ của nhóm."
+                : "Theo dõi các khoản nợ và gửi thông tin thanh toán của bạn."}
             </p>
           </div>
-          {canManage && !isArchivedGroup(groupStatus) && (
+          {!isArchivedGroup(groupStatus) && (
             <div className="flex flex-wrap gap-2">
-              <CreateFundButton groupId={groupId} members={resolvedMembers} />
-              <CreateExpenseButton groupId={groupId} />
+              <CreateTransactionButton groupId={groupId} />
+              {canManage && (
+                <>
+                  <CreateExpenseButton
+                    groupId={groupId}
+                    members={resolvedMembers}
+                  />
+                  <RemindDebtButton
+                    groupId={groupId}
+                    members={resolvedMembers}
+                  />
+                </>
+              )}
             </div>
           )}
         </div>
       </CardHeader>
       <CardContent className="space-y-6 pt-6">
-        {summaryQuery.isPending && !summaryResult ? (
-          <p className="text-sm text-muted-foreground">
-            Đang tải dữ liệu tổng quan...
-          </p>
-        ) : summaryQuery.isError ? (
-          <ErrorSection
-            title="Không thể tải tổng quan tài chính"
-            message={getQueryErrorMessage(
-              summaryQuery.error,
-              "Vui lòng thử lại sau."
+        {canManage && (
+          <>
+            {summaryQuery.isPending ? (
+              <p className="text-sm text-muted-foreground">
+                Đang tải tổng quan...
+              </p>
+            ) : summaryQuery.isError ? (
+              <ErrorSection
+                title="Lỗi tải tổng quan"
+                message={getQueryErrorMessage(
+                  summaryQuery.error,
+                  "Thử lại sau."
+                )}
+              />
+            ) : summary ? (
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <SummaryCard
+                  title="Tổng chi tiêu"
+                  value={formatCurrency(summary.totalExpense)}
+                  description={`Cân đối: ${formatCurrency(summary.netBalance)}`}
+                />
+                <SummaryCard
+                  title="Tổng đã thu"
+                  value={formatCurrency(summary.totalCollected)}
+                  description={`Chờ duyệt: ${formatCurrency(summary.totalExpectedRevenue - summary.totalCollected)}`}
+                />
+                <SummaryCard
+                  title="Còn nợ"
+                  value={formatCurrency(summary.outstandingAmount)}
+                  description={`Kỳ vọng thu: ${formatCurrency(summary.totalExpectedRevenue)}`}
+                />
+              </div>
+            ) : null}
+          </>
+        )}
+
+        <Tabs defaultValue={canManage ? "transactions" : "my-debt"}>
+          <TabsList>
+            {canManage && (
+              <TabsTrigger value="transactions">Giao dịch</TabsTrigger>
             )}
-          />
-        ) : summaryResult ? (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <SummaryCard
-              title="Tổng quỹ"
-              value={formatCurrency(summaryResult.totalFunds)}
-              description={`Số quỹ hiện có: ${summaryResult.fundCount}`}
-            />
-            <SummaryCard
-              title="Tổng đã thu"
-              value={formatCurrency(summaryResult.totalCollected)}
-              description="Tổng tiền thành viên đã thanh toán."
-            />
-            <SummaryCard
-              title="Tổng khoản chi"
-              value={formatCurrency(summaryResult.totalExpenses)}
-              description={`Số khoản chi hiện có: ${summaryResult.expenseCount}`}
-            />
-            <SummaryCard
-              title="Cân đối"
-              value={formatCurrency(summaryResult.netBalance)}
-              description={`Đang chờ: ${formatCurrency(summaryResult.totalPending)} | Còn nợ: ${formatCurrency(summaryResult.totalOwed)}`}
-            />
-          </div>
-        ) : null}
-
-        <CreditBalanceSection
-          members={resolvedMembers}
-          isMembersLoading={membersQuery.isPending && members.length === 0}
-          creditBalancesQuery={creditBalancesQuery}
-        />
-
-        <Tabs defaultValue="funds">
-          <TabsList className="w-full sm:w-auto">
-            <TabsTrigger value="funds">Quỹ</TabsTrigger>
-            <TabsTrigger value="my-funds">Của tôi</TabsTrigger>
-            <TabsTrigger value="expenses">Khoản chi</TabsTrigger>
+            <TabsTrigger value="my-debt">Nợ của tôi</TabsTrigger>
+            {canManage && <TabsTrigger value="expenses">Khoản chi</TabsTrigger>}
+            {canManage && <TabsTrigger value="credits">Tín dụng</TabsTrigger>}
           </TabsList>
 
-          <TabsContent value="funds" className="mt-4">
-            <FinanceTableHeader
-              title="Danh sách quỹ"
-              description="Tất cả quỹ trong nhóm."
-            />
-            {fundsQuery.isPending ? (
-              <p className="text-sm text-muted-foreground">
-                Đang tải danh sách quỹ...
-              </p>
-            ) : fundsQuery.isError ? (
-              <ErrorSection
-                title="Không thể tải danh sách quỹ"
-                message={getQueryErrorMessage(
-                  fundsQuery.error,
-                  "Vui lòng thử lại sau."
-                )}
-              />
-            ) : (
-              <FinanceFundsTable
-                groupId={groupId}
-                funds={fundsWithPayments}
-                members={resolvedMembers}
-                canManage={canManage}
-                // Only allow pay when group is not archived AND current user has a payment record
-                // whose status allows submitting a payment (UNPAID or REJECTED). Backend rejects PAID and PENDING.
-                canPay={!isArchivedGroup(groupStatus)}
-                currentUserId={currentUserId}
-              />
-            )}
+          {canManage && (
+            <TabsContent value="transactions" className="mt-4">
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Thành viên</TableHead>
+                      <TableHead>Số tiền</TableHead>
+                      <TableHead>Ngày gửi</TableHead>
+                      <TableHead>Trạng thái</TableHead>
+                      <TableHead>Chứng từ</TableHead>
+                      <TableHead />
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {transactionsQuery.data?.data?.map((tx) => (
+                      <TableRow key={tx.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Avatar size="xs">
+                              <AvatarImage src={tx.user?.avatarUrl || ""} />
+                              <AvatarFallback>
+                                {getInitials(tx.user?.name || "TV")}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="text-sm font-medium">
+                              {tx.user?.name}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {formatCurrency(tx.amount)}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {formatDateTime(tx.createdAt)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={getTransactionStatusVariant(tx.status)}
+                          >
+                            {formatTransactionStatus(tx.status)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {tx.receiptUrl && (
+                            <PaymentReceiptPreview receiptUrl={tx.receiptUrl} />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <TransactionRowActions
+                            groupId={groupId}
+                            transaction={tx}
+                            canManage={canManage}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {!transactionsQuery.data?.data?.length && (
+                      <TableRow>
+                        <TableCell
+                          colSpan={6}
+                          className="py-4 text-center text-muted-foreground"
+                        >
+                          Chưa có giao dịch nào.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+          )}
+
+          <TabsContent value="my-debt" className="mt-4">
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Khoản chi</TableHead>
+                    <TableHead>Ngày</TableHead>
+                    <TableHead>Yêu cầu</TableHead>
+                    <TableHead>Đã trả</TableHead>
+                    <TableHead>Còn nợ</TableHead>
+                    <TableHead>Trạng thái</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {myDebtQuery.data?.items?.map((item) => (
+                    <TableRow key={item.expenseId}>
+                      <TableCell className="font-medium">
+                        {item.expenseTitle}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {formatDate(item.expenseDate)}
+                      </TableCell>
+                      <TableCell>{formatCurrency(item.requiredFee)}</TableCell>
+                      <TableCell className="text-success">
+                        {formatCurrency(item.paidAmount)}
+                      </TableCell>
+                      <TableCell className="font-medium text-destructive">
+                        {formatCurrency(
+                          Math.max(0, item.requiredFee - item.paidAmount)
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={getDebtStatusVariant(item.status)}>
+                          {formatDebtStatus(item.status)}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {!myDebtQuery.data?.items?.length && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={6}
+                        className="py-4 text-center text-muted-foreground"
+                      >
+                        Bạn không có khoản nợ nào.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+              {myDebtQuery.data && (
+                <div className="border-t p-4 text-right font-semibold">
+                  Tổng nợ hiện tại:{" "}
+                  <span className="text-lg text-destructive">
+                    {formatCurrency(myDebtQuery.data.totalDebt)}
+                  </span>
+                </div>
+              )}
+            </div>
           </TabsContent>
 
-          <TabsContent value="my-funds" className="mt-4">
-            <FinanceTableHeader
-              title="Quỹ của tôi"
-              description="Các quỹ kèm trạng thái thanh toán của bạn."
-            />
-            {myFundsQuery.isPending ? (
-              <p className="text-sm text-muted-foreground">
-                Đang tải quỹ của bạn...
-              </p>
-            ) : myFundsQuery.isError ? (
-              <ErrorSection
-                title="Không thể tải quỹ của bạn"
-                message={getQueryErrorMessage(
-                  myFundsQuery.error,
-                  "Vui lòng thử lại sau."
-                )}
-              />
-            ) : (
-              <FinanceMyFundsTable
-                groupId={groupId}
-                funds={myFunds}
-                members={resolvedMembers}
-                canPay={!isArchivedGroup(groupStatus)}
-                currentUserId={currentUserId}
-              />
-            )}
-          </TabsContent>
+          {canManage && (
+            <TabsContent value="expenses" className="mt-4">
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Tên khoản chi</TableHead>
+                      <TableHead>Số tiền</TableHead>
+                      <TableHead>Ngày chi</TableHead>
+                      <TableHead>Người tạo</TableHead>
+                      <TableHead />
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {expensesQuery.data?.data?.map((exp) => (
+                      <TableRow key={exp.id}>
+                        <TableCell className="font-medium">
+                          {exp.title}
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {formatCurrency(exp.totalAmount)}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {formatDate(exp.expenseDate)}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {exp.createdBy?.name}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <ExpenseRowActions
+                            groupId={groupId}
+                            expense={exp}
+                            members={resolvedMembers}
+                            canManage={canManage}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {!expensesQuery.data?.data?.length && (
+                      <TableRow>
+                        <TableCell
+                          colSpan={5}
+                          className="py-4 text-center text-muted-foreground"
+                        >
+                          Chưa có khoản chi nào.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+          )}
 
-          <TabsContent value="expenses" className="mt-4">
-            <FinanceTableHeader
-              title="Danh sách khoản chi"
-              description="Các khoản chi đã ghi nhận trong nhóm."
-            />
-            {expensesQuery.isPending ? (
-              <p className="text-sm text-muted-foreground">
-                Đang tải danh sách khoản chi...
-              </p>
-            ) : expensesQuery.isError ? (
-              <ErrorSection
-                title="Không thể tải danh sách khoản chi"
-                message={getQueryErrorMessage(
-                  expensesQuery.error,
-                  "Vui lòng thử lại sau."
+          {canManage && (
+            <TabsContent value="credits" className="mt-4">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {creditBalancesQuery.data?.data?.map((entry) => (
+                  <Card
+                    key={entry.userId}
+                    className="flex items-center gap-4 p-4"
+                  >
+                    <Avatar>
+                      <AvatarImage src={entry.user?.avatarUrl || ""} />
+                      <AvatarFallback>
+                        {getInitials(entry.user?.name || "TV")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">{entry.user?.name}</p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {entry.user?.email}
+                      </p>
+                    </div>
+                    <Badge variant="secondary">
+                      {formatCurrency(entry.creditBalance)}
+                    </Badge>
+                  </Card>
+                ))}
+                {!creditBalancesQuery.data?.data?.length && (
+                  <div className="col-span-full py-10 text-center text-muted-foreground">
+                    Không có thành viên nào có số dư tín dụng.
+                  </div>
                 )}
-              />
-            ) : (
-              <FinanceExpensesTable
-                groupId={groupId}
-                expenses={expenses}
-                canManage={canManage}
-              />
-            )}
-          </TabsContent>
+              </div>
+            </TabsContent>
+          )}
         </Tabs>
       </CardContent>
     </Card>
-  )
-}
-
-function FinanceTableHeader({
-  title,
-  description,
-}: {
-  title: string
-  description: string
-}) {
-  return (
-    <div className="mb-3 flex flex-col gap-1">
-      <h3 className="text-base font-semibold">{title}</h3>
-      <p className="text-sm text-muted-foreground">{description}</p>
-    </div>
-  )
-}
-
-function FinanceFundsTable({
-  groupId,
-  funds,
-  members,
-  canManage,
-  canPay,
-  currentUserId,
-}: {
-  groupId: string
-  funds: Array<FundItem & { payments: FundPayment[] }>
-  members: Member[]
-  canManage: boolean
-  canPay: boolean
-  currentUserId: string
-}) {
-  if (!funds.length) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        Chưa có quỹ nào trong nhóm.
-      </p>
-    )
-  }
-
-  return (
-    <Accordion type="multiple" className="space-y-3">
-      {funds.map((fund) => (
-        <FundListItemCard
-          key={fund.id}
-          groupId={groupId}
-          fund={fund}
-          members={members}
-          canManage={canManage}
-          canPay={canPay}
-          currentUserId={currentUserId}
-        />
-      ))}
-    </Accordion>
-  )
-}
-
-function FinanceMyFundsTable({
-  groupId,
-  funds,
-  members,
-  canPay,
-  currentUserId,
-}: {
-  groupId: string
-  funds: FundItem[]
-  members: Member[]
-  canPay: boolean
-  currentUserId: string
-}) {
-  if (!funds.length) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        Bạn chưa có quỹ nào trong nhóm.
-      </p>
-    )
-  }
-
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Tên</TableHead>
-          <TableHead>Tổng quỹ</TableHead>
-          <TableHead>Tôi phải đóng</TableHead>
-          <TableHead>Đã dùng credit</TableHead>
-          <TableHead>Đã đóng</TableHead>
-          <TableHead>Còn thiếu</TableHead>
-          <TableHead>Trạng thái</TableHead>
-          <TableHead />
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {funds.map((fund) => {
-          const payment = fund.payments?.[0]
-          const required = Number(payment?.requiredAmount ?? 0)
-          const paid = Number(payment?.amountPaid ?? 0)
-          const creditUsed = Number(payment?.creditUsed ?? 0)
-          const remaining = Math.max(0, required - creditUsed - paid)
-
-          return (
-            <TableRow key={fund.id} className="border-b last:border-b-0">
-              <TableCell className="font-medium">{fund.title}</TableCell>
-              <TableCell>{formatCurrency(fund.requiredAmount)}</TableCell>
-              <TableCell>{formatCurrency(required)}</TableCell>
-              <TableCell>{formatCurrency(creditUsed)}</TableCell>
-              <TableCell>{formatCurrency(paid)}</TableCell>
-              <TableCell>{formatCurrency(remaining)}</TableCell>
-              <TableCell>
-                {(() => {
-                  // Determine status based on backend status and computed remaining
-                  const backendStatus = payment?.status?.toUpperCase() ?? null
-                  const computedPaidOff = remaining <= 0
-                  const statusLabel = computedPaidOff ? "Đã thanh toán" : formatPaymentStatus(payment?.status ?? null)
-                  const badgeVariant = computedPaidOff ? "default" : (backendStatus === "PENDING" ? "secondary" : backendStatus === "REJECTED" ? "destructive" : "outline")
-
-                  return <Badge variant={badgeVariant}>{statusLabel}</Badge>
-                })()}
-              </TableCell>
-              <TableCell className="text-right">
-                {(() => {
-                  const status = payment?.status?.toUpperCase() ?? null
-                  const canSubmitPayment =
-                    !!payment && status !== "PAID" && status !== "PENDING"
-
-                  return (
-                    <FundRowActions
-                      groupId={groupId}
-                      fund={fund}
-                      members={members}
-                      canManage={false}
-                      canPay={canPay && !!payment?.id && canSubmitPayment}
-                      payments={fund.payments ?? []}
-                    />
-                  )
-                })()}
-              </TableCell>
-            </TableRow>
-          )
-        })}
-      </TableBody>
-    </Table>
-  )
-}
-
-function FinanceExpensesTable({
-  groupId,
-  expenses,
-  canManage,
-}: {
-  groupId: string
-  expenses: ExpenseItem[]
-  canManage: boolean
-}) {
-  if (!expenses.length) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        Chưa có khoản chi nào trong nhóm.
-      </p>
-    )
-  }
-
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Tên</TableHead>
-          <TableHead>Số tiền</TableHead>
-          <TableHead>Ngày chi</TableHead>
-          <TableHead>Người tạo</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {expenses.map((expense) => (
-          <TableRow key={expense.id}>
-            <TableCell className="font-medium">
-              <div className="flex flex-col gap-1">
-                <span>{expense.title}</span>
-                {expense.description && (
-                  <span className="line-clamp-1 text-xs text-muted-foreground">
-                    {expense.description}
-                  </span>
-                )}
-              </div>
-            </TableCell>
-            <TableCell>{formatCurrency(expense.amount)}</TableCell>
-            <TableCell>{formatDate(expense.expenseDate ?? null)}</TableCell>
-            <TableCell className="text-muted-foreground">
-              {expense.createdBy?.name ?? "-"}
-            </TableCell>
-            <TableCell className="text-right">
-              <ExpenseRowActions
-                groupId={groupId}
-                expense={expense}
-                canManage={canManage}
-              />
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
   )
 }

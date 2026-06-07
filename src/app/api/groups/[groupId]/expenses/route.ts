@@ -10,13 +10,15 @@ export async function GET(
   const url = new URL(request.url)
 
   const expenses = await listExpenses(groupId, {
-    page: url.searchParams.get("page") ? Number(url.searchParams.get("page")) : undefined,
-    limit: url.searchParams.get("limit") ? Number(url.searchParams.get("limit")) : undefined,
+    page: url.searchParams.get("page")
+      ? Number(url.searchParams.get("page"))
+      : undefined,
+    limit: url.searchParams.get("limit")
+      ? Number(url.searchParams.get("limit"))
+      : undefined,
     search: url.searchParams.get("search") ?? undefined,
     userId: url.searchParams.get("userId") ?? undefined,
-    sortBy:
-      (url.searchParams.get("sortBy") as "deadline" | "amount" | null) ??
-      undefined,
+    sortBy: url.searchParams.get("sortBy") ?? undefined,
     order:
       (url.searchParams.get("order") as "asc" | "desc" | null) ?? undefined,
   })
