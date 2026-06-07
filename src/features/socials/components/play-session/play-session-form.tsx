@@ -74,9 +74,9 @@ export function PlaySessionForm({
   })
   const bookings = bookingsResponse?.data || []
 
-  console.log("Bookings: ", bookings)
+  const availableBookings = bookings.filter((b) => b.playSessionId === null)
 
-  const bookingOptions = bookings.map((b) => ({
+  const bookingOptions = availableBookings.map((b) => ({
     value: b.id,
     label: `${b.center?.name || "Sân"} - ${new Date(b.date).toLocaleDateString("vi-VN")}`,
     description: `Giờ: ${b.items?.map((i) => `${i.startTime}-${i.endTime}`).join(", ")}`,
@@ -220,7 +220,7 @@ export function PlaySessionForm({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="gap-6">
               {/* <FormField
                 control={form.control}
                 name="pricePerPlayer"
