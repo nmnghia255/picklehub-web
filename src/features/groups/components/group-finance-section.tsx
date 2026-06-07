@@ -316,7 +316,7 @@ export function GroupFinanceSection({
                       <TableRow key={tx.id}>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <Avatar size="xs">
+                            <Avatar>
                               <AvatarImage src={tx.user?.avatarUrl || ""} />
                               <AvatarFallback>
                                 {getInitials(tx.user?.name || "TV")}
