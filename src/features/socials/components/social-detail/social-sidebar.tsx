@@ -11,7 +11,10 @@ import { Separator } from "@/components/ui/separator"
 import ProgressBar from "@/features/socials/components/social-listing/progress-bar"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import { publishSocialAction } from "../../actions/social-form-actions"
+import {
+  publishSocialAction,
+  updateSocialAction,
+} from "../../actions/social-form-actions"
 import type { SocialDetail, User as Host } from "../../types/social"
 
 function SettingRow({ label, value }: { label: string; value: string }) {
@@ -39,6 +42,24 @@ export default function SocialSidebar({
   const { t } = useSocialsTranslation()
   const router = useRouter()
   const [isPublishing, setIsPublishing] = React.useState(false)
+  const [isCompleting, setIsCompleting] = React.useState(false)
+
+  const handleComplete = async () => {
+    setIsCompleting(true)
+    try {
+      await updateSocialAction(social.id, { status: "COMPLETED" })
+      toast.success(
+        t("sidebar.completeSuccess", {
+          defaultValue: "Social marked as completed",
+        })
+      )
+      router.refresh()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to complete")
+    } finally {
+      setIsCompleting(false)
+    }
+  }
 
   const handlePublish = async () => {
     setIsPublishing(true)
@@ -157,6 +178,23 @@ export default function SocialSidebar({
               : t("sidebar.publishSocial")}
           </Button>
         )}
+
+        {social.isHost &&
+          social.status === "PUBLISHED" &&
+          new Date(social.endTime) < new Date() && (
+            <Button
+              className="w-full bg-emerald-600 text-white hover:bg-emerald-700"
+              size="lg"
+              onClick={handleComplete}
+              disabled={isCompleting}
+            >
+              {isCompleting
+                ? t("sidebar.completing", { defaultValue: "Completing..." })
+                : t("sidebar.completeSocial", {
+                    defaultValue: "Complete Social",
+                  })}
+            </Button>
+          )}
 
         {!isParticipant && social.status === "PUBLISHED" && (
           <Button

@@ -41,9 +41,11 @@ import { AddExpenseDialog } from "./add-expense-dialog"
 export function ExtraExpensesCard({
   socialId,
   expenses,
+  isLocked,
 }: {
   socialId: string
   expenses: Expense[]
+  isLocked?: boolean
 }) {
   const { t } = useSocialsTranslation()
   const queryClient = useQueryClient()
@@ -104,7 +106,12 @@ export function ExtraExpensesCard({
                 })}
               </CardDescription>
             </div>
-            <Button variant="outline" className="gap-2" onClick={openAdd}>
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={openAdd}
+              disabled={isLocked}
+            >
               <Plus className="size-4" />
               {t("expenses.actions.addExpense", {
                 defaultValue: "Add Expense",
@@ -158,6 +165,7 @@ export function ExtraExpensesCard({
                           variant="ghost"
                           size="icon"
                           onClick={() => openEdit(expense)}
+                          disabled={isLocked}
                         >
                           <Edit className="size-4" />
                         </Button>
@@ -167,7 +175,8 @@ export function ExtraExpensesCard({
                           className="text-destructive hover:text-destructive"
                           onClick={() => confirmDelete(expense.id)}
                           disabled={
-                            isDeleting && expenseToDelete === expense.id
+                            isLocked ||
+                            (isDeleting && expenseToDelete === expense.id)
                           }
                         >
                           <Trash2 className="size-4" />

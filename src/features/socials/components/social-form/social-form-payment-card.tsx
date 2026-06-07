@@ -172,11 +172,11 @@ export function SocialFormPaymentCard({
             >
               <Input
                 type="number"
-                value={formData.pakageFee || ""}
+                value={formData.packageFee || ""}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
-                    pakageFee: e.target.value ? Number(e.target.value) : null,
+                    packageFee: e.target.value ? Number(e.target.value) : null,
                   }))
                 }
                 placeholder={t("form.packageFeePlaceholder")}

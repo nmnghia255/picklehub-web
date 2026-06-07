@@ -26,8 +26,6 @@ import { ExpenseSummaryGrid } from "./expense-summary-grid"
 import { ExtraExpensesCard } from "./extra-expenses-card"
 import { ParticipantPaymentTrackingCard } from "./participant-payment-tracking-card"
 import { PricingCalculatorDialog } from "./pricing-calculator-dialog"
-// import { FinancialTimelineCard } from "./financial-timeline-card"
-// import { PaymentInformationCard } from "./payment-information-card"
 import { SocialExpenseTabSkeleton } from "./social-expense-tab-skeleton"
 
 export default function SocialExpenseTab({
@@ -90,16 +88,13 @@ export default function SocialExpenseTab({
                 className="gap-2"
                 type="button"
                 onClick={() => setIsPricingOpen(true)}
+                disabled={social?.status !== "DRAFT"}
               >
                 <Calculator className="size-4" />
                 {t("expenses.actions.setPricing", {
                   defaultValue: "Set Pricing",
                 })}
               </Button>
-              {/* <Button variant="secondary" className="gap-2" type="button" onClick={() => refetchSummary()}>
-                <RefreshCcw className="size-4" />
-                Refresh
-              </Button> */}
             </div>
           </div>
         </CardHeader>
@@ -137,12 +132,6 @@ export default function SocialExpenseTab({
                 })}
               </p>
             </div>
-            {/* <div className="text-right">
-              <p className="text-sm font-medium text-muted-foreground">Estimated Profit</p>
-              <p className={`text-xl font-bold ${summary.estimatedProfit >= 0 ? "text-emerald-600" : "text-destructive"}`}>
-                {summary.estimatedProfit >= 0 ? "+" : ""}{formatCurrencyVnd(summary.estimatedProfit)}
-              </p>
-            </div> */}
           </div>
         </CardContent>
       </Card>
@@ -160,6 +149,7 @@ export default function SocialExpenseTab({
           <ExtraExpensesCard
             socialId={socialId}
             expenses={manualExpenses || []}
+            isLocked={social?.status !== "DRAFT"}
           />
         </div>
 
