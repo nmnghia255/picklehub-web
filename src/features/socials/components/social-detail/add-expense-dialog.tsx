@@ -22,6 +22,7 @@ import {
   updateExpenseAction,
 } from "@/features/socials/actions/expense-actions"
 import type { Expense } from "@/features/socials/types/expense"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 interface AddExpenseDialogProps {
   socialId: string
@@ -36,6 +37,7 @@ export function AddExpenseDialog({
   onOpenChange,
   expenseToEdit,
 }: AddExpenseDialogProps) {
+  const { t } = useSocialsTranslation()
   const queryClient = useQueryClient()
 
   const [title, setTitle] = useState("")
@@ -72,8 +74,8 @@ export function AddExpenseDialog({
     onSuccess: () => {
       toast.success(
         expenseToEdit
-          ? "Expense updated successfully"
-          : "Expense added successfully"
+          ? t("expenses.expenseDialog.successUpdate")
+          : t("expenses.expenseDialog.successAdd")
       )
       queryClient.invalidateQueries({ queryKey: ["financeSummary", socialId] })
       queryClient.invalidateQueries({ queryKey: ["socialExpenses", socialId] })
@@ -82,7 +84,9 @@ export function AddExpenseDialog({
     onError: (error) => {
       toast.error(
         error.message ||
-          (expenseToEdit ? "Failed to update expense" : "Failed to add expense")
+          (expenseToEdit
+            ? t("expenses.expenseDialog.errorUpdate")
+            : t("expenses.expenseDialog.errorAdd"))
       )
     },
   })
@@ -92,41 +96,53 @@ export function AddExpenseDialog({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {expenseToEdit ? "Edit Expense" : "Add Manual Expense"}
+            {expenseToEdit
+              ? t("expenses.expenseDialog.editTitle")
+              : t("expenses.expenseDialog.addTitle")}
           </DialogTitle>
           <DialogDescription>
             {expenseToEdit
-              ? "Update the details of this extra expense."
-              : "Add extra expenses like water, balls, or referee fees."}
+              ? t("expenses.expenseDialog.editDescription")
+              : t("expenses.expenseDialog.addDescription")}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">
+              {t("expenses.expenseDialog.titleLabel")}
+            </Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Water and Snacks"
+              placeholder={t("expenses.expenseDialog.titlePlaceholder")}
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="amount">Amount (VND)</Label>
+            <Label htmlFor="amount">
+              {t("expenses.expenseDialog.amountLabel")}
+            </Label>
             <Input
               id="amount"
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="e.g. 50000"
+              type="text"
+              inputMode="numeric"
+              value={amount ? Number(amount).toLocaleString("vi-VN") : ""}
+              onChange={(e) => {
+                const rawValue = e.target.value.replace(/\D/g, "")
+                setAmount(rawValue)
+              }}
+              placeholder={t("expenses.expenseDialog.amountPlaceholder")}
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="description">Description (Optional)</Label>
+            <Label htmlFor="description">
+              {t("expenses.expenseDialog.descriptionLabel")}
+            </Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Details about this expense..."
+              placeholder={t("expenses.expenseDialog.descriptionPlaceholder")}
             />
           </div>
         </div>
@@ -136,14 +152,16 @@ export function AddExpenseDialog({
             onClick={() => onOpenChange(false)}
             disabled={isPending}
           >
-            Cancel
+            {t("expenses.expenseDialog.cancel")}
           </Button>
           <Button
             onClick={() => mutate()}
             disabled={isPending || !title || !amount}
           >
             {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-            {expenseToEdit ? "Update Expense" : "Save Expense"}
+            {expenseToEdit
+              ? t("expenses.expenseDialog.update")
+              : t("expenses.expenseDialog.save")}
           </Button>
         </DialogFooter>
       </DialogContent>

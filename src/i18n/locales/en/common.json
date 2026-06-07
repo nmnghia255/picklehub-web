@@ -208,6 +208,25 @@
           "error": "Failed to delete expense"
         }
       },
+      "expenseDialog": {
+        "editTitle": "Edit Expense",
+        "addTitle": "Add Manual Expense",
+        "editDescription": "Update the details of this extra expense.",
+        "addDescription": "Add extra expenses like water, balls, or referee fees.",
+        "titleLabel": "Title",
+        "titlePlaceholder": "e.g. Water and Snacks",
+        "amountLabel": "Amount (VND)",
+        "amountPlaceholder": "e.g. 50000",
+        "descriptionLabel": "Description (Optional)",
+        "descriptionPlaceholder": "Details about this expense...",
+        "cancel": "Cancel",
+        "update": "Update Expense",
+        "save": "Save Expense",
+        "successUpdate": "Expense updated successfully",
+        "successAdd": "Expense added successfully",
+        "errorUpdate": "Failed to update expense",
+        "errorAdd": "Failed to add expense"
+      },
       "pricing": {
         "title": "Pricing Calculator",
         "description": "Calculate the break-even price based on the expected number of players and expenses.",

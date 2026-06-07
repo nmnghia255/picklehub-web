@@ -277,7 +277,7 @@ export function ParticipantPaymentTrackingCard({
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>
-                              Payment Actions
+                              {t("expenses.tracking.actions.actions")}
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem

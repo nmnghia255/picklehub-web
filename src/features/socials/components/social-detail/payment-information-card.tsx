@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/card"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import { paymentPlan } from "../../mock-data/expense-data"
 import type { SocialDetail } from "../../types/social"
 
 export function PaymentInformationCard({
@@ -26,22 +25,11 @@ export function PaymentInformationCard({
   const { t } = useSocialsTranslation()
   const [copied, setCopied] = React.useState(false)
 
-  const accountNumber =
-    social?.paymentAccountNumber || paymentPlan.accountNumber
-  const bankName = social?.paymentBankName || paymentPlan.bankName
+  const accountNumber = social?.paymentAccountNumber
+  const bankName = social?.paymentBankName
   const accountName = social?.paymentAccountName
-  const paymentNote = social?.paymentNote || paymentPlan.paymentNote
+  const paymentNote = social?.paymentNote
   const qrUrl = social?.paymentQrUrl
-
-  const handleCopyPaymentCode = async () => {
-    try {
-      await navigator.clipboard.writeText(accountNumber)
-      setCopied(true)
-      window.setTimeout(() => setCopied(false), 1800)
-    } catch {
-      setCopied(false)
-    }
-  }
 
   return (
     <Card className="overflow-hidden">
@@ -92,7 +80,7 @@ export function PaymentInformationCard({
           </div>
 
           <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-border/70 bg-card p-0 text-center">
-            <div className="relative flex aspect-square w-full max-w-[250px] items-center justify-center overflow-hidden rounded-2xl bg-linear-to-br from-primary/10 via-primary/5 to-transparent p-0 shadow-inner">
+            <div className="relative flex aspect-square w-full max-w-62.5 items-center justify-center overflow-hidden rounded-2xl bg-linear-to-br from-primary/10 via-primary/5 to-transparent p-0 shadow-inner">
               {qrUrl ? (
                 <img
                   src={qrUrl}
@@ -138,19 +126,6 @@ export function PaymentInformationCard({
             <Button variant="outline" className="gap-2" type="button">
               <PenLine className="size-4" />
               {t("expenses.paymentInfo.edit")}
-            </Button>
-          )}
-          {showEditAction && (
-            <Button
-              variant="secondary"
-              className="gap-2"
-              type="button"
-              onClick={handleCopyPaymentCode}
-            >
-              <Copy className="size-4" />
-              {copied
-                ? t("expenses.paymentInfo.copied")
-                : t("expenses.paymentInfo.copyAccountNumber")}
             </Button>
           )}
         </div>

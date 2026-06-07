@@ -194,7 +194,8 @@
         "actions": {
           "verifyReceipt": "Xác nhận biên lai",
           "recordCash": "Ghi nhận tiền mặt",
-          "issueRefund": "Hoàn tiền"
+          "issueRefund": "Hoàn tiền",
+          "actions": "Thao tác"
         }
       },
       "paymentInfo": {
@@ -236,6 +237,25 @@
           "success": "Đã xóa khoản phí thành công",
           "error": "Lỗi khi xóa khoản phí"
         }
+      },
+      "expenseDialog": {
+        "editTitle": "Sửa chi phí",
+        "addTitle": "Thêm chi phí phát sinh",
+        "editDescription": "Cập nhật chi tiết của khoản chi phí này.",
+        "addDescription": "Thêm các chi phí phát sinh như nước, bóng, hoặc phí trọng tài.",
+        "titleLabel": "Tiêu đề",
+        "titlePlaceholder": "vd: Nước và Bóng",
+        "amountLabel": "Số tiền (VNĐ)",
+        "amountPlaceholder": "vd: 50000",
+        "descriptionLabel": "Mô tả (Tùy chọn)",
+        "descriptionPlaceholder": "Chi tiết về khoản chi phí này...",
+        "cancel": "Hủy",
+        "update": "Cập nhật",
+        "save": "Lưu chi phí",
+        "successUpdate": "Cập nhật chi phí thành công",
+        "successAdd": "Thêm chi phí thành công",
+        "errorUpdate": "Không thể cập nhật chi phí",
+        "errorAdd": "Không thể thêm chi phí"
       },
       "pricing": {
         "title": "Công cụ tính giá",
