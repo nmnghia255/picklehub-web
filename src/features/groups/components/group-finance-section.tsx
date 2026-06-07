@@ -172,7 +172,7 @@ export function GroupFinanceSection({
   const summaryQuery = useQuery({
     queryKey: financeQueryKeys.summary(groupId),
     queryFn: () => getFinanceSummaryClient(groupId),
-    enabled: isFinanceActive && canManage,
+    enabled: isFinanceActive,
   })
 
   const transactionsQuery = useQuery({
@@ -190,13 +190,13 @@ export function GroupFinanceSection({
   const expensesQuery = useQuery({
     queryKey: financeQueryKeys.expenses(groupId),
     queryFn: () => listExpensesClient(groupId),
-    enabled: isFinanceActive && canManage,
+    enabled: isFinanceActive,
   })
 
   const creditBalancesQuery = useQuery({
     queryKey: financeQueryKeys.creditBalances(groupId),
     queryFn: () => listCreditBalancesClient(groupId),
-    enabled: isFinanceActive && canManage,
+    enabled: isFinanceActive,
   })
 
   const membersQuery = useQuery({
@@ -260,41 +260,32 @@ export function GroupFinanceSection({
         </div>
       </CardHeader>
       <CardContent className="space-y-6 pt-6">
-        {canManage && (
-          <>
-            {summaryQuery.isPending ? (
-              <p className="text-sm text-muted-foreground">
-                Đang tải tổng quan...
-              </p>
-            ) : summaryQuery.isError ? (
-              <ErrorSection
-                title="Lỗi tải tổng quan"
-                message={getQueryErrorMessage(
-                  summaryQuery.error,
-                  "Thử lại sau."
-                )}
-              />
-            ) : summary ? (
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                <SummaryCard
-                  title="Tổng chi tiêu"
-                  value={formatCurrency(summary.totalExpense)}
-                  description={`Cân đối: ${formatCurrency(summary.netBalance)}`}
-                />
-                <SummaryCard
-                  title="Tổng đã thu"
-                  value={formatCurrency(summary.totalCollected)}
-                  description={`Chờ duyệt: ${formatCurrency(summary.totalExpectedRevenue - summary.totalCollected)}`}
-                />
-                <SummaryCard
-                  title="Còn nợ"
-                  value={formatCurrency(summary.outstandingAmount)}
-                  description={`Kỳ vọng thu: ${formatCurrency(summary.totalExpectedRevenue)}`}
-                />
-              </div>
-            ) : null}
-          </>
-        )}
+        {summaryQuery.isPending ? (
+          <p className="text-sm text-muted-foreground">Đang tải tổng quan...</p>
+        ) : summaryQuery.isError ? (
+          <ErrorSection
+            title="Lỗi tải tổng quan"
+            message={getQueryErrorMessage(summaryQuery.error, "Thử lại sau.")}
+          />
+        ) : summary ? (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <SummaryCard
+              title="Tổng chi tiêu"
+              value={formatCurrency(summary.totalExpense)}
+              description={`Cân đối: ${formatCurrency(summary.netBalance)}`}
+            />
+            <SummaryCard
+              title="Tổng đã thu"
+              value={formatCurrency(summary.totalCollected)}
+              description={`Chờ duyệt: ${formatCurrency(summary.totalExpectedRevenue - summary.totalCollected)}`}
+            />
+            <SummaryCard
+              title="Còn nợ"
+              value={formatCurrency(summary.outstandingAmount)}
+              description={`Kỳ vọng thu: ${formatCurrency(summary.totalExpectedRevenue)}`}
+            />
+          </div>
+        ) : null}
 
         <Tabs defaultValue={canManage ? "transactions" : "my-debt"}>
           <TabsList>
@@ -302,8 +293,8 @@ export function GroupFinanceSection({
               <TabsTrigger value="transactions">Giao dịch</TabsTrigger>
             )}
             <TabsTrigger value="my-debt">Nợ của tôi</TabsTrigger>
-            {canManage && <TabsTrigger value="expenses">Khoản chi</TabsTrigger>}
-            {canManage && <TabsTrigger value="credits">Tín dụng</TabsTrigger>}
+            <TabsTrigger value="expenses">Khoản chi</TabsTrigger>
+            <TabsTrigger value="credits">Tín dụng</TabsTrigger>
           </TabsList>
 
           {canManage && (
@@ -440,93 +431,87 @@ export function GroupFinanceSection({
             </div>
           </TabsContent>
 
-          {canManage && (
-            <TabsContent value="expenses" className="mt-4">
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Tên khoản chi</TableHead>
-                      <TableHead>Số tiền</TableHead>
-                      <TableHead>Ngày chi</TableHead>
-                      <TableHead>Người tạo</TableHead>
-                      <TableHead />
+          <TabsContent value="expenses" className="mt-4">
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Tên khoản chi</TableHead>
+                    <TableHead>Số tiền</TableHead>
+                    <TableHead>Ngày chi</TableHead>
+                    <TableHead>Người tạo</TableHead>
+                    <TableHead />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {expensesQuery.data?.data?.map((exp) => (
+                    <TableRow key={exp.id}>
+                      <TableCell className="font-medium">{exp.title}</TableCell>
+                      <TableCell className="font-medium">
+                        {formatCurrency(exp.totalAmount)}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {formatDate(exp.expenseDate)}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {exp.createdBy?.name}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <ExpenseRowActions
+                          groupId={groupId}
+                          expense={exp}
+                          members={resolvedMembers}
+                          canManage={canManage}
+                        />
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {expensesQuery.data?.data?.map((exp) => (
-                      <TableRow key={exp.id}>
-                        <TableCell className="font-medium">
-                          {exp.title}
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {formatCurrency(exp.totalAmount)}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {formatDate(exp.expenseDate)}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {exp.createdBy?.name}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <ExpenseRowActions
-                            groupId={groupId}
-                            expense={exp}
-                            members={resolvedMembers}
-                            canManage={canManage}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    {!expensesQuery.data?.data?.length && (
-                      <TableRow>
-                        <TableCell
-                          colSpan={5}
-                          className="py-4 text-center text-muted-foreground"
-                        >
-                          Chưa có khoản chi nào.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </TabsContent>
-          )}
+                  ))}
+                  {!expensesQuery.data?.data?.length && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={5}
+                        className="py-4 text-center text-muted-foreground"
+                      >
+                        Chưa có khoản chi nào.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </TabsContent>
 
-          {canManage && (
-            <TabsContent value="credits" className="mt-4">
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {creditBalancesQuery.data?.data?.map((entry) => (
-                  <Card
-                    key={entry.userId}
-                    className="flex items-center gap-4 p-4"
-                  >
-                    <Avatar>
-                      <AvatarImage src={entry.user?.avatarUrl || ""} />
-                      <AvatarFallback>
-                        {getInitials(entry.user?.name || "TV")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium">{entry.user?.name}</p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {entry.user?.email}
-                      </p>
-                    </div>
-                    <Badge variant="secondary">
-                      {formatCurrency(entry.creditBalance)}
-                    </Badge>
-                  </Card>
-                ))}
-                {!creditBalancesQuery.data?.data?.length && (
-                  <div className="col-span-full py-10 text-center text-muted-foreground">
-                    Không có thành viên nào có số dư tín dụng.
+          <TabsContent value="credits" className="mt-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {creditBalancesQuery.data?.data?.map((entry) => (
+                <Card
+                  key={entry.userId}
+                  className="flex items-center gap-4 p-4"
+                >
+                  <Avatar>
+                    <AvatarImage src={entry.user?.avatarUrl || ""} />
+                    <AvatarFallback>
+                      {getInitials(entry.user?.name || "TV")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{entry.user?.name}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {entry.user?.email}
+                    </p>
                   </div>
-                )}
-              </div>
-            </TabsContent>
-          )}
+                  <Badge variant="secondary">
+                    {formatCurrency(entry.creditBalance)}
+                  </Badge>
+                </Card>
+              ))}
+              {!creditBalancesQuery.data?.data?.length && (
+                <div className="col-span-full py-10 text-center text-muted-foreground">
+                  Không có thành viên nào có số dư tín dụng.
+                </div>
+              )}
+            </div>
+          </TabsContent>
         </Tabs>
       </CardContent>
     </Card>
