@@ -76,10 +76,6 @@ const sportCenterManagementMenuItems = [
     href: "/sport-center-management/courts-management",
   },
   {
-    title: "Danh sách sân",
-    href: "/sport-center-management/courts",
-  },
-  {
     title: "Quản lý khách hàng",
     href: "/sport-center-management/customer",
   },
