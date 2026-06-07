@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { toast } from "sonner"
 
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -14,8 +15,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { getPaymentStatusLabel } from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
-import { formatCurrencyVnd } from "@/utils/expense-utils"
+import { formatCurrencyVnd, getPaymentStatusTone } from "@/utils/expense-utils"
 
 import { submitPaymentAction } from "../../actions/payment-actions"
 import { UploadImageAction } from "../../actions/upload-image-action"
@@ -78,10 +80,10 @@ function UploadPaymentProofCard({
             <CheckCircle2 className="size-12" />
             <div>
               <p className="font-semibold text-foreground">
-                Upload Successful!
+                {t("payment.uploadSuccessTitle")}
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Your payment proof has been submitted for review.
+                {t("payment.uploadSuccessDescription")}
               </p>
             </div>
             <Button
@@ -89,7 +91,7 @@ function UploadPaymentProofCard({
               className="mt-2"
               onClick={() => setIsSuccess(false)}
             >
-              Upload Another
+              {t("payment.uploadAnother")}
             </Button>
           </div>
         ) : (
@@ -145,16 +147,9 @@ function JoinedSessionsSection({
   return (
     <Card className="overflow-hidden">
       <CardHeader className="border-b border-border/60 bg-muted/20">
-        <CardTitle className="text-xl">
-          {t("payment.joinedSessions", {
-            defaultValue: "Joined Play Sessions",
-          })}
-        </CardTitle>
+        <CardTitle className="text-xl">{t("payment.joinedSessions")}</CardTitle>
         <CardDescription className="mt-1">
-          {t("payment.joinedSessionsDescription", {
-            defaultValue:
-              "Below are the play sessions you have joined and their respective fees.",
-          })}
+          {t("payment.joinedSessionsDescription")}
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0">
@@ -182,9 +177,7 @@ function JoinedSessionsSection({
           ))}
         </div>
         <div className="flex items-center justify-between border-t-2 border-border/60 bg-muted/20 p-4 sm:p-6">
-          <p className="text-lg font-semibold">
-            {t("payment.totalFeeToPay", { defaultValue: "Total Fee to Pay" })}
-          </p>
+          <p className="text-lg font-semibold">{t("payment.totalFeeToPay")}</p>
           <p className="text-2xl font-bold text-primary">
             {formatCurrencyVnd(totalFee)}
           </p>
@@ -202,29 +195,43 @@ export default function SocialPaymentTab({
   joinedSessions?: PlaySession[]
 }) {
   const { t } = useSocialsTranslation()
-  const totalFee = (joinedSessions || []).reduce(
-    (acc, session) => acc + (session.sessionFee || 0),
-    0
+  const userJoinedSessionIds = social?.myParticipantInfo?.joinedSessionIds || []
+  const actualJoinedSessions = (joinedSessions || []).filter((session) =>
+    userJoinedSessionIds.includes(session.id)
   )
+
+  const totalFee = social?.myParticipantInfo?.totalFee ?? 0
 
   return (
     <div className="space-y-6">
-      <Card className="overflow-hidden border-primary/10 bg-linear-to-br from-background via-background to-primary/5 shadow-sm">
-        <CardHeader className="border-b border-border/60 bg-muted/20">
-          <CardTitle className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            {t("payment.title", { defaultValue: "Payment Details" })}
-          </CardTitle>
-          <CardDescription className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+      <Card className="flex flex-row items-start justify-between border-b border-border/60 bg-muted/20 px-4 py-6 sm:items-center">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            {t("payment.title")}
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
             {t("payment.subtitle")}
-          </CardDescription>
-        </CardHeader>
+          </p>
+        </div>
+        {social?.myParticipantInfo?.paymentStatus && (
+          <Badge
+            className={getPaymentStatusTone(
+              social.myParticipantInfo.paymentStatus
+            )}
+          >
+            {getPaymentStatusLabel(social.myParticipantInfo.paymentStatus, t)}
+          </Badge>
+        )}
       </Card>
 
-      <CardContent className="flex flex-col gap-6 p-0">
-        <JoinedSessionsSection sessions={joinedSessions} totalFee={totalFee} />
+      <div className="flex flex-col gap-6">
+        <JoinedSessionsSection
+          sessions={actualJoinedSessions}
+          totalFee={totalFee}
+        />
         <PaymentInformationCard social={social} showEditAction={false} />
         <UploadPaymentProofCard socialId={social?.id} amount={totalFee} />
-      </CardContent>
+      </div>
     </div>
   )
 }

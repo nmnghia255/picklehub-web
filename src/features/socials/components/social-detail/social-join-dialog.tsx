@@ -69,7 +69,7 @@ export default function SocialJoinDialog({
           <div className="space-y-6 py-4">
             <div>
               <div className="mb-3 text-sm font-medium">
-                1. Choose Pricing Option
+                {t("dialogs.choosePricingOption")}
               </div>
               <RadioGroup
                 value={joinMode}
@@ -84,10 +84,10 @@ export default function SocialJoinDialog({
                       htmlFor="mode-full"
                       className="cursor-pointer text-sm leading-none font-medium"
                     >
-                      Full Package (Flat fee)
+                      {t("dialogs.fullPackage")}
                     </label>
                     <p className="text-sm text-muted-foreground">
-                      Pay once and get access to any session you choose.
+                      {t("dialogs.fullPackageDescription")}
                     </p>
                   </div>
                 </div>
@@ -101,10 +101,10 @@ export default function SocialJoinDialog({
                       htmlFor="mode-sessions"
                       className="cursor-pointer text-sm leading-none font-medium"
                     >
-                      Pay Per Session
+                      {t("dialogs.payPerSession")}
                     </label>
                     <p className="text-sm text-muted-foreground">
-                      Pay only for the specific sessions you select.
+                      {t("dialogs.payPerSessionDescription")}
                     </p>
                   </div>
                 </div>
@@ -113,7 +113,7 @@ export default function SocialJoinDialog({
 
             <div>
               <div className="mb-3 text-sm font-medium">
-                2. Select Sessions to Play
+                {t("dialogs.selectSessions")}
               </div>
               <div className="space-y-2">
                 {sessions.map((session) => (

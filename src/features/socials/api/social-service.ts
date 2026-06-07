@@ -160,7 +160,7 @@ export const SocialService = {
   leaveSocial: async function (socialId: string): Promise<LeaveSocialResponse> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.delete<ApiResponse<LeaveSocialResponse>>(
-      `/api/events/socials/${socialId}/leave`
+      `/api/events/socials/${socialId}/participants/me`
     )
     return unwrapApiResponse(response.data)
   },

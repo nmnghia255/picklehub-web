@@ -7,7 +7,8 @@
       "hours_one": "{{count}} giờ",
       "hours_other": "{{count}} giờ",
       "minutes_one": "{{count}} phút",
-      "minutes_other": "{{count}} phút"
+      "minutes_other": "{{count}} phút",
+      "uploading": "Đang tải lên..."
     },
     "labels": {
       "published": "Đã đăng",
@@ -38,10 +39,10 @@
       "mixed": "Đơn & Đôi"
     },
     "listing": {
-      "title": "Social",
-      "subtitle": "Khám phá các buổi social sắp diễn ra, tinh chỉnh bộ lọc và tham gia phiên phù hợp.",
-      "searchPlaceholder": "Tìm social...",
-      "createSocial": "Tạo social",
+      "title": "Buổi chơi",
+      "subtitle": "Khám phá các buổi chơi sắp diễn ra, tinh chỉnh bộ lọc và tham gia phiên phù hợp.",
+      "searchPlaceholder": "Tìm buổi chơi...",
+      "createSocial": "Tạo buổi chơi",
       "filters": "Bộ lọc",
       "showingAvailableSlotsOnly": "Đang hiển thị: Chỉ còn chỗ trống",
       "showAllAvailability": "Hiển thị mọi tình trạng chỗ trống",
@@ -49,7 +50,7 @@
       "sessionCount_other": "{{count}} phiên",
       "organizerCount_one": "{{count}} người tổ chức",
       "organizerCount_other": "{{count}} người tổ chức",
-      "noResultsTitle": "Không tìm thấy social nào",
+      "noResultsTitle": "Không tìm thấy buổi chơi nào",
       "noResultsDescription": "Thử xóa bộ lọc hoặc tìm kiếm một sự kiện khác."
     },
     "filters": {
@@ -82,9 +83,9 @@
       }
     },
     "detail": {
-      "notFoundTitle": "Không tìm thấy social",
-      "notFoundDescription": "Social bạn đang tìm không tồn tại hoặc không khả dụng.",
-      "backToSocials": "Quay lại Social",
+      "notFoundTitle": "Không tìm thấy buổi chơi",
+      "notFoundDescription": "Buổi chơi bạn đang tìm không tồn tại hoặc không khả dụng.",
+      "backToSocials": "Quay lại Buổi chơi",
       "overview": "Tổng quan",
       "participants": "Người tham gia",
       "aboutThisSocial": "Về buổi chơi này",
@@ -105,7 +106,7 @@
         "hostFinancialView": "Góc nhìn tài chính của chủ nhà"
       },
       "title": "Quản lý chi phí",
-      "subtitle": "Xem lại chi phí đặt sân, tính phần chia cho người tham gia, theo dõi thanh toán và giữ sự kiện social luôn gọn gàng về tài chính.",
+      "subtitle": "Xem lại chi phí đặt sân, tính phần chia cho người tham gia, theo dõi thanh toán và giữ sự kiện luôn gọn gàng về tài chính.",
       "actions": {
         "addExpense": "Thêm chi phí",
         "exportReport": "Xuất báo cáo",
@@ -120,7 +121,7 @@
       "summary": {
         "totalExpense": "Tổng chi phí",
         "extraExpense": "Chi phí phát sinh",
-        "totalExpenseDescription": "Tất cả chi phí đặt sân của sự kiện social",
+        "totalExpenseDescription": "Tất cả chi phí đặt sân của sự kiện này.",
         "participants": "Người tham gia",
         "participantsDescription": "Các người chơi đã xác nhận tham gia chia chi phí",
         "costPerParticipant": "Chi phí mỗi người",
@@ -225,6 +226,15 @@
           "description": "Mô tả",
           "amount": "Số tiền",
           "actions": "Thao tác"
+        },
+        "deleteConfirm": {
+          "title": "Bạn có chắc chắn không?",
+          "description": "Thao tác này không thể hoàn tác. Khoản phí này sẽ bị xóa vĩnh viễn khỏi sự kiện.",
+          "cancel": "Hủy",
+          "delete": "Xóa",
+          "deleting": "Đang xóa...",
+          "success": "Đã xóa khoản phí thành công",
+          "error": "Lỗi khi xóa khoản phí"
         }
       },
       "pricing": {
@@ -253,7 +263,10 @@
     "payment": {
       "title": "Thanh toán",
       "subtitle": "Thanh toán chi phí tham gia buổi chơi này",
-      "description": "Xem lại chi phí đặt sân, tính phần chia cho người tham gia, theo dõi thanh toán và giữ sự kiện social luôn gọn gàng về tài chính.",
+      "totalFeeToPay": "Tổng phí cần thanh toán",
+      "joinedSessions": "Phiên đã tham gia",
+      "joinedSessionsDescription": "Danh sách các phiên bạn đã tham gia",
+      "description": "Xem lại chi phí đặt sân, tính phần chia cho người tham gia, theo dõi thanh toán và giữ sự kiện luôn gọn gàng về tài chính.",
       "checkInfoBeforeConfirm": "Kiểm tra lại thông tin đặt sân, sau đó xác nhận để tạo booking.",
       "uploadingProof": "Đang tải ảnh minh chứng...",
       "uploadProof": "Tải ảnh minh chứng thanh toán",
@@ -292,9 +305,11 @@
       "cancellationPolicy": "Chính sách hủy",
       "visibility": "Hiển thị",
       "payment": "Thanh toán",
-      "joinSocial": "Tham gia social",
-      "leaveSocial": "Rời social",
+      "joinSocial": "Tham gia",
+      "leaveSocial": "Rời buổi chơi",
       "joinSession": "Tham gia phiên",
+      "leaving": "Đang rời...",
+      "publishing": "Đang đăng...",
       "leaveSession": "Rời phiên",
       "full": "Đầy",
       "publishSocial": "Đăng sự kiện",
@@ -302,17 +317,23 @@
     },
     "dialogs": {
       "joinTitle": "Tham gia {{title}}",
+      "choosePricingOption": "1. Chọn tùy chọn giá",
+      "selectSessions": "2. Chọn phiên chơi",
+      "fullPackage": "Trọn gói",
+      "fullPackageDescription": "Tham gia tất cả các phiên chơi với một mức phí duy nhất.",
+      "payPerSession": "Từng phiên",
+      "payPerSessionDescription": "Chỉ trả cho các phiên chơi bạn tham gia.",
       "joinDescription": "Bạn sắp tham gia sự kiện này. Sau khi xác nhận, bạn có thể chọn các phiên chơi cụ thể.",
       "autoApproved": "Yêu cầu của bạn sẽ được tự động duyệt.",
       "manualApproval": "Sự kiện này cần duyệt thủ công. Bạn sẽ nhận thông báo sau khi chủ nhà xem xét yêu cầu.",
       "cancel": "Hủy",
       "confirmJoin": "Xác nhận tham gia",
       "joinSuccess": "Tham gia social thành công!",
-      "joinError": "Lỗi khi tham gia social.",
-      "leaveSuccess": "Rời social thành công!",
-      "leaveError": "Lỗi khi rời social.",
-      "confirmLeaveTitle": "Rời Social",
-      "confirmLeave": "Bạn có chắc chắn muốn rời social này không?",
+      "joinError": "Lỗi khi tham gia.",
+      "leaveSuccess": "Rời buổi chơi thành công!",
+      "leaveError": "Lỗi khi rời buổi chơi.",
+      "confirmLeaveTitle": "Rời buổi chơi",
+      "confirmLeave": "Bạn có chắc chắn muốn rời không?",
       "confirmLeaveAction": "Rời khỏi"
     },
     "sessions": {
@@ -444,13 +465,13 @@
       "privateEvent": "Sự kiện riêng tư"
     },
     "form": {
-      "editTitle": "Chỉnh sửa social",
-      "createTitle": "Tạo social mới",
+      "editTitle": "Chỉnh sửa buổi chơi",
+      "createTitle": "Tạo buổi chơi mới",
       "subtitle": "Thiết lập thông tin sự kiện, quy tắc và cấu hình xuất bản.",
       "settingsAndPublish": "Cài đặt & xuất bản",
       "basicInformation": "Thông tin cơ bản",
-      "socialTitle": "Tiêu đề social",
-      "socialTitlePlaceholder": "ví dụ: Social pickleball sáng Chủ nhật",
+      "socialTitle": "Tiêu đề buổi chơi",
+      "socialTitlePlaceholder": "ví dụ: Buổi pickleball sáng Chủ nhật",
       "description": "Mô tả",
       "descriptionPlaceholder": "Mô tả sự kiện của bạn...",
       "format": "Hình thức",

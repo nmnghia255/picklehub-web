@@ -128,9 +128,13 @@ export default function SocialSidebar({
             />
             <SettingRow
               label={t("sidebar.cancellationPolicy")}
-              value={`${t("common.hours", {
-                count: social.cancellationFreezeHours,
-              })} ${t("common.beforeEvent")}`}
+              value={
+                social.cancellationFreezeHours != null
+                  ? `${t("common.hours", {
+                      count: social.cancellationFreezeHours,
+                    })} ${t("common.beforeEvent")}`
+                  : t("common.na", { defaultValue: "N/A" })
+              }
             />
             <SettingRow
               label={t("sidebar.visibility")}

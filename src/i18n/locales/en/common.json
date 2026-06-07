@@ -197,6 +197,15 @@
           "description": "Description",
           "amount": "Amount",
           "actions": "Actions"
+        },
+        "deleteConfirm": {
+          "title": "Are you sure?",
+          "description": "This action cannot be undone. This will permanently delete the expense from the event.",
+          "cancel": "Cancel",
+          "delete": "Delete",
+          "deleting": "Deleting...",
+          "success": "Expense deleted successfully",
+          "error": "Failed to delete expense"
         }
       },
       "pricing": {
@@ -256,6 +265,13 @@
       "manualApproval": "This event requires manual approval. You'll receive a notification once the host reviews your request.",
       "cancel": "Cancel",
       "confirmJoin": "Confirm Join",
+      "joining": "Joining...",
+      "choosePricingOption": "1. Choose Pricing Option",
+      "fullPackage": "Full Package (Flat fee)",
+      "fullPackageDescription": "Pay once and get access to any session you choose.",
+      "payPerSession": "Pay Per Session",
+      "payPerSessionDescription": "Pay only for the specific sessions you select.",
+      "selectSessions": "2. Select Sessions to Play",
       "joinSuccess": "Successfully joined the social!",
       "joinError": "Failed to join the social.",
       "leaveSuccess": "Successfully left the social!",
@@ -464,7 +480,10 @@
       "selectFile": "Select Image File",
       "clickToUpload": "Click to upload",
       "clickToUploadDescription": "PNG, JPG or JPEG under 5MB",
-      "tab": "Payment"
+      "tab": "Payment",
+      "uploadSuccessTitle": "Upload Successful!",
+      "uploadSuccessDescription": "Your payment proof has been submitted for review.",
+      "uploadAnother": "Upload Another"
     }
   },
   "sportCenterManagement": {

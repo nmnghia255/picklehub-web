@@ -5,6 +5,16 @@ import { Edit, Plus, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -40,16 +50,27 @@ export function ExtraExpensesCard({
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null)
+  const [expenseToDelete, setExpenseToDelete] = useState<string | null>(null)
 
   const { mutate: deleteExpense, isPending: isDeleting } = useMutation({
     mutationFn: (expenseId: string) => deleteExpenseAction(socialId, expenseId),
     onSuccess: () => {
-      toast.success("Expense deleted successfully")
+      toast.success(
+        t("expenses.extra.deleteConfirm.success", {
+          defaultValue: "Expense deleted successfully",
+        })
+      )
       queryClient.invalidateQueries({ queryKey: ["socialExpenses", socialId] })
       queryClient.invalidateQueries({ queryKey: ["financeSummary", socialId] })
+      setExpenseToDelete(null)
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to delete expense")
+      toast.error(
+        error.message ||
+          t("expenses.extra.deleteConfirm.error", {
+            defaultValue: "Failed to delete expense",
+          })
+      )
     },
   })
 
@@ -63,10 +84,8 @@ export function ExtraExpensesCard({
     setIsDialogOpen(true)
   }
 
-  const handleDelete = (expenseId: string) => {
-    if (confirm("Are you sure you want to delete this expense?")) {
-      deleteExpense(expenseId)
-    }
+  const confirmDelete = (expenseId: string) => {
+    setExpenseToDelete(expenseId)
   }
 
   return (
@@ -146,8 +165,10 @@ export function ExtraExpensesCard({
                           variant="ghost"
                           size="icon"
                           className="text-destructive hover:text-destructive"
-                          onClick={() => handleDelete(expense.id)}
-                          disabled={isDeleting}
+                          onClick={() => confirmDelete(expense.id)}
+                          disabled={
+                            isDeleting && expenseToDelete === expense.id
+                          }
                         >
                           <Trash2 className="size-4" />
                         </Button>
@@ -178,6 +199,52 @@ export function ExtraExpensesCard({
         onOpenChange={setIsDialogOpen}
         expenseToEdit={expenseToEdit}
       />
+
+      <AlertDialog
+        open={!!expenseToDelete}
+        onOpenChange={(open) => !open && setExpenseToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("expenses.extra.deleteConfirm.title", {
+                defaultValue: "Are you sure?",
+              })}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("expenses.extra.deleteConfirm.description", {
+                defaultValue:
+                  "This action cannot be undone. This will permanently delete the expense from the event.",
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>
+              {t("expenses.extra.deleteConfirm.cancel", {
+                defaultValue: "Cancel",
+              })}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
+              disabled={isDeleting}
+              onClick={(e) => {
+                e.preventDefault()
+                if (expenseToDelete) {
+                  deleteExpense(expenseToDelete)
+                }
+              }}
+            >
+              {isDeleting
+                ? t("expenses.extra.deleteConfirm.deleting", {
+                    defaultValue: "Deleting...",
+                  })
+                : t("expenses.extra.deleteConfirm.delete", {
+                    defaultValue: "Delete",
+                  })}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }

@@ -243,12 +243,29 @@ export function ParticipantPaymentTrackingCard({
                           "0"
                         )}
                       </TableCell>
-                      <TableCell className="px-6 py-4 text-center">
-                        <Badge
-                          className={getPaymentStatusTone(row.paymentStatus)}
-                        >
-                          {getPaymentStatusLabel(row.paymentStatus, t)}
-                        </Badge>
+                      <TableCell className="px-6 py-4">
+                        <div className="flex items-center justify-center gap-2">
+                          <Badge
+                            className={getPaymentStatusTone(row.paymentStatus)}
+                          >
+                            {getPaymentStatusLabel(row.paymentStatus, t)}
+                          </Badge>
+                          {row.payments?.[0]?.receiptUrl && (
+                            <button
+                              onClick={() => openVerifyPayment(row)}
+                              className="group relative flex h-7 w-6 items-center justify-center overflow-hidden rounded-[4px] border border-border/50 bg-muted/50 shadow-xs transition-colors hover:border-primary/50"
+                              title={t("expenses.tracking.viewReceipt", {
+                                defaultValue: "View Receipt",
+                              })}
+                            >
+                              <img
+                                src={row.payments[0].receiptUrl}
+                                alt="Receipt"
+                                className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
+                              />
+                            </button>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="px-6 py-4 text-right">
                         <DropdownMenu>

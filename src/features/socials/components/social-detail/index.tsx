@@ -94,8 +94,8 @@ export default function SocialDetail({
     new Date(social.endTime),
     new Date(social.startTime)
   )
-  const isParticipant = initialParticipants.some(
-    (p) => p.userId === "currentUserId"
+  const isParticipant = Boolean(
+    social.myParticipantInfo && social.myParticipantInfo.status !== "CANCELLED"
   )
 
   const socialParticipants = initialParticipants

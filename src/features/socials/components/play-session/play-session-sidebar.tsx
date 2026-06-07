@@ -106,10 +106,10 @@ export default function PlaySessionSidebar({
               label={t("sidebar.cancellationPolicy")}
               value={
                 social.cancellationFreezeHours != null
-                  ? `${social.cancellationFreezeHours} ${t("common.hours", {
+                  ? `${t("common.hours", {
                       count: social.cancellationFreezeHours,
                     })} ${t("common.beforeEvent")}`
-                  : t("common.na")
+                  : t("common.na", { defaultValue: "N/A" })
               }
             />
             <SettingRow

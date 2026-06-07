@@ -162,7 +162,7 @@ export interface ParticipantInfo {
   amountDue: number
   amountOverpaid: number
   paymentStatus: PaymentStatus
-  joinedSessionIds: []
+  joinedSessionIds: string[]
 }
 
 export interface SocialDetail {

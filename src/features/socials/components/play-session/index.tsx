@@ -156,7 +156,10 @@ export default function PlaySessionDetail({
                 )}
 
                 {tabValue === "2" && (
-                  <PlaySessionParticipants participants={participants} />
+                  <PlaySessionParticipants
+                    participants={participants}
+                    socialId={socialId || ""}
+                  />
                 )}
               </div>
             </CardContent>
