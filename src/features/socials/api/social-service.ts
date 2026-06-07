@@ -147,12 +147,12 @@ export const SocialService = {
 
   joinSocial: async function (
     socialId: string,
-    playSessionIds?: string[]
+    isFullPackage: boolean
   ): Promise<SocialParticipant> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.post<ApiResponse<SocialParticipant>>(
       `/api/events/socials/${socialId}/join`,
-      { playSessionIds }
+      { isFullPackage }
     )
     return unwrapApiResponse(response.data)
   },

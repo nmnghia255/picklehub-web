@@ -56,7 +56,6 @@ export default function SocialSidebar({
   }
 
   const host: Host = social.creator
-  const playSessions = social.playSessions
 
   if (!social) {
     return (

@@ -235,6 +235,7 @@ export interface SocialParticipant {
   joinedAt: string
   isHost: boolean
   user: User
+  payments?: Payment[]
 }
 
 export interface DuplicateSessionRequest {

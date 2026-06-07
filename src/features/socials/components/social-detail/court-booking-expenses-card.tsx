@@ -1,3 +1,4 @@
+import { format } from "date-fns"
 import { CalendarDays } from "lucide-react"
 
 import {
@@ -19,13 +20,13 @@ import {
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
-import type { CourtExpenseRow } from "../../mock-data/expense-types"
+import type { CourtBookingExpense } from "../../types/finance"
 
 export function CourtBookingExpensesCard({
   expenseRows,
   totalCourtExpense,
 }: {
-  expenseRows: CourtExpenseRow[]
+  expenseRows: CourtBookingExpense[]
   totalCourtExpense: number
 }) {
   const { t } = useSocialsTranslation()
@@ -76,26 +77,25 @@ export function CourtBookingExpensesCard({
                         <CalendarDays className="size-4" />
                       </span>
                       <div>
-                        <p>{row.courtName}</p>
+                        <p>{row.courtNames || row.title}</p>
                         <p className="text-xs text-muted-foreground">
-                          {row.type === "COURT_BOOKING"
-                            ? t("expenses.courtBookings.rowTypeCourtBooking")
-                            : t("expenses.courtBookings.rowTypeOther")}
+                          {t("expenses.courtBookings.rowTypeCourtBooking")}
                         </p>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell className="px-6 py-4 text-muted-foreground">
-                    {row.date}
+                    {format(new Date(row.startTime), "PP")}
                   </TableCell>
                   <TableCell className="px-6 py-4 text-muted-foreground">
-                    {row.time}
+                    {format(new Date(row.startTime), "p")} -{" "}
+                    {format(new Date(row.endTime), "p")}
                   </TableCell>
                   <TableCell className="px-6 py-4 text-muted-foreground">
-                    {row.duration}
+                    {row.numberOfCourts} Courts
                   </TableCell>
                   <TableCell className="px-6 py-4 text-right font-medium">
-                    {formatCurrencyVnd(row.cost)}
+                    {formatCurrencyVnd(row.bookingCost)}
                   </TableCell>
                 </TableRow>
               ))}

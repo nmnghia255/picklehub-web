@@ -169,8 +169,10 @@ function JoinedSessionsSection({
                   {session.title || t("common.playSession")}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {format(new Date(session.startTime), "PPp")} -{" "}
-                  {format(new Date(session.endTime), "p")}
+                  <span suppressHydrationWarning>
+                    {format(new Date(session.startTime), "PPp")} -{" "}
+                    {format(new Date(session.endTime), "p")}
+                  </span>
                 </p>
               </div>
               <div className="text-lg font-semibold text-primary">

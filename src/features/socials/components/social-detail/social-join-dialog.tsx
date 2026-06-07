@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import type { PlaySession } from "@/features/socials/types/play-session"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
@@ -30,23 +31,27 @@ export default function SocialJoinDialog({
   title: string
   autoApproveJoinRequests: boolean
   sessions?: PlaySession[]
-  onConfirm?: (sessionIds: string[]) => void
+  onConfirm?: (isFullPackage: boolean, sessionIds: string[]) => void
   isJoining?: boolean
 }) {
   const { t } = useSocialsTranslation()
+  const [joinMode, setJoinMode] = useState<"full" | "sessions">("full")
   const [selectedSessionIds, setSelectedSessionIds] = useState<string[]>([])
 
   // Reset selection when dialog opens
   React.useEffect(() => {
-    if (open && sessions?.length) {
+    if (open) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSelectedSessionIds([])
+      setJoinMode("full")
+      if (sessions?.length) {
+        setSelectedSessionIds([])
+      }
     }
   }, [open, sessions])
 
   const handleConfirm = () => {
     if (onConfirm) {
-      onConfirm(selectedSessionIds)
+      onConfirm(joinMode === "full", selectedSessionIds)
     } else {
       onOpenChange(false)
     }
@@ -61,48 +66,92 @@ export default function SocialJoinDialog({
         </DialogHeader>
 
         {sessions && sessions.length > 0 && (
-          <div className="space-y-3 py-4">
-            <div className="text-sm font-medium">
-              {t("dialogs.selectSessions", {
-                defaultValue: "Select play sessions to join:",
-              })}
-            </div>
-            <div className="space-y-2">
-              {sessions.map((session) => (
+          <div className="space-y-6 py-4">
+            <div>
+              <div className="mb-3 text-sm font-medium">
+                1. Choose Pricing Option
+              </div>
+              <RadioGroup
+                value={joinMode}
+                onValueChange={(v) => setJoinMode(v as "full" | "sessions")}
+              >
                 <div
-                  key={session.id}
-                  className="flex items-start space-x-3 rounded-md border p-3"
+                  className={`flex items-center space-x-3 rounded-md border p-3 transition-colors ${joinMode === "full" ? "border-primary bg-primary/5" : ""}`}
                 >
-                  <Checkbox
-                    id={session.id}
-                    checked={selectedSessionIds.includes(session.id)}
-                    onCheckedChange={(checked) => {
-                      if (checked === true) {
-                        setSelectedSessionIds([
-                          ...selectedSessionIds,
-                          session.id,
-                        ])
-                      } else {
-                        setSelectedSessionIds(
-                          selectedSessionIds.filter((id) => id !== session.id)
-                        )
-                      }
-                    }}
-                  />
+                  <RadioGroupItem value="full" id="mode-full" />
                   <div className="grid gap-1.5 leading-none">
                     <label
-                      htmlFor={session.id}
-                      className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      htmlFor="mode-full"
+                      className="cursor-pointer text-sm leading-none font-medium"
                     >
-                      {session.title || t("common.playSession")}
+                      Full Package (Flat fee)
                     </label>
                     <p className="text-sm text-muted-foreground">
-                      {format(new Date(session.startTime), "PPp")} -{" "}
-                      {format(new Date(session.endTime), "p")}
+                      Pay once and get access to any session you choose.
                     </p>
                   </div>
                 </div>
-              ))}
+
+                <div
+                  className={`flex items-center space-x-3 rounded-md border p-3 transition-colors ${joinMode === "sessions" ? "border-primary bg-primary/5" : ""}`}
+                >
+                  <RadioGroupItem value="sessions" id="mode-sessions" />
+                  <div className="grid gap-1.5 leading-none">
+                    <label
+                      htmlFor="mode-sessions"
+                      className="cursor-pointer text-sm leading-none font-medium"
+                    >
+                      Pay Per Session
+                    </label>
+                    <p className="text-sm text-muted-foreground">
+                      Pay only for the specific sessions you select.
+                    </p>
+                  </div>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <div>
+              <div className="mb-3 text-sm font-medium">
+                2. Select Sessions to Play
+              </div>
+              <div className="space-y-2">
+                {sessions.map((session) => (
+                  <div
+                    key={session.id}
+                    className="flex items-start space-x-3 rounded-md border bg-background p-3"
+                  >
+                    <Checkbox
+                      id={session.id}
+                      checked={selectedSessionIds.includes(session.id)}
+                      onCheckedChange={(checked) => {
+                        if (checked === true) {
+                          setSelectedSessionIds([
+                            ...selectedSessionIds,
+                            session.id,
+                          ])
+                        } else {
+                          setSelectedSessionIds(
+                            selectedSessionIds.filter((id) => id !== session.id)
+                          )
+                        }
+                      }}
+                    />
+                    <div className="grid gap-1.5 leading-none">
+                      <label
+                        htmlFor={session.id}
+                        className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        {session.title || t("common.playSession")}
+                      </label>
+                      <p className="text-sm text-muted-foreground">
+                        {format(new Date(session.startTime), "PPp")} -{" "}
+                        {format(new Date(session.endTime), "p")}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -127,6 +176,7 @@ export default function SocialJoinDialog({
               isJoining ||
               (sessions &&
                 sessions.length > 0 &&
+                joinMode === "sessions" &&
                 selectedSessionIds.length === 0)
             }
           >

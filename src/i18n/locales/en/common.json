@@ -81,7 +81,8 @@
       "subtitle": "Review booking costs, calculate participant shares, track payments, and keep the social event financially organized.",
       "actions": {
         "addExpense": "Add Expense",
-        "exportReport": "Export Report"
+        "exportReport": "Export Report",
+        "setPricing": "Set Pricing"
       },
       "progress": {
         "title": "Collection progress",
@@ -147,7 +148,9 @@
           "participant": "Participant",
           "status": "Status",
           "amountDue": "Amount Due",
-          "paymentStatus": "Payment Status"
+          "paymentStatus": "Payment Status",
+          "totalFee": "Total Fee",
+          "actions": "Actions"
         },
         "participantStatus": {
           "pending": "Pending",
@@ -156,7 +159,12 @@
           "rejected": "Rejected"
         },
         "emptyTitle": "No participants match this filter.",
-        "emptyDescription": "Clear the search or switch payment status to see more rows."
+        "emptyDescription": "Clear the search or switch payment status to see more rows.",
+        "actions": {
+          "verifyReceipt": "Verify Receipt",
+          "recordCash": "Record Cash",
+          "issueRefund": "Issue Refund"
+        }
       },
       "paymentInfo": {
         "title": "Payment Information",
@@ -177,6 +185,34 @@
         "courtBookingCreated": "Court booking created",
         "participantPaymentReceived": "Participant payment received",
         "ledgerNote": "Hosted on the financial ledger"
+      },
+      "extra": {
+        "title": "Extra Expenses",
+        "description": "Additional manual expenses for this event (water, balls, etc.)",
+        "empty": "No extra expenses logged.",
+        "headers": {
+          "title": "Title",
+          "description": "Description",
+          "amount": "Amount",
+          "actions": "Actions"
+        }
+      },
+      "pricing": {
+        "title": "Pricing Calculator",
+        "description": "Calculate the break-even price based on the expected number of players and expenses.",
+        "expectedPlayers": "Expected Number of Players",
+        "totalCost": "Total Cost",
+        "breakEvenPackage": "Break-even (Package)",
+        "estProfitPackage": "Est. Profit (Package)",
+        "fullPackagePrice": "Full Package Price",
+        "warningBelowBreakEven": "Warning: Package price is below break-even!",
+        "headers": {
+          "session": "Session",
+          "breakEven": "Break-even",
+          "priceOverride": "Price Override"
+        },
+        "applyPricing": "Apply Pricing",
+        "cancel": "Cancel"
       }
     },
     "participantStatus": {
@@ -217,7 +253,14 @@
       "autoApproved": "Your request will be auto-approved.",
       "manualApproval": "This event requires manual approval. You'll receive a notification once the host reviews your request.",
       "cancel": "Cancel",
-      "confirmJoin": "Confirm Join"
+      "confirmJoin": "Confirm Join",
+      "joinSuccess": "Successfully joined the social!",
+      "joinError": "Failed to join the social.",
+      "leaveSuccess": "Successfully left the social!",
+      "leaveError": "Failed to leave the social.",
+      "confirmLeaveTitle": "Leave Social",
+      "confirmLeave": "Are you sure you want to leave this social?",
+      "confirmLeaveAction": "Leave"
     },
     "sessions": {
       "title": "Play Sessions",
@@ -404,6 +447,22 @@
       "save": "Save Social",
       "create": "Create Social",
       "update": "Update Social"
+    },
+    "payment": {
+      "title": "Payment",
+      "subtitle": "Pay the participation fee for this event",
+      "description": "Review the court expenses, participant split calculation, payment tracking and keep the social event financially clear.",
+      "checkInfoBeforeConfirm": "Double check the booking info, then confirm to create booking.",
+      "uploadingProof": "Uploading proof...",
+      "uploadProof": "Upload Payment Proof",
+      "uploadDescription": "This image will be sent to the host as part of your join request.",
+      "uploading": "Uploading...",
+      "confirm": "Confirm",
+      "submitProof": "Submit Proof",
+      "selectFile": "Select Image File",
+      "clickToUpload": "Click to upload",
+      "clickToUploadDescription": "PNG, JPG or JPEG under 5MB",
+      "tab": "Payment"
     }
   },
   "sportCenterManagement": {

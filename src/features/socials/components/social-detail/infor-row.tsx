@@ -22,7 +22,12 @@ export function InfoRow({
         <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
           {label}
         </p>
-        <div className="mt-1 text-sm font-medium text-foreground">{value}</div>
+        <div
+          className="mt-1 text-sm font-medium text-foreground"
+          suppressHydrationWarning
+        >
+          {value}
+        </div>
       </div>
     </div>
   )

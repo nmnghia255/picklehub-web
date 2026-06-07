@@ -87,7 +87,10 @@ export default function SocialParticipantsTab({
                     </div>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p
+                  className="text-xs text-muted-foreground"
+                  suppressHydrationWarning
+                >
                   {t("detail.joinedOn", {
                     date: format(new Date(participant.joinedAt), "MMM d"),
                   })}

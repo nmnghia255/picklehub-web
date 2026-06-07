@@ -21,10 +21,8 @@ import { joinSocialAction } from "@/features/socials/actions/join-social"
 import { leaveSocialAction } from "@/features/socials/actions/leave-social"
 import { PlaySessionForm } from "@/features/socials/components/play-session/play-session-form"
 import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
-import { useSocialsStore } from "@/features/socials/stores/social-listing-store"
 import type { PlaySession } from "@/features/socials/types/play-session"
 import type {
-  ListSocial as Social,
   SocialDetail,
   SocialParticipant,
 } from "@/features/socials/types/social"
@@ -68,8 +66,6 @@ export default function SocialDetail({
   const tabValue = useSocialDetailStore((s) => s.tabValue)
   const setTabValue = useSocialDetailStore((s) => s.setTabValue)
 
-  const selectedSocial = useSocialsStore((s) => s.selectedSocial)
-
   const social = initialSocial
 
   const [isJoining, setIsJoining] = useState(false)
@@ -106,10 +102,10 @@ export default function SocialDetail({
   const sessions = initialPlaySessions
   const maxSlots = social.maxSlots
 
-  const handleJoin = async (sessionIds: string[]) => {
+  const handleJoin = async (isFullPackage: boolean, sessionIds: string[]) => {
     setIsJoining(true)
     try {
-      await joinSocialAction(social.id, sessionIds)
+      await joinSocialAction(social.id, isFullPackage, sessionIds)
       toast.success(
         t("dialogs.joinSuccess", {
           defaultValue: "Successfully joined the social!",
@@ -193,7 +189,6 @@ export default function SocialDetail({
               <SocialSessions
                 maxSlots={maxSlots}
                 sessions={sessions}
-                isHost={isHost}
                 onCreateSession={() => {
                   setSelectedSession(null)
                   setPlaySessionModalOpen(true)
@@ -217,7 +212,7 @@ export default function SocialDetail({
             </TabsContent>
 
             <TabsContent value="3" className="space-y-4">
-              <SocialExpenseTab />
+              <SocialExpenseTab social={social} />
             </TabsContent>
           </Tabs>
         </div>

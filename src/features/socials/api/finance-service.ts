@@ -35,11 +35,13 @@ export const FinanceService = {
     toDate?: string
   ): Promise<FinanceSummary> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post(
-      `/api/events/socials/${socialId}/finances/summary`,
+    const response = await axios.get(
+      `/api/events/api/socials/${socialId}/finances/summary`,
       {
-        fromDate,
-        toDate,
+        params: {
+          fromDate,
+          toDate,
+        },
       }
     )
     return unwrapApiResponse<FinanceSummary>(response.data)
@@ -53,13 +55,15 @@ export const FinanceService = {
     userId: string
   ): Promise<FinanceMember[]> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post(
-      `/api/events/socials/${socialId}/finances/credit-balances`,
+    const response = await axios.get(
+      `/api/events/api/socials/${socialId}/finances/credit-balances`,
       {
-        page,
-        limit,
-        minCredit,
-        userId,
+        params: {
+          page,
+          limit,
+          minCredit,
+          userId,
+        },
       }
     )
     return unwrapApiResponse<FinanceMember[]>(response.data)
@@ -69,8 +73,8 @@ export const FinanceService = {
     socialId: string
   ): Promise<CourtBookingExpense[]> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post(
-      `/api/events/socials/${socialId}/finances/court-bookings`
+    const response = await axios.get(
+      `/api/events/api/socials/${socialId}/finances/court-bookings`
     )
     return unwrapApiResponse<CourtBookingExpense[]>(response.data)
   },
@@ -81,7 +85,7 @@ export const FinanceService = {
   ): Promise<SuggestedPriceResponse> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.post(
-      `/api/events/socials/${socialId}/finances/pricing-calculator`,
+      `/api/events/api/socials/${socialId}/finances/pricing-calculator`,
       suggestedPriceRequest
     )
     return unwrapApiResponse<SuggestedPriceResponse>(response.data)

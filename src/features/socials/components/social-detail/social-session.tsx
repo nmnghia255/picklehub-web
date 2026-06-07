@@ -22,15 +22,12 @@ import { getSessionStatusLabel } from "../../utils"
 export default function SocialSessions({
   maxSlots,
   sessions,
-  isHost,
   onCreateSession,
   onEditSession,
   onOpenSession,
 }: {
   maxSlots: number
   sessions: PlaySession[]
-
-  isHost: boolean
   onCreateSession: () => void
   onEditSession: (session: PlaySession) => void
   onOpenSession: (sessionId: string) => void
@@ -69,7 +66,7 @@ export default function SocialSessions({
                 return (
                   <Card
                     key={session.id}
-                    className="group cursor-pointer border-border/40 bg-card p-0 transition-all duration-300 hover:-translate-y-1 hover:border-border/80 hover:shadow-md"
+                    className="group cursor-pointer border-border/80 bg-card p-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
                     onClick={() => onOpenSession(session.id)}
                   >
                     <CardContent className="space-y-4 p-5">
@@ -79,8 +76,10 @@ export default function SocialSessions({
                             {session.title}
                           </h3>
                           <p className="mt-1 text-sm text-muted-foreground">
-                            {format(new Date(session.startTime), "h:mm a")} -{" "}
-                            {format(new Date(session.endTime), "h:mm a")}
+                            <span suppressHydrationWarning>
+                              {format(new Date(session.startTime), "h:mm a")} -{" "}
+                              {format(new Date(session.endTime), "h:mm a")}
+                            </span>
                           </p>
                         </div>
                         <div className="text-sm text-muted-foreground">

@@ -1,7 +1,7 @@
 {
   "socials": {
     "common": {
-      "na": "N/A",
+      "na": "Không áp dụng",
       "level": "Cấp độ",
       "beforeEvent": "trước sự kiện",
       "hours_one": "{{count}} giờ",
@@ -73,12 +73,12 @@
         "no": "Không còn chỗ trống"
       },
       "levelOptions": {
-        "notYet": "Chọn",
         "1": "1 - Mới bắt đầu",
         "2": "2 - Người mới chơi",
         "3": "3 - Trung cấp",
         "4": "4 - Nâng cao",
-        "5": "5 - Chuyên nghiệp"
+        "5": "5 - Chuyên nghiệp",
+        "notYet": "Chọn"
       }
     },
     "detail": {
@@ -99,7 +99,7 @@
       "noParticipants": "Chưa có người tham gia."
     },
     "expenses": {
-      "tab": "Chi phí",
+      "tab": "Quản lý chi phí",
       "badges": {
         "courtBookingOnly": "Chỉ sân đã đặt",
         "hostFinancialView": "Góc nhìn tài chính của chủ nhà"
@@ -108,7 +108,8 @@
       "subtitle": "Xem lại chi phí đặt sân, tính phần chia cho người tham gia, theo dõi thanh toán và giữ sự kiện social luôn gọn gàng về tài chính.",
       "actions": {
         "addExpense": "Thêm chi phí",
-        "exportReport": "Xuất báo cáo"
+        "exportReport": "Xuất báo cáo",
+        "setPricing": "Thiết lập giá"
       },
       "progress": {
         "title": "Tiến độ thu tiền",
@@ -174,7 +175,9 @@
           "participant": "Người tham gia",
           "status": "Trạng thái",
           "amountDue": "Số tiền cần thu",
-          "paymentStatus": "Trạng thái thanh toán"
+          "paymentStatus": "Trạng thái thanh toán",
+          "totalFee": "Tổng phí",
+          "actions": "Thao tác"
         },
         "participantStatus": {
           "pending": "Chờ duyệt",
@@ -183,7 +186,12 @@
           "rejected": "Bị từ chối"
         },
         "emptyTitle": "Không có người tham gia nào khớp bộ lọc này.",
-        "emptyDescription": "Xóa tìm kiếm hoặc đổi trạng thái thanh toán để xem thêm dòng dữ liệu."
+        "emptyDescription": "Xóa tìm kiếm hoặc đổi trạng thái thanh toán để xem thêm dòng dữ liệu.",
+        "actions": {
+          "verifyReceipt": "Xác nhận biên lai",
+          "recordCash": "Ghi nhận tiền mặt",
+          "issueRefund": "Hoàn tiền"
+        }
       },
       "paymentInfo": {
         "title": "Thông tin thanh toán",
@@ -204,6 +212,34 @@
         "courtBookingCreated": "Đã tạo đặt sân",
         "participantPaymentReceived": "Đã nhận thanh toán từ người tham gia",
         "ledgerNote": "Được lưu trên sổ cái tài chính"
+      },
+      "extra": {
+        "title": "Chi phí phát sinh",
+        "description": "Các chi phí thủ công khác cho sự kiện này (nước, bóng, v.v.)",
+        "empty": "Chưa có chi phí phát sinh nào.",
+        "headers": {
+          "title": "Tiêu đề",
+          "description": "Mô tả",
+          "amount": "Số tiền",
+          "actions": "Thao tác"
+        }
+      },
+      "pricing": {
+        "title": "Công cụ tính giá",
+        "description": "Tính toán giá hòa vốn dựa trên số lượng người chơi dự kiến và chi phí.",
+        "expectedPlayers": "Số người chơi dự kiến",
+        "totalCost": "Tổng chi phí",
+        "breakEvenPackage": "Hòa vốn (Gói)",
+        "estProfitPackage": "Lợi nhuận ước tính (Gói)",
+        "fullPackagePrice": "Giá trọn gói",
+        "warningBelowBreakEven": "Cảnh báo: Giá trọn gói đang dưới mức hòa vốn!",
+        "headers": {
+          "session": "Phiên",
+          "breakEven": "Hòa vốn",
+          "priceOverride": "Ghi đè giá"
+        },
+        "applyPricing": "Áp dụng giá",
+        "cancel": "Hủy"
       }
     },
     "payment": {
@@ -262,7 +298,14 @@
       "autoApproved": "Yêu cầu của bạn sẽ được tự động duyệt.",
       "manualApproval": "Sự kiện này cần duyệt thủ công. Bạn sẽ nhận thông báo sau khi chủ nhà xem xét yêu cầu.",
       "cancel": "Hủy",
-      "confirmJoin": "Xác nhận tham gia"
+      "confirmJoin": "Xác nhận tham gia",
+      "joinSuccess": "Tham gia social thành công!",
+      "joinError": "Lỗi khi tham gia social.",
+      "leaveSuccess": "Rời social thành công!",
+      "leaveError": "Lỗi khi rời social.",
+      "confirmLeaveTitle": "Rời Social",
+      "confirmLeave": "Bạn có chắc chắn muốn rời social này không?",
+      "confirmLeaveAction": "Rời khỏi"
     },
     "sessions": {
       "title": "Phiên chơi",
@@ -401,7 +444,7 @@
       "socialTitle": "Tiêu đề social",
       "socialTitlePlaceholder": "ví dụ: Social pickleball sáng Chủ nhật",
       "description": "Mô tả",
-      "descriptionPlaceholder": "Mô tả sự kiện social của bạn...",
+      "descriptionPlaceholder": "Mô tả sự kiện của bạn...",
       "format": "Hình thức",
       "schedule": "Lịch trình",
       "startTime": "Thời gian bắt đầu",
@@ -416,7 +459,7 @@
       "minimumSkillLevel": "Trình độ tối thiểu",
       "maximumSkillLevel": "Trình độ tối đa",
       "hostRole": "Vai trò chủ nhà",
-      "isFree": "Sự kiện miễn phí",
+      "isFree": "Miễn phí",
       "submitDupr": "Gửi lên DUPR",
       "paymentSetup": "Thiết lập thanh toán",
       "paymentQr": "Mã QR thanh toán",
@@ -464,7 +507,7 @@
       "fee": "Phí tham gia",
       "bookings": "Sân đã đặt",
       "location": "Vị trí",
-      "freeEvent": "Sự kiện miễn phí"
+      "freeEvent": "Miễn phí"
     }
   },
   "sportCenterManagement": {

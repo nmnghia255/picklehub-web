@@ -101,11 +101,16 @@ export default function PlaySessionSidebar({
                   : t("sidebar.manualApprovalRequired")
               }
             />
+
             <SettingRow
               label={t("sidebar.cancellationPolicy")}
-              value={`${social.cancellationFreezeHours} ${t("common.hours", {
-                count: social.cancellationFreezeHours,
-              })} ${t("common.beforeEvent")}`}
+              value={
+                social.cancellationFreezeHours != null
+                  ? `${social.cancellationFreezeHours} ${t("common.hours", {
+                      count: social.cancellationFreezeHours,
+                    })} ${t("common.beforeEvent")}`
+                  : t("common.na")
+              }
             />
             <SettingRow
               label={t("sidebar.visibility")}
@@ -116,15 +121,17 @@ export default function PlaySessionSidebar({
           </div>
         </div>
 
-        {session.sessionFee && (
+        {typeof session.sessionFee === "number" && (
           <>
             <Separator />
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">
                 {t("sidebar.payment")}
               </p>
-              <div className="text-3xl font-semibold text-primary">
-                {formatCurrencyVnd(session.sessionFee)}
+              <div className="text-xl font-semibold text-primary">
+                {session.sessionFee > 0
+                  ? formatCurrencyVnd(session.sessionFee)
+                  : t("form.freeEvent")}
               </div>
             </div>
           </>
@@ -147,7 +154,7 @@ export default function PlaySessionSidebar({
           <Button
             className="w-full"
             size="lg"
-            variant="outline"
+            variant="destructive"
             onClick={onLeave}
           >
             {t("sidebar.leaveSession")}

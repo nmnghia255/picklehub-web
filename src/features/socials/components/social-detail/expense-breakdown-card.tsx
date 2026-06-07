@@ -13,11 +13,11 @@ import { formatCurrencyVnd } from "@/utils/expense-utils"
 export function ExpenseBreakdownCard({
   totalCourtExpense,
   confirmedParticipants,
-  costPerParticipant,
+  extraExpense,
 }: {
   totalCourtExpense: number
   confirmedParticipants: number
-  costPerParticipant: number
+  extraExpense: number
 }) {
   const { t } = useSocialsTranslation()
 
@@ -73,15 +73,16 @@ export function ExpenseBreakdownCard({
 
           <div className="rounded-2xl border border-primary/15 bg-primary/5 p-5 shadow-sm">
             <p className="text-sm text-muted-foreground">
-              {t("expenses.breakdown.costPerParticipant")}
+              {t("expenses.breakdown.extraExpense", {
+                defaultValue: "Extra Expense",
+              })}
             </p>
             <p className="mt-3 text-2xl font-semibold text-primary">
-              {formatCurrencyVnd(costPerParticipant)}
+              {formatCurrencyVnd(extraExpense)}
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
-              {t("expenses.breakdown.equation", {
-                total: formatCurrencyVnd(totalCourtExpense),
-                count: confirmedParticipants,
+              {t("expenses.breakdown.extraExpenseDescription", {
+                defaultValue: "Additional expenses like water, balls",
               })}
             </p>
           </div>

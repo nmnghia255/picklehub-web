@@ -47,7 +47,7 @@ export function ExpenseSummaryGrid({
   totalCourtExpense,
   confirmedParticipants,
   totalParticipants,
-  costPerParticipant,
+  extraExpense,
   paidMembers,
   collectedAmount,
   outstandingAmount,
@@ -55,7 +55,7 @@ export function ExpenseSummaryGrid({
   totalCourtExpense: number
   confirmedParticipants: number
   totalParticipants: number
-  costPerParticipant: number
+  extraExpense: number
   paidMembers: number
   collectedAmount: number
   outstandingAmount: number
@@ -77,8 +77,10 @@ export function ExpenseSummaryGrid({
         icon={Users}
       />
       <ExpenseStatCard
-        label={t("expenses.summary.costPerParticipant")}
-        value={formatCurrencyVnd(costPerParticipant)}
+        label={t("expenses.summary.extraExpense", {
+          defaultValue: "Extra Expense",
+        })}
+        value={formatCurrencyVnd(extraExpense)}
         iconClassName="flex size-9 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 lg:size-10"
         icon={CircleDollarSign}
       />

@@ -1,6 +1,8 @@
 "use client"
 
-import { Download, TrendingUp } from "lucide-react"
+import { useQuery } from "@tanstack/react-query"
+import { Calculator, TrendingUp } from "lucide-react"
+import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -13,41 +15,56 @@ import {
 import { Progress } from "@/components/ui/progress"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
+import { listExpensesAction } from "../../actions/expense-actions"
 import {
-  expenseRows,
-  participantRows,
-  timelineRows,
-} from "../../mock-data/expense-data"
+  getFinanceSummaryAction,
+  listCourtBookingsAction,
+} from "../../actions/finance-actions"
+import type { SocialDetail } from "../../types/social"
 import { CourtBookingExpensesCard } from "./court-booking-expenses-card"
 import { ExpenseSummaryGrid } from "./expense-summary-grid"
-import { FinancialTimelineCard } from "./financial-timeline-card"
+import { ExtraExpensesCard } from "./extra-expenses-card"
 import { ParticipantPaymentTrackingCard } from "./participant-payment-tracking-card"
-import { PaymentInformationCard } from "./payment-information-card"
+import { PricingCalculatorDialog } from "./pricing-calculator-dialog"
+// import { FinancialTimelineCard } from "./financial-timeline-card"
+// import { PaymentInformationCard } from "./payment-information-card"
 import { SocialExpenseTabSkeleton } from "./social-expense-tab-skeleton"
 
-export default function SocialExpenseTab() {
+export default function SocialExpenseTab({
+  social,
+}: {
+  social: SocialDetail | null
+}) {
   const { t } = useSocialsTranslation()
-  const totalCourtExpense = expenseRows.reduce((sum, row) => sum + row.cost, 0)
-  const confirmedParticipants = 12
-  const totalParticipants = 16
-  const paidMembers = participantRows.filter(
-    (participant) => participant.paymentStatus === "paid"
-  ).length
-  const costPerParticipant = Math.round(
-    totalCourtExpense / confirmedParticipants
-  )
-  const collectedAmount = 900000
-  const outstandingAmount = totalCourtExpense - collectedAmount
-  const collectionProgress = Math.min(
-    100,
-    Math.round((collectedAmount / totalCourtExpense) * 100)
-  )
+  const socialId = social?.id || ""
 
-  const isLoading = false
+  const [isPricingOpen, setIsPricingOpen] = useState(false)
 
-  if (isLoading) {
+  const { data: summary, isLoading: isLoadingSummary } = useQuery({
+    queryKey: ["financeSummary", socialId],
+    queryFn: () => getFinanceSummaryAction(socialId),
+    enabled: !!socialId,
+  })
+
+  const { data: courtBookings, isLoading: isLoadingBookings } = useQuery({
+    queryKey: ["courtBookings", socialId],
+    queryFn: () => listCourtBookingsAction(socialId),
+    enabled: !!socialId,
+  })
+
+  const { data: manualExpenses } = useQuery({
+    queryKey: ["socialExpenses", socialId],
+    queryFn: () => listExpensesAction(socialId),
+    enabled: !!socialId,
+  })
+
+  const isLoading = isLoadingSummary || isLoadingBookings
+
+  if (isLoading || !summary) {
     return <SocialExpenseTabSkeleton />
   }
+
+  const collectionProgress = summary.collectionProgress
 
   return (
     <div className="space-y-6">
@@ -57,27 +74,32 @@ export default function SocialExpenseTab() {
             <div className="space-y-3">
               <div>
                 <CardTitle className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                  {t("expenses.title")}
+                  {t("expenses.title", { defaultValue: "Financial Dashboard" })}
                 </CardTitle>
                 <CardDescription className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-                  {t("expenses.subtitle")}
+                  {t("expenses.subtitle", {
+                    defaultValue: "Monitor event finances and expenses.",
+                  })}
                 </CardDescription>
               </div>
             </div>
 
-            <div className="flex flex-col flex-wrap gap-2">
-              {/* <Button variant="outline" className="gap-2" type="button">
-                <Plus className="size-4" />
-                {t("expenses.actions.addExpense")}
-              </Button> */}
-              {/* <Button variant="secondary" className="gap-2" type="button">
-                <RefreshCcw className="size-4" />
-                Refresh Expenses
-              </Button> */}
-              <Button className="gap-2" type="button">
-                <Download className="size-4" />
-                {t("expenses.actions.exportReport")}
+            <div className="flex flex-col flex-wrap gap-2 sm:flex-row">
+              <Button
+                variant="outline"
+                className="gap-2"
+                type="button"
+                onClick={() => setIsPricingOpen(true)}
+              >
+                <Calculator className="size-4" />
+                {t("expenses.actions.setPricing", {
+                  defaultValue: "Set Pricing",
+                })}
               </Button>
+              {/* <Button variant="secondary" className="gap-2" type="button" onClick={() => refetchSummary()}>
+                <RefreshCcw className="size-4" />
+                Refresh
+              </Button> */}
             </div>
           </div>
         </CardHeader>
@@ -85,28 +107,42 @@ export default function SocialExpenseTab() {
         {/* Expense Summary */}
         <CardContent className="space-y-5 p-6">
           <ExpenseSummaryGrid
-            totalCourtExpense={totalCourtExpense}
-            confirmedParticipants={confirmedParticipants}
-            totalParticipants={totalParticipants}
-            costPerParticipant={costPerParticipant}
-            paidMembers={paidMembers}
-            collectedAmount={collectedAmount}
-            outstandingAmount={outstandingAmount}
+            totalCourtExpense={summary.totalExpense}
+            confirmedParticipants={summary.participants.joinedCount}
+            totalParticipants={summary.participants.maxSlots}
+            extraExpense={
+              courtBookings
+                ? summary.totalExpense -
+                  courtBookings.reduce((acc, curr) => acc + curr.bookingCost, 0)
+                : 0
+            }
+            paidMembers={summary.paidMembersCount}
+            collectedAmount={summary.collectedAmount}
+            outstandingAmount={summary.outstandingAmount}
           />
 
           <div className="grid gap-4 rounded-2xl border border-border/60 bg-background p-4 shadow-sm md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <TrendingUp className="size-4 text-primary" />
-                {t("expenses.progress.title")}
+                {t("expenses.progress.title", {
+                  defaultValue: "Collection Progress",
+                })}
               </div>
               <Progress value={collectionProgress} className="h-2.5" />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {t("expenses.progress.description", {
                   count: collectionProgress,
+                  defaultValue: `${collectionProgress}% of target collected`,
                 })}
               </p>
             </div>
+            {/* <div className="text-right">
+              <p className="text-sm font-medium text-muted-foreground">Estimated Profit</p>
+              <p className={`text-xl font-bold ${summary.estimatedProfit >= 0 ? "text-emerald-600" : "text-destructive"}`}>
+                {summary.estimatedProfit >= 0 ? "+" : ""}{formatCurrencyVnd(summary.estimatedProfit)}
+              </p>
+            </div> */}
           </div>
         </CardContent>
       </Card>
@@ -115,24 +151,26 @@ export default function SocialExpenseTab() {
       <section className="grid gap-6">
         <div className="space-y-6">
           <CourtBookingExpensesCard
-            expenseRows={expenseRows}
-            totalCourtExpense={totalCourtExpense}
+            expenseRows={courtBookings || []}
+            totalCourtExpense={
+              courtBookings?.reduce((acc, curr) => acc + curr.bookingCost, 0) ||
+              0
+            }
           />
-
-          {/* <ExpenseBreakdownCard
-            totalCourtExpense={totalCourtExpense}
-            confirmedParticipants={confirmedParticipants}
-            costPerParticipant={costPerParticipant}
-          /> */}
-
-          <ParticipantPaymentTrackingCard participants={participantRows} />
+          <ExtraExpensesCard
+            socialId={socialId}
+            expenses={manualExpenses || []}
+          />
         </div>
 
-        <div className="space-y-6">
-          <PaymentInformationCard />
-          <FinancialTimelineCard timelineRows={timelineRows} />
-        </div>
+        <ParticipantPaymentTrackingCard socialId={socialId} />
       </section>
+
+      <PricingCalculatorDialog
+        socialId={socialId}
+        open={isPricingOpen}
+        onOpenChange={setIsPricingOpen}
+      />
     </div>
   )
 }
