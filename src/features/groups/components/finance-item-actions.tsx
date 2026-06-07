@@ -854,7 +854,7 @@ export function ExpenseRowActions({
                     className="flex items-center justify-between rounded-md border p-2 text-sm"
                   >
                     <div className="flex items-center gap-2">
-                      <Avatar size="xs">
+                      <Avatar>
                         <AvatarImage src={a.user?.avatarUrl || ""} />
                         <AvatarFallback>
                           {getInitials(a.user?.name || "?")}
