@@ -1,20 +1,62 @@
 export type ActivityType =
-  | "CHOI_THUONG"
-  | "SOCIAL"
-  | "GIAI_DAU"
-  | "THUE_SAN_GIAO_LUU"
+  | "PRACTICE"
   | "MEETUP"
+  | "INTERNAL_MATCH"
+  | "MEETING"
+  | "OTHER"
 
-export type EventStatus =
-  | "SAP_DIEN_RA"
-  | "DANG_DIEN_RA"
-  | "DA_KET_THUC"
-  | "DA_HUY"
+export type GroupActivityStatus = "SCHEDULED" | "COMPLETED" | "CANCELLED"
 
 export type CalendarView = "month" | "week" | "agenda"
 export type PeriodFilter = "today" | "week" | "month"
 export type ActivityTypeFilter = ActivityType | "all"
 
+export interface GroupActivity {
+  id: string
+  groupId: string
+  title: string
+  description: string
+  location: string
+  activityType: ActivityType
+  startAt: string
+  endAt: string
+  remindAt?: string
+  status: GroupActivityStatus
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateGroupActivityDto {
+  title: string
+  description: string
+  location: string
+  activityType: ActivityType
+  startAt: string
+  endAt: string
+  remindAt?: string
+}
+
+export interface UpdateGroupActivityDto extends Partial<CreateGroupActivityDto> {
+  status?: GroupActivityStatus
+}
+
+export interface ListActivitiesParams {
+  page?: number
+  limit?: number
+  type?: "upcoming" | "past"
+}
+
+export interface PaginatedActivitiesResponse {
+  data: GroupActivity[]
+  meta: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
+
+// Keeping these for now if they are used for UI context, but they will likely be removed or replaced by real APIs
 export interface GroupActivityGroup {
   id: string
   name: string
@@ -23,50 +65,15 @@ export interface GroupActivityGroup {
   memberCount: number
 }
 
-export interface GroupMember {
-  id: string
-  groupId: string
-  name: string
-  email: string
-  phone: string
-  level: string
-  avatarFallback: string
-}
-
-export interface Venue {
-  id: string
-  groupId: string
-  name: string
-  shortLabel: string
-  address: string
-}
-
-export interface GroupEvent {
-  id: string
-  groupId: string
-  groupName: string
-  title: string
-  activityType: ActivityType
-  status: EventStatus
-  startAt: string
-  endAt: string
-  venueId: string
-  description: string
-  createdById: string
-  participantIds: string[]
-  createdAt: string
-  updatedAt: string
-  updatedById: string
-}
-
+// Form values for the UI
 export interface EventFormValues {
   title: string
   activityType: ActivityType
   date: string
   startTime: string
   endTime: string
-  venueId: string
+  location: string
   description: string
-  createdById: string
-  status: EventStatus
+  remindAt?: string
+  status: GroupActivityStatus
 }

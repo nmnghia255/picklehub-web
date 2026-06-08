@@ -27,52 +27,44 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import type {
+  CreateGroupActivityDto,
   EventFormValues,
-  GroupEvent,
-  GroupMember,
-  Venue,
+  GroupActivity,
+  UpdateGroupActivityDto,
 } from "@/features/group-activity-schedule/group-activity-schedule.types"
-import { buildEventDateRange } from "@/features/group-activity-schedule/group-activity-schedule.utils"
+import {
+  buildEventDateRange,
+  formatISO,
+} from "@/features/group-activity-schedule/group-activity-schedule.utils"
 
 interface GroupActivityFormDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  editingEvent: GroupEvent | null
+  editingEvent: GroupActivity | null
   activeGroupId: string
-  activeGroupName: string
-  members: GroupMember[]
-  venues: Venue[]
-  onCreate: (
-    payload: Omit<GroupEvent, "id" | "createdAt" | "updatedAt" | "updatedById">
-  ) => void
-  onUpdate: (
-    eventId: string,
-    payload: Omit<GroupEvent, "id" | "createdAt" | "updatedAt" | "updatedById">
-  ) => void
+  onCreate: (payload: CreateGroupActivityDto) => void
+  onUpdate: (activityId: string, payload: UpdateGroupActivityDto) => void
+  isSubmitting?: boolean
 }
 
 const defaultValues: EventFormValues = {
   title: "",
-  activityType: "CHOI_THUONG",
+  activityType: "PRACTICE",
   date: new Date().toISOString().split("T")[0],
   startTime: "19:00",
   endTime: "21:00",
-  venueId: "",
+  location: "",
   description: "",
-  createdById: "",
-  status: "SAP_DIEN_RA",
+  status: "SCHEDULED",
 }
 
 export function GroupActivityFormDialog({
   open,
   onOpenChange,
   editingEvent,
-  activeGroupId,
-  activeGroupName,
-  members,
-  venues,
   onCreate,
   onUpdate,
+  isSubmitting = false,
 }: GroupActivityFormDialogProps) {
   const initialValues = useMemo<EventFormValues>(() => {
     if (editingEvent) {
@@ -85,29 +77,25 @@ export function GroupActivityFormDialog({
         date: `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, "0")}-${String(start.getDate()).padStart(2, "0")}`,
         startTime: `${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`,
         endTime: `${String(end.getHours()).padStart(2, "0")}:${String(end.getMinutes()).padStart(2, "0")}`,
-        venueId: editingEvent.venueId,
+        location: editingEvent.location,
         description: editingEvent.description,
-        createdById: editingEvent.createdById,
         status: editingEvent.status,
+        remindAt: editingEvent.remindAt,
       }
     }
 
-    return {
-      ...defaultValues,
-      createdById: members[0]?.id ?? "",
-      venueId: venues[0]?.id ?? "",
-    }
-  }, [editingEvent, members, venues])
+    return defaultValues
+  }, [editingEvent])
 
   const dialogTitle = useMemo(
-    () => (editingEvent ? "Chỉnh sửa sự kiện" : "Tạo sự kiện mới"),
+    () => (editingEvent ? "Chỉnh sửa hoạt động" : "Tạo hoạt động mới"),
     [editingEvent]
   )
 
   const dialogDescription = useMemo(
     () =>
       editingEvent
-        ? "Cập nhật thông tin thời gian, địa điểm và trạng thái sự kiện."
+        ? "Cập nhật thông tin thời gian, địa điểm và trạng thái hoạt động."
         : "Điền thông tin để tạo hoạt động mới cho nhóm.",
     [editingEvent]
   )
@@ -126,14 +114,11 @@ export function GroupActivityFormDialog({
           key={formKey}
           initialValues={initialValues}
           editingEvent={editingEvent}
-          activeGroupId={activeGroupId}
-          activeGroupName={activeGroupName}
-          members={members}
-          venues={venues}
           onOpenChange={onOpenChange}
           onCreate={onCreate}
           onUpdate={onUpdate}
           onCancel={() => onOpenChange(false)}
+          isSubmitting={isSubmitting}
         />
       </DialogContent>
     </Dialog>
@@ -142,28 +127,21 @@ export function GroupActivityFormDialog({
 
 interface GroupActivityFormFieldsProps {
   initialValues: EventFormValues
-  editingEvent: GroupEvent | null
-  activeGroupId: string
-  activeGroupName: string
-  members: GroupMember[]
-  venues: Venue[]
+  editingEvent: GroupActivity | null
   onOpenChange: (open: boolean) => void
   onCreate: GroupActivityFormDialogProps["onCreate"]
   onUpdate: GroupActivityFormDialogProps["onUpdate"]
   onCancel: () => void
+  isSubmitting: boolean
 }
 
 function GroupActivityFormFields({
   initialValues,
   editingEvent,
-  activeGroupId,
-  activeGroupName,
-  members,
-  venues,
-  onOpenChange,
   onCreate,
   onUpdate,
   onCancel,
+  isSubmitting,
 }: GroupActivityFormFieldsProps) {
   const [values, setValues] = useState<EventFormValues>(initialValues)
   const [errors, setErrors] = useState<
@@ -182,7 +160,7 @@ function GroupActivityFormFields({
     const nextErrors: Partial<Record<keyof EventFormValues, string>> = {}
 
     if (!values.title.trim()) {
-      nextErrors.title = "Vui lòng nhập tên sự kiện"
+      nextErrors.title = "Vui lòng nhập tên hoạt động"
     }
 
     if (!values.date) {
@@ -205,16 +183,12 @@ function GroupActivityFormFields({
       nextErrors.endTime = "Giờ kết thúc phải sau giờ bắt đầu"
     }
 
-    if (!values.venueId) {
-      nextErrors.venueId = "Vui lòng chọn địa điểm"
-    }
-
-    if (!values.createdById) {
-      nextErrors.createdById = "Vui lòng chọn người tạo"
+    if (!values.location.trim()) {
+      nextErrors.location = "Vui lòng nhập địa điểm"
     }
 
     if (!values.description.trim()) {
-      nextErrors.description = "Vui lòng nhập ghi chú"
+      nextErrors.description = "Vui lòng nhập mô tả"
     }
 
     setErrors(nextErrors)
@@ -232,46 +206,42 @@ function GroupActivityFormFields({
       values.endTime
     )
 
-    const payload: Omit<
-      GroupEvent,
-      "id" | "createdAt" | "updatedAt" | "updatedById"
-    > = {
-      groupId: editingEvent?.groupId ?? activeGroupId,
-      groupName: editingEvent?.groupName ?? activeGroupName,
-      title: values.title.trim(),
-      activityType: values.activityType,
-      status: values.status,
-      startAt,
-      endAt,
-      venueId: values.venueId,
-      description: values.description.trim(),
-      createdById: values.createdById,
-      participantIds:
-        editingEvent?.participantIds.length &&
-        editingEvent.participantIds.length > 0
-          ? editingEvent.participantIds
-          : [values.createdById],
-    }
-
     if (editingEvent) {
+      const payload: UpdateGroupActivityDto = {
+        title: values.title.trim(),
+        activityType: values.activityType,
+        status: values.status,
+        startAt,
+        endAt,
+        location: values.location.trim(),
+        description: values.description.trim(),
+        remindAt: values.remindAt ? formatISO(values.remindAt) : undefined,
+      }
       onUpdate(editingEvent.id, payload)
     } else {
+      const payload: CreateGroupActivityDto = {
+        title: values.title.trim(),
+        activityType: values.activityType,
+        startAt,
+        endAt,
+        location: values.location.trim(),
+        description: values.description.trim(),
+        remindAt: values.remindAt ? formatISO(values.remindAt) : startAt,
+      }
       onCreate(payload)
     }
-
-    onOpenChange(false)
   }
 
   return (
     <>
       <FieldGroup>
         <Field>
-          <FieldLabel htmlFor="event-title">Tên sự kiện</FieldLabel>
+          <FieldLabel htmlFor="event-title">Tên hoạt động</FieldLabel>
           <Input
             id="event-title"
             value={values.title}
             onChange={(event) => handleChange("title", event.target.value)}
-            placeholder="Ví dụ: Social tối thứ 6"
+            placeholder="Ví dụ: Tập luyện sáng thứ 7"
           />
           <FieldError>{errors.title}</FieldError>
         </Field>
@@ -292,13 +262,11 @@ function GroupActivityFormFields({
                 <SelectValue placeholder="Chọn loại hoạt động" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="CHOI_THUONG">Buổi chơi thường</SelectItem>
-                <SelectItem value="SOCIAL">Social</SelectItem>
-                <SelectItem value="GIAI_DAU">Giải đấu nhỏ</SelectItem>
-                <SelectItem value="THUE_SAN_GIAO_LUU">
-                  Thuê sân giao lưu
-                </SelectItem>
-                <SelectItem value="MEETUP">Meetup nhóm</SelectItem>
+                <SelectItem value="PRACTICE">Tập luyện</SelectItem>
+                <SelectItem value="MEETUP">Giao lưu (Meetup)</SelectItem>
+                <SelectItem value="INTERNAL_MATCH">Thi đấu nội bộ</SelectItem>
+                <SelectItem value="MEETING">Họp mặt</SelectItem>
+                <SelectItem value="OTHER">Khác</SelectItem>
               </SelectContent>
             </Select>
           </Field>
@@ -310,15 +278,15 @@ function GroupActivityFormFields({
               onValueChange={(value) =>
                 handleChange("status", value as EventFormValues["status"])
               }
+              disabled={!editingEvent}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Chọn trạng thái" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="SAP_DIEN_RA">Sắp diễn ra</SelectItem>
-                <SelectItem value="DANG_DIEN_RA">Đang diễn ra</SelectItem>
-                <SelectItem value="DA_KET_THUC">Đã kết thúc</SelectItem>
-                <SelectItem value="DA_HUY">Đã hủy</SelectItem>
+                <SelectItem value="SCHEDULED">Sắp diễn ra</SelectItem>
+                <SelectItem value="COMPLETED">Đã kết thúc</SelectItem>
+                <SelectItem value="CANCELLED">Đã hủy</SelectItem>
               </SelectContent>
             </Select>
           </Field>
@@ -358,26 +326,16 @@ function GroupActivityFormFields({
 
         <Field>
           <FieldLabel>Địa điểm</FieldLabel>
-          <Select
-            value={values.venueId}
-            onValueChange={(value) => handleChange("venueId", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Chọn địa điểm" />
-            </SelectTrigger>
-            <SelectContent>
-              {venues.map((venue) => (
-                <SelectItem key={venue.id} value={venue.id}>
-                  {venue.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <FieldError>{errors.venueId}</FieldError>
+          <Input
+            value={values.location}
+            onChange={(event) => handleChange("location", event.target.value)}
+            placeholder="Ví dụ: Sân Pickleball A"
+          />
+          <FieldError>{errors.location}</FieldError>
         </Field>
 
         <Field>
-          <FieldLabel>Ghi chú</FieldLabel>
+          <FieldLabel>Mô tả</FieldLabel>
           <Textarea
             rows={4}
             value={values.description}
@@ -390,32 +348,65 @@ function GroupActivityFormFields({
         </Field>
 
         <Field>
-          <FieldLabel>Người tạo</FieldLabel>
-          <Select
-            value={values.createdById}
-            onValueChange={(value) => handleChange("createdById", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Chọn người tạo" />
-            </SelectTrigger>
-            <SelectContent>
-              {members.map((member) => (
-                <SelectItem key={member.id} value={member.id}>
-                  {member.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <FieldError>{errors.createdById}</FieldError>
+          <div className="mb-2 flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="enable-reminder"
+              checked={!!values.remindAt}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  handleChange("remindAt", formatISO(new Date()))
+                } else {
+                  handleChange("remindAt", undefined)
+                }
+              }}
+              className="size-4 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <FieldLabel htmlFor="enable-reminder" className="mb-0">
+              Nhắc nhở thành viên
+            </FieldLabel>
+          </div>
+          {values.remindAt && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Input
+                type="date"
+                value={values.remindAt.split("T")[0]}
+                onChange={(e) => {
+                  const time = values.remindAt?.split("T")[1] || "09:00:00Z"
+                  handleChange(
+                    "remindAt",
+                    formatISO(`${e.target.value}T${time}`)
+                  )
+                }}
+              />
+              <Input
+                type="time"
+                value={values.remindAt.split("T")[1]?.slice(0, 5) || "09:00"}
+                onChange={(e) => {
+                  const date =
+                    values.remindAt?.split("T")[0] ||
+                    formatISO(new Date()).split("T")[0]
+                  handleChange(
+                    "remindAt",
+                    formatISO(`${date}T${e.target.value}:00Z`)
+                  )
+                }}
+              />
+            </div>
+          )}
         </Field>
       </FieldGroup>
 
       <DialogFooter>
-        <Button variant="outline" onClick={onCancel}>
+        <Button variant="outline" onClick={onCancel} disabled={isSubmitting}>
           Hủy
         </Button>
-        <Button onClick={handleSubmit}>
-          {editingEvent ? "Lưu thay đổi" : "Tạo sự kiện"}
+        <Button onClick={handleSubmit} disabled={isSubmitting}>
+          {isSubmitting
+            ? "Đang xử lý..."
+            : editingEvent
+              ? "Lưu thay đổi"
+              : "Tạo hoạt động"}
         </Button>
       </DialogFooter>
     </>

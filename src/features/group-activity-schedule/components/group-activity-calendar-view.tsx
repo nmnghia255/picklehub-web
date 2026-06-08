@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type {
   CalendarView,
-  GroupEvent,
+  GroupActivity,
 } from "@/features/group-activity-schedule/group-activity-schedule.types"
 import {
   getStatusBadgeClass,
@@ -22,13 +22,13 @@ import {
 } from "@/features/group-activity-schedule/group-activity-schedule.utils"
 
 interface GroupActivityCalendarViewProps {
-  events: GroupEvent[]
+  events: GroupActivity[]
   baseDate: Date
   view: CalendarView
   selectedDate: Date
   onViewChange: (value: CalendarView) => void
   onSelectDate: (date: Date) => void
-  onOpenEvent: (event: GroupEvent) => void
+  onOpenEvent: (event: GroupActivity) => void
 }
 
 function formatTime(value?: string | null) {
@@ -52,22 +52,25 @@ function getWeekDates(baseDate: Date) {
   })
 }
 
-function groupEventsByDate(events: GroupEvent[]) {
-  return events.reduce<Record<string, GroupEvent[]>>((accumulator, event) => {
-    if (!event.startAt) return accumulator
-    const key = format(new Date(event.startAt), "yyyy-MM-dd")
-    if (!accumulator[key]) accumulator[key] = []
-    accumulator[key].push(event)
-    return accumulator
-  }, {})
+function groupEventsByDate(events: GroupActivity[]) {
+  return events.reduce<Record<string, GroupActivity[]>>(
+    (accumulator, event) => {
+      if (!event.startAt) return accumulator
+      const key = format(new Date(event.startAt), "yyyy-MM-dd")
+      if (!accumulator[key]) accumulator[key] = []
+      accumulator[key].push(event)
+      return accumulator
+    },
+    {}
+  )
 }
 
 function EventChip({
   event,
   onOpenEvent,
 }: {
-  event: GroupEvent
-  onOpenEvent: (event: GroupEvent) => void
+  event: GroupActivity
+  onOpenEvent: (event: GroupActivity) => void
 }) {
   return (
     <button
@@ -81,9 +84,7 @@ function EventChip({
           {formatTime(event.startAt)}
         </Badge>
       </div>
-      <p className="truncate text-xs text-muted-foreground">
-        {event.participantIds.length} người tham gia
-      </p>
+      <p className="truncate text-xs text-muted-foreground">{event.location}</p>
     </button>
   )
 }
@@ -182,7 +183,7 @@ export function GroupActivityCalendarView({
                       ))}
                       {dayEvents.length > 2 && (
                         <p className="text-xs text-muted-foreground">
-                          Còn {dayEvents.length - 2} sự kiện khác
+                          Còn {dayEvents.length - 2} hoạt động
                         </p>
                       )}
                     </div>
@@ -220,7 +221,7 @@ export function GroupActivityCalendarView({
                     <div className="space-y-2">
                       {dayEvents.length === 0 && (
                         <p className="text-xs text-muted-foreground">
-                          Không có sự kiện trong tuần này
+                          Không có hoạt động
                         </p>
                       )}
                       {dayEvents.map((event) => (
@@ -240,7 +241,7 @@ export function GroupActivityCalendarView({
           <TabsContent value="agenda" className="space-y-2">
             {events.length === 0 ? (
               <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-                Không có sự kiện trong tháng này
+                Không có hoạt động trong tháng này
               </p>
             ) : (
               events
@@ -277,7 +278,7 @@ export function GroupActivityCalendarView({
                       </p>
                       <p className="flex items-center gap-1 text-sm text-muted-foreground">
                         <MapPin className="size-3.5" />
-                        {event.groupName}
+                        {event.location}
                       </p>
                     </div>
 
@@ -295,7 +296,7 @@ export function GroupActivityCalendarView({
 
         <div className="mt-4 rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
           Ngày {format(selectedDate, "dd/MM/yyyy")} có{" "}
-          {selectedDateEvents.length} sự kiện
+          {selectedDateEvents.length} hoạt động
         </div>
       </CardContent>
     </Card>

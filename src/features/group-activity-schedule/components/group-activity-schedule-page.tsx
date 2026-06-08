@@ -1,5 +1,6 @@
 "use client"
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { format, startOfMonth } from "date-fns"
 import { Edit, Plus, Trash2 } from "lucide-react"
 import { useMemo, useState } from "react"
@@ -11,12 +12,17 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 
 import {
-  MOCK_EVENTS,
-  MOCK_GROUPS,
-  MOCK_MEMBERS,
-  MOCK_VENUES,
-} from "../group-activity-schedule.mock"
-import type { GroupEvent } from "../group-activity-schedule.types"
+  activityQueryKeys,
+  createActivityClient,
+  deleteActivityClient,
+  listActivitiesClient,
+  updateActivityClient,
+} from "../api/activities-client"
+import type {
+  CreateGroupActivityDto,
+  GroupActivity,
+  UpdateGroupActivityDto,
+} from "../group-activity-schedule.types"
 import {
   getStatusBadgeClass,
   getStatusLabel,
@@ -24,6 +30,7 @@ import {
 import { GroupActivityCalendarView } from "./group-activity-calendar-view"
 import { GroupActivityDetailDrawer } from "./group-activity-detail-drawer"
 import { GroupActivityFormDialog } from "./group-activity-form-dialog"
+import { GroupActivityLoadingSkeleton } from "./group-activity-loading-skeleton"
 
 interface GroupActivitySchedulePageProps {
   initialGroupId?: string
@@ -34,12 +41,10 @@ export function GroupActivitySchedulePage({
   initialGroupId,
   embedded = false,
 }: GroupActivitySchedulePageProps) {
-  // Mock State Management
-  const [events, setEvents] = useState<GroupEvent[]>(() =>
-    initialGroupId
-      ? MOCK_EVENTS.filter((e) => e.groupId === initialGroupId)
-      : MOCK_EVENTS
-  )
+  const queryClient = useQueryClient()
+  const groupId = initialGroupId || ""
+
+  // States
   const [currentMonth, setCurrentMonth] = useState(() =>
     startOfMonth(new Date())
   )
@@ -48,81 +53,104 @@ export function GroupActivitySchedulePage({
 
   // Dialog & Drawer States
   const [formOpen, setFormOpen] = useState(false)
-  const [editingEvent, setEditingEvent] = useState<GroupEvent | null>(null)
+  const [editingEvent, setEditingEvent] = useState<GroupActivity | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedEventForDetail, setSelectedEventForDetail] =
-    useState<GroupEvent | null>(null)
+    useState<GroupActivity | null>(null)
 
-  const activeGroup = useMemo(
-    () => MOCK_GROUPS.find((g) => g.id === initialGroupId) || MOCK_GROUPS[0],
-    [initialGroupId]
+  // Queries
+  const { data: activitiesResponse, isLoading } = useQuery({
+    queryKey: activityQueryKeys.list(groupId, { limit: 1000 }), // Get all for calendar
+    queryFn: () => listActivitiesClient(groupId, { limit: 1000 }),
+    enabled: !!groupId,
+  })
+
+  const events = useMemo(
+    () => activitiesResponse?.data || [],
+    [activitiesResponse]
   )
 
-  const groupMembers = useMemo(
-    () =>
-      MOCK_MEMBERS.filter(
-        (m) => m.groupId === (initialGroupId || activeGroup.id)
-      ),
-    [initialGroupId, activeGroup.id]
-  )
+  // Mutations
+  const createMutation = useMutation({
+    mutationFn: (payload: CreateGroupActivityDto) =>
+      createActivityClient(groupId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: activityQueryKeys.all(groupId),
+      })
+      toast.success("Đã tạo hoạt động mới thành công")
+      setFormOpen(false)
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Không thể tạo hoạt động")
+    },
+  })
 
-  const groupVenues = useMemo(
-    () =>
-      MOCK_VENUES.filter(
-        (v) => v.groupId === (initialGroupId || activeGroup.id)
-      ),
-    [initialGroupId, activeGroup.id]
-  )
+  const updateMutation = useMutation({
+    mutationFn: ({
+      activityId,
+      payload,
+    }: {
+      activityId: string
+      payload: UpdateGroupActivityDto
+    }) => updateActivityClient(groupId, activityId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: activityQueryKeys.all(groupId),
+      })
+      toast.success("Đã cập nhật hoạt động thành công")
+      setFormOpen(false)
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Không thể cập nhật hoạt động")
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (activityId: string) =>
+      deleteActivityClient(groupId, activityId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: activityQueryKeys.all(groupId),
+      })
+      toast.success("Đã xóa hoạt động")
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Không thể xóa hoạt động")
+    },
+  })
 
   const socialsByDate = useMemo(() => {
-    return events.reduce<Record<string, GroupEvent[]>>((accumulator, event) => {
-      const key = format(new Date(event.startAt), "yyyy-MM-dd")
-      if (!accumulator[key]) accumulator[key] = []
-      accumulator[key].push(event)
-      return accumulator
-    }, {})
+    return events.reduce<Record<string, GroupActivity[]>>(
+      (accumulator, event) => {
+        const key = format(new Date(event.startAt), "yyyy-MM-dd")
+        if (!accumulator[key]) accumulator[key] = []
+        accumulator[key].push(event)
+        return accumulator
+      },
+      {}
+    )
   }, [events])
 
   const selectedDateKey = format(selectedDate, "yyyy-MM-dd")
   const selectedDayEvents = socialsByDate[selectedDateKey] ?? []
 
   // Handlers
-  const handleCreateEvent = (
-    payload: Omit<GroupEvent, "id" | "createdAt" | "updatedAt" | "updatedById">
-  ) => {
-    const newEvent: GroupEvent = {
-      ...payload,
-      id: `e-${Math.random().toString(36).substr(2, 9)}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      updatedById: payload.createdById,
-    }
-    setEvents((prev) => [...prev, newEvent])
-    toast.success("Đã tạo sự kiện mới thành công")
+  const handleCreateEvent = (payload: CreateGroupActivityDto) => {
+    createMutation.mutate(payload)
   }
 
   const handleUpdateEvent = (
-    eventId: string,
-    payload: Omit<GroupEvent, "id" | "createdAt" | "updatedAt" | "updatedById">
+    activityId: string,
+    payload: UpdateGroupActivityDto
   ) => {
-    setEvents((prev) =>
-      prev.map((e) =>
-        e.id === eventId
-          ? {
-              ...e,
-              ...payload,
-              updatedAt: new Date().toISOString(),
-              updatedById: payload.createdById,
-            }
-          : e
-      )
-    )
-    toast.success("Đã cập nhật sự kiện thành công")
+    updateMutation.mutate({ activityId, payload })
   }
 
-  const handleDeleteEvent = (eventId: string) => {
-    setEvents((prev) => prev.filter((e) => e.id !== eventId))
-    toast.success("Đã xóa sự kiện")
+  const handleDeleteEvent = (activityId: string) => {
+    if (window.confirm("Bạn có chắc muốn xóa hoạt động này không?")) {
+      deleteMutation.mutate(activityId)
+    }
   }
 
   const openCreateDialog = () => {
@@ -130,14 +158,18 @@ export function GroupActivitySchedulePage({
     setFormOpen(true)
   }
 
-  const openEditDialog = (event: GroupEvent) => {
+  const openEditDialog = (event: GroupActivity) => {
     setEditingEvent(event)
     setFormOpen(true)
   }
 
-  const openDetailDrawer = (event: GroupEvent) => {
+  const openDetailDrawer = (event: GroupActivity) => {
     setSelectedEventForDetail(event)
     setDetailOpen(true)
+  }
+
+  if (isLoading && !events.length) {
+    return <GroupActivityLoadingSkeleton />
   }
 
   const content = (
@@ -262,6 +294,7 @@ export function GroupActivitySchedulePage({
                           size="icon"
                           className="size-8 text-muted-foreground hover:text-primary"
                           onClick={() => openEditDialog(event)}
+                          disabled={updateMutation.isPending}
                         >
                           <Edit className="size-4" />
                         </Button>
@@ -270,6 +303,7 @@ export function GroupActivitySchedulePage({
                           size="icon"
                           className="size-8 text-muted-foreground hover:text-destructive"
                           onClick={() => handleDeleteEvent(event.id)}
+                          disabled={deleteMutation.isPending}
                         >
                           <Trash2 className="size-4" />
                         </Button>
@@ -286,21 +320,20 @@ export function GroupActivitySchedulePage({
         open={formOpen}
         onOpenChange={setFormOpen}
         editingEvent={editingEvent}
-        activeGroupId={initialGroupId || activeGroup.id}
-        activeGroupName={activeGroup.name}
-        members={groupMembers}
-        venues={groupVenues}
+        activeGroupId={groupId}
         onCreate={handleCreateEvent}
         onUpdate={handleUpdateEvent}
+        isSubmitting={createMutation.isPending || updateMutation.isPending}
       />
 
-      <GroupActivityDetailDrawer
-        open={detailOpen}
-        onOpenChange={setDetailOpen}
-        event={selectedEventForDetail}
-        members={MOCK_MEMBERS}
-        venues={MOCK_VENUES}
-      />
+      {selectedEventForDetail && (
+        <GroupActivityDetailDrawer
+          open={detailOpen}
+          onOpenChange={setDetailOpen}
+          activityId={selectedEventForDetail.id}
+          groupId={groupId}
+        />
+      )}
     </div>
   )
 
@@ -309,8 +342,4 @@ export function GroupActivitySchedulePage({
   ) : (
     <div className="mx-auto w-full max-w-7xl">{content}</div>
   )
-}
-
-export default function Page() {
-  return <GroupActivitySchedulePage />
 }

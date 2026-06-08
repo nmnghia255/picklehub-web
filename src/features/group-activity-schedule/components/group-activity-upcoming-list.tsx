@@ -24,35 +24,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import type {
-  GroupEvent,
-  GroupMember,
-  Venue,
-} from "@/features/group-activity-schedule/group-activity-schedule.types"
+import type { GroupActivity } from "@/features/group-activity-schedule/group-activity-schedule.types"
 import {
   formatDateTime,
   getActivityTypeBadgeClass,
   getActivityTypeLabel,
-  getMemberById,
   getStatusBadgeClass,
   getStatusLabel,
-  getVenueById,
   sortEventsByStart,
 } from "@/features/group-activity-schedule/group-activity-schedule.utils"
 
 interface GroupActivityUpcomingListProps {
-  events: GroupEvent[]
-  members: GroupMember[]
-  venues: Venue[]
-  onOpenDetail: (event: GroupEvent) => void
-  onEdit: (event: GroupEvent) => void
-  onDelete: (event: GroupEvent) => void
+  events: GroupActivity[]
+  onOpenDetail: (event: GroupActivity) => void
+  onEdit: (event: GroupActivity) => void
+  onDelete: (activityId: string) => void
 }
 
 export function GroupActivityUpcomingList({
   events,
-  members,
-  venues,
   onOpenDetail,
   onEdit,
   onDelete,
@@ -62,7 +52,7 @@ export function GroupActivityUpcomingList({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Danh sách sự kiện sắp tới</CardTitle>
+        <CardTitle>Danh sách hoạt động sắp tới</CardTitle>
         <CardDescription>
           Theo dõi các hoạt động social, buổi chơi và meetup trong nhóm.
         </CardDescription>
@@ -75,7 +65,7 @@ export function GroupActivityUpcomingList({
               <EmptyMedia variant="icon">
                 <Users className="size-5" />
               </EmptyMedia>
-              <EmptyTitle>Chưa có sự kiện phù hợp</EmptyTitle>
+              <EmptyTitle>Chưa có hoạt động phù hợp</EmptyTitle>
               <EmptyDescription>
                 Thử đổi bộ lọc thời gian hoặc từ khóa để xem thêm dữ liệu.
               </EmptyDescription>
@@ -87,21 +77,15 @@ export function GroupActivityUpcomingList({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Sự kiện</TableHead>
-                    <TableHead>Nhóm sở hữu</TableHead>
+                    <TableHead>Hoạt động</TableHead>
                     <TableHead>Thời gian</TableHead>
                     <TableHead>Địa điểm</TableHead>
-                    <TableHead className="text-right">Tham gia</TableHead>
-                    <TableHead>Người tạo</TableHead>
                     <TableHead>Trạng thái</TableHead>
                     <TableHead className="text-right">Hành động</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {upcomingEvents.map((event) => {
-                    const venue = getVenueById(venues, event.venueId)
-                    const creator = getMemberById(members, event.createdById)
-
                     return (
                       <TableRow key={event.id}>
                         <TableCell className="space-y-1">
@@ -115,17 +99,10 @@ export function GroupActivityUpcomingList({
                             {getActivityTypeLabel(event.activityType)}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {event.groupName}
-                        </TableCell>
                         <TableCell className="text-muted-foreground">
                           {formatDateTime(event.startAt)}
                         </TableCell>
-                        <TableCell>{venue?.name ?? "Không rõ"}</TableCell>
-                        <TableCell className="text-right">
-                          {event.participantIds.length}
-                        </TableCell>
-                        <TableCell>{creator?.name ?? "Không rõ"}</TableCell>
+                        <TableCell>{event.location}</TableCell>
                         <TableCell>
                           <Badge
                             variant="outline"
@@ -154,7 +131,7 @@ export function GroupActivityUpcomingList({
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => onDelete(event)}
+                            onClick={() => onDelete(event.id)}
                           >
                             <Trash2 className="size-4" />
                             Xóa
@@ -169,9 +146,6 @@ export function GroupActivityUpcomingList({
 
             <div className="space-y-3 md:hidden">
               {upcomingEvents.map((event) => {
-                const venue = getVenueById(venues, event.venueId)
-                const creator = getMemberById(members, event.createdById)
-
                 return (
                   <div key={event.id} className="rounded-lg border p-3">
                     <div className="mb-2 flex items-start justify-between gap-3">
@@ -192,14 +166,7 @@ export function GroupActivityUpcomingList({
                     </div>
 
                     <p className="text-sm text-muted-foreground">
-                      {venue?.name ?? "Không rõ"}
-                    </p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Nhóm: {event.groupName}
-                    </p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Người tạo: {creator?.name ?? "Không rõ"} · Tham gia:{" "}
-                      {event.participantIds.length}
+                      {event.location}
                     </p>
 
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -222,7 +189,7 @@ export function GroupActivityUpcomingList({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => onDelete(event)}
+                        onClick={() => onDelete(event.id)}
                       >
                         <Trash2 className="size-4" />
                         Xóa

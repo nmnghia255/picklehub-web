@@ -2,12 +2,9 @@ import type {
   ActivityType,
   ActivityTypeFilter,
   EventFormValues,
-  EventStatus,
-  GroupActivityGroup,
-  GroupEvent,
-  GroupMember,
+  GroupActivity,
+  GroupActivityStatus,
   PeriodFilter,
-  Venue,
 } from "./group-activity-schedule.types"
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000
@@ -78,38 +75,68 @@ export function formatWeekdayAndDate(value: Date) {
 }
 
 export function getActivityTypeLabel(type: ActivityType) {
-  if (type === "CHOI_THUONG") return "Chơi thường"
-  if (type === "SOCIAL") return "Social"
-  if (type === "GIAI_DAU") return "Giải đấu"
-  if (type === "THUE_SAN_GIAO_LUU") return "Thuê sân giao lưu"
-  return "Meetup"
+  switch (type) {
+    case "PRACTICE":
+      return "Tập luyện"
+    case "MEETUP":
+      return "Giao lưu (Meetup)"
+    case "INTERNAL_MATCH":
+      return "Thi đấu nội bộ"
+    case "MEETING":
+      return "Họp mặt"
+    case "OTHER":
+      return "Khác"
+    default:
+      return type
+  }
 }
 
-export function getStatusLabel(status: EventStatus) {
-  if (status === "SAP_DIEN_RA") return "Sắp diễn ra"
-  if (status === "DANG_DIEN_RA") return "Đang diễn ra"
-  if (status === "DA_KET_THUC") return "Đã kết thúc"
-  return "Đã hủy"
+export function getStatusLabel(status: GroupActivityStatus) {
+  switch (status) {
+    case "SCHEDULED":
+      return "Sắp diễn ra"
+    case "COMPLETED":
+      return "Đã kết thúc"
+    case "CANCELLED":
+      return "Đã hủy"
+    default:
+      return status
+  }
 }
 
 export function getActivityTypeBadgeClass(type: ActivityType) {
-  if (type === "SOCIAL") return "bg-sky-100 text-sky-700 border-sky-200"
-  if (type === "CHOI_THUONG")
-    return "bg-emerald-100 text-emerald-700 border-emerald-200"
-  if (type === "GIAI_DAU") return "bg-amber-100 text-amber-700 border-amber-200"
-  if (type === "MEETUP")
-    return "bg-violet-100 text-violet-700 border-violet-200"
-  return "bg-orange-100 text-orange-700 border-orange-200"
+  switch (type) {
+    case "PRACTICE":
+      return "bg-emerald-100 text-emerald-700 border-emerald-200"
+    case "MEETUP":
+      return "bg-sky-100 text-sky-700 border-sky-200"
+    case "INTERNAL_MATCH":
+      return "bg-amber-100 text-amber-700 border-amber-200"
+    case "MEETING":
+      return "bg-violet-100 text-violet-700 border-violet-200"
+    case "OTHER":
+      return "bg-slate-100 text-slate-700 border-slate-200"
+    default:
+      return ""
+  }
 }
 
-export function getStatusBadgeClass(status: EventStatus) {
-  if (status === "SAP_DIEN_RA")
-    return "bg-blue-100 text-blue-700 border-blue-200"
-  if (status === "DANG_DIEN_RA")
-    return "bg-emerald-100 text-emerald-700 border-emerald-200"
-  if (status === "DA_KET_THUC")
-    return "bg-slate-100 text-slate-700 border-slate-200"
-  return "bg-rose-100 text-rose-700 border-rose-200"
+export function getStatusBadgeClass(status: GroupActivityStatus) {
+  switch (status) {
+    case "SCHEDULED":
+      return "bg-blue-100 text-blue-700 border-blue-200"
+    case "COMPLETED":
+      return "bg-emerald-100 text-emerald-700 border-emerald-200"
+    case "CANCELLED":
+      return "bg-rose-100 text-rose-700 border-rose-200"
+    default:
+      return ""
+  }
+}
+
+export function formatISO(date: Date | string) {
+  const d = typeof date === "string" ? new Date(date) : date
+  return d.toISOString().split(".")[0] + "Z"
 }
 
 export function buildEventDateRange(
@@ -137,12 +164,12 @@ export function buildEventDateRange(
   )
 
   return {
-    startAt: start.toISOString(),
-    endAt: end.toISOString(),
+    startAt: formatISO(start),
+    endAt: formatISO(end),
   }
 }
 
-export function toFormValues(event: GroupEvent): EventFormValues {
+export function toFormValues(event: GroupActivity): EventFormValues {
   const start = new Date(event.startAt)
   const end = new Date(event.endAt)
 
@@ -152,18 +179,17 @@ export function toFormValues(event: GroupEvent): EventFormValues {
     date: `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, "0")}-${String(start.getDate()).padStart(2, "0")}`,
     startTime: `${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`,
     endTime: `${String(end.getHours()).padStart(2, "0")}:${String(end.getMinutes()).padStart(2, "0")}`,
-    venueId: event.venueId,
+    location: event.location,
     description: event.description,
-    createdById: event.createdById,
     status: event.status,
+    remindAt: event.remindAt,
   }
 }
 
 export function filterEvents(
-  events: GroupEvent[],
+  events: GroupActivity[],
   keyword: string,
   period: PeriodFilter,
-  venues: Venue[],
   groupId?: string,
   activityType: ActivityTypeFilter = "all"
 ) {
@@ -176,14 +202,12 @@ export function filterEvents(
     }
 
     const startAt = new Date(event.startAt)
-    const venue = venues.find((item) => item.id === event.venueId)
 
     const matchesSearch =
       !lowerKeyword ||
       event.title.toLowerCase().includes(lowerKeyword) ||
       event.description.toLowerCase().includes(lowerKeyword) ||
-      venue?.name.toLowerCase().includes(lowerKeyword) ||
-      event.groupName.toLowerCase().includes(lowerKeyword)
+      event.location.toLowerCase().includes(lowerKeyword)
 
     if (!matchesSearch) {
       return false
@@ -209,31 +233,7 @@ export function filterEvents(
   })
 }
 
-export function getVenueById(venues: Venue[], venueId: string) {
-  return venues.find((venue) => venue.id === venueId)
-}
-
-export function getGroupVenues(venues: Venue[], groupId: string) {
-  return venues.filter((venue) => venue.groupId === groupId)
-}
-
-export function getMemberById(members: GroupMember[], memberId: string) {
-  return members.find((member) => member.id === memberId)
-}
-
-export function getGroupMembers(members: GroupMember[], groupId: string) {
-  return members.filter((member) => member.groupId === groupId)
-}
-
-export function getGroupEvents(events: GroupEvent[], groupId: string) {
-  return events.filter((event) => event.groupId === groupId)
-}
-
-export function getGroupById(groups: GroupActivityGroup[], groupId: string) {
-  return groups.find((group) => group.id === groupId)
-}
-
-export function sortEventsByStart(events: GroupEvent[]) {
+export function sortEventsByStart(events: GroupActivity[]) {
   return [...events].sort(
     (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()
   )

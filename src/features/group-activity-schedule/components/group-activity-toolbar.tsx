@@ -37,7 +37,7 @@ export function GroupActivityToolbar({
     <div className="rounded-lg border bg-card p-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <Button onClick={onCreate} className="w-full lg:w-auto">
-          Tạo sự kiện
+          Tạo hoạt động
         </Button>
 
         <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
@@ -52,13 +52,11 @@ export function GroupActivityToolbar({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tất cả loại</SelectItem>
-              <SelectItem value="CHOI_THUONG">Buổi chơi thường</SelectItem>
-              <SelectItem value="SOCIAL">Social</SelectItem>
-              <SelectItem value="GIAI_DAU">Giải đấu nhỏ</SelectItem>
-              <SelectItem value="THUE_SAN_GIAO_LUU">
-                Thuê sân giao lưu
-              </SelectItem>
-              <SelectItem value="MEETUP">Meetup nhóm</SelectItem>
+              <SelectItem value="PRACTICE">Tập luyện</SelectItem>
+              <SelectItem value="MEETUP">Giao lưu (Meetup)</SelectItem>
+              <SelectItem value="INTERNAL_MATCH">Thi đấu nội bộ</SelectItem>
+              <SelectItem value="MEETING">Họp mặt</SelectItem>
+              <SelectItem value="OTHER">Khác</SelectItem>
             </SelectContent>
           </Select>
 
@@ -82,8 +80,8 @@ export function GroupActivityToolbar({
               value={keyword}
               onChange={(event) => onKeywordChange(event.target.value)}
               className="pl-9"
-              placeholder="Tìm sự kiện theo tên hoặc địa điểm"
-              aria-label="Tìm sự kiện"
+              placeholder="Tìm hoạt động theo tên hoặc địa điểm"
+              aria-label="Tìm hoạt động"
             />
           </div>
         </div>
