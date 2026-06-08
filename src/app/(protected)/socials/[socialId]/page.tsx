@@ -17,9 +17,11 @@ export default async function Page(props: {
   let social: SocialDetailType | null = null
 
   try {
-    social = await SocialService.getSocial(params.socialId)
-    participants = await SocialService.listSocialParticipants(params.socialId)
-    playSessions = await PlaySessionService.listPlaySessions(params.socialId)
+    ;[social, participants, playSessions] = await Promise.all([
+      SocialService.getSocial(params.socialId),
+      SocialService.listSocialParticipants(params.socialId),
+      PlaySessionService.listPlaySessions(params.socialId),
+    ])
   } catch (error) {
     console.error("Error fetching social participants:", error)
   }

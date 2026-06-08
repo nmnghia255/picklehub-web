@@ -691,8 +691,8 @@
       "confirm": "Xác nhận",
       "resultsMatch": "{{count}} kết quả phù hợp",
       "pageInfo": "Trang {{currentPage}} / {{totalPages}}",
-      "previous": "Previous",
-      "next": "Next",
+      "previous": "Trước",
+      "next": "Sau",
       "page": "Trang {{page}}",
       "emptyTitle": "Không tìm thấy kết quả phù hợp",
       "emptyDescription": "Bạn có thể thay đổi từ khóa hoặc bộ lọc để có kết quả như ý nhé."
