@@ -30,10 +30,10 @@ import {
 import type { Member } from "../types"
 import type {
   CreditBalanceEntry,
-  DebtItem,
   ExpenseItem,
   MyDebt,
   Transaction,
+  UnpaidPayment,
 } from "../types/finance"
 import { isArchivedGroup } from "../utils/group-status"
 import {
@@ -95,10 +95,10 @@ function getTransactionStatusVariant(status?: string | null) {
 
 function formatDebtStatus(status?: string | null) {
   const normalized = status?.toUpperCase()
-  if (normalized === "PAID") return "Đã trả đủ"
-  if (normalized === "PARTIALLY_PAID") return "Trả một phần"
-  if (normalized === "UNPAID") return "Chưa trả"
-  if (normalized === "OVERPAID") return "Trả dư"
+  if (normalized === "PAID") return "Đã thanh toán"
+  if (normalized === "PARTIALLY_PAID") return "Thanh toán một phần"
+  if (normalized === "UNPAID") return "Chưa thanh toán"
+  if (normalized === "OVERPAID") return "Thanh toán dư"
   return status ?? "-"
 }
 
@@ -107,6 +107,7 @@ function getDebtStatusVariant(status?: string | null) {
   if (normalized === "PAID") return "default" as const
   if (normalized === "PARTIALLY_PAID") return "secondary" as const
   if (normalized === "UNPAID") return "destructive" as const
+  if (normalized === "OVERPAID") return "outline" as const
   return "outline" as const
 }
 
@@ -370,36 +371,55 @@ export function GroupFinanceSection({
             </TabsContent>
           )}
 
-          <TabsContent value="my-debt" className="mt-4">
+          <TabsContent value="my-debt" className="mt-4 space-y-4">
+            {myDebtQuery.data && (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <SummaryCard
+                  title="Tổng phải đóng"
+                  value={formatCurrency(myDebtQuery.data.totalRequired)}
+                  description="Tổng các khoản chi được phân bổ"
+                />
+                <SummaryCard
+                  title="Đã thanh toán"
+                  value={formatCurrency(myDebtQuery.data.totalPaid)}
+                  description="Tổng số tiền bạn đã đóng"
+                />
+                <SummaryCard
+                  title="Công nợ hiện tại"
+                  value={formatCurrency(myDebtQuery.data.debt)}
+                  description="Số tiền còn phải thanh toán"
+                />
+                <SummaryCard
+                  title="Chênh lệch"
+                  value={formatCurrency(myDebtQuery.data.netBalance)}
+                  description="Số dư tài chính của bạn"
+                />
+              </div>
+            )}
+
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Khoản chi</TableHead>
-                    <TableHead>Ngày</TableHead>
-                    <TableHead>Yêu cầu</TableHead>
-                    <TableHead>Đã trả</TableHead>
+                    <TableHead>Phải đóng</TableHead>
+                    <TableHead>Đã đóng</TableHead>
                     <TableHead>Còn nợ</TableHead>
                     <TableHead>Trạng thái</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {myDebtQuery.data?.items?.map((item) => (
-                    <TableRow key={item.expenseId}>
+                  {myDebtQuery.data?.unpaidPayments?.map((item) => (
+                    <TableRow key={item.id}>
                       <TableCell className="font-medium">
                         {item.expenseTitle}
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {formatDate(item.expenseDate)}
-                      </TableCell>
                       <TableCell>{formatCurrency(item.requiredFee)}</TableCell>
                       <TableCell className="text-success">
-                        {formatCurrency(item.paidAmount)}
+                        {formatCurrency(item.amountPaid)}
                       </TableCell>
                       <TableCell className="font-medium text-destructive">
-                        {formatCurrency(
-                          Math.max(0, item.requiredFee - item.paidAmount)
-                        )}
+                        {formatCurrency(item.debt)}
                       </TableCell>
                       <TableCell>
                         <Badge variant={getDebtStatusVariant(item.status)}>
@@ -408,26 +428,18 @@ export function GroupFinanceSection({
                       </TableCell>
                     </TableRow>
                   ))}
-                  {!myDebtQuery.data?.items?.length && (
+                  {!myDebtQuery.data?.unpaidPayments?.length && (
                     <TableRow>
                       <TableCell
-                        colSpan={6}
-                        className="py-4 text-center text-muted-foreground"
+                        colSpan={5}
+                        className="py-10 text-center text-muted-foreground"
                       >
-                        Bạn không có khoản nợ nào.
+                        Không có khoản công nợ nào.
                       </TableCell>
                     </TableRow>
                   )}
                 </TableBody>
               </Table>
-              {myDebtQuery.data && (
-                <div className="border-t p-4 text-right font-semibold">
-                  Tổng nợ hiện tại:{" "}
-                  <span className="text-lg text-destructive">
-                    {formatCurrency(myDebtQuery.data.totalDebt)}
-                  </span>
-                </div>
-              )}
             </div>
           </TabsContent>
 

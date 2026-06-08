@@ -64,18 +64,21 @@ export interface ExpenseItem {
   allocations?: Allocation[]
 }
 
-export interface DebtItem {
-  expenseId: string
+export interface UnpaidPayment {
+  id: string
   expenseTitle: string
   requiredFee: number
-  paidAmount: number
+  amountPaid: number
+  debt: number
   status: DebtStatus
-  expenseDate: string
 }
 
 export interface MyDebt {
-  totalDebt: number
-  items: DebtItem[]
+  totalRequired: number
+  totalPaid: number
+  netBalance: number
+  debt: number
+  unpaidPayments: UnpaidPayment[]
 }
 
 export interface CreditBalanceEntry {
