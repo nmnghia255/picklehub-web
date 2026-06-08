@@ -54,6 +54,11 @@ const sidebarItems: SidebarItem[] = [
   { title: "Bạn bè", href: "/friend", icon: Users },
   { title: "Thông báo", href: "/feed", icon: BellRing },
 ]
+const socialMenuItems = [
+  { title: "Danh sách buổi chơi", href: "/socials" },
+  { title: "Buổi chơi của tôi", href: "/socials/me" },
+]
+
 const sportCenterMenuItems = [
   { title: "Danh sách sân", href: "/sport-center" },
   { title: "Lịch sử đặt sân", href: "/sport-center/booking-history" },
@@ -94,6 +99,7 @@ const sportCenterManagementMenuItems = [
   },
 ]
 
+const SOCIAL_MENU_STORAGE_KEY = "isSocialMenuOpen"
 const COACH_MENU_STORAGE_KEY = "isCoachMenuOpen"
 const SPORT_CENTER_MENU_STORAGE_KEY = "isSportCenterMenuOpen"
 const SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY =
@@ -148,6 +154,7 @@ function SidebarLogo() {
 export function AppSidebar() {
   const pathname = usePathname()
   const notifications = useAtomValue(notificationFeedAtom)
+  const [isSocialMenuOpen, setIsSocialMenuOpen] = useState(false)
   const [isCoachMenuOpen, setIsCoachMenuOpen] = useState(false)
   const [isSportCenterMenuOpen, setIsSportCenterMenuOpen] = useState(false)
   const [isSportCenterManagementMenuOpen, setIsSportCenterManagementMenuOpen] =
@@ -155,6 +162,10 @@ export function AppSidebar() {
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsSocialMenuOpen(
+      window.sessionStorage.getItem(SOCIAL_MENU_STORAGE_KEY) === "true"
+    )
+
     setIsCoachMenuOpen(
       window.sessionStorage.getItem(COACH_MENU_STORAGE_KEY) === "true"
     )
@@ -169,12 +180,14 @@ export function AppSidebar() {
       ) === "true"
     )
   }, [])
+  const isSocialPath = isActivePath(pathname, "/socials")
   const isCoachPath = isActivePath(pathname, "/coach")
   const isSportCenterPath = isActivePath(pathname, "/sport-center")
   const isSportCenterManagementPath = isActivePath(
     pathname,
     "/sport-center-management"
   )
+  const shouldShowSocialMenu = isSocialPath || isSocialMenuOpen
   const shouldShowSportCenterMenu = isSportCenterPath || isSportCenterMenuOpen
   const shouldShowCoachMenu = isCoachPath || isCoachMenuOpen
   const shouldShowSportCenterManagementMenu =
@@ -182,6 +195,18 @@ export function AppSidebar() {
   const unreadCount = notifications.filter(
     (notification) => notification.unread
   ).length
+
+  const handleSocialMenuToggle = () => {
+    setIsSocialMenuOpen((prev) => {
+      const next = !prev
+
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(SOCIAL_MENU_STORAGE_KEY, String(next))
+      }
+
+      return next
+    })
+  }
 
   const handleCoachMenuToggle = () => {
     setIsCoachMenuOpen((prev) => {
@@ -226,6 +251,14 @@ export function AppSidebar() {
   }
 
   const handlePrimaryItemClick = () => {
+    if (isSocialMenuOpen) {
+      setIsSocialMenuOpen(false)
+
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(SOCIAL_MENU_STORAGE_KEY, "false")
+      }
+    }
+
     if (isSportCenterMenuOpen) {
       setIsSportCenterMenuOpen(false)
 
@@ -317,25 +350,71 @@ export function AppSidebar() {
                 )}
               </SidebarMenuItem>
 
-              {sidebarItems.slice(2).map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActivePath(pathname, item.href)}
-                    tooltip={item.title}
-                  >
-                    <Link href={item.href} onClick={handlePrimaryItemClick}>
-                      <span className="relative inline-flex items-center justify-center">
-                        <item.icon className="size-4" />
-                        {item.href === "/feed" && unreadCount > 0 && (
-                          <span className="ring-sidebar-background absolute -top-1 -right-1 size-2 rounded-full bg-red-500 ring-2" />
-                        )}
-                      </span>
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {sidebarItems.slice(2).map((item) => {
+                if (item.href === "/socials") {
+                  return (
+                    <SidebarMenuItem key="socials-menu">
+                      <SidebarMenuButton
+                        isActive={shouldShowSocialMenu}
+                        tooltip="Buổi chơi"
+                        onClick={handleSocialMenuToggle}
+                      >
+                        <CalendarDays className="size-4" />
+                        <span>Buổi chơi</span>
+                        <ChevronDown
+                          className={cn(
+                            "ml-auto size-4 transition-transform",
+                            shouldShowSocialMenu && "rotate-180"
+                          )}
+                        />
+                      </SidebarMenuButton>
+                      {shouldShowSocialMenu && (
+                        <SidebarMenuSub>
+                          {socialMenuItems.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.href}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={
+                                  subItem.href === "/socials"
+                                    ? pathname === "/socials"
+                                    : isActivePath(pathname, subItem.href)
+                                }
+                              >
+                                <Link
+                                  href={subItem.href}
+                                  onClick={handlePrimaryItemClick}
+                                >
+                                  <span>{subItem.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      )}
+                    </SidebarMenuItem>
+                  )
+                }
+
+                return (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActivePath(pathname, item.href)}
+                      tooltip={item.title}
+                    >
+                      <Link href={item.href} onClick={handlePrimaryItemClick}>
+                        <span className="relative inline-flex items-center justify-center">
+                          <item.icon className="size-4" />
+                          {item.href === "/feed" && unreadCount > 0 && (
+                            <span className="ring-sidebar-background absolute -top-1 -right-1 size-2 rounded-full bg-red-500 ring-2" />
+                          )}
+                        </span>
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
 
               <SidebarMenuItem>
                 <SidebarMenuButton

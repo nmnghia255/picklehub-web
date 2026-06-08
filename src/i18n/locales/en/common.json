@@ -53,6 +53,10 @@
       "noResultsTitle": "No socials found",
       "noResultsDescription": "Try clearing filters or searching for a different event."
     },
+    "mySocials": {
+      "title": "My Socials",
+      "subtitle": "A list of socials you have joined or created"
+    },
     "filters": {
       "title": "Filters",
       "status": "Status",

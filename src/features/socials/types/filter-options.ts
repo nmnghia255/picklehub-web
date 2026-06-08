@@ -16,7 +16,7 @@ export function getStatusOptions(
   t: TranslationFn
 ): FilterOption<SocialStatus | null>[] {
   return [
-    { value: null, label: t("filters.notYet") },
+    { value: null, label: t("filters.all") },
     { value: "PUBLISHED", label: t("labels.published") },
     { value: "COMPLETED", label: t("labels.completed") },
     { value: "CANCELED", label: t("labels.cancelled") },
@@ -27,7 +27,7 @@ export function getGenderPolicyOptions(
   t: TranslationFn
 ): FilterOption<GenderPolicy | null>[] {
   return [
-    { value: null, label: t("filters.notYet") },
+    { value: null, label: t("filters.all") },
     { value: "MIXED_ONLY", label: t("labels.mixed") },
     { value: "MALE_ONLY", label: t("labels.menOnly") },
     { value: "FEMALE_ONLY", label: t("labels.womenOnly") },
@@ -38,7 +38,7 @@ export function getAgeGroupOptions(
   t: TranslationFn
 ): FilterOption<AgeGroup | null>[] {
   return [
-    { value: null, label: t("filters.notYet") },
+    { value: null, label: t("filters.all") },
     { value: "JUNIOR", label: t("labels.junior") },
     { value: "ADULT", label: t("labels.adult") },
     { value: "SENIOR", label: t("labels.senior") },
@@ -49,7 +49,7 @@ export function getFormatOptions(
   t: TranslationFn
 ): FilterOption<SocialFormat | null>[] {
   return [
-    { value: null, label: t("filters.notYet") },
+    { value: null, label: t("filters.all") },
     { value: "SOCIAL", label: t("labels.social") },
     { value: "SINGLES", label: t("labels.tournament") },
   ]

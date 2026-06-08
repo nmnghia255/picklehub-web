@@ -36,7 +36,11 @@
       "format": "Hình thức",
       "upcoming": "Sắp diễn ra",
       "singles": "Đơn",
-      "mixed": "Đơn & Đôi"
+      "mixed": "Đơn & Đôi",
+      "host": "Tổ chức",
+      "player": "Người chơi",
+      "history": "Lịch sử",
+      "role": "Vai trò"
     },
     "listing": {
       "title": "Buổi chơi",
@@ -53,6 +57,10 @@
       "noResultsTitle": "Không tìm thấy buổi chơi nào",
       "noResultsDescription": "Thử xóa bộ lọc hoặc tìm kiếm một sự kiện khác."
     },
+    "mySocials": {
+      "title": "Buổi chơi của tôi",
+      "subtitle": "Danh sách các buổi chơi bạn đã tham gia hoặc tạo"
+    },
     "filters": {
       "title": "Bộ lọc",
       "selectStatus": "Chọn trạng thái",
@@ -63,13 +71,15 @@
       "clearAll": "Đặt lại",
       "notYet": "Chọn",
       "close": "Đóng",
+      "upcoming": "Sắp diễn ra",
+      "history": "Lịch sử",
       "upcomingOptions": {
-        "notYet": "Chọn",
+        "all": "Tất cả",
         "yes": "Có",
         "no": "Không"
       },
       "hasAvailableSlotsOptions": {
-        "notYet": "Chọn",
+        "all": "Tất cả",
         "yes": "Còn chỗ trống",
         "no": "Không còn chỗ trống"
       },
@@ -79,7 +89,7 @@
         "3": "3 - Trung cấp",
         "4": "4 - Nâng cao",
         "5": "5 - Chuyên nghiệp",
-        "notYet": "Chọn"
+        "all": "Tất cả"
       }
     },
     "detail": {
