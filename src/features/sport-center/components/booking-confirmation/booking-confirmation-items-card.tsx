@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 type LineItem = {
@@ -23,24 +24,27 @@ export function BookingConfirmationItemsCard({
   selectedServices,
   selectedProducts,
 }: BookingConfirmationItemsCardProps) {
+  const { t } = useSportCenterTranslation()
   return (
     <Card className="border shadow-lg shadow-black/5">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-xl">
-          Chi tiết dịch vụ và sản phẩm
+          {t("booking.confirmation.itemsTitle")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold">Dịch vụ</h3>
+            <h3 className="text-sm font-semibold">
+              {t("booking.summary.serviceFee")}
+            </h3>
             <span className="text-sm text-muted-foreground">
               {serviceTotalDisplay}
             </span>
           </div>
           {selectedServices.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Không có dịch vụ bổ sung.
+              {t("booking.confirmation.noExtraServices")}
             </p>
           ) : (
             <div className="space-y-2">
@@ -68,14 +72,16 @@ export function BookingConfirmationItemsCard({
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold">Sản phẩm</h3>
+            <h3 className="text-sm font-semibold">
+              {t("booking.summary.productFee")}
+            </h3>
             <span className="text-sm text-muted-foreground">
               {productTotalDisplay}
             </span>
           </div>
           {selectedProducts.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Không có sản phẩm kèm theo.
+              {t("booking.confirmation.noExtraProducts")}
             </p>
           ) : (
             <div className="space-y-2">

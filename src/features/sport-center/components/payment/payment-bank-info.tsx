@@ -2,6 +2,8 @@
 
 import { QrCode } from "lucide-react"
 
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
+
 type PaymentBankInfoProps = {
   paymentQrUrl: string
   paymentBankName: string
@@ -15,6 +17,7 @@ export function PaymentBankInfo({
   paymentAccountName,
   paymentAccountNumber,
 }: PaymentBankInfoProps) {
+  const { t } = useSportCenterTranslation()
   return (
     <div className="space-y-4 rounded-2xl border border-dashed p-4">
       <div className="grid gap-4 sm:grid-cols-[160px_minmax(0,1fr)]">
@@ -22,12 +25,12 @@ export function PaymentBankInfo({
           {paymentQrUrl ? (
             <img
               src={paymentQrUrl}
-              alt="Mã QR thanh toán"
+              alt={t("booking.payment.qrImageAlt")}
               className="h-full w-full rounded-xl object-cover"
             />
           ) : (
             <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-              Chưa có QR thanh toán.
+              {t("booking.payment.noQr")}
             </div>
           )}
         </div>
@@ -35,7 +38,7 @@ export function PaymentBankInfo({
         <div className="space-y-3">
           <div>
             <p className="text-xs tracking-wide text-muted-foreground uppercase">
-              Thông tin chuyển khoản
+              {t("booking.payment.transferInfo")}
             </p>
             <p className="text-sm text-muted-foreground">{paymentBankName}</p>
             <p className="mt-1 text-lg font-semibold">{paymentAccountName}</p>
@@ -44,7 +47,7 @@ export function PaymentBankInfo({
 
           <div className="rounded-xl bg-muted/50 p-3 text-sm text-muted-foreground">
             <QrCode className="mb-2 size-4 text-primary" />
-            Kiểm tra lại thông tin đặt sân, sau đó xác nhận để tạo booking.
+            {t("booking.payment.checkInfoBeforeConfirm")}
           </div>
         </div>
       </div>

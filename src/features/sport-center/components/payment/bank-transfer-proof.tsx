@@ -3,6 +3,8 @@
 import { Upload } from "lucide-react"
 import React from "react"
 
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
+
 type Props = {
   paymentProofFile: File | null
   paymentProofPreviewUrl: string
@@ -18,6 +20,7 @@ export function BankTransferProof({
   onFileChange,
   onRemoveFile,
 }: Props) {
+  const { t } = useSportCenterTranslation()
   return (
     <div className="rounded-2xl border border-dashed bg-background p-4">
       <div className="flex items-start gap-3">
@@ -26,14 +29,18 @@ export function BankTransferProof({
         </div>
         <div className="flex-1 space-y-3">
           <div>
-            <p className="font-semibold">Upload ảnh chứng từ thanh toán</p>
+            <p className="font-semibold">
+              {t("booking.payment.uploadProofTitle")}
+            </p>
             <p className="text-sm text-muted-foreground">
-              Bắt buộc tải ảnh chuyển khoản để xác minh trước khi tạo booking.
+              {t("booking.payment.uploadProofDesc")}
             </p>
           </div>
 
           <label className="flex cursor-pointer flex-col gap-1 rounded-xl border border-dashed px-4 py-3 text-sm transition-colors hover:border-primary hover:bg-muted/40">
-            <span className="font-medium">Chọn ảnh thanh toán</span>
+            <span className="font-medium">
+              {t("booking.payment.chooseImage")}
+            </span>
             <span className="text-xs text-muted-foreground">
               PNG, JPG, JPEG, WEBP
             </span>
@@ -58,7 +65,7 @@ export function BankTransferProof({
                 className="text-sm font-medium text-destructive hover:underline"
                 onClick={onRemoveFile}
               >
-                Xóa
+                {t("booking.payment.removeImage")}
               </button>
             </div>
           ) : null}
@@ -67,13 +74,13 @@ export function BankTransferProof({
             <div className="overflow-hidden rounded-xl border bg-muted/30">
               <img
                 src={paymentProofPreviewUrl}
-                alt="Ảnh chứng từ thanh toán"
+                alt={t("booking.payment.proofImageAlt")}
                 className="h-56 w-full object-contain"
               />
             </div>
           ) : (
             <div className="rounded-xl border border-dashed bg-muted/20 p-3 text-sm text-muted-foreground">
-              Chưa có ảnh chứng từ nào được chọn.
+              {t("booking.payment.noImageSelected")}
             </div>
           )}
 

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import type { Review } from "@/features/sport-center/types/review"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 const RATING_OPTIONS = [5, 4, 3, 2, 1]
 
@@ -24,6 +25,7 @@ interface FeedbackDialogProps {
 }
 
 export function FeedbackDialog({ centerId, onCreated }: FeedbackDialogProps) {
+  const { t } = useSportCenterTranslation()
   const [open, setOpen] = useState(false)
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState("")
@@ -45,7 +47,7 @@ export function FeedbackDialog({ centerId, onCreated }: FeedbackDialogProps) {
     const trimmedComment = comment.trim()
 
     if (!trimmedComment) {
-      setError("Vui lòng nhập trải nghiệm của bạn.")
+      setError(t("detail.feedback.errorEmptyComment"))
       return
     }
 
@@ -71,8 +73,8 @@ export function FeedbackDialog({ centerId, onCreated }: FeedbackDialogProps) {
       if (!response.ok) {
         throw new Error(
           typeof payload === "object" && payload && "message" in payload
-            ? payload.message || "Không thể gửi đánh giá."
-            : "Không thể gửi đánh giá."
+            ? payload.message || t("detail.feedback.errorSubmit")
+            : t("detail.feedback.errorSubmit")
         )
       }
 
@@ -82,7 +84,7 @@ export function FeedbackDialog({ centerId, onCreated }: FeedbackDialogProps) {
           : (payload as Review)
 
       if (!createdReview || typeof createdReview !== "object") {
-        throw new Error("Không thể gửi đánh giá.")
+        throw new Error(t("detail.feedback.errorSubmit"))
       }
 
       onCreated(createdReview)
@@ -92,7 +94,7 @@ export function FeedbackDialog({ centerId, onCreated }: FeedbackDialogProps) {
       setError(
         submitError instanceof Error
           ? submitError.message
-          : "Không thể gửi đánh giá."
+          : t("detail.feedback.errorSubmit")
       )
     } finally {
       setIsSubmitting(false)
@@ -102,21 +104,23 @@ export function FeedbackDialog({ centerId, onCreated }: FeedbackDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Thêm đánh giá</Button>
+        <Button variant="outline">{t("detail.feedback.addReview")}</Button>
       </DialogTrigger>
 
       <DialogContent>
         <form ref={formRef} onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Chia sẻ trải nghiệm của bạn</DialogTitle>
+            <DialogTitle>{t("detail.feedback.dialogTitle")}</DialogTitle>
             <DialogDescription>
-              Đánh giá của bạn giúp người khác chọn sân phù hợp hơn.
+              {t("detail.feedback.dialogDesc")}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-5 py-4">
             <div className="space-y-2">
-              <p className="text-sm font-medium">Điểm đánh giá</p>
+              <p className="text-sm font-medium">
+                {t("detail.feedback.ratingLabel")}
+              </p>
               <div className="flex flex-wrap gap-2">
                 {RATING_OPTIONS.map((value) => (
                   <Button
@@ -134,11 +138,13 @@ export function FeedbackDialog({ centerId, onCreated }: FeedbackDialogProps) {
             </div>
 
             <div className="space-y-2">
-              <p className="text-sm font-medium">Trải nghiệm của bạn</p>
+              <p className="text-sm font-medium">
+                {t("detail.feedback.commentLabel")}
+              </p>
               <Textarea
                 value={comment}
                 onChange={(event) => setComment(event.target.value)}
-                placeholder="Hãy kể ngắn gọn về chất lượng sân, dịch vụ, vệ sinh, hoặc điều bạn thích nhất."
+                placeholder={t("detail.feedback.commentPlaceholder")}
                 className="min-h-32"
               />
             </div>
@@ -148,7 +154,9 @@ export function FeedbackDialog({ centerId, onCreated }: FeedbackDialogProps) {
 
           <DialogFooter showCloseButton>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Đang gửi..." : "Gửi đánh giá"}
+              {isSubmitting
+                ? t("detail.feedback.submitting")
+                : t("detail.feedback.submitBtn")}
             </Button>
           </DialogFooter>
         </form>

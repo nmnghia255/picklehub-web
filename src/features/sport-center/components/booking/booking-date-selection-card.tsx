@@ -5,8 +5,10 @@ import { CalendarClock } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 export function BookingDateSelectionCard() {
+  const { t } = useSportCenterTranslation()
   const selectedDate = useBookingStore((state) => state.selectedDate)
   const setSelectedDate = useBookingStore((state) => state.setSelectedDate)
 
@@ -15,7 +17,7 @@ export function BookingDateSelectionCard() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <CalendarClock className="size-5" />
-          Chọn ngày
+          {t("booking.dateSelection.title")}
         </CardTitle>
       </CardHeader>
       <CardContent>

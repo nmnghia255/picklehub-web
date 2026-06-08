@@ -1,16 +1,20 @@
 import { notFound } from "next/navigation"
 
 import { PageContainer } from "@/components/page-container"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CourtService } from "@/features/sport-center/api/court-service"
 import {
   getSportCenterById,
+  getSportCenterPriceSlots,
   getSportCenterReviews,
 } from "@/features/sport-center/api/sport-center-service"
 import type { CourtResponse } from "@/features/sport-center/types/court"
 import type { Review } from "@/features/sport-center/types/review"
-import type { SportCenter } from "@/features/sport-center/types/sport-center"
+import type {
+  PriceSlot,
+  SportCenter,
+} from "@/features/sport-center/types/sport-center"
 
+import { DetailTabs } from "../../../../features/sport-center/components/sport-center-detail/detail-tabs"
 import { FeedbackTab } from "../../../../features/sport-center/components/sport-center-detail/feedback-tab"
 import { ImagesTab } from "../../../../features/sport-center/components/sport-center-detail/images-tab"
 import { IntroductionTab } from "../../../../features/sport-center/components/sport-center-detail/introduction-tab"
@@ -30,6 +34,7 @@ export default async function SportCenterInformationPage({
   let sportCenter: SportCenter | null = null
   let courts: CourtResponse[] = []
   let reviews: Review[] = []
+  let priceSlots: PriceSlot[] = []
 
   try {
     sportCenter = await getSportCenterById(id)
@@ -42,10 +47,12 @@ export default async function SportCenterInformationPage({
     notFound()
   }
 
-  const [courtsResult, reviewsResult] = await Promise.allSettled([
-    CourtService.getCourts(id),
-    getSportCenterReviews(id),
-  ])
+  const [courtsResult, reviewsResult, priceSlotsResult] =
+    await Promise.allSettled([
+      CourtService.getCourts(id),
+      getSportCenterReviews(id),
+      getSportCenterPriceSlots(id),
+    ])
 
   if (courtsResult.status === "fulfilled") {
     courts = courtsResult.value
@@ -55,47 +62,34 @@ export default async function SportCenterInformationPage({
     reviews = reviewsResult.value
   }
 
+  if (priceSlotsResult.status === "fulfilled") {
+    priceSlots = priceSlotsResult.value
+  }
+
   return (
     <PageContainer variant="wide" className="space-y-6">
       <SportCenterHeaderCard sportCenter={sportCenter} />
 
-      <Tabs defaultValue="introduction" className="w-full">
-        <TabsList className="mb-4 h-auto w-full flex-wrap justify-start">
-          <TabsTrigger value="introduction">Giới thiệu</TabsTrigger>
-          <TabsTrigger value="service">Dịch vụ</TabsTrigger>
-          <TabsTrigger value="images">Hình ảnh</TabsTrigger>
-          <TabsTrigger value="policy">Điều khoản & quy định</TabsTrigger>
-          <TabsTrigger value="feedback">Đánh giá</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="introduction">
+      <DetailTabs
+        introductionTab={
           <IntroductionTab
             description={sportCenter.description}
             courts={courts}
           />
-        </TabsContent>
-
-        <TabsContent value="service">
+        }
+        serviceTab={
           <ServiceTab
             sportCenterId={id}
             sportCenterName={sportCenter.name}
             products={sportCenter.products}
             services={sportCenter.services}
+            priceSlots={priceSlots}
           />
-        </TabsContent>
-
-        <TabsContent value="images">
-          <ImagesTab images={sportCenter.images} />
-        </TabsContent>
-
-        <TabsContent value="policy">
-          <PolicyTab rules={sportCenter.rules} />
-        </TabsContent>
-
-        <TabsContent value="feedback">
-          <FeedbackTab reviews={reviews} centerId={id} />
-        </TabsContent>
-      </Tabs>
+        }
+        imagesTab={<ImagesTab images={sportCenter.images} />}
+        policyTab={<PolicyTab rules={sportCenter.rules} />}
+        feedbackTab={<FeedbackTab reviews={reviews} centerId={id} />}
+      />
     </PageContainer>
   )
 }

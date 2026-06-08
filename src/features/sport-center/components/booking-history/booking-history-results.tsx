@@ -10,18 +10,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import type { BookingResponse } from "@/features/sport-center/types/booking"
+import type {
+  BookingHistoryPagination,
+  BookingResponse,
+} from "@/features/sport-center/types/booking"
 import CancelReasonDialog from "@/features/sport-center-management/components/booking-list/cancel-reason-dialog"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
-// BookingHistoryPagination type lives in app route types which may not be
-// available to this feature at build-time. Define a local minimal shape
-// used by this component to avoid fragile cross-folder imports.
-type BookingHistoryPagination = {
-  currentPage: number
-  totalPages: number
-  hasPreviousPage: boolean
-  hasNextPage: boolean
-}
 import { BookingHistoryDetailDialog } from "./booking-history-detail-dialog"
 import { BookingHistoryEmptyState } from "./booking-history-empty-state"
 import { BookingHistorySkeleton } from "./booking-history-skeleton"
@@ -52,6 +47,7 @@ export function BookingHistoryResults({
   onNextPage,
   onRefresh,
 }: BookingHistoryResultsProps) {
+  const { t } = useSportCenterTranslation()
   const [selectedBooking, setSelectedBooking] =
     useState<BookingResponse | null>(null)
   const [cancelTarget, setCancelTarget] = useState<BookingResponse | null>(null)
@@ -63,9 +59,9 @@ export function BookingHistoryResults({
   if (loadError) {
     return (
       <BookingHistoryEmptyState
-        title="Không thể tải lịch sử đặt sân"
+        title={t("booking.history.loadErrorTitle")}
         description={loadError}
-        actionLabel="Thử lại"
+        actionLabel={t("booking.history.retry")}
         onAction={onRetry}
       />
     )
@@ -87,7 +83,7 @@ export function BookingHistoryResults({
     }
 
     if (!response.ok) {
-      throw new Error(payload.message || "Không thể hủy lượt đặt sân")
+      throw new Error(payload.message || t("booking.history.cancelErrorDesc"))
     }
 
     setCancelTarget(null)
@@ -98,14 +94,20 @@ export function BookingHistoryResults({
     return (
       <BookingHistoryEmptyState
         title={
-          hasActiveFilters ? "Không có kết quả phù hợp" : "Chưa có lượt đặt nào"
+          hasActiveFilters
+            ? t("booking.history.noResults")
+            : t("booking.history.noBookings")
         }
         description={
           hasActiveFilters
-            ? "Hãy thử đổi trạng thái hoặc ngày tạo để xem các booking khác."
-            : "Các lượt đặt bạn tạo sẽ xuất hiện ở đây để bạn dễ dàng tra cứu lại."
+            ? t("booking.history.tryChangeFilters")
+            : t("booking.history.noBookingsDesc")
         }
-        actionLabel={hasActiveFilters ? "Xóa bộ lọc" : "Làm mới"}
+        actionLabel={
+          hasActiveFilters
+            ? t("booking.history.clearFilters")
+            : t("booking.history.refresh")
+        }
         onAction={hasActiveFilters ? onResetFilters : onRetry}
       />
     )
@@ -128,9 +130,9 @@ export function BookingHistoryResults({
       <CancelReasonDialog
         open={Boolean(cancelTarget)}
         onOpenChange={(open) => !open && setCancelTarget(null)}
-        title="Hủy lượt đặt sân"
-        description="Nhập lý do hủy để hệ thống ghi nhận lịch sử đặt sân của bạn."
-        submitLabel="Xác nhận hủy"
+        title={t("booking.history.cancelBookingTitle")}
+        description={t("booking.history.cancelReasonDescResult")}
+        submitLabel={t("booking.history.confirmCancel")}
         onSubmit={handleCancelBooking}
       />
 
@@ -156,7 +158,10 @@ export function BookingHistoryResults({
 
               <PaginationItem>
                 <PaginationLink isActive size="default" href="#">
-                  Trang {pagination.currentPage}
+                  {t("booking.history.page", {
+                    page: pagination.currentPage,
+                    defaultValue: `Trang ${pagination.currentPage}`,
+                  })}
                 </PaginationLink>
               </PaginationItem>
 

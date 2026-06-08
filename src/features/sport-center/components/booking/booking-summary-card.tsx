@@ -11,6 +11,7 @@ import { useSportCenterStore } from "@/features/sport-center/stores/sport-center
 import type { CourtSlot } from "@/features/sport-center/types/court"
 import type { Product } from "@/features/sport-center/types/product"
 import type { Service } from "@/features/sport-center/types/service"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 function toAmount(value: number | string | null | undefined) {
@@ -19,6 +20,7 @@ function toAmount(value: number | string | null | undefined) {
 }
 
 export function BookingSummaryCard() {
+  const { t } = useSportCenterTranslation()
   const router = useRouter()
   const params = useParams<{ id?: string | string[] }>()
   const centerId = Array.isArray(params.id) ? params.id[0] : params.id
@@ -37,7 +39,7 @@ export function BookingSummaryCard() {
   const errorMessage = useBookingStore((state) => state.submitError)
 
   const selectedDateText = useMemo(() => {
-    if (!selectedDate) return "Chưa chọn ngày"
+    if (!selectedDate) return t("booking.summary.noDate")
     return selectedDate.toLocaleDateString("en-GB", {
       weekday: "short",
       day: "2-digit",
@@ -106,18 +108,24 @@ export function BookingSummaryCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Tổng chi phí</CardTitle>
+        <CardTitle>{t("booking.summary.totalCostTitle")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2 text-sm">
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Ngày đặt</span>
+            <span className="text-muted-foreground">
+              {t("booking.summary.bookingDate")}
+            </span>
             <span className="font-medium">{selectedDateText}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Sân & Khung giờ</span>
+            <span className="text-muted-foreground">
+              {t("booking.summary.courtAndTime")}
+            </span>
             <span className="font-medium">
-              {totalSlots > 0 ? `${totalSlots} giờ` : "Chưa chọn"}
+              {totalSlots > 0
+                ? t("booking.summary.hoursCount", { count: totalSlots })
+                : t("booking.summary.unselected")}
             </span>
           </div>
         </div>
@@ -133,7 +141,8 @@ export function BookingSummaryCard() {
                   <p className="font-medium">
                     {courtAvailability?.courts.find(
                       (court) => court.courtId === courtIdStr
-                    )?.courtName ?? `Sân ${courtIdStr}`}
+                    )?.courtName ??
+                      t("booking.summary.courtId", { id: courtIdStr })}
                     :
                   </p>
                   <p className="text-muted-foreground">
@@ -149,15 +158,21 @@ export function BookingSummaryCard() {
 
         <div className="space-y-2 text-sm">
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Phí sân</span>
+            <span className="text-muted-foreground">
+              {t("booking.summary.courtFee")}
+            </span>
             <span>{formatCurrencyVnd(courtTotal)}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Dịch vụ</span>
+            <span className="text-muted-foreground">
+              {t("booking.summary.serviceFee")}
+            </span>
             <span>{formatCurrencyVnd(serviceTotal)}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Sản phẩm</span>
+            <span className="text-muted-foreground">
+              {t("booking.summary.productFee")}
+            </span>
             <span>{formatCurrencyVnd(productTotal)}</span>
           </div>
         </div>
@@ -165,7 +180,7 @@ export function BookingSummaryCard() {
         <Separator />
 
         <div className="flex items-center justify-between text-base font-semibold">
-          <span>Tổng cộng</span>
+          <span>{t("booking.summary.totalAmount")}</span>
           <span>{formatCurrencyVnd(total)}</span>
         </div>
 
@@ -175,7 +190,7 @@ export function BookingSummaryCard() {
           onClick={handleContinue}
           disabled={!canConfirm || isSubmitting}
         >
-          Tiếp tục
+          {t("booking.summary.continueBtn")}
         </Button>
 
         {statusMessage && (

@@ -16,6 +16,7 @@ import {
   useSportCenterStore,
 } from "@/features/sport-center/stores/sport-center-store"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 interface SportCenterBrowserProps {
   sportCenters: SportCenter[]
@@ -39,6 +40,7 @@ export function SportCenterBrowser({
     (state) => state.getFilteredSportCenters
   )
   const storePagination = useSportCenterStore((state) => state.pagination)
+  const { t } = useSportCenterTranslation()
 
   useEffect(() => {
     setSportCenters(sportCenters)
@@ -67,7 +69,7 @@ export function SportCenterBrowser({
     <div className="flex flex-1 flex-col">
       <div className="mb-6 flex justify-center">
         <div className="w-full max-w-xl">
-          <h2 className="sr-only">Sân</h2>
+          <h2 className="sr-only">{t("listing.title")}</h2>
         </div>
       </div>
 
@@ -86,25 +88,33 @@ export function SportCenterBrowser({
             <PaginationItem>
               {activePagination.currentPage === 1 ? (
                 <span className="inline-flex h-10 items-center justify-center rounded-md border border-transparent px-2.5 text-sm font-medium opacity-50">
-                  Previous
+                  <span className="hidden sm:block">
+                    {t("listing.previous")}
+                  </span>
                 </span>
               ) : (
-                <PaginationPrevious href={previousHref} />
+                <PaginationPrevious href={previousHref}>
+                  <span className="hidden sm:block">
+                    {t("listing.previous")}
+                  </span>
+                </PaginationPrevious>
               )}
             </PaginationItem>
 
             <PaginationItem>
               <PaginationLink isActive size="default" href="#">
-                Trang {activePagination.currentPage}
+                {t("listing.page", { page: activePagination.currentPage })}
               </PaginationLink>
             </PaginationItem>
 
             <PaginationItem>
               {activePagination.hasNextPage ? (
-                <PaginationNext href={nextHref} />
+                <PaginationNext href={nextHref}>
+                  <span className="hidden sm:block">{t("listing.next")}</span>
+                </PaginationNext>
               ) : (
                 <span className="inline-flex h-10 items-center justify-center rounded-md border border-transparent px-2.5 text-sm font-medium opacity-50">
-                  Next
+                  <span className="hidden sm:block">{t("listing.next")}</span>
                 </span>
               )}
             </PaginationItem>

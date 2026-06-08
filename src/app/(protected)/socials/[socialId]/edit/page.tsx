@@ -1,9 +1,25 @@
-"use client"
+import { notFound } from "next/navigation"
 
-import React from "react"
+import { SocialService } from "@/features/socials/api/social-service"
+import { SocialForm } from "@/features/socials/components/social-form"
 
-import { SocialForm } from "@/features/socials/components/Social"
+export default async function EditSocialPage(props: {
+  params: Promise<{ socialId: string }>
+}) {
+  const params = await props.params
+  const socialId = params.socialId
 
-export default function Page() {
-  return <SocialForm />
+  let social
+  try {
+    social = await SocialService.getSocial(socialId)
+
+    if (!social) {
+      notFound()
+    }
+  } catch (error) {
+    console.error("Error fetching social detail:", error)
+    notFound()
+  }
+
+  return <SocialForm initialData={social} socialId={socialId} />
 }

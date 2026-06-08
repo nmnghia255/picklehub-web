@@ -16,7 +16,12 @@ interface ApiResponse<T> {
 }
 
 function unwrapApiResponse<T>(payload: ApiResponse<T> | T): T {
-  if (payload && typeof payload === "object" && "data" in payload) {
+  if (
+    payload &&
+    typeof payload === "object" &&
+    "success" in payload &&
+    "data" in payload
+  ) {
     return (payload as ApiResponse<T>).data
   }
   return payload as T

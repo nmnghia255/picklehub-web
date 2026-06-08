@@ -5,8 +5,10 @@ import { X } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 export function BookingAvailableCourtsCard() {
+  const { t } = useSportCenterTranslation()
   const availability = useBookingStore((state) => state.courtAvailability)
   const isLoading = useBookingStore((state) => state.isLoadingAvailability)
   const error = useBookingStore((state) => state.availabilityError)
@@ -19,24 +21,28 @@ export function BookingAvailableCourtsCard() {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between gap-2">
-          <CardTitle className="text-lg">Danh sách sân</CardTitle>
-          <Badge variant="outline">{courtCount} sân</Badge>
+          <CardTitle className="text-lg">
+            {t("booking.availableCourts.title")}
+          </CardTitle>
+          <Badge variant="outline">
+            {t("detail.header.courtsCount", { count: courtCount })}
+          </Badge>
         </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (
           <p className="text-sm text-muted-foreground">
-            Đang tải danh sách sân trống...
+            {t("booking.availableCourts.loading")}
           </p>
         ) : error ? (
           <p className="text-sm text-destructive">{error}</p>
         ) : !availability ? (
           <p className="text-sm text-muted-foreground">
-            Hãy chọn ngày để xem sân nào còn trống.
+            {t("booking.availableCourts.selectDate")}
           </p>
         ) : availability.courts.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Ngày này chưa có dữ liệu sân trống.
+            {t("booking.availableCourts.noData")}
           </p>
         ) : (
           <div className="space-y-4">
@@ -57,14 +63,24 @@ export function BookingAvailableCourtsCard() {
                     </div>
                     {isSelected && (
                       <span className="text-xs font-semibold text-primary">
-                        {selectedCourts[court.courtId].size} giờ đã chọn
+                        {t("booking.availableCourts.selectedHours", {
+                          count: selectedCourts[court.courtId].size,
+                        })}
                       </span>
                     )}
                   </div>
 
                   <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{availableSlots.length} khung giờ còn trống</span>
-                    <span>{bookedCount} khung giờ đã kín</span>
+                    <span>
+                      {t("booking.availableCourts.availableSlots", {
+                        count: availableSlots.length,
+                      })}
+                    </span>
+                    <span>
+                      {t("booking.availableCourts.bookedSlots", {
+                        count: bookedCount,
+                      })}
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">

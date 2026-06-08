@@ -148,34 +148,27 @@ function SidebarLogo() {
 export function AppSidebar() {
   const pathname = usePathname()
   const notifications = useAtomValue(notificationFeedAtom)
-  const [isCoachMenuOpen, setIsCoachMenuOpen] = useState(() => {
-    if (typeof window === "undefined") {
-      return false
-    }
+  const [isCoachMenuOpen, setIsCoachMenuOpen] = useState(false)
+  const [isSportCenterMenuOpen, setIsSportCenterMenuOpen] = useState(false)
+  const [isSportCenterManagementMenuOpen, setIsSportCenterManagementMenuOpen] =
+    useState(false)
 
-    return window.sessionStorage.getItem(COACH_MENU_STORAGE_KEY) === "true"
-  })
-  const [isSportCenterMenuOpen, setIsSportCenterMenuOpen] = useState(() => {
-    if (typeof window === "undefined") {
-      return false
-    }
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsCoachMenuOpen(
+      window.sessionStorage.getItem(COACH_MENU_STORAGE_KEY) === "true"
+    )
 
-    return (
+    setIsSportCenterMenuOpen(
       window.sessionStorage.getItem(SPORT_CENTER_MENU_STORAGE_KEY) === "true"
     )
-  })
-  const [isSportCenterManagementMenuOpen, setIsSportCenterManagementMenuOpen] =
-    useState(() => {
-      if (typeof window === "undefined") {
-        return false
-      }
 
-      return (
-        window.sessionStorage.getItem(
-          SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY
-        ) === "true"
-      )
-    })
+    setIsSportCenterManagementMenuOpen(
+      window.sessionStorage.getItem(
+        SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY
+      ) === "true"
+    )
+  }, [])
   const isCoachPath = isActivePath(pathname, "/coach")
   const isSportCenterPath = isActivePath(pathname, "/sport-center")
   const isSportCenterManagementPath = isActivePath(

@@ -31,7 +31,6 @@ export default function CreateMatchTrigger({
     if (onMatchesCreated) {
       onMatchesCreated(matches)
     }
-    console.log("create matches", { matches, sessionId })
   }
 
   return (

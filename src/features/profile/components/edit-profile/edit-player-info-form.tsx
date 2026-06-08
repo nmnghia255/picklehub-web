@@ -106,11 +106,13 @@ export function EditPlayerInfoForm({
   useEffect(() => {
     if (state.success && state.user) {
       setUser(state.user)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelfRatingValue(getInitialSelfRatingValue(state.user.selfRating))
     }
   }, [setUser, state.success, state.user])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelfRatingValue(initialSelfRatingValue)
   }, [initialSelfRatingValue])
 

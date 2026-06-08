@@ -4,14 +4,17 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { CourtResponse } from "@/features/sport-center/types/court"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 interface IntroductionTabProps {
   description: string
   courts: CourtResponse[]
 }
 
-function getCourtStatusLabel(court: CourtResponse) {
-  return court.status === "ACTIVE" ? "Đang hoạt động" : "Tạm ngưng"
+function getCourtStatusLabel(court: CourtResponse, t: (key: string) => string) {
+  return court.status === "ACTIVE"
+    ? t("detail.header.statusActive")
+    : t("detail.header.statusInactive")
 }
 
 function getCourtStatusVariant(court: CourtResponse) {
@@ -31,11 +34,14 @@ function getCourtTypeBadgeClassName(court: CourtResponse) {
 }
 
 export function IntroductionTab({ description, courts }: IntroductionTabProps) {
+  const { t } = useSportCenterTranslation()
   return (
     <Card className="gap-0 py-0">
       <CardContent className="space-y-3 p-6">
         <div className="space-y-2">
-          <h2 className="text-lg font-semibold tracking-tight">Giới thiệu</h2>
+          <h2 className="text-lg font-semibold tracking-tight">
+            {t("detail.introduction.title")}
+          </h2>
           <p className="text-md leading-6 text-muted-foreground">
             {description}
           </p>
@@ -44,10 +50,10 @@ export function IntroductionTab({ description, courts }: IntroductionTabProps) {
         <div className="space-y-3 pt-3">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-semibold tracking-tight">
-              Danh sách sân
+              {t("detail.introduction.courtList")}
             </h2>
             <span className="text-sm text-muted-foreground">
-              {courts.length} sân
+              {t("detail.introduction.courtsCount", { count: courts.length })}
             </span>
           </div>
 
@@ -65,7 +71,7 @@ export function IntroductionTab({ description, courts }: IntroductionTabProps) {
                         variant={getCourtStatusVariant(court)}
                         className={getCourtStatusBadgeClassName(court)}
                       >
-                        {getCourtStatusLabel(court)}
+                        {getCourtStatusLabel(court, t)}
                       </Badge>
                     </div>
 
@@ -74,7 +80,9 @@ export function IntroductionTab({ description, courts }: IntroductionTabProps) {
                         variant="outline"
                         className={getCourtTypeBadgeClassName(court)}
                       >
-                        {court.type === "INDOOR" ? "Indoor" : "Outdoor"}
+                        {court.type === "INDOOR"
+                          ? t("detail.introduction.indoor")
+                          : t("detail.introduction.outdoor")}
                       </Badge>
                     </div>
                   </div>
@@ -83,7 +91,7 @@ export function IntroductionTab({ description, courts }: IntroductionTabProps) {
             </div>
           ) : (
             <div className="rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
-              Chưa có thông tin sân.
+              {t("detail.introduction.noCourts")}
             </div>
           )}
         </div>

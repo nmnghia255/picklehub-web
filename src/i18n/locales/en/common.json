@@ -4,14 +4,11 @@
       "na": "N/A",
       "level": "Level",
       "beforeEvent": "before event",
-      "loading": "Loading...",
-      "error": "Something went wrong",
-      "shareComingSoon": "Share functionality will be added soon.",
-      "leaveSocialComingSoon": "Leave-social functionality will be added soon.",
       "hours_one": "{{count}} hour",
       "hours_other": "{{count}} hours",
       "minutes_one": "{{count}} minute",
-      "minutes_other": "{{count}} minutes"
+      "minutes_other": "{{count}} minutes",
+      "uploading": "Đang tải lên..."
     },
     "labels": {
       "published": "Published",
@@ -27,9 +24,19 @@
       "adult": "Adult",
       "senior": "Senior",
       "social": "Social",
-      "singles": "Singles",
       "tournament": "Tournament",
-      "training": "Training"
+      "training": "Training",
+      "any": "Bất kỳ",
+      "mixed_only": "Nam & Nữ",
+      "minimumLevel": "Trình độ tối thiểu",
+      "maximumLevel": "Trình độ tối đa",
+      "hasAvailableSlots": "Chỗ trống",
+      "status": "Trạng thái",
+      "genderPolicy": "Giới tính",
+      "ageGroup": "Nhóm tuổi",
+      "format": "Hình thức",
+      "upcoming": "Sắp diễn ra",
+      "singles": "Đơn"
     },
     "listing": {
       "title": "Socials",
@@ -37,9 +44,6 @@
       "searchPlaceholder": "Search socials...",
       "createSocial": "Create Social",
       "filters": "Filters",
-      "loading": "Loading socials...",
-      "loadErrorTitle": "Could not load socials",
-      "loadErrorDescription": "Please try again in a moment.",
       "showingAvailableSlotsOnly": "Showing: Available Slots Only",
       "showAllAvailability": "Show All Availability",
       "sessionCount_one": "{{count}} session",
@@ -60,7 +64,27 @@
       "format": "Format",
       "selectFormat": "Select format",
       "all": "All",
-      "clearAll": "Clear All"
+      "clearAll": "Clear All",
+      "notYet": "Chọn",
+      "close": "Đóng",
+      "upcomingOptions": {
+        "notYet": "Chọn",
+        "yes": "Có",
+        "no": "Không"
+      },
+      "hasAvailableSlotsOptions": {
+        "notYet": "Chọn",
+        "yes": "Còn chỗ trống",
+        "no": "Không còn chỗ trống"
+      },
+      "levelOptions": {
+        "1": "1 - Mới bắt đầu",
+        "2": "2 - Người mới chơi",
+        "3": "3 - Trung cấp",
+        "4": "4 - Nâng cao",
+        "5": "5 - Chuyên nghiệp",
+        "notYet": "Chọn"
+      }
     },
     "detail": {
       "notFoundTitle": "Social not found",
@@ -77,7 +101,10 @@
       "skillLevelDescription": "This social is designed for players with DUPR ratings between {{minimum}} and {{maximum}}.",
       "submitDupr": "DUPR Submission",
       "joinedOn": "Joined {{date}}",
-      "noParticipants": "No participants yet."
+      "noParticipants": "No participants yet.",
+      "noSkillLevelLimit": "Không giới hạn trình độ",
+      "kick": "Đá người tham gia",
+      "approve": "Duyệt"
     },
     "expenses": {
       "tab": "Expenses",
@@ -89,7 +116,8 @@
       "subtitle": "Review booking costs, calculate participant shares, track payments, and keep the social event financially organized.",
       "actions": {
         "addExpense": "Add Expense",
-        "exportReport": "Export Report"
+        "exportReport": "Export Report",
+        "setPricing": "Set Pricing"
       },
       "progress": {
         "title": "Collection progress",
@@ -109,7 +137,8 @@
         "collectedAmount": "Collected Amount",
         "collectedAmountDescription": "Payments already received from participants",
         "outstandingAmount": "Outstanding Amount",
-        "outstandingAmountDescription": "Remaining balance that the host can track"
+        "outstandingAmountDescription": "Remaining balance that the host can track",
+        "extraExpense": "Chi phí phát sinh"
       },
       "courtBookings": {
         "title": "Court Booking Expenses",
@@ -150,12 +179,16 @@
         "allStatuses": "All statuses",
         "paid": "Paid",
         "unpaid": "Unpaid",
+        "partiallyPaid": "Partially Paid",
+        "overpaid": "Overpaid",
         "refunded": "Refunded",
         "headers": {
           "participant": "Participant",
           "status": "Status",
           "amountDue": "Amount Due",
-          "paymentStatus": "Payment Status"
+          "paymentStatus": "Payment Status",
+          "totalFee": "Total Fee",
+          "actions": "Actions"
         },
         "participantStatus": {
           "pending": "Pending",
@@ -164,7 +197,13 @@
           "rejected": "Rejected"
         },
         "emptyTitle": "No participants match this filter.",
-        "emptyDescription": "Clear the search or switch payment status to see more rows."
+        "emptyDescription": "Clear the search or switch payment status to see more rows.",
+        "actions": {
+          "verifyReceipt": "Verify Receipt",
+          "recordCash": "Record Cash",
+          "issueRefund": "Issue Refund",
+          "actions": "Thao tác"
+        }
       },
       "paymentInfo": {
         "title": "Payment Information",
@@ -185,6 +224,67 @@
         "courtBookingCreated": "Court booking created",
         "participantPaymentReceived": "Participant payment received",
         "ledgerNote": "Hosted on the financial ledger"
+      },
+      "extra": {
+        "title": "Extra Expenses",
+        "description": "Additional manual expenses for this event (water, balls, etc.)",
+        "empty": "No extra expenses logged.",
+        "headers": {
+          "title": "Title",
+          "description": "Description",
+          "amount": "Amount",
+          "actions": "Actions"
+        },
+        "deleteConfirm": {
+          "title": "Are you sure?",
+          "description": "This action cannot be undone. This will permanently delete the expense from the event.",
+          "cancel": "Cancel",
+          "delete": "Delete",
+          "deleting": "Deleting...",
+          "success": "Expense deleted successfully",
+          "error": "Failed to delete expense"
+        }
+      },
+      "expenseDialog": {
+        "editTitle": "Edit Expense",
+        "addTitle": "Add Manual Expense",
+        "editDescription": "Update the details of this extra expense.",
+        "addDescription": "Add extra expenses like water, balls, or referee fees.",
+        "titleLabel": "Title",
+        "titlePlaceholder": "e.g. Water and Snacks",
+        "amountLabel": "Amount (VND)",
+        "amountPlaceholder": "e.g. 50000",
+        "descriptionLabel": "Description (Optional)",
+        "descriptionPlaceholder": "Details about this expense...",
+        "cancel": "Cancel",
+        "update": "Update Expense",
+        "save": "Save Expense",
+        "successUpdate": "Expense updated successfully",
+        "successAdd": "Expense added successfully",
+        "errorUpdate": "Failed to update expense",
+        "errorAdd": "Failed to add expense"
+      },
+      "pricing": {
+        "title": "Pricing Calculator",
+        "description": "Calculate the break-even price based on the expected number of players and expenses.",
+        "expectedPlayers": "Expected Number of Players",
+        "totalCost": "Total Cost",
+        "breakEvenPackage": "Break-even (Package)",
+        "estProfitPackage": "Est. Profit (Package)",
+        "fullPackagePrice": "Full Package Price",
+        "warningBelowBreakEven": "Warning: Package price is below break-even!",
+        "headers": {
+          "session": "Session",
+          "breakEven": "Break-even",
+          "priceOverride": "Price Override",
+          "currentFee": "Phí hiện tại",
+          "bookingCost": "Chi phí đặt sân"
+        },
+        "applyPricing": "Apply Pricing",
+        "cancel": "Cancel",
+        "bookingCost": "Chi phí đặt sân",
+        "manualExpenses": "Chi phí phát sinh",
+        "suggestedPrices": "Giá đề xuất (Gói)"
       }
     },
     "participantStatus": {
@@ -217,7 +317,11 @@
       "leaveSocial": "Leave Social",
       "joinSession": "Join Session",
       "leaveSession": "Leave Session",
-      "full": "Full"
+      "full": "Full",
+      "leaving": "Đang rời...",
+      "publishing": "Đang đăng...",
+      "publishSocial": "Đăng sự kiện",
+      "viewDetails": "Xem chi tiết"
     },
     "dialogs": {
       "joinTitle": "Join {{title}}",
@@ -225,7 +329,21 @@
       "autoApproved": "Your request will be auto-approved.",
       "manualApproval": "This event requires manual approval. You'll receive a notification once the host reviews your request.",
       "cancel": "Cancel",
-      "confirmJoin": "Confirm Join"
+      "confirmJoin": "Confirm Join",
+      "joining": "Joining...",
+      "choosePricingOption": "1. Choose Pricing Option",
+      "fullPackage": "Full Package (Flat fee)",
+      "fullPackageDescription": "Pay once and get access to any session you choose.",
+      "payPerSession": "Pay Per Session",
+      "payPerSessionDescription": "Pay only for the specific sessions you select.",
+      "selectSessions": "2. Select Sessions to Play",
+      "joinSuccess": "Successfully joined the social!",
+      "joinError": "Failed to join the social.",
+      "leaveSuccess": "Successfully left the social!",
+      "leaveError": "Failed to leave the social.",
+      "confirmLeaveTitle": "Leave Social",
+      "confirmLeave": "Are you sure you want to leave this social?",
+      "confirmLeaveAction": "Leave"
     },
     "sessions": {
       "title": "Play Sessions",
@@ -237,7 +355,8 @@
       "editSession": "Edit Session",
       "createSession": "Create Session",
       "hours_one": "{{count}} hour",
-      "hours_other": "{{count}} hours"
+      "hours_other": "{{count}} hours",
+      "noSessionsDescription": "Hãy tạo một phiên chơi mới."
     },
     "matches": {
       "title": "Match Schedule",
@@ -348,7 +467,8 @@
       "completed": "Completed",
       "upcomingActive": "Upcoming / Active",
       "date": "Date",
-      "time": "Time"
+      "time": "Time",
+      "location": "Vị trí"
     },
     "hero": {
       "privateEvent": "Private Event"
@@ -359,8 +479,6 @@
       "subtitle": "Configure the event details, rules, and publishing settings.",
       "settingsAndPublish": "Settings & Publish",
       "basicInformation": "Basic Information",
-      "groupId": "Group ID (Optional)",
-      "groupIdPlaceholder": "e.g., 84fd92fc-14f5-4f27-ac0a-27255eb9be55",
       "socialTitle": "Social Title",
       "socialTitlePlaceholder": "e.g., Sunday Morning Pickleball Social",
       "description": "Description",
@@ -381,9 +499,18 @@
       "hostRole": "Host Role",
       "submitDupr": "Submit to DUPR",
       "paymentSetup": "Payment Setup (Optional)",
-      "totalExpensePerPerson": "Total Expense per Person",
+      "paymentQr": "Payment QR",
+      "paymentQrEmpty": "Upload a payment QR image",
+      "paymentQrHint": "PNG, JPG, or any image file participants can scan.",
+      "paymentQrChooseFile": "Choose image",
+      "paymentQrUploading": "Uploading...",
+      "paymentQrUploaded": "Payment QR uploaded",
+      "paymentQrUploadedHint": "This QR image will be shown to participants.",
+      "paymentQrPreview": "Payment QR preview",
+      "paymentQrRemove": "Remove payment QR",
+      "paymentQrInvalidFile": "Please choose a valid image file.",
+      "paymentQrUploadFailed": "Could not upload the payment QR image.",
       "paymentCode": "Payment Code",
-      "paymentQrUrl": "Payment QR URL",
       "paymentInstructions": "Payment Instructions",
       "playSessions": "Play Sessions",
       "addPlaySession": "Add Session",
@@ -397,7 +524,6 @@
       "deleteSocial": "Delete Social",
       "confirmDeleteSocial": "Are you sure you want to delete this social?",
       "paymentCodePlaceholder": "e.g., Venmo code, reference number",
-      "paymentQrUrlPlaceholder": "https://cdn.picklehub.vn/payments/session-qr.png",
       "paymentInstructionsPlaceholder": "e.g., Venmo @username or Cash at venue",
       "validationEndAfterStart": "End time must be after start time.",
       "addPlaySessionsHint": "Add play sessions to organize your social into specific time slots and courts.",
@@ -405,29 +531,44 @@
       "updateSuccess": "Social updated successfully!",
       "save": "Save Social",
       "create": "Create Social",
-      "update": "Update Social"
+      "update": "Update Social",
+      "isFree": "Miễn phí",
+      "bankName": "Tên ngân hàng",
+      "bankNamePlaceholder": "Vietcombank",
+      "packageFee": "Phí tham gia (gói)",
+      "packageFeePlaceholder": "100.000",
+      "accountNumber": "Số tài khoản",
+      "accountName": "Chủ tài khoản",
+      "accountNumberPlaceholder": "123456789",
+      "accountNamePlaceholder": "Nguyen Van An",
+      "paymentNotePlaceholder": "Ghi chú này sẽ được gửi đến người tham gia cùng với mã thanh toán.",
+      "paymentNote": "Ghi chú thanh toán",
+      "fee": "Phí tham gia",
+      "bookings": "Sân đã đặt",
+      "location": "Vị trí",
+      "freeEvent": "Miễn phí"
     },
-    "calendar": {
-      "title": "Group Activity Calendar",
-      "subtitle": "Month calendar backed by real Social data from Events Service, no mocks.",
-      "month": "Month",
-      "week": "Week",
-      "agenda": "Agenda",
-      "today": "Today",
-      "createSocial": "Create Social",
-      "createSocialDescription": "The selected date will be prefilled in the creation form.",
-      "createSocialForSelectedDate": "Create Social for this day",
-      "selectedDateSummary": "Selected {{date}} with {{count}} socials.",
-      "selectedDateCount": "{{count}} socials on this day",
-      "noSocialInDay": "No social on the selected day.",
-      "noSocialInMonth": "No Social This Month.",
-      "noSocialInWeek": "No social",
-      "noSchedule": "No schedule yet",
-      "slots": "slots",
-      "moreSocials": "+{{count}} Social",
-      "group": "Group {{groupId}}",
-      "unknownGroup": "Unknown group",
-      "selectedDateLabel": "Selected {{date}}"
+    "payment": {
+      "title": "Payment",
+      "subtitle": "Pay the participation fee for this event",
+      "description": "Review the court expenses, participant split calculation, payment tracking and keep the social event financially clear.",
+      "checkInfoBeforeConfirm": "Double check the booking info, then confirm to create booking.",
+      "uploadingProof": "Uploading proof...",
+      "uploadProof": "Upload Payment Proof",
+      "uploadDescription": "This image will be sent to the host as part of your join request.",
+      "uploading": "Uploading...",
+      "confirm": "Confirm",
+      "submitProof": "Submit Proof",
+      "selectFile": "Select Image File",
+      "clickToUpload": "Click to upload",
+      "clickToUploadDescription": "PNG, JPG or JPEG under 5MB",
+      "tab": "Payment",
+      "uploadSuccessTitle": "Upload Successful!",
+      "uploadSuccessDescription": "Your payment proof has been submitted for review.",
+      "uploadAnother": "Upload Another",
+      "totalFeeToPay": "Tổng phí cần thanh toán",
+      "joinedSessions": "Phiên đã tham gia",
+      "joinedSessionsDescription": "Danh sách các phiên bạn đã tham gia"
     }
   },
   "sportCenterManagement": {
@@ -533,17 +674,640 @@
         "noCreditSelected": "No credit selected."
       },
       "status": {
-        "ACTIVE": "Active",
-        "PARTIALLY_USED": "Partially used",
-        "USED": "Used",
-        "EXPIRED": "Expired"
+        "playSessions": "Play Sessions",
+        "addPlaySession": "Add Session",
+        "sessionTitle": "Session Title",
+        "sessionLabel": "Session",
+        "sessionTitlePlaceholder": "e.g., Morning Session - Courts 1 & 2",
+        "maxSlots": "Max Slots",
+        "status": "Status",
+        "privateEvent": "Private Event",
+        "autoApproveJoinRequests": "Auto-approve Join Requests",
+        "deleteSocial": "Delete Social",
+        "confirmDeleteSocial": "Are you sure you want to delete this social?",
+        "paymentCodePlaceholder": "e.g., Venmo code, reference number",
+        "paymentInstructionsPlaceholder": "e.g., Venmo @username or Cash at venue",
+        "validationEndAfterStart": "End time must be after start time.",
+        "addPlaySessionsHint": "Add play sessions to organize your social into specific time slots and courts.",
+        "createSuccess": "Social created successfully!",
+        "updateSuccess": "Social updated successfully!",
+        "save": "Save Social",
+        "create": "Create Social",
+        "update": "Update Social",
+        "ACTIVE": "Đang hoạt động",
+        "PARTIALLY_USED": "Đã dùng một phần",
+        "USED": "Đã dùng",
+        "EXPIRED": "Đã hết hạn"
       },
       "reasons": {
-        "CUSTOMER_CANCELLED": "Customer Cancelled",
-        "OWNER_CANCELLED": "Owner Cancelled",
-        "WEATHER": "Weather",
-        "MAINTENANCE": "Maintenance",
-        "OTHER": "Other"
+        "CUSTOMER_CANCELLED": "Khách hàng hủy",
+        "OWNER_CANCELLED": "Chủ sân hủy",
+        "WEATHER": "Thời tiết",
+        "MAINTENANCE": "Bảo trì",
+        "OTHER": "Khác"
+      }
+    },
+    "sportCenterManagement": {
+      "courtCredits": {
+        "page": {
+          "badge": "Court credits workspace",
+          "title": "Court Credits",
+          "subtitle": "Manage credits generated when bookings are canceled.",
+          "mockCredits": "{{count}} mock credits"
+        },
+        "sort": {
+          "latestCreated": "Latest created",
+          "soonestExpiry": "Soonest expiry",
+          "highestCreditAmount": "Highest credit amount",
+          "highestRemainingAmount": "Highest remaining amount",
+          "customerAZ": "Customer A-Z"
+        },
+        "filters": {
+          "searchPlaceholder": "Search customer, phone, booking code, or credit code",
+          "reason": "Reason",
+          "court": "Court",
+          "sort": "Sort",
+          "resetFilters": "Reset filters",
+          "courts": {
+            "all": "All courts",
+            "courtA": "Court A",
+            "courtB": "Court B",
+            "courtC": "Court C",
+            "courtD": "Court D",
+            "centerCourt": "Center Court"
+          },
+          "reasons": {
+            "all": "All reasons",
+            "customerCancelled": "Customer Cancelled",
+            "ownerCancelled": "Owner Cancelled",
+            "weather": "Weather",
+            "maintenance": "Maintenance",
+            "other": "Other"
+          }
+        },
+        "stats": {
+          "totalCreditValue": "Total Credit Value",
+          "totalCredits": "Total Credits",
+          "liveMock": "Live mock"
+        },
+        "empty": {
+          "noCreditsTitle": "No credits found",
+          "noCreditsDescription": "Credits generated from cancelled bookings will appear here.",
+          "restoreMockCredits": "Restore mock credits",
+          "noMatchesTitle": "No matching credits",
+          "noMatchesDescription": "Try another filter or search term to surface a different mock credit set.",
+          "clearFilters": "Clear filters"
+        },
+        "table": {
+          "creditId": "Credit ID",
+          "customer": "Customer",
+          "originalBookingId": "Original Booking ID",
+          "creditAmount": "Credit Amount",
+          "remainingAmount": "Remaining Amount",
+          "createdDate": "Created Date",
+          "cancellationReason": "Cancellation Reason",
+          "actions": "Actions"
+        },
+        "mobile": {
+          "created": "Created",
+          "booking": "Booking {{bookingId}}",
+          "balance": "Balance",
+          "original": "Original {{amount}}",
+          "reason": "Reason",
+          "remaining": "Remaining {{amount}}"
+        },
+        "actions": {
+          "viewDetails": "View Details",
+          "cancelCredit": "Cancel Credit",
+          "createManualCredit": "Create Manual Credit"
+        },
+        "detail": {
+          "title": "Credit details",
+          "description": "Review the original cancellation, remaining balance, and usage timeline.",
+          "customerInformation": "Customer Information",
+          "name": "Name",
+          "phoneNumber": "Phone Number",
+          "originalBookingInformation": "Original Booking Information",
+          "bookingId": "Booking ID",
+          "courtName": "Court Name",
+          "bookingDate": "Booking Date",
+          "timeSlot": "Time Slot",
+          "creditInformation": "Credit Information",
+          "creditAmount": "Credit Amount",
+          "remainingAmount": "Remaining Amount",
+          "createdDate": "Created Date",
+          "cancellationInformation": "Cancellation Information",
+          "cancellationReason": "Cancellation Reason",
+          "manualCredit": "Manual Credit",
+          "yes": "Yes",
+          "no": "No",
+          "notes": "Notes",
+          "creditUsageHistory": "Credit Usage History",
+          "usedAmount": "Used {{amount}}",
+          "bookingLabel": "Booking {{bookingId}}",
+          "noUsageRecorded": "No usage recorded yet.",
+          "cancelCredit": "Cancel Credit",
+          "noCreditSelected": "No credit selected."
+        },
+        "status": {
+          "ACTIVE": "Active",
+          "PARTIALLY_USED": "Partially used",
+          "USED": "Used",
+          "EXPIRED": "Expired"
+        },
+        "reasons": {
+          "CUSTOMER_CANCELLED": "Customer Cancelled",
+          "OWNER_CANCELLED": "Owner Cancelled",
+          "WEATHER": "Weather",
+          "MAINTENANCE": "Maintenance",
+          "OTHER": "Other"
+        }
+      }
+    },
+    "sportCenter": {
+      "listing": {
+        "errorLoading": "Cannot load the list of sport centers. Please try again later.",
+        "title": "Courts",
+        "searchPlaceholder": "Search by court name or address",
+        "filters": "Filters",
+        "filterDescription": "Select criteria to find courts faster.",
+        "favorite": "Favorite",
+        "showFavoriteOnly": "Show favorite courts only",
+        "confirm": "Confirm",
+        "resultsMatch": "{{count}} matching results",
+        "pageInfo": "Page {{currentPage}} / {{totalPages}}",
+        "previous": "Previous",
+        "next": "Next",
+        "page": "Page {{page}}",
+        "emptyTitle": "No matching results found",
+        "emptyDescription": "You can change keywords or filters to get desired results."
+      },
+      "detail": {
+        "tabs": {
+          "introduction": "Introduction",
+          "service": "Service",
+          "images": "Images",
+          "policy": "Policy & Rules",
+          "feedback": "Reviews"
+        },
+        "header": {
+          "statusActive": "Active",
+          "statusInactive": "Inactive",
+          "courtsCount_one": "{{count}} court",
+          "courtsCount_other": "{{count}} courts",
+          "rating": "{{rating}} stars",
+          "bookCourt": "Book Court",
+          "updating": "Updating...",
+          "favorited": "Favorited",
+          "favorite": "Favorite",
+          "back": "Back",
+          "operatingHours": "Operating Hours: {{openTime}} - {{closeTime}}"
+        },
+        "introduction": {
+          "title": "Introduction",
+          "courtList": "Court List",
+          "courtsCount_one": "{{count}} court",
+          "courtsCount_other": "{{count}} courts",
+          "indoor": "Indoor",
+          "outdoor": "Outdoor",
+          "noCourts": "No court information available."
+        },
+        "images": {
+          "imageAlt": "Sport center image {{index}}"
+        },
+        "service": {
+          "priceTable": "Price Table",
+          "priceSlotsCount_one": "{{count}} slot",
+          "priceSlotsCount_other": "{{count}} slots",
+          "perHour": " / hour",
+          "appliedFor": "Applied for {{name}}",
+          "noPriceTable": "No price table available.",
+          "products": "Products",
+          "itemsCount_one": "{{count}} item",
+          "itemsCount_other": "{{count}} items",
+          "noProducts": "No products available.",
+          "services": "Services",
+          "noServices": "No services available.",
+          "noImage": "No image",
+          "coaching": "Coaching",
+          "equipment": "Equipment",
+          "defaultServiceDesc": "Support and enhancement services.",
+          "servicePrice": "Service Price",
+          "serviceType": "Service Type",
+          "outOfStock": "Out of stock",
+          "inStock": "In stock",
+          "beverage": "Beverage",
+          "defaultProductDesc": "Supplementary products.",
+          "sellingPrice": "Price",
+          "stock": "Stock"
+        },
+        "feedback": {
+          "title": "Reviews",
+          "user": "User {{id}}",
+          "noReviews": "No reviews yet.",
+          "errorEmptyComment": "Please enter your experience.",
+          "errorSubmit": "Failed to submit review.",
+          "addReview": "Add Review",
+          "dialogTitle": "Share Your Experience",
+          "dialogDesc": "Your review helps others choose the right court.",
+          "ratingLabel": "Rating",
+          "commentLabel": "Your Experience",
+          "commentPlaceholder": "Briefly describe the court quality, service, cleanliness, or what you liked most.",
+          "submitting": "Submitting...",
+          "submitBtn": "Submit Review"
+        }
+      },
+      "booking": {
+        "title": "Book Court",
+        "description": "Select date, court, and time slots. You can also add extra services.",
+        "errorLoadAvailability": "Failed to load court availability.",
+        "courtInfo": {
+          "noName": "No center name updated",
+          "noAddress": "No address updated",
+          "noPhone": "No phone number updated",
+          "openDaily": "Open daily: 08:00 - 22:00"
+        },
+        "dateSelection": {
+          "title": "Select Date"
+        },
+        "addOns": {
+          "title": "Services and Products",
+          "services": "Services",
+          "noServices": "No services available.",
+          "products": "Products",
+          "noProducts": "No products available.",
+          "stock": "Stock: {{count}}"
+        },
+        "availableCourts": {
+          "title": "Court List",
+          "loading": "Loading available courts...",
+          "selectDate": "Please select a date to see availability.",
+          "noData": "No availability data for this date.",
+          "selectedHours_one": "{{count}} selected hour",
+          "selectedHours_other": "{{count}} selected hours",
+          "availableSlots_one": "{{count}} available slot",
+          "availableSlots_other": "{{count}} available slots",
+          "bookedSlots_one": "{{count}} booked slot",
+          "bookedSlots_other": "{{count}} booked slots"
+        },
+        "note": {
+          "title": "Booking Note",
+          "placeholder": "Optional notes for court staff (equipment, number of players, special requests...)"
+        },
+        "payment": {
+          "title": "Payment Method",
+          "submittingPayment": "Submitting payment...",
+          "successTitle": "Success",
+          "errorTitle": "Error occurred",
+          "invalidImage": "Please select a valid image file.",
+          "uploadProof": "Please upload the payment proof image.",
+          "errorProcessingProof": "Failed to process the payment proof image.",
+          "readingProof": "Reading proof image...",
+          "creatingBooking": "Creating booking...",
+          "confirmAndCreate": "Confirm and Create Booking",
+          "useCredit": "Use Credit",
+          "useCreditDesc": "Pay with your available credit balance.",
+          "bankTransfer": "Bank Transfer",
+          "bankTransferDesc": "Pay via the court's bank information.",
+          "uploadProofTitle": "Upload payment proof",
+          "uploadProofDesc": "Payment proof image is required to verify before creating a booking.",
+          "chooseImage": "Choose payment image",
+          "removeImage": "Remove",
+          "proofImageAlt": "Payment proof image",
+          "noImageSelected": "No payment proof image selected.",
+          "payWithCredit": "Pay with credit",
+          "payWithCreditDesc": "The system will use your available credit to create the booking.",
+          "loadingCredit": "Loading credit balance...",
+          "creditBalanceIs": "Your credit balance is ",
+          "andEnough": " and is sufficient for payment.",
+          "needToPayMore": ". You need to pay an additional ",
+          "toCompleteTotal": " to complete the total amount.",
+          "qrImageAlt": "Payment QR Code",
+          "noQr": "No payment QR code available.",
+          "transferInfo": "Transfer Information",
+          "checkInfoBeforeConfirm": "Double-check booking information, then confirm to create the booking.",
+          "uploadingProof": "Uploading proof image...",
+          "loading": "Loading...",
+          "confirm": "Confirm"
+        },
+        "history": {
+          "pageTitle": "Booking History",
+          "pageDesc": "Review all the bookings you've created, quickly filter by status or booking date and track progress.",
+          "totalBookings_one": "{{count}} booking",
+          "totalBookings_other": "{{count}} bookings",
+          "filtersTitle": "Filters",
+          "createdAtTitle": "Created Date",
+          "selectDate": "Select date",
+          "reset": "Reset",
+          "statusTitle": "Status",
+          "allStatus": "All statuses",
+          "viewDetail": "View Details",
+          "cancelBooking": "Cancel Booking",
+          "cancelErrorDesc": "Failed to cancel booking",
+          "close": "Close",
+          "cancelReasonDesc": "Enter a reason to confirm cancelling this booking.",
+          "confirmCancel": "Confirm Cancellation",
+          "cancelBookingTitle": "Cancel Booking",
+          "loadErrorTitle": "Failed to load booking history",
+          "retry": "Retry",
+          "noResults": "No matching results",
+          "noBookings": "No bookings yet",
+          "tryChangeFilters": "Try changing the status or created date to view other bookings.",
+          "noBookingsDesc": "The bookings you create will appear here so you can easily look them up.",
+          "clearFilters": "Clear filters",
+          "refresh": "Refresh",
+          "cancelReasonDescResult": "Enter a cancellation reason so the system can record your booking history.",
+          "noSlots": "No slots yet",
+          "slotsCount_one": "{{count}} slot",
+          "slotsCount_other": "{{count}} slots",
+          "center": "Center",
+          "bookingDate": "Booking Date",
+          "totalMoney": "Total Amount",
+          "actions": "Actions",
+          "noCourtInfo": "No court information",
+          "moreCourts": "+ {{count}} other courts",
+          "moreSlots": "+ {{count}} slots"
+        },
+        "summary": {
+          "noDate": "No date selected",
+          "totalCostTitle": "Total Cost",
+          "bookingDate": "Booking Date",
+          "courtAndTime": "Court & Time",
+          "hoursCount_one": "{{count}} hour",
+          "hoursCount_other": "{{count}} hours",
+          "unselected": "Unselected",
+          "courtId": "Court {{id}}",
+          "courtFee": "Court Fee",
+          "serviceFee": "Service Fee",
+          "productFee": "Product Fee",
+          "totalAmount": "Total Amount",
+          "continueBtn": "Continue"
+        },
+        "confirmation": {
+          "defaultCenterName": "Pickleball court",
+          "errorNoCenterId": "Court ID not found.",
+          "errorCreateBooking": "Failed to create booking.",
+          "successSubmit": "Booking request submitted successfully.",
+          "confirmAndPayBtn": "Confirm & Proceed to Payment",
+          "emptyStateTitle": "Failed to load data",
+          "emptyStateDesc": "Booking data not found. Please return to the booking page and try again.",
+          "headerTitle": "Confirm Information",
+          "headerDesc": "Review all booking information before confirming",
+          "detailsTitle": "Booking Details",
+          "courtLabel": "Court",
+          "totalMoney": "Total Amount",
+          "noteLabel": "Note",
+          "noNote": "No notes.",
+          "itemsTitle": "Services and Products Details",
+          "noExtraServices": "No additional services.",
+          "noExtraProducts": "No additional products.",
+          "scheduleTitle": "Schedule",
+          "slotsCount_one": "{{count}} slot",
+          "slotsCount_other": "{{count}} slots"
+        }
+      }
+    }
+  },
+  "sportCenter": {
+    "listing": {
+      "errorLoading": "Không thể tải danh sách trung tâm thể thao. Vui lòng thử lại sau.",
+      "title": "Sân",
+      "searchPlaceholder": "Tìm kiếm theo tên sân hoặc địa chỉ",
+      "filters": "Bộ lọc",
+      "filterDescription": "Chọn tiêu chí lọc để tìm sân phù hợp nhanh hơn.",
+      "favorite": "Yêu thích",
+      "showFavoriteOnly": "Chỉ hiển thị sân yêu thích",
+      "confirm": "Xác nhận",
+      "resultsMatch": "{{count}} kết quả phù hợp",
+      "pageInfo": "Trang {{currentPage}} / {{totalPages}}",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Trang {{page}}",
+      "emptyTitle": "Không tìm thấy kết quả phù hợp",
+      "emptyDescription": "Bạn có thể thay đổi từ khóa hoặc bộ lọc để có kết quả như ý nhé."
+    },
+    "detail": {
+      "tabs": {
+        "introduction": "Giới thiệu",
+        "service": "Dịch vụ",
+        "images": "Hình ảnh",
+        "policy": "Điều khoản & quy định",
+        "feedback": "Đánh giá"
+      },
+      "header": {
+        "statusActive": "Đang hoạt động",
+        "statusInactive": "Tạm ngưng",
+        "courtsCount_one": "{{count}} sân",
+        "courtsCount_other": "{{count}} sân",
+        "rating": "{{rating}} sao",
+        "bookCourt": "Đặt sân",
+        "updating": "Đang cập nhật...",
+        "favorited": "Đã yêu thích",
+        "favorite": "Yêu thích",
+        "back": "Quay lại",
+        "operatingHours": "Giờ hoạt động: {{openTime}} - {{closeTime}}"
+      },
+      "introduction": {
+        "title": "Giới thiệu",
+        "courtList": "Danh sách sân",
+        "courtsCount_one": "{{count}} sân",
+        "courtsCount_other": "{{count}} sân",
+        "indoor": "Trong nhà",
+        "outdoor": "Ngoài trời",
+        "noCourts": "Chưa có thông tin sân."
+      },
+      "images": {
+        "imageAlt": "Hình ảnh sân thể thao {{index}}"
+      },
+      "service": {
+        "priceTable": "Bảng giá",
+        "priceSlotsCount_one": "{{count}} khung giờ",
+        "priceSlotsCount_other": "{{count}} khung giờ",
+        "perHour": " / giờ",
+        "appliedFor": "Áp dụng cho {{name}}",
+        "noPriceTable": "Chưa có bảng giá.",
+        "products": "Sản phẩm",
+        "itemsCount_one": "{{count}} mục",
+        "itemsCount_other": "{{count}} mục",
+        "noProducts": "Chưa có sản phẩm.",
+        "services": "Dịch vụ",
+        "noServices": "Chưa có dịch vụ.",
+        "noImage": "Chưa có ảnh",
+        "coaching": "Huấn luyện",
+        "equipment": "Thuê thiết bị",
+        "defaultServiceDesc": "Dịch vụ hỗ trợ và nâng cao trải nghiệm.",
+        "servicePrice": "Giá dịch vụ",
+        "serviceType": "Loại dịch vụ",
+        "outOfStock": "Hết hàng",
+        "inStock": "Còn hàng",
+        "beverage": "Đồ uống",
+        "defaultProductDesc": "Sản phẩm bổ sung cho sân và người chơi.",
+        "sellingPrice": "Giá bán",
+        "stock": "Tồn kho"
+      },
+      "feedback": {
+        "title": "Đánh giá",
+        "user": "Người dùng {{id}}",
+        "noReviews": "Chưa có đánh giá nào.",
+        "errorEmptyComment": "Vui lòng nhập trải nghiệm của bạn.",
+        "errorSubmit": "Không thể gửi đánh giá.",
+        "addReview": "Thêm đánh giá",
+        "dialogTitle": "Chia sẻ trải nghiệm của bạn",
+        "dialogDesc": "Đánh giá của bạn giúp người khác chọn sân phù hợp hơn.",
+        "ratingLabel": "Điểm đánh giá",
+        "commentLabel": "Trải nghiệm của bạn",
+        "commentPlaceholder": "Hãy kể ngắn gọn về chất lượng sân, dịch vụ, vệ sinh, hoặc điều bạn thích nhất.",
+        "submitting": "Đang gửi...",
+        "submitBtn": "Gửi đánh giá"
+      }
+    },
+    "booking": {
+      "title": "Đặt sân",
+      "description": "Chọn ngày, sân và khung giờ bạn muốn đặt. Bạn cũng có thể thêm các dịch vụ bổ sung.",
+      "errorLoadAvailability": "Không thể tải danh sách sân trống.",
+      "courtInfo": {
+        "noName": "Chưa cập nhật tên trung tâm",
+        "noAddress": "Chưa cập nhật địa chỉ",
+        "noPhone": "Chưa cập nhật số điện thoại",
+        "openDaily": "Mở cửa hàng ngày: 08:00 - 22:00"
+      },
+      "dateSelection": {
+        "title": "Chọn ngày"
+      },
+      "addOns": {
+        "title": "Dịch vụ và sản phẩm",
+        "services": "Dịch vụ",
+        "noServices": "Không có dịch vụ.",
+        "products": "Sản phẩm",
+        "noProducts": "Không có sản phẩm.",
+        "stock": "Tồn kho: {{count}}"
+      },
+      "availableCourts": {
+        "title": "Danh sách sân",
+        "loading": "Đang tải danh sách sân trống...",
+        "selectDate": "Hãy chọn ngày để xem sân nào còn trống.",
+        "noData": "Ngày này chưa có dữ liệu sân trống.",
+        "selectedHours_one": "{{count}} giờ đã chọn",
+        "selectedHours_other": "{{count}} giờ đã chọn",
+        "availableSlots_one": "{{count}} khung giờ còn trống",
+        "availableSlots_other": "{{count}} khung giờ còn trống",
+        "bookedSlots_one": "{{count}} khung giờ đã kín",
+        "bookedSlots_other": "{{count}} khung giờ đã kín"
+      },
+      "note": {
+        "title": "Ghi chú đặt sân",
+        "placeholder": "Ghi chú tùy chọn cho nhân viên sân (thiết bị, số lượng người chơi, yêu cầu...)"
+      },
+      "payment": {
+        "title": "Phương thức thanh toán",
+        "submittingPayment": "Đang gửi thanh toán...",
+        "successTitle": "Hoàn tất",
+        "errorTitle": "Có lỗi xảy ra",
+        "invalidImage": "Vui lòng chọn file ảnh hợp lệ.",
+        "uploadProof": "Vui lòng tải lên ảnh chứng từ thanh toán.",
+        "errorProcessingProof": "Không thể xử lý ảnh chứng từ thanh toán.",
+        "readingProof": "Đang đọc ảnh chứng từ...",
+        "creatingBooking": "Đang tạo booking...",
+        "confirmAndCreate": "Xác nhận và tạo booking",
+        "useCredit": "Dùng credit",
+        "useCreditDesc": "Thanh toán bằng số credit hiện có của bạn.",
+        "bankTransfer": "Chuyển khoản ngân hàng",
+        "bankTransferDesc": "Thanh toán theo thông tin ngân hàng của sân.",
+        "uploadProofTitle": "Upload ảnh chứng từ thanh toán",
+        "uploadProofDesc": "Bắt buộc tải ảnh chuyển khoản để xác minh trước khi tạo booking.",
+        "chooseImage": "Chọn ảnh thanh toán",
+        "removeImage": "Xóa",
+        "proofImageAlt": "Ảnh chứng từ thanh toán",
+        "noImageSelected": "Chưa có ảnh chứng từ nào được chọn.",
+        "payWithCredit": "Thanh toán bằng credit",
+        "payWithCreditDesc": "Hệ thống sẽ dùng số credit khả dụng của bạn để tạo booking.",
+        "loadingCredit": "Đang tải số dư credit...",
+        "creditBalanceIs": "Số dư credit của bạn là ",
+        "andEnough": " và đã đủ để thanh toán.",
+        "needToPayMore": ". Bạn cần thanh toán thêm ",
+        "toCompleteTotal": " để đủ tổng tiền.",
+        "qrImageAlt": "Mã QR thanh toán",
+        "noQr": "Chưa có QR thanh toán.",
+        "transferInfo": "Thông tin chuyển khoản",
+        "checkInfoBeforeConfirm": "Kiểm tra lại thông tin đặt sân, sau đó xác nhận để tạo booking.",
+        "uploadingProof": "Đang tải ảnh minh chứng...",
+        "loading": "Đang tải...",
+        "confirm": "Xác nhận"
+      },
+      "history": {
+        "pageTitle": "Lịch sử đặt sân",
+        "pageDesc": "Xem lại toàn bộ các lượt đặt bạn đã tạo, lọc nhanh theo trạng thái hoặc ngày đặt và theo dõi tiến trình.",
+        "totalBookings_one": "{{count}} lượt đặt",
+        "totalBookings_other": "{{count}} lượt đặt",
+        "filtersTitle": "Bộ lọc",
+        "createdAtTitle": "Ngày tạo",
+        "selectDate": "Chọn ngày",
+        "reset": "Đặt lại",
+        "statusTitle": "Trạng thái",
+        "allStatus": "Tất cả trạng thái",
+        "viewDetail": "Xem chi tiết",
+        "cancelBooking": "Hủy đặt sân",
+        "cancelErrorDesc": "Không thể hủy lượt đặt sân",
+        "close": "Đóng",
+        "cancelReasonDesc": "Nhập lý do để xác nhận hủy lượt đặt sân này.",
+        "confirmCancel": "Xác nhận hủy",
+        "cancelBookingTitle": "Hủy lượt đặt sân",
+        "loadErrorTitle": "Không thể tải lịch sử đặt sân",
+        "retry": "Thử lại",
+        "noResults": "Không có kết quả phù hợp",
+        "noBookings": "Chưa có lượt đặt nào",
+        "tryChangeFilters": "Hãy thử đổi trạng thái hoặc ngày tạo để xem các booking khác.",
+        "noBookingsDesc": "Các lượt đặt bạn tạo sẽ xuất hiện ở đây để bạn dễ dàng tra cứu lại.",
+        "clearFilters": "Xóa bộ lọc",
+        "refresh": "Làm mới",
+        "cancelReasonDescResult": "Nhập lý do hủy để hệ thống ghi nhận lịch sử đặt sân của bạn.",
+        "noSlots": "Chưa có khung giờ",
+        "slotsCount_one": "{{count}} khung giờ",
+        "slotsCount_other": "{{count}} khung giờ",
+        "center": "Trung tâm",
+        "bookingDate": "Ngày đặt",
+        "totalMoney": "Tổng tiền",
+        "actions": "Thao tác",
+        "noCourtInfo": "Không có thông tin sân",
+        "moreCourts": "+ {{count}} sân khác",
+        "moreSlots": "+ {{count}} khung giờ"
+      },
+      "summary": {
+        "noDate": "Chưa chọn ngày",
+        "totalCostTitle": "Tổng chi phí",
+        "bookingDate": "Ngày đặt",
+        "courtAndTime": "Sân & Khung giờ",
+        "hoursCount_one": "{{count}} giờ",
+        "hoursCount_other": "{{count}} giờ",
+        "unselected": "Chưa chọn",
+        "courtId": "Sân {{id}}",
+        "courtFee": "Phí sân",
+        "serviceFee": "Dịch vụ",
+        "productFee": "Sản phẩm",
+        "totalAmount": "Tổng cộng",
+        "continueBtn": "Tiếp tục"
+      },
+      "confirmation": {
+        "defaultCenterName": "Sân pickleball",
+        "errorNoCenterId": "Không tìm thấy mã sân.",
+        "errorCreateBooking": "Không thể tạo booking.",
+        "successSubmit": "Đã gửi yêu cầu đặt sân thành công.",
+        "confirmAndPayBtn": "Xác nhận và chuyển sang thanh toán",
+        "emptyStateTitle": "Không thể tải dữ liệu",
+        "emptyStateDesc": "Không tìm thấy dữ liệu đặt sân. Vui lòng quay lại trang đặt sân và thử lại.",
+        "headerTitle": "Xác nhận thông tin",
+        "headerDesc": "Kiểm tra lại toàn bộ thông tin đặt sân trước khi đặt sân",
+        "detailsTitle": "Thông tin đặt sân",
+        "courtLabel": "Sân",
+        "totalMoney": "Tổng tiền",
+        "noteLabel": "Ghi chú",
+        "noNote": "Không có ghi chú.",
+        "itemsTitle": "Chi tiết dịch vụ và sản phẩm",
+        "noExtraServices": "Không có dịch vụ bổ sung.",
+        "noExtraProducts": "Không có sản phẩm kèm theo.",
+        "scheduleTitle": "Lịch đặt",
+        "slotsCount_one": "{{count}} khung giờ",
+        "slotsCount_other": "{{count}} khung giờ"
       }
     }
   }

@@ -15,8 +15,10 @@ import {
 } from "@/components/ui/sheet"
 import { Switch } from "@/components/ui/switch"
 import { useSportCenterStore } from "@/features/sport-center/stores/sport-center-store"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 export function FilterSidebar() {
+  const { t } = useSportCenterTranslation()
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -63,26 +65,24 @@ export function FilterSidebar() {
       <SheetTrigger asChild>
         <Button type="button" variant="outline" className="shrink-0 gap-2">
           <Filter className="size-4" />
-          <span className="hidden sm:inline">Bộ lọc</span>
+          <span className="hidden sm:inline">{t("listing.filters")}</span>
         </Button>
       </SheetTrigger>
 
       <SheetContent side="right" className="w-full sm:max-w-sm">
         <SheetHeader className="border-b px-6 py-5">
-          <SheetTitle>Bộ lọc</SheetTitle>
-          <SheetDescription>
-            Chọn tiêu chí lọc để tìm sân phù hợp nhanh hơn.
-          </SheetDescription>
+          <SheetTitle>{t("listing.filters")}</SheetTitle>
+          <SheetDescription>{t("listing.filterDescription")}</SheetDescription>
         </SheetHeader>
 
         <div className="p-6">
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-medium">Yêu thích</p>
+              <p className="text-sm font-medium">{t("listing.favorite")}</p>
               <Switch
                 checked={pendingFavoriteOnly}
                 onCheckedChange={setPendingFavoriteOnly}
-                aria-label="Chỉ hiển thị sân yêu thích"
+                aria-label={t("listing.showFavoriteOnly")}
               />
             </div>
 
@@ -92,7 +92,7 @@ export function FilterSidebar() {
                 className="w-full"
                 onClick={handleConfirmFilter}
               >
-                Xác nhận
+                {t("listing.confirm")}
               </Button>
             </div>
           </div>

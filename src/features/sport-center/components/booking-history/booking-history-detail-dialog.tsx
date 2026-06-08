@@ -14,13 +14,9 @@ import { BookingPaymentSection } from "@/features/sport-center-management/compon
 import { BookingScheduleServices } from "@/features/sport-center-management/components/booking-list/booking-detail-dialog/booking-schedule-services"
 import { BookingSummaryCards } from "@/features/sport-center-management/components/booking-list/booking-detail-dialog/booking-summary-cards"
 import { BookingSummarySection } from "@/features/sport-center-management/components/booking-list/booking-detail-dialog/booking-summary-section"
-import {
-  formatBookingCreatedAt,
-  formatBookingDate,
-  formatCurrency,
-  getBookingDisplayNote,
-} from "@/features/sport-center-management/components/booking-list/booking-list.utils"
+import { getBookingDisplayNote } from "@/features/sport-center-management/components/booking-list/booking-list.utils"
 import CancelReasonDialog from "@/features/sport-center-management/components/booking-list/cancel-reason-dialog"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 interface BookingHistoryDetailDialogProps {
   booking: BookingResponse | null
@@ -33,6 +29,7 @@ export function BookingHistoryDetailDialog({
   onClose,
   onActionSuccess,
 }: BookingHistoryDetailDialogProps) {
+  const { t } = useSportCenterTranslation()
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [isCancelling, setIsCancelling] = useState(false)
   const [cancelError, setCancelError] = useState<string | null>(null)
@@ -62,7 +59,9 @@ export function BookingHistoryDetailDialog({
       onClose()
     } catch (error) {
       setCancelError(
-        error instanceof Error ? error.message : "Không thể hủy lượt đặt sân"
+        error instanceof Error
+          ? error.message
+          : t("booking.history.cancelErrorDesc")
       )
       throw error
     } finally {
@@ -151,7 +150,7 @@ export function BookingHistoryDetailDialog({
 
               <div className="flex flex-col-reverse gap-3 border-t pt-4 sm:flex-row sm:justify-end">
                 <Button variant="outline" onClick={onClose}>
-                  Đóng
+                  {t("booking.history.close")}
                 </Button>
 
                 {canCancel ? (
@@ -160,7 +159,7 @@ export function BookingHistoryDetailDialog({
                     onClick={() => setShowCancelDialog(true)}
                     disabled={isCancelling}
                   >
-                    Hủy đặt sân
+                    {t("booking.history.cancelBooking")}
                   </Button>
                 ) : null}
               </div>
@@ -172,9 +171,9 @@ export function BookingHistoryDetailDialog({
       <CancelReasonDialog
         open={showCancelDialog}
         onOpenChange={(open) => !open && setShowCancelDialog(false)}
-        title="Hủy lượt đặt sân"
-        description="Nhập lý do để xác nhận hủy lượt đặt sân này."
-        submitLabel="Xác nhận hủy"
+        title={t("booking.history.cancelBookingTitle")}
+        description={t("booking.history.cancelReasonDesc")}
+        submitLabel={t("booking.history.confirmCancel")}
         onSubmit={handleCancelBooking}
       />
     </>

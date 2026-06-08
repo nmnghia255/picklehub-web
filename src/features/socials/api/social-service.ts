@@ -1,72 +1,25 @@
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
-import type { PlaySession, Social } from "../types"
+import type {
+  CreateSocialResponse,
+  DuplicateSessionRequest,
+  LeaveSocialResponse,
+  ListSocial,
+  ListSocialRequest,
+  SocialDetail,
+  SocialParticipant,
+  UpdateSocialRequest,
+} from "../types/social"
 
 interface ApiResponse<T> {
   meta: {
-    total?: number
-    page?: number
-    limit?: number
-    totalPages?: number
+    total: number
+    page: number
+    limit: number
+    totalPages: number
   }
   message: string
   data: T
-}
-
-export interface SocialListQuery {
-  page?: number
-  limit?: number
-  sortBy?: "createdAt" | "startTime"
-  order?: "asc" | "desc"
-  groupId?: string
-  status?: "PUBLISHED" | "COMPLETED" | "CANCELLED"
-  search?: string
-  startFrom?: string
-  startTo?: string
-  upcoming?: boolean
-  hasAvailableSlots?: boolean
-  minimumLevel?: number
-  maximumLevel?: number
-  format?: "SOCIAL" | "SINGLES"
-  genderPolicy?: "ANY" | "MALE_ONLY" | "FEMALE_ONLY" | "MIXED_ONLY"
-  ageGroup?: "ANY" | "JUNIOR" | "ADULT" | "SENIOR"
-}
-
-export interface SocialCreatePayload {
-  groupId?: string
-  title: string
-  note?: string
-  startTime?: string
-  endTime?: string
-  format?: "SOCIAL" | "SINGLES"
-  isPrivate?: boolean
-  maxSlots?: number
-  submitDupr?: boolean
-  minimumLevel?: number
-  maximumLevel?: number
-  genderPolicy?: "ANY" | "MALE_ONLY" | "FEMALE_ONLY" | "MIXED_ONLY"
-  ageGroup?: "ANY" | "JUNIOR" | "ADULT" | "SENIOR"
-  hostRole?: "HOST_ONLY" | "HOST_AND_PLAY"
-  cancellationFreezeHours?: number
-  autoApproveJoinRequests?: boolean
-  paymentQrUrl?: string
-  paymentCode?: string
-  paymentNote?: string
-}
-
-export interface SocialUpdatePayload extends Partial<SocialCreatePayload> {
-  status?: "DRAFT" | "PUBLISHED" | "COMPLETED" | "CANCELLED"
-}
-
-export interface ListResponse<T> {
-  data: T
-  meta?: {
-    total?: number
-    page?: number
-    limit?: number
-    totalPages?: number
-  }
-  message: string
 }
 
 function unwrapApiResponse<T>(payload: ApiResponse<T> | T): T {
@@ -76,52 +29,105 @@ function unwrapApiResponse<T>(payload: ApiResponse<T> | T): T {
   return payload as T
 }
 
-export const socialService = {
-  listMySocials: async function (): Promise<ListResponse<Social[]>> {
+export const SocialService = {
+  listMySocials: async function (
+    tab: string | null,
+    role: string | null,
+    page: number | null,
+    limit: number | null
+  ): Promise<{
+    data: ListSocial[]
+    meta: ApiResponse<ListSocial[]>["meta"]
+  }> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ListResponse<Social[]>>(
-      "/api/events/socials/my-schedule"
+    const searchParams = new URLSearchParams()
+    if (tab) searchParams.set("tab", tab)
+    if (role) searchParams.set("role", role)
+    if (page !== null) searchParams.set("page", page.toString())
+    if (limit !== null) searchParams.set("limit", limit.toString())
+
+    const response = await axios.get<ApiResponse<ListSocial[]>>(
+      "/api/events/socials/my-schedule",
+      { params: searchParams }
     )
-    return response.data
+    return { data: response.data.data, meta: response.data.meta }
   },
-  createSocial: async function (payload: SocialCreatePayload): Promise<Social> {
+
+  createSocial: async function (
+    payload: unknown
+  ): Promise<CreateSocialResponse> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post<ApiResponse<Social>>(
+    const response = await axios.post<ApiResponse<CreateSocialResponse>>(
       "/api/events/socials",
       payload
     )
     return unwrapApiResponse(response.data)
   },
-  discover: async function (params?: SocialListQuery): Promise<ListResponse<Social[]>> {
+
+  discover: async function (params: ListSocialRequest): Promise<{
+    data: ListSocial[]
+    meta: ApiResponse<ListSocial[]>["meta"]
+  }> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ListResponse<Social[]>>(
+    const searchParams = new URLSearchParams()
+    if (params.sortBy) searchParams.set("sortBy", params.sortBy)
+    if (params.order) searchParams.set("order", params.order)
+    if (params.page) searchParams.set("page", params.page.toString())
+    if (params.limit) searchParams.set("limit", params.limit.toString())
+    if (params.status) searchParams.set("status", params.status)
+    if (params.search) searchParams.set("search", params.search)
+    if (params.startFrom) searchParams.set("startFrom", params.startFrom)
+    if (params.startTo) searchParams.set("startTo", params.startTo)
+    if (params.upcoming)
+      searchParams.set("upcoming", params.upcoming.toString())
+    if (params.hasAvailableSlots)
+      searchParams.set("hasAvailableSlots", params.hasAvailableSlots.toString())
+    if (params.minimumLevel)
+      searchParams.set("minimumLevel", params.minimumLevel.toString())
+    if (params.maximumLevel)
+      searchParams.set("maximumLevel", params.maximumLevel.toString())
+    if (params.format) searchParams.set("format", params.format)
+    if (params.genderPolicy)
+      searchParams.set("genderPolicy", params.genderPolicy)
+    if (params.ageGroup) searchParams.set("ageGroup", params.ageGroup)
+    if (params.joinedOnly)
+      searchParams.set("joinedOnly", params.joinedOnly.toString())
+
+    const response = await axios.get<ApiResponse<ListSocial[]>>(
       "/api/events/socials/discover",
-      { params }
+      { params: searchParams }
     )
-    return response.data
+    return { data: response.data.data, meta: response.data.meta }
   },
-  listAll: async function (): Promise<ListResponse<Social[]>> {
+
+  listAll: async function (): Promise<ListSocial[]> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ListResponse<Social[]>>(
+    const response = await axios.get<ApiResponse<ListSocial[]>>(
       "/api/events/socials/all"
     )
-    return response.data
+    return unwrapApiResponse(response.data)
   },
-  getSocial: async function (id: string): Promise<Social> {
+
+  getSocial: async function (id: string): Promise<SocialDetail> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<Social>>(
+    const response = await axios.get<ApiResponse<SocialDetail>>(
       `/api/events/socials/${id}`
     )
     return unwrapApiResponse(response.data)
   },
-  updateSocial: async function (id: string, payload: SocialUpdatePayload): Promise<Social> {
+
+  updateSocial: async function (
+    id: string,
+    payload: UpdateSocialRequest
+  ): Promise<CreateSocialResponse> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.patch<ApiResponse<Social>>(
+    const response = await axios.patch<ApiResponse<CreateSocialResponse>>(
       `/api/events/socials/${id}`,
       payload
     )
     return unwrapApiResponse(response.data)
   },
+
   deleteSocial: async function (id: string): Promise<{ message: string }> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.delete<ApiResponse<{ message: string }>>(
@@ -129,81 +135,79 @@ export const socialService = {
     )
     return unwrapApiResponse(response.data)
   },
-  publishSocial: async function (id: string): Promise<Social> {
+
+  publishSocial: async function (id: string): Promise<CreateSocialResponse> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.patch<ApiResponse<Social>>(
+    const response = await axios.patch<ApiResponse<CreateSocialResponse>>(
       `/api/events/socials/${id}/publish`
     )
     return unwrapApiResponse(response.data)
   },
+
   duplicateSocial: async function (
     id: string,
-    payload: unknown
-  ): Promise<Social> {
+    payload: DuplicateSessionRequest
+  ): Promise<CreateSocialResponse> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post<ApiResponse<Social>>(
+    const response = await axios.post<ApiResponse<CreateSocialResponse>>(
       `/api/events/socials/${id}/duplicate`,
       payload
     )
     return unwrapApiResponse(response.data)
   },
-  createPlaySession: async function (
+
+  listSocialParticipants: async function (
     socialId: string,
-    payload: unknown
-  ): Promise<PlaySession> {
+    status?: string
+  ): Promise<SocialParticipant[]> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post<ApiResponse<PlaySession>>(
-      `/api/events/socials/${socialId}/play-sessions`,
-      payload
+    const searchParams = new URLSearchParams()
+    if (status) searchParams.set("status", status)
+
+    const response = await axios.get<ApiResponse<SocialParticipant[]>>(
+      `/api/events/socials/${socialId}/participants?${searchParams.toString()}`
     )
     return unwrapApiResponse(response.data)
   },
-  listPlaySessions: async function (socialId: string): Promise<PlaySession[]> {
+
+  joinSocial: async function (
+    socialId: string,
+    isFullPackage: boolean
+  ): Promise<SocialParticipant> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<PlaySession[]>>(
-      `/api/events/socials/${socialId}/play-sessions`
+    const response = await axios.post<ApiResponse<SocialParticipant>>(
+      `/api/events/socials/${socialId}/join`,
+      { isFullPackage }
     )
     return unwrapApiResponse(response.data)
   },
-  getPlaySession: async function (
-    socialId: string,
-    sessionId: string
-  ): Promise<PlaySession> {
+
+  leaveSocial: async function (socialId: string): Promise<LeaveSocialResponse> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<PlaySession>>(
-      `/api/events/socials/${socialId}/play-sessions/${sessionId}`
+    const response = await axios.delete<ApiResponse<LeaveSocialResponse>>(
+      `/api/events/socials/${socialId}/participants/me`
     )
     return unwrapApiResponse(response.data)
   },
-  updatePlaySession: async function (
+
+  approveJoinRequest: async function (
     socialId: string,
-    sessionId: string,
-    payload: unknown
-  ): Promise<PlaySession> {
+    participantId: string
+  ): Promise<SocialParticipant> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.patch<ApiResponse<PlaySession>>(
-      `/api/events/socials/${socialId}/play-sessions/${sessionId}`,
-      payload
+    const response = await axios.patch<ApiResponse<SocialParticipant>>(
+      `/api/events/socials/${socialId}/participants/${participantId}/approve`
     )
     return unwrapApiResponse(response.data)
   },
-  deletePlaySession: async function (
+
+  kickParticipant: async function (
     socialId: string,
-    sessionId: string
-  ): Promise<{ message: string }> {
+    participantId: string
+  ): Promise<SocialParticipant> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.delete<ApiResponse<{ message: string }>>(
-      `/api/events/socials/${socialId}/play-sessions/${sessionId}`
-    )
-    return unwrapApiResponse(response.data)
-  },
-  cancelPlaySession: async function (
-    socialId: string,
-    sessionId: string
-  ): Promise<PlaySession> {
-    const axios = await getAuthenticatedAxios()
-    const response = await axios.patch<ApiResponse<PlaySession>>(
-      `/api/events/socials/${socialId}/play-sessions/${sessionId}/cancel`
+    const response = await axios.delete<ApiResponse<SocialParticipant>>(
+      `/api/events/socials/${socialId}/participants/${participantId}/kick`
     )
     return unwrapApiResponse(response.data)
   },

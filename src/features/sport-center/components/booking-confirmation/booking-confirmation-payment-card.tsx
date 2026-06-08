@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 import BankTransferProof from "../payment/bank-transfer-proof"
 import CreditPaymentInfo from "../payment/credit-payment-info"
@@ -47,6 +48,7 @@ export function BookingConfirmationPaymentCard({
   hasCreatedBooking,
   onConfirm,
 }: BookingConfirmationPaymentCardProps) {
+  const { t } = useSportCenterTranslation()
   const useCredit = useBookingStore((state) => state.useCredit)
   const setUseCredit = useBookingStore((state) => state.setUseCredit)
   const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null)
@@ -66,7 +68,9 @@ export function BookingConfirmationPaymentCard({
 
   useEffect(() => {
     if (isSubmitting && !wasSubmitting.current) {
-      loadingToastId.current = toast.loading("Đang gửi thanh toán...")
+      loadingToastId.current = toast.loading(
+        t("booking.payment.submittingPayment")
+      )
     }
 
     if (!isSubmitting && wasSubmitting.current && loadingToastId.current) {
@@ -75,7 +79,7 @@ export function BookingConfirmationPaymentCard({
     }
 
     wasSubmitting.current = isSubmitting
-  }, [isSubmitting])
+  }, [isSubmitting, t])
 
   useEffect(() => {
     if (!submitMessage) return
@@ -85,10 +89,10 @@ export function BookingConfirmationPaymentCard({
       loadingToastId.current = undefined
     }
 
-    toast.success("Hoàn tất", {
+    toast.success(t("booking.payment.successTitle"), {
       description: submitMessage,
     })
-  }, [submitMessage])
+  }, [submitMessage, t])
 
   useEffect(() => {
     if (!submitError) return
@@ -98,10 +102,10 @@ export function BookingConfirmationPaymentCard({
       loadingToastId.current = undefined
     }
 
-    toast.error("Có lỗi xảy ra", {
+    toast.error(t("booking.payment.errorTitle"), {
       description: submitError,
     })
-  }, [submitError])
+  }, [submitError, t])
 
   const handlePaymentProofChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null
@@ -121,7 +125,7 @@ export function BookingConfirmationPaymentCard({
     if (!file.type.startsWith("image/")) {
       setPaymentProofFile(null)
       setPaymentProofPreviewUrl("")
-      setPaymentProofError("Vui lòng chọn file ảnh hợp lệ.")
+      setPaymentProofError(t("booking.payment.invalidImage"))
       return
     }
 
@@ -132,7 +136,7 @@ export function BookingConfirmationPaymentCard({
   const handleConfirm = async () => {
     try {
       if (!useCredit && !paymentProofFile) {
-        setPaymentProofError("Vui lòng tải lên ảnh chứng từ thanh toán.")
+        setPaymentProofError(t("booking.payment.uploadProof"))
         return
       }
 
@@ -142,7 +146,7 @@ export function BookingConfirmationPaymentCard({
       setPaymentProofError(
         error instanceof Error
           ? error.message
-          : "Không thể xử lý ảnh chứng từ thanh toán."
+          : t("booking.payment.errorProcessingProof")
       )
     } finally {
       setIsPreparingProof(false)
@@ -154,7 +158,7 @@ export function BookingConfirmationPaymentCard({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-xl">
           <Landmark className="size-5" />
-          Phương thức thanh toán
+          {t("booking.payment.title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -211,11 +215,11 @@ export function BookingConfirmationPaymentCard({
             <>
               <Spinner className="mr-2 size-4" />
               {isPreparingProof
-                ? "Đang đọc ảnh chứng từ..."
-                : "Đang tạo booking..."}
+                ? t("booking.payment.readingProof")
+                : t("booking.payment.creatingBooking")}
             </>
           ) : (
-            "Xác nhận và tạo booking"
+            t("booking.payment.confirmAndCreate")
           )}
         </Button>
       </CardContent>

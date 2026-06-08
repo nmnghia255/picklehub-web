@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import type { BookingResponse } from "@/features/sport-center/types/booking"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 interface BookingHistoryActionsDropdownProps {
   booking: BookingResponse
@@ -23,6 +24,7 @@ export function BookingHistoryActionsDropdown({
   onView,
   onCancel,
 }: BookingHistoryActionsDropdownProps) {
+  const { t } = useSportCenterTranslation()
   const canCancel =
     booking.status === "PENDING" || booking.status === "CONFIRMED"
 
@@ -40,7 +42,7 @@ export function BookingHistoryActionsDropdown({
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuItem onClick={() => onView(booking)}>
           <Search className="mr-2 size-4" />
-          Xem chi tiết
+          {t("booking.history.viewDetail")}
         </DropdownMenuItem>
 
         {canCancel && (
@@ -51,7 +53,7 @@ export function BookingHistoryActionsDropdown({
               onClick={() => onCancel(booking)}
             >
               <XCircle className="mr-2 size-4" />
-              Hủy đặt sân
+              {t("booking.history.cancelBooking")}
             </DropdownMenuItem>
           </>
         )}
