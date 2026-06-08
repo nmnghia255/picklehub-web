@@ -205,7 +205,11 @@ export default function SocialDetail({
             </TabsContent>
 
             <TabsContent value="1" className="space-y-4">
-              <SocialParticipantsTab participants={socialParticipants} />
+              <SocialParticipantsTab
+                participants={socialParticipants}
+                isHost={isHost}
+                socialId={social.id}
+              />
             </TabsContent>
 
             <TabsContent value="2" className="space-y-4">

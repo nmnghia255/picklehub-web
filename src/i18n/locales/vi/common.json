@@ -97,7 +97,10 @@
       "skillLevelDescription": "Buổi chơi này dành cho người chơi có trình độ từ khoảng {{minimum}} đến {{maximum}}.",
       "submitDupr": "Gửi lên DUPR",
       "joinedOn": "Tham gia ngày {{date}}",
-      "noParticipants": "Chưa có người tham gia."
+      "noSkillLevelLimit": "Không giới hạn trình độ",
+      "noParticipants": "Chưa có người tham gia.",
+      "kick": "Đá người tham gia",
+      "approve": "Duyệt"
     },
     "expenses": {
       "tab": "Quản lý chi phí",

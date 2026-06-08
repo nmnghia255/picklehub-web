@@ -2,6 +2,7 @@
 
 import { format } from "date-fns"
 import { Check, LockKeyhole } from "lucide-react"
+import Image from "next/image"
 
 // import { AvatarGroup } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -33,9 +34,13 @@ export default function SocialCard({ social, onClick }: SocialCardProps) {
       onClick={onClick}
     >
       <div className="relative flex h-48 items-center justify-center overflow-hidden bg-linear-to-br from-sky-500 via-blue-600 to-violet-600">
-        <span className="text-6xl drop-shadow-sm transition-transform duration-300 group-hover:scale-110">
-          🏓
-        </span>
+        <Image
+          src="/pickleball.png"
+          alt="Pickleball"
+          width={72}
+          height={72}
+          className="drop-shadow-sm transition-transform duration-300 group-hover:scale-110"
+        />
         {social.isPrivate && (
           <Badge
             className="absolute top-3 right-3 gap-1 border-white/20 bg-black/60 text-white backdrop-blur"

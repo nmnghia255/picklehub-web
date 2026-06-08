@@ -27,8 +27,10 @@ export default function SocialOverview({
         return t("labels.menOnly")
       case "FEMALE_ONLY":
         return t("labels.womenOnly")
+      case "MIXED_ONLY":
+        return t("labels.mixedOnly")
       default:
-        return t("labels.mixed")
+        return t("labels.any")
     }
   }
 

@@ -1,10 +1,14 @@
 "use client"
 
 import { format } from "date-fns"
-import { UserX } from "lucide-react"
+import { Check, UserMinus, UserX } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { toast } from "sonner"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
   Empty,
@@ -15,15 +19,64 @@ import {
 } from "@/components/ui/empty"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
+import {
+  approveParticipantAction,
+  kickParticipantAction,
+} from "../../actions/social-participant-actions"
 import type { SocialParticipant } from "../../types/social"
 import { getParticipantStatusLabel } from "../../utils"
 
 export default function SocialParticipantsTab({
   participants,
+  isHost,
+  socialId,
 }: {
   participants: SocialParticipant[]
+  isHost: boolean
+  socialId?: string
 }) {
   const { t } = useSocialsTranslation()
+  const router = useRouter()
+  const [loadingAction, setLoadingAction] = useState<{
+    id: string
+    action: "approve" | "kick"
+  } | null>(null)
+
+  const handleApprove = async (participantId: string) => {
+    if (!socialId) return
+    setLoadingAction({ id: participantId, action: "approve" })
+    try {
+      await approveParticipantAction(socialId, participantId)
+      toast.success(
+        t("detail.approveSuccess", {
+          defaultValue: "Participant approved successfully",
+        })
+      )
+      router.refresh()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to approve")
+    } finally {
+      setLoadingAction(null)
+    }
+  }
+
+  const handleKick = async (participantId: string) => {
+    if (!socialId) return
+    setLoadingAction({ id: participantId, action: "kick" })
+    try {
+      await kickParticipantAction(socialId, participantId)
+      toast.success(
+        t("detail.kickSuccess", {
+          defaultValue: "Participant removed successfully",
+        })
+      )
+      router.refresh()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to remove")
+    } finally {
+      setLoadingAction(null)
+    }
+  }
 
   return (
     <Card className="sticky top-6 h-fit p-0">
@@ -73,28 +126,73 @@ export default function SocialParticipantsTab({
                         className={
                           participant.status === "CONFIRMED"
                             ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
-                            : "border-border bg-muted text-muted-foreground"
+                            : participant.status === "WAITLISTED"
+                              ? "border-amber-500/30 bg-amber-500/10 text-amber-600"
+                              : "border-border bg-muted text-muted-foreground"
                         }
                         variant="outline"
                       >
                         {getParticipantStatusLabel(participant.status, t)}
                       </Badge>
-                      {/* {participant.user.selfRating !== null && (
-                        <Badge variant="outline">
-                          {t("common.level")} {participant.user.selfRating}
-                        </Badge>
-                      )} */}
                     </div>
                   </div>
                 </div>
-                <p
-                  className="text-xs text-muted-foreground"
-                  suppressHydrationWarning
-                >
-                  {t("detail.joinedOn", {
-                    date: format(new Date(participant.joinedAt), "MMM d"),
-                  })}
-                </p>
+
+                <div className="flex flex-col items-end justify-center gap-2">
+                  <p
+                    className="text-xs text-muted-foreground"
+                    suppressHydrationWarning
+                  >
+                    {t("detail.joinedOn", {
+                      date: format(new Date(participant.joinedAt), "MMM d"),
+                    })}
+                  </p>
+
+                  {isHost && !participant.isHost && (
+                    <div className="flex items-center gap-2">
+                      {participant.status === "WAITLISTED" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-700"
+                          disabled={loadingAction?.id === participant.id}
+                          onClick={() => handleApprove(participant.id)}
+                        >
+                          {loadingAction?.id === participant.id &&
+                          loadingAction.action === "approve" ? (
+                            t("common.loading")
+                          ) : (
+                            <>
+                              <Check className="mr-1.5 size-3.5" />
+                              {t("detail.approve")}
+                            </>
+                          )}
+                        </Button>
+                      )}
+
+                      {(participant.status === "CONFIRMED" ||
+                        participant.status === "WAITLISTED") && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          disabled={loadingAction?.id === participant.id}
+                          onClick={() => handleKick(participant.id)}
+                        >
+                          {loadingAction?.id === participant.id &&
+                          loadingAction.action === "kick" ? (
+                            t("common.loading")
+                          ) : (
+                            <>
+                              <UserMinus className="mr-1.5 size-3.5" />
+                              {t("detail.kick")}
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>

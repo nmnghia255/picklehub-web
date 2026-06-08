@@ -5,6 +5,7 @@ import type {
   DuplicateSessionRequest,
   LeaveSocialResponse,
   ListSocial,
+  ListSocialRequest,
   SocialDetail,
   SocialParticipant,
   UpdateSocialRequest,
@@ -63,14 +64,38 @@ export const SocialService = {
     return unwrapApiResponse(response.data)
   },
 
-  discover: async function (params?: Record<string, unknown>): Promise<{
+  discover: async function (params: ListSocialRequest): Promise<{
     data: ListSocial[]
     meta: ApiResponse<ListSocial[]>["meta"]
   }> {
     const axios = await getAuthenticatedAxios()
+    const searchParams = new URLSearchParams()
+    if (params.sortBy) searchParams.set("sortBy", params.sortBy)
+    if (params.order) searchParams.set("order", params.order)
+    if (params.page) searchParams.set("page", params.page.toString())
+    if (params.limit) searchParams.set("limit", params.limit.toString())
+    if (params.status) searchParams.set("status", params.status)
+    if (params.search) searchParams.set("search", params.search)
+    if (params.startFrom) searchParams.set("startFrom", params.startFrom)
+    if (params.startTo) searchParams.set("startTo", params.startTo)
+    if (params.upcoming)
+      searchParams.set("upcoming", params.upcoming.toString())
+    if (params.hasAvailableSlots)
+      searchParams.set("hasAvailableSlots", params.hasAvailableSlots.toString())
+    if (params.minimumLevel)
+      searchParams.set("minimumLevel", params.minimumLevel.toString())
+    if (params.maximumLevel)
+      searchParams.set("maximumLevel", params.maximumLevel.toString())
+    if (params.format) searchParams.set("format", params.format)
+    if (params.genderPolicy)
+      searchParams.set("genderPolicy", params.genderPolicy)
+    if (params.ageGroup) searchParams.set("ageGroup", params.ageGroup)
+    if (params.joinedOnly)
+      searchParams.set("joinedOnly", params.joinedOnly.toString())
+
     const response = await axios.get<ApiResponse<ListSocial[]>>(
       "/api/events/socials/discover",
-      { params }
+      { params: searchParams }
     )
     return { data: response.data.data, meta: response.data.meta }
   },

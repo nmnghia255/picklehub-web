@@ -8,3 +8,17 @@ export async function listSocialParticipantsAction(
 ) {
   return SocialService.listSocialParticipants(socialId, status)
 }
+
+export async function approveParticipantAction(
+  socialId: string,
+  participantId: string
+) {
+  return SocialService.approveJoinRequest(socialId, participantId)
+}
+
+export async function kickParticipantAction(
+  socialId: string,
+  participantId: string
+) {
+  return SocialService.kickParticipant(socialId, participantId)
+}

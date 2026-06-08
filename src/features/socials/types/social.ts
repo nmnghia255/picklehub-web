@@ -109,11 +109,29 @@ export interface User {
   avatarUrl: string | null
 }
 
+export interface ListSocialRequest {
+  sortBy?: "createdAt" | "startTime"
+  order?: "asc" | "desc"
+  page?: number
+  limit?: number
+  status?: SocialStatus
+  search?: string
+  startFrom?: string
+  startTo?: string
+  upcoming?: boolean
+  hasAvailableSlots?: boolean
+  minimumLevel?: number
+  maximumLevel?: number
+  format?: SocialFormat
+  genderPolicy?: GenderPolicy
+  ageGroup?: AgeGroup
+  joinedOnly?: boolean
+}
+
 export interface ListSocial {
   id: string
   title: string
   note: string
-  // groupId: string | null
   startTime: string
   endTime: string
   totalBookingCost: number

@@ -1,6 +1,7 @@
 "use client"
 
 import { LockKeyhole } from "lucide-react"
+import Image from "next/image"
 import React from "react"
 
 import { Badge } from "@/components/ui/badge"
@@ -12,7 +13,13 @@ export default function SocialHero({ isPrivate }: { isPrivate: boolean }) {
   return (
     <div className="relative overflow-hidden rounded-3xl border border-border bg-linear-to-br from-sky-500 via-blue-600 to-violet-600 shadow-sm">
       <div className="flex h-72 items-center justify-center">
-        <span className="text-7xl drop-shadow-lg">🏓</span>
+        <Image
+          src="/pickleball.png"
+          alt="Pickleball"
+          width={88}
+          height={88}
+          className="drop-shadow-lg"
+        />
       </div>
       {isPrivate && (
         <Badge
