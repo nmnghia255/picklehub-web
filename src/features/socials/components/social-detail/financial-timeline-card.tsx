@@ -11,9 +11,14 @@ import {
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
-import type { FinancialTimelineRow } from "../../mock-data/expense-types"
-
 export type TimelineEventType = "court-booking" | "participant-payment"
+
+export interface FinancialTimelineRow {
+  id: string | number
+  type: TimelineEventType
+  timestamp: string
+  amount: number
+}
 
 export function getTimelineIcon(type: TimelineEventType) {
   return type === "court-booking" ? Landmark : BadgeCheck
