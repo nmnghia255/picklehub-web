@@ -1,0 +1,81 @@
+import type { Player, Team } from "../types/player"
+export const ungroupedPlayers: Player[] = [
+  {
+    id: 1,
+    name: "Sarah Johnson",
+    rating: 3.8,
+    age: 28,
+    gender: "F",
+    avatar: "SJ",
+  },
+  {
+    id: 2,
+    name: "Michael Roberts",
+    rating: 3.9,
+    age: 32,
+    gender: "M",
+    avatar: "MR",
+  },
+  {
+    id: 3,
+    name: "Emily White",
+    rating: 3.7,
+    age: 26,
+    gender: "F",
+    avatar: "EW",
+  },
+  {
+    id: 4,
+    name: "David Wilson",
+    rating: 4.0,
+    age: 35,
+    gender: "M",
+    avatar: "DW",
+  },
+  {
+    id: 5,
+    name: "Jessica Lee",
+    rating: 3.6,
+    age: 29,
+    gender: "F",
+    avatar: "JL",
+  },
+  {
+    id: 6,
+    name: "Robert Taylor",
+    rating: 3.9,
+    age: 31,
+    gender: "M",
+    avatar: "RT",
+  },
+]
+export const generatedTeams: Team[] = [
+  {
+    id: 1,
+    player1: { name: "James Martinez", rating: 4.2, avatar: "JM" },
+    player2: { name: "David Chen", rating: 4.1, avatar: "DC" },
+    matchScore: 95,
+    avgRating: 4.15,
+  },
+  {
+    id: 2,
+    player1: { name: "Sarah Brown", rating: 3.8, avatar: "SB" },
+    player2: { name: "Jennifer Adams", rating: 3.9, avatar: "JA" },
+    matchScore: 92,
+    avgRating: 3.85,
+  },
+  {
+    id: 3,
+    player1: { name: "Michael King", rating: 4.5, avatar: "MK" },
+    player2: { name: "Robert Clark", rating: 4.4, avatar: "RC" },
+    matchScore: 89,
+    avgRating: 4.45,
+  },
+  {
+    id: 4,
+    player1: { name: "Emily Davis", rating: 3.5, avatar: "ED" },
+    player2: { name: "Amanda Miller", rating: 3.6, avatar: "AM" },
+    matchScore: 88,
+    avgRating: 3.55,
+  },
+]

@@ -1314,5 +1314,498 @@
         "slotsCount_other": "{{count}} khung giờ"
       }
     }
+  },
+  "tournament": {
+    "manager": {
+      "title": "Pickleball Tournament Manager",
+      "subtitle": "San Diego Summer Slam 2026",
+      "allTournaments": "All Tournaments",
+      "tabs": {
+        "dashboard": "Dashboard",
+        "events": "Events",
+        "registrations": "Registrations",
+        "teamMatching": "Team Matching",
+        "seeding": "Seeding",
+        "brackets": "Brackets",
+        "schedule": "Schedule",
+        "live": "Live",
+        "financials": "Financials",
+        "public": "Public View"
+      }
+    },
+    "dashboard": {
+      "title": "Tournament Dashboard",
+      "subtitle": "San Diego Summer Slam 2026 • June 15-17, 2026",
+      "registrationProgress": "Registration Progress",
+      "full": "Full",
+      "tournamentLifecycle": "Tournament Lifecycle",
+      "upcomingMatches": "Upcoming Matches",
+      "vs": "vs",
+      "live": "Live",
+      "recentActivities": "Recent Activities",
+      "lifecycle": {
+        "registration": "Registration",
+        "seedingAndScheduling": "Seeding & Scheduling",
+        "inProgress": "Tournament In Progress",
+        "finalsAndAwards": "Finals & Awards",
+        "postEventReports": "Post-Event Reports"
+      }
+    },
+    "list": {
+      "title": "Tournaments",
+      "subtitle": "Manage and organize pickleball tournaments",
+      "createTournament": "Create Tournament",
+      "searchPlaceholder": "Search tournaments...",
+      "statuses": {
+        "all": "All Statuses",
+        "draft": "Draft",
+        "published": "Published",
+        "open_registration": "Open Registration",
+        "in_progress": "In Progress",
+        "completed": "Completed"
+      },
+      "registered": "{{count}}/{{capacity}} registered"
+    },
+    "create": {
+      "back": "Back to Tournaments",
+      "title": "Create Tournament",
+      "subtitle": "Set up a new pickleball tournament",
+      "steps": {
+        "basicInfo": "Basic Information",
+        "registration": "Registration Settings",
+        "financial": "Financial Settings",
+        "prizes": "Prize Structure",
+        "review": "Review & Publish"
+      },
+      "buttons": {
+        "previous": "Previous",
+        "next": "Next Step",
+        "publish": "Publish Tournament"
+      },
+      "step1": {
+        "nameLabel": "Tournament Name *",
+        "namePlaceholder": "e.g., San Diego Summer Slam 2026",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "Describe your tournament...",
+        "bannerLabel": "Tournament Banner",
+        "bannerUploadHint": "Click to upload or drag and drop",
+        "bannerSizeHint": "PNG, JPG up to 5MB",
+        "venueLabel": "Venue *",
+        "venuePlaceholder": "e.g., Balboa Park Tennis & Pickleball Center",
+        "startDateLabel": "Start Date *",
+        "endDateLabel": "End Date *"
+      },
+      "step2": {
+        "regOpenLabel": "Registration Opens *",
+        "regCloseLabel": "Registration Closes *",
+        "maxParticipantsLabel": "Maximum Participants",
+        "enableWaitlist": "Enable Waitlist",
+        "enableWaitlistDesc": "Allow players to join waitlist when tournament is full",
+        "requirePartner": "Require Partner Registration",
+        "requirePartnerDesc": "Require doubles players to register with a partner"
+      },
+      "step3": {
+        "entryFeeLabel": "Entry Fee *",
+        "currencyLabel": "Currency",
+        "currencies": {
+          "usd": "USD ($)",
+          "cad": "CAD ($)",
+          "eur": "EUR (€)"
+        },
+        "refundPolicyLabel": "Refund Policy",
+        "refundPolicies": {
+          "full": "Full refund before registration closes",
+          "partial": "50% refund before registration closes",
+          "none": "No refunds"
+        },
+        "lateFeeLabel": "Late Registration Fee (Optional)"
+      },
+      "step4": {
+        "championLabel": "Champion Prize ($)",
+        "runnerUpLabel": "Runner-up Prize ($)",
+        "thirdPrizeLabel": "Third Place Prize ($)",
+        "prizeHint": "💡 Prize amounts can be customized per event after tournament creation"
+      },
+      "step5": {
+        "summaryTitle": "Tournament Summary",
+        "name": "Tournament Name",
+        "venue": "Venue",
+        "dates": "Dates",
+        "maxParticipants": "Max Participants",
+        "entryFee": "Entry Fee",
+        "championPrize": "Champion Prize",
+        "reviewHint": "✓ Review all details carefully. You can edit these settings after publishing."
+      }
+    },
+    "events": {
+      "title": "Event Management",
+      "subtitle": "Manage tournament events and divisions",
+      "createEvent": "Create Event",
+      "table": {
+        "title": "Events ({{count}})",
+        "eventName": "Event Name",
+        "type": "Type",
+        "skillRange": "Skill Range",
+        "gender": "Gender",
+        "participants": "Participants",
+        "entryFee": "Entry Fee",
+        "status": "Status",
+        "actions": "Actions",
+        "statusFull": "Full",
+        "statusOpen": "Open"
+      },
+      "dialog": {
+        "title": "Create New Event",
+        "description": "Add a new event to your tournament with specific skill levels and categories",
+        "nameLabel": "Event Name",
+        "namePlaceholder": "e.g., Men's Doubles 4.0",
+        "typeLabel": "Event Type",
+        "typePlaceholder": "Select type",
+        "types": {
+          "singles": "Singles",
+          "doubles": "Doubles",
+          "team": "Team"
+        },
+        "genderLabel": "Gender",
+        "genderPlaceholder": "Select gender",
+        "genders": {
+          "men": "Men",
+          "women": "Women",
+          "mixed": "Mixed"
+        },
+        "minRating": "Min Rating",
+        "maxRating": "Max Rating",
+        "capacity": "Max Participants",
+        "entryFee": "Entry Fee ($)",
+        "cancel": "Cancel",
+        "submit": "Create Event"
+      }
+    },
+    "registrations": {
+      "title": "Registration Management",
+      "subtitle": "Review and manage participant registrations",
+      "tabs": {
+        "pending": "Pending ({{count}})",
+        "approved": "Approved ({{count}})",
+        "rejected": "Rejected ({{count}})",
+        "waitlisted": "Waitlisted ({{count}})",
+        "withdrawn": "Withdrawn ({{count}})"
+      },
+      "table": {
+        "player": "Player",
+        "partner": "Partner",
+        "event": "Event",
+        "rating": "Rating",
+        "payment": "Payment",
+        "date": "Date",
+        "actions": "Actions",
+        "paid": "Paid",
+        "pending": "Pending"
+      },
+      "profile": {
+        "title": "Player Profile",
+        "description": "View player information, rating, and tournament history",
+        "duprRating": "DUPR Rating: {{rating}}",
+        "registrationDetails": "Registration Details",
+        "event": "Event",
+        "registrationDate": "Registration Date",
+        "paymentStatus": "Payment Status",
+        "matchHistory": "Match History",
+        "historyStats": "{{wins}} Wins - {{losses}} Losses",
+        "previousTournaments": "Previous tournaments: {{count}}"
+      }
+    },
+    "teamMatching": {
+      "title": "Team Matching",
+      "subtitle": "Match players for doubles events",
+      "autoMatch": "Auto Match",
+      "ungroupedPlayers": "Ungrouped Players ({{count}})",
+      "generatedTeams": "Generated Teams ({{count}})",
+      "genderMale": "Male",
+      "genderFemale": "Female",
+      "age": "Age {{age}}",
+      "matchScore": "{{score}}% Match",
+      "avgRating": "Avg Rating: {{rating}}",
+      "playerRating": "Rating: {{rating}}",
+      "instructions": "Drag players from the left to create custom teams, or use the Auto Match button to generate optimal pairings based on rating, age, and skill level."
+    },
+    "seeding": {
+      "title": "Seeding",
+      "subtitle": "Generate and manage tournament seeding",
+      "autoSeed": "Auto Seed",
+      "lockSeeding": "Lock Seeding",
+      "table": {
+        "title": "Men's Doubles 4.0 - Seeding",
+        "seed": "Seed",
+        "team": "Team",
+        "rating": "Rating",
+        "record": "Record",
+        "status": "Status",
+        "locked": "Locked",
+        "unlocked": "Unlocked"
+      },
+      "instructions": {
+        "title": "Seeding Instructions:",
+        "item1": "Use Auto Seed to generate seeding based on player ratings and records",
+        "item2": "Drag and drop teams to manually adjust seeding order",
+        "item3": "Lock individual seeds to prevent changes during auto-seeding",
+        "item4": "Click \"Lock Seeding\" when finalized to prevent further modifications"
+      }
+    },
+    "brackets": {
+      "sidebar": {
+        "title": "San Diego Summer Slam",
+        "subtitle": "Men's Doubles 4.0",
+        "badges": {
+          "singles": "Singles",
+          "inProgress": "In Progress"
+        },
+        "quickActions": "Quick Actions",
+        "generateBracket": "Generate Bracket",
+        "autoSeed": "Auto Seed",
+        "lockBracket": "Lock Bracket",
+        "exportPdf": "Export PDF",
+        "publishBracket": "Publish Bracket",
+        "viewControls": "View Controls",
+        "zoomOut": "Zoom Out",
+        "zoomIn": "Zoom In",
+        "fitScreen": "Fit to Screen ({{zoom}}%)",
+        "stats": {
+          "total": "Total Matches",
+          "completed": "Completed",
+          "inProgress": "In Progress",
+          "remaining": "Remaining"
+        }
+      },
+      "toolbar": {
+        "searchPlaceholder": "Search teams...",
+        "formats": {
+          "single": "Single Elimination",
+          "double": "Double Elimination",
+          "roundRobin": "Round Robin"
+        },
+        "viewModes": {
+          "compact": "Compact",
+          "standard": "Standard",
+          "full": "Full Detail"
+        }
+      },
+      "rounds": {
+        "r16": "Round of 16",
+        "qf": "Quarter Finals",
+        "sf": "Semi Finals",
+        "final": "CHAMPIONSHIP"
+      },
+      "match": {
+        "statuses": {
+          "scheduled": "Scheduled",
+          "ready": "Ready",
+          "in_progress": "Live",
+          "completed": "Final",
+          "walkover": "W.O.",
+          "pending": "Pending"
+        },
+        "details": {
+          "title": "Match Details",
+          "description": "View and manage match information, participants, and actions",
+          "status": "Match Status",
+          "participants": "Participants",
+          "seed": "Seed #{{seed}}",
+          "rating": "Rating {{rating}}",
+          "info": "Match Information",
+          "court": "Court:",
+          "time": "Time:",
+          "round": "Round:",
+          "actions": "Actions",
+          "editMatch": "Edit Match",
+          "reassignCourt": "Reassign Court",
+          "updateScore": "Update Score",
+          "markWalkover": "Mark Walkover"
+        },
+        "finalBadge": "FINAL",
+        "tbd": "TBD",
+        "winnerSf1": "Winner of Semi-Final 1",
+        "winnerSf2": "Winner of Semi-Final 2",
+        "leftChamp": "Left Bracket Champion",
+        "rightChamp": "Right Bracket Champion",
+        "championshipMatch": "Tournament Championship Match"
+      }
+    },
+    "scheduling": {
+      "unscheduled": {
+        "title": "Unscheduled Matches",
+        "subtitle": "{{count}} matches to schedule",
+        "matchLabel": "Match #{{id}}",
+        "min": "{{duration}} min",
+        "autoSchedule": "Auto Schedule",
+        "optimizeSchedule": "Optimize Schedule"
+      },
+      "toolbar": {
+        "dates": {
+          "june15": "June 15, 2026",
+          "june16": "June 16, 2026",
+          "june17": "June 17, 2026"
+        },
+        "events": {
+          "all": "All Events",
+          "mensDoubles": "Men's Doubles 4.0",
+          "womensSingles": "Women's Singles 3.5",
+          "mixedDoubles": "Mixed Doubles 4.5"
+        },
+        "status": {
+          "all": "All Status",
+          "scheduled": "Scheduled",
+          "inProgress": "In Progress",
+          "completed": "Completed"
+        },
+        "publish": "Publish Schedule"
+      },
+      "warnings": {
+        "detected": "{{count}} scheduling conflicts detected:",
+        "details": "1 player conflict, 1 rest time violation"
+      },
+      "autoScheduleForm": {
+        "title": "Auto Schedule Configuration",
+        "description": "Configure automatic scheduling parameters for optimal match placement",
+        "startTime": "Start Time",
+        "endTime": "End Time",
+        "matchDuration": "Match Duration (minutes)",
+        "breakDuration": "Break Duration (minutes)",
+        "availableCourts": "Available Courts",
+        "courtsOptions": {
+          "all": "All Courts (6)",
+          "1to4": "Courts 1-4",
+          "custom": "Custom Selection"
+        },
+        "restTime": "Minimum Rest Time Between Matches (minutes)",
+        "optimizeFor": "Optimize For",
+        "optimizeOptions": {
+          "fastest": "Fastest Completion",
+          "balanced": "Balanced Court Usage",
+          "rest": "Maximum Rest Time"
+        },
+        "previewTitle": "Preview",
+        "previewDesc": "Estimated completion: 4:30 PM • 32 matches scheduled across 6 courts",
+        "cancel": "Cancel",
+        "generate": "Generate Schedule"
+      }
+    },
+    "liveControl": {
+      "title": "Live Control Center",
+      "subtitle": "Real-time tournament operations dashboard",
+      "metrics": {
+        "liveBadge": "Live",
+        "activeMatches": "Active Matches",
+        "upcomingMatches": "Upcoming Matches",
+        "availableCourts": "Available Courts",
+        "checkedInPlayers": "Checked-in Players"
+      },
+      "liveMatches": {
+        "title": "Live Matches",
+        "vs": "vs"
+      },
+      "matchQueue": {
+        "title": "Match Queue",
+        "ready": "Ready",
+        "waiting": "Waiting"
+      },
+      "courtStatus": {
+        "title": "Court Status",
+        "available": "Available",
+        "maintenance": "Maintenance"
+      },
+      "announcements": {
+        "title": "Announcements"
+      }
+    },
+    "financials": {
+      "title": "Financial Dashboard",
+      "subtitle": "Tournament financial overview and transactions",
+      "exportPdf": "Export PDF",
+      "exportExcel": "Export Excel",
+      "summary": {
+        "totalRevenue": "Total Revenue",
+        "totalExpenses": "Total Expenses",
+        "netProfit": "Net Profit"
+      },
+      "charts": {
+        "revenueOverTime": "Revenue Over Time",
+        "expenseBreakdown": "Expense Breakdown"
+      },
+      "transactions": {
+        "title": "Recent Transactions",
+        "date": "Date",
+        "description": "Description",
+        "type": "Type",
+        "amount": "Amount",
+        "status": "Status"
+      }
+    },
+    "public": {
+      "hero": {
+        "title": "San Diego Summer Slam 2026",
+        "location": "Balboa Park Tennis & Pickleball Center",
+        "dates": "June 15-17, 2026",
+        "inProgress": "Tournament In Progress"
+      },
+      "stats": {
+        "participants": "Participants",
+        "events": "Events",
+        "totalMatches": "Total Matches"
+      },
+      "tabs": {
+        "overview": "Overview",
+        "schedule": "Schedule",
+        "participants": "Participants",
+        "liveScores": "Live Scores",
+        "results": "Results"
+      },
+      "overview": {
+        "title": "Tournament Overview",
+        "description": "Join us for the premier pickleball tournament in Southern California. Featuring 8 competitive events across all skill levels, this tournament brings together the best players in the region.",
+        "eventsLabel": "Events:"
+      },
+      "venue": {
+        "title": "Venue Information",
+        "location": "Location",
+        "facilities": "Facilities",
+        "parking": "Parking"
+      },
+      "participantsList": {
+        "rating": "Rating:"
+      },
+      "liveScores": {
+        "vs": "vs",
+        "live": "Live",
+        "final": "Final"
+      }
+    },
+    "referee": {
+      "matchInfo": {
+        "title": "Men's Doubles 4.0 - Quarterfinals",
+        "court": "Court {{court}}",
+        "matchTime": "Match Time: {{time}}",
+        "set": "Set {{set}}",
+        "inProgress": "In Progress"
+      },
+      "scoring": {
+        "teamA": "TEAM A",
+        "teamB": "TEAM B",
+        "seed": "Seed #{{seed}}",
+        "currentScore": "Current Score",
+        "addPoint": "+1 Point"
+      },
+      "vs": "VS",
+      "setHistory": {
+        "title": "Set History",
+        "set": "Set {{set}}",
+        "inProgress": "In Progress",
+        "notStarted": "Not Started"
+      },
+      "actions": {
+        "undo": "Undo Last Point",
+        "confirm": "Confirm Match Result"
+      }
+    }
   }
 }

@@ -13,6 +13,7 @@ import {
   type LucideIcon,
   MapPinned,
   Shield,
+  Trophy,
   UserRound,
   Users,
 } from "lucide-react"
@@ -50,6 +51,7 @@ const sidebarItems: SidebarItem[] = [
   { title: "Lịch của tôi", href: "/calendar", icon: CalendarCheck },
   { title: "Lịch sử", href: "/history", icon: History },
   { title: "Buổi chơi", href: "/socials", icon: CalendarDays },
+  { title: "Giải đấu", href: "/tournament", icon: Trophy },
   { title: "Nhóm", href: "/groups", icon: Users },
   { title: "Bạn bè", href: "/friend", icon: Users },
   { title: "Thông báo", href: "/feed", icon: BellRing },

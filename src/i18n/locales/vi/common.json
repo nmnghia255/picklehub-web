@@ -931,5 +931,498 @@
         "slotsCount_other": "{{count}} khung giờ"
       }
     }
+  },
+  "tournament": {
+    "manager": {
+      "title": "Quản lý Giải đấu Pickleball",
+      "subtitle": "San Diego Summer Slam 2026",
+      "allTournaments": "Tất cả giải đấu",
+      "tabs": {
+        "dashboard": "Tổng quan",
+        "events": "Sự kiện",
+        "registrations": "Đăng ký",
+        "teamMatching": "Ghép đội",
+        "seeding": "Hạt giống",
+        "brackets": "Nhánh đấu",
+        "schedule": "Lịch thi đấu",
+        "live": "Trực tiếp",
+        "financials": "Tài chính",
+        "public": "Chế độ xem công khai"
+      }
+    },
+    "dashboard": {
+      "title": "Tổng quan Giải đấu",
+      "subtitle": "San Diego Summer Slam 2026 • 15-17 tháng 6, 2026",
+      "registrationProgress": "Tiến độ đăng ký",
+      "full": "Đầy",
+      "tournamentLifecycle": "Vòng đời giải đấu",
+      "upcomingMatches": "Các trận sắp tới",
+      "vs": "vs",
+      "live": "Trực tiếp",
+      "recentActivities": "Hoạt động gần đây",
+      "lifecycle": {
+        "registration": "Đăng ký",
+        "seedingAndScheduling": "Hạt giống & Lên lịch",
+        "inProgress": "Giải đấu đang diễn ra",
+        "finalsAndAwards": "Chung kết & Trao giải",
+        "postEventReports": "Báo cáo sau sự kiện"
+      }
+    },
+    "list": {
+      "title": "Các Giải đấu",
+      "subtitle": "Quản lý và tổ chức các giải đấu pickleball",
+      "createTournament": "Tạo giải đấu",
+      "searchPlaceholder": "Tìm kiếm giải đấu...",
+      "statuses": {
+        "all": "Tất cả trạng thái",
+        "draft": "Bản nháp",
+        "published": "Đã công bố",
+        "open_registration": "Mở đăng ký",
+        "in_progress": "Đang diễn ra",
+        "completed": "Đã hoàn thành"
+      },
+      "registered": "{{count}}/{{capacity}} người đã đăng ký"
+    },
+    "create": {
+      "back": "Quay lại danh sách",
+      "title": "Tạo Giải đấu",
+      "subtitle": "Thiết lập một giải đấu pickleball mới",
+      "steps": {
+        "basicInfo": "Thông tin cơ bản",
+        "registration": "Cài đặt đăng ký",
+        "financial": "Cài đặt tài chính",
+        "prizes": "Cơ cấu giải thưởng",
+        "review": "Đánh giá & Xuất bản"
+      },
+      "buttons": {
+        "previous": "Trước",
+        "next": "Bước tiếp theo",
+        "publish": "Xuất bản giải đấu"
+      },
+      "step1": {
+        "nameLabel": "Tên giải đấu *",
+        "namePlaceholder": "vd: San Diego Summer Slam 2026",
+        "descriptionLabel": "Mô tả",
+        "descriptionPlaceholder": "Mô tả giải đấu của bạn...",
+        "bannerLabel": "Ảnh bìa giải đấu",
+        "bannerUploadHint": "Nhấp để tải lên hoặc kéo thả",
+        "bannerSizeHint": "PNG, JPG tối đa 5MB",
+        "venueLabel": "Địa điểm *",
+        "venuePlaceholder": "vd: Balboa Park Tennis & Pickleball Center",
+        "startDateLabel": "Ngày bắt đầu *",
+        "endDateLabel": "Ngày kết thúc *"
+      },
+      "step2": {
+        "regOpenLabel": "Mở đăng ký *",
+        "regCloseLabel": "Đóng đăng ký *",
+        "maxParticipantsLabel": "Số lượng tối đa",
+        "enableWaitlist": "Cho phép danh sách chờ",
+        "enableWaitlistDesc": "Cho phép người chơi tham gia danh sách chờ khi giải đấu đầy",
+        "requirePartner": "Yêu cầu đăng ký theo cặp",
+        "requirePartnerDesc": "Yêu cầu người chơi đôi phải đăng ký cùng với bạn đánh"
+      },
+      "step3": {
+        "entryFeeLabel": "Phí tham gia *",
+        "currencyLabel": "Tiền tệ",
+        "currencies": {
+          "usd": "USD ($)",
+          "cad": "CAD ($)",
+          "eur": "EUR (€)"
+        },
+        "refundPolicyLabel": "Chính sách hoàn tiền",
+        "refundPolicies": {
+          "full": "Hoàn tiền 100% trước khi đóng đăng ký",
+          "partial": "Hoàn tiền 50% trước khi đóng đăng ký",
+          "none": "Không hoàn tiền"
+        },
+        "lateFeeLabel": "Phí đăng ký muộn (Tùy chọn)"
+      },
+      "step4": {
+        "championLabel": "Giải Nhất ($)",
+        "runnerUpLabel": "Giải Nhì ($)",
+        "thirdPrizeLabel": "Giải Ba ($)",
+        "prizeHint": "💡 Số tiền thưởng có thể được tùy chỉnh cho từng sự kiện sau khi tạo giải đấu"
+      },
+      "step5": {
+        "summaryTitle": "Tóm tắt giải đấu",
+        "name": "Tên giải đấu",
+        "venue": "Địa điểm",
+        "dates": "Ngày diễn ra",
+        "maxParticipants": "Số người tham gia tối đa",
+        "entryFee": "Phí tham gia",
+        "championPrize": "Giải Nhất",
+        "reviewHint": "✓ Kiểm tra kỹ tất cả chi tiết. Bạn có thể chỉnh sửa các cài đặt này sau khi xuất bản."
+      }
+    },
+    "events": {
+      "title": "Quản lý sự kiện",
+      "subtitle": "Quản lý các sự kiện và hạng mục thi đấu",
+      "createEvent": "Tạo sự kiện",
+      "table": {
+        "title": "Các sự kiện ({{count}})",
+        "eventName": "Tên sự kiện",
+        "type": "Loại",
+        "skillRange": "Trình độ",
+        "gender": "Giới tính",
+        "participants": "Người tham gia",
+        "entryFee": "Lệ phí",
+        "status": "Trạng thái",
+        "actions": "Thao tác",
+        "statusFull": "Đầy",
+        "statusOpen": "Mở"
+      },
+      "dialog": {
+        "title": "Tạo sự kiện mới",
+        "description": "Thêm một sự kiện mới vào giải đấu của bạn với cấp độ và hạng mục cụ thể",
+        "nameLabel": "Tên sự kiện",
+        "namePlaceholder": "vd: Đôi nam 4.0",
+        "typeLabel": "Loại sự kiện",
+        "typePlaceholder": "Chọn loại",
+        "types": {
+          "singles": "Đơn",
+          "doubles": "Đôi",
+          "team": "Đội"
+        },
+        "genderLabel": "Giới tính",
+        "genderPlaceholder": "Chọn giới tính",
+        "genders": {
+          "men": "Nam",
+          "women": "Nữ",
+          "mixed": "Nam Nữ"
+        },
+        "minRating": "Trình độ tối thiểu",
+        "maxRating": "Trình độ tối đa",
+        "capacity": "Số lượng tối đa",
+        "entryFee": "Lệ phí ($)",
+        "cancel": "Hủy",
+        "submit": "Tạo sự kiện"
+      }
+    },
+    "registrations": {
+      "title": "Quản lý đăng ký",
+      "subtitle": "Xem xét và quản lý các lượt đăng ký",
+      "tabs": {
+        "pending": "Chờ duyệt ({{count}})",
+        "approved": "Đã duyệt ({{count}})",
+        "rejected": "Từ chối ({{count}})",
+        "waitlisted": "Danh sách chờ ({{count}})",
+        "withdrawn": "Đã rút lui ({{count}})"
+      },
+      "table": {
+        "player": "Người chơi",
+        "partner": "Bạn cùng chơi",
+        "event": "Sự kiện",
+        "rating": "Trình độ",
+        "payment": "Thanh toán",
+        "date": "Ngày",
+        "actions": "Thao tác",
+        "paid": "Đã thanh toán",
+        "pending": "Chờ xử lý"
+      },
+      "profile": {
+        "title": "Hồ sơ người chơi",
+        "description": "Xem thông tin người chơi, trình độ và lịch sử thi đấu",
+        "duprRating": "Trình độ DUPR: {{rating}}",
+        "registrationDetails": "Chi tiết đăng ký",
+        "event": "Sự kiện",
+        "registrationDate": "Ngày đăng ký",
+        "paymentStatus": "Trạng thái thanh toán",
+        "matchHistory": "Lịch sử thi đấu",
+        "historyStats": "{{wins}} Thắng - {{losses}} Thua",
+        "previousTournaments": "Số giải đã tham gia: {{count}}"
+      }
+    },
+    "teamMatching": {
+      "title": "Ghép đội",
+      "subtitle": "Ghép cặp cho các sự kiện đánh đôi",
+      "autoMatch": "Tự động ghép",
+      "ungroupedPlayers": "Người chơi chưa có đội ({{count}})",
+      "generatedTeams": "Đội đã tạo ({{count}})",
+      "genderMale": "Nam",
+      "genderFemale": "Nữ",
+      "age": "Tuổi {{age}}",
+      "matchScore": "Khớp {{score}}%",
+      "avgRating": "Trình độ TB: {{rating}}",
+      "playerRating": "Trình độ: {{rating}}",
+      "instructions": "Kéo thả người chơi từ bên trái để tạo đội tùy chỉnh, hoặc sử dụng nút Tự động ghép để tạo các cặp tối ưu dựa trên trình độ, độ tuổi và cấp độ kỹ năng."
+    },
+    "seeding": {
+      "title": "Hạt giống",
+      "subtitle": "Tạo và quản lý hạt giống giải đấu",
+      "autoSeed": "Tự động xếp",
+      "lockSeeding": "Khóa hạt giống",
+      "table": {
+        "title": "Đôi Nam 4.0 - Hạt giống",
+        "seed": "Hạt giống",
+        "team": "Đội",
+        "rating": "Trình độ",
+        "record": "Thành tích",
+        "status": "Trạng thái",
+        "locked": "Đã khóa",
+        "unlocked": "Chưa khóa"
+      },
+      "instructions": {
+        "title": "Hướng dẫn xếp hạt giống:",
+        "item1": "Sử dụng Tự động xếp để tạo hạt giống dựa trên trình độ và thành tích",
+        "item2": "Kéo thả các đội để điều chỉnh thứ tự thủ công",
+        "item3": "Khóa từng hạt giống để tránh thay đổi khi tự động xếp",
+        "item4": "Nhấn \"Khóa hạt giống\" khi hoàn tất để ngăn chặn sửa đổi"
+      }
+    },
+    "brackets": {
+      "sidebar": {
+        "title": "San Diego Summer Slam",
+        "subtitle": "Đôi Nam 4.0",
+        "badges": {
+          "singles": "Đơn",
+          "inProgress": "Đang diễn ra"
+        },
+        "quickActions": "Thao tác nhanh",
+        "generateBracket": "Tạo nhánh đấu",
+        "autoSeed": "Tự động xếp hạt giống",
+        "lockBracket": "Khóa nhánh đấu",
+        "exportPdf": "Xuất PDF",
+        "publishBracket": "Công bố nhánh đấu",
+        "viewControls": "Điều khiển xem",
+        "zoomOut": "Thu nhỏ",
+        "zoomIn": "Phóng to",
+        "fitScreen": "Vừa màn hình ({{zoom}}%)",
+        "stats": {
+          "total": "Tổng số trận",
+          "completed": "Đã hoàn thành",
+          "inProgress": "Đang diễn ra",
+          "remaining": "Còn lại"
+        }
+      },
+      "toolbar": {
+        "searchPlaceholder": "Tìm kiếm đội...",
+        "formats": {
+          "single": "Loại trực tiếp",
+          "double": "Nhánh thắng thua",
+          "roundRobin": "Vòng tròn"
+        },
+        "viewModes": {
+          "compact": "Gọn",
+          "standard": "Tiêu chuẩn",
+          "full": "Chi tiết"
+        }
+      },
+      "rounds": {
+        "r16": "Vòng 16",
+        "qf": "Tứ kết",
+        "sf": "Bán kết",
+        "final": "CHUNG KẾT"
+      },
+      "match": {
+        "statuses": {
+          "scheduled": "Đã lên lịch",
+          "ready": "Sẵn sàng",
+          "in_progress": "Trực tiếp",
+          "completed": "Chung cuộc",
+          "walkover": "Bỏ cuộc",
+          "pending": "Chờ"
+        },
+        "details": {
+          "title": "Chi tiết trận đấu",
+          "description": "Xem và quản lý thông tin trận đấu, người tham gia và thao tác",
+          "status": "Trạng thái",
+          "participants": "Người tham gia",
+          "seed": "Hạt giống #{{seed}}",
+          "rating": "Trình độ {{rating}}",
+          "info": "Thông tin trận đấu",
+          "court": "Sân:",
+          "time": "Thời gian:",
+          "round": "Vòng:",
+          "actions": "Thao tác",
+          "editMatch": "Chỉnh sửa trận",
+          "reassignCourt": "Đổi sân",
+          "updateScore": "Cập nhật tỷ số",
+          "markWalkover": "Đánh dấu bỏ cuộc"
+        },
+        "finalBadge": "CHUNG KẾT",
+        "tbd": "Đang chờ",
+        "winnerSf1": "Thắng Bán kết 1",
+        "winnerSf2": "Thắng Bán kết 2",
+        "leftChamp": "Vô địch nhánh trái",
+        "rightChamp": "Vô địch nhánh phải",
+        "championshipMatch": "Trận chung kết giải đấu"
+      }
+    },
+    "scheduling": {
+      "unscheduled": {
+        "title": "Trận chưa xếp lịch",
+        "subtitle": "{{count}} trận cần xếp lịch",
+        "matchLabel": "Trận #{{id}}",
+        "min": "{{duration}} phút",
+        "autoSchedule": "Xếp lịch tự động",
+        "optimizeSchedule": "Tối ưu hóa lịch"
+      },
+      "toolbar": {
+        "dates": {
+          "june15": "Ngày 15, Tháng 6, 2026",
+          "june16": "Ngày 16, Tháng 6, 2026",
+          "june17": "Ngày 17, Tháng 6, 2026"
+        },
+        "events": {
+          "all": "Tất cả sự kiện",
+          "mensDoubles": "Đôi nam 4.0",
+          "womensSingles": "Đơn nữ 3.5",
+          "mixedDoubles": "Đôi nam nữ 4.5"
+        },
+        "status": {
+          "all": "Tất cả trạng thái",
+          "scheduled": "Đã lên lịch",
+          "inProgress": "Đang diễn ra",
+          "completed": "Đã hoàn thành"
+        },
+        "publish": "Công bố lịch thi đấu"
+      },
+      "warnings": {
+        "detected": "Phát hiện {{count}} xung đột lịch trình:",
+        "details": "1 xung đột người chơi, 1 vi phạm thời gian nghỉ"
+      },
+      "autoScheduleForm": {
+        "title": "Cấu hình xếp lịch tự động",
+        "description": "Định cấu hình các thông số tự động để sắp xếp trận đấu tối ưu",
+        "startTime": "Thời gian bắt đầu",
+        "endTime": "Thời gian kết thúc",
+        "matchDuration": "Thời lượng trận đấu (phút)",
+        "breakDuration": "Thời gian nghỉ (phút)",
+        "availableCourts": "Sân có sẵn",
+        "courtsOptions": {
+          "all": "Tất cả các sân (6)",
+          "1to4": "Sân 1-4",
+          "custom": "Lựa chọn tùy chỉnh"
+        },
+        "restTime": "Thời gian nghỉ tối thiểu giữa các trận (phút)",
+        "optimizeFor": "Tối ưu hóa cho",
+        "optimizeOptions": {
+          "fastest": "Hoàn thành nhanh nhất",
+          "balanced": "Cân bằng sử dụng sân",
+          "rest": "Thời gian nghỉ tối đa"
+        },
+        "previewTitle": "Xem trước",
+        "previewDesc": "Dự kiến hoàn thành: 4:30 Chiều • 32 trận được xếp trên 6 sân",
+        "cancel": "Hủy",
+        "generate": "Tạo lịch thi đấu"
+      }
+    },
+    "liveControl": {
+      "title": "Trung tâm điều khiển trực tiếp",
+      "subtitle": "Bảng điều khiển hoạt động giải đấu theo thời gian thực",
+      "metrics": {
+        "liveBadge": "Trực tiếp",
+        "activeMatches": "Trận đấu đang diễn ra",
+        "upcomingMatches": "Trận đấu sắp tới",
+        "availableCourts": "Sân có sẵn",
+        "checkedInPlayers": "Người chơi đã điểm danh"
+      },
+      "liveMatches": {
+        "title": "Trận đấu trực tiếp",
+        "vs": "đấu với"
+      },
+      "matchQueue": {
+        "title": "Hàng đợi trận đấu",
+        "ready": "Sẵn sàng",
+        "waiting": "Đang chờ"
+      },
+      "courtStatus": {
+        "title": "Trạng thái sân",
+        "available": "Trống",
+        "maintenance": "Bảo trì"
+      },
+      "announcements": {
+        "title": "Thông báo"
+      }
+    },
+    "financials": {
+      "title": "Bảng điều khiển tài chính",
+      "subtitle": "Tổng quan tài chính giải đấu và các giao dịch",
+      "exportPdf": "Xuất PDF",
+      "exportExcel": "Xuất Excel",
+      "summary": {
+        "totalRevenue": "Tổng doanh thu",
+        "totalExpenses": "Tổng chi phí",
+        "netProfit": "Lợi nhuận ròng"
+      },
+      "charts": {
+        "revenueOverTime": "Doanh thu theo thời gian",
+        "expenseBreakdown": "Phân bổ chi phí"
+      },
+      "transactions": {
+        "title": "Giao dịch gần đây",
+        "date": "Ngày",
+        "description": "Mô tả",
+        "type": "Loại",
+        "amount": "Số tiền",
+        "status": "Trạng thái"
+      }
+    },
+    "public": {
+      "hero": {
+        "title": "San Diego Summer Slam 2026",
+        "location": "Trung tâm Quần vợt & Pickleball Balboa Park",
+        "dates": "Ngày 15-17, tháng 6, 2026",
+        "inProgress": "Giải đấu đang diễn ra"
+      },
+      "stats": {
+        "participants": "Người tham gia",
+        "events": "Sự kiện",
+        "totalMatches": "Tổng số trận"
+      },
+      "tabs": {
+        "overview": "Tổng quan",
+        "schedule": "Lịch trình",
+        "participants": "Người tham gia",
+        "liveScores": "Tỉ số trực tiếp",
+        "results": "Kết quả"
+      },
+      "overview": {
+        "title": "Tổng quan giải đấu",
+        "description": "Hãy tham gia cùng chúng tôi trong giải đấu pickleball hàng đầu ở Nam California. Với 8 sự kiện cạnh tranh ở mọi cấp độ kỹ năng, giải đấu này quy tụ những người chơi xuất sắc nhất trong khu vực.",
+        "eventsLabel": "Các sự kiện:"
+      },
+      "venue": {
+        "title": "Thông tin địa điểm",
+        "location": "Vị trí",
+        "facilities": "Cơ sở vật chất",
+        "parking": "Đỗ xe"
+      },
+      "participantsList": {
+        "rating": "Trình độ:"
+      },
+      "liveScores": {
+        "vs": "đấu với",
+        "live": "Trực tiếp",
+        "final": "Chung cuộc"
+      }
+    },
+    "referee": {
+      "matchInfo": {
+        "title": "Đôi nam 4.0 - Tứ kết",
+        "court": "Sân {{court}}",
+        "matchTime": "Thời gian trận đấu: {{time}}",
+        "set": "Hiệp {{set}}",
+        "inProgress": "Đang diễn ra"
+      },
+      "scoring": {
+        "teamA": "ĐỘI A",
+        "teamB": "ĐỘI B",
+        "seed": "Hạt giống #{{seed}}",
+        "currentScore": "Tỷ số hiện tại",
+        "addPoint": "+1 Điểm"
+      },
+      "vs": "ĐẤU VỚI",
+      "setHistory": {
+        "title": "Lịch sử các hiệp",
+        "set": "Hiệp {{set}}",
+        "inProgress": "Đang diễn ra",
+        "notStarted": "Chưa bắt đầu"
+      },
+      "actions": {
+        "undo": "Hoàn tác điểm trước",
+        "confirm": "Xác nhận kết quả trận đấu"
+      }
+    }
   }
 }

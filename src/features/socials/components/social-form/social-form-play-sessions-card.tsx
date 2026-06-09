@@ -9,8 +9,12 @@ import { Input } from "@/components/ui/input"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import Field from "../social-detail/field"
-import type { PlaySessionDraft } from "./SocialForm.types"
-
+export interface PlaySessionDraft {
+  title: string
+  startTime: string
+  endTime: string
+  maxSlots: number
+}
 export function SocialFormPlaySessionsCard({
   playSessions,
   setPlaySessions,
