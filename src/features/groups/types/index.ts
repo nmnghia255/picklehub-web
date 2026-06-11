@@ -21,6 +21,7 @@ export interface UpdateGroupInput {
   name?: string
   description?: string | null
   avatarUrl?: string | null
+  maxMembers?: number
 }
 
 export interface Invitation {

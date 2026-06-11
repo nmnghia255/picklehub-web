@@ -35,14 +35,21 @@ import { GroupActivityLoadingSkeleton } from "./group-activity-loading-skeleton"
 interface GroupActivitySchedulePageProps {
   initialGroupId?: string
   embedded?: boolean
+  currentUserRole?: string | null
 }
 
 export function GroupActivitySchedulePage({
   initialGroupId,
   embedded = false,
+  currentUserRole,
 }: GroupActivitySchedulePageProps) {
   const queryClient = useQueryClient()
   const groupId = initialGroupId || ""
+
+  const canManageActivities = useMemo(() => {
+    const role = currentUserRole?.toLowerCase()
+    return role === "owner" || role === "admin"
+  }, [currentUserRole])
 
   // States
   const [currentMonth, setCurrentMonth] = useState(() =>
@@ -216,13 +223,14 @@ export function GroupActivitySchedulePage({
             }}
           />
 
-          <Button className="ml-auto" onClick={openCreateDialog}>
-            <Plus className="mr-2 size-4" />
-            Thêm sự kiện
-          </Button>
+          {canManageActivities && (
+            <Button className="ml-auto" onClick={openCreateDialog}>
+              <Plus className="mr-2 size-4" />
+              Thêm sự kiện
+            </Button>
+          )}
         </CardContent>
       </Card>
-
       <div className="grid gap-6 lg:grid-cols-[1fr_350px]">
         <GroupActivityCalendarView
           events={events}
@@ -245,14 +253,16 @@ export function GroupActivitySchedulePage({
               </p>
             </div>
 
-            <Button
-              className="w-full"
-              variant="outline"
-              onClick={openCreateDialog}
-            >
-              <Plus className="mr-2 size-4" />
-              Tạo sự kiện cho ngày này
-            </Button>
+            {canManageActivities && (
+              <Button
+                className="w-full"
+                variant="outline"
+                onClick={openCreateDialog}
+              >
+                <Plus className="mr-2 size-4" />
+                Tạo sự kiện cho ngày này
+              </Button>
+            )}
 
             {selectedDayEvents.length === 0 ? (
               <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
@@ -288,26 +298,28 @@ export function GroupActivitySchedulePage({
                         {format(new Date(event.endAt), "HH:mm")}
                       </p>
 
-                      <div className="mt-3 flex items-center justify-end gap-2 opacity-0 transition-opacity group-hover:opacity-100">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-8 text-muted-foreground hover:text-primary"
-                          onClick={() => openEditDialog(event)}
-                          disabled={updateMutation.isPending}
-                        >
-                          <Edit className="size-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-8 text-muted-foreground hover:text-destructive"
-                          onClick={() => handleDeleteEvent(event.id)}
-                          disabled={deleteMutation.isPending}
-                        >
-                          <Trash2 className="size-4" />
-                        </Button>
-                      </div>
+                      {canManageActivities && (
+                        <div className="mt-3 flex items-center justify-end gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 text-muted-foreground hover:text-primary"
+                            onClick={() => openEditDialog(event)}
+                            disabled={updateMutation.isPending}
+                          >
+                            <Edit className="size-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 text-muted-foreground hover:text-destructive"
+                            onClick={() => handleDeleteEvent(event.id)}
+                            disabled={deleteMutation.isPending}
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   ))}
               </div>

@@ -29,7 +29,8 @@ export async function GroupDetailPanels({
   invitations,
   defaultTab,
 }: GroupDetailPanelsProps) {
-  const isOwner = group.role === "owner"
+  const normalizedRole = currentUserRole?.toLowerCase()
+  const canManage = normalizedRole === "owner" || normalizedRole === "admin"
 
   const overviewPanel = (
     <div className="space-y-6 lg:space-y-8">
@@ -45,7 +46,7 @@ export async function GroupDetailPanels({
 
       <GroupFeedNotificationsContainer groupId={groupId} />
 
-      {isOwner && (
+      {canManage && (
         <Card>
           <CardContent>
             <InvitationsTable
@@ -62,7 +63,13 @@ export async function GroupDetailPanels({
     <GroupDetailTabs
       key={defaultTab}
       overview={overviewPanel}
-      activity={<GroupActivitySchedulePage initialGroupId={groupId} embedded />}
+      activity={
+        <GroupActivitySchedulePage
+          initialGroupId={groupId}
+          embedded
+          currentUserRole={currentUserRole}
+        />
+      }
       finance={
         <div className="min-w-0">
           <GroupFinanceSection

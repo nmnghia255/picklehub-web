@@ -19,8 +19,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
 
 import { archiveGroupAction, leaveGroupAction } from "../actions"
 
@@ -40,8 +38,7 @@ export function GroupDetailActionsMenu({
   const [archiveOpen, setArchiveOpen] = useState(false)
   const [leaveOpen, setLeaveOpen] = useState(false)
 
-  const hasSecondaryActions =
-    (!isArchived && isOwner) || (!isOwner && !isArchived)
+  const hasSecondaryActions = !isArchived
 
   if (!hasSecondaryActions) {
     return null
@@ -66,16 +63,14 @@ export function GroupDetailActionsMenu({
               Lưu trữ nhóm
             </DropdownMenuItem>
           )}
-          {!isOwner && !isArchived && (
-            <>
-              <DropdownMenuItem
-                variant="destructive"
-                onSelect={() => setLeaveOpen(true)}
-              >
-                <LogOut className="size-4" />
-                Rời nhóm
-              </DropdownMenuItem>
-            </>
+          {!isArchived && !isOwner && (
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={() => setLeaveOpen(true)}
+            >
+              <LogOut className="size-4" />
+              Rời nhóm
+            </DropdownMenuItem>
           )}
         </DropdownMenuContent>
       </DropdownMenu>

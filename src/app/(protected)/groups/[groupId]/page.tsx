@@ -5,6 +5,7 @@ import {
   getGroupInvitations,
   getGroupMembers,
 } from "@/features/groups/api/groups-service"
+import { EditGroupDrawer } from "@/features/groups/components/edit-group-drawer"
 import { GroupDetailActionsMenu } from "@/features/groups/components/group-detail-actions-menu"
 import { GroupDetailHeader } from "@/features/groups/components/group-detail-header"
 import { GroupDetailPanels } from "@/features/groups/components/group-detail-panels"
@@ -43,6 +44,8 @@ export default async function GroupDetailPage({
   let members = []
   let invitations = []
   let isOwner = false
+  let isAdmin = false
+  let canManage = false
 
   try {
     const [groupResult, membersResult] = await Promise.all([
@@ -56,8 +59,12 @@ export default async function GroupDetailPage({
     group = groupResult
     members = membersResult
 
-    isOwner = group.role === "owner"
-    invitations = isOwner ? await getGroupInvitations(groupId) : []
+    const normalizedRole = group.role?.toLowerCase()
+    isOwner = normalizedRole === "owner"
+    isAdmin = normalizedRole === "admin"
+    canManage = isOwner || isAdmin
+
+    invitations = canManage ? await getGroupInvitations(groupId) : []
   } catch (error) {
     const status = getHttpStatus(error)
 
@@ -91,14 +98,15 @@ export default async function GroupDetailPage({
           />
         </div>
         <div className="flex shrink-0 flex-wrap items-center justify-start gap-2 lg:justify-end">
-          {isOwner && (
+          {canManage && (
             <GroupFeedNotificationSender
               groupId={groupId}
               groupName={group.name}
-              canSend={isOwner}
+              canSend={canManage}
             />
           )}
-          {isOwner && (
+          {isOwner && <EditGroupDrawer group={group} />}
+          {canManage && (
             <GroupInviteMemberButton groupId={groupId} groupName={group.name} />
           )}
           <GroupDetailActionsMenu

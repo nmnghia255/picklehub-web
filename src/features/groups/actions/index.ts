@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
 import type { AcceptInvitationResponse } from "@/features/auth/types"
+import { uploadFinanceReceiptFile } from "@/features/groups/api/finance-service"
 import {
   archiveGroup,
   changeMemberRole,
@@ -129,23 +130,38 @@ export async function updateGroupAction(
 ): Promise<GroupActionState> {
   const name = formData.get("name")?.toString().trim()
   const description = formData.get("description")?.toString().trim()
-  const avatarUrl = formData.get("avatarUrl")?.toString().trim()
+  const avatarUrlRaw = formData.get("avatarUrl")?.toString().trim()
+  const maxMembersRaw = formData.get("maxMembers")?.toString()
 
-  const payload: UpdateGroupInput = {
-    ...(name ? { name } : {}),
-    ...(description !== undefined
-      ? { description: description.length > 0 ? description : null }
-      : {}),
-    ...(avatarUrl !== undefined
-      ? { avatarUrl: avatarUrl.length > 0 ? avatarUrl : null }
-      : {}),
-  }
+  const avatarFileField = formData.get("avatarFile")
+  const avatarFile =
+    avatarFileField instanceof File && avatarFileField.size > 0
+      ? avatarFileField
+      : null
 
-  if (Object.keys(payload).length === 0) {
-    return { error: "Không có thông tin nào để cập nhật." }
-  }
+  let avatarUrl = avatarUrlRaw || undefined
 
   try {
+    if (avatarFile) {
+      const uploadResult = await uploadFinanceReceiptFile(avatarFile)
+      avatarUrl = uploadResult.url
+    }
+
+    const payload: UpdateGroupInput = {
+      ...(name ? { name } : {}),
+      ...(description !== undefined
+        ? { description: description.length > 0 ? description : null }
+        : {}),
+      ...(avatarUrl !== undefined
+        ? { avatarUrl: avatarUrl.length > 0 ? avatarUrl : null }
+        : {}),
+      ...(maxMembersRaw ? { maxMembers: parseInt(maxMembersRaw, 10) } : {}),
+    }
+
+    if (Object.keys(payload).length === 0) {
+      return { error: "Không có thông tin nào để cập nhật." }
+    }
+
     await updateGroup(groupId, payload)
     revalidatePath("/groups")
     revalidatePath(`/groups/${groupId}`)
@@ -158,7 +174,12 @@ export async function updateGroupAction(
           "Cập nhật nhóm thất bại. Vui lòng thử lại.",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Đã có lỗi xảy ra. Vui lòng thử lại.",
+    }
   }
 }
 
