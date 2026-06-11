@@ -1,15 +1,10 @@
 "use client"
 
-import { createContext, type ReactNode,useContext, useEffect, useState } from "react"
+import { createContext, type ReactNode, useContext, useState } from "react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-export type GroupDetailTabValue =
-  | "overview"
-  | "sessions"
-  | "activity"
-  | "finance"
-  | "chat"
+export type GroupDetailTabValue = "overview" | "activity" | "finance" | "chat"
 
 const GroupDetailTabContext = createContext<GroupDetailTabValue>("overview")
 
@@ -19,7 +14,6 @@ export function useGroupDetailActiveTab() {
 
 interface GroupDetailTabsProps {
   overview: ReactNode
-  sessions: ReactNode
   activity: ReactNode
   finance: ReactNode
   chat: ReactNode
@@ -28,17 +22,12 @@ interface GroupDetailTabsProps {
 
 export function GroupDetailTabs({
   overview,
-  sessions,
   activity,
   finance,
   chat,
   defaultValue = "overview",
 }: GroupDetailTabsProps) {
   const [activeTab, setActiveTab] = useState<GroupDetailTabValue>(defaultValue)
-
-  useEffect(() => {
-    setActiveTab(defaultValue)
-  }, [defaultValue])
 
   return (
     <GroupDetailTabContext.Provider value={activeTab}>
@@ -54,9 +43,6 @@ export function GroupDetailTabs({
           <TabsTrigger value="overview" className="sm:flex-none">
             Tổng quan
           </TabsTrigger>
-          <TabsTrigger value="sessions" className="sm:flex-none">
-            Buổi chơi
-          </TabsTrigger>
           <TabsTrigger value="activity" className="sm:flex-none">
             Lịch hoạt động
           </TabsTrigger>
@@ -70,9 +56,6 @@ export function GroupDetailTabs({
 
         <TabsContent value="overview" className="mt-6 w-full min-w-0">
           {overview}
-        </TabsContent>
-        <TabsContent value="sessions" className="mt-6 w-full min-w-0">
-          {sessions}
         </TabsContent>
         <TabsContent value="activity" className="mt-6 w-full min-w-0">
           {activity}

@@ -1,4 +1,3 @@
-import { DeleteStatusToast } from "@/components/delete-status-toast"
 import { ErrorSection } from "@/components/error-section"
 import { PageContainer } from "@/components/page-container"
 import {
@@ -11,11 +10,6 @@ import { GroupDetailHeader } from "@/features/groups/components/group-detail-hea
 import { GroupDetailPanels } from "@/features/groups/components/group-detail-panels"
 import { GroupInviteMemberButton } from "@/features/groups/components/group-invite-member-button"
 import { GroupFeedNotificationSender } from "@/features/notifications/components/group-feed-notification-sender"
-import { listPlaySessions } from "@/features/play-sessions/api/public-play-sessions-service"
-import type {
-  GroupPlaySession,
-  ListPlaySessionsParams,
-} from "@/features/play-sessions/types"
 import { getSession } from "@/lib/session"
 
 function getHttpStatus(error: unknown): number | null {
@@ -41,7 +35,7 @@ export default async function GroupDetailPage({
   searchParams,
 }: GroupDetailPageProps) {
   const { groupId } = await params
-  const { delete: deleteStatus, view } = await searchParams
+  const { view } = await searchParams
   const session = await getSession()
   const defaultTab = view === "chat" ? "chat" : "overview"
 
@@ -49,8 +43,6 @@ export default async function GroupDetailPage({
   let members = []
   let invitations = []
   let isOwner = false
-  let upcomingSessions: GroupPlaySession[] = []
-  let hasUpcomingSessionsError = false
 
   try {
     const [groupResult, membersResult] = await Promise.all([
@@ -87,34 +79,8 @@ export default async function GroupDetailPage({
     )
   }
 
-  try {
-    const params: ListPlaySessionsParams = {
-      contextType: "INTERNAL_GROUP",
-      groupId,
-      status: "PUBLISHED",
-      sortBy: "startTime",
-      order: "asc",
-    }
-    const sessionsResponse = await listPlaySessions(params)
-    const sessionsPayload = sessionsResponse?.data || []
-    upcomingSessions = sessionsPayload
-  } catch (error) {
-    const status = getHttpStatus(error)
-
-    if (status !== 404) {
-      console.error("Error loading upcoming sessions:", error)
-    }
-
-    hasUpcomingSessionsError = true
-  }
-
   return (
     <PageContainer variant="wide" className="space-y-6">
-      <DeleteStatusToast
-        status={deleteStatus}
-        successMessage="Xoa buoi choi thanh cong."
-      />
-
       <div className="flex flex-col gap-4 border-b pb-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6 lg:pb-5">
         <div className="min-w-0 flex-1">
           <GroupDetailHeader
@@ -152,8 +118,6 @@ export default async function GroupDetailPage({
           currentUserId={session.user?.id ?? ""}
           currentUserRole={group.role ?? null}
           invitations={invitations}
-          upcomingSessions={upcomingSessions}
-          hasUpcomingSessionsError={hasUpcomingSessionsError}
           defaultTab={defaultTab}
         />
       </div>
