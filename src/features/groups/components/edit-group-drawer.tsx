@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Settings2 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { startTransition, useActionState, useEffect, useState } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -32,10 +32,7 @@ interface EditGroupDrawerProps {
 export function EditGroupDrawer({ group }: EditGroupDrawerProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
-  const [state, formAction, isPending] = useActionState(
-    updateGroupAction.bind(null, group.id),
-    {}
-  )
+  const [isPending, startTransition] = useTransition()
 
   const form = useForm<UpdateGroupFormData>({
     resolver: zodResolver(updateGroupSchema),
@@ -47,21 +44,15 @@ export function EditGroupDrawer({ group }: EditGroupDrawerProps) {
     },
   })
 
+  // Sync form with group data when group prop changes
   useEffect(() => {
-    if (!state.success) return
-
-    toast.success("Cập nhật thông tin nhóm thành công")
-    setTimeout(() => {
-      setOpen(false)
-      router.refresh()
-    }, 0)
-  }, [state.success, router])
-
-  useEffect(() => {
-    if (state.error) {
-      toast.error(state.error)
-    }
-  }, [state.error])
+    form.reset({
+      name: group.name,
+      description: group.description ?? "",
+      avatarUrl: group.avatarUrl ?? "",
+      maxMembers: group.maxMembers ?? 50,
+    })
+  }, [group, form])
 
   const onSubmit = form.handleSubmit((data) => {
     const fd = new FormData()
@@ -72,7 +63,21 @@ export function EditGroupDrawer({ group }: EditGroupDrawerProps) {
     if (data.maxMembers !== undefined)
       fd.set("maxMembers", data.maxMembers.toString())
 
-    startTransition(() => formAction(fd))
+    startTransition(async () => {
+      try {
+        const result = await updateGroupAction(group.id, {}, fd)
+
+        if (result.success) {
+          toast.success("Cập nhật thông tin nhóm thành công")
+          setOpen(false)
+          router.refresh()
+        } else if (result.error) {
+          toast.error(result.error)
+        }
+      } catch (_error) {
+        toast.error("Đã có lỗi xảy ra. Vui lòng thử lại.")
+      }
+    })
   })
 
   return (

@@ -4,17 +4,15 @@ import { Badge } from "@/components/ui/badge"
 import { getArchivedGroupLabel, isArchivedGroup } from "../utils/group-status"
 
 interface GroupDetailHeaderProps {
-  groupId: string
   groupName: string
-  isOwner: boolean
   groupStatus?: string | null
+  avatarUrl?: string | null
 }
 
 export function GroupDetailHeader({
-  groupId,
   groupName,
-  isOwner,
   groupStatus,
+  avatarUrl,
 }: GroupDetailHeaderProps) {
   const archived = isArchivedGroup(groupStatus)
   const initial = groupName.trim().slice(0, 1).toUpperCase() || "G"
@@ -23,7 +21,7 @@ export function GroupDetailHeader({
     <div className="flex flex-col gap-4">
       <div className="flex min-w-0 items-start gap-4">
         <Avatar size="lg" className="mt-1 bg-muted">
-          <AvatarImage src="" alt={groupName} />
+          <AvatarImage src={avatarUrl ?? ""} alt={groupName} />
           <AvatarFallback className="bg-muted text-base font-semibold text-foreground">
             {initial}
           </AvatarFallback>
