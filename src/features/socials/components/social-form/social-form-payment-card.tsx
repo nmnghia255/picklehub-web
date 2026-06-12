@@ -35,6 +35,16 @@ export function SocialFormPaymentCard({
   const [paymentQrError, setPaymentQrError] = useState("")
   const [isUploadingPaymentQr, setIsUploadingPaymentQr] = useState(false)
 
+  const formatDisplayValue = (val: number | null | undefined) => {
+    if (val === null || val === undefined) return ""
+    return new Intl.NumberFormat("vi-VN").format(val)
+  }
+
+  const parseDisplayValue = (val: string) => {
+    const cleanVal = val.replace(/\D/g, "")
+    return cleanVal ? Number(cleanVal) : null
+  }
+
   const handlePaymentQrChange = async (
     event: ChangeEvent<HTMLInputElement>
   ) => {
@@ -171,14 +181,16 @@ export function SocialFormPaymentCard({
               label={t("form.packageFee", { defaultValue: "Package Fee" })}
             >
               <Input
-                type="number"
-                value={formData.packageFee || ""}
-                onChange={(e) =>
+                type="text"
+                inputMode="numeric"
+                value={formatDisplayValue(formData.packageFee)}
+                onChange={(e) => {
+                  const num = parseDisplayValue(e.target.value)
                   setFormData((prev) => ({
                     ...prev,
-                    packageFee: e.target.value ? Number(e.target.value) : null,
+                    packageFee: num,
                   }))
-                }
+                }}
                 placeholder={t("form.packageFeePlaceholder")}
               />
             </Field>

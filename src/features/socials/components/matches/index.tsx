@@ -10,29 +10,29 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
+import {
+  confirmSuggestedMatchesAction,
+  suggestMatches,
+} from "@/features/socials/actions/suggested-matches"
+import { MatchMatrix } from "@/features/socials/components/matches/match-matrix"
 import { MatchesControlPanel } from "@/features/socials/components/matches/matches-control-panel"
-import { MatchesGeneratorMatrix } from "@/features/socials/components/matches/matches-generator-matrix"
-import StatisticCard from "@/features/socials/components/matches/statistic-card"
+import { StatisticCard } from "@/features/socials/components/matches/statistic-card"
 import { useMatchesGeneratorStore } from "@/features/socials/stores/matches-generator-store"
+import type { Match, Player } from "@/features/socials/types/match"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
-
-interface Match {
-  id: string
-  courtId: string
-  sessionIndex: number
-  matchType: "SINGLES" | "DOUBLES"
-  players: Array<Player | null>
-}
-
-interface Player {
-  id: string
-  name: string
-  skillLevel?: number
-  avatarUrl?: string | null
-}
 
 const isPlayer = (player: Player | null): player is Player => player !== null
 
@@ -42,16 +42,31 @@ function isMatchCompleteOrEmpty(match: Match): boolean {
   return activePlayers === 0 || activePlayers === maxPlayers
 }
 
-export function MatchesCreationContent() {
+import { useParams } from "next/navigation"
+
+import type {
+  CommitMatchRequest,
+  SuggestedMatchBatchResponse,
+  SuggestedMatchRequest,
+} from "@/features/socials/types/match"
+
+interface MatchesCreationContentProps {
+  initialPlayers: Player[]
+}
+
+export function MatchesCreationContent({
+  initialPlayers,
+}: MatchesCreationContentProps) {
   const { t } = useSocialsTranslation()
   const router = useRouter()
-  const [isInitialLoading, setIsInitialLoading] = useState(true)
-  const [totalMatches, setTotalMatches] = useState(2)
+  const params = useParams()
+  const socialId = params.socialId as string
+  const playSessionId = params.playSessionId as string
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => setIsInitialLoading(false), 450)
-    return () => window.clearTimeout(timer)
-  }, [])
+  const [isInitialLoading, setIsInitialLoading] = useState(true)
+  const [isConfirming, setIsConfirming] = useState(false)
+  const [showIncompleteWarning, setShowIncompleteWarning] = useState(false)
+  const [incompleteSessions, setIncompleteSessions] = useState<number[]>([])
 
   const {
     courts,
@@ -63,30 +78,161 @@ export function MatchesCreationContent() {
     addPlayerToMatch,
     changeMatchType,
     swapPlayers,
+    setPlayers,
+    scheduleTimes,
+    setScheduleTimes,
   } = useMatchesGeneratorStore()
 
-  const handleCourtsChange = (nextCourts: number) => {
-    setCourts(nextCourts)
-  }
+  useEffect(() => {
+    setPlayers(initialPlayers)
+    const timer = window.setTimeout(() => setIsInitialLoading(false), 450)
+    return () => window.clearTimeout(timer)
+  }, [initialPlayers, setPlayers])
 
-  const handleGenerateMatches = () => {
-    const generatedMatches = generateMockMatches(courts, totalMatches, players)
-    setMatches(generatedMatches)
+  const handleGenerateMatches = async (request: SuggestedMatchRequest) => {
+    try {
+      const batch = await suggestMatches(socialId, playSessionId, request)
+
+      const newMatches: Match[] = []
+      let matchIdCounter = 1
+      const newScheduleTimes: string[] = []
+
+      batch.rounds.forEach((round) => {
+        newScheduleTimes[round.roundIndex] = round.scheduledAt
+
+        round.matches.forEach((m) => {
+          const matchPlayers: Array<Player | null> = []
+
+          m.teamA.forEach((p) => {
+            matchPlayers.push({
+              id: p.participantId,
+              name: p.user?.fullName || "Unknown Player",
+              avatarUrl: p.user?.avatarUrl,
+              skillLevel: p.user?.selfRating,
+            })
+          })
+
+          m.teamB.forEach((p) => {
+            matchPlayers.push({
+              id: p.participantId,
+              name: p.user?.fullName || "Unknown Player",
+              avatarUrl: p.user?.avatarUrl,
+              skillLevel: p.user?.selfRating,
+            })
+          })
+
+          const requiredPlayers = m.matchType === "DOUBLES" ? 4 : 2
+          while (matchPlayers.length < requiredPlayers) {
+            matchPlayers.push(null)
+          }
+
+          newMatches.push({
+            id: `suggested-match-${matchIdCounter++}`,
+            courtId: m.courtId,
+            sessionIndex: round.roundIndex,
+            matchType: m.matchType,
+            players: matchPlayers,
+          })
+        })
+      })
+
+      setCourts(request.singlesCount + request.doublesCount)
+      setMatches(newMatches)
+      setScheduleTimes(newScheduleTimes)
+      toast.success(
+        t("matches.creation.generateSuccess", {
+          defaultValue: "Matches generated successfully!",
+        })
+      )
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to generate matches."
+      toast.error(
+        message ||
+          t("matches.creation.generateError", {
+            defaultValue: "Failed to generate matches.",
+          })
+      )
+      console.error(error)
+    }
   }
 
   const handleConfirmMatches = () => {
-    const invalidMatches = matches.filter(
-      (match) => !isMatchCompleteOrEmpty(match)
+    const validMatches = matches.filter(
+      (m) => m.players.filter(isPlayer).length > 0
     )
 
-    if (invalidMatches.length > 0) {
+    if (validMatches.length === 0) {
       toast.error(
-        t("matches.creation.confirmError", { count: invalidMatches.length })
+        t("matches.creation.noMatchesError", {
+          defaultValue: "Please assign players to at least one match.",
+        })
       )
       return
     }
 
-    toast.success(t("matches.creation.success"))
+    const invalidMatches = validMatches.filter(
+      (match) => !isMatchCompleteOrEmpty(match)
+    )
+
+    if (invalidMatches.length > 0) {
+      const invalidSessions = Array.from(
+        new Set(invalidMatches.map((m) => m.sessionIndex + 1))
+      ).sort((a, b) => a - b)
+      setIncompleteSessions(invalidSessions)
+      setShowIncompleteWarning(true)
+      return
+    }
+
+    executeCommitMatches()
+  }
+
+  const executeCommitMatches = async () => {
+    setShowIncompleteWarning(false)
+    setIsConfirming(true)
+
+    try {
+      const validMatches = matches.filter(
+        (m) => m.players.filter(isPlayer).length > 0
+      )
+      const payload: CommitMatchRequest[] = validMatches.map((m) => {
+        const teamSize = m.matchType === "DOUBLES" ? 2 : 1
+        const activePlayers = m.players.filter(isPlayer)
+        const teamA = activePlayers.slice(0, teamSize).map((p) => p.id)
+        const teamB = activePlayers
+          .slice(teamSize, teamSize * 2)
+          .map((p) => p.id)
+
+        return {
+          courtId: m.courtId,
+          scheduledAt:
+            scheduleTimes[m.sessionIndex] || new Date().toISOString(),
+          matchType: m.matchType,
+          category: "SOCIAL",
+          teamA,
+          teamB,
+          refereeId: null,
+        }
+      })
+
+      const response = await confirmSuggestedMatchesAction(
+        socialId,
+        playSessionId,
+        payload
+      )
+
+      toast.success(t("matches.creation.successConfirm"))
+      router.back()
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : t("matches.creation.confirmError")
+      toast.error(message)
+      console.error(error)
+    } finally {
+      setIsConfirming(false)
+    }
   }
 
   return (
@@ -122,20 +268,13 @@ export function MatchesCreationContent() {
         </div>
 
         <Card className="border-border bg-card p-4 shadow-sm sm:p-6">
-          <MatchesControlPanel
-            courts={courts}
-            totalMatches={totalMatches}
-            onCourtsChange={handleCourtsChange}
-            onTotalMatchesChange={setTotalMatches}
-            onGenerateMatches={handleGenerateMatches}
-          />
+          <MatchesControlPanel onGenerateMatches={handleGenerateMatches} />
         </Card>
 
         <Card className="border-border bg-card p-4 shadow-sm sm:p-6">
           <StatisticCard
             matches={matches}
             allPlayers={players}
-            courts={courts}
             isLoading={isInitialLoading}
           />
         </Card>
@@ -152,10 +291,11 @@ export function MatchesCreationContent() {
         ) : matches.length > 0 ? (
           <div className="space-y-4">
             <Card className="overflow-x-auto border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md sm:p-6">
-              <MatchesGeneratorMatrix
+              <MatchMatrix
                 courts={courts}
                 matches={matches}
                 allPlayers={players}
+                scheduleTimes={scheduleTimes}
                 onPlayerRemove={removePlayerFromMatch}
                 onPlayerAdd={addPlayerToMatch}
                 onMatchTypeChange={changeMatchType}
@@ -177,9 +317,12 @@ export function MatchesCreationContent() {
                 size="lg"
                 className="gap-2 self-start sm:self-auto"
                 onClick={handleConfirmMatches}
+                disabled={isConfirming}
               >
                 <CheckCircle2 className="h-4 w-4" />
-                {t("matches.creation.confirmButton")}
+                {isConfirming
+                  ? t("common.submitting", { defaultValue: "Submitting..." })
+                  : t("matches.creation.confirmButton")}
               </Button>
             </div>
           </div>
@@ -199,37 +342,32 @@ export function MatchesCreationContent() {
           </Card>
         )}
       </div>
+
+      <AlertDialog
+        open={showIncompleteWarning}
+        onOpenChange={setShowIncompleteWarning}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("matches.creation.incompleteWarningTitle", {
+                defaultValue: "Incomplete Matches",
+              })}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("matches.creation.incompleteWarningDescription")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              {t("common.cancel", { defaultValue: "Cancel" })}
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={executeCommitMatches}>
+              {t("common.proceed", { defaultValue: "Proceed" })}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
-}
-
-function generateMockMatches(
-  courts: number,
-  totalMatches: number,
-  players: Player[]
-): Match[] {
-  const matches: Match[] = []
-  let matchId = 1
-  const matchCount = Math.min(totalMatches, courts)
-
-  for (let court = 0; court < matchCount; court++) {
-    const matchType = Math.random() > 0.3 ? "DOUBLES" : "SINGLES"
-    const playerCount = matchType === "DOUBLES" ? 4 : 2
-
-    const shuffled = [...players].sort(() => Math.random() - 0.5)
-    const matchPlayers = shuffled.slice(
-      0,
-      Math.min(playerCount, shuffled.length)
-    )
-
-    matches.push({
-      id: `match-${matchId++}`,
-      courtId: `court-${court}`,
-      sessionIndex: 0,
-      matchType,
-      players: matchPlayers,
-    })
-  }
-
-  return matches
 }

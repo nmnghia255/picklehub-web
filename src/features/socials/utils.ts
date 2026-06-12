@@ -76,6 +76,9 @@ export function getSessionStatusLabel(
   t: (key: string) => string
 ) {
   switch (status) {
+    case "LIVE":
+    case "IN_PROGRESS":
+      return t("labels.inProgress")
     case "PUBLISHED":
       return t("labels.published")
     case "COMPLETED":
@@ -86,6 +89,22 @@ export function getSessionStatusLabel(
       return t("labels.draft")
     default:
       return t("labels.scheduled")
+  }
+}
+
+export function getSessionStatusClasses(status: string) {
+  switch (status) {
+    case "LIVE":
+    case "IN_PROGRESS":
+      return "border-orange-500/30 bg-orange-50/50 text-orange-500 dark:bg-orange-950/20"
+    case "COMPLETED":
+      return "border-emerald-600/30 bg-emerald-50/50 text-emerald-600 dark:bg-emerald-950/20"
+    case "CANCELLED":
+      return "border-destructive/30 bg-destructive/10 text-destructive"
+    case "PUBLISHED":
+      return "border-primary/30 bg-primary/10 text-primary"
+    default:
+      return "border-slate-950/20 bg-slate-100 text-slate-950 dark:border-slate-50/20 dark:bg-slate-900/50 dark:text-slate-50"
   }
 }
 

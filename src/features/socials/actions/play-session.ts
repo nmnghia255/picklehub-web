@@ -16,3 +16,14 @@ export async function createSocialPlaySessionAction(
     return { success: false, error: errorMessage }
   }
 }
+
+export async function startPlaySession(social: string, playSessionId: string) {
+  return await PlaySessionService.startPlaySession(social, playSessionId)
+}
+
+export async function completePlaySession(
+  social: string,
+  playSessionId: string
+) {
+  return await PlaySessionService.completePlaySession(social, playSessionId)
+}

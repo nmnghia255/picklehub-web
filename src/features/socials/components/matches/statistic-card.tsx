@@ -37,12 +37,10 @@ const isPlayer = (player: Player | null): player is Player => player !== null
 export function StatisticCard({
   matches,
   allPlayers,
-  courts,
   isLoading = false,
 }: {
   matches: Match[]
   allPlayers: Player[]
-  courts: number
   isLoading?: boolean
 }) {
   const { t } = useSocialsTranslation()
@@ -60,16 +58,6 @@ export function StatisticCard({
     matches.flatMap((m) => m.players.filter(isPlayer).map((p) => p.id))
   ).size
   const maxMatchesPerPlayer = Math.max(...Object.values(playerMatchCounts), 1)
-
-  const getMatchStatus = (
-    match: Match
-  ): "complete" | "incomplete" | "empty" => {
-    const maxPlayers = match.matchType === "DOUBLES" ? 4 : 2
-    const activePlayers = match.players.filter(isPlayer)
-    if (activePlayers.length === 0) return "empty"
-    if (activePlayers.length < maxPlayers) return "incomplete"
-    return "complete"
-  }
 
   if (isLoading) {
     return (
@@ -131,7 +119,7 @@ export function StatisticCard({
 
       {/* Overview moved to matrix as a compact status badge */}
 
-      <Card className="border-border/70 p-0">
+      <div className="">
         <div className="border-b px-4 py-3">
           <h3 className="text-sm font-semibold text-foreground">
             {t("matches.statistics.playerMatchesTitle")}
@@ -150,7 +138,7 @@ export function StatisticCard({
                   <TableHead>
                     {t("matches.statistics.headers.player")}
                   </TableHead>
-                  <TableHead>{t("matches.statistics.headers.level")}</TableHead>
+                  {/* <TableHead>{t("matches.statistics.headers.level")}</TableHead> */}
                   <TableHead>
                     {t("matches.statistics.headers.progress")}
                   </TableHead>
@@ -187,13 +175,13 @@ export function StatisticCard({
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell>
+                        {/* <TableCell>
                           <Badge variant="outline">
                             {typeof p.skillLevel === "number"
                               ? `${t("common.level")} ${p.skillLevel}`
                               : t("common.na")}
                           </Badge>
-                        </TableCell>
+                        </TableCell> */}
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <Progress value={fill} className="h-2 w-28" />
@@ -214,9 +202,7 @@ export function StatisticCard({
             </Table>
           </div>
         )}
-      </Card>
+      </div>
     </div>
   )
 }
-
-export default StatisticCard

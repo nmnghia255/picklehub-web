@@ -54,7 +54,9 @@ export default function SocialParticipantsTab({
       )
       router.refresh()
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to approve")
+      toast.error(
+        error instanceof Error ? error.message : t("detail.approveError")
+      )
     } finally {
       setLoadingAction(null)
     }
@@ -72,7 +74,9 @@ export default function SocialParticipantsTab({
       )
       router.refresh()
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to remove")
+      toast.error(
+        error instanceof Error ? error.message : t("detail.kickError")
+      )
     } finally {
       setLoadingAction(null)
     }

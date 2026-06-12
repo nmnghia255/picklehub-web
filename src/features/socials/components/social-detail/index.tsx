@@ -19,6 +19,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { joinSocialAction } from "@/features/socials/actions/join-social"
 import { leaveSocialAction } from "@/features/socials/actions/leave-social"
+import { completeSocial } from "@/features/socials/actions/social"
 import { PlaySessionForm } from "@/features/socials/components/play-session/play-session-form"
 import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
 import type { PlaySession } from "@/features/socials/types/play-session"
@@ -71,6 +72,31 @@ export default function SocialDetail({
   const [isJoining, setIsJoining] = useState(false)
   const [isLeaving, setIsLeaving] = useState(false)
   const [leaveDialogOpen, setLeaveDialogOpen] = useState(false)
+  const [isCompleting, setIsCompleting] = useState(false)
+
+  const handleCompleteSocial = async () => {
+    if (!social) return
+    setIsCompleting(true)
+    try {
+      await completeSocial(social.id)
+      toast.success(
+        t("form.completeSocialSuccess") ||
+          "Social event completed successfully!"
+      )
+      router.refresh()
+    } catch (e: unknown) {
+      console.error("Error completing social:", e)
+      const errorMsg =
+        e instanceof Error ? e.message : "Failed to complete social event."
+      toast.error(
+        errorMsg ||
+          t("form.completeSocialError") ||
+          "Failed to complete social event."
+      )
+    } finally {
+      setIsCompleting(false)
+    }
+  }
 
   if (!social) {
     return (
@@ -168,6 +194,8 @@ export default function SocialDetail({
             isParticipant={isParticipant}
             onBack={() => router.back()}
             onEdit={() => router.push(`/socials/${social.id}/edit`)}
+            onComplete={handleCompleteSocial}
+            isCompleting={isCompleting}
           />
 
           <Tabs
@@ -189,7 +217,7 @@ export default function SocialDetail({
               <SocialSessions
                 maxSlots={maxSlots}
                 sessions={sessions}
-                isHost={social.isHost}
+                isHost={social.isHost && social.status === "DRAFT"}
                 onCreateSession={() => {
                   setSelectedSession(null)
                   setPlaySessionModalOpen(true)

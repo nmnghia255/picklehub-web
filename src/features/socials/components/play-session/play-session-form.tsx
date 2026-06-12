@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { MultiSelect } from "@/components/ui/multi-select"
-import { createSocialPlaySessionAction } from "@/features/socials/actions/create-play-session"
+import { createSocialPlaySessionAction } from "@/features/socials/actions/play-session"
 import type {
   PlaySession,
   PlaySessionRequest,

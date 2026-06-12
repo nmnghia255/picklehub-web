@@ -1,6 +1,7 @@
 "use server"
 
-import { SocialService } from "../api/social-service"
+import { SocialService } from "@/features/socials/api/social-service"
+
 import type { CreateSocialRequest, UpdateSocialRequest } from "../types/social"
 
 export async function createSocialAction(data: CreateSocialRequest) {

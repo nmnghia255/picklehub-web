@@ -3,12 +3,15 @@
 import { differenceInMinutes } from "date-fns"
 import { ArrowLeft } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
+import { useMemo } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import type { Match } from "@/features/socials/mock-data/mockSessionData"
-import { mockMatches } from "@/features/socials/mock-data/mockSessionData"
 import usePlaySessionStore from "@/features/socials/stores/play-session-store"
+import type {
+  PlaySessionMatch,
+  PlaySessionMatchTeamPlayer,
+} from "@/features/socials/types/match"
 import type {
   PlaySession,
   PlaySessionParticipant,
@@ -25,12 +28,14 @@ interface PlaySessionDetailProps {
   initialSocial: SocialDetail | null
   initialSession: PlaySession | null
   initialParticipants: PlaySessionParticipant[]
+  initialMatches?: PlaySessionMatch[]
 }
 
 export default function PlaySessionDetail({
   initialSocial,
   initialSession,
   initialParticipants,
+  initialMatches = [],
 }: PlaySessionDetailProps) {
   const params = useParams()
   const router = useRouter()
@@ -42,6 +47,74 @@ export default function PlaySessionDetail({
   const sessionId = params.playSessionId as string | undefined
   const social = initialSocial
   const session = initialSession
+  const participants = initialParticipants
+
+  const matches = useMemo(() => {
+    return initialMatches.map((m) => {
+      const getPlayerInfo = (player: PlaySessionMatchTeamPlayer) => {
+        let name = player.fullName
+        let avatar = player.avatarUrl
+
+        if (!name) {
+          const p = participants.find(
+            (part) => part.id === player.id || part.userId === player.id
+          )
+          if (p) {
+            name = p.guestName || p.user?.name || "Unknown Player"
+            avatar = p.user?.avatarUrl || null
+          } else {
+            name = "Unknown Player"
+          }
+        }
+
+        return {
+          id: player.id,
+          name,
+          avatar,
+        }
+      }
+
+      const team1Player1 = m.teamA[0] ? getPlayerInfo(m.teamA[0]) : null
+      const team1Player2 = m.teamA[1] ? getPlayerInfo(m.teamA[1]) : null
+      const team2Player1 = m.teamB[0] ? getPlayerInfo(m.teamB[0]) : null
+      const team2Player2 = m.teamB[1] ? getPlayerInfo(m.teamB[1]) : null
+
+      return {
+        id: m.id,
+        playSessionId: m.playSessionId,
+        courtNumber: m.court
+          ? parseInt(m.court.name.replace(/\D/g, "")) || 0
+          : 0,
+        courtName: m.court?.name,
+        status: m.status,
+        startTime: m.startedAt || m.scheduledAt,
+        endTime: m.finishedAt,
+        startedAt: m.startedAt,
+        scheduledAt: m.scheduledAt,
+        team1: {
+          player1: team1Player1,
+          player2: team1Player2,
+        },
+        team2: {
+          player1: team2Player1,
+          player2: team2Player2,
+        },
+        score:
+          m.winner ||
+          (m.sets && m.sets.length > 0) ||
+          m.scoreA > 0 ||
+          m.scoreB > 0
+            ? {
+                team1Score: m.scoreA,
+                team2Score: m.scoreB,
+              }
+            : undefined,
+        sets: m.sets,
+        winner: m.winner,
+        refereeId: m.refereeId,
+      }
+    })
+  }, [initialMatches, participants])
 
   if (!social || !session) {
     return (
@@ -63,21 +136,13 @@ export default function PlaySessionDetail({
     new Date(session.startTime)
   )
 
-  const matches = mockMatches
-  const completedMatches: Match[] =
-    (matches.filter(
-      (match: Match) => match.status === "COMPLETED"
-    ) as Match[]) || []
-  const inProgressMatches: Match[] =
-    (matches.filter(
-      (match: Match) => match.status === "IN_PROGRESS"
-    ) as Match[]) || []
-  const scheduledMatches: Match[] =
-    (matches.filter(
-      (match: Match) => match.status === "SCHEDULED"
-    ) as Match[]) || []
-
-  const participants = initialParticipants
+  const completedMatches = matches.filter(
+    (m) => !!m.winner || (m.sets && m.sets.length > 0)
+  )
+  const inProgressMatches = matches.filter((m) => m.status === "LIVE")
+  const scheduledMatches = matches.filter(
+    (m) => !m.winner && (!m.sets || m.sets.length === 0) && !m.startedAt
+  )
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
@@ -136,6 +201,8 @@ export default function PlaySessionDetail({
                     completedMatchesCount={completedMatches.length}
                     activeMatchesCount={inProgressMatches.length}
                     upcomingMatchesCount={scheduledMatches.length}
+                    isHost={isHost}
+                    socialId={socialId}
                   />
                 )}
 

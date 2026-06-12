@@ -1,6 +1,8 @@
 import { PlaySessionService } from "@/features/socials/api/play-session-service"
 import { SocialService } from "@/features/socials/api/social-service"
+import { MatchService } from "@/features/socials/api/suggested-match-service"
 import PlaySessionDetail from "@/features/socials/components/play-session"
+import type { PlaySessionMatch } from "@/features/socials/types/match"
 import type {
   PlaySession,
   PlaySessionParticipant,
@@ -15,9 +17,10 @@ export default async function Page(props: {
   let social: SocialDetail | null = null
   let session: PlaySession | null = null
   let participants: PlaySessionParticipant[] = []
+  let matches: PlaySessionMatch[] = []
 
   try {
-    const [fetchedSocial, fetchedSession, fetchedParticipants] =
+    const [fetchedSocial, fetchedSession, fetchedParticipants, fetchedMatches] =
       await Promise.all([
         SocialService.getSocial(params.socialId),
         PlaySessionService.getPlaySession(
@@ -28,10 +31,18 @@ export default async function Page(props: {
           params.socialId,
           params.playSessionId
         ),
+        MatchService.listMatches({
+          playSessionId: params.playSessionId,
+          page: 1,
+          limit: 100,
+        })
+          .then((res) => res.items)
+          .catch(() => [] as PlaySessionMatch[]),
       ])
     social = fetchedSocial
     session = fetchedSession
     participants = fetchedParticipants
+    matches = fetchedMatches
   } catch (error) {
     console.error("Error fetching play session details:", error)
   }
@@ -41,6 +52,7 @@ export default async function Page(props: {
       initialSocial={social}
       initialSession={session}
       initialParticipants={participants}
+      initialMatches={matches}
     />
   )
 }
