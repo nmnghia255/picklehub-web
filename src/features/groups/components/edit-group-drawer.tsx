@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 
 import { updateGroupAction } from "../actions"
+import { useGroupInvalidation } from "../api/groups-client"
 import { type UpdateGroupFormData, updateGroupSchema } from "../schemas"
 import type { Group } from "../types"
 
@@ -31,6 +32,7 @@ interface EditGroupDrawerProps {
 
 export function EditGroupDrawer({ group }: EditGroupDrawerProps) {
   const router = useRouter()
+  const invalidation = useGroupInvalidation(group.id)
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
 
@@ -69,6 +71,7 @@ export function EditGroupDrawer({ group }: EditGroupDrawerProps) {
 
         if (result.success) {
           toast.success("Cập nhật thông tin nhóm thành công")
+          void invalidation.invalidateAll()
           setOpen(false)
           router.refresh()
         } else if (result.error) {

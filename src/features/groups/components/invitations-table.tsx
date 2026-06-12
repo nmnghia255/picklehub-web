@@ -1,5 +1,6 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query"
 import { ChevronDown, ChevronUp, Loader2, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -23,6 +24,12 @@ import {
 } from "@/components/ui/table"
 
 import { revokeInvitationAction } from "../actions"
+import {
+  getGroupInvitationsClient,
+  groupQueryKeys,
+  useGroupInvalidation,
+  useSyncGroupData,
+} from "../api/groups-client"
 import type { Invitation } from "../types"
 
 interface InvitationsTableProps {
@@ -56,8 +63,16 @@ export function InvitationsTable({
   groupId,
   initialInvitations,
 }: InvitationsTableProps) {
-  const [invitations, setInvitations] =
-    useState<Invitation[]>(initialInvitations)
+  const invalidation = useGroupInvalidation(groupId)
+  const queryKey = groupQueryKeys.invitations(groupId)
+  useSyncGroupData(queryKey, initialInvitations)
+
+  const { data: invitations = [] } = useQuery({
+    queryKey,
+    queryFn: () => getGroupInvitationsClient(groupId),
+    initialData: initialInvitations,
+  })
+
   const [revokingId, setRevokingId] = useState<string | null>(null)
   const [isListVisible, setIsListVisible] = useState(true)
   const [invitationToRevoke, setInvitationToRevoke] =
@@ -69,11 +84,7 @@ export function InvitationsTable({
     setRevokingId(null)
     if (result.success) {
       toast.success("Đã thu hồi lời mời.")
-      setInvitations((prev) =>
-        prev.map((inv) =>
-          inv.id === invitationId ? { ...inv, status: "revoked" } : inv
-        )
-      )
+      void invalidation.invalidateInvitations()
     } else if (result.error) {
       toast.error(result.error)
     }
@@ -193,6 +204,16 @@ export function InvitationsTable({
                     </TableCell>
                   </TableRow>
                 ))}
+                {!invitations.length && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      className="py-4 text-center text-muted-foreground"
+                    >
+                      Chưa có lời mời nào.
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>

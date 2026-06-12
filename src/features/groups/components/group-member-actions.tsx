@@ -18,6 +18,7 @@ import {
   kickMemberAction,
   leaveGroupAction,
 } from "../actions"
+import { useGroupInvalidation } from "../api/groups-client"
 
 function normalizeRole(role: string | null | undefined) {
   return role?.toLowerCase() ?? ""
@@ -36,7 +37,7 @@ function RoleChangeMenuItem({
   memberName,
   currentRole,
 }: RoleChangeMenuItemProps) {
-  const router = useRouter()
+  const invalidation = useGroupInvalidation(groupId)
   const formRef = useRef<HTMLFormElement>(null)
   const handledSuccessRef = useRef(false)
   const targetRole = currentRole === "admin" ? "MEMBER" : "ADMIN"
@@ -49,14 +50,14 @@ function RoleChangeMenuItem({
     if (state.success && !handledSuccessRef.current) {
       handledSuccessRef.current = true
       toast.success(`Đã cập nhật vai trò của ${memberName}.`)
-      router.refresh()
+      void invalidation.invalidateMembers()
     }
 
     if (state.error) {
       handledSuccessRef.current = false
       toast.error(state.error)
     }
-  }, [memberName, router, state.error, state.success])
+  }, [memberName, invalidation, state.error, state.success])
 
   return (
     <form ref={formRef} action={formAction} className="contents">
@@ -92,7 +93,7 @@ function KickMemberMenuItem({
   memberId,
   memberName,
 }: KickMemberMenuItemProps) {
-  const router = useRouter()
+  const invalidation = useGroupInvalidation(groupId)
   const formRef = useRef<HTMLFormElement>(null)
   const handledSuccessRef = useRef(false)
   const [state, formAction, isPending] = useActionState(kickMemberAction, {})
@@ -101,14 +102,14 @@ function KickMemberMenuItem({
     if (state.success && !handledSuccessRef.current) {
       handledSuccessRef.current = true
       toast.success(`Đã xóa ${memberName} khỏi nhóm.`)
-      router.refresh()
+      void invalidation.invalidateMembers()
     }
 
     if (state.error) {
       handledSuccessRef.current = false
       toast.error(state.error)
     }
-  }, [memberName, router, state.error, state.success])
+  }, [memberName, invalidation, state.error, state.success])
 
   return (
     <form ref={formRef} action={formAction} className="contents">

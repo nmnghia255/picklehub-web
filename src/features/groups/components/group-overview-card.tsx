@@ -1,12 +1,35 @@
+"use client"
+
+import { useQuery } from "@tanstack/react-query"
 import { CalendarDays, Users } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  getGroupClient,
+  groupQueryKeys,
+  useSyncGroupData,
+} from "@/features/groups/api/groups-client"
 import type { Group } from "@/features/groups/types"
 
 import { getArchivedGroupLabel, isArchivedGroup } from "../utils/group-status"
 
-export function GroupOverviewCard({ group }: { group: Group }) {
+export function GroupOverviewCard({
+  groupId,
+  initialData,
+}: {
+  groupId: string
+  initialData: Group
+}) {
+  const queryKey = groupQueryKeys.detail(groupId)
+  useSyncGroupData(queryKey, initialData)
+
+  const { data: group } = useQuery({
+    queryKey,
+    queryFn: () => getGroupClient(groupId),
+    initialData,
+  })
+
   const archived = isArchivedGroup(group.status)
 
   return (

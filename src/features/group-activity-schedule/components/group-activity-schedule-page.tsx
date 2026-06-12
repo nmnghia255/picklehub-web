@@ -82,8 +82,8 @@ export function GroupActivitySchedulePage({
     mutationFn: (payload: CreateGroupActivityDto) =>
       createActivityClient(groupId, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: activityQueryKeys.all(groupId),
+      void queryClient.invalidateQueries({
+        queryKey: ["group-activities", groupId],
       })
       toast.success("Đã tạo hoạt động mới thành công")
       setFormOpen(false)
@@ -102,8 +102,8 @@ export function GroupActivitySchedulePage({
       payload: UpdateGroupActivityDto
     }) => updateActivityClient(groupId, activityId, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: activityQueryKeys.all(groupId),
+      void queryClient.invalidateQueries({
+        queryKey: ["group-activities", groupId],
       })
       toast.success("Đã cập nhật hoạt động thành công")
       setFormOpen(false)
@@ -117,8 +117,8 @@ export function GroupActivitySchedulePage({
     mutationFn: (activityId: string) =>
       deleteActivityClient(groupId, activityId),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: activityQueryKeys.all(groupId),
+      void queryClient.invalidateQueries({
+        queryKey: ["group-activities", groupId],
       })
       toast.success("Đã xóa hoạt động")
     },

@@ -90,11 +90,7 @@ export default async function GroupDetailPage({
     <PageContainer variant="wide" className="space-y-6">
       <div className="flex flex-col gap-4 border-b pb-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6 lg:pb-5">
         <div className="min-w-0 flex-1">
-          <GroupDetailHeader
-            groupName={group.name}
-            groupStatus={group.status}
-            avatarUrl={group.avatarUrl}
-          />
+          <GroupDetailHeader groupId={groupId} initialData={group} />
         </div>
         <div className="flex shrink-0 flex-wrap items-center justify-start gap-2 lg:justify-end">
           {canManage && (

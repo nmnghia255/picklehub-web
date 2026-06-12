@@ -34,11 +34,11 @@ export async function GroupDetailPanels({
 
   const overviewPanel = (
     <div className="space-y-6 lg:space-y-8">
-      <GroupOverviewCard group={group} />
+      <GroupOverviewCard groupId={groupId} initialData={group} />
 
       <GroupMembersCard
         groupId={groupId}
-        members={members}
+        initialMembers={members}
         currentUserId={currentUserId}
         currentUserRole={currentUserRole}
         groupStatus={group.status}

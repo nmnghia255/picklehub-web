@@ -1,7 +1,6 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { useMemo } from "react"
 
 import { ErrorSection } from "@/components/error-section"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -21,12 +20,12 @@ import { formatCurrencyVnd } from "@/utils/expense-utils"
 import {
   financeQueryKeys,
   getFinanceSummaryClient,
-  getGroupMembersClient,
   getMyDebtClient,
   listCreditBalancesClient,
   listExpensesClient,
   listTransactionsClient,
 } from "../api/finance-client"
+import { getGroupMembersClient, groupQueryKeys } from "../api/groups-client"
 import type { Member } from "../types"
 import type {
   CreditBalanceEntry,
@@ -201,9 +200,9 @@ export function GroupFinanceSection({
   })
 
   const membersQuery = useQuery({
-    queryKey: financeQueryKeys.members(groupId),
+    queryKey: groupQueryKeys.members(groupId),
     queryFn: () => getGroupMembersClient(groupId),
-    enabled: isFinanceActive && members.length === 0,
+    enabled: isFinanceActive,
     initialData: members.length > 0 ? members : undefined,
   })
 

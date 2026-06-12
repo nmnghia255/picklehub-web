@@ -17,6 +17,7 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
 import { inviteToGroupAction } from "../actions"
+import { useGroupInvalidation } from "../api/groups-client"
 
 interface GroupInviteMemberButtonProps {
   groupId: string
@@ -57,6 +58,7 @@ function InviteMemberDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const invalidation = useGroupInvalidation(groupId)
   const handledSuccessRef = useRef(false)
   const [state, formAction, isPending] = useActionState(
     inviteToGroupAction.bind(null, groupId),
@@ -67,6 +69,7 @@ function InviteMemberDialog({
     if (state.success && !handledSuccessRef.current) {
       handledSuccessRef.current = true
       toast.success(`Đã gửi lời mời vào nhóm "${groupName}".`)
+      void invalidation.invalidateInvitations()
       setTimeout(() => onOpenChange(false), 0)
     }
 
@@ -74,7 +77,7 @@ function InviteMemberDialog({
       handledSuccessRef.current = false
       toast.error(state.error)
     }
-  }, [groupName, onOpenChange, state.error, state.success])
+  }, [groupName, onOpenChange, invalidation, state.error, state.success])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

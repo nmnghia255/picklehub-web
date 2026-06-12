@@ -1,3 +1,7 @@
+"use client"
+
+import { useQuery } from "@tanstack/react-query"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Table,
@@ -8,6 +12,11 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+import {
+  getGroupMembersClient,
+  groupQueryKeys,
+  useSyncGroupData,
+} from "../api/groups-client"
 import type { Member } from "../types"
 import { isArchivedGroup } from "../utils/group-status"
 import { GroupMemberActions } from "./group-member-actions"
@@ -27,7 +36,7 @@ function normalizeRole(role: string | null | undefined) {
 
 interface GroupMembersCardProps {
   groupId: string
-  members?: Member[]
+  initialMembers?: Member[]
   currentUserId: string
   currentUserRole: string | null
   groupStatus?: string | null
@@ -35,11 +44,20 @@ interface GroupMembersCardProps {
 
 export function GroupMembersCard({
   groupId,
-  members,
+  initialMembers,
   currentUserId,
   currentUserRole,
   groupStatus,
 }: GroupMembersCardProps) {
+  const queryKey = groupQueryKeys.members(groupId)
+  useSyncGroupData(queryKey, initialMembers)
+
+  const { data: members } = useQuery({
+    queryKey,
+    queryFn: () => getGroupMembersClient(groupId),
+    initialData: initialMembers,
+  })
+
   const resolvedMembers = members ?? []
 
   const normalizedUserRole = currentUserRole?.toLowerCase()

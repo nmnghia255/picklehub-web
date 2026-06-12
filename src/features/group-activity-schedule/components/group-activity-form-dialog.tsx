@@ -191,6 +191,13 @@ function GroupActivityFormFields({
       nextErrors.description = "Vui lòng nhập mô tả"
     }
 
+    if (values.remindAt) {
+      const remindTime = new Date(values.remindAt).getTime()
+      if (remindTime <= Date.now()) {
+        nextErrors.remindAt = "Thời gian nhắc phải nằm trong tương lai"
+      }
+    }
+
     setErrors(nextErrors)
     return Object.keys(nextErrors).length === 0
   }
@@ -226,7 +233,7 @@ function GroupActivityFormFields({
         endAt,
         location: values.location.trim(),
         description: values.description.trim(),
-        remindAt: values.remindAt ? formatISO(values.remindAt) : startAt,
+        remindAt: values.remindAt ? formatISO(values.remindAt) : undefined,
       }
       onCreate(payload)
     }
@@ -355,7 +362,22 @@ function GroupActivityFormFields({
               checked={!!values.remindAt}
               onChange={(e) => {
                 if (e.target.checked) {
-                  handleChange("remindAt", formatISO(new Date()))
+                  // Default to 1 hour before start time, or 1 hour from now if that's in the past
+                  const { startAt } = buildEventDateRange(
+                    values.date,
+                    values.startTime,
+                    values.endTime
+                  )
+                  const startDate = new Date(startAt)
+                  let defaultRemindDate = new Date(
+                    startDate.getTime() - 60 * 60 * 1000
+                  )
+
+                  if (defaultRemindDate.getTime() <= Date.now()) {
+                    defaultRemindDate = new Date(Date.now() + 60 * 60 * 1000)
+                  }
+
+                  handleChange("remindAt", formatISO(defaultRemindDate))
                 } else {
                   handleChange("remindAt", undefined)
                 }
@@ -367,31 +389,34 @@ function GroupActivityFormFields({
             </FieldLabel>
           </div>
           {values.remindAt && (
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Input
-                type="date"
-                value={values.remindAt.split("T")[0]}
-                onChange={(e) => {
-                  const time = values.remindAt?.split("T")[1] || "09:00:00Z"
-                  handleChange(
-                    "remindAt",
-                    formatISO(`${e.target.value}T${time}`)
-                  )
-                }}
-              />
-              <Input
-                type="time"
-                value={values.remindAt.split("T")[1]?.slice(0, 5) || "09:00"}
-                onChange={(e) => {
-                  const date =
-                    values.remindAt?.split("T")[0] ||
-                    formatISO(new Date()).split("T")[0]
-                  handleChange(
-                    "remindAt",
-                    formatISO(`${date}T${e.target.value}:00Z`)
-                  )
-                }}
-              />
+            <div className="space-y-2">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input
+                  type="date"
+                  value={values.remindAt.split("T")[0]}
+                  onChange={(e) => {
+                    const time = values.remindAt?.split("T")[1] || "09:00:00Z"
+                    handleChange(
+                      "remindAt",
+                      formatISO(`${e.target.value}T${time}`)
+                    )
+                  }}
+                />
+                <Input
+                  type="time"
+                  value={values.remindAt.split("T")[1]?.slice(0, 5) || "09:00"}
+                  onChange={(e) => {
+                    const date =
+                      values.remindAt?.split("T")[0] ||
+                      formatISO(new Date()).split("T")[0]
+                    handleChange(
+                      "remindAt",
+                      formatISO(`${date}T${e.target.value}:00Z`)
+                    )
+                  }}
+                />
+              </div>
+              <FieldError>{errors.remindAt}</FieldError>
             </div>
           )}
         </Field>
