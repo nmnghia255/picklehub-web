@@ -8,7 +8,12 @@
       "hours_other": "{{count}} giờ",
       "minutes_one": "{{count}} phút",
       "minutes_other": "{{count}} phút",
-      "uploading": "Đang tải lên..."
+      "uploading": "Đang tải lên...",
+      "clearFilters": "Xóa bộ lọc",
+      "submitting": "Đang gửi...",
+      "loading": "Đang tải...",
+      "cancel": "Hủy",
+      "proceed": "Tiếp tục"
     },
     "labels": {
       "published": "Đã đăng",
@@ -109,6 +114,10 @@
       "joinedOn": "Tham gia ngày {{date}}",
       "noSkillLevelLimit": "Không giới hạn trình độ",
       "noParticipants": "Chưa có người tham gia.",
+      "kickSuccess": "Đã đá người tham gia",
+      "kickError": "Lỗi khi đá người tham gia",
+      "approveSuccess": "Đã duyệt người tham gia",
+      "approveError": "Lỗi khi duyệt người tham gia",
       "kick": "Đá người tham gia",
       "approve": "Duyệt"
     },
@@ -270,6 +279,15 @@
         "errorUpdate": "Không thể cập nhật chi phí",
         "errorAdd": "Không thể thêm chi phí"
       },
+      "recordPaymentDialog": {
+        "title": "Ghi nhận thanh toán tiền mặt",
+        "description": "Ghi nhận khoản thanh toán bằng tiền mặt đã thu tại sân.",
+        "amountLabel": "Số tiền (VNĐ)",
+        "cancel": "Hủy",
+        "recordPayment": "Ghi nhận thanh toán",
+        "success": "Ghi nhận thanh toán thành công",
+        "error": "Ghi nhận thanh toán thất bại"
+      },
       "pricing": {
         "title": "Công cụ tính giá",
         "description": "Tính toán giá hòa vốn dựa trên số lượng người chơi dự kiến và chi phí.",
@@ -380,12 +398,40 @@
       "editSession": "Chỉnh sửa phiên",
       "createSession": "Tạo phiên",
       "hours_one": "{{count}} giờ",
-      "hours_other": "{{count}} giờ"
+      "hours_other": "{{count}} giờ",
+      "startSession": "Bắt đầu buổi chơi",
+      "completeSession": "Hoàn tất buổi chơi",
+      "startSuccess": "Bắt đầu buổi chơi thành công",
+      "startError": "Lỗi khi bắt đầu buổi chơi",
+      "completeSuccess": "Hoàn tất buổi chơi thành công",
+      "completeError": "Lỗi khi hoàn tất buổi chơi"
     },
     "matches": {
       "title": "Lịch trận đấu",
       "createMatch": "Tạo trận",
       "noMatches": "Chưa có trận đấu nào được lên lịch.",
+      "fillResult": "Cập nhật kết quả",
+      "matchResultTitle": "Cập nhật kết quả trận đấu",
+      "winner": "Đội thắng",
+      "scoreA": "Điểm đội A",
+      "scoreB": "Điểm đội B",
+      "sets": "Các set đấu",
+      "setNumber": "Set {{number}}",
+      "addSet": "Thêm set",
+      "saveResult": "Lưu kết quả",
+      "submitSuccess": "Cập nhật kết quả thành công",
+      "submitError": "Cập nhật kết quả thất bại",
+      "startSuccess": "Bắt đầu trận đấu thành công",
+      "startError": "Lỗi khi bắt đầu trận đấu",
+      "autoCalculate": "Tự động tính kết quả",
+      "resultDialogDescription": "Nhập tỷ số các set đấu để ghi nhận kết quả trận đấu.",
+      "teamA": "Đội A",
+      "teamB": "Đội B",
+      "teamAGreen": "Đội A (Xanh/Trái)",
+      "teamBRed": "Đội B (Đỏ/Phải)",
+      "draw": "Hòa",
+      "autoCalculateDescription": "Tự động quyết định đội thắng và điểm số từ kết quả set đấu.",
+      "maxSetsLimit": "Không thể thêm quá 5 set đấu.",
       "court": "Sân {{number}}",
       "courtNumber": "Số sân",
       "scheduleMatch": "Lên lịch trận đấu mới cho phiên chơi này.",
@@ -393,9 +439,16 @@
       "completed": "Hoàn tất",
       "started": "Đã bắt đầu",
       "scheduled": "Đã lên lịch",
+      "startMatch": "Bắt đầu trận",
+      "startedAt": "Bắt đầu lúc {{time}}",
+      "scheduledFor": "Lịch lúc {{time}}",
       "versus": "VS",
       "minutes_one": "{{count}} phút",
       "minutes_other": "{{count}} phút",
+      "header": {
+        "changeToSingles": "Chuyển sang đơn",
+        "changeToDoubles": "Chuyển sang đôi"
+      },
       "type": {
         "singles": "Đơn",
         "doubles": "Đôi",
@@ -415,6 +468,7 @@
           "incomplete": "Thiếu người",
           "empty": "Trống"
         },
+        "session": "Lượt trận {{number}}",
         "waitlist": "Danh sách chờ",
         "noWaitlist": "Không còn người chơi trong danh sách chờ."
       },
@@ -426,10 +480,16 @@
         "confirmTitle": "Xác nhận tạo các trận này cho phiên chơi",
         "confirmDescription": "Giao diện xác nhận sẽ được gắn hành động sau.",
         "confirmButton": "Xác nhận",
-        "confirmError": "Bạn cần hoàn tất các trận đấu trước khi xác nhận. Hiện còn {{count}} trận chưa hoàn chỉnh.",
         "success": "Các trận đã sẵn sàng để host tạo cho buổi chơi.",
         "emptyTitle": "Chưa có trận đấu nào",
-        "emptyDescription": "Thiết lập số sân ở phần trên, sau đó bấm tạo trận để bắt đầu quản lý."
+        "emptyDescription": "Thiết lập số sân ở phần trên, sau đó bấm tạo trận để bắt đầu quản lý.",
+        "noMatchesError": "Không có trận nào được tạo. Vui lòng tạo ít nhất một trận để tiếp tục.",
+        "generateSuccess": "Trận đấu đã được tạo thành công!",
+        "generateError": "Đã xảy ra lỗi khi tạo trận đấu. Vui lòng thử lại sau.",
+        "successConfirm": "Xác nhận thành công!",
+        "confirmError": "Đã xảy ra lỗi khi xác nhận. Vui lòng thử lại sau.",
+        "incompleteWarningTitle": "Trận đấu chưa hoàn chỉnh",
+        "incompleteWarningDescription": "Một số trận đấu chưa đủ người chơi. Bạn có chắc muốn tiếp tục tạo các trận này không?"
       },
       "controlPanel": {
         "title": "Cấu hình trận đấu",
@@ -439,10 +499,12 @@
         "regenerate": "Tạo lại",
         "generating": "Đang tạo...",
         "howItWorks": "Cách hoạt động",
-        "step1": "Điều chỉnh số sân cho phiên chơi hiện tại",
-        "step2": "Nhấp \"Tạo trận\" để tạo danh sách trận cho một phiên chơi",
-        "step3": "Kéo cầu thủ giữa các trận để điều chỉnh thủ công",
-        "step4": "Đổi loại trận (Đơn/Đôi) khi cần"
+        "step1": "Điều chỉnh số trận cho phiên chơi hiện tại",
+        "step2": "Điều chỉnh thời gian cho mỗi lượt trận",
+        "step3": "Nhấp \"Tạo trận\" để tạo danh sách trận đấu cho phiên chơi",
+        "singlesCount": "Số trận đơn",
+        "doublesCount": "Số trận đôi",
+        "roundDuration": "Thời lượng mỗi lượt trận (phút)"
       },
       "cell": {
         "emptyCourtTitle": "Chưa có trận",
@@ -463,7 +525,7 @@
         "noAvailablePlayers": "Không còn cầu thủ phù hợp để thêm vào trận này."
       },
       "statistics": {
-        "title": "Thông số trận đấu",
+        "title": "Thông số cấu hình",
         "subtitle": "Theo dõi mức độ phân bổ trận trong một phiên chơi.",
         "totalMatches": "Tổng số trận",
         "players": "Người chơi",
@@ -555,6 +617,9 @@
       "privateEvent": "Sự kiện riêng tư",
       "autoApproveJoinRequests": "Tự động duyệt yêu cầu tham gia",
       "deleteSocial": "Xóa",
+      "completeSocial": "Hoàn tất buổi chơi",
+      "completeSocialSuccess": "Hoàn tất buổi chơi thành công",
+      "completeSocialError": "Lỗi khi hoàn tất buổi chơi",
       "confirmDeleteSocial": "Bạn có chắc muốn xóa không?",
       "paymentCodePlaceholder": "ví dụ: mã Venmo, số tham chiếu",
       "paymentNotePlaceholder": "Ghi chú này sẽ được gửi đến người tham gia cùng với mã thanh toán.",

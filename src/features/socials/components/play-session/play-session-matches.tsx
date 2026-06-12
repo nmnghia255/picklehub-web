@@ -1,7 +1,7 @@
 "use client"
 
-import { Activity, Plus } from "lucide-react"
-import React from "react"
+import { Activity, ChevronDown, Plus } from "lucide-react"
+import React, { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
@@ -11,20 +11,32 @@ import MatchCard from "./match-card"
 function SectionLabel({
   children,
   tone,
+  isExpanded,
+  onToggle,
 }: {
   children: React.ReactNode
   tone: "warning" | "primary" | "success"
+  isExpanded: boolean
+  onToggle: () => void
 }) {
   const classes =
     tone === "warning"
       ? "text-amber-600"
       : tone === "primary"
-        ? "text-primary"
+        ? "text-slate-600 dark:text-slate-50"
         : "text-emerald-600"
   return (
-    <p className={`text-xs font-semibold tracking-[0.2em] ${classes}`}>
-      {children}
-    </p>
+    <button
+      onClick={onToggle}
+      className="group flex w-full items-center gap-2 text-left select-none focus:outline-none sm:w-auto"
+    >
+      <p className={`text-sm font-bold tracking-[0.1em] uppercase ${classes}`}>
+        {children}
+      </p>
+      <ChevronDown
+        className={`size-4 transition-transform duration-200 ${classes} ${isExpanded ? "" : "-rotate-90"}`}
+      />
+    </button>
   )
 }
 
@@ -43,6 +55,10 @@ export default function PlaySessionMatches({
 }) {
   const { t } = useSocialsTranslation()
 
+  const [inProgressExpanded, setInProgressExpanded] = useState(true)
+  const [scheduledExpanded, setScheduledExpanded] = useState(true)
+  const [completedExpanded, setCompletedExpanded] = useState(true)
+
   const totalMatches =
     matches.inProgress.length +
     matches.scheduled.length +
@@ -50,8 +66,7 @@ export default function PlaySessionMatches({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold">{t("matches.title")}</h2>
+      <div className="flex items-end justify-end">
         {isHost && (
           <Button size="sm" onClick={onCreateMatch}>
             <Plus className="size-4" />
@@ -69,36 +84,66 @@ export default function PlaySessionMatches({
         ) : (
           <>
             {matches.inProgress.length > 0 && (
-              <SectionLabel tone="warning">
-                {t("labels.inProgress")}
-              </SectionLabel>
+              <div className="space-y-3">
+                <SectionLabel
+                  tone="warning"
+                  isExpanded={inProgressExpanded}
+                  onToggle={() => setInProgressExpanded(!inProgressExpanded)}
+                >
+                  {t("labels.inProgress")}
+                </SectionLabel>
+                {inProgressExpanded && (
+                  <div className="space-y-4">
+                    {matches.inProgress.map((match) => (
+                      <MatchCard key={match.id} match={match} isHost={isHost} />
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
-            {matches.inProgress.map((match) => (
-              <MatchCard key={match.id} match={match} isHost={isHost} />
-            ))}
 
             {matches.scheduled.length > 0 && (
-              <SectionLabel tone="primary">
-                {t("labels.scheduled")}
-              </SectionLabel>
+              <div className="space-y-3">
+                <SectionLabel
+                  tone="primary"
+                  isExpanded={scheduledExpanded}
+                  onToggle={() => setScheduledExpanded(!scheduledExpanded)}
+                >
+                  {t("labels.scheduled")}
+                </SectionLabel>
+                {scheduledExpanded && (
+                  <div className="space-y-4">
+                    {matches.scheduled.map((match) => (
+                      <MatchCard key={match.id} match={match} isHost={isHost} />
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
-            {matches.scheduled.map((match) => (
-              <MatchCard key={match.id} match={match} isHost={isHost} />
-            ))}
 
             {matches.completed.length > 0 && (
-              <SectionLabel tone="success">
-                {t("labels.completed")}
-              </SectionLabel>
+              <div className="space-y-3">
+                <SectionLabel
+                  tone="success"
+                  isExpanded={completedExpanded}
+                  onToggle={() => setCompletedExpanded(!completedExpanded)}
+                >
+                  {t("labels.completed")}
+                </SectionLabel>
+                {completedExpanded && (
+                  <div className="space-y-4">
+                    {matches.completed.map((match) => (
+                      <MatchCard
+                        key={match.id}
+                        match={match}
+                        isHost={isHost}
+                        completed
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
-            {matches.completed.map((match) => (
-              <MatchCard
-                key={match.id}
-                match={match}
-                isHost={isHost}
-                completed
-              />
-            ))}
           </>
         )}
       </div>

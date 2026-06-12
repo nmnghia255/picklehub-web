@@ -207,7 +207,15 @@ export const SocialService = {
   ): Promise<SocialParticipant> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.delete<ApiResponse<SocialParticipant>>(
-      `/api/events/socials/${socialId}/participants/${participantId}/kick`
+      `/api/events/socials/${socialId}/participants/${participantId}`
+    )
+    return unwrapApiResponse(response.data)
+  },
+
+  completeSocial: async function (socialId: string) {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.patch(
+      `/api/events/socials/${socialId}/complete`
     )
     return unwrapApiResponse(response.data)
   },

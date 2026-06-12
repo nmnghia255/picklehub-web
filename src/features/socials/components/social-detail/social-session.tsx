@@ -18,7 +18,7 @@ import type { PlaySession } from "@/features/socials/types/play-session"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
-import { getSessionStatusLabel } from "../../utils"
+import { getSessionStatusClasses, getSessionStatusLabel } from "../../utils"
 
 export default function SocialSessions({
   maxSlots,
@@ -108,7 +108,10 @@ export default function SocialSessions({
                           {formatCurrencyVnd(session.sessionFee)}
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline">
+                          <Badge
+                            variant="outline"
+                            className={getSessionStatusClasses(session.status)}
+                          >
                             {getSessionStatusLabel(session.status, t)}
                           </Badge>
                         </div>

@@ -34,8 +34,37 @@ function formatScore(match: Match): string {
   return `${match.scoreA}-${match.scoreB}`
 }
 
+function getMemberId(member: unknown): string {
+  if (!member) return ""
+  if (typeof member === "string") return member
+  if (typeof member === "object" && member !== null) {
+    const obj = member as Record<string, unknown>
+    const id = obj.id || obj.userId
+    if (typeof id === "string") return id
+  }
+  return ""
+}
+
+function getMemberName(member: unknown): string {
+  if (!member) return ""
+  if (typeof member === "string") {
+    return member.length === 36 ? `User ${member.slice(0, 8)}` : member
+  }
+  if (typeof member === "object" && member !== null) {
+    const obj = member as Record<string, unknown>
+    const name = obj.fullName || obj.name
+    if (typeof name === "string") return name
+    const id = obj.id || obj.userId
+    if (typeof id === "string") {
+      return `User ${id.slice(0, 8)}`
+    }
+  }
+  return ""
+}
+
 function getOpponentLabel(match: Match, currentUserId: string): string {
-  const isInTeamA = match.teamA.includes(currentUserId)
+  const teamAIds = match.teamA.map(getMemberId)
+  const isInTeamA = teamAIds.includes(currentUserId)
   const opponentTeam = isInTeamA ? match.teamB : match.teamA
 
   if (!Array.isArray(opponentTeam) || opponentTeam.length === 0) {
@@ -43,7 +72,7 @@ function getOpponentLabel(match: Match, currentUserId: string): string {
   }
 
   if (opponentTeam.length === 1) {
-    return `User ${opponentTeam[0].slice(0, 8)}`
+    return getMemberName(opponentTeam[0]) || "Không xác định"
   }
 
   return `Team (${opponentTeam.length} người)`
@@ -62,7 +91,8 @@ function getResult(match: Match, currentUserId: string): string {
     return "Chưa xác nhận"
   }
 
-  const isInTeamA = match.teamA.includes(currentUserId)
+  const teamAIds = match.teamA.map(getMemberId)
+  const isInTeamA = teamAIds.includes(currentUserId)
   const won =
     (isInTeamA && match.winner === "TEAM_A") ||
     (!isInTeamA && match.winner === "TEAM_B")

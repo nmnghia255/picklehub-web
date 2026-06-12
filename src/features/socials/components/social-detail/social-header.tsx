@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowLeft, Check, Edit, Users } from "lucide-react"
+import { ArrowLeft, Check, Edit, Loader2, Users } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -32,6 +32,8 @@ interface SocialHeaderProps {
   isParticipant?: boolean
   onBack: () => void
   onEdit: () => void
+  onComplete?: () => void
+  isCompleting?: boolean
 }
 
 export default function SocialHeader({
@@ -42,6 +44,8 @@ export default function SocialHeader({
   isParticipant,
   onBack,
   onEdit,
+  onComplete,
+  isCompleting = false,
 }: SocialHeaderProps) {
   const { t } = useSocialsTranslation()
 
@@ -72,7 +76,23 @@ export default function SocialHeader({
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
+            {isHost && status === "PUBLISHED" && onComplete && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onComplete}
+                disabled={isCompleting}
+                className="h-9 gap-1.5 border-emerald-600/30 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/20"
+              >
+                {isCompleting ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Check className="size-4" />
+                )}
+                {t("form.completeSocial") || "Complete Social"}
+              </Button>
+            )}
             <Button variant="ghost" size="icon" onClick={onBack}>
               <ArrowLeft className="size-4" />
             </Button>

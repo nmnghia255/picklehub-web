@@ -5,6 +5,7 @@ import { format } from "date-fns"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
 import { listSocialParticipantsAction } from "@/features/socials/actions/social-participant-actions"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
@@ -56,63 +57,65 @@ export default function PlaySessionParticipants({
         <div className="mt-4 space-y-3">
           {sessionParticipants.map((participant) => {
             return (
-              <div
+              <Card
                 key={participant.id}
-                className="flex items-center justify-between rounded-2xl border border-border/60 p-4"
+                className="p-2 transition-colors hover:bg-muted/10"
               >
-                <div className="flex items-center gap-3">
-                  <Avatar className="size-10">
-                    <AvatarImage
-                      src={participant.user?.avatarUrl ?? undefined}
-                      alt={
-                        participant.isGuest
+                <CardContent className="flex items-center justify-between p-4">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="size-10">
+                      <AvatarImage
+                        src={participant.user?.avatarUrl ?? undefined}
+                        alt={
+                          participant.isGuest
+                            ? participant.guestName || "Guest"
+                            : participant.user?.name || "Unknown"
+                        }
+                      />
+                      <AvatarFallback>
+                        {(participant.isGuest
                           ? participant.guestName || "Guest"
                           : participant.user?.name || "Unknown"
-                      }
-                    />
-                    <AvatarFallback>
-                      {(participant.isGuest
-                        ? participant.guestName || "Guest"
-                        : participant.user?.name || "Unknown"
-                      ).slice(0, 1) ?? "Host"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="flex items-center text-sm font-medium">
-                      {participant.isGuest
-                        ? participant.guestName || "Guest"
-                        : participant.user?.name || "Unknown"}
-                      {participant.isHost && (
-                        <Badge variant="outline" className="ml-2 text-[10px]">
-                          Host
+                        ).slice(0, 1) ?? "Host"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="flex items-center text-sm font-medium">
+                        {participant.isGuest
+                          ? participant.guestName || "Guest"
+                          : participant.user?.name || "Unknown"}
+                        {participant.isHost && (
+                          <Badge variant="outline" className="ml-2 text-[10px]">
+                            Host
+                          </Badge>
+                        )}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <Badge
+                          className={
+                            participant.status === "CONFIRMED"
+                              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
+                              : "border-border bg-muted text-muted-foreground"
+                          }
+                          variant="outline"
+                        >
+                          {getParticipantStatusLabel(participant.status, t)}
                         </Badge>
-                      )}
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      <Badge
-                        className={
-                          participant.status === "CONFIRMED"
-                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
-                            : "border-border bg-muted text-muted-foreground"
-                        }
-                        variant="outline"
-                      >
-                        {getParticipantStatusLabel(participant.status, t)}
-                      </Badge>
-                      {participant.skillLevel && (
-                        <Badge variant="outline">
-                          {t("common.level")} {participant.skillLevel}
-                        </Badge>
-                      )}
+                        {participant.skillLevel && (
+                          <Badge variant="outline">
+                            {t("common.level")} {participant.skillLevel}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {t("detail.joinedOn", {
-                    date: format(new Date(participant.joinedAt), "MMM d"),
-                  })}
-                </p>
-              </div>
+                  <p className="text-xs text-muted-foreground">
+                    {t("detail.joinedOn", {
+                      date: format(new Date(participant.joinedAt), "MMM d"),
+                    })}
+                  </p>
+                </CardContent>
+              </Card>
             )
           })}
         </div>

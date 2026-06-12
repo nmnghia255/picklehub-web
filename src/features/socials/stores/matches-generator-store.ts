@@ -3,20 +3,7 @@
 import { toast } from "sonner"
 import { create } from "zustand"
 
-interface Match {
-  id: string
-  courtId: string
-  sessionIndex: number
-  matchType: "SINGLES" | "DOUBLES"
-  players: Array<Player | null>
-}
-
-interface Player {
-  id: string
-  name: string
-  skillLevel?: number
-  avatarUrl?: string | null
-}
+import type { Match, Player } from "@/features/socials/types/match"
 
 interface HistoryEntry {
   state: MatchesGeneratorState
@@ -28,6 +15,7 @@ export interface MatchesGeneratorState {
   hours: number
   players: Player[]
   matches: Match[]
+  scheduleTimes: string[]
   history: HistoryEntry[]
   historyIndex: number
 }
@@ -36,6 +24,8 @@ interface MatchesGeneratorActions {
   // Configuration
   setCourts: (courts: number) => void
   setHours: (hours: number) => void
+  setPlayers: (players: Player[]) => void
+  setScheduleTimes: (scheduleTimes: string[]) => void
 
   // Match Management
   setMatches: (matches: Match[]) => void
@@ -63,17 +53,9 @@ const isPlayer = (player: Player | null): player is Player => player !== null
 const initialState: MatchesGeneratorState = {
   courts: 2,
   hours: 2,
-  players: [
-    { id: "1", name: "John Doe", skillLevel: 3 },
-    { id: "2", name: "Jane Smith", skillLevel: 4 },
-    { id: "3", name: "Bob Johnson", skillLevel: 2 },
-    { id: "4", name: "Alice Williams", skillLevel: 3 },
-    { id: "5", name: "Charlie Brown", skillLevel: 5 },
-    { id: "6", name: "Diana Prince", skillLevel: 4 },
-    { id: "7", name: "Eve Davis", skillLevel: 2 },
-    { id: "8", name: "Frank Miller", skillLevel: 3 },
-  ],
+  players: [],
   matches: [],
+  scheduleTimes: [],
   history: [],
   historyIndex: -1,
 }
@@ -84,10 +66,11 @@ export const useMatchesGeneratorStore = create<
   const isPlayerInSession = (
     matches: Match[],
     playerId: string,
-    sessionIndex: number
+    sessionIndex: number,
+    excludeMatchId?: string
   ): boolean => {
     return matches
-      .filter((m) => m.sessionIndex === sessionIndex)
+      .filter((m) => m.sessionIndex === sessionIndex && m.id !== excludeMatchId)
       .some((m) => m.players.filter(isPlayer).some((p) => p.id === playerId))
   }
 
@@ -125,7 +108,18 @@ export const useMatchesGeneratorStore = create<
     },
 
     setHours: (hours: number) => {
+      set(() => ({ hours }))
       updateStateWithHistory({ hours })
+    },
+
+    setPlayers: (players: Player[]) => {
+      set(() => ({ players }))
+      updateStateWithHistory({ players })
+    },
+
+    setScheduleTimes: (scheduleTimes: string[]) => {
+      set(() => ({ scheduleTimes }))
+      updateStateWithHistory({ scheduleTimes })
     },
 
     // Match management actions
@@ -229,7 +223,12 @@ export const useMatchesGeneratorStore = create<
       if (fromIndex !== toIndex) {
         // Check if fromPlayerId is already in toMatch's session
         if (
-          isPlayerInSession(currentMatches, fromPlayerId, toMatch.sessionIndex)
+          isPlayerInSession(
+            currentMatches,
+            fromPlayerId,
+            toMatch.sessionIndex,
+            fromMatchId
+          )
         ) {
           toast.error(
             "Cầu thủ này đã xuất hiện trong phiên chơi này. Không thể thêm vào trận khác trong cùng phiên."
@@ -240,7 +239,12 @@ export const useMatchesGeneratorStore = create<
         // Check if toPlayerId is already in fromMatch's session (if swapping, not just moving)
         if (
           toPlayerId &&
-          isPlayerInSession(currentMatches, toPlayerId, fromMatch.sessionIndex)
+          isPlayerInSession(
+            currentMatches,
+            toPlayerId,
+            fromMatch.sessionIndex,
+            toMatchId
+          )
         ) {
           toast.error(
             "Cầu thủ này đã xuất hiện trong phiên chơi này. Không thể thêm vào trận khác trong cùng phiên."
