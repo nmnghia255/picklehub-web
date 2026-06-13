@@ -13,7 +13,6 @@ import {
   subMonths,
 } from "date-fns"
 import {
-  AlertCircle,
   CalendarCheck,
   CalendarDays,
   Clock,
@@ -23,10 +22,9 @@ import {
   User,
   Users,
 } from "lucide-react"
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useMemo, useState } from "react"
 
 import { CalendarNavigation } from "@/components/calendar-navigation"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -46,31 +44,11 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 
-import type { PersonalEvent } from "../personal-calendar.mock"
-import { getMockPersonalEvents } from "../personal-calendar.mock"
+import { type CalendarActivity, useMyCalendar } from "../api/calendar-client"
 
 export function PersonalCalendarPage() {
   const [currentDate, setCurrentDate] = useState(() => new Date())
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date())
-
-  // UI states
-  const [isLoading, setIsLoading] = useState(true)
-  const [isError, setIsError] = useState(false)
-  const [simulateError, setSimulateError] = useState(false)
-
-  // Dialog state
-  const [selectedEvent, setSelectedEvent] = useState<PersonalEvent | null>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-
-  // Load mock data
-  const allEvents = useMemo(() => getMockPersonalEvents(), [])
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 450) // smooth skeleton transition
-    return () => clearTimeout(timer)
-  }, [currentDate])
 
   // Get date helper structures
   const monthStart = startOfMonth(currentDate)
@@ -80,6 +58,17 @@ export function PersonalCalendarPage() {
   const gridDays = useMemo(() => {
     return eachDayOfInterval({ start: gridStart, end: gridEnd })
   }, [gridStart, gridEnd])
+
+  const { data: allEvents = [], isLoading } = useMyCalendar(
+    format(gridStart, "yyyy-MM-dd"),
+    format(gridEnd, "yyyy-MM-dd")
+  )
+
+  // Dialog state
+  const [selectedEvent, setSelectedEvent] = useState<CalendarActivity | null>(
+    null
+  )
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   // Filter events that fall in the current selected month
   const currentMonthEvents = useMemo(() => {
@@ -91,14 +80,17 @@ export function PersonalCalendarPage() {
 
   // Group events by date key (yyyy-MM-dd)
   const groupedEvents = useMemo(() => {
-    return allEvents.reduce<Record<string, PersonalEvent[]>>((acc, event) => {
-      const dateKey = format(new Date(event.startTime), "yyyy-MM-dd")
-      if (!acc[dateKey]) {
-        acc[dateKey] = []
-      }
-      acc[dateKey].push(event)
-      return acc
-    }, {})
+    return allEvents.reduce<Record<string, CalendarActivity[]>>(
+      (acc, event) => {
+        const dateKey = format(new Date(event.startTime), "yyyy-MM-dd")
+        if (!acc[dateKey]) {
+          acc[dateKey] = []
+        }
+        acc[dateKey].push(event)
+        return acc
+      },
+      {}
+    )
   }, [allEvents])
 
   // Events of the selected day
@@ -109,34 +101,29 @@ export function PersonalCalendarPage() {
 
   // Navigation handlers
   const handlePrevMonth = () => {
-    setIsLoading(true)
     setCurrentDate((prev) => subMonths(prev, 1))
   }
 
   const handleNextMonth = () => {
-    setIsLoading(true)
     setCurrentDate((prev) => addMonths(prev, 1))
   }
 
   const handleGoToday = () => {
     const today = new Date()
-    setIsLoading(true)
     setCurrentDate(today)
     setSelectedDate(today)
   }
 
   const handleMonthChange = (monthIdx: number) => {
-    setIsLoading(true)
     setCurrentDate((prev) => new Date(prev.getFullYear(), monthIdx, 1))
   }
 
   const handleYearChange = (year: number) => {
-    setIsLoading(true)
     setCurrentDate((prev) => new Date(year, prev.getMonth(), 1))
   }
 
   // Open dialog detail view
-  const handleOpenEventDetail = (event: PersonalEvent) => {
+  const handleOpenEventDetail = (event: CalendarActivity) => {
     setSelectedEvent(event)
     setIsDialogOpen(true)
   }
@@ -145,7 +132,7 @@ export function PersonalCalendarPage() {
   const vietnameseMonthYear = `Tháng ${currentDate.getMonth() + 1} năm ${currentDate.getFullYear()}`
 
   // Status Badge Class Generator
-  const getStatusBadge = (status: PersonalEvent["status"]) => {
+  const getStatusBadge = (status: CalendarActivity["status"]) => {
     switch (status) {
       case "COMPLETED":
         return (
@@ -153,7 +140,7 @@ export function PersonalCalendarPage() {
             Đã hoàn thành
           </Badge>
         )
-      case "IN_PROGRESS":
+      case "LIVE":
         return (
           <Badge className="animate-pulse border border-blue-200 bg-blue-100 text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
             Đang diễn ra
@@ -165,13 +152,25 @@ export function PersonalCalendarPage() {
             Sắp diễn ra
           </Badge>
         )
+      case "PENDING_CONFIRM":
+        return (
+          <Badge className="border border-amber-200 bg-amber-100 text-amber-700 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+            Chờ xác nhận
+          </Badge>
+        )
+      case "CANCELLED":
+        return (
+          <Badge className="border border-red-200 bg-red-100 text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
+            Đã hủy
+          </Badge>
+        )
     }
   }
 
   // Event Type Icon/Badge Generator
-  const getEventTypeBadge = (type: PersonalEvent["type"]) => {
+  const getEventTypeBadge = (type: CalendarActivity["type"]) => {
     switch (type) {
-      case "SOCIAL":
+      case "SOCIAL_SESSION":
         return (
           <Badge
             variant="outline"
@@ -196,6 +195,24 @@ export function PersonalCalendarPage() {
             className="gap-1 border-purple-200 bg-purple-50 font-normal text-purple-700 dark:border-purple-900/30 dark:bg-purple-950/20 dark:text-purple-400"
           >
             <span>🏆</span> Tournament
+          </Badge>
+        )
+      case "MATCH_PRACTICE":
+        return (
+          <Badge
+            variant="outline"
+            className="gap-1 border-pink-200 bg-pink-50 font-normal text-pink-700 dark:border-pink-900/30 dark:bg-pink-950/20 dark:text-pink-400"
+          >
+            <span>⚔️</span> Practice
+          </Badge>
+        )
+      case "MATCH_TOURNAMENT":
+        return (
+          <Badge
+            variant="outline"
+            className="gap-1 border-amber-200 bg-amber-50 font-normal text-amber-700 dark:border-amber-900/30 dark:bg-amber-950/20 dark:text-amber-400"
+          >
+            <span>🏅</span> Tournament Match
           </Badge>
         )
     }
@@ -229,15 +246,19 @@ export function PersonalCalendarPage() {
   }
 
   // Event item inside cell component
-  const EventCellItem = ({ event }: { event: PersonalEvent }) => {
-    const getDotColor = (status: PersonalEvent["status"]) => {
+  const EventCellItem = ({ event }: { event: CalendarActivity }) => {
+    const getDotColor = (status: CalendarActivity["status"]) => {
       if (status === "COMPLETED") return "bg-slate-400"
-      if (status === "IN_PROGRESS") return "bg-blue-500"
+      if (status === "LIVE") return "bg-blue-500"
       return "bg-emerald-500"
     }
 
     const typeEmoji =
-      event.type === "SOCIAL" ? "🏓" : event.type === "BOOKING" ? "📅" : "🏆"
+      event.type === "SOCIAL_SESSION"
+        ? "🏓"
+        : event.type === "BOOKING"
+          ? "📅"
+          : "🏆"
 
     return (
       <button
@@ -246,7 +267,7 @@ export function PersonalCalendarPage() {
           handleOpenEventDetail(event)
         }}
         className="group/item flex w-full items-center gap-2 truncate rounded-md border border-border/30 bg-muted/40 px-2 py-1.5 text-left text-[12px] font-semibold transition-all hover:border-primary/30 hover:bg-accent/60"
-        title={`${event.title} (${event.location})`}
+        title={`${event.title} (${event.location.name})`}
       >
         <span
           className={`size-2 shrink-0 rounded-full ${getDotColor(event.status)} shadow-xs`}
@@ -445,7 +466,9 @@ export function PersonalCalendarPage() {
 
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                           <MapPin className="size-3.5 shrink-0" />
-                          <span className="truncate">{event.location}</span>
+                          <span className="truncate">
+                            {event.location.name}
+                          </span>
                         </div>
 
                         <div className="mt-1 flex items-center justify-between border-t border-border/40 pt-2">
@@ -534,7 +557,11 @@ export function PersonalCalendarPage() {
                       Địa điểm
                     </p>
                     <p className="leading-relaxed font-medium text-foreground/95">
-                      {selectedEvent.location}
+                      {selectedEvent.location.name}
+                      <br />
+                      <span className="text-xs text-muted-foreground">
+                        {selectedEvent.location.address}
+                      </span>
                     </p>
                   </div>
                 </div>
