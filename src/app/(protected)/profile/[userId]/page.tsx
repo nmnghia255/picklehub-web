@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { PageContainer } from "@/components/page-container"
 import { getGroupsByUserId } from "@/features/groups/api/groups-service"
 import type { Group } from "@/features/groups/types"
@@ -10,9 +12,13 @@ import { getUserProfile } from "@/features/profile/api/profile-service"
 import { GroupCard } from "@/features/profile/components/group-card"
 import { MatchHistory } from "@/features/profile/components/match-history-card"
 import { ProfileHeader } from "@/features/profile/components/profile-header"
+import { ProfileSubscriptions } from "@/features/profile/components/profile-subscriptions"
 import { RightPanel } from "@/features/profile/components/right-panel"
 import { StatsCard } from "@/features/profile/components/stats-card"
 import type { User } from "@/features/profile/types"
+import { SubscriptionService } from "@/features/subscriptions/api/subscriptions-service"
+import type { Subscription } from "@/features/subscriptions/types/subscriptions"
+import { getSession } from "@/lib/session"
 
 type PageProps = {
   params: Promise<{ userId: string }>
@@ -25,6 +31,18 @@ export default async function OtherProfilePage({ params }: PageProps) {
   let stats: UserMatchStats | null = null
   let recentMatches: Match[] = []
   let memberGroups: Group[] = []
+
+  const session = await getSession()
+  const isOwnProfile = session.user?.id === userId
+
+  let subscriptions: Subscription[] = []
+  if (isOwnProfile) {
+    try {
+      subscriptions = await SubscriptionService.getMySubscriptions()
+    } catch (error) {
+      console.warn("Failed to fetch user subscriptions:", error)
+    }
+  }
 
   try {
     user = await getUserProfile(userId)
@@ -90,6 +108,11 @@ export default async function OtherProfilePage({ params }: PageProps) {
             />
 
             <GroupCard groups={memberGroups} />
+
+            <ProfileSubscriptions
+              subscriptions={subscriptions}
+              isOwnProfile={isOwnProfile}
+            />
           </div>
 
           <RightPanel user={user} />

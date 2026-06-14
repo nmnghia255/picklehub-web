@@ -20,6 +20,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Textarea } from "@/components/ui/textarea"
 import { updateProfileDetailsAction } from "@/features/profile/actions"
 import { useProfileEditStore } from "@/features/profile/store/profile-edit-store"
+import { useProfileTranslation } from "@/i18n/use-profile-translation"
 
 type EditPlayerInfoValues = {
   name?: string | null
@@ -76,16 +77,40 @@ function getInitialSelfRatingValue(value?: number | null): string {
   return roundedMatch ?? ""
 }
 
+function getTranslatedMessage(
+  msg: string | undefined,
+  t: (key: string) => string
+): string {
+  if (!msg) return ""
+  if (msg.includes("nhập tên hiển thị")) {
+    return t("edit.nameRequiredError")
+  }
+  if (msg.includes("cập nhật avatar bằng avatarUrl")) {
+    return t("edit.avatarFileError")
+  }
+  if (msg.includes("thành công")) {
+    return t("edit.updateSuccess")
+  }
+  if (msg.includes("Không thể cập nhật") || msg.includes("thử lại")) {
+    return t("edit.updateError")
+  }
+  if (msg.includes("lỗi xảy ra")) {
+    return t("edit.genericError")
+  }
+  return msg
+}
+
 export function EditPlayerInfoForm({
   initialValues,
 }: {
   initialValues?: EditPlayerInfoValues
 }) {
+  const { t } = useProfileTranslation()
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false)
   const [avatarMethod, setAvatarMethod] = useState<"file" | "url">("file")
   const setUser = useProfileEditStore((state) => state.setUser)
 
-  const displayName = initialValues?.name?.trim() || "Unnamed Player"
+  const displayName = initialValues?.name?.trim() || t("unnamedPlayer")
   const initials = displayName
     .split(" ")
     .filter(Boolean)
@@ -148,15 +173,17 @@ export function EditPlayerInfoForm({
             </Avatar>
 
             <div className="space-y-1">
-              <p className="text-sm font-medium">Ảnh đại diện hiện tại</p>
+              <p className="text-sm font-medium">{t("edit.avatar.current")}</p>
               <p className="text-sm text-muted-foreground">
-                Nhấn vào đây để chọn cách cập nhật avatar.
+                {t("edit.avatar.clickToChange")}
               </p>
               <p className="text-xs text-muted-foreground">
-                Cách hiện tại:{" "}
-                {avatarMethod === "file"
-                  ? "Tải ảnh từ thiết bị"
-                  : "Dùng Avatar URL"}
+                {t("edit.avatar.method", {
+                  method:
+                    avatarMethod === "file"
+                      ? t("edit.avatar.file")
+                      : t("edit.avatar.url"),
+                })}
               </p>
             </div>
           </div>
@@ -165,10 +192,9 @@ export function EditPlayerInfoForm({
         <Dialog open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen}>
           <DialogContent className="sm:max-w-xl">
             <DialogHeader>
-              <DialogTitle>Chọn cách cập nhật avatar</DialogTitle>
+              <DialogTitle>{t("edit.avatar.dialogTitle")}</DialogTitle>
               <DialogDescription>
-                Bạn có thể tải ảnh từ thiết bị hoặc dùng đường dẫn ảnh công
-                khai.
+                {t("edit.avatar.dialogDesc")}
               </DialogDescription>
             </DialogHeader>
 
@@ -183,10 +209,10 @@ export function EditPlayerInfoForm({
               >
                 <span className="flex w-full flex-col items-start gap-1">
                   <span className="text-sm leading-tight font-medium">
-                    Tải ảnh từ thiết bị
+                    {t("edit.avatar.file")}
                   </span>
                   <span className="text-xs leading-snug opacity-80">
-                    Chọn ảnh từ máy của bạn.
+                    {t("edit.avatar.fileDesc")}
                   </span>
                 </span>
               </Button>
@@ -201,10 +227,10 @@ export function EditPlayerInfoForm({
               >
                 <span className="flex w-full flex-col items-start gap-1">
                   <span className="text-sm leading-tight font-medium">
-                    Dùng Avatar URL
+                    {t("edit.avatar.url")}
                   </span>
                   <span className="text-xs leading-snug opacity-80">
-                    Dán link ảnh công khai từ internet.
+                    {t("edit.avatar.urlDesc")}
                   </span>
                 </span>
               </Button>
@@ -214,7 +240,7 @@ export function EditPlayerInfoForm({
               {avatarMethod === "file" ? (
                 <Field>
                   <FieldLabel htmlFor="avatarFile">
-                    Tải ảnh từ thiết bị
+                    {t("edit.avatar.file")}
                   </FieldLabel>
                   <Input
                     id="avatarFile"
@@ -240,7 +266,7 @@ export function EditPlayerInfoForm({
             <DialogFooter>
               <DialogClose asChild>
                 <Button type="button" variant="outline">
-                  Xong
+                  {t("edit.avatar.done")}
                 </Button>
               </DialogClose>
             </DialogFooter>
@@ -249,22 +275,22 @@ export function EditPlayerInfoForm({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Field>
-            <FieldLabel htmlFor="name">Tên hiển thị</FieldLabel>
+            <FieldLabel htmlFor="name">{t("edit.displayName")}</FieldLabel>
             <Input
               id="name"
               name="name"
-              placeholder="Ví dụ: Minh Anh"
+              placeholder={t("edit.displayNamePlaceholder")}
               defaultValue={initialValues?.name ?? ""}
             />
           </Field>
         </div>
 
         <Field>
-          <FieldLabel htmlFor="bio">Giới thiệu</FieldLabel>
+          <FieldLabel htmlFor="bio">{t("about")}</FieldLabel>
           <Textarea
             id="bio"
             name="bio"
-            placeholder="Viết vài dòng để giới thiệu về bạn..."
+            placeholder={t("edit.bioPlaceholder")}
             defaultValue={initialValues?.bio ?? ""}
             rows={4}
           />
@@ -272,28 +298,38 @@ export function EditPlayerInfoForm({
 
         <div className="grid gap-4 sm:grid-cols-3">
           <Field>
-            <FieldLabel htmlFor="gender">Giới tính</FieldLabel>
+            <FieldLabel htmlFor="gender">{t("gender")}</FieldLabel>
             <NativeSelect
               id="gender"
               name="gender"
               defaultValue={initialValues?.gender ?? ""}
             >
-              <NativeSelectOption value="">Chọn giới tính</NativeSelectOption>
-              <NativeSelectOption value="MALE">Nam</NativeSelectOption>
-              <NativeSelectOption value="FEMALE">Nữ</NativeSelectOption>
-              <NativeSelectOption value="OTHER">Khác</NativeSelectOption>
+              <NativeSelectOption value="">
+                {t("edit.selectGender")}
+              </NativeSelectOption>
+              <NativeSelectOption value="MALE">
+                {t("genderMale")}
+              </NativeSelectOption>
+              <NativeSelectOption value="FEMALE">
+                {t("genderFemale")}
+              </NativeSelectOption>
+              <NativeSelectOption value="OTHER">
+                {t("genderOther")}
+              </NativeSelectOption>
             </NativeSelect>
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="selfRating">Tự đánh giá</FieldLabel>
+            <FieldLabel htmlFor="selfRating">{t("selfRating")}</FieldLabel>
             <NativeSelect
               id="selfRating"
               name="selfRating"
               value={selfRatingValue}
               onChange={(event) => setSelfRatingValue(event.target.value)}
             >
-              <NativeSelectOption value="">Chọn mức độ</NativeSelectOption>
+              <NativeSelectOption value="">
+                {t("edit.selectLevel")}
+              </NativeSelectOption>
               {SELF_RATING_OPTIONS.map((option) => (
                 <NativeSelectOption key={option} value={option}>
                   {option}
@@ -303,17 +339,25 @@ export function EditPlayerInfoForm({
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="preferredHand">Tay thuận</FieldLabel>
+            <FieldLabel htmlFor="preferredHand">
+              {t("preferredHand")}
+            </FieldLabel>
             <NativeSelect
               id="preferredHand"
               name="preferredHand"
               defaultValue={initialValues?.preferredHand ?? ""}
             >
-              <NativeSelectOption value="">Chọn tay thuận</NativeSelectOption>
-              <NativeSelectOption value="RIGHT">Tay phải</NativeSelectOption>
-              <NativeSelectOption value="LEFT">Tay trái</NativeSelectOption>
+              <NativeSelectOption value="">
+                {t("edit.selectHand")}
+              </NativeSelectOption>
+              <NativeSelectOption value="RIGHT">
+                {t("handRight")}
+              </NativeSelectOption>
+              <NativeSelectOption value="LEFT">
+                {t("handLeft")}
+              </NativeSelectOption>
               <NativeSelectOption value="AMBIDEXTROUS">
-                Hai tay
+                {t("handAmbidextrous")}
               </NativeSelectOption>
             </NativeSelect>
           </Field>
@@ -321,26 +365,27 @@ export function EditPlayerInfoForm({
 
         <div className="flex items-start gap-2 rounded-lg border border-dashed p-3 text-sm text-muted-foreground">
           <Camera className="mt-0.5 size-4 shrink-0" />
-          <p>
-            Các trường này được lưu cùng hồ sơ người dùng để hiển thị ở trang cá
-            nhân và các khu vực ghép trận.
-          </p>
+          <p>{t("edit.savingHint")}</p>
         </div>
 
         {state.error && (
           <div className="rounded-md border border-red-200 bg-red-50 p-3">
-            <p className="text-sm text-red-600">{state.error}</p>
+            <p className="text-sm text-red-600">
+              {getTranslatedMessage(state.error, t)}
+            </p>
           </div>
         )}
 
         {state.success && state.message && (
           <div className="rounded-md border border-green-200 bg-green-50 p-3">
-            <p className="text-sm text-green-700">{state.message}</p>
+            <p className="text-sm text-green-700">
+              {getTranslatedMessage(state.message, t)}
+            </p>
           </div>
         )}
 
         <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
-          {isPending ? "Đang lưu..." : "Lưu thông tin"}
+          {isPending ? t("edit.saving") : t("edit.saveBtn")}
         </Button>
       </FieldGroup>
     </form>

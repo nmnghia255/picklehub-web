@@ -1,3 +1,5 @@
+"use client"
+
 import { UserRound } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -8,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { useProfileTranslation } from "@/i18n/use-profile-translation"
 
 export function EditProfileAccountCard({
   avatarUrl,
@@ -18,6 +21,7 @@ export function EditProfileAccountCard({
   displayName: string
   email: string
 }) {
+  const { t } = useProfileTranslation()
   const initials = displayName
     .split(" ")
     .filter(Boolean)
@@ -30,9 +34,9 @@ export function EditProfileAccountCard({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <UserRound className="size-4" />
-          Tài khoản
+          {t("edit.account")}
         </CardTitle>
-        <CardDescription>Thông tin cơ bản cho hồ sơ của bạn.</CardDescription>
+        <CardDescription>{t("edit.accountDesc")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-4 rounded-lg border bg-muted/20 p-4">
@@ -48,11 +52,11 @@ export function EditProfileAccountCard({
         </div>
 
         <div>
-          <p className="text-sm text-muted-foreground">Tên</p>
+          <p className="text-sm text-muted-foreground">{t("name")}</p>
           <p className="font-medium">{displayName}</p>
         </div>
         <div>
-          <p className="text-sm text-muted-foreground">Email</p>
+          <p className="text-sm text-muted-foreground">{t("email")}</p>
           <p className="font-medium">{email}</p>
         </div>
       </CardContent>

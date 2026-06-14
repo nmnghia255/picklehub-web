@@ -1,57 +1,62 @@
+"use client"
+
 import type { User } from "@/features/profile/types"
+import { useProfileTranslation } from "@/i18n/use-profile-translation"
 
 export function RightPanel({ user }: { user: User | null }) {
+  const { t } = useProfileTranslation()
+
   const genderLabel =
     user?.gender === "MALE"
-      ? "Nam"
+      ? t("genderMale")
       : user?.gender === "FEMALE"
-        ? "Nữ"
+        ? t("genderFemale")
         : user?.gender === "OTHER"
-          ? "Khác"
-          : "Chưa cập nhật"
+          ? t("genderOther")
+          : t("genderUnspecified")
 
   const preferredHandLabel =
     user?.preferredHand === "RIGHT"
-      ? "Tay phải"
+      ? t("handRight")
       : user?.preferredHand === "LEFT"
-        ? "Tay trái"
+        ? t("handLeft")
         : user?.preferredHand === "AMBIDEXTROUS"
-          ? "Hai tay"
-          : "Chưa cập nhật"
+          ? t("handAmbidextrous")
+          : t("handUnspecified")
 
   const selfRatingLabel =
     typeof user?.selfRating === "number"
       ? user.selfRating.toFixed(1)
-      : "Chưa cập nhật"
+      : t("handUnspecified")
 
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border bg-card p-6 text-card-foreground shadow-sm">
         <h3 className="mb-4 text-sm font-semibold tracking-wide uppercase">
-          Giới thiệu
+          {t("about")}
         </h3>
         <p className="text-sm leading-6 text-foreground/90">
-          {user?.bio || "Người dùng chưa cập nhật phần giới thiệu."}
+          {user?.bio || t("noBio")}
         </p>
       </div>
 
       <div className="rounded-2xl border bg-card p-6 text-card-foreground shadow-sm">
         <h3 className="mb-4 text-sm font-semibold tracking-wide uppercase">
-          Thông tin người chơi
+          {t("playerInfo")}
         </h3>
         <dl className="space-y-3 text-sm">
           <div className="flex items-center justify-between gap-4 rounded-lg bg-muted/30 px-3 py-2">
-            <dt className="text-muted-foreground">Giới tính</dt>
+            <dt className="text-muted-foreground">{t("gender")}</dt>
             <dd className="font-medium text-foreground">{genderLabel}</dd>
           </div>
           <div className="flex items-center justify-between gap-4 rounded-lg bg-muted/30 px-3 py-2">
-            <dt className="text-muted-foreground">Tay thuận</dt>
+            <dt className="text-muted-foreground">{t("preferredHand")}</dt>
             <dd className="font-medium text-foreground">
               {preferredHandLabel}
             </dd>
           </div>
           <div className="flex items-center justify-between gap-4 rounded-lg bg-muted/30 px-3 py-2">
-            <dt className="text-muted-foreground">Tự đánh giá</dt>
+            <dt className="text-muted-foreground">{t("selfRating")}</dt>
             <dd className="font-medium text-foreground">{selfRatingLabel}</dd>
           </div>
         </dl>
@@ -59,37 +64,37 @@ export function RightPanel({ user }: { user: User | null }) {
 
       <div className="rounded-2xl border bg-card p-6 text-card-foreground shadow-sm">
         <h3 className="mb-4 text-sm font-semibold tracking-wide uppercase">
-          DUPR
+          {t("dupr")}
         </h3>
         {user?.dupr ? (
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between gap-4 rounded-lg bg-muted/30 px-3 py-2">
-              <span className="text-muted-foreground">DUPR ID</span>
+              <span className="text-muted-foreground">{t("duprId")}</span>
               <span className="font-medium text-foreground">
                 {user.dupr.duprId}
               </span>
             </div>
             <div className="flex items-center justify-between gap-4 rounded-lg bg-muted/30 px-3 py-2">
-              <span className="text-muted-foreground">Rating tổng</span>
+              <span className="text-muted-foreground">{t("rating")}</span>
               <span className="font-medium text-foreground">
                 {user.dupr.rating.toFixed(2)}
               </span>
             </div>
             <div className="flex items-center justify-between gap-4 rounded-lg bg-muted/30 px-3 py-2">
-              <span className="text-muted-foreground">Singles</span>
+              <span className="text-muted-foreground">{t("singles")}</span>
               <span className="font-medium text-foreground">
                 {user.dupr.singlesRating.toFixed(2)}
               </span>
             </div>
             <div className="flex items-center justify-between gap-4 rounded-lg bg-muted/30 px-3 py-2">
-              <span className="text-muted-foreground">Doubles</span>
+              <span className="text-muted-foreground">{t("doubles")}</span>
               <span className="font-medium text-foreground">
                 {user.dupr.doublesRating.toFixed(2)}
               </span>
             </div>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">Chưa liên kết DUPR.</p>
+          <p className="text-sm text-muted-foreground">{t("noDuprLink")}</p>
         )}
       </div>
     </div>

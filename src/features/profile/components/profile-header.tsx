@@ -1,14 +1,17 @@
+"use client"
+
 import Link from "next/link"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { useProfileTranslation } from "@/i18n/use-profile-translation"
 
 export function ProfileHeader({
   name,
   subtitle,
   avatarUrl,
   actionHref,
-  actionLabel = "Sửa hồ sơ",
+  actionLabel,
 }: {
   name: string
   subtitle: string
@@ -16,7 +19,8 @@ export function ProfileHeader({
   actionHref?: string
   actionLabel?: string
 }) {
-  const displayName = name || "Unnamed Player"
+  const { t } = useProfileTranslation()
+  const displayName = name || t("unnamedPlayer")
   const initials = displayName
     .split(" ")
     .filter(Boolean)
@@ -42,7 +46,7 @@ export function ProfileHeader({
       </div>
       {actionHref ? (
         <Button asChild>
-          <Link href={actionHref}>{actionLabel}</Link>
+          <Link href={actionHref}>{actionLabel || t("editProfile")}</Link>
         </Button>
       ) : null}
     </div>

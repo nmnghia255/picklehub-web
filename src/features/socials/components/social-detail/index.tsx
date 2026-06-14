@@ -27,6 +27,7 @@ import type {
   SocialDetail,
   SocialParticipant,
 } from "@/features/socials/types/social"
+import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import SocialExpenseTab from "./social-expense-tab"
@@ -73,6 +74,7 @@ export default function SocialDetail({
   const [isLeaving, setIsLeaving] = useState(false)
   const [leaveDialogOpen, setLeaveDialogOpen] = useState(false)
   const [isCompleting, setIsCompleting] = useState(false)
+  const { data: subscriptions } = useMySubscriptions()
 
   const handleCompleteSocial = async () => {
     if (!social) return
@@ -115,7 +117,11 @@ export default function SocialDetail({
     )
   }
 
-  const isHost = Boolean(social.isHost)
+  const hasSocialHostPlan = subscriptions?.some(
+    (sub) => sub.status === "ACTIVE" && sub.plan.type === "SOCIAL_HOST"
+  )
+
+  const isHost = Boolean(social.isHost) && !!hasSocialHostPlan
   const duration = differenceInHours(
     new Date(social.endTime),
     new Date(social.startTime)
@@ -217,7 +223,7 @@ export default function SocialDetail({
               <SocialSessions
                 maxSlots={maxSlots}
                 sessions={sessions}
-                isHost={social.isHost && social.status === "DRAFT"}
+                isHost={isHost && social.status === "DRAFT"}
                 onCreateSession={() => {
                   setSelectedSession(null)
                   setPlaySessionModalOpen(true)

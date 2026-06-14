@@ -28,6 +28,7 @@ import {
 } from "@/features/socials/stores/social-filter-store"
 import { useSocialsStore } from "@/features/socials/stores/social-listing-store"
 import type { ListSocial as Social } from "@/features/socials/types/social"
+import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import { FiltersDrawer } from "./filters-drawer"
@@ -55,6 +56,11 @@ export default function SocialListing({
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const { t } = useSocialsTranslation()
+
+  const { data: subscriptions } = useMySubscriptions()
+  const hasSocialHostPlan = subscriptions?.some(
+    (sub) => sub.status === "ACTIVE" && sub.plan.type === "SOCIAL_HOST"
+  )
 
   const useFiltersStore = isMySocials
     ? useMySocialsFiltersStore
@@ -163,13 +169,15 @@ export default function SocialListing({
         ) : (
           <div className="flex-1" />
         )}
-        <Button
-          className="h-11 gap-2"
-          onClick={() => router.push("/socials/create")}
-        >
-          <Plus className="size-4" />
-          {t("listing.createSocial")}
-        </Button>
+        {hasSocialHostPlan && (
+          <Button
+            className="h-11 gap-2"
+            onClick={() => router.push("/socials/create")}
+          >
+            <Plus className="size-4" />
+            {t("listing.createSocial")}
+          </Button>
+        )}
         <Button
           variant="outline"
           className="h-11 gap-2 md:w-auto"

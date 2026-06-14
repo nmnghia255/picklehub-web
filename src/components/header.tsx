@@ -30,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { notificationFeedAtom } from "@/features/feed/store/feed-store"
+import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import type { SessionUser } from "@/lib/session"
 
 export interface HeaderProps {
@@ -42,6 +43,9 @@ export function Header({ user }: HeaderProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [notifications, setNotifications] = useAtom(notificationFeedAtom)
+
+  // Call the hook to trigger fetching & caching subscriptions on app mount for authenticated user
+  const { data: subscriptions } = useMySubscriptions()
 
   useLayoutEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -277,6 +281,27 @@ export function Header({ user }: HeaderProps) {
         <DropdownMenuContent align="end" className="w-auto min-w-72">
           <DropdownMenuLabel className="flex flex-col space-y-1">
             <span className="text-sm font-medium break-all">{user.email}</span>
+            {(() => {
+              const activeSubscriptions = subscriptions?.filter(
+                (sub) => sub.status === "ACTIVE"
+              )
+              if (activeSubscriptions && activeSubscriptions.length > 0) {
+                return (
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {activeSubscriptions.map((sub) => (
+                      <Badge
+                        key={sub.id}
+                        variant="secondary"
+                        className="w-fit border-none bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary uppercase hover:bg-primary/20"
+                      >
+                        {sub.plan.name}
+                      </Badge>
+                    ))}
+                  </div>
+                )
+              }
+              return null
+            })()}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>

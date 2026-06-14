@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { PageContainer } from "@/components/page-container"
 import type { AuthUser } from "@/features/auth/types"
 import { getMyGroups } from "@/features/groups/api/groups-service"
@@ -11,9 +13,12 @@ import { getMyProfile } from "@/features/profile/api/profile-service"
 import { GroupCard } from "@/features/profile/components/group-card"
 import { MatchHistory } from "@/features/profile/components/match-history-card"
 import { ProfileHeader } from "@/features/profile/components/profile-header"
+import { ProfileSubscriptions } from "@/features/profile/components/profile-subscriptions"
 import { RightPanel } from "@/features/profile/components/right-panel"
 import { StatsCard } from "@/features/profile/components/stats-card"
 import type { User } from "@/features/profile/types"
+import { SubscriptionService } from "@/features/subscriptions/api/subscriptions-service"
+import type { Subscription } from "@/features/subscriptions/types/subscriptions"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 export default async function ProfilePage() {
@@ -64,6 +69,13 @@ export default async function ProfilePage() {
     console.warn("Failed to fetch member groups, showing empty list.")
   }
 
+  let subscriptions: Subscription[] = []
+  try {
+    subscriptions = await SubscriptionService.getMySubscriptions()
+  } catch (error) {
+    console.warn("Failed to fetch user subscriptions:", error)
+  }
+
   const safeStats: UserMatchStats = {
     totalMatches: stats?.totalMatches ?? 0,
     wins: stats?.wins ?? 0,
@@ -99,6 +111,11 @@ export default async function ProfilePage() {
             />
 
             <GroupCard groups={memberGroups} />
+
+            <ProfileSubscriptions
+              subscriptions={subscriptions}
+              isOwnProfile={true}
+            />
           </div>
 
           {/* Right */}

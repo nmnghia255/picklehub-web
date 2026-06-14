@@ -13,6 +13,7 @@ import { EditProfilePlayerInfoCard } from "@/features/profile/components/edit-pr
 import { EditProfileSecurityCard } from "@/features/profile/components/edit-profile/edit-profile-security-card"
 import { useProfileEditStore } from "@/features/profile/store/profile-edit-store"
 import type { User } from "@/features/profile/types"
+import { useProfileTranslation } from "@/i18n/use-profile-translation"
 
 interface EditProfileContentProps {
   initialUser: User | null
@@ -25,6 +26,7 @@ export function EditProfileContent({
   initialLinkedProviders,
   sessionEmail,
 }: EditProfileContentProps) {
+  const { t } = useProfileTranslation()
   const hasHydrated = useRef(false)
   const hydrateProfile = useProfileEditStore((state) => state.hydrateProfile)
   const user = useProfileEditStore((state) => state.user)
@@ -54,19 +56,16 @@ export function EditProfileContent({
     <PageContainer className="space-y-6">
       <div className="space-y-3">
         <div className="flex items-start justify-between gap-3">
-          <h1 className="text-3xl font-bold">Chỉnh sửa hồ sơ</h1>
+          <h1 className="text-3xl font-bold">{t("editProfile")}</h1>
           <Button variant="outline" asChild>
             <Link href="/profile">
               <ArrowLeft className="size-4" />
-              Quay lại
+              {t("edit.avatar.done")}
             </Link>
           </Button>
         </div>
 
-        <p className="text-sm text-muted-foreground">
-          Cập nhật tên, avatar, giới thiệu, giới tính, tự đánh giá và tay thuận
-          của bạn.
-        </p>
+        <p className="text-sm text-muted-foreground">{t("edit.subtitle")}</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">

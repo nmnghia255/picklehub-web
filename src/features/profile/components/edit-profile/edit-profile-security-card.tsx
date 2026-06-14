@@ -1,3 +1,5 @@
+"use client"
+
 import { KeyRound } from "lucide-react"
 import Link from "next/link"
 
@@ -10,20 +12,23 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { logoutAction } from "@/features/auth/actions"
+import { useProfileTranslation } from "@/i18n/use-profile-translation"
 
 export function EditProfileSecurityCard() {
+  const { t } = useProfileTranslation()
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <KeyRound className="size-4" />
-          Bảo mật
+          {t("edit.security")}
         </CardTitle>
-        <CardDescription>Cập nhật mật khẩu hoặc đăng xuất.</CardDescription>
+        <CardDescription>{t("edit.securityDesc")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Button asChild variant="outline" className="w-full sm:w-auto">
-          <Link href="/change-password">Đổi mật khẩu</Link>
+          <Link href="/change-password">{t("edit.changePassword")}</Link>
         </Button>
 
         <form action={logoutAction} className="pt-1">
@@ -32,7 +37,7 @@ export function EditProfileSecurityCard() {
             variant="destructive"
             className="w-full sm:w-auto"
           >
-            Đăng xuất
+            {t("edit.logout")}
           </Button>
         </form>
       </CardContent>

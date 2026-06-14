@@ -1,8 +1,11 @@
+"use client"
+
 import Link from "next/link"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Group } from "@/features/groups/types"
+import { useProfileTranslation } from "@/i18n/use-profile-translation"
 
 interface GroupCardProps {
   groups: Group[]
@@ -18,17 +21,17 @@ function getGroupInitials(name: string) {
 }
 
 export function GroupCard({ groups }: GroupCardProps) {
+  const { t } = useProfileTranslation()
+
   return (
     <Card className="rounded-2xl">
       <CardHeader>
-        <CardTitle>Nhóm của bạn</CardTitle>
+        <CardTitle>{t("yourGroups")}</CardTitle>
       </CardHeader>
 
       <CardContent>
         {groups.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Bạn chưa tham gia nhóm nào.
-          </p>
+          <p className="text-sm text-muted-foreground">{t("noGroups")}</p>
         ) : (
           <ul className="space-y-2">
             {groups.map((group) => (

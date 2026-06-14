@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Table,
   TableBody,
@@ -7,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import type { Match } from "@/features/matches/types"
+import { useProfileTranslation } from "@/i18n/use-profile-translation"
 import { cn } from "@/lib/utils"
 
 interface MatchHistoryProps {
@@ -14,13 +17,14 @@ interface MatchHistoryProps {
   currentUserId: string
 }
 
-function formatDate(value: string): string {
+function formatDate(value: string, locale: string = "en"): string {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) {
     return "-"
   }
 
-  return new Intl.DateTimeFormat("en-US", {
+  const formatLocale = locale === "vi" ? "vi-VN" : "en-US"
+  return new Intl.DateTimeFormat(formatLocale, {
     month: "short",
     day: "2-digit",
   }).format(date)
@@ -62,33 +66,39 @@ function getMemberName(member: unknown): string {
   return ""
 }
 
-function getOpponentLabel(match: Match, currentUserId: string): string {
+function getOpponentLabel(
+  match: Match,
+  currentUserId: string,
+  t: (key: string, options?: Record<string, unknown>) => string
+): string {
   const teamAIds = match.teamA.map(getMemberId)
   const isInTeamA = teamAIds.includes(currentUserId)
   const opponentTeam = isInTeamA ? match.teamB : match.teamA
 
   if (!Array.isArray(opponentTeam) || opponentTeam.length === 0) {
-    return "Không xác định"
+    return t("unknown")
   }
 
   if (opponentTeam.length === 1) {
-    return getMemberName(opponentTeam[0]) || "Không xác định"
+    return getMemberName(opponentTeam[0]) || t("unknown")
   }
 
-  return `Team (${opponentTeam.length} người)`
+  return t("teamSize", { count: opponentTeam.length })
 }
 
-function getResult(match: Match, currentUserId: string): string {
+type MatchResultType = "WIN" | "LOSS" | "DRAW" | "CANCELLED" | "UNCONFIRMED"
+
+function getResult(match: Match, currentUserId: string): MatchResultType {
   if (match.winner === "DRAW") {
-    return "Hòa"
+    return "DRAW"
   }
 
   if (!match.winner) {
     if (match.status === "CANCELLED") {
-      return "Đã hủy"
+      return "CANCELLED"
     }
 
-    return "Chưa xác nhận"
+    return "UNCONFIRMED"
   }
 
   const teamAIds = match.teamA.map(getMemberId)
@@ -97,32 +107,58 @@ function getResult(match: Match, currentUserId: string): string {
     (isInTeamA && match.winner === "TEAM_A") ||
     (!isInTeamA && match.winner === "TEAM_B")
 
-  return won ? "Thắng" : "Thua"
+  return won ? "WIN" : "LOSS"
 }
 
-function getResultClassName(result: string): string {
-  if (result === "Thắng") {
-    return "bg-green-500 text-white"
+function getResultLabel(
+  result: MatchResultType,
+  t: (key: string) => string
+): string {
+  switch (result) {
+    case "WIN":
+      return t("wins")
+    case "LOSS":
+      return t("losses")
+    case "DRAW":
+      return t("draw")
+    case "CANCELLED":
+      return t("cancelled")
+    case "UNCONFIRMED":
+      return t("unconfirmed")
+    default:
+      return t("unknown")
   }
+}
 
-  if (result === "Thua") {
-    return "bg-gray-400 text-white"
+function getResultClassName(result: MatchResultType): string {
+  switch (result) {
+    case "WIN":
+      return "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+    case "LOSS":
+      return "bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/20"
+    case "DRAW":
+      return "bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+    case "UNCONFIRMED":
+      return "bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/20"
+    case "CANCELLED":
+    default:
+      return "bg-muted/50 text-muted-foreground border border-border"
   }
-
-  return "bg-secondary text-secondary-foreground"
 }
 
 export function MatchHistory({ matches, currentUserId }: MatchHistoryProps) {
+  const { t, i18n } = useProfileTranslation()
+
   return (
     <div className="rounded-2xl border bg-card p-6 text-card-foreground shadow">
-      <h3 className="mb-4 font-semibold">Trận đấu gần đây</h3>
+      <h3 className="mb-4 font-semibold">{t("recentMatches")}</h3>
       <Table className="text-left">
         <TableHeader>
           <TableRow className="text-sm text-muted-foreground hover:bg-transparent">
-            <TableHead>Ngày</TableHead>
-            <TableHead>Đối thủ</TableHead>
-            <TableHead>Kết quả</TableHead>
-            <TableHead>Điểm</TableHead>
+            <TableHead>{t("date")}</TableHead>
+            <TableHead>{t("opponent")}</TableHead>
+            <TableHead>{t("result")}</TableHead>
+            <TableHead>{t("score")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -132,26 +168,28 @@ export function MatchHistory({ matches, currentUserId }: MatchHistoryProps) {
                 colSpan={4}
                 className="text-center text-muted-foreground"
               >
-                Chưa có dữ liệu trận đấu
+                {t("noMatches")}
               </TableCell>
             </TableRow>
           ) : (
             matches.map((match) => {
-              const result = getResult(match, currentUserId)
+              const resultKey = getResult(match, currentUserId)
               return (
                 <TableRow key={match.id}>
-                  <TableCell>{formatDate(match.scheduledAt)}</TableCell>
                   <TableCell>
-                    {getOpponentLabel(match, currentUserId)}
+                    {formatDate(match.scheduledAt, i18n.language)}
+                  </TableCell>
+                  <TableCell>
+                    {getOpponentLabel(match, currentUserId, t)}
                   </TableCell>
                   <TableCell>
                     <span
                       className={cn(
-                        "rounded px-2 py-1 text-xs font-medium",
-                        getResultClassName(result)
+                        "rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase",
+                        getResultClassName(resultKey)
                       )}
                     >
-                      {result}
+                      {getResultLabel(resultKey, t)}
                     </span>
                   </TableCell>
                   <TableCell>{formatScore(match)}</TableCell>

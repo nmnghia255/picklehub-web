@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/sidebar"
 import { useSidebar } from "@/components/ui/sidebar"
 import { notificationFeedAtom } from "@/features/feed/store/feed-store"
+import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { cn } from "@/lib/utils"
 
 type SidebarItem = {
@@ -156,6 +157,10 @@ function SidebarLogo() {
 export function AppSidebar() {
   const pathname = usePathname()
   const notifications = useAtomValue(notificationFeedAtom)
+  const { data: subscriptions = [] } = useMySubscriptions()
+  const hasSportCenterManagerPlan = subscriptions.some(
+    (sub) => sub.status === "ACTIVE" && sub.plan.type === "SPORT_CENTER_MANAGER"
+  )
   const [isSocialMenuOpen, setIsSocialMenuOpen] = useState(false)
   const [isCoachMenuOpen, setIsCoachMenuOpen] = useState(false)
   const [isSportCenterMenuOpen, setIsSportCenterMenuOpen] = useState(false)
@@ -418,41 +423,43 @@ export function AppSidebar() {
                 )
               })}
 
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={shouldShowSportCenterManagementMenu}
-                  tooltip="Quản lý trung tâm"
-                  onClick={handleSportCenterManagementMenuToggle}
-                >
-                  <MapPinned className="size-4" />
-                  <span>Quản lý trung tâm</span>
-                  <ChevronDown
-                    className={cn(
-                      "ml-auto size-4 transition-transform",
-                      shouldShowSportCenterManagementMenu && "rotate-180"
-                    )}
-                  />
-                </SidebarMenuButton>
-                {shouldShowSportCenterManagementMenu && (
-                  <SidebarMenuSub>
-                    {sportCenterManagementMenuItems.map((item) => (
-                      <SidebarMenuSubItem key={item.href}>
-                        <SidebarMenuSubButton
-                          asChild
-                          isActive={isActivePath(pathname, item.href)}
-                        >
-                          <Link
-                            href={item.href}
-                            onClick={handlePrimaryItemClick}
+              {hasSportCenterManagerPlan && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    isActive={shouldShowSportCenterManagementMenu}
+                    tooltip="Quản lý trung tâm"
+                    onClick={handleSportCenterManagementMenuToggle}
+                  >
+                    <MapPinned className="size-4" />
+                    <span>Quản lý trung tâm</span>
+                    <ChevronDown
+                      className={cn(
+                        "ml-auto size-4 transition-transform",
+                        shouldShowSportCenterManagementMenu && "rotate-180"
+                      )}
+                    />
+                  </SidebarMenuButton>
+                  {shouldShowSportCenterManagementMenu && (
+                    <SidebarMenuSub>
+                      {sportCenterManagementMenuItems.map((item) => (
+                        <SidebarMenuSubItem key={item.href}>
+                          <SidebarMenuSubButton
+                            asChild
+                            isActive={isActivePath(pathname, item.href)}
                           >
-                            <span>{item.title}</span>
-                          </Link>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                )}
-              </SidebarMenuItem>
+                            <Link
+                              href={item.href}
+                              onClick={handlePrimaryItemClick}
+                            >
+                              <span>{item.title}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  )}
+                </SidebarMenuItem>
+              )}
 
               <SidebarMenuItem>
                 <SidebarMenuButton

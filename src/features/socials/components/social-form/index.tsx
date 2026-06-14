@@ -1,9 +1,12 @@
 "use client"
 
+import { Loader2, ShieldAlert } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { startTransition, useEffect, useState } from "react"
 import { toast } from "sonner"
 
+import { Button } from "@/components/ui/button"
+import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import {
@@ -94,6 +97,11 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
     createInitialFormData
   )
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const { data: subscriptions, isLoading } = useMySubscriptions()
+  const hasSocialHostPlan = subscriptions?.some(
+    (sub) => sub.status === "ACTIVE" && sub.plan.type === "SOCIAL_HOST"
+  )
 
   useEffect(() => {
     if (!social) return
@@ -196,6 +204,39 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
         setIsSubmitting(false)
       }
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[400px] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!hasSocialHostPlan) {
+    return (
+      <div className="mx-auto flex max-w-md flex-col items-center justify-center px-4 py-16 text-center">
+        <div className="rounded-full bg-red-100 p-3 text-red-600 dark:bg-red-950/20">
+          <ShieldAlert className="size-8" />
+        </div>
+        <h1 className="mt-4 text-2xl font-bold tracking-tight">
+          Quyền truy cập bị từ chối
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Chỉ những người dùng đã đăng ký gói <strong>SOCIAL_HOST</strong> mới
+          có quyền tạo hoặc chỉnh sửa buổi chơi.
+        </p>
+        <div className="mt-6 flex gap-3">
+          <Button variant="outline" onClick={() => router.back()}>
+            Quay lại
+          </Button>
+          <Button onClick={() => router.push("/settings")}>
+            Nâng cấp tài khoản
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -1,3 +1,5 @@
+"use client"
+
 import { ShieldCheck } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -11,6 +13,7 @@ import {
 import { LinkFacebookButton } from "@/features/auth/components/link-facebook-button"
 import { LinkGoogleButton } from "@/features/auth/components/link-google-button"
 import type { LinkedProvider } from "@/features/auth/types"
+import { useProfileTranslation } from "@/i18n/use-profile-translation"
 
 function GoogleIcon() {
   return (
@@ -52,6 +55,9 @@ export function EditProfileLinkedAccountsCard({
 }: {
   linkedProviders: LinkedProvider[]
 }) {
+  const { t, i18n } = useProfileTranslation()
+  const locale = i18n.language === "vi" ? "vi-VN" : "en-US"
+
   const googleLinked = linkedProviders.find((lp) => lp.provider === "google")
   const facebookLinked = linkedProviders.find(
     (lp) => lp.provider === "facebook"
@@ -62,9 +68,9 @@ export function EditProfileLinkedAccountsCard({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <ShieldCheck className="size-4" />
-          Liên kết tài khoản
+          {t("edit.linkedAccounts")}
         </CardTitle>
-        <CardDescription>Kết nối các nhà cung cấp khác.</CardDescription>
+        <CardDescription>{t("edit.linkedAccountsDesc")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-3">
@@ -77,12 +83,16 @@ export function EditProfileLinkedAccountsCard({
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {googleLinked
-                    ? `Đã liên kết lúc ${new Date(googleLinked.linkedAt).toLocaleString("vi-VN")}`
-                    : "Chưa liên kết"}
+                    ? t("edit.linkedAt", {
+                        date: new Date(googleLinked.linkedAt).toLocaleString(
+                          locale
+                        ),
+                      })
+                    : t("edit.notLinked")}
                 </p>
               </div>
               <Badge variant={googleLinked ? "default" : "secondary"}>
-                {googleLinked ? "Đã liên kết" : "Chưa liên kết"}
+                {googleLinked ? t("edit.linked") : t("edit.notLinked")}
               </Badge>
             </div>
 
@@ -98,12 +108,16 @@ export function EditProfileLinkedAccountsCard({
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {facebookLinked
-                    ? `Đã liên kết lúc ${new Date(facebookLinked.linkedAt).toLocaleString("vi-VN")}`
-                    : "Chưa liên kết"}
+                    ? t("edit.linkedAt", {
+                        date: new Date(facebookLinked.linkedAt).toLocaleString(
+                          locale
+                        ),
+                      })
+                    : t("edit.notLinked")}
                 </p>
               </div>
               <Badge variant={facebookLinked ? "default" : "secondary"}>
-                {facebookLinked ? "Đã liên kết" : "Chưa liên kết"}
+                {facebookLinked ? t("edit.linked") : t("edit.notLinked")}
               </Badge>
             </div>
 
@@ -112,7 +126,7 @@ export function EditProfileLinkedAccountsCard({
 
           {linkedProviders.length === 0 && (
             <p className="text-sm text-muted-foreground">
-              Chưa liên kết tài khoản nào.
+              {t("edit.noLinked")}
             </p>
           )}
         </div>

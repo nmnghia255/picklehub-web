@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Card,
   CardContent,
@@ -7,16 +9,16 @@ import {
 } from "@/components/ui/card"
 import { EditPlayerInfoForm } from "@/features/profile/components/edit-profile/edit-player-info-form"
 import type { User } from "@/features/profile/types"
+import { useProfileTranslation } from "@/i18n/use-profile-translation"
 
 export function EditProfilePlayerInfoCard({ user }: { user: User | null }) {
+  const { t } = useProfileTranslation()
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Thông tin cá nhân</CardTitle>
-        <CardDescription>
-          Cập nhật tên hiển thị, ảnh đại diện, giới thiệu, giới tính, tự đánh
-          giá và tay thuận của bạn.
-        </CardDescription>
+        <CardTitle>{t("edit.title")}</CardTitle>
+        <CardDescription>{t("edit.subtitle")}</CardDescription>
       </CardHeader>
       <CardContent>
         <EditPlayerInfoForm
