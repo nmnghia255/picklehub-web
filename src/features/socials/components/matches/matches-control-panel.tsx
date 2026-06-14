@@ -14,10 +14,12 @@ import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 interface MatchesControlPanelProps {
   onGenerateMatches: (request: SuggestedMatchRequest) => Promise<void>
+  numberOfCourts?: number
 }
 
 export function MatchesControlPanel({
   onGenerateMatches,
+  numberOfCourts = 0,
 }: MatchesControlPanelProps) {
   const { t } = useSocialsTranslation()
   const { players } = useMatchesGeneratorStore()
@@ -35,6 +37,8 @@ export function MatchesControlPanel({
     if (players.length < requiredPlayers) {
       toast.error(
         t("matches.controlPanel.notEnoughPlayers", {
+          requiredPlayers,
+          got: players.length,
           defaultValue: `Need at least ${requiredPlayers} eligible participants for the requested match counts (got ${players.length}).`,
         })
       )
@@ -56,10 +60,18 @@ export function MatchesControlPanel({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="mb-4 text-lg font-semibold text-foreground dark:text-slate-50">
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="text-lg font-semibold text-foreground dark:text-slate-50">
           {t("matches.controlPanel.title")}
         </h2>
+        {numberOfCourts > 0 && (
+          <div className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+            {t("matches.controlPanel.bookedCourts", {
+              count: numberOfCourts,
+              defaultValue: `Booked Courts: ${numberOfCourts}`,
+            })}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">

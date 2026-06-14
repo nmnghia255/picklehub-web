@@ -8,7 +8,12 @@
       "hours_other": "{{count}} hours",
       "minutes_one": "{{count}} minute",
       "minutes_other": "{{count}} minutes",
-      "uploading": "Đang tải lên..."
+      "uploading": "Uploading...",
+      "clearFilters": "Clear Filters",
+      "submitting": "Submitting...",
+      "loading": "Loading...",
+      "cancel": "Cancel",
+      "proceed": "Proceed"
     },
     "labels": {
       "published": "Published",
@@ -464,11 +469,15 @@
         "generate": "Generate matches",
         "regenerate": "Regenerate",
         "generating": "Generating...",
-        "howItWorks": "How it works",
-        "step1": "Adjust the number of courts for the current play session",
-        "step2": "Click \"Generate matches\" to create the match list for a play session",
-        "step3": "Drag players between matches to make manual adjustments",
-        "step4": "Switch match type (Singles/Doubles) when needed"
+        "howItWorks": "How generation works",
+        "step1": "Specify the exact number of singles and doubles matches.",
+        "step2": "Set the duration for this match round.",
+        "step3": "Click generate to receive an optimized lineup.",
+        "singlesCount": "Singles matches",
+        "doublesCount": "Doubles matches",
+        "roundDuration": "Round duration (minutes)",
+        "notEnoughPlayers": "Need at least {{requiredPlayers}} eligible participants for the requested match counts (got {{got}}).",
+        "bookedCourts": "Booked Courts: {{count}}"
       },
       "cell": {
         "emptyCourtTitle": "No match yet",

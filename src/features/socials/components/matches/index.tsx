@@ -52,10 +52,12 @@ import type {
 
 interface MatchesCreationContentProps {
   initialPlayers: Player[]
+  numberOfCourts?: number
 }
 
 export function MatchesCreationContent({
   initialPlayers,
+  numberOfCourts = 0,
 }: MatchesCreationContentProps) {
   const { t } = useSocialsTranslation()
   const router = useRouter()
@@ -268,7 +270,10 @@ export function MatchesCreationContent({
         </div>
 
         <Card className="border-border bg-card p-4 shadow-sm sm:p-6">
-          <MatchesControlPanel onGenerateMatches={handleGenerateMatches} />
+          <MatchesControlPanel
+            onGenerateMatches={handleGenerateMatches}
+            numberOfCourts={numberOfCourts}
+          />
         </Card>
 
         <Card className="border-border bg-card p-4 shadow-sm sm:p-6">
@@ -355,7 +360,9 @@ export function MatchesCreationContent({
               })}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {t("matches.creation.incompleteWarningDescription")}
+              {t("matches.creation.incompleteWarningDescription", {
+                sessions: incompleteSessions.join(", "),
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

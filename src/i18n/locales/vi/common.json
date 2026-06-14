@@ -489,7 +489,7 @@
         "successConfirm": "Xác nhận thành công!",
         "confirmError": "Đã xảy ra lỗi khi xác nhận. Vui lòng thử lại sau.",
         "incompleteWarningTitle": "Trận đấu chưa hoàn chỉnh",
-        "incompleteWarningDescription": "Một số trận đấu chưa đủ người chơi. Bạn có chắc muốn tiếp tục tạo các trận này không?"
+        "incompleteWarningDescription": "Có các trận đấu chưa hoàn tất ở Lượt trận: {{sessions}}. Bạn có chắc chắn muốn tiếp tục không?"
       },
       "controlPanel": {
         "title": "Cấu hình trận đấu",
@@ -504,7 +504,9 @@
         "step3": "Nhấp \"Tạo trận\" để tạo danh sách trận đấu cho phiên chơi",
         "singlesCount": "Số trận đơn",
         "doublesCount": "Số trận đôi",
-        "roundDuration": "Thời lượng mỗi lượt trận (phút)"
+        "roundDuration": "Thời lượng mỗi lượt trận (phút)",
+        "notEnoughPlayers": "Cần ít nhất {{requiredPlayers}} người chơi hợp lệ cho số lượng trận đấu yêu cầu (hiện có {{got}}).",
+        "bookedCourts": "Số sân đã đặt: {{count}}"
       },
       "cell": {
         "emptyCourtTitle": "Chưa có trận",

@@ -8,12 +8,16 @@ export default async function MatchesCreationPage(props: {
   const params = await props.params
 
   let players: Player[] = []
+  let numberOfCourts = 0
 
   try {
-    const participants = await PlaySessionService.listPlaySessionParticipants(
-      params.socialId,
-      params.playSessionId
-    )
+    const [participants, playSession] = await Promise.all([
+      PlaySessionService.listPlaySessionParticipants(
+        params.socialId,
+        params.playSessionId
+      ),
+      PlaySessionService.getPlaySession(params.socialId, params.playSessionId),
+    ])
 
     players = participants
       .filter((p) => p.status === "CONFIRMED")
@@ -23,9 +27,16 @@ export default async function MatchesCreationPage(props: {
         avatarUrl: p.user?.avatarUrl,
         skillLevel: p.skillLevel ?? undefined,
       }))
+
+    numberOfCourts = playSession?.numberOfCourts || 0
   } catch (error) {
-    console.error("Failed to fetch participants for matches creation:", error)
+    console.error("Failed to fetch data for matches creation:", error)
   }
 
-  return <MatchesCreationContent initialPlayers={players} />
+  return (
+    <MatchesCreationContent
+      initialPlayers={players}
+      numberOfCourts={numberOfCourts}
+    />
+  )
 }
