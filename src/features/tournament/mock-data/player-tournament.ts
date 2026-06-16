@@ -64,3 +64,17 @@ export const participants: Player[] = [
     avatar: "RC",
   },
 ]
+
+export interface Sponsor {
+  id: string
+  name: string
+  logo: string | null
+  price: number
+}
+
+export const mockSponsors: Sponsor[] = [
+  { id: "1", name: "Pickleball Pro Shop", logo: null, price: 7500 },
+  { id: "2", name: "Apex Paddles", logo: null, price: 5000 },
+  { id: "3", name: "Hydrate Zone", logo: null, price: 3500 },
+  { id: "4", name: "Local Diner", logo: null, price: 1200 },
+]

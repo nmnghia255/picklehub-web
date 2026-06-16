@@ -7,6 +7,7 @@ import {
   DollarSign,
   Eye,
   GitBranch,
+  Heart,
   LayoutDashboard,
   ListOrdered,
   Trophy,
@@ -25,6 +26,7 @@ import { PlayerTournament } from "@/features/tournament/components/player-tourna
 import { RegistrationManagement } from "@/features/tournament/components/registration-management"
 import { Scheduling } from "@/features/tournament/components/scheduling"
 import { Seeding } from "@/features/tournament/components/seeding"
+import { Sponsors } from "@/features/tournament/components/sponsor"
 import { TeamMatching } from "@/features/tournament/components/team-matching"
 import { TournamentDashboard } from "@/features/tournament/components/tournament-dashboard"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
@@ -129,6 +131,13 @@ export function TournamentManager() {
                 {t("manager.tabs.financials")}
               </TabsTrigger>
               <TabsTrigger
+                value="sponsors"
+                className="relative flex items-center gap-2 rounded-none border-b-2 border-transparent px-2 py-3 text-sm font-medium text-gray-600 data-[state=active]:border-emerald-600 data-[state=active]:text-emerald-600 data-[state=active]:shadow-none"
+              >
+                <Heart className="h-4 w-4" />
+                {t("manager.tabs.sponsors")}
+              </TabsTrigger>
+              <TabsTrigger
                 value="public"
                 className="relative flex items-center gap-2 rounded-none border-b-2 border-transparent px-2 py-3 text-sm font-medium text-gray-600 data-[state=active]:border-emerald-600 data-[state=active]:text-emerald-600 data-[state=active]:shadow-none"
               >
@@ -193,6 +202,12 @@ export function TournamentManager() {
             className="m-0 border-none p-0 outline-none"
           >
             <FinancialDashboard />
+          </TabsContent>
+          <TabsContent
+            value="sponsors"
+            className="m-0 border-none p-0 outline-none"
+          >
+            <Sponsors />
           </TabsContent>
           <TabsContent
             value="public"

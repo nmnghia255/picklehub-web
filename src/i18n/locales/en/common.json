@@ -1388,6 +1388,7 @@
         "schedule": "Schedule",
         "live": "Live",
         "financials": "Financials",
+        "sponsors": "Sponsors",
         "public": "Public View"
       }
     },
@@ -1799,6 +1800,36 @@
         "status": "Status"
       }
     },
+    "sponsors": {
+      "title": "Sponsorship Management",
+      "subtitle": "Display and manage sponsors supporting the tournament events",
+      "addSponsor": "Add Sponsor",
+      "topSponsor": "Top Supporter",
+      "top3Heading": "Top 3 Sponsors",
+      "otherHeading": "Other Sponsors",
+      "dialog": {
+        "title": "Add New Sponsor",
+        "description": "Add sponsor contribution details to display on the tournament dashboard",
+        "nameLabel": "Sponsor Name",
+        "namePlaceholder": "e.g., Apex Paddles Ltd.",
+        "priceLabel": "Contribution Amount (USD)",
+        "pricePlaceholder": "e.g., 5000",
+        "logoLabel": "Sponsor Logo",
+        "logoUploadHint": "Click to upload or drag & drop",
+        "logoSizeHint": "PNG, JPG up to 2MB",
+        "cancel": "Cancel",
+        "submit": "Add Sponsor",
+        "validationName": "Please enter a sponsor name",
+        "validationPrice": "Please enter a valid positive contribution amount"
+      },
+      "stats": {
+        "totalContributions": "Total Funding",
+        "activeSponsors": "Sponsors Count",
+        "avgContribution": "Avg. Contribution"
+      },
+      "emptyState": "No sponsors have been added yet.",
+      "deleteConfirm": "Are you sure you want to remove this sponsor?"
+    },
     "public": {
       "hero": {
         "title": "San Diego Summer Slam 2026",
@@ -1821,7 +1852,8 @@
       "overview": {
         "title": "Tournament Overview",
         "description": "Join us for the premier pickleball tournament in Southern California. Featuring 8 competitive events across all skill levels, this tournament brings together the best players in the region.",
-        "eventsLabel": "Events:"
+        "eventsLabel": "Events:",
+        "sponsorsTitle": "Sponsors & Partners"
       },
       "venue": {
         "title": "Venue Information",

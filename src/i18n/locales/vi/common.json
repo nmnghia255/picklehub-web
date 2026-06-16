@@ -1014,6 +1014,7 @@
         "schedule": "Lịch thi đấu",
         "live": "Trực tiếp",
         "financials": "Tài chính",
+        "sponsors": "Nhà tài trợ",
         "public": "Chế độ xem công khai"
       }
     },
@@ -1425,6 +1426,36 @@
         "status": "Trạng thái"
       }
     },
+    "sponsors": {
+      "title": "Quản lý Nhà tài trợ",
+      "subtitle": "Hiển thị và quản lý các đơn vị tài trợ cho giải đấu",
+      "addSponsor": "Thêm nhà tài trợ",
+      "topSponsor": "Nhà tài trợ hàng đầu",
+      "top3Heading": "Top 3 Nhà tài trợ",
+      "otherHeading": "Các Nhà tài trợ khác",
+      "dialog": {
+        "title": "Thêm Nhà tài trợ mới",
+        "description": "Nhập chi tiết thông tin nhà tài trợ để hiển thị trên bảng thông tin giải đấu",
+        "nameLabel": "Tên nhà tài trợ",
+        "namePlaceholder": "vd: Công ty Apex Paddles",
+        "priceLabel": "Mức tài trợ (USD)",
+        "pricePlaceholder": "vd: 5000",
+        "logoLabel": "Logo nhà tài trợ",
+        "logoUploadHint": "Nhấp để tải lên hoặc kéo thả",
+        "logoSizeHint": "Chấp nhận PNG, JPG tối đa 2MB",
+        "cancel": "Hủy",
+        "submit": "Thêm tài trợ",
+        "validationName": "Vui lòng nhập tên nhà tài trợ",
+        "validationPrice": "Vui lòng nhập mức tài trợ hợp lệ lớn hơn 0"
+      },
+      "stats": {
+        "totalContributions": "Tổng nguồn vốn",
+        "activeSponsors": "Số lượng tài trợ",
+        "avgContribution": "Tài trợ trung bình"
+      },
+      "emptyState": "Chưa có nhà tài trợ nào được thêm vào.",
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa nhà tài trợ này?"
+    },
     "public": {
       "hero": {
         "title": "San Diego Summer Slam 2026",
@@ -1447,7 +1478,8 @@
       "overview": {
         "title": "Tổng quan giải đấu",
         "description": "Hãy tham gia cùng chúng tôi trong giải đấu pickleball hàng đầu ở Nam California. Với 8 sự kiện cạnh tranh ở mọi cấp độ kỹ năng, giải đấu này quy tụ những người chơi xuất sắc nhất trong khu vực.",
-        "eventsLabel": "Các sự kiện:"
+        "eventsLabel": "Các sự kiện:",
+        "sponsorsTitle": "Nhà tài trợ & Đối tác"
       },
       "venue": {
         "title": "Thông tin địa điểm",

@@ -1,4 +1,5 @@
 import { Calendar, Clock, MapPin, Trophy, Users } from "lucide-react"
+import Image from "next/image"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -6,7 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
-import { liveScores, participants } from "../mock-data/player-tournament"
+import {
+  liveScores,
+  mockSponsors,
+  participants,
+} from "../mock-data/player-tournament"
 
 export function PlayerTournament() {
   const { t } = useTournamentTranslation()
@@ -163,6 +168,71 @@ export function PlayerTournament() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Sponsors Section */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-emerald-600" />
+                  {t("public.overview.sponsorsTitle")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+                  {mockSponsors
+                    .sort((a, b) => b.price - a.price)
+                    .map((sponsor, index) => {
+                      const isTop3 = index < 3
+                      const colors = [
+                        "from-amber-400 to-amber-600",
+                        "from-slate-400 to-slate-600",
+                        "from-orange-400 to-orange-600",
+                      ]
+                      return (
+                        <div
+                          key={sponsor.id}
+                          className={`flex flex-col items-center rounded-xl border p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-sm ${
+                            isTop3
+                              ? "border-emerald-200 bg-emerald-50/10 shadow-sm shadow-emerald-50"
+                              : "border-gray-150 bg-gray-50/30"
+                          }`}
+                        >
+                          <div className="relative mb-3 flex h-20 w-20 items-center justify-center rounded-lg border border-gray-100 bg-white">
+                            {sponsor.logo ? (
+                              <Image
+                                src={sponsor.logo}
+                                alt={sponsor.name}
+                                fill
+                                sizes="80px"
+                                className="object-contain p-2"
+                                unoptimized
+                              />
+                            ) : (
+                              <div
+                                className={`flex h-full w-full items-center justify-center rounded-lg bg-gradient-to-br text-xl font-bold text-white ${
+                                  isTop3
+                                    ? colors[index]
+                                    : "from-emerald-400 to-emerald-600"
+                                }`}
+                              >
+                                {sponsor.name.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                          <span className="line-clamp-1 text-sm font-bold text-gray-900">
+                            {sponsor.name}
+                          </span>
+                          {isTop3 && (
+                            <span className="mt-1 flex items-center gap-1 rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800">
+                              {t("sponsors.topSponsor")}
+                            </span>
+                          )}
+                        </div>
+                      )
+                    })}
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="participants">
