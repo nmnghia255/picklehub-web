@@ -3,5 +3,5 @@
 import { useTranslation } from "react-i18next"
 
 export function useSportCenterTranslation() {
-  return useTranslation("common", { keyPrefix: "sportCenter" })
+  return useTranslation("sport-center")
 }

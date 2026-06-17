@@ -3,5 +3,5 @@
 import { useTranslation } from "react-i18next"
 
 export function useProfileTranslation() {
-  return useTranslation("common", { keyPrefix: "profile" })
+  return useTranslation("profile")
 }

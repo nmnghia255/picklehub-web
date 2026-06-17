@@ -1,0 +1,135 @@
+{
+  "page": {
+    "badge": "Court credits workspace",
+    "title": "Court Credits",
+    "subtitle": "Manage credits generated when bookings are canceled.",
+    "mockCredits": "{{count}} mock credits"
+  },
+  "sort": {
+    "latestCreated": "Latest created",
+    "soonestExpiry": "Soonest expiry",
+    "highestCreditAmount": "Highest credit amount",
+    "highestRemainingAmount": "Highest remaining amount",
+    "customerAZ": "Customer A-Z"
+  },
+  "filters": {
+    "searchPlaceholder": "Search customer, phone, booking code, or credit code",
+    "reason": "Reason",
+    "court": "Court",
+    "sort": "Sort",
+    "resetFilters": "Reset filters",
+    "courts": {
+      "all": "All courts",
+      "courtA": "Court A",
+      "courtB": "Court B",
+      "courtC": "Court C",
+      "courtD": "Court D",
+      "centerCourt": "Center Court"
+    },
+    "reasons": {
+      "all": "All reasons",
+      "customerCancelled": "Customer Cancelled",
+      "ownerCancelled": "Owner Cancelled",
+      "weather": "Weather",
+      "maintenance": "Maintenance",
+      "other": "Other"
+    }
+  },
+  "stats": {
+    "totalCreditValue": "Total Credit Value",
+    "totalCredits": "Total Credits",
+    "liveMock": "Live mock"
+  },
+  "empty": {
+    "noCreditsTitle": "No credits found",
+    "noCreditsDescription": "Credits generated from cancelled bookings will appear here.",
+    "restoreMockCredits": "Restore mock credits",
+    "noMatchesTitle": "No matching credits",
+    "noMatchesDescription": "Try another filter or search term to surface a different mock credit set.",
+    "clearFilters": "Clear filters"
+  },
+  "table": {
+    "creditId": "Credit ID",
+    "customer": "Customer",
+    "originalBookingId": "Original Booking ID",
+    "creditAmount": "Credit Amount",
+    "remainingAmount": "Remaining Amount",
+    "createdDate": "Created Date",
+    "cancellationReason": "Cancellation Reason",
+    "actions": "Actions"
+  },
+  "mobile": {
+    "created": "Created",
+    "booking": "Booking {{bookingId}}",
+    "balance": "Balance",
+    "original": "Original {{amount}}",
+    "reason": "Reason",
+    "remaining": "Remaining {{amount}}"
+  },
+  "actions": {
+    "viewDetails": "View Details",
+    "cancelCredit": "Cancel Credit",
+    "createManualCredit": "Create Manual Credit"
+  },
+  "detail": {
+    "title": "Credit details",
+    "description": "Review the original cancellation, remaining balance, and usage timeline.",
+    "customerInformation": "Customer Information",
+    "name": "Name",
+    "phoneNumber": "Phone Number",
+    "originalBookingInformation": "Original Booking Information",
+    "bookingId": "Booking ID",
+    "courtName": "Court Name",
+    "bookingDate": "Booking Date",
+    "timeSlot": "Time Slot",
+    "creditInformation": "Credit Information",
+    "creditAmount": "Credit Amount",
+    "remainingAmount": "Remaining Amount",
+    "createdDate": "Created Date",
+    "cancellationInformation": "Cancellation Information",
+    "cancellationReason": "Cancellation Reason",
+    "manualCredit": "Manual Credit",
+    "yes": "Yes",
+    "no": "No",
+    "notes": "Notes",
+    "creditUsageHistory": "Credit Usage History",
+    "usedAmount": "Used {{amount}}",
+    "bookingLabel": "Booking {{bookingId}}",
+    "noUsageRecorded": "No usage recorded yet.",
+    "cancelCredit": "Cancel Credit",
+    "noCreditSelected": "No credit selected."
+  },
+  "status": {
+    "playSessions": "Play Sessions",
+    "addPlaySession": "Add Session",
+    "sessionTitle": "Session Title",
+    "sessionLabel": "Session",
+    "sessionTitlePlaceholder": "e.g., Morning Session - Courts 1 & 2",
+    "maxSlots": "Max Slots",
+    "status": "Status",
+    "privateEvent": "Private Event",
+    "autoApproveJoinRequests": "Auto-approve Join Requests",
+    "deleteSocial": "Delete Social",
+    "confirmDeleteSocial": "Are you sure you want to delete this social?",
+    "paymentCodePlaceholder": "e.g., Venmo code, reference number",
+    "paymentInstructionsPlaceholder": "e.g., Venmo @username or Cash at venue",
+    "validationEndAfterStart": "End time must be after start time.",
+    "addPlaySessionsHint": "Add play sessions to organize your social into specific time slots and courts.",
+    "createSuccess": "Social created successfully!",
+    "updateSuccess": "Social updated successfully!",
+    "save": "Save Social",
+    "create": "Create Social",
+    "update": "Update Social",
+    "ACTIVE": "Đang hoạt động",
+    "PARTIALLY_USED": "Đã dùng một phần",
+    "USED": "Đã dùng",
+    "EXPIRED": "Đã hết hạn"
+  },
+  "reasons": {
+    "CUSTOMER_CANCELLED": "Khách hàng hủy",
+    "OWNER_CANCELLED": "Chủ sân hủy",
+    "WEATHER": "Thời tiết",
+    "MAINTENANCE": "Bảo trì",
+    "OTHER": "Khác"
+  }
+}

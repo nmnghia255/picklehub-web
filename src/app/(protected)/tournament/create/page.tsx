@@ -1,4 +1,4 @@
-import { CreateTournament } from "@/features/tournament/components/create-tournament"
+import { CreateTournament } from "@/features/tournaments/components/create-tournament/create-tournament"
 
 export default function CreateTournamentPage() {
   return <CreateTournament />

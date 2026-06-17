@@ -1,4 +1,4 @@
-import { TournamentManager } from "@/features/tournament/components/tournament-manager"
+import { TournamentManager } from "@/features/tournaments/components/tournament-manager"
 
 export default function TournamentDetailPage() {
   return <TournamentManager />
