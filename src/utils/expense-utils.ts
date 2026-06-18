@@ -14,6 +14,7 @@ export function formatCurrencyVnd(value: number) {
 export function getPaymentStatusTone(status: string) {
   switch (status.toLowerCase()) {
     case "paid":
+      return "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
     case "overpaid":
       return "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
     case "unpaid":

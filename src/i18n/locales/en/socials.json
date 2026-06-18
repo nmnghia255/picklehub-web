@@ -308,7 +308,9 @@
     "pending": "Pending",
     "confirmed": "Confirmed",
     "cancelled": "Cancelled",
-    "rejected": "Rejected"
+    "rejected": "Rejected",
+    "waitlisted": "Waitlisted",
+    "onHold": "On Hold"
   },
   "badges": {
     "hosting": "You're hosting",
@@ -335,9 +337,9 @@
     "joinSession": "Join Session",
     "leaveSession": "Leave Session",
     "full": "Full",
-    "leaving": "Đang rời...",
-    "publishing": "Đang đăng...",
-    "publishSocial": "Đăng sự kiện",
+    "leaving": "Leaving...",
+    "publishing": "Publishing...",
+    "publishSocial": "Publish Event",
     "viewDetails": "Xem chi tiết"
   },
   "dialogs": {
@@ -379,7 +381,55 @@
     "startSuccess": "Play session started successfully",
     "startError": "Failed to start play session",
     "completeSuccess": "Play session completed successfully",
-    "completeError": "Failed to complete play session"
+    "completeError": "Failed to complete play session",
+    "joinSuccess": "Successfully joined the play session",
+    "joinError": "Failed to join the play session",
+    "leaveSuccess": "Successfully left the play session",
+    "leaveError": "Failed to leave the play session"
+  },
+  "statistics": {
+    "tab": "Statistics",
+    "title": "Post-Event Statistics",
+    "subtitle": "Review matches played, total expenses, and actual revenue earned for this completed social.",
+    "revenue": "Revenue Earned",
+    "expected": "Expected",
+    "outstanding": "Outstanding",
+    "expense": "Expense Spent",
+    "profit": "Net Profit",
+    "estimated": "Estimated Profit",
+    "estimatedLoss": "Estimated Loss",
+    "totalMatches": "Total Matches",
+    "participants": "Participants Summary",
+    "playersCount": "Players",
+    "headers": {
+      "participant": "Participant",
+      "level": "Level",
+      "matchesPlayed": "Matches Played"
+    }
+  },
+  "feedback": {
+    "tab": "Feedback",
+    "title": "Participant Feedback",
+    "subtitle": "Your feedback helps the host improve future pickleball social events. Let them know how it went!",
+    "overallExperience": "Overall Experience",
+    "overallDesc": "Rate your total experience today",
+    "hostOrganization": "Host Organization",
+    "hostDesc": "Match coordination, friendliness and organization",
+    "venueQuality": "Venue & Court Quality",
+    "venueDesc": "Court conditions, lights and sports facilities",
+    "commentLabel": "Write your review / comment",
+    "commentPlaceholder": "Describe your experience, what went well, and what could be improved...",
+    "errorEmptyRating": "Please choose a rating before submitting.",
+    "errorEmptyComment": "Please write a comment before submitting.",
+    "submitBtn": "Submit Feedback",
+    "othersTitle": "Participant Reviews",
+    "othersSubtitle": "See what other players say about this social event",
+    "dialogTitle": "Feedback Received",
+    "dialogDesc": "Thank you for your response! Your feedback has been submitted successfully.",
+    "close": "Close",
+    "noReviewsYet": "No reviews yet. Be the first to share your experience!",
+    "anonymousPlayer": "Participant",
+    "playerInitials": "P"
   },
   "matches": {
     "title": "Match Schedule",
@@ -593,21 +643,37 @@
     "save": "Save Social",
     "create": "Create Social",
     "update": "Update Social",
-    "isFree": "Miễn phí",
-    "bankName": "Tên ngân hàng",
-    "bankNamePlaceholder": "Vietcombank",
-    "packageFee": "Phí tham gia (gói)",
-    "packageFeePlaceholder": "100.000",
-    "accountNumber": "Số tài khoản",
-    "accountName": "Chủ tài khoản",
-    "accountNumberPlaceholder": "123456789",
-    "accountNamePlaceholder": "Nguyen Van An",
-    "paymentNotePlaceholder": "Ghi chú này sẽ được gửi đến người tham gia cùng với mã thanh toán.",
-    "paymentNote": "Ghi chú thanh toán",
-    "fee": "Phí tham gia",
-    "bookings": "Sân đã đặt",
-    "location": "Vị trí",
-    "freeEvent": "Miễn phí"
+    "isFree": "Free",
+    "bankName": "Bank Name",
+    "bankNamePlaceholder": "e.g., Vietcombank",
+    "packageFee": "Package Fee",
+    "packageFeePlaceholder": "100,000",
+    "accountNumber": "Account Number",
+    "accountName": "Account Name",
+    "accountNumberPlaceholder": "e.g., 123456789",
+    "accountNamePlaceholder": "e.g., Nguyen Van An",
+    "paymentNotePlaceholder": "This note will be shown to participants along with the payment reference.",
+    "paymentNote": "Payment Note",
+    "fee": "Participation Fee",
+    "bookings": "Booked Courts",
+    "location": "Location",
+    "freeEvent": "Free Event",
+    "accessDenied": "Access Denied",
+    "hostPlanRequired": "Only users subscribed to the SOCIAL_HOST plan are authorized to create or edit social events.",
+    "goBack": "Go Back",
+    "upgradeAccount": "Upgrade Account",
+    "validationMinMaxLevel": "Minimum skill level cannot be greater than maximum skill level",
+    "validationPackageFee": "Invalid package fee",
+    "validationPaymentBankNameRequired": "Please enter the bank name",
+    "validationPaymentAccountNumberRequired": "Please enter the account number",
+    "validationPaymentAccountNameRequired": "Please enter the account name",
+    "validation": {
+      "titleRequired": "Please enter the social title",
+      "noteRequired": "Please enter the social description",
+      "startTimeRequired": "Please select the date and start time",
+      "endTimeRequired": "Please select the end time",
+      "maxSlotsRequired": "Maximum participants must be at least 1"
+    }
   },
   "payment": {
     "title": "Payment",
@@ -630,5 +696,116 @@
     "totalFeeToPay": "Tổng phí cần thanh toán",
     "joinedSessions": "Phiên đã tham gia",
     "joinedSessionsDescription": "Danh sách các phiên bạn đã tham gia"
+  },
+  "expenses": {
+    "tracking": {
+      "title": "Payment Tracking",
+      "description": "Track participant payments and due amounts",
+      "searchPlaceholder": "Search participants...",
+      "filterPlaceholder": "Select status",
+      "allStatuses": "All Statuses",
+      "unknownUser": "Unknown",
+      "noEmail": "No email available",
+      "creditPrefix": "Credit: ",
+      "headers": {
+        "participant": "Participant",
+        "totalFee": "Total Fee",
+        "amountPaid": "Amount Paid",
+        "amountDue": "Amount Due",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "viewReceipt": "View Receipt",
+      "emptyTitle": "No participants found",
+      "paymentProof": "Payment Proof",
+      "viewFullImage": "View Full Image",
+      "noReceiptImage": "No receipt image uploaded",
+      "actions": {
+        "actions": "Actions",
+        "verifyReceipt": "Verify Receipt",
+        "recordCash": "Record Cash",
+        "issueRefund": "Issue Refund"
+      }
+    },
+    "verifyPaymentDialog": {
+      "title": "Verify Payment",
+      "description": "Review the uploaded payment receipt and update the status.",
+      "noReceipt": "No receipt image uploaded",
+      "amountLabel": "Amount Paid (VND)",
+      "amountPlaceholder": "e.g. 50.000",
+      "reject": "Reject",
+      "approve": "Approve",
+      "cancel": "Cancel",
+      "success": "Payment verified successfully",
+      "error": "Failed to verify payment"
+    },
+    "recordPaymentDialog": {
+      "title": "Record Cash Payment",
+      "description": "Manually record a cash payment for this participant.",
+      "amountLabel": "Amount (VND)",
+      "cancel": "Cancel",
+      "recordPayment": "Record Payment",
+      "success": "Payment recorded successfully",
+      "error": "Failed to record payment"
+    },
+    "courtBookings": {
+      "title": "Court Bookings Cost",
+      "description": "All costs are from the booked courts.",
+      "rowTypeCourtBooking": "Court Booking",
+      "footerLabel": "Total Court Booking Cost",
+      "headers": {
+        "courtName": "Court Name",
+        "date": "Date",
+        "time": "Time",
+        "duration": "Duration",
+        "cost": "Cost"
+      }
+    },
+    "expenseDialog": {
+      "editTitle": "Edit Expense",
+      "addTitle": "Add Extra Expense",
+      "editDescription": "Modify the details of this extra expense.",
+      "addDescription": "Add an extra expense like water, balls, ice, etc.",
+      "titleLabel": "Title",
+      "titlePlaceholder": "e.g., Water, Shuttlecocks",
+      "amountLabel": "Amount (VND)",
+      "amountPlaceholder": "e.g., 50,000",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Provide a brief description...",
+      "cancel": "Cancel",
+      "save": "Add Expense",
+      "update": "Update Expense",
+      "successAdd": "Expense added successfully",
+      "successUpdate": "Expense updated successfully",
+      "errorAdd": "Failed to add expense",
+      "errorUpdate": "Failed to update expense"
+    }
+  },
+  "sessionForm": {
+    "createTitle": "Create Play Session",
+    "editTitle": "Update Play Session",
+    "subtitle": "Enter details for the play session",
+    "titleLabel": "Session Title *",
+    "titlePlaceholder": "Enter session title",
+    "bookingLabel": "Booked Court *",
+    "bookingPlaceholder": "Select booked court",
+    "feeLabel": "Session Fee *",
+    "validation": {
+      "titleRequired": "Please enter the session title",
+      "bookingRequired": "Please select at least 1 booked court",
+      "priceInvalid": "Invalid price per player",
+      "feeInvalid": "Invalid session fee"
+    },
+    "defaultCourt": "Court",
+    "timeLabel": "Time: {{time}}",
+    "noBookingsAvailable": "No bookings found",
+    "success": {
+      "create": "Play session created successfully",
+      "update": "Play session updated successfully"
+    },
+    "errors": {
+      "create": "Error creating play session",
+      "processing": "Processing..."
+    }
   }
 }

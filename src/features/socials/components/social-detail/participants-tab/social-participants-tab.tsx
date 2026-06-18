@@ -22,18 +22,20 @@ import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import {
   approveParticipantAction,
   kickParticipantAction,
-} from "../../actions/social-participant-actions"
-import type { SocialParticipant } from "../../types/social"
-import { getParticipantStatusLabel } from "../../utils"
+} from "../../../actions/social-participant-actions"
+import type { SocialParticipant } from "../../../types/social"
+import { getParticipantStatusLabel } from "../../../utils"
 
 export default function SocialParticipantsTab({
   participants,
   isHost,
   socialId,
+  status,
 }: {
   participants: SocialParticipant[]
   isHost: boolean
   socialId?: string
+  status?: string
 }) {
   const { t } = useSocialsTranslation()
   const router = useRouter()
@@ -42,8 +44,10 @@ export default function SocialParticipantsTab({
     action: "approve" | "kick"
   } | null>(null)
 
+  const isCompleted = status === "COMPLETED"
+
   const handleApprove = async (participantId: string) => {
-    if (!socialId) return
+    if (!socialId || isCompleted) return
     setLoadingAction({ id: participantId, action: "approve" })
     try {
       await approveParticipantAction(socialId, participantId)
@@ -63,7 +67,7 @@ export default function SocialParticipantsTab({
   }
 
   const handleKick = async (participantId: string) => {
-    if (!socialId) return
+    if (!socialId || isCompleted) return
     setLoadingAction({ id: participantId, action: "kick" })
     try {
       await kickParticipantAction(socialId, participantId)
@@ -105,7 +109,7 @@ export default function SocialParticipantsTab({
             {participants.map((participant) => (
               <div
                 key={participant.id}
-                className="flex items-center justify-between rounded-2xl border border-border/40 bg-card p-4 transition-all hover:border-border hover:shadow-sm"
+                className="flex items-center justify-between rounded-2xl border bg-card p-4 transition-all hover:border-border hover:shadow-sm"
               >
                 <div className="flex items-center gap-3">
                   <Avatar className="size-10">
@@ -120,7 +124,7 @@ export default function SocialParticipantsTab({
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="text-sm font-medium">
+                    <p className="text-md font-medium">
                       {participant.user.name
                         ? participant.user.name
                         : "Unknown User"}
@@ -132,7 +136,9 @@ export default function SocialParticipantsTab({
                             ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
                             : participant.status === "WAITLISTED"
                               ? "border-amber-500/30 bg-amber-500/10 text-amber-600"
-                              : "border-border bg-muted text-muted-foreground"
+                              : participant.status === "ON_HOLD"
+                                ? "border-blue-500/30 bg-blue-500/10 text-blue-600"
+                                : "border-border bg-muted text-muted-foreground"
                         }
                         variant="outline"
                       >
@@ -144,7 +150,7 @@ export default function SocialParticipantsTab({
 
                 <div className="flex flex-col items-end justify-center gap-2">
                   <p
-                    className="text-xs text-muted-foreground"
+                    className="text-sm text-muted-foreground"
                     suppressHydrationWarning
                   >
                     {t("detail.joinedOn", {
@@ -154,7 +160,7 @@ export default function SocialParticipantsTab({
 
                   {isHost && !participant.isHost && (
                     <div className="flex items-center gap-2">
-                      {participant.status === "WAITLISTED" && (
+                      {participant.status === "ON_HOLD" && (
                         <Button
                           size="sm"
                           variant="outline"
@@ -175,7 +181,8 @@ export default function SocialParticipantsTab({
                       )}
 
                       {(participant.status === "CONFIRMED" ||
-                        participant.status === "WAITLISTED") && (
+                        participant.status === "WAITLISTED" ||
+                        participant.status === "ON_HOLD") && (
                         <Button
                           size="sm"
                           variant="ghost"

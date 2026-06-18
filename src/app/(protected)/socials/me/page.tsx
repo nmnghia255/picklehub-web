@@ -15,6 +15,7 @@ export default async function Page(props: {
     : 10
   const tab = searchParams?.tab ? (searchParams.tab as string) : null
   const role = searchParams?.role ? (searchParams.role as string) : null
+  const status = searchParams?.status ? (searchParams.status as string) : null
 
   let socials = [] as ListSocial[]
   let pagination = {
@@ -25,7 +26,13 @@ export default async function Page(props: {
   }
 
   try {
-    const result = await SocialService.listMySocials(tab, role, page, limit)
+    const result = await SocialService.listMySocials(
+      tab,
+      role,
+      page,
+      limit,
+      status
+    )
     socials = result.data
     pagination = result.meta
   } catch (error) {

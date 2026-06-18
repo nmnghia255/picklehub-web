@@ -19,7 +19,6 @@ import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { joinSocialAction } from "@/features/socials/actions/join-social"
 import { leaveSocialAction } from "@/features/socials/actions/leave-social"
-import { completeSocial } from "@/features/socials/actions/social"
 import { PlaySessionForm } from "@/features/socials/components/play-session/play-session-form"
 import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
 import type { PlaySession } from "@/features/socials/types/play-session"
@@ -27,18 +26,19 @@ import type {
   SocialDetail,
   SocialParticipant,
 } from "@/features/socials/types/social"
-import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import SocialExpenseTab from "./social-expense-tab"
+import SocialExpenseTab from "./expense-tab/social-expense-tab"
+import SocialFeedbackTab from "./feedback-tab/social-feedback-tab"
+import SocialOverview from "./overview-tab/social-overview"
+import SocialSessions from "./overview-tab/social-session"
+import SocialParticipantsTab from "./participants-tab/social-participants-tab"
+import SocialPaymentTab from "./payment-tab/social-payment-tab"
 import SocialHeader from "./social-header"
 import SocialHero from "./social-hero"
 import SocialJoinDialog from "./social-join-dialog"
-import SocialOverview from "./social-overview"
-import SocialParticipantsTab from "./social-participants-tab"
-import SocialPaymentTab from "./social-payment-tab"
-import SocialSessions from "./social-session"
 import SocialSidebar from "./social-sidebar"
+import SocialStatisticsTab from "./statistics-tab/social-statistics-tab"
 
 interface SocialDetailProps {
   initialSocial: SocialDetail | null
@@ -73,32 +73,6 @@ export default function SocialDetail({
   const [isJoining, setIsJoining] = useState(false)
   const [isLeaving, setIsLeaving] = useState(false)
   const [leaveDialogOpen, setLeaveDialogOpen] = useState(false)
-  const [isCompleting, setIsCompleting] = useState(false)
-  const { data: subscriptions } = useMySubscriptions()
-
-  const handleCompleteSocial = async () => {
-    if (!social) return
-    setIsCompleting(true)
-    try {
-      await completeSocial(social.id)
-      toast.success(
-        t("form.completeSocialSuccess") ||
-          "Social event completed successfully!"
-      )
-      router.refresh()
-    } catch (e: unknown) {
-      console.error("Error completing social:", e)
-      const errorMsg =
-        e instanceof Error ? e.message : "Failed to complete social event."
-      toast.error(
-        errorMsg ||
-          t("form.completeSocialError") ||
-          "Failed to complete social event."
-      )
-    } finally {
-      setIsCompleting(false)
-    }
-  }
 
   if (!social) {
     return (
@@ -117,11 +91,7 @@ export default function SocialDetail({
     )
   }
 
-  const hasSocialHostPlan = subscriptions?.some(
-    (sub) => sub.status === "ACTIVE" && sub.plan.type === "SOCIAL_HOST"
-  )
-
-  const isHost = Boolean(social.isHost) && !!hasSocialHostPlan
+  const isHost = Boolean(social.isHost)
   const duration = differenceInHours(
     new Date(social.endTime),
     new Date(social.startTime)
@@ -200,8 +170,6 @@ export default function SocialDetail({
             isParticipant={isParticipant}
             onBack={() => router.back()}
             onEdit={() => router.push(`/socials/${social.id}/edit`)}
-            onComplete={handleCompleteSocial}
-            isCompleting={isCompleting}
           />
 
           <Tabs
@@ -215,6 +183,12 @@ export default function SocialDetail({
               <TabsTrigger value="2">{t("payment.tab")}</TabsTrigger>
               {isHost && (
                 <TabsTrigger value="3">{t("expenses.tab")}</TabsTrigger>
+              )}
+              {isHost && social.status === "COMPLETED" && (
+                <TabsTrigger value="4">{t("statistics.tab")}</TabsTrigger>
+              )}
+              {(isParticipant || isHost) && social.status === "COMPLETED" && (
+                <TabsTrigger value="5">{t("feedback.tab")}</TabsTrigger>
               )}
             </TabsList>
 
@@ -243,6 +217,7 @@ export default function SocialDetail({
                 participants={socialParticipants}
                 isHost={isHost}
                 socialId={social.id}
+                status={social.status}
               />
             </TabsContent>
 
@@ -251,8 +226,27 @@ export default function SocialDetail({
             </TabsContent>
 
             <TabsContent value="3" className="space-y-4">
-              <SocialExpenseTab social={social} />
+              <SocialExpenseTab
+                social={social}
+                initialParticipants={socialParticipants}
+              />
             </TabsContent>
+
+            {isHost && social.status === "COMPLETED" && (
+              <TabsContent value="4" className="space-y-4">
+                <SocialStatisticsTab
+                  social={social}
+                  initialParticipants={socialParticipants}
+                  playSessions={sessions}
+                />
+              </TabsContent>
+            )}
+
+            {(isParticipant || isHost) && social.status === "COMPLETED" && (
+              <TabsContent value="5" className="space-y-4">
+                <SocialFeedbackTab socialId={social.id} isHost={isHost} />
+              </TabsContent>
+            )}
           </Tabs>
         </div>
 

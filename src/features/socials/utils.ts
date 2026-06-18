@@ -49,6 +49,10 @@ export const getParticipantStatusLabel = (
       return t("participantStatus.cancelled")
     case "REJECTED":
       return t("participantStatus.rejected")
+    case "WAITLISTED":
+      return t("participantStatus.waitlisted")
+    case "ON_HOLD":
+      return t("participantStatus.onHold")
     default:
       return t("participantStatus.pending")
   }

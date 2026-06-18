@@ -20,6 +20,7 @@ export function getStatusOptions(
     { value: "PUBLISHED", label: t("labels.published") },
     { value: "COMPLETED", label: t("labels.completed") },
     { value: "CANCELED", label: t("labels.cancelled") },
+    { value: "DRAFT", label: t("labels.draft") },
   ]
 }
 

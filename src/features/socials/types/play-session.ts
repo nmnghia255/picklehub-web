@@ -1,3 +1,5 @@
+import type { PaymentStatus } from "./payment"
+
 export interface PlaySession {
   id: string
   title: string
@@ -15,6 +17,8 @@ export interface PlaySession {
   startTime: string
   endTime: string
   status: string
+  maxslot: number
+  isHost: boolean
   creatorId: string
   createdAt: string
   updatedAt: string
@@ -25,6 +29,19 @@ export interface PlaySessionRequest {
   bookingIds: string[]
   pricePerPlayer: number
   sessionFee: number
+}
+
+export interface ParticipantPayment {
+  id: string
+  socialParticipantId: string
+  amount: number
+  receiptUrl: string | null
+  status: PaymentStatus
+  transactionType: string
+  createdById: string
+  verifiedById: string
+  createdAt: string
+  updatedAt: string
 }
 
 export interface PlaySessionParticipant {
@@ -41,6 +58,7 @@ export interface PlaySessionParticipant {
     name: string
     avatarUrl: string | null
   }
+  payments: ParticipantPayment[]
 }
 
 interface Session {

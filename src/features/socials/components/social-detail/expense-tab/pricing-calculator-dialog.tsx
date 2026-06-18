@@ -88,7 +88,10 @@ export function PricingCalculatorDialog({
           })) || [],
       }),
     onSuccess: () => {
-      toast.success("Pricing applied successfully")
+      toast.success(
+        t("expenses.pricing.appliedSuccessfully") ||
+          "Pricing applied successfully"
+      )
       queryClient.invalidateQueries({ queryKey: ["financeSummary", socialId] })
       onOpenChange(false)
     },

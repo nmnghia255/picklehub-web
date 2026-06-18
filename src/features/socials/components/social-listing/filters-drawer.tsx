@@ -68,7 +68,7 @@ export const FiltersDrawer: React.FC<FiltersDrawerProps> = ({
               {isMySocials && (
                 <>
                   <FilterItem
-                    label={t("labels.status")}
+                    label={t("detail.schedule")}
                     selectionOptions={[
                       { value: null, label: t("filters.all") },
                       { value: "upcoming", label: t("filters.upcoming") },
@@ -87,18 +87,17 @@ export const FiltersDrawer: React.FC<FiltersDrawerProps> = ({
                     selectedValue={filters.role}
                     onValueChange={(value) => setFilters({ role: value })}
                   />
-                </>
-              )}
-
-              {!isMySocials && (
-                <>
                   <FilterItem
                     label={t("labels.status")}
                     selectionOptions={statusOptions}
                     selectedValue={filters.status}
                     onValueChange={(value) => setFilters({ status: value })}
                   />
+                </>
+              )}
 
+              {!isMySocials && (
+                <>
                   {/* start */}
 
                   {/* end */}

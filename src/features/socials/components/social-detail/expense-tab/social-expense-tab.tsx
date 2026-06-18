@@ -15,12 +15,13 @@ import {
 import { Progress } from "@/components/ui/progress"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import { listExpensesAction } from "../../actions/expense-actions"
+import { listExpensesAction } from "../../../actions/expense-actions"
 import {
   getFinanceSummaryAction,
   listCourtBookingsAction,
-} from "../../actions/finance-actions"
-import type { SocialDetail } from "../../types/social"
+} from "../../../actions/finance-actions"
+import type { SocialDetail } from "../../../types/social"
+import type { SocialParticipant } from "../../../types/social"
 import { CourtBookingExpensesCard } from "./court-booking-expenses-card"
 import { ExpenseSummaryGrid } from "./expense-summary-grid"
 import { ExtraExpensesCard } from "./extra-expenses-card"
@@ -30,8 +31,10 @@ import { SocialExpenseTabSkeleton } from "./social-expense-tab-skeleton"
 
 export default function SocialExpenseTab({
   social,
+  initialParticipants,
 }: {
   social: SocialDetail | null
+  initialParticipants: SocialParticipant[]
 }) {
   const { t } = useSocialsTranslation()
   const socialId = social?.id || ""
@@ -153,7 +156,11 @@ export default function SocialExpenseTab({
           />
         </div>
 
-        <ParticipantPaymentTrackingCard socialId={socialId} />
+        <ParticipantPaymentTrackingCard
+          socialId={socialId}
+          isCompleted={social?.status === "COMPLETED"}
+          initialParticipants={initialParticipants}
+        />
       </section>
 
       <PricingCalculatorDialog

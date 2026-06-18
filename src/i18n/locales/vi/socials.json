@@ -24,7 +24,7 @@
     "menOnly": "Nam",
     "womenOnly": "Nữ",
     "any": "Bất kỳ",
-    "mixed_only": "Nam & Nữ",
+    "mixedOnly": "Nam & Nữ",
     "junior": "Trẻ",
     "adult": "Người lớn",
     "senior": "Cao tuổi",
@@ -202,6 +202,7 @@
         "amountDue": "Số tiền cần thu",
         "paymentStatus": "Trạng thái thanh toán",
         "totalFee": "Tổng phí",
+        "amountPaid": "Đã thanh toán",
         "actions": "Thao tác"
       },
       "participantStatus": {
@@ -210,13 +211,73 @@
         "cancelled": "Đã hủy",
         "rejected": "Bị từ chối"
       },
-      "emptyTitle": "Không có người tham gia nào khớp bộ lọc này.",
+      "emptyTitle": "Không tìm thấy người tham gia nào",
       "emptyDescription": "Xóa tìm kiếm hoặc đổi trạng thái thanh toán để xem thêm dòng dữ liệu.",
       "actions": {
-        "verifyReceipt": "Xác nhận biên lai",
+        "actions": "Thao tác",
+        "verifyReceipt": "Xác nhận hóa đơn",
         "recordCash": "Ghi nhận tiền mặt",
-        "issueRefund": "Hoàn tiền",
-        "actions": "Thao tác"
+        "issueRefund": "Hoàn tiền"
+      },
+      "unknownUser": "Không rõ",
+      "noEmail": "Không có email",
+      "creditPrefix": "Dư: ",
+      "viewReceipt": "Xem hóa đơn",
+      "paymentProof": "Minh chứng thanh toán",
+      "viewFullImage": "Xem ảnh đầy đủ",
+      "noReceiptImage": "Chưa tải lên ảnh minh chứng",
+      "verifyPaymentDialog": {
+        "title": "Xác minh thanh toán",
+        "description": "Kiểm tra hóa đơn chuyển khoản đã tải lên và cập nhật trạng thái.",
+        "noReceipt": "Chưa tải lên ảnh minh chứng",
+        "amountLabel": "Số tiền đã thanh toán (VND)",
+        "amountPlaceholder": "Ví dụ: 50.000",
+        "reject": "Từ chối",
+        "approve": "Phê duyệt",
+        "cancel": "Hủy",
+        "success": "Xác minh thanh toán thành công",
+        "error": "Xác minh thanh toán thất bại"
+      },
+      "recordPaymentDialog": {
+        "title": "Ghi nhận thanh toán tiền mặt",
+        "description": "Tự tay ghi nhận một khoản thanh toán bằng tiền mặt cho người tham gia này.",
+        "amountLabel": "Số tiền (VND)",
+        "cancel": "Hủy",
+        "recordPayment": "Ghi nhận",
+        "success": "Ghi nhận thanh toán thành công",
+        "error": "Ghi nhận thanh toán thất bại"
+      },
+      "courtBookings": {
+        "title": "Chi phí đặt sân",
+        "description": "Mọi chi phí đều đến từ các sân đã đặt.",
+        "rowTypeCourtBooking": "Đặt sân",
+        "footerLabel": "Tổng chi phí đặt sân",
+        "headers": {
+          "courtName": "Tên sân",
+          "date": "Ngày",
+          "time": "Giờ",
+          "duration": "Thời lượng",
+          "cost": "Chi phí"
+        }
+      },
+      "expenseDialog": {
+        "editTitle": "Chỉnh sửa chi phí",
+        "addTitle": "Thêm chi phí phát sinh",
+        "editDescription": "Chỉnh sửa thông tin chi tiết của khoản chi phí này.",
+        "addDescription": "Thêm các chi phí phát sinh khác như nước uống, bóng, đá lạnh, v.v.",
+        "titleLabel": "Tiêu đề",
+        "titlePlaceholder": "Ví dụ: Nước uống, Bóng thi đấu",
+        "amountLabel": "Số tiền (VND)",
+        "amountPlaceholder": "Ví dụ: 50.000",
+        "descriptionLabel": "Mô tả",
+        "descriptionPlaceholder": "Mô tả ngắn gọn về khoản chi...",
+        "cancel": "Hủy",
+        "save": "Thêm chi phí",
+        "update": "Cập nhật chi phí",
+        "successAdd": "Đã thêm chi phí thành công",
+        "successUpdate": "Đã cập nhật chi phí thành công",
+        "errorAdd": "Thêm chi phí thất bại",
+        "errorUpdate": "Cập nhật chi phí thất bại"
       }
     },
     "paymentInfo": {
@@ -307,6 +368,7 @@
         "bookingCost": "Chi phí đặt sân"
       },
       "applyPricing": "Áp dụng giá",
+      "appliedSuccessfully": "Áp dụng giá thành công",
       "cancel": "Hủy"
     }
   },
@@ -315,6 +377,8 @@
     "subtitle": "Thanh toán chi phí tham gia buổi chơi này",
     "totalFeeToPay": "Tổng phí cần thanh toán",
     "joinedSessions": "Phiên đã tham gia",
+    "uploadSuccessTitle": "Ảnh minh chứng đã được tải lên thành công",
+    "uploadSuccessDescription": "Ảnh minh chứng thanh toán của bạn đã được gửi đến người tổ chức. Họ sẽ kiểm tra và xác nhận thanh toán của bạn.",
     "joinedSessionsDescription": "Danh sách các phiên bạn đã tham gia",
     "description": "Xem lại chi phí đặt sân, tính phần chia cho người tham gia, theo dõi thanh toán và giữ sự kiện luôn gọn gàng về tài chính.",
     "checkInfoBeforeConfirm": "Kiểm tra lại thông tin đặt sân, sau đó xác nhận để tạo booking.",
@@ -333,7 +397,9 @@
     "pending": "Chờ duyệt",
     "confirmed": "Đã xác nhận",
     "cancelled": "Đã hủy",
-    "rejected": "Bị từ chối"
+    "rejected": "Bị từ chối",
+    "waitlisted": "Danh sách chờ",
+    "onHold": "Chờ thanh toán"
   },
   "badges": {
     "hosting": "Tổ chức",
@@ -359,8 +425,12 @@
     "leaveSocial": "Rời buổi chơi",
     "joinSession": "Tham gia phiên",
     "leaving": "Đang rời...",
+    "completing": "Đang hoàn tất...",
     "publishing": "Đang đăng...",
     "leaveSession": "Rời phiên",
+    "completeSocial": "Hoàn tất buổi chơi",
+    "completeSuccess": "Hoàn tất buổi chơi thành công",
+    "publishSuccess": "Đăng buổi chơi thành công",
     "full": "Đầy",
     "publishSocial": "Đăng sự kiện",
     "viewDetails": "Xem chi tiết"
@@ -378,7 +448,8 @@
     "manualApproval": "Sự kiện này cần duyệt thủ công. Bạn sẽ nhận thông báo sau khi chủ nhà xem xét yêu cầu.",
     "cancel": "Hủy",
     "confirmJoin": "Xác nhận tham gia",
-    "joinSuccess": "Tham gia social thành công!",
+    "joining": "Đang tham gia...",
+    "joinSuccess": "Tham gia thành công!",
     "joinError": "Lỗi khi tham gia.",
     "leaveSuccess": "Rời buổi chơi thành công!",
     "leaveError": "Lỗi khi rời buổi chơi.",
@@ -403,7 +474,60 @@
     "startSuccess": "Bắt đầu phiên chơi thành công",
     "startError": "Lỗi khi bắt đầu phiên chơi",
     "completeSuccess": "Hoàn tất phiên chơi thành công",
-    "completeError": "Lỗi khi hoàn tất phiên chơi"
+    "completeError": "Lỗi khi hoàn tất phiên chơi",
+    "joinSuccess": "Tham gia phiên chơi thành công",
+    "joinError": "Lỗi khi tham gia phiên chơi",
+    "leaveSuccess": "Rời phiên chơi thành công",
+    "leaveError": "Lỗi khi rời phiên chơi",
+    "notFoundTitle": "Không tìm thấy phiên chơi",
+    "notFoundDescription": "Phiên chơi bạn đang tìm kiếm không tồn tại.",
+    "backToSocials": "Quay lại",
+    "joining": "Đang tham gia...",
+    "leaving": "Đang rời..."
+  },
+  "statistics": {
+    "tab": "Thống kê",
+    "title": "Thống kê sau sự kiện",
+    "subtitle": "Xem lại số trận đã đấu, tổng chi phí và doanh thu thực tế kiếm được cho buổi chơi đã hoàn thành này.",
+    "revenue": "Doanh thu thu được",
+    "expected": "Dự kiến",
+    "outstanding": "Còn lại cần thu",
+    "expense": "Chi phí đã chi",
+    "profit": "Lợi nhuận ròng",
+    "estimated": "Lợi nhuận ước tính",
+    "estimatedLoss": "Thua lỗ ước tính",
+    "totalMatches": "Tổng số trận đấu",
+    "participants": "Tổng quan người tham gia",
+    "playersCount": "Người chơi",
+    "headers": {
+      "participant": "Người tham gia",
+      "level": "Trình độ",
+      "matchesPlayed": "Số trận đã chơi"
+    }
+  },
+  "feedback": {
+    "tab": "Phản hồi",
+    "title": "Phản hồi của người tham gia",
+    "subtitle": "Phản hồi của bạn giúp người tổ chức cải thiện các buổi giao lưu pickleball trong tương lai. Hãy cho họ biết trải nghiệm của bạn!",
+    "overallExperience": "Trải nghiệm chung",
+    "overallDesc": "Đánh giá trải nghiệm tổng thể của bạn hôm nay",
+    "hostOrganization": "Tổ chức",
+    "hostDesc": "Điều phối trận đấu, sự thân thiện và công tác tổ chức",
+    "venueQuality": "Chất lượng sân bãi",
+    "venueDesc": "Điều kiện sân, ánh sáng và cơ sở vật chất",
+    "commentLabel": "Viết đánh giá / bình luận của bạn",
+    "commentPlaceholder": "Mô tả trải nghiệm của bạn, điều gì tốt và điều gì cần cải thiện...",
+    "errorEmptyRating": "Vui lòng chọn mức đánh giá trước khi gửi.",
+    "errorEmptyComment": "Vui lòng viết bình luận trước khi gửi.",
+    "submitBtn": "Gửi phản hồi",
+    "othersTitle": "Đánh giá từ người tham gia",
+    "othersSubtitle": "Xem những người chơi khác nói gì về buổi giao lưu này",
+    "dialogTitle": "Đã nhận phản hồi",
+    "dialogDesc": "Cảm ơn bạn đã phản hồi! Ý kiến của bạn đã được gửi thành công.",
+    "close": "Đóng",
+    "noReviewsYet": "Chưa có đánh giá nào. Hãy là người đầu tiên chia sẻ trải nghiệm của bạn!",
+    "anonymousPlayer": "Người chơi",
+    "playerInitials": "N"
   },
   "matches": {
     "title": "Lịch trận đấu",
@@ -571,6 +695,7 @@
     "description": "Mô tả",
     "descriptionPlaceholder": "Mô tả sự kiện của bạn...",
     "format": "Hình thức",
+    "pickDate": "Chọn ngày",
     "schedule": "Lịch trình",
     "startTime": "Thời gian bắt đầu",
     "endTime": "Thời gian kết thúc",
@@ -635,6 +760,49 @@
     "fee": "Phí tham gia",
     "bookings": "Sân đã đặt",
     "location": "Vị trí",
-    "freeEvent": "Miễn phí"
+    "freeEvent": "Miễn phí",
+    "accessDenied": "Quyền truy cập bị từ chối",
+    "hostPlanRequired": "Chỉ những người dùng đã đăng ký gói SOCIAL_HOST mới có quyền tạo hoặc chỉnh sửa buổi chơi.",
+    "goBack": "Quay lại",
+    "upgradeAccount": "Nâng cấp tài khoản",
+    "validationMinMaxLevel": "Trình độ tối thiểu không thể lớn hơn trình độ tối đa",
+    "validationPackageFee": "Phí tham gia không hợp lệ",
+    "validationPaymentBankNameRequired": "Vui lòng nhập tên ngân hàng",
+    "validationPaymentAccountNumberRequired": "Vui lòng nhập số tài khoản",
+    "validationPaymentAccountNameRequired": "Vui lòng nhập tên chủ tài khoản",
+    "validation": {
+      "titleRequired": "Vui lòng nhập tiêu đề buổi chơi",
+      "noteRequired": "Vui lòng nhập mô tả buổi chơi",
+      "startTimeRequired": "Vui lòng chọn ngày và giờ bắt đầu",
+      "endTimeRequired": "Vui lòng chọn giờ kết thúc",
+      "maxSlotsRequired": "Số lượng người tối đa phải lớn hơn 0"
+    }
+  },
+  "sessionForm": {
+    "createTitle": "Tạo buổi chơi",
+    "editTitle": "Cập nhật buổi chơi",
+    "subtitle": "Nhập thông tin chi tiết cho phiên chơi",
+    "titleLabel": "Tên buổi chơi *",
+    "titlePlaceholder": "Nhập tên buổi chơi",
+    "bookingLabel": "Mã đặt sân *",
+    "bookingPlaceholder": "Chọn mã đặt sân",
+    "feeLabel": "Phí buổi chơi *",
+    "validation": {
+      "titleRequired": "Vui lòng nhập tên buổi chơi",
+      "bookingRequired": "Vui lòng chọn ít nhất 1 mã đặt sân",
+      "priceInvalid": "Giá mỗi người chơi không hợp lệ",
+      "feeInvalid": "Phí buổi chơi không hợp lệ"
+    },
+    "defaultCourt": "Sân",
+    "timeLabel": "Giờ: {{time}}",
+    "noBookingsAvailable": "Không tìm thấy lượt đặt sân nào",
+    "success": {
+      "create": "Tạo buổi chơi thành công",
+      "update": "Cập nhật buổi chơi thành công"
+    },
+    "errors": {
+      "create": "Lỗi khi tạo buổi chơi",
+      "processing": "Đang xử lý..."
+    }
   }
 }

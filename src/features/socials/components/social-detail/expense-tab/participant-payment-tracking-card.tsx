@@ -42,16 +42,21 @@ import { getPaymentStatusLabel } from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd, getPaymentStatusTone } from "@/utils/expense-utils"
 
-import type { PaymentStatus } from "../../types/payment"
-import type { SocialParticipant } from "../../types/social"
+import type { PaymentStatus } from "../../../types/payment"
+import type { SocialParticipant } from "../../../types/social"
+import { ParticipantDetailDialog } from "./participant-detail-dialog"
 import { RecordPaymentDialog } from "./record-payment-dialog"
 import { RefundDialog } from "./refund-dialog"
 import { VerifyPaymentDialog } from "./verify-payment-dialog"
 
 export function ParticipantPaymentTrackingCard({
   socialId,
+  isCompleted = false,
+  initialParticipants,
 }: {
   socialId: string
+  isCompleted?: boolean
+  initialParticipants: SocialParticipant[]
 }) {
   const { t } = useSocialsTranslation()
   const [searchTerm, setSearchTerm] = React.useState("")
@@ -63,15 +68,12 @@ export function ParticipantPaymentTrackingCard({
   const [recordPaymentOpen, setRecordPaymentOpen] = useState(false)
   const [verifyPaymentOpen, setVerifyPaymentOpen] = useState(false)
   const [refundOpen, setRefundOpen] = useState(false)
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false)
 
   const [selectedParticipant, setSelectedParticipant] =
     useState<SocialParticipant | null>(null)
 
-  const { data: participants = [], isLoading } = useQuery({
-    queryKey: ["socialParticipants", socialId],
-    queryFn: () => listSocialParticipantsAction(socialId),
-    enabled: !!socialId,
-  })
+  const participants = initialParticipants
 
   const filteredParticipants = React.useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase()
@@ -209,18 +211,16 @@ export function ParticipantPaymentTrackingCard({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="py-8 text-center text-muted-foreground"
-                    >
-                      Loading participants...
-                    </TableCell>
-                  </TableRow>
-                ) : filteredParticipants.length ? (
+                {filteredParticipants.length ? (
                   filteredParticipants.map((row) => (
-                    <TableRow key={row.id}>
+                    <TableRow
+                      key={row.id}
+                      className="cursor-pointer transition-colors hover:bg-muted/50"
+                      onClick={() => {
+                        setSelectedParticipant(row)
+                        setDetailDialogOpen(true)
+                      }}
+                    >
                       <TableCell className="px-6 py-4 font-medium">
                         {row.user.name || "Unknown"}
                         {row.isHost && (
@@ -252,8 +252,12 @@ export function ParticipantPaymentTrackingCard({
                           </Badge>
                           {row.payments?.[0]?.receiptUrl && (
                             <button
-                              onClick={() => openVerifyPayment(row)}
-                              className="group relative flex h-7 w-6 items-center justify-center overflow-hidden rounded-[4px] border border-border/50 bg-muted/50 shadow-xs transition-colors hover:border-primary/50"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                openVerifyPayment(row)
+                              }}
+                              disabled={isCompleted}
+                              className="group relative flex h-7 w-6 items-center justify-center overflow-hidden rounded-[4px] border border-border/50 bg-muted/50 shadow-xs transition-colors hover:border-primary/50 disabled:pointer-events-none disabled:opacity-50"
                               title={t("expenses.tracking.viewReceipt", {
                                 defaultValue: "View Receipt",
                               })}
@@ -267,10 +271,17 @@ export function ParticipantPaymentTrackingCard({
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="px-6 py-4 text-right">
+                      <TableCell
+                        className="px-6 py-4 text-right"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="size-8 p-0">
+                            <Button
+                              variant="ghost"
+                              className="size-8 p-0"
+                              disabled={isCompleted}
+                            >
                               <span className="sr-only">Open menu</span>
                               <MoreHorizontal className="size-4" />
                             </Button>
@@ -357,6 +368,23 @@ export function ParticipantPaymentTrackingCard({
             maxRefundAmount={Math.abs(selectedParticipant.amountDue)}
             open={refundOpen}
             onOpenChange={setRefundOpen}
+          />
+          <ParticipantDetailDialog
+            open={detailDialogOpen}
+            onOpenChange={setDetailDialogOpen}
+            participant={selectedParticipant}
+            onVerify={() => {
+              setDetailDialogOpen(false)
+              openVerifyPayment(selectedParticipant)
+            }}
+            onRecordCash={() => {
+              setDetailDialogOpen(false)
+              openRecordPayment(selectedParticipant)
+            }}
+            onRefund={() => {
+              setDetailDialogOpen(false)
+              openRefund(selectedParticipant)
+            }}
           />
         </>
       )}

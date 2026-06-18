@@ -20,8 +20,6 @@ export default async function Page(props: {
       params.page = parseInt(searchParams.page as string, 10)
     if (searchParams.limit)
       params.limit = parseInt(searchParams.limit as string, 10)
-    if (searchParams.status)
-      params.status = searchParams.status as ListSocialRequest["status"]
     if (searchParams.search) params.search = searchParams.search as string
     if (searchParams.startFrom)
       params.startFrom = searchParams.startFrom as string

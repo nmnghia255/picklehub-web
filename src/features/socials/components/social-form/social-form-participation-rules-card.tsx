@@ -73,7 +73,7 @@ export function SocialFormParticipationRulesCard({
                 <SelectContent>
                   <SelectItem value="ANY">{t("labels.any")}</SelectItem>
                   <SelectItem value="MIXED_ONLY">
-                    {t("labels.mixed")}
+                    {t("labels.mixedOnly")}
                   </SelectItem>
                   <SelectItem value="MALE_ONLY">
                     {t("labels.menOnly")}

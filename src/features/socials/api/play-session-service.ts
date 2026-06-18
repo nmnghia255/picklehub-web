@@ -142,7 +142,7 @@ export const PlaySessionService = {
   ): Promise<PlaySessionParticipant> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.delete<ApiResponse<PlaySessionParticipant>>(
-      `/api/events/socials/${socialId}/play-sessions/${sessionId}/leave`
+      `/api/events/socials/${socialId}/play-sessions/${sessionId}/participants/me`
     )
     return unwrapApiResponse(response.data)
   },

@@ -74,7 +74,7 @@ export default function SocialCard({ social, onClick }: SocialCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1 pt-4 pb-6">
+      <CardContent className="flex-1 pt-0 pb-6">
         <p className="mb-4 line-clamp-2 min-h-10 text-sm/relaxed text-muted-foreground">
           {social.note.length > 80
             ? `${social.note.slice(0, 80)}...`

@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { verifyPaymentAction } from "@/features/socials/actions/payment-actions"
 import type { PaymentStatus } from "@/features/socials/types/payment"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 interface VerifyPaymentDialogProps {
   socialId: string
@@ -38,8 +39,21 @@ export function VerifyPaymentDialog({
   open,
   onOpenChange,
 }: VerifyPaymentDialogProps) {
+  const { t } = useSocialsTranslation()
   const queryClient = useQueryClient()
   const [amountPaid, setAmountPaid] = useState(String(amountDue))
+
+  const formatDisplayValue = (val: string) => {
+    if (!val) return ""
+    const num = Number(val)
+    if (isNaN(num)) return ""
+    return new Intl.NumberFormat("vi-VN").format(num)
+  }
+
+  const handleAmountChange = (val: string) => {
+    const rawVal = val.replace(/\D/g, "")
+    setAmountPaid(rawVal)
+  }
 
   const { mutate, isPending } = useMutation({
     mutationFn: (status: PaymentStatus) =>
@@ -51,7 +65,9 @@ export function VerifyPaymentDialog({
         Number(amountPaid)
       ),
     onSuccess: () => {
-      toast.success("Payment verified")
+      toast.success(
+        t("expenses.verifyPaymentDialog.success") || "Payment verified"
+      )
       queryClient.invalidateQueries({
         queryKey: ["socialParticipants", socialId],
       })
@@ -59,7 +75,11 @@ export function VerifyPaymentDialog({
       onOpenChange(false)
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to verify payment")
+      toast.error(
+        error.message ||
+          t("expenses.verifyPaymentDialog.error") ||
+          "Failed to verify payment"
+      )
     },
   })
 
@@ -67,10 +87,16 @@ export function VerifyPaymentDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Verify Payment Receipt</DialogTitle>
+          <DialogTitle>
+            {t("expenses.verifyPaymentDialog.title", {
+              defaultValue: "Verify Payment",
+            })}
+          </DialogTitle>
           <DialogDescription>
-            Check the bank app to verify the transaction. Adjust the actual
-            amount received if necessary.
+            {t("expenses.verifyPaymentDialog.description", {
+              defaultValue:
+                "Review the uploaded payment receipt and update the status.",
+            })}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -83,34 +109,59 @@ export function VerifyPaymentDialog({
               />
             </div>
           ) : (
-            <div className="flex h-32 items-center justify-center rounded-md border border-dashed bg-muted">
-              No receipt uploaded
+            <div className="flex h-32 items-center justify-center rounded-md border border-dashed bg-muted text-sm text-muted-foreground">
+              {t("expenses.verifyPaymentDialog.noReceipt", {
+                defaultValue: "No receipt image uploaded",
+              })}
             </div>
           )}
           <div className="grid gap-2">
-            <Label htmlFor="amountPaid">Amount Received (VND)</Label>
+            <Label htmlFor="amountPaid">
+              {t("expenses.verifyPaymentDialog.amountLabel", {
+                defaultValue: "Amount Paid (VND)",
+              })}
+            </Label>
             <Input
               id="amountPaid"
-              type="number"
-              value={amountPaid}
-              onChange={(e) => setAmountPaid(e.target.value)}
+              type="text"
+              inputMode="numeric"
+              value={formatDisplayValue(amountPaid)}
+              onChange={(e) => handleAmountChange(e.target.value)}
+              placeholder={
+                t("expenses.verifyPaymentDialog.amountPlaceholder") ||
+                "e.g. 50.000"
+              }
             />
           </div>
         </div>
         <DialogFooter className="gap-2">
           <Button
             variant="outline"
-            onClick={() => mutate("UNPAID")}
+            onClick={() => onOpenChange(false)}
             disabled={isPending}
           >
-            Reject
+            {t("expenses.verifyPaymentDialog.cancel", {
+              defaultValue: "Cancel",
+            })}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => mutate("UNPAID")}
+            disabled={isPending}
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
+            {t("expenses.verifyPaymentDialog.reject", {
+              defaultValue: "Reject",
+            })}
           </Button>
           <Button
             onClick={() => mutate("PAID")}
             disabled={isPending || !amountPaid}
           >
             {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-            Approve
+            {t("expenses.verifyPaymentDialog.approve", {
+              defaultValue: "Approve",
+            })}
           </Button>
         </DialogFooter>
       </DialogContent>

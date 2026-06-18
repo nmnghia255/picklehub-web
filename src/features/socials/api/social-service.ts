@@ -1,5 +1,6 @@
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
+import type { Feedback } from "../types/feedback"
 import type {
   CreateSocialResponse,
   DuplicateSessionRequest,
@@ -34,7 +35,8 @@ export const SocialService = {
     tab: string | null,
     role: string | null,
     page: number | null,
-    limit: number | null
+    limit: number | null,
+    status?: string | null
   ): Promise<{
     data: ListSocial[]
     meta: ApiResponse<ListSocial[]>["meta"]
@@ -43,6 +45,7 @@ export const SocialService = {
     const searchParams = new URLSearchParams()
     if (tab) searchParams.set("tab", tab)
     if (role) searchParams.set("role", role)
+    if (status) searchParams.set("status", status)
     if (page !== null) searchParams.set("page", page.toString())
     if (limit !== null) searchParams.set("limit", limit.toString())
 
@@ -216,6 +219,34 @@ export const SocialService = {
     const axios = await getAuthenticatedAxios()
     const response = await axios.patch(
       `/api/events/socials/${socialId}/complete`
+    )
+    return unwrapApiResponse(response.data)
+  },
+
+  submitFeedback: async function (
+    socialId: string,
+    ratingOverall: number,
+    ratingOrganization: number,
+    ratingVenue: number,
+    comment: string
+  ) {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.post(
+      `/api/events/socials/${socialId}/feedback`,
+      {
+        ratingOverall,
+        ratingOrganization,
+        ratingVenue,
+        comment,
+      }
+    )
+    return unwrapApiResponse(response.data)
+  },
+
+  getFeedback: async function (socialId: string) {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.get<ApiResponse<Feedback>>(
+      `/api/events/socials/${socialId}/feedback/analytics`
     )
     return unwrapApiResponse(response.data)
   },

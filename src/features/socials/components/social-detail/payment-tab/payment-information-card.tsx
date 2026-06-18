@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import type { SocialDetail } from "../../types/social"
+import type { SocialDetail } from "../../../types/social"
 
 export function PaymentInformationCard({
   social,

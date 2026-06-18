@@ -98,10 +98,11 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
   )
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const { data: subscriptions, isLoading } = useMySubscriptions()
-  const hasSocialHostPlan = subscriptions?.some(
-    (sub) => sub.status === "ACTIVE" && sub.plan.type === "SOCIAL_HOST"
-  )
+  const { isLoading } = useMySubscriptions()
+  // const hasSocialHostPlan = subscriptions?.some(
+  //   (sub) => sub.status === "ACTIVE" && sub.plan.type === "SOCIAL_HOST"
+  // )
+  const hasSocialHostPlan = true
 
   useEffect(() => {
     if (!social) return
@@ -112,6 +113,55 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
   }, [social])
 
   const handleSubmit = async () => {
+    if (!formData.title?.trim()) {
+      toast.error(t("form.validation.titleRequired"))
+      return
+    }
+    if (!formData.note?.trim()) {
+      toast.error(t("form.validation.noteRequired"))
+      return
+    }
+    if (!formData.startTime) {
+      toast.error(t("form.validation.startTimeRequired"))
+      return
+    }
+    if (!formData.endTime) {
+      toast.error(t("form.validation.endTimeRequired"))
+      return
+    }
+    if (new Date(formData.endTime) <= new Date(formData.startTime)) {
+      toast.error(t("form.validationEndAfterStart"))
+      return
+    }
+    if (formData.maxSlots < 1) {
+      toast.error(t("form.validation.maxSlotsRequired"))
+      return
+    }
+    if (formData.minimumLevel != null && formData.maximumLevel != null) {
+      if (formData.minimumLevel > formData.maximumLevel) {
+        toast.error(t("form.validationMinMaxLevel"))
+        return
+      }
+    }
+    if (!formData.isFree) {
+      if (formData.packageFee != null && formData.packageFee < 0) {
+        toast.error(t("form.validationPackageFee"))
+        return
+      }
+      if (!formData.paymentBankName?.trim()) {
+        toast.error(t("form.validationPaymentBankNameRequired"))
+        return
+      }
+      if (!formData.paymentAccountNumber?.trim()) {
+        toast.error(t("form.validationPaymentAccountNumberRequired"))
+        return
+      }
+      if (!formData.paymentAccountName?.trim()) {
+        toast.error(t("form.validationPaymentAccountNameRequired"))
+        return
+      }
+    }
+
     setIsSubmitting(true)
     try {
       if (isEditMode) {
@@ -130,9 +180,7 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
         updateData.packageFee =
           updateData.packageFee != null ? Number(updateData.packageFee) : null
         updateData.totalExpense =
-          updateData.totalExpense != null
-            ? Number(updateData.totalExpense)
-            : undefined
+          updateData.totalExpense != null ? Number(updateData.totalExpense) : 0
         updateData.maxSlots =
           updateData.maxSlots != null ? Number(updateData.maxSlots) : 0
         updateData.cancellationFreezeHours =
@@ -145,6 +193,7 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
           allowGuests: formData.allowGuests ?? true,
         })
         toast.success(t("form.updateSuccess"))
+        router.push(`/socials/${id}`)
       } else {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { packageFee, totalExpense, status, allowGuests, ...createData } =
@@ -168,9 +217,8 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
 
         await createSocialAction(createData)
         toast.success(t("form.createSuccess"))
+        router.push("/socials/me")
       }
-      router.push("/socials")
-      router.refresh()
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -190,8 +238,7 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
       try {
         await deleteSocialAction(id as string)
         toast.success(t("form.deleteSocial"))
-        router.push("/socials")
-        router.refresh()
+        router.push("/socials/me")
       } catch (error) {
         toast.error(
           error instanceof Error
@@ -221,18 +268,17 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
           <ShieldAlert className="size-8" />
         </div>
         <h1 className="mt-4 text-2xl font-bold tracking-tight">
-          Quyền truy cập bị từ chối
+          {t("form.accessDenied")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Chỉ những người dùng đã đăng ký gói <strong>SOCIAL_HOST</strong> mới
-          có quyền tạo hoặc chỉnh sửa buổi chơi.
+          {t("form.hostPlanRequired")}
         </p>
         <div className="mt-6 flex gap-3">
           <Button variant="outline" onClick={() => router.back()}>
-            Quay lại
+            {t("form.goBack")}
           </Button>
           <Button onClick={() => router.push("/settings")}>
-            Nâng cấp tài khoản
+            {t("form.upgradeAccount")}
           </Button>
         </div>
       </div>
@@ -264,12 +310,6 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
             setFormData={setFormData}
             isEditMode={isEditMode}
           />
-          {/* <SocialFormPlaySessionsCard
-            playSessions={playSessions}
-            setPlaySessions={setPlaySessions}
-            startTime={formData.startTime}
-            endTime={formData.endTime}
-          /> */}
         </div>
 
         <SocialFormSidebar

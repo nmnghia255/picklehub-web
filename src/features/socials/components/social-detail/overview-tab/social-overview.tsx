@@ -9,8 +9,8 @@ import { Separator } from "@/components/ui/separator"
 import type { GenderPolicy } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import type { SocialDetail } from "../../types/social"
-import { InfoRow } from "./infor-row"
+import type { SocialDetail } from "../../../types/social"
+import { InfoRow } from "../infor-row"
 
 export default function SocialOverview({
   social,

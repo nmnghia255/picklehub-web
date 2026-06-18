@@ -4,9 +4,12 @@ import { differenceInMinutes } from "date-fns"
 import { ArrowLeft } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { useMemo } from "react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { joinPlaySessionAction } from "@/features/socials/actions/join-play-session"
+import { leavePlaySessionAction } from "@/features/socials/actions/leave-play-session"
 import usePlaySessionStore from "@/features/socials/stores/play-session-store"
 import type {
   PlaySessionMatch,
@@ -16,23 +19,19 @@ import type {
   PlaySession,
   PlaySessionParticipant,
 } from "@/features/socials/types/play-session"
-import type { SocialDetail } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import PlaySessionMatches from "./play-session-matches"
 import PlaySessionOverview from "./play-session-overview"
 import PlaySessionParticipants from "./play-session-participants"
-import PlaySessionSidebar from "./play-session-sidebar"
 
 interface PlaySessionDetailProps {
-  initialSocial: SocialDetail | null
   initialSession: PlaySession | null
   initialParticipants: PlaySessionParticipant[]
   initialMatches?: PlaySessionMatch[]
 }
 
 export default function PlaySessionDetail({
-  initialSocial,
   initialSession,
   initialParticipants,
   initialMatches = [],
@@ -45,9 +44,10 @@ export default function PlaySessionDetail({
 
   const socialId = params.socialId as string | undefined
   const sessionId = params.playSessionId as string | undefined
-  const social = initialSocial
   const session = initialSession
-  const participants = initialParticipants
+  const participants = initialParticipants.filter(
+    (p) => p.status !== "CANCELLED"
+  )
 
   const matches = useMemo(() => {
     return initialMatches.map((m) => {
@@ -116,7 +116,7 @@ export default function PlaySessionDetail({
     })
   }, [initialMatches, participants])
 
-  if (!social || !session) {
+  if (!session) {
     return (
       <div className="mx-auto flex max-w-3xl flex-col items-center justify-center px-4 py-16 text-center">
         <h1 className="text-2xl font-semibold">{t("detail.notFoundTitle")}</h1>
@@ -130,7 +130,7 @@ export default function PlaySessionDetail({
     )
   }
 
-  const isHost = Boolean(social.isHost)
+  const isHost = Boolean(session.isHost)
   const duration = differenceInMinutes(
     new Date(session.endTime),
     new Date(session.startTime)
@@ -144,6 +144,34 @@ export default function PlaySessionDetail({
     (m) => !m.winner && (!m.sets || m.sets.length === 0) && !m.startedAt
   )
 
+  const handleJoin = async () => {
+    if (!socialId || !sessionId) return
+    toast.promise(
+      joinPlaySessionAction(socialId, sessionId).then(() => {
+        router.refresh()
+      }),
+      {
+        loading: t("sessions.joining"),
+        success: t("sessions.joinSuccess"),
+        error: (err: Error) => t("sessions.joinError") || err.message,
+      }
+    )
+  }
+
+  const handleLeave = async () => {
+    if (!socialId || !sessionId) return
+    toast.promise(
+      leavePlaySessionAction(socialId, sessionId).then(() => {
+        router.refresh()
+      }),
+      {
+        loading: t("sessions.leaving"),
+        success: t("sessions.leaveSuccess"),
+        error: (err: Error) => t("sessions.leaveError") || err.message,
+      }
+    )
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
       <div className="flex items-center gap-3">
@@ -151,7 +179,6 @@ export default function PlaySessionDetail({
           <h1 className="truncate text-3xl font-semibold tracking-tight">
             {session.title}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{social.title}</p>
         </div>
 
         <Button
@@ -165,7 +192,7 @@ export default function PlaySessionDetail({
         </Button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="w-full">
         <div className="space-y-6">
           <Card className="p-0">
             <CardContent className="space-y-4 p-0">
@@ -181,13 +208,13 @@ export default function PlaySessionDetail({
                     className={`rounded-md px-3 py-1.5 ${tabValue === "1" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                     onClick={() => setTabValue("1")}
                   >
-                    {t("matches.title")}
+                    {t("detail.participants")}
                   </button>
                   <button
                     className={`rounded-md px-3 py-1.5 ${tabValue === "2" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                     onClick={() => setTabValue("2")}
                   >
-                    {t("detail.participants")}
+                    {t("matches.title")}
                   </button>
                 </div>
               </div>
@@ -203,10 +230,19 @@ export default function PlaySessionDetail({
                     upcomingMatchesCount={scheduledMatches.length}
                     isHost={isHost}
                     socialId={socialId}
+                    onJoin={handleJoin}
+                    onLeave={handleLeave}
                   />
                 )}
 
                 {tabValue === "1" && (
+                  <PlaySessionParticipants
+                    participants={participants}
+                    socialId={socialId || ""}
+                  />
+                )}
+
+                {tabValue === "2" && (
                   <PlaySessionMatches
                     isHost={isHost}
                     matches={{
@@ -221,24 +257,10 @@ export default function PlaySessionDetail({
                     }
                   />
                 )}
-
-                {tabValue === "2" && (
-                  <PlaySessionParticipants
-                    participants={participants}
-                    socialId={socialId || ""}
-                  />
-                )}
               </div>
             </CardContent>
           </Card>
         </div>
-
-        <PlaySessionSidebar
-          session={session}
-          social={social}
-          onJoin={() => alert(t("sidebar.joinSession"))}
-          onLeave={() => alert(t("sidebar.leaveSession"))}
-        />
       </div>
     </div>
   )

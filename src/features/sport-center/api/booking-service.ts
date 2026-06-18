@@ -50,14 +50,16 @@ export const BookingService = {
     status,
     courtId,
     centerId,
-    date,
+    startDate,
+    endDate,
     limit = 20,
     offset = 0,
   }: {
     status?: BookingStatus | ""
     courtId?: string
     centerId?: string
-    date?: string
+    startDate?: string
+    endDate?: string
     limit?: number
     offset?: number
   } = {}): Promise<MyBookingsResponse> => {
@@ -67,7 +69,8 @@ export const BookingService = {
     if (status) searchParams.set("status", status)
     if (courtId) searchParams.set("courtId", courtId)
     if (centerId) searchParams.set("centerId", centerId)
-    if (date) searchParams.set("date", date)
+    if (startDate) searchParams.set("startDate", startDate)
+    if (endDate) searchParams.set("endDate", endDate)
 
     searchParams.set("limit", String(limit))
     searchParams.set("offset", String(offset))

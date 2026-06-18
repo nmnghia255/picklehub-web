@@ -107,6 +107,7 @@ export interface User {
   name: string
   email: string
   avatarUrl: string | null
+  selfRating?: number | null
 }
 
 export interface ListSocialRequest {
@@ -181,6 +182,7 @@ export interface ParticipantInfo {
   amountOverpaid: number
   paymentStatus: PaymentStatus
   joinedSessionIds: string[]
+  paymentUrl: string
 }
 
 export interface SocialDetail {

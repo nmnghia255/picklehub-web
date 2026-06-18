@@ -31,6 +31,7 @@ interface MultiSelectProps {
   selected: string[]
   onSelectionChange: (selected: string[]) => void
   placeholder?: string
+  emptyMessage?: string
 }
 
 export function MultiSelect({
@@ -38,6 +39,7 @@ export function MultiSelect({
   selected,
   onSelectionChange,
   placeholder = "Select items...",
+  emptyMessage = "No items found.",
 }: MultiSelectProps) {
   const [open, setOpen] = React.useState(false)
 
@@ -53,9 +55,9 @@ export function MultiSelect({
     onSelectionChange(selected.filter((item) => item !== value))
   }
 
-  const selectedLabels = selected
-    .map((s) => options.find((opt) => opt.value === s)?.label)
-    .filter(Boolean)
+  const selectedItems = selected
+    .map((s) => options.find((opt) => opt.value === s))
+    .filter((opt): opt is MultiSelectOption => !!opt)
 
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>
@@ -70,9 +72,9 @@ export function MultiSelect({
             <span className="text-muted-foreground">{placeholder}</span>
           ) : (
             <div className="flex flex-wrap gap-1">
-              {selectedLabels.slice(0, 2).map((label) => (
-                <Badge key={label} variant="secondary" className="text-xs">
-                  {label}
+              {selectedItems.slice(0, 2).map((opt) => (
+                <Badge key={opt.value} variant="secondary" className="text-xs">
+                  {opt.label}
                 </Badge>
               ))}
               {selected.length > 2 && (
@@ -91,7 +93,7 @@ export function MultiSelect({
       >
         <Command>
           <CommandInput placeholder={placeholder} />
-          <CommandEmpty>No items found.</CommandEmpty>
+          <CommandEmpty>{emptyMessage}</CommandEmpty>
           <CommandList>
             <CommandGroup>
               {options.map((option) => (

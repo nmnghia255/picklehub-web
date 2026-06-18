@@ -2,6 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useQuery } from "@tanstack/react-query"
+import { format } from "date-fns"
+import type { TFunction } from "i18next"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -38,6 +40,7 @@ import type {
   PlaySessionRequest,
 } from "@/features/socials/types/play-session"
 import { getMyBookingsAction } from "@/features/sport-center/actions/get-my-bookings"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 interface PlaySessionFormProps {
   socialId: string
@@ -47,14 +50,26 @@ interface PlaySessionFormProps {
   onSuccess?: () => void
 }
 
-const formSchema = z.object({
-  title: z.string().min(1, "Vui lòng nhập tên buổi chơi"),
-  bookingIds: z.array(z.string()).min(1, "Vui lòng chọn ít nhất 1 mã đặt sân"),
-  pricePerPlayer: z.coerce.number().min(0, "Giá mỗi người chơi không hợp lệ"),
-  sessionFee: z.coerce.number().min(0, "Phí buổi chơi không hợp lệ"),
-})
+const getFormSchema = (t: TFunction) =>
+  z.object({
+    title: z.string().min(1, t("sessionForm.validation.titleRequired")),
+    bookingIds: z
+      .array(z.string())
+      .min(1, t("sessionForm.validation.bookingRequired")),
+    pricePerPlayer: z.coerce
+      .number()
+      .min(0, t("sessionForm.validation.priceInvalid")),
+    sessionFee: z.coerce
+      .number()
+      .min(0, t("sessionForm.validation.feeInvalid")),
+  })
 
-type FormData = z.infer<typeof formSchema>
+type FormData = {
+  title: string
+  bookingIds: string[]
+  pricePerPlayer: number
+  sessionFee: number
+}
 
 export function PlaySessionForm({
   socialId,
@@ -63,6 +78,7 @@ export function PlaySessionForm({
   onCancel,
   onSuccess,
 }: PlaySessionFormProps) {
+  const { t, i18n } = useSocialsTranslation()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -70,17 +86,30 @@ export function PlaySessionForm({
   const { data: bookingsResponse } = useQuery({
     queryKey: ["my-bookings", "CONFIRMED"],
     queryFn: () =>
-      getMyBookingsAction({ status: "CONFIRMED", limit: 20, offset: 0 }),
+      getMyBookingsAction({
+        status: "CONFIRMED",
+        startDate: format(new Date(), "yyyy-MM-dd"),
+        limit: 200,
+        offset: 0,
+      }),
   })
   const bookings = bookingsResponse?.data || []
 
   const availableBookings = bookings.filter((b) => b.playSessionId === null)
 
-  const bookingOptions = availableBookings.map((b) => ({
-    value: b.id,
-    label: `${b.center?.name || "Sân"} - ${new Date(b.date).toLocaleDateString("vi-VN")}`,
-    description: `Giờ: ${b.items?.map((i) => `${i.startTime}-${i.endTime}`).join(", ")}`,
-  }))
+  const bookingOptions = availableBookings.map((b) => {
+    const items = b.bookingItems?.length ? b.bookingItems : b.items || []
+    const timeString = items
+      .map((i) => `${i.startTime}-${i.endTime}`)
+      .join(", ")
+    return {
+      value: b.id,
+      label: `${b.center?.name || t("sessionForm.defaultCourt")} - ${new Date(b.date).toLocaleDateString(i18n.language === "vi" ? "vi-VN" : "en-US")}`,
+      description: t("sessionForm.timeLabel", { time: timeString || "—" }),
+    }
+  })
+
+  const formSchema = getFormSchema(t)
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -111,8 +140,10 @@ export function PlaySessionForm({
   }, [session, form])
 
   const isEditing = !!session
-  const formTitle = isEditing ? "Cập nhật buổi chơi" : "Tạo buổi chơi"
-  const buttonText = isEditing ? "Cập nhật" : "Tạo buổi chơi"
+  const formTitle = isEditing
+    ? t("sessionForm.editTitle")
+    : t("sessionForm.createTitle")
+  const buttonText = isEditing ? t("form.update") : t("sessionForm.createTitle")
 
   const onSubmit = async (data: FormData) => {
     setIsLoading(true)
@@ -127,7 +158,7 @@ export function PlaySessionForm({
       }
 
       if (isEditing) {
-        toast.success("Cập nhật buổi chơi thành công")
+        toast.success(t("sessionForm.success.update"))
         if (onSuccess) {
           onSuccess()
           router.refresh()
@@ -138,12 +169,12 @@ export function PlaySessionForm({
       const result = await createSocialPlaySessionAction(socialId, createInput)
 
       if (!result.success) {
-        setError(result.error || "Lỗi khi tạo buổi chơi")
+        setError(result.error || t("sessionForm.errors.create"))
         setIsLoading(false)
         return
       }
 
-      toast.success("Tạo buổi chơi thành công")
+      toast.success(t("sessionForm.success.create"))
       if (onSuccess) {
         onSuccess()
         router.refresh()
@@ -154,7 +185,7 @@ export function PlaySessionForm({
       return
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Lỗi khi tạo buổi chơi"
+        err instanceof Error ? err.message : t("sessionForm.errors.create")
       setError(errorMessage)
     } finally {
       setIsLoading(false)
@@ -166,16 +197,12 @@ export function PlaySessionForm({
       {showCard ? (
         <CardHeader>
           <CardTitle>{formTitle}</CardTitle>
-          <CardDescription>
-            Nhập thông tin chi tiết cho phiên chơi
-          </CardDescription>
+          <CardDescription>{t("sessionForm.subtitle")}</CardDescription>
         </CardHeader>
       ) : (
         <DialogHeader className="mb-4">
           <DialogTitle>{formTitle}</DialogTitle>
-          <DialogDescription>
-            Nhập thông tin chi tiết cho phiên chơi
-          </DialogDescription>
+          <DialogDescription>{t("sessionForm.subtitle")}</DialogDescription>
         </DialogHeader>
       )}
       <CardContent className={showCard ? undefined : "p-0"}>
@@ -192,9 +219,12 @@ export function PlaySessionForm({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tên buổi chơi *</FormLabel>
+                  <FormLabel>{t("sessionForm.titleLabel")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Nhập tên buổi chơi" {...field} />
+                    <Input
+                      placeholder={t("sessionForm.titlePlaceholder")}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -206,13 +236,14 @@ export function PlaySessionForm({
               name="bookingIds"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Mã đặt sân *</FormLabel>
+                  <FormLabel>{t("sessionForm.bookingLabel")}</FormLabel>
                   <FormControl>
                     <MultiSelect
                       options={bookingOptions}
                       selected={field.value}
                       onSelectionChange={field.onChange}
-                      placeholder="Chọn mã đặt sân"
+                      placeholder={t("sessionForm.bookingPlaceholder")}
+                      emptyMessage={t("sessionForm.noBookingsAvailable")}
                     />
                   </FormControl>
                   <FormMessage />
@@ -221,32 +252,37 @@ export function PlaySessionForm({
             />
 
             <div className="gap-6">
-              {/* <FormField
-                control={form.control}
-                name="pricePerPlayer"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phí mỗi người chơi *</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              /> */}
-
               <FormField
                 control={form.control}
                 name="sessionFee"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phí buổi chơi *</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const displayValue = field.value
+                    ? new Intl.NumberFormat("vi-VN").format(field.value)
+                    : ""
+                  return (
+                    <FormItem>
+                      <FormLabel>{t("sessionForm.feeLabel")}</FormLabel>
+                      <FormControl>
+                        <div className="relative flex items-center">
+                          <Input
+                            type="text"
+                            placeholder="0"
+                            value={displayValue}
+                            onChange={(e) => {
+                              const rawValue = e.target.value.replace(/\D/g, "")
+                              field.onChange(rawValue ? Number(rawValue) : 0)
+                            }}
+                            className="pr-12"
+                          />
+                          <span className="pointer-events-none absolute right-3 text-sm font-medium text-muted-foreground">
+                            VND
+                          </span>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )
+                }}
               />
             </div>
 
@@ -264,14 +300,14 @@ export function PlaySessionForm({
                 }}
                 disabled={isLoading}
               >
-                Hủy
+                {t("common.cancel")}
               </Button>
               <Button
                 type="submit"
                 disabled={isLoading}
                 className="cursor-pointer"
               >
-                {isLoading ? "Đang xử lý..." : buttonText}
+                {isLoading ? t("sessionForm.errors.processing") : buttonText}
               </Button>
             </div>
           </form>

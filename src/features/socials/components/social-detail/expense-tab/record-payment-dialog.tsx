@@ -79,15 +79,24 @@ export function RecordPaymentDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{t("expenses.recordPaymentDialog.title")}</DialogTitle>
+          <DialogTitle>
+            {t("expenses.recordPaymentDialog.title", {
+              defaultValue: "Record Cash Payment",
+            })}
+          </DialogTitle>
           <DialogDescription>
-            {t("expenses.recordPaymentDialog.description")}
+            {t("expenses.recordPaymentDialog.description", {
+              defaultValue:
+                "Manually record a cash payment for this participant.",
+            })}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="amount">
-              {t("expenses.recordPaymentDialog.amountLabel")}
+              {t("expenses.recordPaymentDialog.amountLabel", {
+                defaultValue: "Amount (VND)",
+              })}
             </Label>
             <Input
               id="amount"
@@ -105,11 +114,15 @@ export function RecordPaymentDialog({
             onClick={() => onOpenChange(false)}
             disabled={isPending}
           >
-            {t("expenses.recordPaymentDialog.cancel")}
+            {t("expenses.recordPaymentDialog.cancel", {
+              defaultValue: "Cancel",
+            })}
           </Button>
           <Button onClick={() => mutate()} disabled={isPending || !amount}>
             {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-            {t("expenses.recordPaymentDialog.recordPayment")}
+            {t("expenses.recordPaymentDialog.recordPayment", {
+              defaultValue: "Record Payment",
+            })}
           </Button>
         </DialogFooter>
       </DialogContent>

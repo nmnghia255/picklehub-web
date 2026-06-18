@@ -1,14 +1,18 @@
 "use server"
 
 import { BookingService } from "@/features/sport-center/api/booking-service"
-import type { MyBookingsResponse } from "@/features/sport-center/types/booking"
+import type {
+  BookingStatus,
+  MyBookingsResponse,
+} from "@/features/sport-center/types/booking"
 
 export async function getMyBookingsAction(
   params: {
-    status?: "CONFIRMED"
+    status?: BookingStatus | ""
     courtId?: string
     centerId?: string
-    date?: string
+    startDate?: string
+    endDate?: string
     limit?: number
     offset?: number
   } = {}

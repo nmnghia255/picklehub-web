@@ -2,6 +2,7 @@
 
 import { format } from "date-fns"
 import {
+  Banknote,
   CalendarDays,
   CheckCircle2,
   Clock3,
@@ -16,24 +17,38 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { useSession } from "@/features/auth/hooks/use-session"
 import {
   completePlaySession,
   startPlaySession,
 } from "@/features/socials/actions/play-session"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import type {
   PlaySession,
   PlaySessionParticipant,
 } from "../../types/play-session"
 import { InfoRow } from "../social-detail/infor-row"
+import ProgressBar from "./progress-bar"
 
-function StatCard({ value, label }: { value: string | number; label: string }) {
+function StatCard({
+  value,
+  label,
+  children,
+}: {
+  value: string | number
+  label: string
+  children?: React.ReactNode
+}) {
   return (
     <Card className="p-0">
-      <CardContent className="p-5">
-        <div className="text-3xl font-semibold">{value}</div>
-        <div className="mt-1 text-sm text-muted-foreground">{label}</div>
+      <CardContent className="flex h-full min-h-[105px] flex-col justify-between p-5">
+        <div>
+          <div className="text-3xl font-semibold">{value}</div>
+          <div className="mt-1 text-sm text-muted-foreground">{label}</div>
+        </div>
+        {children}
       </CardContent>
     </Card>
   )
@@ -47,7 +62,9 @@ export default function PlaySessionOverview({
   activeMatchesCount,
   upcomingMatchesCount,
   isHost = false,
-  socialId = "",
+  socialId,
+  onJoin,
+  onLeave,
 }: {
   session: PlaySession
   participants: PlaySessionParticipant[]
@@ -57,10 +74,13 @@ export default function PlaySessionOverview({
   upcomingMatchesCount: number
   isHost?: boolean
   socialId?: string
+  onJoin: () => void
+  onLeave: () => void
 }) {
   const { t } = useSocialsTranslation()
   const router = useRouter()
   const [isPending, setIsPending] = useState(false)
+  const sessionData = useSession()
 
   const isCompleted = session.status === "COMPLETED"
   const isActive = session.status === "LIVE" || session.status === "IN_PROGRESS"
@@ -108,14 +128,26 @@ export default function PlaySessionOverview({
     }
   }
 
+  const hasAvailableSlots = session.joinedCount < session.maxslot
+  const currentUserId = sessionData?.user?.id
+  const isParticipant = participants.some(
+    (p) => p.userId === currentUserId && p.status !== "CANCELLED"
+  )
+
   return (
     <div className="space-y-0">
       <div className="grid gap-4 sm:grid-cols-2">
         <StatCard value={duration} label={t("playSessionOverview.minutes")} />
         <StatCard
-          value={participants.length}
-          label={t("playSessionOverview.players")}
-        />
+          value={`${session.joinedCount} / ${session.maxslot}`}
+          label={t("sidebar.participants", { defaultValue: "Participants" })}
+        >
+          <div className="mt-2 space-y-1">
+            <ProgressBar
+              value={(session.joinedCount / session.maxslot) * 100}
+            />
+          </div>
+        </StatCard>
         <StatCard
           value={completedMatchesCount}
           label={t("playSessionOverview.completed")}
@@ -141,25 +173,31 @@ export default function PlaySessionOverview({
           value={`${format(new Date(session.startTime), "h:mm a")} - ${format(new Date(session.endTime), "h:mm a")}`}
           iconClassName="bg-purple-500/10 text-purple-600 dark:text-purple-400"
         />
-        {/* <InfoRow
-          icon={<Building className="size-5" />}
-          label={t("playSessionOverview.sportCenter")}
-          value={session.sportCenter || "-"}
-          iconClassName="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-        /> */}
         <InfoRow
           icon={<MapPin className="size-5" />}
           label={t("playSessionOverview.location")}
           value={session.location || "-"}
           iconClassName="bg-orange-500/10 text-orange-600 dark:text-orange-400"
         />
+        {typeof session.sessionFee === "number" && (
+          <InfoRow
+            icon={<Banknote className="size-5" />}
+            label={t("sidebar.payment", { defaultValue: "Payment" })}
+            value={
+              session.sessionFee > 0
+                ? formatCurrencyVnd(session.sessionFee)
+                : t("form.freeEvent", { defaultValue: "Free" })
+            }
+            iconClassName="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+          />
+        )}
       </div>
 
-      {isHost && !isCompleted && (
+      {(isHost || session.status === "PUBLISHED" || isParticipant) && (
         <>
           <Separator className="my-6" />
           <div className="flex flex-wrap items-center gap-3">
-            {isNotStarted && (
+            {isHost && !isCompleted && isNotStarted && (
               <Button
                 onClick={handleStart}
                 disabled={isPending}
@@ -173,7 +211,7 @@ export default function PlaySessionOverview({
                 {t("sessions.startSession")}
               </Button>
             )}
-            {isActive && (
+            {isHost && !isCompleted && isActive && (
               <Button
                 onClick={handleComplete}
                 disabled={isPending}
@@ -185,6 +223,24 @@ export default function PlaySessionOverview({
                   <CheckCircle2 className="size-4" />
                 )}
                 {t("sessions.completeSession")}
+              </Button>
+            )}
+
+            {!isParticipant && session.status === "PUBLISHED" && (
+              <Button
+                disabled={!hasAvailableSlots}
+                onClick={onJoin}
+                className="gap-2"
+              >
+                {hasAvailableSlots
+                  ? t("sidebar.joinSession")
+                  : t("sidebar.full")}
+              </Button>
+            )}
+
+            {isParticipant && session.status === "PUBLISHED" && (
+              <Button variant="destructive" onClick={onLeave} className="gap-2">
+                {t("sidebar.leaveSession")}
               </Button>
             )}
           </div>

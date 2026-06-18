@@ -20,7 +20,7 @@ import {
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
-import type { CourtBookingExpense } from "../../types/finance"
+import type { CourtBookingExpense } from "../../../types/finance"
 
 export function CourtBookingExpensesCard({
   expenseRows,
@@ -37,10 +37,14 @@ export function CourtBookingExpensesCard({
         <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <CardTitle className="text-xl">
-              {t("expenses.courtBookings.title")}
+              {t("expenses.courtBookings.title", {
+                defaultValue: "Court Bookings Cost",
+              })}
             </CardTitle>
             <CardDescription className="mt-1">
-              {t("expenses.courtBookings.description")}
+              {t("expenses.courtBookings.description", {
+                defaultValue: "All costs are from the booked courts.",
+              })}
             </CardDescription>
           </div>
         </div>
@@ -52,19 +56,29 @@ export function CourtBookingExpensesCard({
             <TableHeader className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80">
               <TableRow>
                 <TableHead className="px-6 py-4">
-                  {t("expenses.courtBookings.headers.courtName")}
+                  {t("expenses.courtBookings.headers.courtName", {
+                    defaultValue: "Court Name",
+                  })}
                 </TableHead>
                 <TableHead className="px-6 py-4">
-                  {t("expenses.courtBookings.headers.date")}
+                  {t("expenses.courtBookings.headers.date", {
+                    defaultValue: "Date",
+                  })}
                 </TableHead>
                 <TableHead className="px-6 py-4">
-                  {t("expenses.courtBookings.headers.time")}
+                  {t("expenses.courtBookings.headers.time", {
+                    defaultValue: "Time",
+                  })}
                 </TableHead>
                 <TableHead className="px-6 py-4">
-                  {t("expenses.courtBookings.headers.duration")}
+                  {t("expenses.courtBookings.headers.duration", {
+                    defaultValue: "Duration",
+                  })}
                 </TableHead>
                 <TableHead className="px-6 py-4 text-right">
-                  {t("expenses.courtBookings.headers.cost")}
+                  {t("expenses.courtBookings.headers.cost", {
+                    defaultValue: "Cost",
+                  })}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -79,7 +93,9 @@ export function CourtBookingExpensesCard({
                       <div>
                         <p>{row.courtNames || row.title}</p>
                         <p className="text-xs text-muted-foreground">
-                          {t("expenses.courtBookings.rowTypeCourtBooking")}
+                          {t("expenses.courtBookings.rowTypeCourtBooking", {
+                            defaultValue: "Court Booking",
+                          })}
                         </p>
                       </div>
                     </div>
@@ -118,7 +134,9 @@ export function CourtBookingExpensesCard({
             <TableFooter>
               <TableRow>
                 <TableCell colSpan={4} className="px-6 py-4 text-sm">
-                  {t("expenses.courtBookings.footerLabel")}
+                  {t("expenses.courtBookings.footerLabel", {
+                    defaultValue: "Total Court Booking Cost",
+                  })}
                 </TableCell>
                 <TableCell className="px-6 py-4 text-right text-base">
                   {formatCurrencyVnd(totalCourtExpense)}

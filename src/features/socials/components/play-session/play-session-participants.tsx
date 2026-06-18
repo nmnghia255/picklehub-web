@@ -95,7 +95,11 @@ export default function PlaySessionParticipants({
                           className={
                             participant.status === "CONFIRMED"
                               ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
-                              : "border-border bg-muted text-muted-foreground"
+                              : participant.status === "WAITLISTED"
+                                ? "border-amber-500/30 bg-amber-500/10 text-amber-600"
+                                : participant.status === "ON_HOLD"
+                                  ? "border-blue-500/30 bg-blue-500/10 text-blue-600"
+                                  : "border-border bg-muted text-muted-foreground"
                           }
                           variant="outline"
                         >

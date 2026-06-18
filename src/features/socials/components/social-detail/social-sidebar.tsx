@@ -179,22 +179,21 @@ export default function SocialSidebar({
           </Button>
         )}
 
-        {social.isHost &&
-          social.status === "PUBLISHED" &&
-          new Date(social.endTime) < new Date() && (
-            <Button
-              className="w-full bg-emerald-600 text-white hover:bg-emerald-700"
-              size="lg"
-              onClick={handleComplete}
-              disabled={isCompleting}
-            >
-              {isCompleting
-                ? t("sidebar.completing", { defaultValue: "Completing..." })
-                : t("sidebar.completeSocial", {
-                    defaultValue: "Complete Social",
-                  })}
-            </Button>
-          )}
+        {social.isHost && social.status === "PUBLISHED" && (
+          // new Date(social.endTime) < new Date() &&
+          <Button
+            className="w-full bg-emerald-600 text-white hover:bg-emerald-700"
+            size="lg"
+            onClick={handleComplete}
+            disabled={isCompleting}
+          >
+            {isCompleting
+              ? t("sidebar.completing", { defaultValue: "Completing..." })
+              : t("sidebar.completeSocial", {
+                  defaultValue: "Complete Social",
+                })}
+          </Button>
+        )}
 
         {!isParticipant && social.status === "PUBLISHED" && (
           <Button
@@ -209,7 +208,7 @@ export default function SocialSidebar({
           </Button>
         )}
 
-        {isParticipant && (
+        {isParticipant && social.status !== "COMPLETED" && (
           <Button
             className="w-full border-red-500 bg-red-500/10 text-red-600 hover:bg-red-500/20"
             size="lg"

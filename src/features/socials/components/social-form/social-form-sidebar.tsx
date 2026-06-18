@@ -71,15 +71,7 @@ export function SocialFormSidebar({
             size="lg"
             className="w-full"
             onClick={onSubmit}
-            disabled={
-              isSubmitting ||
-              !formData.title ||
-              !formData.note ||
-              !formData.startTime ||
-              !formData.endTime ||
-              formData.maxSlots < 1 ||
-              new Date(formData.endTime) <= new Date(formData.startTime)
-            }
+            disabled={isSubmitting}
           >
             {isSubmitting ? (
               <span className="mr-2 size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
