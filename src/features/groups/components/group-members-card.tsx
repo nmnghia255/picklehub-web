@@ -24,9 +24,8 @@ import { GroupMemberActions } from "./group-member-actions"
 function normalizeRole(role: string | null | undefined) {
   switch (role?.toLowerCase()) {
     case "owner":
-      return "Trưởng nhóm"
     case "admin":
-      return "Quản trị"
+      return "Trưởng nhóm"
     case "member":
       return "Thành viên"
     default:

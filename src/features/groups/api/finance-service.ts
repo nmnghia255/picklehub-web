@@ -7,8 +7,10 @@ import type {
   DebtStatus,
   ExpenseItem,
   FinanceSummary,
+  GroupDebtItem,
   ListCreditBalancesResult,
   ListExpensesResult,
+  ListGroupDebtsResult,
   ListTransactionsResult,
   MyDebt,
   Transaction,
@@ -164,6 +166,31 @@ export async function getMyDebt(groupId: string): Promise<MyDebt> {
     `/api/groups/${groupId}/finances/me/debt`
   )
   return unwrapData(response.data)
+}
+
+export async function listGroupDebts(
+  groupId: string,
+  params: {
+    page?: number
+    limit?: number
+    search?: string
+  } = {}
+): Promise<ListGroupDebtsResult> {
+  const axios = await getAuthenticatedAxios()
+  const cleanParams = Object.fromEntries(
+    Object.entries(params).filter(([, v]) => v !== undefined && v !== "")
+  )
+
+  const response = await axios.get<ApiEnvelope<GroupDebtItem[]>>(
+    `/api/groups/${groupId}/finances/debts`,
+    { params: cleanParams }
+  )
+
+  return {
+    data: unwrapListResponse<GroupDebtItem>(response.data),
+    meta: normalizeMeta(response.data),
+    message: (response.data as { message?: string })?.message,
+  }
 }
 
 export async function remindDebt(

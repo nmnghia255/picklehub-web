@@ -38,6 +38,7 @@ import {
   verifyTransactionAction,
 } from "../actions/finance-actions"
 import { financeQueryKeys } from "../api/finance-client"
+import { useGroupDebts } from "../hooks/use-group-debts"
 import type { Member } from "../types"
 import type {
   ExpenseItem,
@@ -613,6 +614,83 @@ export function RemindDebtButton({
 
   useToastState(state, "Đã gửi nhắc nợ thành công.", () => setOpen(false))
 
+  useEffect(() => {
+    if (!open) {
+      setSelectedUsers([])
+    }
+  }, [open])
+
+  const [nowTime] = useState(() => Date.now())
+
+  const debtsQuery = useGroupDebts(groupId, { limit: 1000 }, { enabled: open })
+  const debtsList = useMemo(
+    () => debtsQuery.data?.data ?? [],
+    [debtsQuery.data?.data]
+  )
+
+  const debtDetails = useMemo(() => {
+    return members.reduce<
+      Record<
+        string,
+        {
+          totalDebt: number
+          unpaidCount: number
+          oldestDebtDate: string
+          daysOverdue: number
+        }
+      >
+    >((acc, m) => {
+      const d = debtsList.find((item) => item.userId === m.userId)
+      if (!d) {
+        return {
+          ...acc,
+          [m.userId]: {
+            totalDebt: 0,
+            unpaidCount: 0,
+            oldestDebtDate: "-",
+            daysOverdue: 0,
+          },
+        }
+      }
+
+      let oldestDebtDate = "-"
+      let daysOverdue = 0
+      if (d.unpaidPayments && d.unpaidPayments.length > 0) {
+        const dates = d.unpaidPayments
+          .map((u) => new Date(u.createdAt))
+          .filter((date) => !isNaN(date.getTime()))
+        if (dates.length > 0) {
+          const oldest = new Date(
+            Math.min(...dates.map((date) => date.getTime()))
+          )
+          oldestDebtDate = oldest.toLocaleDateString("vi-VN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          })
+          const diff = nowTime - oldest.getTime()
+          daysOverdue = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
+        }
+      }
+
+      return {
+        ...acc,
+        [m.userId]: {
+          totalDebt: d.debt,
+          unpaidCount: d.unpaidPayments?.length ?? 0,
+          oldestDebtDate,
+          daysOverdue,
+        },
+      }
+    }, {})
+  }, [members, debtsList, nowTime])
+
+  const getRecommendation = (totalDebt: number) => {
+    if (totalDebt <= 10000) return "Có thể bỏ qua (Nợ nhỏ)"
+    if (totalDebt > 50000) return "Nên nhắc (Nợ lớn)"
+    return "Tùy chọn"
+  }
+
   return (
     <>
       <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
@@ -629,24 +707,64 @@ export function RemindDebtButton({
           <div className="space-y-4 py-2">
             <Field>
               <FieldLabel>Chọn thành viên</FieldLabel>
-              <div className="max-h-60 space-y-2 overflow-y-auto rounded-md border p-2">
-                {members.map((m) => (
-                  <label key={m.userId} className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedUsers.includes(m.userId)}
-                      onChange={(e) => {
-                        if (e.target.checked)
-                          setSelectedUsers([...selectedUsers, m.userId])
-                        else
-                          setSelectedUsers(
-                            selectedUsers.filter((id) => id !== m.userId)
-                          )
-                      }}
-                    />
-                    <span className="text-sm">{m.name}</span>
-                  </label>
-                ))}
+              <div className="max-h-[400px] space-y-3 overflow-y-auto rounded-md border p-4">
+                {debtsQuery.isLoading ? (
+                  <div className="flex items-center justify-center gap-2 py-6 text-center text-sm text-muted-foreground">
+                    <Loader2 className="size-4 animate-spin" />
+                    Đang tải danh sách công nợ...
+                  </div>
+                ) : members.length === 0 ? (
+                  <div className="py-6 text-center text-sm text-muted-foreground">
+                    Không có thành viên nào.
+                  </div>
+                ) : (
+                  members.map((m) => {
+                    const detail = debtDetails[m.userId]
+                    const hasDebt = detail && detail.totalDebt > 0
+                    return (
+                      <div
+                        key={m.userId}
+                        className={`flex flex-col gap-2 rounded-lg border p-3 ${!hasDebt ? "bg-muted/20 opacity-60" : ""}`}
+                      >
+                        <label
+                          className={`flex items-center gap-3 ${hasDebt ? "cursor-pointer" : "cursor-not-allowed"}`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedUsers.includes(m.userId)}
+                            disabled={!hasDebt}
+                            onChange={(e) => {
+                              if (e.target.checked)
+                                setSelectedUsers([...selectedUsers, m.userId])
+                              else
+                                setSelectedUsers(
+                                  selectedUsers.filter((id) => id !== m.userId)
+                                )
+                            }}
+                          />
+                          <span className="font-medium">{m.name}</span>
+                          <Badge
+                            variant={
+                              detail.totalDebt > 50000
+                                ? "destructive"
+                                : "outline"
+                            }
+                            className="ml-auto"
+                          >
+                            {formatCurrency(detail.totalDebt)}
+                          </Badge>
+                        </label>
+                        <div className="ml-7 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                          <div>Số khoản: {detail.unpaidCount}</div>
+                          <div>Quá hạn: {detail.daysOverdue} ngày</div>
+                          <div className="col-span-2 text-primary italic">
+                            Gợi ý: {getRecommendation(detail.totalDebt)}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })
+                )}
               </div>
             </Field>
             <Field>
@@ -674,7 +792,7 @@ export function RemindDebtButton({
               {isPending ? (
                 <Loader2 className="mr-2 size-4 animate-spin" />
               ) : null}
-              Gửi nhắc nợ
+              Gửi nhắc nợ ({selectedUsers.length})
             </Button>
           </DialogFooter>
         </form>
@@ -843,6 +961,20 @@ export function ExpenseRowActions({
                 <PaymentReceiptPreview receiptUrl={expenseDetail.receiptUrl} />
               </div>
             )}
+            <div className="rounded-md border bg-muted/20 p-3">
+              <div className="mb-1 text-xs font-semibold text-muted-foreground uppercase">
+                Chi tiết vật dụng
+              </div>
+              <ul className="space-y-1 text-sm">
+                <li>• Mua: Banh x5</li>
+                <li className="ml-4 text-xs text-muted-foreground">
+                  - Sử dụng cho trận 05/06
+                </li>
+                <li className="ml-4 text-xs text-muted-foreground">
+                  - Sử dụng cho buổi tập
+                </li>
+              </ul>
+            </div>
             <div>
               <div className="mb-2 text-xs text-muted-foreground uppercase">
                 Phân bổ

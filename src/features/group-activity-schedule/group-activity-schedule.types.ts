@@ -24,6 +24,7 @@ export interface GroupActivity {
   status: GroupActivityStatus
   createdAt: string
   updatedAt: string
+  equipment?: { name: string; quantity: number }[]
 }
 
 export interface CreateGroupActivityDto {

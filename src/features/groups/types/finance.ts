@@ -104,3 +104,35 @@ export interface ListCreditBalancesResult {
   meta: FinancePaginationMeta
   message?: string
 }
+
+export interface UnpaidPaymentItem {
+  id: string
+  expenseTitle: string
+  requiredFee: number
+  amountPaid: number
+  debt: number
+  status: string
+  createdAt: string
+}
+
+export interface GroupDebtItem {
+  userId: string
+  creditBalance: number
+  totalRequired: number
+  totalPaid: number
+  netBalance: number
+  debt: number
+  unpaidPayments: UnpaidPaymentItem[]
+  user: {
+    id: string
+    name: string
+    email: string
+    avatarUrl: string
+  }
+}
+
+export interface ListGroupDebtsResult {
+  data: GroupDebtItem[]
+  meta: FinancePaginationMeta
+  message?: string
+}

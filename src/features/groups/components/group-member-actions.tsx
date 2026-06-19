@@ -73,9 +73,9 @@ function RoleChangeMenuItem({
         {isPending ? (
           <Loader2 className="size-3.5 animate-spin" />
         ) : currentRole === "admin" ? (
-          "Xóa vai trò quản trị viên"
+          "Xóa vai trò trưởng nhóm"
         ) : (
-          "Chuyển thành quản trị viên"
+          "Chuyển thành trưởng nhóm"
         )}
       </DropdownMenuItem>
     </form>

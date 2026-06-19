@@ -40,6 +40,15 @@ export interface Member {
   joinedAt: string
 }
 
+export interface Equipment {
+  id: string
+  name: string
+  quantity: number
+  status: string
+  purchaseDate: string
+  notes?: string
+}
+
 export type GroupMemberRole = "ADMIN" | "MEMBER"
 
 export interface ChangeMemberRoleInput {

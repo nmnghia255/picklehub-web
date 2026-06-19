@@ -102,7 +102,22 @@ export function GroupActivityUpcomingList({
                         <TableCell className="text-muted-foreground">
                           {formatDateTime(event.startAt)}
                         </TableCell>
-                        <TableCell>{event.location}</TableCell>
+                        <TableCell>
+                          <p className="text-sm">{event.location}</p>
+                          {event.equipment && event.equipment.length > 0 && (
+                            <div className="mt-1 flex flex-wrap gap-1">
+                              {event.equipment.map((eq, idx) => (
+                                <Badge
+                                  key={idx}
+                                  variant="secondary"
+                                  className="h-4 px-1 text-[9px]"
+                                >
+                                  {eq.name} x{eq.quantity}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </TableCell>
                         <TableCell>
                           <Badge
                             variant="outline"
@@ -168,6 +183,20 @@ export function GroupActivityUpcomingList({
                     <p className="text-sm text-muted-foreground">
                       {event.location}
                     </p>
+
+                    {event.equipment && event.equipment.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {event.equipment.map((eq, idx) => (
+                          <Badge
+                            key={idx}
+                            variant="secondary"
+                            className="h-4 px-1 text-[9px]"
+                          >
+                            {eq.name} x{eq.quantity}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
 
                     <div className="mt-3 flex flex-wrap gap-2">
                       <Button

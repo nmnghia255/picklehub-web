@@ -3,6 +3,7 @@ import type {
   FinanceSummary,
   ListCreditBalancesResult,
   ListExpensesResult,
+  ListGroupDebtsResult,
   ListTransactionsResult,
   MyDebt,
   TransactionStatus,
@@ -85,6 +86,23 @@ export const financeQueryKeys = {
     ["group-finance", groupId, "expenses"] as const,
   creditBalances: (groupId: string) =>
     ["group-finance", groupId, "credit-balances"] as const,
+  debts: (groupId: string, params?: QueryParams) =>
+    ["group-finance", groupId, "debts", params] as const,
+}
+
+export async function listGroupDebtsClient(
+  groupId: string,
+  params: {
+    page?: number
+    limit?: number
+    search?: string
+  } = {}
+): Promise<ListGroupDebtsResult> {
+  const searchParams = toSearchParams(params)
+  const suffix = searchParams.toString() ? `?${searchParams.toString()}` : ""
+  return fetchJson<ListGroupDebtsResult>(
+    `/api/groups/${groupId}/finances/debts${suffix}`
+  )
 }
 
 export async function getFinanceSummaryClient(

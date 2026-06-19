@@ -5,6 +5,7 @@ import type { Group, Invitation, Member } from "@/features/groups/types"
 import { GroupFeedNotificationsContainer } from "@/features/notifications/components/group-feed-notifications-container"
 
 import { GroupDetailTabs } from "./group-detail-tabs"
+import { GroupEquipmentSection } from "./group-equipment-section"
 import { GroupFinanceSection } from "./group-finance-section"
 import { GroupMembersCard } from "./group-members-card"
 import { GroupOverviewCard } from "./group-overview-card"
@@ -80,6 +81,9 @@ export async function GroupDetailPanels({
             groupStatus={group.status}
           />
         </div>
+      }
+      equipment={
+        <GroupEquipmentSection groupId={groupId} canManage={canManage} />
       }
       chat={
         <div className="h-[70vh] min-h-136 min-w-0 overflow-hidden rounded-xl border bg-card shadow-sm">

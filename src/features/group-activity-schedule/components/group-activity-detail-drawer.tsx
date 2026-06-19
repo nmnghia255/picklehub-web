@@ -1,7 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { CalendarClock, MapPin } from "lucide-react"
+import { CalendarClock, MapPin, Package } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import {
@@ -103,6 +103,26 @@ export function GroupActivityDetailDrawer({
                     {activity.description}
                   </p>
                 </div>
+
+                {activity.equipment && activity.equipment.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="flex items-center gap-2 text-sm font-semibold">
+                      <Package className="size-4" />
+                      Vật dụng sử dụng
+                    </h4>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {activity.equipment.map((eq, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between rounded-md border bg-accent/30 px-3 py-2 text-sm"
+                        >
+                          <span>{eq.name}</span>
+                          <Badge variant="secondary">x{eq.quantity}</Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <Separator />
 

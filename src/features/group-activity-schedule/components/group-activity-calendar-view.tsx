@@ -85,6 +85,15 @@ function EventChip({
         </Badge>
       </div>
       <p className="truncate text-xs text-muted-foreground">{event.location}</p>
+      {event.equipment && event.equipment.length > 0 && (
+        <div className="mt-1 flex flex-wrap gap-1">
+          {event.equipment.map((eq, idx) => (
+            <span key={idx} className="rounded bg-muted px-1 text-[10px]">
+              {eq.name} x{eq.quantity}
+            </span>
+          ))}
+        </div>
+      )}
     </button>
   )
 }
@@ -280,6 +289,22 @@ export function GroupActivityCalendarView({
                         <MapPin className="size-3.5" />
                         {event.location}
                       </p>
+                      {event.equipment && event.equipment.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <span className="text-xs font-medium text-muted-foreground">
+                            Vật dụng:
+                          </span>
+                          {event.equipment.map((eq, idx) => (
+                            <Badge
+                              key={idx}
+                              variant="secondary"
+                              className="h-5 text-[10px]"
+                            >
+                              {eq.name} x{eq.quantity}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     <Badge

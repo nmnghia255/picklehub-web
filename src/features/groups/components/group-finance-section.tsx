@@ -1,10 +1,13 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import { ChevronDown, ChevronUp, Loader2, Search } from "lucide-react"
+import { useState } from "react"
 
 import { ErrorSection } from "@/components/error-section"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Table,
@@ -23,17 +26,12 @@ import {
   getMyDebtClient,
   listCreditBalancesClient,
   listExpensesClient,
+  listGroupDebtsClient,
   listTransactionsClient,
 } from "../api/finance-client"
 import { getGroupMembersClient, groupQueryKeys } from "../api/groups-client"
+import { useGroupDebts } from "../hooks/use-group-debts"
 import type { Member } from "../types"
-import type {
-  CreditBalanceEntry,
-  ExpenseItem,
-  MyDebt,
-  Transaction,
-  UnpaidPayment,
-} from "../types/finance"
 import { isArchivedGroup } from "../utils/group-status"
 import {
   CreateExpenseButton,
@@ -151,7 +149,7 @@ function getQueryErrorMessage(error: unknown, fallback: string) {
 export function GroupFinanceSection({
   groupId,
   members,
-  currentUserId,
+  currentUserId: _currentUserId,
   currentUserRole,
   groupStatus,
 }: {
@@ -206,6 +204,23 @@ export function GroupFinanceSection({
     initialData: members.length > 0 ? members : undefined,
   })
 
+  const [search, setSearch] = useState("")
+  const [page, setPage] = useState(1)
+  const limit = 10
+  const [expandedUsers, setExpandedUsers] = useState<string[]>([])
+
+  const groupDebtsQuery = useGroupDebts(
+    groupId,
+    { page, limit, search },
+    { enabled: isFinanceActive }
+  )
+
+  const statsDebtsQuery = useQuery({
+    queryKey: financeQueryKeys.debts(groupId, { limit: 1000 }),
+    queryFn: () => listGroupDebtsClient(groupId, { limit: 1000 }),
+    enabled: isFinanceActive,
+  })
+
   const resolvedMembers = membersQuery.data ?? []
 
   if (!isFinanceActive) {
@@ -227,6 +242,20 @@ export function GroupFinanceSection({
   }
 
   const summary = summaryQuery.data
+
+  const statsDebts = statsDebtsQuery.data?.data ?? []
+  const debtorsCount = statsDebts.filter((item) => item.debt > 0).length
+  const overpayersCount = statsDebts.filter(
+    (item) => item.creditBalance > 0
+  ).length
+
+  const monthlyStats = {
+    totalCollected: summary?.totalCollected ?? 0,
+    totalSpent: summary?.totalExpense ?? 0,
+    difference: summary?.netBalance ?? 0,
+    debtorsCount,
+    overpayersCount,
+  }
 
   return (
     <Card className="mt-6 shadow-sm">
@@ -268,22 +297,70 @@ export function GroupFinanceSection({
             message={getQueryErrorMessage(summaryQuery.error, "Thử lại sau.")}
           />
         ) : summary ? (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            <SummaryCard
-              title="Tổng chi tiêu"
-              value={formatCurrency(summary.totalExpense)}
-              description={`Cân đối: ${formatCurrency(summary.netBalance)}`}
-            />
-            <SummaryCard
-              title="Tổng đã thu"
-              value={formatCurrency(summary.totalCollected)}
-              description={`Chờ duyệt: ${formatCurrency(summary.totalExpectedRevenue - summary.totalCollected)}`}
-            />
-            <SummaryCard
-              title="Còn nợ"
-              value={formatCurrency(summary.outstandingAmount)}
-              description={`Kỳ vọng thu: ${formatCurrency(summary.totalExpectedRevenue)}`}
-            />
+          <div className="space-y-6">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <SummaryCard
+                title="Tổng chi tiêu"
+                value={formatCurrency(summary.totalExpense)}
+                description={`Cân đối: ${formatCurrency(summary.netBalance)}`}
+              />
+              <SummaryCard
+                title="Tổng đã thu"
+                value={formatCurrency(summary.totalCollected)}
+                description={`Chờ duyệt: ${formatCurrency(summary.totalExpectedRevenue - summary.totalCollected)}`}
+              />
+              <SummaryCard
+                title="Còn nợ"
+                value={formatCurrency(summary.outstandingAmount)}
+                description={`Kỳ vọng thu: ${formatCurrency(summary.totalExpectedRevenue)}`}
+              />
+            </div>
+
+            <div className="rounded-lg border bg-muted/20 p-4">
+              <h4 className="mb-3 text-sm font-semibold">Thống kê tháng</h4>
+              <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase">
+                    Tổng thu
+                  </p>
+                  <p className="text-success text-lg font-bold">
+                    {formatCurrency(monthlyStats.totalCollected)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase">
+                    Tổng chi
+                  </p>
+                  <p className="text-lg font-bold text-destructive">
+                    {formatCurrency(monthlyStats.totalSpent)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase">
+                    Chênh lệch
+                  </p>
+                  <p className="text-lg font-bold">
+                    {formatCurrency(monthlyStats.difference)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase">
+                    Thành viên nợ
+                  </p>
+                  <p className="text-lg font-bold">
+                    {monthlyStats.debtorsCount}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase">
+                    Đóng dư
+                  </p>
+                  <p className="text-lg font-bold">
+                    {monthlyStats.overpayersCount}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         ) : null}
 
@@ -293,6 +370,7 @@ export function GroupFinanceSection({
               <TabsTrigger value="transactions">Giao dịch</TabsTrigger>
             )}
             <TabsTrigger value="my-debt">Nợ của tôi</TabsTrigger>
+            <TabsTrigger value="member-debts">Nợ thành viên</TabsTrigger>
             <TabsTrigger value="expenses">Khoản chi</TabsTrigger>
             <TabsTrigger value="credits">Tín dụng</TabsTrigger>
           </TabsList>
@@ -440,6 +518,247 @@ export function GroupFinanceSection({
                 </TableBody>
               </Table>
             </div>
+          </TabsContent>
+
+          <TabsContent value="member-debts" className="mt-4 space-y-4">
+            <div className="flex max-w-sm items-center gap-2">
+              <div className="relative w-full">
+                <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm thành viên..."
+                  className="w-full rounded-md border bg-background py-2 pr-4 pl-9 text-sm outline-none focus:ring-1 focus:ring-primary"
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value)
+                    setPage(1)
+                  }}
+                />
+              </div>
+            </div>
+
+            {groupDebtsQuery.isPending ? (
+              <div className="flex items-center justify-center gap-2 py-10 text-center text-muted-foreground">
+                <Loader2 className="size-5 animate-spin" />
+                Đang tải dữ liệu công nợ...
+              </div>
+            ) : groupDebtsQuery.isError ? (
+              <ErrorSection
+                title="Lỗi tải dữ liệu"
+                message={getQueryErrorMessage(
+                  groupDebtsQuery.error,
+                  "Thử lại sau."
+                )}
+              />
+            ) : !groupDebtsQuery.data?.data?.length ? (
+              <div className="rounded-md border bg-muted/5 py-10 text-center text-muted-foreground">
+                Không tìm thấy thông tin công nợ nào.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {groupDebtsQuery.data.data.map((item) => {
+                  const isExpanded = expandedUsers.includes(item.userId)
+                  const statusText =
+                    item.debt > 0
+                      ? `Nợ ${formatCurrency(item.debt)}`
+                      : item.creditBalance > 0
+                        ? `Dư ${formatCurrency(item.creditBalance)}`
+                        : "Đã thanh toán"
+                  const statusVariant =
+                    item.debt > 0
+                      ? ("destructive" as const)
+                      : item.creditBalance > 0
+                        ? ("secondary" as const)
+                        : ("default" as const)
+
+                  return (
+                    <Card
+                      key={item.userId}
+                      className="overflow-hidden border shadow-sm"
+                    >
+                      <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={item.user?.avatarUrl || ""} />
+                            <AvatarFallback>
+                              {getInitials(item.user?.name || "TV")}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="text-sm font-semibold">
+                              {item.user?.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {item.user?.email}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-3">
+                          <Badge variant={statusVariant}>{statusText}</Badge>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 gap-1 text-xs"
+                            onClick={() => {
+                              setExpandedUsers((prev) =>
+                                prev.includes(item.userId)
+                                  ? prev.filter((id) => id !== item.userId)
+                                  : [...prev, item.userId]
+                              )
+                            }}
+                          >
+                            {isExpanded ? (
+                              <>
+                                Ẩn chi tiết <ChevronUp className="size-4" />
+                              </>
+                            ) : (
+                              <>
+                                Xem chi tiết <ChevronDown className="size-4" />
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 border-t bg-muted/5 px-4 pt-4 pb-4 md:grid-cols-4">
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase">
+                            Tổng phải đóng
+                          </p>
+                          <p className="text-sm font-medium">
+                            {formatCurrency(item.totalRequired)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase">
+                            Tổng đã đóng
+                          </p>
+                          <p className="text-success text-sm font-medium">
+                            {formatCurrency(item.totalPaid)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase">
+                            Credit dư
+                          </p>
+                          <p className="text-sm font-medium text-primary">
+                            {formatCurrency(item.creditBalance)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase">
+                            Cân đối
+                          </p>
+                          <p className="text-sm font-medium">
+                            {formatCurrency(item.netBalance)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {isExpanded && (
+                        <div className="space-y-3 border-t bg-muted/10 p-4">
+                          <h5 className="text-xs font-semibold text-muted-foreground uppercase">
+                            Danh sách khoản chưa hoàn thành
+                          </h5>
+                          {item.unpaidPayments &&
+                          item.unpaidPayments.length > 0 ? (
+                            <div className="space-y-3">
+                              {item.unpaidPayments.map((payment) => {
+                                const payStatus =
+                                  payment.status === "UNPAID"
+                                    ? "Chưa thanh toán"
+                                    : payment.status === "PARTIALLY_PAID"
+                                      ? "Thanh toán một phần"
+                                      : "Đã thanh toán"
+                                const payVariant =
+                                  payment.status === "UNPAID"
+                                    ? ("destructive" as const)
+                                    : payment.status === "PARTIALLY_PAID"
+                                      ? ("secondary" as const)
+                                      : ("default" as const)
+
+                                return (
+                                  <div
+                                    key={payment.id}
+                                    className="flex flex-col gap-2 rounded-lg border bg-background p-3 text-sm md:flex-row md:items-center md:justify-between"
+                                  >
+                                    <div>
+                                      <p className="font-medium">
+                                        {payment.expenseTitle}
+                                      </p>
+                                      <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                                        <span>
+                                          Yêu cầu:{" "}
+                                          {formatCurrency(payment.requiredFee)}
+                                        </span>
+                                        <span>
+                                          Đã đóng:{" "}
+                                          {formatCurrency(payment.amountPaid)}
+                                        </span>
+                                        <span>
+                                          Còn thiếu:{" "}
+                                          {formatCurrency(payment.debt)}
+                                        </span>
+                                        <span>
+                                          Ngày tạo:{" "}
+                                          {formatDate(payment.createdAt)}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div className="self-start md:self-auto">
+                                      <Badge variant={payVariant}>
+                                        {payStatus}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-muted-foreground">
+                              Không có khoản nợ nào.
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </Card>
+                  )
+                })}
+
+                {groupDebtsQuery.data?.meta &&
+                  groupDebtsQuery.data.meta.totalPages > 1 && (
+                    <div className="mt-4 flex items-center justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                        disabled={page === 1}
+                      >
+                        Trang trước
+                      </Button>
+                      <span className="text-xs text-muted-foreground">
+                        Trang {page} / {groupDebtsQuery.data.meta.totalPages}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setPage((prev) =>
+                            Math.min(
+                              groupDebtsQuery.data.meta.totalPages,
+                              prev + 1
+                            )
+                          )
+                        }
+                        disabled={page === groupDebtsQuery.data.meta.totalPages}
+                      >
+                        Trang sau
+                      </Button>
+                    </div>
+                  )}
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="expenses" className="mt-4">
