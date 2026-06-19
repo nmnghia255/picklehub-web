@@ -161,6 +161,7 @@ export function GroupFinanceSection({
 }) {
   const activeTab = useGroupDetailActiveTab()
   const normalizedRole = currentUserRole?.toLowerCase() ?? ""
+  const isOwner = normalizedRole === "owner"
   const canManage =
     !isArchivedGroup(groupStatus) &&
     (normalizedRole === "owner" || normalizedRole === "admin")
@@ -212,13 +213,13 @@ export function GroupFinanceSection({
   const groupDebtsQuery = useGroupDebts(
     groupId,
     { page, limit, search },
-    { enabled: isFinanceActive }
+    { enabled: isFinanceActive && isOwner }
   )
 
   const statsDebtsQuery = useQuery({
     queryKey: financeQueryKeys.debts(groupId, { limit: 1000 }),
     queryFn: () => listGroupDebtsClient(groupId, { limit: 1000 }),
-    enabled: isFinanceActive,
+    enabled: isFinanceActive && isOwner,
   })
 
   const resolvedMembers = membersQuery.data ?? []
@@ -318,7 +319,9 @@ export function GroupFinanceSection({
 
             <div className="rounded-lg border bg-muted/20 p-4">
               <h4 className="mb-3 text-sm font-semibold">Thống kê tháng</h4>
-              <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
+              <div
+                className={`grid gap-4 sm:grid-cols-3 ${isOwner ? "lg:grid-cols-5" : "lg:grid-cols-3"}`}
+              >
                 <div>
                   <p className="text-xs text-muted-foreground uppercase">
                     Tổng thu
@@ -343,22 +346,26 @@ export function GroupFinanceSection({
                     {formatCurrency(monthlyStats.difference)}
                   </p>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase">
-                    Thành viên nợ
-                  </p>
-                  <p className="text-lg font-bold">
-                    {monthlyStats.debtorsCount}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase">
-                    Đóng dư
-                  </p>
-                  <p className="text-lg font-bold">
-                    {monthlyStats.overpayersCount}
-                  </p>
-                </div>
+                {isOwner && (
+                  <>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase">
+                        Thành viên nợ
+                      </p>
+                      <p className="text-lg font-bold">
+                        {monthlyStats.debtorsCount}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase">
+                        Đóng dư
+                      </p>
+                      <p className="text-lg font-bold">
+                        {monthlyStats.overpayersCount}
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -370,7 +377,9 @@ export function GroupFinanceSection({
               <TabsTrigger value="transactions">Giao dịch</TabsTrigger>
             )}
             <TabsTrigger value="my-debt">Nợ của tôi</TabsTrigger>
-            <TabsTrigger value="member-debts">Nợ thành viên</TabsTrigger>
+            {isOwner && (
+              <TabsTrigger value="member-debts">Nợ thành viên</TabsTrigger>
+            )}
             <TabsTrigger value="expenses">Khoản chi</TabsTrigger>
             <TabsTrigger value="credits">Tín dụng</TabsTrigger>
           </TabsList>
@@ -520,246 +529,326 @@ export function GroupFinanceSection({
             </div>
           </TabsContent>
 
-          <TabsContent value="member-debts" className="mt-4 space-y-4">
-            <div className="flex max-w-sm items-center gap-2">
-              <div className="relative w-full">
-                <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm thành viên..."
-                  className="w-full rounded-md border bg-background py-2 pr-4 pl-9 text-sm outline-none focus:ring-1 focus:ring-primary"
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value)
-                    setPage(1)
-                  }}
-                />
-              </div>
-            </div>
-
-            {groupDebtsQuery.isPending ? (
-              <div className="flex items-center justify-center gap-2 py-10 text-center text-muted-foreground">
-                <Loader2 className="size-5 animate-spin" />
-                Đang tải dữ liệu công nợ...
-              </div>
-            ) : groupDebtsQuery.isError ? (
-              <ErrorSection
-                title="Lỗi tải dữ liệu"
-                message={getQueryErrorMessage(
-                  groupDebtsQuery.error,
-                  "Thử lại sau."
+          {isOwner && (
+            <TabsContent value="member-debts" className="mt-4 space-y-5">
+              {/* Debt summary cards */}
+              {statsDebtsQuery.data?.data &&
+                statsDebtsQuery.data.data.length > 0 && (
+                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    <SummaryCard
+                      title="Tổng số người đang nợ"
+                      value={String(
+                        statsDebts.filter((d) => d.debt > 0).length
+                      )}
+                      description="Thành viên chưa thanh toán đủ"
+                    />
+                    <SummaryCard
+                      title="Tổng tiền đang nợ"
+                      value={formatCurrency(
+                        statsDebts.reduce(
+                          (sum, d) => sum + (d.debt > 0 ? d.debt : 0),
+                          0
+                        )
+                      )}
+                      description="Tổng công nợ còn tồn đọng"
+                    />
+                    <SummaryCard
+                      title="Tổng khoản chưa thanh toán"
+                      value={String(
+                        statsDebts.reduce(
+                          (sum, d) => sum + (d.unpaidPayments?.length ?? 0),
+                          0
+                        )
+                      )}
+                      description="Số khoản chi chưa hoàn thành"
+                    />
+                    <SummaryCard
+                      title="Tổng credit dư"
+                      value={formatCurrency(
+                        statsDebts.reduce(
+                          (sum, d) =>
+                            sum + (d.creditBalance > 0 ? d.creditBalance : 0),
+                          0
+                        )
+                      )}
+                      description="Thành viên đóng vượt mức"
+                    />
+                  </div>
                 )}
-              />
-            ) : !groupDebtsQuery.data?.data?.length ? (
-              <div className="rounded-md border bg-muted/5 py-10 text-center text-muted-foreground">
-                Không tìm thấy thông tin công nợ nào.
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {groupDebtsQuery.data.data.map((item) => {
-                  const isExpanded = expandedUsers.includes(item.userId)
-                  const statusText =
-                    item.debt > 0
-                      ? `Nợ ${formatCurrency(item.debt)}`
-                      : item.creditBalance > 0
-                        ? `Dư ${formatCurrency(item.creditBalance)}`
-                        : "Đã thanh toán"
-                  const statusVariant =
-                    item.debt > 0
-                      ? ("destructive" as const)
-                      : item.creditBalance > 0
-                        ? ("secondary" as const)
-                        : ("default" as const)
 
-                  return (
-                    <Card
-                      key={item.userId}
-                      className="overflow-hidden border shadow-sm"
-                    >
-                      <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-10 w-10">
-                            <AvatarImage src={item.user?.avatarUrl || ""} />
-                            <AvatarFallback>
-                              {getInitials(item.user?.name || "TV")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="text-sm font-semibold">
-                              {item.user?.name}
+              {/* Search */}
+              <div className="flex max-w-sm items-center gap-2">
+                <div className="relative w-full">
+                  <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Tìm kiếm thành viên..."
+                    className="w-full rounded-md border bg-background py-2 pr-4 pl-9 text-sm outline-none focus:ring-1 focus:ring-primary"
+                    value={search}
+                    onChange={(e) => {
+                      setSearch(e.target.value)
+                      setPage(1)
+                    }}
+                  />
+                </div>
+              </div>
+
+              {groupDebtsQuery.isPending ? (
+                <div className="flex items-center justify-center gap-2 py-10 text-center text-muted-foreground">
+                  <Loader2 className="size-5 animate-spin" />
+                  Đang tải dữ liệu công nợ...
+                </div>
+              ) : groupDebtsQuery.isError ? (
+                <ErrorSection
+                  title="Lỗi tải dữ liệu"
+                  message={getQueryErrorMessage(
+                    groupDebtsQuery.error,
+                    "Thử lại sau."
+                  )}
+                />
+              ) : !groupDebtsQuery.data?.data?.length ? (
+                <div className="rounded-md border bg-muted/5 py-10 text-center text-muted-foreground">
+                  Không tìm thấy thông tin công nợ nào.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {groupDebtsQuery.data.data.map((item) => {
+                    const isExpanded = expandedUsers.includes(item.userId)
+                    const statusText =
+                      item.debt > 0
+                        ? `Nợ ${formatCurrency(item.debt)}`
+                        : item.creditBalance > 0
+                          ? `Dư ${formatCurrency(item.creditBalance)}`
+                          : "Đã thanh toán"
+                    const statusVariant =
+                      item.debt > 0
+                        ? ("destructive" as const)
+                        : item.creditBalance > 0
+                          ? ("secondary" as const)
+                          : ("default" as const)
+
+                    return (
+                      <Card
+                        key={item.userId}
+                        className="overflow-hidden border shadow-sm"
+                      >
+                        {/* Member header row */}
+                        <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-9 w-9">
+                              <AvatarImage src={item.user?.avatarUrl || ""} />
+                              <AvatarFallback>
+                                {getInitials(item.user?.name || "TV")}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold">
+                                {item.user?.name}
+                              </p>
+                              <p className="truncate text-xs text-muted-foreground">
+                                {item.user?.email}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm font-semibold tabular-nums">
+                              {formatCurrency(item.totalRequired)}
+                            </span>
+                            <Badge variant={statusVariant}>{statusText}</Badge>
+                            {item.creditBalance > 0 && (
+                              <Badge variant="outline" className="text-xs">
+                                Credit: {formatCurrency(item.creditBalance)}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Compact stats row */}
+                        <div className="grid grid-cols-2 gap-px border-t bg-border md:grid-cols-4">
+                          <div className="bg-card px-4 py-2.5">
+                            <p className="text-[11px] text-muted-foreground">
+                              Phải đóng
                             </p>
-                            <p className="text-xs text-muted-foreground">
-                              {item.user?.email}
+                            <p className="text-sm font-medium tabular-nums">
+                              {formatCurrency(item.totalRequired)}
+                            </p>
+                          </div>
+                          <div className="bg-card px-4 py-2.5">
+                            <p className="text-[11px] text-muted-foreground">
+                              Đã đóng
+                            </p>
+                            <p className="text-success text-sm font-medium tabular-nums">
+                              {formatCurrency(item.totalPaid)}
+                            </p>
+                          </div>
+                          <div className="bg-card px-4 py-2.5">
+                            <p className="text-[11px] text-muted-foreground">
+                              Credit dư
+                            </p>
+                            <p className="text-sm font-medium text-primary tabular-nums">
+                              {formatCurrency(item.creditBalance)}
+                            </p>
+                          </div>
+                          <div className="bg-card px-4 py-2.5">
+                            <p className="text-[11px] text-muted-foreground">
+                              Cân đối
+                            </p>
+                            <p className="text-sm font-medium tabular-nums">
+                              {formatCurrency(item.netBalance)}
                             </p>
                           </div>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-3">
-                          <Badge variant={statusVariant}>{statusText}</Badge>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 gap-1 text-xs"
-                            onClick={() => {
-                              setExpandedUsers((prev) =>
-                                prev.includes(item.userId)
-                                  ? prev.filter((id) => id !== item.userId)
-                                  : [...prev, item.userId]
-                              )
-                            }}
-                          >
-                            {isExpanded ? (
-                              <>
-                                Ẩn chi tiết <ChevronUp className="size-4" />
-                              </>
-                            ) : (
-                              <>
-                                Xem chi tiết <ChevronDown className="size-4" />
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4 border-t bg-muted/5 px-4 pt-4 pb-4 md:grid-cols-4">
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase">
-                            Tổng phải đóng
-                          </p>
-                          <p className="text-sm font-medium">
-                            {formatCurrency(item.totalRequired)}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase">
-                            Tổng đã đóng
-                          </p>
-                          <p className="text-success text-sm font-medium">
-                            {formatCurrency(item.totalPaid)}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase">
-                            Credit dư
-                          </p>
-                          <p className="text-sm font-medium text-primary">
-                            {formatCurrency(item.creditBalance)}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase">
-                            Cân đối
-                          </p>
-                          <p className="text-sm font-medium">
-                            {formatCurrency(item.netBalance)}
-                          </p>
-                        </div>
-                      </div>
-
-                      {isExpanded && (
-                        <div className="space-y-3 border-t bg-muted/10 p-4">
-                          <h5 className="text-xs font-semibold text-muted-foreground uppercase">
-                            Danh sách khoản chưa hoàn thành
-                          </h5>
-                          {item.unpaidPayments &&
-                          item.unpaidPayments.length > 0 ? (
-                            <div className="space-y-3">
-                              {item.unpaidPayments.map((payment) => {
-                                const payStatus =
-                                  payment.status === "UNPAID"
-                                    ? "Chưa thanh toán"
-                                    : payment.status === "PARTIALLY_PAID"
-                                      ? "Thanh toán một phần"
-                                      : "Đã thanh toán"
-                                const payVariant =
-                                  payment.status === "UNPAID"
-                                    ? ("destructive" as const)
-                                    : payment.status === "PARTIALLY_PAID"
-                                      ? ("secondary" as const)
-                                      : ("default" as const)
-
-                                return (
-                                  <div
-                                    key={payment.id}
-                                    className="flex flex-col gap-2 rounded-lg border bg-background p-3 text-sm md:flex-row md:items-center md:justify-between"
-                                  >
-                                    <div>
-                                      <p className="font-medium">
-                                        {payment.expenseTitle}
-                                      </p>
-                                      <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                                        <span>
-                                          Yêu cầu:{" "}
-                                          {formatCurrency(payment.requiredFee)}
-                                        </span>
-                                        <span>
-                                          Đã đóng:{" "}
-                                          {formatCurrency(payment.amountPaid)}
-                                        </span>
-                                        <span>
-                                          Còn thiếu:{" "}
-                                          {formatCurrency(payment.debt)}
-                                        </span>
-                                        <span>
-                                          Ngày tạo:{" "}
-                                          {formatDate(payment.createdAt)}
-                                        </span>
-                                      </div>
-                                    </div>
-                                    <div className="self-start md:self-auto">
-                                      <Badge variant={payVariant}>
-                                        {payStatus}
-                                      </Badge>
-                                    </div>
-                                  </div>
-                                )
-                              })}
+                        {/* Expand/collapse toggle */}
+                        {item.unpaidPayments &&
+                          item.unpaidPayments.length > 0 && (
+                            <div className="border-t px-4 py-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 gap-1.5 px-2 text-xs text-muted-foreground hover:text-foreground"
+                                onClick={() => {
+                                  setExpandedUsers((prev) =>
+                                    prev.includes(item.userId)
+                                      ? prev.filter((id) => id !== item.userId)
+                                      : [...prev, item.userId]
+                                  )
+                                }}
+                              >
+                                {isExpanded ? (
+                                  <>
+                                    Ẩn chi tiết
+                                    <ChevronUp className="size-3.5" />
+                                  </>
+                                ) : (
+                                  <>
+                                    Xem chi tiết ({item.unpaidPayments.length}{" "}
+                                    khoản)
+                                    <ChevronDown className="size-3.5" />
+                                  </>
+                                )}
+                              </Button>
                             </div>
-                          ) : (
-                            <p className="text-xs text-muted-foreground">
-                              Không có khoản nợ nào.
-                            </p>
                           )}
-                        </div>
-                      )}
-                    </Card>
-                  )
-                })}
 
-                {groupDebtsQuery.data?.meta &&
-                  groupDebtsQuery.data.meta.totalPages > 1 && (
-                    <div className="mt-4 flex items-center justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                        disabled={page === 1}
-                      >
-                        Trang trước
-                      </Button>
-                      <span className="text-xs text-muted-foreground">
-                        Trang {page} / {groupDebtsQuery.data.meta.totalPages}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          setPage((prev) =>
-                            Math.min(
-                              groupDebtsQuery.data.meta.totalPages,
-                              prev + 1
+                        {/* Expanded payment details table */}
+                        {isExpanded && (
+                          <div className="border-t">
+                            <div className="overflow-x-auto">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow className="bg-muted/30">
+                                    <TableHead className="text-xs">
+                                      Tên khoản chi
+                                    </TableHead>
+                                    <TableHead className="text-xs">
+                                      Số cần đóng
+                                    </TableHead>
+                                    <TableHead className="text-xs">
+                                      Đã đóng
+                                    </TableHead>
+                                    <TableHead className="text-xs">
+                                      Còn nợ
+                                    </TableHead>
+                                    <TableHead className="text-xs">
+                                      Trạng thái
+                                    </TableHead>
+                                    <TableHead className="text-xs">
+                                      Ngày tạo
+                                    </TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {item.unpaidPayments &&
+                                  item.unpaidPayments.length > 0 ? (
+                                    item.unpaidPayments.map((payment) => (
+                                      <TableRow key={payment.id}>
+                                        <TableCell className="text-sm font-medium">
+                                          {payment.expenseTitle}
+                                        </TableCell>
+                                        <TableCell className="text-sm tabular-nums">
+                                          {formatCurrency(payment.requiredFee)}
+                                        </TableCell>
+                                        <TableCell className="text-success text-sm tabular-nums">
+                                          {formatCurrency(payment.amountPaid)}
+                                        </TableCell>
+                                        <TableCell className="text-sm font-medium text-destructive tabular-nums">
+                                          {formatCurrency(payment.debt)}
+                                        </TableCell>
+                                        <TableCell>
+                                          <Badge
+                                            variant={getDebtStatusVariant(
+                                              payment.status
+                                            )}
+                                          >
+                                            {formatDebtStatus(payment.status)}
+                                          </Badge>
+                                        </TableCell>
+                                        <TableCell className="text-xs text-muted-foreground">
+                                          {formatDate(payment.createdAt)}
+                                        </TableCell>
+                                      </TableRow>
+                                    ))
+                                  ) : (
+                                    <TableRow>
+                                      <TableCell
+                                        colSpan={6}
+                                        className="py-6 text-center text-sm text-muted-foreground"
+                                      >
+                                        Không có khoản nợ nào.
+                                      </TableCell>
+                                    </TableRow>
+                                  )}
+                                </TableBody>
+                              </Table>
+                            </div>
+                          </div>
+                        )}
+                      </Card>
+                    )
+                  })}
+
+                  {/* Pagination */}
+                  {groupDebtsQuery.data?.meta &&
+                    groupDebtsQuery.data.meta.totalPages > 1 && (
+                      <div className="mt-4 flex items-center justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            setPage((prev) => Math.max(1, prev - 1))
+                          }
+                          disabled={page === 1}
+                        >
+                          Trang trước
+                        </Button>
+                        <span className="text-xs text-muted-foreground">
+                          Trang {page} / {groupDebtsQuery.data.meta.totalPages}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            setPage((prev) =>
+                              Math.min(
+                                groupDebtsQuery.data.meta.totalPages,
+                                prev + 1
+                              )
                             )
-                          )
-                        }
-                        disabled={page === groupDebtsQuery.data.meta.totalPages}
-                      >
-                        Trang sau
-                      </Button>
-                    </div>
-                  )}
-              </div>
-            )}
-          </TabsContent>
+                          }
+                          disabled={
+                            page === groupDebtsQuery.data.meta.totalPages
+                          }
+                        >
+                          Trang sau
+                        </Button>
+                      </div>
+                    )}
+                </div>
+              )}
+            </TabsContent>
+          )}
 
           <TabsContent value="expenses" className="mt-4">
             <div className="rounded-md border">
