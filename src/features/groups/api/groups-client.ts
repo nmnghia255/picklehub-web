@@ -1,7 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query"
 import { useCallback, useEffect } from "react"
 
-import type { Group, Invitation, Member } from "../types"
+import type {
+  Group,
+  GroupCourtBooking,
+  Invitation,
+  ListGroupCourtBookingsResult,
+  Member,
+} from "../types"
 import { financeQueryKeys } from "./finance-client"
 
 type QueryParams = Record<string, string | number | boolean | null | undefined>
@@ -79,6 +85,8 @@ export const groupQueryKeys = {
     [...groupQueryKeys.detail(groupId), "members"] as const,
   invitations: (groupId: string) =>
     [...groupQueryKeys.detail(groupId), "invitations"] as const,
+  courtBookings: (groupId: string, params?: QueryParams) =>
+    [...groupQueryKeys.detail(groupId), "courtBookings", params] as const,
 }
 
 export async function getGroupClient(groupId: string): Promise<Group> {
@@ -177,11 +185,95 @@ export function useGroupInvalidation(groupId: string) {
     })
   }, [queryClient, groupId])
 
+  const invalidateCourtBookings = useCallback(() => {
+    return queryClient.invalidateQueries({
+      queryKey: [...groupQueryKeys.detail(groupId), "courtBookings"],
+    })
+  }, [queryClient, groupId])
+
   return {
     invalidateAll,
     invalidateMembers,
     invalidateFinance,
     invalidateInvitations,
     invalidateActivities,
+    invalidateCourtBookings,
   }
+}
+
+export async function listGroupCourtBookingsClient(
+  groupId: string,
+  params: {
+    page?: number
+    limit?: number
+    fromDate?: string
+    toDate?: string
+  } = {}
+): Promise<ListGroupCourtBookingsResult> {
+  const searchParams = toSearchParams(params)
+  const suffix = searchParams.toString() ? `?${searchParams.toString()}` : ""
+  return fetchJson<ListGroupCourtBookingsResult>(
+    `/api/groups/${groupId}/court-bookings${suffix}`
+  )
+}
+
+export async function getGroupCourtBookingClient(
+  groupId: string,
+  id: string
+): Promise<GroupCourtBooking> {
+  return fetchJson<GroupCourtBooking>(
+    `/api/groups/${groupId}/court-bookings/${id}`
+  )
+}
+
+export async function linkGroupCourtBookingClient(
+  groupId: string,
+  body: { title: string; note: string; bookingId: string }
+): Promise<GroupCourtBooking> {
+  const response = await fetch(`/api/groups/${groupId}/court-bookings`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  })
+
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}))
+    throw new Error(payload.message || "Không thể liên kết lịch đặt sân.")
+  }
+
+  return response.json()
+}
+
+export async function unlinkGroupCourtBookingClient(
+  groupId: string,
+  id: string
+): Promise<{ message: string }> {
+  const response = await fetch(`/api/groups/${groupId}/court-bookings/${id}`, {
+    method: "DELETE",
+  })
+
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}))
+    throw new Error(payload.message || "Không thể xóa liên kết lịch đặt sân.")
+  }
+
+  return response.json()
+}
+
+import type { MyBookingsResponse } from "@/features/sport-center/types/booking"
+
+export async function getMyBookingsClient(
+  params: { limit?: number; status?: string } = {}
+): Promise<MyBookingsResponse> {
+  const searchParams = toSearchParams(params)
+  const suffix = searchParams.toString() ? `?${searchParams.toString()}` : ""
+
+  const response = await fetch(`/api/bookings/me${suffix}`)
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}))
+    throw new Error(payload.message || "Không thể tải danh sách lịch đặt sân.")
+  }
+  return response.json()
 }

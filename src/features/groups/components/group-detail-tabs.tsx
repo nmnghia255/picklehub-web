@@ -8,6 +8,7 @@ export type GroupDetailTabValue =
   | "overview"
   | "activity"
   | "finance"
+  | "court-bookings"
   | "equipment"
   | "chat"
 
@@ -21,6 +22,7 @@ interface GroupDetailTabsProps {
   overview: ReactNode
   activity: ReactNode
   finance: ReactNode
+  courtBookings: ReactNode
   equipment: ReactNode
   chat: ReactNode
   defaultValue?: GroupDetailTabValue
@@ -30,6 +32,7 @@ export function GroupDetailTabs({
   overview,
   activity,
   finance,
+  courtBookings,
   equipment,
   chat,
   defaultValue = "overview",
@@ -53,6 +56,9 @@ export function GroupDetailTabs({
           <TabsTrigger value="activity" className="sm:flex-none">
             Lịch hoạt động
           </TabsTrigger>
+          <TabsTrigger value="court-bookings" className="sm:flex-none">
+            Đặt sân nhóm
+          </TabsTrigger>
           <TabsTrigger value="finance" className="sm:flex-none">
             Thu chi
           </TabsTrigger>
@@ -69,6 +75,9 @@ export function GroupDetailTabs({
         </TabsContent>
         <TabsContent value="activity" className="mt-6 w-full min-w-0">
           {activity}
+        </TabsContent>
+        <TabsContent value="court-bookings" className="mt-6 w-full min-w-0">
+          {courtBookings}
         </TabsContent>
         <TabsContent value="finance" className="mt-6 w-full min-w-0">
           {finance}
