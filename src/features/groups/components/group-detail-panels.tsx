@@ -4,7 +4,6 @@ import { GroupChat } from "@/features/groups/components/group-chat"
 import type { Group, Invitation, Member } from "@/features/groups/types"
 import { GroupFeedNotificationsContainer } from "@/features/notifications/components/group-feed-notifications-container"
 
-import { GroupCourtBookingsSection } from "./group-court-bookings-section"
 import { GroupDetailTabs } from "./group-detail-tabs"
 import { GroupEquipmentSection } from "./group-equipment-section"
 import { GroupFinanceSection } from "./group-finance-section"
@@ -19,7 +18,7 @@ interface GroupDetailPanelsProps {
   currentUserId: string
   currentUserRole: string | null
   invitations: Invitation[]
-  defaultTab?: "overview" | "activity" | "finance" | "court-bookings" | "chat"
+  defaultTab?: "overview" | "activity" | "finance" | "chat"
 }
 
 export async function GroupDetailPanels({
@@ -72,16 +71,6 @@ export async function GroupDetailPanels({
           currentUserRole={currentUserRole}
         />
       }
-      courtBookings={
-        <div className="min-w-0">
-          <GroupCourtBookingsSection
-            groupId={groupId}
-            currentUserId={currentUserId}
-            currentUserRole={currentUserRole}
-            groupStatus={group.status}
-          />
-        </div>
-      }
       finance={
         <div className="min-w-0">
           <GroupFinanceSection
@@ -101,9 +90,7 @@ export async function GroupDetailPanels({
           <GroupChat groupId={groupId} fullPage />
         </div>
       }
-      defaultValue={
-        defaultTab === "court-bookings" ? "court-bookings" : defaultTab
-      }
+      defaultValue={defaultTab}
     />
   )
 }

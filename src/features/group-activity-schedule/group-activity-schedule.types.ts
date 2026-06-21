@@ -78,3 +78,56 @@ export interface EventFormValues {
   remindAt?: string
   status: GroupActivityStatus
 }
+
+// ─── Unified Calendar Event Model ───────────────────────────────────────────
+
+export type GroupEventType = "activity" | "court-booking"
+
+export interface CourtBookingItemSnapshot {
+  courtName: string
+  startTime: string
+  endTime: string
+}
+
+/**
+ * Wraps a GroupActivity for the unified calendar.
+ */
+export interface ActivityCalendarEvent {
+  type: "activity"
+  id: string
+  title: string
+  startAt: string
+  endAt: string
+  groupId: string
+  _raw: GroupActivity
+}
+
+/**
+ * Wraps a GroupCourtBooking for the unified calendar.
+ * date + startTime/endTime are transformed into startAt/endAt ISO strings.
+ */
+export interface CourtBookingCalendarEvent {
+  type: "court-booking"
+  id: string
+  title: string
+  startAt: string
+  endAt: string
+  groupId: string
+  metadata: {
+    centerName: string
+    centerAddress: string
+    totalBookingCost: number
+    courtNames: string[]
+    bookingItemsSnapshot: CourtBookingItemSnapshot[]
+    linkedById: string
+    bookingId: string
+    note: string | null
+    creator?: {
+      id: string
+      name: string
+      avatarUrl?: string | null
+    }
+  }
+}
+
+export type CalendarEvent = ActivityCalendarEvent | CourtBookingCalendarEvent

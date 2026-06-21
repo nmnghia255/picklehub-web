@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { format, startOfMonth } from "date-fns"
-import { Edit, Plus, Trash2 } from "lucide-react"
+import { Edit, Link, Plus, Trash2 } from "lucide-react"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 
@@ -10,6 +10,12 @@ import { CalendarNavigation } from "@/components/calendar-navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  groupQueryKeys,
+  linkGroupCourtBookingClient,
+  listGroupCourtBookingsClient,
+  unlinkGroupCourtBookingClient,
+} from "@/features/groups/api/groups-client"
 
 import {
   activityQueryKeys,
@@ -19,6 +25,8 @@ import {
   updateActivityClient,
 } from "../api/activities-client"
 import type {
+  CalendarEvent,
+  CourtBookingCalendarEvent,
   CreateGroupActivityDto,
   GroupActivity,
   UpdateGroupActivityDto,
@@ -26,7 +34,11 @@ import type {
 import {
   getStatusBadgeClass,
   getStatusLabel,
+  transformActivityToCalendarEvent,
+  transformCourtBookingToCalendarEvent,
 } from "../group-activity-schedule.utils"
+import { CourtBookingCalendarDrawer } from "./court-booking-calendar-drawer"
+import { CourtBookingLinkDialog } from "./court-booking-link-dialog"
 import { GroupActivityCalendarView } from "./group-activity-calendar-view"
 import { GroupActivityDetailDrawer } from "./group-activity-detail-drawer"
 import { GroupActivityFormDialog } from "./group-activity-form-dialog"
@@ -46,10 +58,13 @@ export function GroupActivitySchedulePage({
   const queryClient = useQueryClient()
   const groupId = initialGroupId || ""
 
+  const role = currentUserRole?.toLowerCase()
+
   const canManageActivities = useMemo(() => {
-    const role = currentUserRole?.toLowerCase()
     return role === "owner" || role === "admin"
-  }, [currentUserRole])
+  }, [role])
+
+  const isOwner = role === "owner"
 
   // States
   const [currentMonth, setCurrentMonth] = useState(() =>
@@ -60,22 +75,50 @@ export function GroupActivitySchedulePage({
 
   // Dialog & Drawer States
   const [formOpen, setFormOpen] = useState(false)
-  const [editingEvent, setEditingEvent] = useState<GroupActivity | null>(null)
-  const [detailOpen, setDetailOpen] = useState(false)
-  const [selectedEventForDetail, setSelectedEventForDetail] =
+  const [editingActivity, setEditingActivity] = useState<GroupActivity | null>(
+    null
+  )
+
+  const [activityDetailOpen, setActivityDetailOpen] = useState(false)
+  const [selectedActivityForDetail, setSelectedActivityForDetail] =
     useState<GroupActivity | null>(null)
 
+  const [courtBookingDetailOpen, setCourtBookingDetailOpen] = useState(false)
+  const [selectedCourtBookingForDetail, setSelectedCourtBookingForDetail] =
+    useState<CourtBookingCalendarEvent | null>(null)
+
+  const [courtBookingLinkOpen, setCourtBookingLinkOpen] = useState(false)
+
+  // Court booking invalidation helper
+  const invalidateCourtBookings = () =>
+    queryClient.invalidateQueries({
+      queryKey: [...groupQueryKeys.detail(groupId), "courtBookings"],
+    })
+
   // Queries
-  const { data: activitiesResponse, isLoading } = useQuery({
-    queryKey: activityQueryKeys.list(groupId, { limit: 1000 }), // Get all for calendar
+  const activitiesQuery = useQuery({
+    queryKey: activityQueryKeys.list(groupId, { limit: 1000 }),
     queryFn: () => listActivitiesClient(groupId, { limit: 1000 }),
     enabled: !!groupId,
   })
 
-  const events = useMemo(
-    () => activitiesResponse?.data || [],
-    [activitiesResponse]
-  )
+  const courtBookingsQuery = useQuery({
+    queryKey: groupQueryKeys.courtBookings(groupId, { limit: 100 }),
+    queryFn: () => listGroupCourtBookingsClient(groupId, { limit: 100 }),
+    enabled: !!groupId,
+  })
+
+  const isLoading = activitiesQuery.isLoading || courtBookingsQuery.isLoading
+
+  const allEvents = useMemo(() => {
+    const activities = (activitiesQuery.data?.data || []).map(
+      transformActivityToCalendarEvent
+    )
+    const bookings = (courtBookingsQuery.data?.data || []).map(
+      transformCourtBookingToCalendarEvent
+    )
+    return [...activities, ...bookings]
+  }, [activitiesQuery.data, courtBookingsQuery.data])
 
   // Mutations
   const createMutation = useMutation({
@@ -127,20 +170,50 @@ export function GroupActivitySchedulePage({
     },
   })
 
-  const socialsByDate = useMemo(() => {
-    return events.reduce<Record<string, GroupActivity[]>>(
+  const linkBookingMutation = useMutation({
+    mutationFn: (body: { title: string; note: string; bookingId: string }) =>
+      linkGroupCourtBookingClient(groupId, body),
+    onSuccess: () => {
+      toast.success("Liên kết lịch đặt sân thành công!")
+      setCourtBookingLinkOpen(false)
+      invalidateCourtBookings()
+    },
+    onError: (error: Error) => {
+      toast.error(
+        error.message || "Không thể liên kết lịch đặt sân. Vui lòng thử lại."
+      )
+    },
+  })
+
+  const unlinkBookingMutation = useMutation({
+    mutationFn: (id: string) => unlinkGroupCourtBookingClient(groupId, id),
+    onSuccess: () => {
+      toast.success("Đã xóa liên kết lịch đặt sân.")
+      setCourtBookingDetailOpen(false)
+      invalidateCourtBookings()
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Không thể xóa liên kết lịch đặt sân.")
+    },
+  })
+
+  const eventsByDate = useMemo(() => {
+    return allEvents.reduce<Record<string, CalendarEvent[]>>(
       (accumulator, event) => {
-        const key = format(new Date(event.startAt), "yyyy-MM-dd")
+        if (!event.startAt) return accumulator
+        const date = new Date(event.startAt)
+        if (isNaN(date.getTime())) return accumulator
+        const key = format(date, "yyyy-MM-dd")
         if (!accumulator[key]) accumulator[key] = []
         accumulator[key].push(event)
         return accumulator
       },
       {}
     )
-  }, [events])
+  }, [allEvents])
 
   const selectedDateKey = format(selectedDate, "yyyy-MM-dd")
-  const selectedDayEvents = socialsByDate[selectedDateKey] ?? []
+  const selectedDayEvents = eventsByDate[selectedDateKey] ?? []
 
   // Handlers
   const handleCreateEvent = (payload: CreateGroupActivityDto) => {
@@ -161,21 +234,26 @@ export function GroupActivitySchedulePage({
   }
 
   const openCreateDialog = () => {
-    setEditingEvent(null)
+    setEditingActivity(null)
     setFormOpen(true)
   }
 
   const openEditDialog = (event: GroupActivity) => {
-    setEditingEvent(event)
+    setEditingActivity(event)
     setFormOpen(true)
   }
 
-  const openDetailDrawer = (event: GroupActivity) => {
-    setSelectedEventForDetail(event)
-    setDetailOpen(true)
+  const openDetailDrawer = (event: CalendarEvent) => {
+    if (event.type === "activity") {
+      setSelectedActivityForDetail(event._raw)
+      setActivityDetailOpen(true)
+    } else {
+      setSelectedCourtBookingForDetail(event)
+      setCourtBookingDetailOpen(true)
+    }
   }
 
-  if (isLoading && !events.length) {
+  if (isLoading && !allEvents.length) {
     return <GroupActivityLoadingSkeleton />
   }
 
@@ -223,17 +301,28 @@ export function GroupActivitySchedulePage({
             }}
           />
 
-          {canManageActivities && (
-            <Button className="ml-auto" onClick={openCreateDialog}>
-              <Plus className="mr-2 size-4" />
-              Thêm sự kiện
-            </Button>
-          )}
+          <div className="ml-auto flex items-center gap-2">
+            {isOwner && (
+              <Button
+                variant="outline"
+                onClick={() => setCourtBookingLinkOpen(true)}
+              >
+                <Link className="mr-2 size-4" />
+                Liên kết lịch đặt sân
+              </Button>
+            )}
+            {canManageActivities && (
+              <Button onClick={openCreateDialog}>
+                <Plus className="mr-2 size-4" />
+                Thêm sự kiện
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
       <div className="grid gap-6 lg:grid-cols-[1fr_350px]">
         <GroupActivityCalendarView
-          events={events}
+          events={allEvents}
           baseDate={currentMonth}
           view={view}
           selectedDate={selectedDate}
@@ -272,56 +361,79 @@ export function GroupActivitySchedulePage({
               <div className="space-y-3">
                 {selectedDayEvents
                   .slice()
-                  .sort(
-                    (a, b) =>
-                      new Date(a.startAt).getTime() -
-                      new Date(b.startAt).getTime()
-                  )
-                  .map((event) => (
-                    <div
-                      key={event.id}
-                      className="group relative rounded-lg border p-3 transition-colors hover:border-primary/50"
-                    >
-                      <div className="mb-2 flex items-start justify-between gap-2">
-                        <p className="line-clamp-2 text-sm font-bold">
-                          {event.title}
-                        </p>
-                        <Badge
-                          variant="outline"
-                          className={getStatusBadgeClass(event.status)}
-                        >
-                          {getStatusLabel(event.status)}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        {format(new Date(event.startAt), "HH:mm")} -{" "}
-                        {format(new Date(event.endAt), "HH:mm")}
-                      </p>
+                  .sort((a, b) => {
+                    const aTime = a.startAt ? new Date(a.startAt).getTime() : 0
+                    const bTime = b.startAt ? new Date(b.startAt).getTime() : 0
+                    return aTime - bTime
+                  })
+                  .map((event) => {
+                    const isActivity = event.type === "activity"
 
-                      {canManageActivities && (
-                        <div className="mt-3 flex items-center justify-end gap-2 opacity-0 transition-opacity group-hover:opacity-100">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 text-muted-foreground hover:text-primary"
-                            onClick={() => openEditDialog(event)}
-                            disabled={updateMutation.isPending}
+                    return (
+                      <div
+                        key={event.id}
+                        className="group relative cursor-pointer rounded-lg border p-3 transition-colors hover:border-primary/50"
+                        onClick={() => openDetailDrawer(event)}
+                      >
+                        <div className="mb-2 flex items-start justify-between gap-2">
+                          <p className="line-clamp-2 text-sm font-bold">
+                            {!isActivity && "🎾 "}
+                            {event.title}
+                          </p>
+                          <Badge
+                            variant="outline"
+                            className={
+                              isActivity
+                                ? getStatusBadgeClass(event._raw.status)
+                                : "border-sky-200 bg-sky-100 text-sky-700"
+                            }
                           >
-                            <Edit className="size-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 text-muted-foreground hover:text-destructive"
-                            onClick={() => handleDeleteEvent(event.id)}
-                            disabled={deleteMutation.isPending}
-                          >
-                            <Trash2 className="size-4" />
-                          </Button>
+                            {isActivity
+                              ? getStatusLabel(event._raw.status)
+                              : "Đặt sân"}
+                          </Badge>
                         </div>
-                      )}
-                    </div>
-                  ))}
+                        <p className="text-xs text-muted-foreground">
+                          {event.startAt
+                            ? format(new Date(event.startAt), "HH:mm")
+                            : ""}
+                          {event.startAt && event.endAt ? " - " : ""}
+                          {event.endAt
+                            ? format(new Date(event.endAt), "HH:mm")
+                            : ""}
+                        </p>
+
+                        {isActivity && canManageActivities && (
+                          <div className="mt-3 flex items-center justify-end gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-muted-foreground hover:text-primary"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                openEditDialog(event._raw)
+                              }}
+                              disabled={updateMutation.isPending}
+                            >
+                              <Edit className="size-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-muted-foreground hover:text-destructive"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDeleteEvent(event.id)
+                              }}
+                              disabled={deleteMutation.isPending}
+                            >
+                              <Trash2 className="size-4" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
               </div>
             )}
           </CardContent>
@@ -331,21 +443,44 @@ export function GroupActivitySchedulePage({
       <GroupActivityFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
-        editingEvent={editingEvent}
+        editingEvent={editingActivity}
         activeGroupId={groupId}
         onCreate={handleCreateEvent}
         onUpdate={handleUpdateEvent}
         isSubmitting={createMutation.isPending || updateMutation.isPending}
       />
 
-      {selectedEventForDetail && (
+      {selectedActivityForDetail && (
         <GroupActivityDetailDrawer
-          open={detailOpen}
-          onOpenChange={setDetailOpen}
-          activityId={selectedEventForDetail.id}
+          open={activityDetailOpen}
+          onOpenChange={setActivityDetailOpen}
+          activityId={selectedActivityForDetail.id}
           groupId={groupId}
         />
       )}
+
+      {selectedCourtBookingForDetail && (
+        <CourtBookingCalendarDrawer
+          open={courtBookingDetailOpen}
+          onOpenChange={setCourtBookingDetailOpen}
+          event={selectedCourtBookingForDetail}
+          canManage={isOwner}
+          onUnlink={(id) => {
+            if (
+              window.confirm("Bạn có chắc muốn xóa liên kết lịch đặt sân này?")
+            ) {
+              unlinkBookingMutation.mutate(id)
+            }
+          }}
+        />
+      )}
+
+      <CourtBookingLinkDialog
+        open={courtBookingLinkOpen}
+        onOpenChange={setCourtBookingLinkOpen}
+        onLink={(payload) => linkBookingMutation.mutate(payload)}
+        isPending={linkBookingMutation.isPending}
+      />
     </div>
   )
 
