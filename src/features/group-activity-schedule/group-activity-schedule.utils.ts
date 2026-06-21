@@ -1,11 +1,6 @@
-import type { GroupCourtBooking } from "@/features/groups/types/court-booking"
-
 import type {
-  ActivityCalendarEvent,
   ActivityType,
   ActivityTypeFilter,
-  CalendarEvent,
-  CourtBookingCalendarEvent,
   EventFormValues,
   GroupActivity,
   GroupActivityStatus,
@@ -13,110 +8,6 @@ import type {
 } from "./group-activity-schedule.types"
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000
-
-export function transformActivityToCalendarEvent(
-  activity: GroupActivity
-): ActivityCalendarEvent {
-  return {
-    type: "activity",
-    id: activity.id,
-    title: activity.title,
-    startAt: activity.startAt,
-    endAt: activity.endAt,
-    groupId: activity.groupId,
-    _raw: activity,
-  }
-}
-
-function computeTimeRange(snapshots: { startTime: string; endTime: string }[]) {
-  const startTimes = snapshots
-    .map((s) => s.startTime)
-    .filter(Boolean) as string[]
-  const endTimes = snapshots.map((s) => s.endTime).filter(Boolean) as string[]
-
-  const startTime =
-    startTimes.length > 0
-      ? startTimes.reduce((min, t) => (t < min ? t : min))
-      : ""
-  const endTime =
-    endTimes.length > 0 ? endTimes.reduce((max, t) => (t > max ? t : max)) : ""
-
-  return { startTime, endTime }
-}
-
-function computeCourtNames(snapshots: { courtName: string }[]) {
-  return [
-    ...new Set(snapshots.map((s) => s.courtName).filter(Boolean) as string[]),
-  ]
-}
-
-export function transformCourtBookingToCalendarEvent(
-  booking: GroupCourtBooking
-): CourtBookingCalendarEvent {
-  const datePart = booking.date ? booking.date.split("T")[0] : ""
-  const snapshots = booking.bookingItemsSnapshot || []
-  const { startTime, endTime } = computeTimeRange(snapshots)
-
-  if (!datePart || !startTime) {
-    return {
-      type: "court-booking",
-      id: booking.id,
-      title: booking.title,
-      startAt: "",
-      endAt: "",
-      groupId: booking.groupId,
-      metadata: {
-        centerName: booking.centerName,
-        centerAddress: "",
-        totalBookingCost: booking.totalBookingCost,
-        courtNames: computeCourtNames(snapshots),
-        bookingItemsSnapshot: booking.bookingItemsSnapshot,
-        linkedById: booking.creatorId || "",
-        bookingId: booking.bookingId,
-        note: booking.note,
-        creator: booking.creator,
-      },
-    }
-  }
-
-  const startAt = `${datePart}T${startTime}:00`
-  const endAt = endTime ? `${datePart}T${endTime}:00` : ""
-
-  return {
-    type: "court-booking",
-    id: booking.id,
-    title: booking.title,
-    startAt,
-    endAt,
-    groupId: booking.groupId,
-    metadata: {
-      centerName: booking.centerName,
-      centerAddress: "",
-      totalBookingCost: booking.totalBookingCost,
-      courtNames: computeCourtNames(snapshots),
-      bookingItemsSnapshot: booking.bookingItemsSnapshot,
-      linkedById: booking.creatorId || "",
-      bookingId: booking.bookingId,
-      note: booking.note,
-      creator: booking.creator,
-    },
-  }
-}
-
-export function groupCalendarEventsByDate(events: CalendarEvent[]) {
-  return events.reduce<Record<string, CalendarEvent[]>>(
-    (accumulator, event) => {
-      if (!event.startAt) return accumulator
-      const date = new Date(event.startAt)
-      if (isNaN(date.getTime())) return accumulator
-      const key = date.toISOString().split("T")[0]
-      if (!accumulator[key]) accumulator[key] = []
-      accumulator[key].push(event)
-      return accumulator
-    },
-    {}
-  )
-}
 
 function isSameDay(a: Date, b: Date) {
   return (
@@ -151,10 +42,7 @@ function getEndOfMonth(date: Date) {
 }
 
 export function formatDateTime(value: string) {
-  if (!value) return ""
-  const date = new Date(value)
-  if (isNaN(date.getTime())) return ""
-  return date.toLocaleString("vi-VN", {
+  return new Date(value).toLocaleString("vi-VN", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -164,20 +52,14 @@ export function formatDateTime(value: string) {
 }
 
 export function formatTime(value: string) {
-  if (!value) return ""
-  const date = new Date(value)
-  if (isNaN(date.getTime())) return ""
-  return date.toLocaleTimeString("vi-VN", {
+  return new Date(value).toLocaleTimeString("vi-VN", {
     hour: "2-digit",
     minute: "2-digit",
   })
 }
 
 export function formatDate(value: string) {
-  if (!value) return ""
-  const date = new Date(value)
-  if (isNaN(date.getTime())) return ""
-  return date.toLocaleDateString("vi-VN", {
+  return new Date(value).toLocaleDateString("vi-VN", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",

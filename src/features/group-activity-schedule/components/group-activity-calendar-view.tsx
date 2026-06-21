@@ -13,8 +13,8 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type {
-  CalendarEvent,
   CalendarView,
+  GroupActivity,
 } from "@/features/group-activity-schedule/group-activity-schedule.types"
 import {
   getStatusBadgeClass,
@@ -22,20 +22,18 @@ import {
 } from "@/features/group-activity-schedule/group-activity-schedule.utils"
 
 interface GroupActivityCalendarViewProps {
-  events: CalendarEvent[]
+  events: GroupActivity[]
   baseDate: Date
   view: CalendarView
   selectedDate: Date
   onViewChange: (value: CalendarView) => void
   onSelectDate: (date: Date) => void
-  onOpenEvent: (event: CalendarEvent) => void
+  onOpenEvent: (event: GroupActivity) => void
 }
 
 function formatTime(value?: string | null) {
   if (!value) return ""
-  const date = new Date(value)
-  if (isNaN(date.getTime())) return ""
-  return format(date, "HH:mm")
+  return format(new Date(value), "HH:mm")
 }
 
 function getMonthGridDates(baseDate: Date) {
@@ -54,13 +52,11 @@ function getWeekDates(baseDate: Date) {
   })
 }
 
-function groupEventsByDate(events: CalendarEvent[]) {
-  return events.reduce<Record<string, CalendarEvent[]>>(
+function groupEventsByDate(events: GroupActivity[]) {
+  return events.reduce<Record<string, GroupActivity[]>>(
     (accumulator, event) => {
       if (!event.startAt) return accumulator
-      const date = new Date(event.startAt)
-      if (isNaN(date.getTime())) return accumulator
-      const key = format(date, "yyyy-MM-dd")
+      const key = format(new Date(event.startAt), "yyyy-MM-dd")
       if (!accumulator[key]) accumulator[key] = []
       accumulator[key].push(event)
       return accumulator
@@ -73,11 +69,9 @@ function EventChip({
   event,
   onOpenEvent,
 }: {
-  event: CalendarEvent
-  onOpenEvent: (event: CalendarEvent) => void
+  event: GroupActivity
+  onOpenEvent: (event: GroupActivity) => void
 }) {
-  const isActivity = event.type === "activity"
-
   return (
     <button
       type="button"
@@ -85,35 +79,21 @@ function EventChip({
       className="w-full rounded-md border p-2 text-left transition-colors hover:bg-accent"
     >
       <div className="mb-1 flex items-center justify-between gap-2">
-        <p className="truncate text-xs font-semibold">
-          {!isActivity && "🎾 "}
-          {event.title}
-        </p>
-        <Badge
-          variant="outline"
-          className={
-            isActivity
-              ? getStatusBadgeClass(event._raw.status)
-              : "border-sky-200 bg-sky-100 text-sky-700"
-          }
-        >
+        <p className="truncate text-xs font-semibold">{event.title}</p>
+        <Badge variant="outline" className={getStatusBadgeClass(event.status)}>
           {formatTime(event.startAt)}
         </Badge>
       </div>
-      <p className="truncate text-xs text-muted-foreground">
-        {isActivity ? event._raw.location : event.metadata.centerName}
-      </p>
-      {isActivity &&
-        event._raw.equipment &&
-        event._raw.equipment.length > 0 && (
-          <div className="mt-1 flex flex-wrap gap-1">
-            {event._raw.equipment.map((eq, idx) => (
-              <span key={idx} className="rounded bg-muted px-1 text-[10px]">
-                {eq.name} x{eq.quantity}
-              </span>
-            ))}
-          </div>
-        )}
+      <p className="truncate text-xs text-muted-foreground">{event.location}</p>
+      {event.equipment && event.equipment.length > 0 && (
+        <div className="mt-1 flex flex-wrap gap-1">
+          {event.equipment.map((eq, idx) => (
+            <span key={idx} className="rounded bg-muted px-1 text-[10px]">
+              {eq.name} x{eq.quantity}
+            </span>
+          ))}
+        </div>
+      )}
     </button>
   )
 }
@@ -200,21 +180,19 @@ export function GroupActivityCalendarView({
                       )}
                     </div>
                     <div className="space-y-2">
-                      {dayEvents.slice(0, 3).map((event) => (
+                      {dayEvents.slice(0, 2).map((event) => (
                         <div
                           key={event.id}
                           className="truncate rounded-md bg-muted px-2 py-1 text-[11px]"
                           title={event.title}
                         >
-                          <span className="mr-1">
-                            {event.type === "activity" ? "📅" : "🎾"}
-                          </span>
+                          <span className="mr-1">📅</span>
                           {event.title}
                         </div>
                       ))}
-                      {dayEvents.length > 3 && (
+                      {dayEvents.length > 2 && (
                         <p className="text-xs text-muted-foreground">
-                          Còn {dayEvents.length - 3} sự kiện
+                          Còn {dayEvents.length - 2} hoạt động
                         </p>
                       )}
                     </div>
@@ -231,8 +209,9 @@ export function GroupActivityCalendarView({
                 const dayEvents = groupedEvents[key] ?? []
 
                 return (
-                  <div
+                  <button
                     key={key}
+                    type="button"
                     onClick={() => onSelectDate(date)}
                     className={`rounded-lg border p-3 text-left transition-colors ${
                       isSameDay(date, selectedDate)
@@ -251,7 +230,7 @@ export function GroupActivityCalendarView({
                     <div className="space-y-2">
                       {dayEvents.length === 0 && (
                         <p className="text-xs text-muted-foreground">
-                          Không có sự kiện
+                          Không có hoạt động
                         </p>
                       )}
                       {dayEvents.map((event) => (
@@ -262,7 +241,7 @@ export function GroupActivityCalendarView({
                         />
                       ))}
                     </div>
-                  </div>
+                  </button>
                 )
               })}
             </div>
@@ -271,95 +250,78 @@ export function GroupActivityCalendarView({
           <TabsContent value="agenda" className="space-y-2">
             {events.length === 0 ? (
               <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-                Không có sự kiện trong tháng này
+                Không có hoạt động trong tháng này
               </p>
             ) : (
               events
                 .slice()
                 .sort((a, b) => {
-                  const aTime = a.startAt ? new Date(a.startAt).getTime() : 0
-                  const bTime = b.startAt ? new Date(b.startAt).getTime() : 0
-                  return aTime - bTime
+                  const left = a.startAt ? new Date(a.startAt).getTime() : 0
+                  const right = b.startAt ? new Date(b.startAt).getTime() : 0
+                  return left - right
                 })
-                .map((event) => {
-                  const isActivity = event.type === "activity"
+                .map((event) => (
+                  <button
+                    key={event.id}
+                    type="button"
+                    onClick={() => onOpenEvent(event)}
+                    className="flex w-full items-start justify-between gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-accent"
+                  >
+                    <div className="space-y-1">
+                      <p className="font-semibold">{event.title}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {event.startAt
+                          ? new Date(event.startAt).toLocaleDateString(
+                              "vi-VN",
+                              {
+                                weekday: "long",
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                              }
+                            )
+                          : "Chưa có lịch"}
+                        {event.startAt && event.endAt
+                          ? ` · ${formatTime(event.startAt)} - ${formatTime(event.endAt)}`
+                          : ""}
+                      </p>
+                      <p className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <MapPin className="size-3.5" />
+                        {event.location}
+                      </p>
+                      {event.equipment && event.equipment.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <span className="text-xs font-medium text-muted-foreground">
+                            Vật dụng:
+                          </span>
+                          {event.equipment.map((eq, idx) => (
+                            <Badge
+                              key={idx}
+                              variant="secondary"
+                              className="h-5 text-[10px]"
+                            >
+                              {eq.name} x{eq.quantity}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
 
-                  return (
-                    <button
-                      key={event.id}
-                      type="button"
-                      onClick={() => onOpenEvent(event)}
-                      className="flex w-full items-start justify-between gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-accent"
+                    <Badge
+                      variant="outline"
+                      className={getStatusBadgeClass(event.status)}
                     >
-                      <div className="space-y-1">
-                        <p className="font-semibold">
-                          {!isActivity && "🎾 "}
-                          {event.title}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {event.startAt
-                            ? new Date(event.startAt).toLocaleDateString(
-                                "vi-VN",
-                                {
-                                  weekday: "long",
-                                  day: "2-digit",
-                                  month: "2-digit",
-                                  year: "numeric",
-                                }
-                              )
-                            : "Chưa có lịch"}
-                          {event.startAt && event.endAt
-                            ? ` · ${formatTime(event.startAt)} - ${formatTime(event.endAt)}`
-                            : ""}
-                        </p>
-                        <p className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <MapPin className="size-3.5" />
-                          {isActivity
-                            ? event._raw.location
-                            : event.metadata.centerName}
-                        </p>
-                        {isActivity &&
-                          event._raw.equipment &&
-                          event._raw.equipment.length > 0 && (
-                            <div className="mt-2 flex flex-wrap gap-2">
-                              <span className="text-xs font-medium text-muted-foreground">
-                                Vật dụng:
-                              </span>
-                              {event._raw.equipment.map((eq, idx) => (
-                                <Badge
-                                  key={idx}
-                                  variant="secondary"
-                                  className="h-5 text-[10px]"
-                                >
-                                  {eq.name} x{eq.quantity}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-                      </div>
-
-                      <Badge
-                        variant="outline"
-                        className={
-                          isActivity
-                            ? getStatusBadgeClass(event._raw.status)
-                            : "border-sky-200 bg-sky-100 text-sky-700"
-                        }
-                      >
-                        {isActivity
-                          ? getStatusLabel(event._raw.status)
-                          : "Đặt sân"}
-                      </Badge>
-                    </button>
-                  )
-                })
+                      {getStatusLabel(event.status)}
+                    </Badge>
+                  </button>
+                ))
             )}
           </TabsContent>
         </Tabs>
 
         <div className="mt-4 rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
           Ngày {format(selectedDate, "dd/MM/yyyy")} có{" "}
-          {selectedDateEvents.length} sự kiện
+          {selectedDateEvents.length} hoạt động
         </div>
       </CardContent>
     </Card>
