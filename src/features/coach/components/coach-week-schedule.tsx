@@ -16,15 +16,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { lessonPlans } from "@/features/coach/data/mockLessonPlan"
 import type {
   ScheduleBlock,
   ScheduleView,
@@ -39,7 +31,6 @@ const viewTabs: ScheduleView[] = ["week", "day"]
 
 type ScheduleDraft = {
   student: string
-  lessonPlan: string
   date: string
   time: string
   location: string
@@ -53,7 +44,6 @@ export function CoachWeekSchedule() {
   const [createOpen, setCreateOpen] = useState(false)
   const [draft, setDraft] = useState<ScheduleDraft>({
     student: "",
-    lessonPlan: lessonPlans[0]?.name ?? "",
     date: "2026-04-07",
     time: "08:00",
     location: "Sân A2 - PickleHub Center",
@@ -84,7 +74,7 @@ export function CoachWeekSchedule() {
         startTime: draft.time,
         endTime: `${String(Number(draft.time.slice(0, 2)) + 1).padStart(2, "0")}:${draft.time.slice(3)}`,
         student: draft.student,
-        lessonPlan: draft.lessonPlan,
+        lessonPlan: "Buổi tập",
         location: draft.location,
         status: "Chưa hoàn thành",
         note: draft.note,
@@ -223,26 +213,6 @@ export function CoachWeekSchedule() {
                 }
                 placeholder="An Nguyễn"
               />
-            </div>
-            <div className="space-y-2">
-              <Label>Chọn giáo án</Label>
-              <Select
-                value={draft.lessonPlan}
-                onValueChange={(value) =>
-                  setDraft((prev) => ({ ...prev, lessonPlan: value }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {lessonPlans.map((plan) => (
-                    <SelectItem key={plan.id} value={plan.name}>
-                      {plan.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">

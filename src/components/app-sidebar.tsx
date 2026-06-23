@@ -3,6 +3,7 @@
 import { useAtomValue } from "jotai"
 import {
   BellRing,
+  BookOpen,
   Building2,
   CalendarCheck,
   CalendarClock,
@@ -56,6 +57,8 @@ const sidebarItems: SidebarItem[] = [
   { title: "Nhóm", href: "/groups", icon: Users },
   { title: "Bạn bè", href: "/friend", icon: Users },
   { title: "Thông báo", href: "/feed", icon: BellRing },
+  { title: "Người học", href: "/learner", icon: BookOpen },
+  { title: "Huấn luyện viên", href: "/coach", icon: Shield },
 ]
 const socialMenuItems = [
   { title: "Danh sách buổi chơi", href: "/socials" },
@@ -65,17 +68,6 @@ const socialMenuItems = [
 const sportCenterMenuItems = [
   { title: "Danh sách sân", href: "/sport-center" },
   { title: "Lịch sử đặt sân", href: "/sport-center/booking-history" },
-]
-
-const coachMenuItems = [
-  { title: "Tổng quan huấn luyện viên", href: "/coach" },
-  { title: "Hồ sơ chuyên nghiệp", href: "/coach/profile" },
-  { title: "Danh sách học viên", href: "/coach/students" },
-  { title: "Lịch tập", href: "/coach/schedule" },
-  { title: "Quản lý giáo trình", href: "/coach/curriculum" },
-  { title: "Phân tích video", href: "/coach/video-analysis" },
-  { title: "Lộ trình học tập", href: "/coach/roadmap" },
-  { title: "Thống kê thu nhập", href: "/coach/income" },
 ]
 
 const sportCenterManagementMenuItems = [
@@ -103,7 +95,6 @@ const sportCenterManagementMenuItems = [
 ]
 
 const SOCIAL_MENU_STORAGE_KEY = "isSocialMenuOpen"
-const COACH_MENU_STORAGE_KEY = "isCoachMenuOpen"
 const SPORT_CENTER_MENU_STORAGE_KEY = "isSportCenterMenuOpen"
 const SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY =
   "isSportCenterManagementMenuOpen"
@@ -162,7 +153,6 @@ export function AppSidebar() {
     (sub) => sub.status === "ACTIVE" && sub.plan.type === "SPORT_CENTER_MANAGER"
   )
   const [isSocialMenuOpen, setIsSocialMenuOpen] = useState(false)
-  const [isCoachMenuOpen, setIsCoachMenuOpen] = useState(false)
   const [isSportCenterMenuOpen, setIsSportCenterMenuOpen] = useState(false)
   const [isSportCenterManagementMenuOpen, setIsSportCenterManagementMenuOpen] =
     useState(false)
@@ -171,10 +161,6 @@ export function AppSidebar() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsSocialMenuOpen(
       window.sessionStorage.getItem(SOCIAL_MENU_STORAGE_KEY) === "true"
-    )
-
-    setIsCoachMenuOpen(
-      window.sessionStorage.getItem(COACH_MENU_STORAGE_KEY) === "true"
     )
 
     setIsSportCenterMenuOpen(
@@ -188,7 +174,6 @@ export function AppSidebar() {
     )
   }, [])
   const isSocialPath = isActivePath(pathname, "/socials")
-  const isCoachPath = isActivePath(pathname, "/coach")
   const isSportCenterPath = isActivePath(pathname, "/sport-center")
   const isSportCenterManagementPath = isActivePath(
     pathname,
@@ -196,7 +181,6 @@ export function AppSidebar() {
   )
   const shouldShowSocialMenu = isSocialPath || isSocialMenuOpen
   const shouldShowSportCenterMenu = isSportCenterPath || isSportCenterMenuOpen
-  const shouldShowCoachMenu = isCoachPath || isCoachMenuOpen
   const shouldShowSportCenterManagementMenu =
     isSportCenterManagementPath || isSportCenterManagementMenuOpen
   const unreadCount = notifications.filter(
@@ -209,18 +193,6 @@ export function AppSidebar() {
 
       if (typeof window !== "undefined") {
         window.sessionStorage.setItem(SOCIAL_MENU_STORAGE_KEY, String(next))
-      }
-
-      return next
-    })
-  }
-
-  const handleCoachMenuToggle = () => {
-    setIsCoachMenuOpen((prev) => {
-      const next = !prev
-
-      if (typeof window !== "undefined") {
-        window.sessionStorage.setItem(COACH_MENU_STORAGE_KEY, String(next))
       }
 
       return next
@@ -271,14 +243,6 @@ export function AppSidebar() {
 
       if (typeof window !== "undefined") {
         window.sessionStorage.setItem(SPORT_CENTER_MENU_STORAGE_KEY, "false")
-      }
-    }
-
-    if (isCoachMenuOpen) {
-      setIsCoachMenuOpen(false)
-
-      if (typeof window !== "undefined") {
-        window.sessionStorage.setItem(COACH_MENU_STORAGE_KEY, "false")
       }
     }
 
@@ -460,39 +424,6 @@ export function AppSidebar() {
                   )}
                 </SidebarMenuItem>
               )}
-
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={shouldShowCoachMenu}
-                  tooltip="Huấn luyện viên"
-                  onClick={handleCoachMenuToggle}
-                >
-                  <Shield className="size-4" />
-                  <span>Huấn luyện viên</span>
-                  <ChevronDown
-                    className={cn(
-                      "ml-auto size-4 transition-transform",
-                      shouldShowCoachMenu && "rotate-180"
-                    )}
-                  />
-                </SidebarMenuButton>
-                {shouldShowCoachMenu && (
-                  <SidebarMenuSub>
-                    {coachMenuItems.map((item) => (
-                      <SidebarMenuSubItem key={item.href}>
-                        <SidebarMenuSubButton
-                          asChild
-                          isActive={isActivePath(pathname, item.href)}
-                        >
-                          <Link href={item.href}>
-                            <span>{item.title}</span>
-                          </Link>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                )}
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
