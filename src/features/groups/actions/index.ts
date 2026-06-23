@@ -8,7 +8,6 @@ import type { AcceptInvitationResponse } from "@/features/auth/types"
 import { uploadFinanceReceiptFile } from "@/features/groups/api/finance-service"
 import {
   archiveGroup,
-  changeMemberRole,
   createGroup,
   createInviteLink,
   getInviteLinks,
@@ -22,12 +21,7 @@ import {
 import { getSession } from "@/lib/session"
 
 import { addGroupSchema, inviteSchema } from "../schemas"
-import type {
-  GroupMemberRole,
-  InviteLink,
-  InviteLinkResponse,
-  UpdateGroupInput,
-} from "../types"
+import type { InviteLink, InviteLinkResponse, UpdateGroupInput } from "../types"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL || ""
 
@@ -199,34 +193,6 @@ export async function archiveGroupAction(
         error:
           error.response?.data?.message ||
           "Lưu trữ nhóm thất bại. Vui lòng thử lại.",
-      }
-    }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
-  }
-}
-
-export async function changeMemberRoleAction(
-  _prevState: GroupActionState,
-  formData: FormData
-): Promise<GroupActionState> {
-  const groupId = formData.get("groupId")?.toString() ?? ""
-  const memberId = formData.get("memberId")?.toString() ?? ""
-  const role = formData.get("role")?.toString() as GroupMemberRole | null
-
-  if (!groupId || !memberId || !role) {
-    return { error: "Thiếu thông tin cập nhật vai trò thành viên." }
-  }
-
-  try {
-    await changeMemberRole(groupId, memberId, { role })
-    revalidatePath(`/groups/${groupId}`)
-    return { success: true }
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      return {
-        error:
-          error.response?.data?.message ||
-          "Cập nhật vai trò thành viên thất bại. Vui lòng thử lại.",
       }
     }
     return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }

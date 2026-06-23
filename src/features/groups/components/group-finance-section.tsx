@@ -162,9 +162,7 @@ export function GroupFinanceSection({
   const activeTab = useGroupDetailActiveTab()
   const normalizedRole = currentUserRole?.toLowerCase() ?? ""
   const isOwner = normalizedRole === "owner"
-  const canManage =
-    !isArchivedGroup(groupStatus) &&
-    (normalizedRole === "owner" || normalizedRole === "admin")
+  const canManage = !isArchivedGroup(groupStatus) && normalizedRole === "owner"
 
   const isFinanceActive = activeTab === "finance"
 

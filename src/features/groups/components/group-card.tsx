@@ -19,8 +19,6 @@ function formatRole(role: string | null | undefined) {
   switch (role) {
     case "owner":
       return "Trưởng nhóm"
-    case "admin":
-      return "Quản trị viên"
     case "member":
       return "Thành viên"
     default:

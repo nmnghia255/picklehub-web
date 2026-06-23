@@ -48,7 +48,7 @@ export function GroupActivitySchedulePage({
 
   const canManageActivities = useMemo(() => {
     const role = currentUserRole?.toLowerCase()
-    return role === "owner" || role === "admin"
+    return role === "owner"
   }, [currentUserRole])
 
   // States

@@ -69,8 +69,7 @@ export function GroupFeedNotificationSender({
     if (!canSend) {
       toast({
         title: "Không có quyền",
-        description:
-          "Chỉ quản trị viên và trưởng nhóm mới có thể gửi thông báo.",
+        description: "Chỉ trưởng nhóm mới có thể gửi thông báo.",
         variant: "destructive",
       })
       return

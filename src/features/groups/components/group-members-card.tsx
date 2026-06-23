@@ -24,7 +24,6 @@ import { GroupMemberActions } from "./group-member-actions"
 function normalizeRole(role: string | null | undefined) {
   switch (role?.toLowerCase()) {
     case "owner":
-    case "admin":
       return "Trưởng nhóm"
     case "member":
       return "Thành viên"
@@ -61,8 +60,7 @@ export function GroupMembersCard({
 
   const normalizedUserRole = currentUserRole?.toLowerCase()
   const canManageMembers =
-    !isArchivedGroup(groupStatus) &&
-    (normalizedUserRole === "owner" || normalizedUserRole === "admin")
+    !isArchivedGroup(groupStatus) && normalizedUserRole === "owner"
 
   return (
     <Card className="mt-6">

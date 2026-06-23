@@ -32,7 +32,7 @@ export async function GroupDetailPanels({
   defaultTab,
 }: GroupDetailPanelsProps) {
   const normalizedRole = currentUserRole?.toLowerCase()
-  const canManage = normalizedRole === "owner" || normalizedRole === "admin"
+  const canManage = normalizedRole === "owner"
 
   const overviewPanel = (
     <div className="space-y-6 lg:space-y-8">

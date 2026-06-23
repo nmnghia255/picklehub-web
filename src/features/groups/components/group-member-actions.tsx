@@ -13,73 +13,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import {
-  changeMemberRoleAction,
-  kickMemberAction,
-  leaveGroupAction,
-} from "../actions"
+import { kickMemberAction, leaveGroupAction } from "../actions"
 import { useGroupInvalidation } from "../api/groups-client"
 
 function normalizeRole(role: string | null | undefined) {
   return role?.toLowerCase() ?? ""
-}
-
-interface RoleChangeMenuItemProps {
-  groupId: string
-  memberId: string
-  memberName: string
-  currentRole: string
-}
-
-function RoleChangeMenuItem({
-  groupId,
-  memberId,
-  memberName,
-  currentRole,
-}: RoleChangeMenuItemProps) {
-  const invalidation = useGroupInvalidation(groupId)
-  const formRef = useRef<HTMLFormElement>(null)
-  const handledSuccessRef = useRef(false)
-  const targetRole = currentRole === "admin" ? "MEMBER" : "ADMIN"
-  const [state, formAction, isPending] = useActionState(
-    changeMemberRoleAction,
-    {}
-  )
-
-  useEffect(() => {
-    if (state.success && !handledSuccessRef.current) {
-      handledSuccessRef.current = true
-      toast.success(`Đã cập nhật vai trò của ${memberName}.`)
-      void invalidation.invalidateMembers()
-    }
-
-    if (state.error) {
-      handledSuccessRef.current = false
-      toast.error(state.error)
-    }
-  }, [memberName, invalidation, state.error, state.success])
-
-  return (
-    <form ref={formRef} action={formAction} className="contents">
-      <input type="hidden" name="groupId" value={groupId} />
-      <input type="hidden" name="memberId" value={memberId} />
-      <input type="hidden" name="role" value={targetRole} />
-      <DropdownMenuItem
-        disabled={isPending}
-        onClick={() => {
-          formRef.current?.requestSubmit()
-        }}
-      >
-        {isPending ? (
-          <Loader2 className="size-3.5 animate-spin" />
-        ) : currentRole === "admin" ? (
-          "Xóa vai trò trưởng nhóm"
-        ) : (
-          "Chuyển thành trưởng nhóm"
-        )}
-      </DropdownMenuItem>
-    </form>
-  )
 }
 
 interface KickMemberMenuItemProps {
@@ -191,49 +129,34 @@ export function GroupMemberActions({
   const normalizedMemberRole = normalizeRole(memberRole)
   const isSelf = memberId === currentUserId
 
-  const canChangeRole =
-    isEditable &&
-    normalizedCurrentRole === "owner" &&
-    !isSelf &&
-    normalizedMemberRole !== "owner"
   const canKick =
     isEditable &&
     !isSelf &&
-    ((normalizedCurrentRole === "owner" && normalizedMemberRole !== "owner") ||
-      (normalizedCurrentRole === "admin" && normalizedMemberRole === "member"))
+    normalizedCurrentRole === "owner" &&
+    normalizedMemberRole !== "owner"
 
-  if (!canChangeRole && !canKick) {
+  if (!canKick) {
     return <span className="text-muted-foreground">-</span>
   }
 
   return (
     <div className="flex items-center justify-end gap-2">
-      {(canChangeRole || canKick) && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreHorizontal className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {canChangeRole && (
-              <RoleChangeMenuItem
-                groupId={groupId}
-                memberId={memberId}
-                memberName={memberName}
-                currentRole={normalizedMemberRole}
-              />
-            )}
-            {canKick && (
-              <KickMemberMenuItem
-                groupId={groupId}
-                memberId={memberId}
-                memberName={memberName}
-              />
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <MoreHorizontal className="size-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          {canKick && (
+            <KickMemberMenuItem
+              groupId={groupId}
+              memberId={memberId}
+              memberName={memberName}
+            />
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   )
 }

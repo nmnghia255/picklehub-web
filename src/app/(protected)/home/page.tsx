@@ -26,7 +26,7 @@ const mockGroups = [
     id: "3",
     name: "Nhóm Du Lịch",
     memberCount: 5,
-    role: "ADMIN" as const,
+    role: "MEMBER" as const,
   },
 ]
 

@@ -17,7 +17,7 @@ interface Group {
   name: string
   description?: string
   memberCount: number
-  role: "OWNER" | "ADMIN" | "MEMBER"
+  role: "OWNER" | "MEMBER"
 }
 
 interface DashboardGroupsProps {
@@ -26,12 +26,9 @@ interface DashboardGroupsProps {
 }
 
 function getRoleLabel(role: string): string {
-  const roleMap = {
-    OWNER: "Chủ Sở Hữu",
-    ADMIN: "Quản Trị Viên",
-    MEMBER: "Thành Viên",
-  }
-  return roleMap[role as keyof typeof roleMap] || role
+  if (role === "OWNER") return "Chủ Sở Hữu"
+  if (role === "MEMBER") return "Thành Viên"
+  return role
 }
 
 export function DashboardGroups({
@@ -106,7 +103,7 @@ export function DashboardGroups({
                 <DropdownMenuItem asChild>
                   <Link href={`/groups/${group.id}`}>Xem Chi Tiết</Link>
                 </DropdownMenuItem>
-                {(group.role === "OWNER" || group.role === "ADMIN") && (
+                {group.role === "OWNER" && (
                   <DropdownMenuItem asChild>
                     <Link href={`/groups/${group.id}/settings`}>
                       <Settings className="mr-2 size-4" />

@@ -44,7 +44,6 @@ export default async function GroupDetailPage({
   let members = []
   let invitations = []
   let isOwner = false
-  let isAdmin = false
   let canManage = false
 
   try {
@@ -61,8 +60,7 @@ export default async function GroupDetailPage({
 
     const normalizedRole = group.role?.toLowerCase()
     isOwner = normalizedRole === "owner"
-    isAdmin = normalizedRole === "admin"
-    canManage = isOwner || isAdmin
+    canManage = isOwner
 
     invitations = canManage ? await getGroupInvitations(groupId) : []
   } catch (error) {
