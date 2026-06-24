@@ -11,6 +11,9 @@ import { CoachWeekSchedule } from "@/features/coach/components/coach-week-schedu
 import { getCoachStudents } from "@/features/coach/data/coach-learner-relationship"
 import { students } from "@/features/coach/data/mockStudents"
 
+import { CoachRecommendation } from "./coach-recommendation"
+import { CoachReviews } from "./coach-reviews"
+
 const CURRENT_COACH_ID = "c1"
 
 export type CoachTabValue =
@@ -19,6 +22,7 @@ export type CoachTabValue =
   | "students"
   | "schedule"
   | "finance"
+  | "reviews"
 
 export function CoachDetailTabs() {
   const [activeTab, setActiveTab] = useState<CoachTabValue>("overview")
@@ -53,6 +57,9 @@ export function CoachDetailTabs() {
         <TabsTrigger value="finance" className="sm:flex-none">
           Thu chi & thanh toán
         </TabsTrigger>
+        <TabsTrigger value="reviews" className="sm:flex-none">
+          Đánh giá & Giới thiệu
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="overview" className="mt-6 w-full min-w-0">
@@ -73,6 +80,13 @@ export function CoachDetailTabs() {
 
       <TabsContent value="finance" className="mt-6 w-full min-w-0">
         <CoachIncomeOverview />
+      </TabsContent>
+
+      <TabsContent value="reviews" className="mt-6 w-full min-w-0">
+        <div className="space-y-8">
+          <CoachReviews coachId={CURRENT_COACH_ID} />
+          <CoachRecommendation />
+        </div>
       </TabsContent>
     </Tabs>
   )
