@@ -140,3 +140,4 @@ export interface InviteLinkResponse {
 }
 
 export * from "./court-booking"
+export * from "./guest-member"

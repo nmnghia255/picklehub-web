@@ -10,6 +10,7 @@ import { GroupEquipmentSection } from "./group-equipment-section"
 import { GroupFinanceSection } from "./group-finance-section"
 import { GroupMembersCard } from "./group-members-card"
 import { GroupOverviewCard } from "./group-overview-card"
+import { GuestMemberSection } from "./guest-member-section"
 import { InvitationsTable } from "./invitations-table"
 
 interface GroupDetailPanelsProps {
@@ -95,6 +96,13 @@ export async function GroupDetailPanels({
       }
       equipment={
         <GroupEquipmentSection groupId={groupId} canManage={canManage} />
+      }
+      guestMembers={
+        <GuestMemberSection
+          groupId={groupId}
+          currentUserId={currentUserId}
+          currentUserRole={currentUserRole}
+        />
       }
       chat={
         <div className="h-[70vh] min-h-136 min-w-0 overflow-hidden rounded-xl border bg-card shadow-sm">
