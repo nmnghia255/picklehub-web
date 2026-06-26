@@ -30,8 +30,10 @@ import {
   listTransactionsClient,
 } from "../api/finance-client"
 import { getGroupMembersClient, groupQueryKeys } from "../api/groups-client"
+import { guestQueryKeys, listGuestsClient } from "../api/guests-client"
 import { useGroupDebts } from "../hooks/use-group-debts"
 import type { Member } from "../types"
+import type { Guest } from "../types/guest-member"
 import { isArchivedGroup } from "../utils/group-status"
 import {
   CreateExpenseButton,
@@ -203,6 +205,14 @@ export function GroupFinanceSection({
     initialData: members.length > 0 ? members : undefined,
   })
 
+  const activeGuestsQuery = useQuery({
+    queryKey: guestQueryKeys.list(groupId, { status: "ACTIVE", limit: 100 }),
+    queryFn: () => listGuestsClient(groupId, { status: "ACTIVE", limit: 100 }),
+    enabled: isFinanceActive && canManage,
+  })
+
+  const activeGuests: Guest[] = activeGuestsQuery.data ?? []
+
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
   const limit = 10
@@ -276,6 +286,7 @@ export function GroupFinanceSection({
                   <CreateExpenseButton
                     groupId={groupId}
                     members={resolvedMembers}
+                    activeGuests={activeGuests}
                   />
                   <RemindDebtButton
                     groupId={groupId}
@@ -496,7 +507,17 @@ export function GroupFinanceSection({
                   {myDebtQuery.data?.unpaidPayments?.map((item) => (
                     <TableRow key={item.id}>
                       <TableCell className="font-medium">
-                        {item.expenseTitle}
+                        <div className="flex items-center gap-2">
+                          <span>{item.expenseTitle}</span>
+                          {item.isGuestPayment && (
+                            <Badge
+                              variant="outline"
+                              className="h-5 text-[10px]"
+                            >
+                              Khách: {item.guestName ?? "N/A"}
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>{formatCurrency(item.requiredFee)}</TableCell>
                       <TableCell className="text-success">
@@ -878,6 +899,7 @@ export function GroupFinanceSection({
                           groupId={groupId}
                           expense={exp}
                           members={resolvedMembers}
+                          activeGuests={activeGuests}
                           canManage={canManage}
                         />
                       </TableCell>

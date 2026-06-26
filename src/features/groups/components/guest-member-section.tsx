@@ -1,7 +1,11 @@
 "use client"
 
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { Loader2 } from "lucide-react"
 import { useState } from "react"
+import { toast } from "sonner"
 
+import { ErrorSection } from "@/components/error-section"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,11 +19,17 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import { initialMockGuestMembers } from "../mock-data/guest-members"
-import type { GuestMember } from "../types/guest-member"
+import {
+  approveGuestsClient,
+  createGuestClient,
+  deactivateGuestClient,
+  guestQueryKeys,
+  listGuestsClient,
+} from "../api/guests-client"
+import type { Guest } from "../types/guest-member"
 import { CreateGuestMemberDialog } from "./create-guest-member-dialog"
 
-function formatDate(value: string | null) {
+function formatDate(value: string | null | undefined) {
   if (!value) return "-"
   const date = new Date(value)
   return date.toLocaleDateString("vi-VN", {
@@ -29,11 +39,18 @@ function formatDate(value: string | null) {
   })
 }
 
-function formatGender(value: string | null) {
+function formatGender(value: string | null | undefined) {
   if (value === "MALE") return "Nam"
   if (value === "FEMALE") return "Nữ"
-  if (value === "OTHER") return "Khác"
   return "-"
+}
+
+function formatSkillLevel(value: string | null | undefined) {
+  if (value === "BEGINNER") return "Mới bắt đầu"
+  if (value === "INTERMEDIATE") return "Trung bình"
+  if (value === "ADVANCED") return "Khá"
+  if (value === "EXPERT") return "Chuyên nghiệp"
+  return value ?? "-"
 }
 
 interface GuestMemberSectionProps {
@@ -47,93 +64,118 @@ export function GuestMemberSection({
   currentUserId,
   currentUserRole,
 }: GuestMemberSectionProps) {
-  const [requests, setRequests] = useState<GuestMember[]>(
-    initialMockGuestMembers.filter((g) => g.groupId === groupId)
-  )
+  const queryClient = useQueryClient()
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const normalizedRole = currentUserRole?.toLowerCase()
   const isOwner = normalizedRole === "owner"
 
-  const pending = requests.filter((r) => r.status === "PENDING")
-  const approved = requests.filter((r) => r.status === "APPROVED")
-  const rejected = requests.filter((r) => r.status === "REJECTED")
+  const guestsQuery = useQuery({
+    queryKey: guestQueryKeys.list(groupId, { limit: 100 }),
+    queryFn: () => listGuestsClient(groupId, { limit: 100 }),
+  })
 
-  const handleCreate = (input: {
-    fullName: string
-    dateOfBirth: string
-    gender: "MALE" | "FEMALE" | "OTHER" | null
-    selfRating: number
-    note: string
+  const pending = (guestsQuery.data ?? []).filter(
+    (g) => g.status === "PENDING_APPROVAL"
+  )
+  const approved = (guestsQuery.data ?? []).filter((g) => g.status === "ACTIVE")
+  const rejected = (guestsQuery.data ?? []).filter(
+    (g) => g.status === "REJECTED"
+  )
+  const inactive = (guestsQuery.data ?? []).filter(
+    (g) => g.status === "INACTIVE"
+  )
+
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: guestQueryKeys.all(groupId) })
+
+  const handleCreate = async (input: {
+    name: string
+    email: string
+    skillLevel: string
+    phone?: string
+    gender?: "MALE" | "FEMALE"
   }) => {
-    const newRequest: GuestMember = {
-      id: `guest-${Date.now()}`,
-      ...input,
-      status: "PENDING",
-      responsibleMemberId: currentUserId,
-      responsibleMemberName: "Bạn",
-      groupId,
-      createdAt: new Date().toISOString(),
-      approvedAt: null,
-      rejectedAt: null,
+    try {
+      await createGuestClient(groupId, input)
+      toast.success("Đã gửi yêu cầu người vãng lai.")
+      await invalidate()
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Không thể tạo khách vãng lai."
+      )
     }
-    setRequests((prev) => [newRequest, ...prev])
   }
 
-  const handleApprove = (id: string) => {
-    setRequests((prev) =>
-      prev.map((r) =>
-        r.id === id
-          ? {
-              ...r,
-              status: "APPROVED" as const,
-              approvedAt: new Date().toISOString(),
-            }
-          : r
+  const handleApprove = async () => {
+    const ids = pending.map((g) => g.id)
+    if (ids.length === 0) return
+    try {
+      await approveGuestsClient(groupId, { guestIds: ids, status: "ACTIVE" })
+      toast.success("Đã duyệt tất cả khách vãng lai.")
+      await invalidate()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Không thể duyệt.")
+    }
+  }
+
+  const handleReject = async (id: string) => {
+    try {
+      await approveGuestsClient(groupId, { guestIds: [id], status: "REJECTED" })
+      toast.success("Đã từ chối khách vãng lai.")
+      await invalidate()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Không thể từ chối.")
+    }
+  }
+
+  const handleDeactivate = async (id: string) => {
+    try {
+      await deactivateGuestClient(groupId, id)
+      toast.success("Đã hủy kích hoạt khách vãng lai.")
+      await invalidate()
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Không thể hủy kích hoạt."
       )
-    )
+    }
   }
 
-  const handleReject = (id: string) => {
-    setRequests((prev) =>
-      prev.map((r) =>
-        r.id === id
-          ? {
-              ...r,
-              status: "REJECTED" as const,
-              rejectedAt: new Date().toISOString(),
-            }
-          : r
-      )
-    )
-  }
-
-  const renderGuestRow = (guest: GuestMember) => (
+  const renderGuestRow = (guest: Guest) => (
     <TableRow key={guest.id}>
-      <TableCell className="font-medium">{guest.fullName}</TableCell>
-      <TableCell>{formatDate(guest.dateOfBirth)}</TableCell>
+      <TableCell className="font-medium">{guest.name}</TableCell>
+      <TableCell>{guest.email}</TableCell>
+      <TableCell>{formatSkillLevel(guest.skillLevel)}</TableCell>
       <TableCell>{formatGender(guest.gender)}</TableCell>
-      <TableCell>{guest.selfRating.toFixed(1)}</TableCell>
-      <TableCell>{guest.note || "-"}</TableCell>
-      <TableCell>{guest.responsibleMemberName}</TableCell>
+      <TableCell>{guest.phone || "-"}</TableCell>
+      <TableCell>{guest.invitedBy?.name || "-"}</TableCell>
       <TableCell>
-        {guest.status === "PENDING" && (
+        {guest.status === "PENDING_APPROVAL" && (
           <Badge variant="secondary">Chờ duyệt</Badge>
         )}
-        {guest.status === "APPROVED" && (
-          <Badge variant="default">Đã duyệt</Badge>
-        )}
+        {guest.status === "ACTIVE" && <Badge variant="default">Đã duyệt</Badge>}
         {guest.status === "REJECTED" && (
           <Badge variant="destructive">Từ chối</Badge>
         )}
+        {guest.status === "INACTIVE" && (
+          <Badge variant="outline">Ngưng hoạt động</Badge>
+        )}
       </TableCell>
-      {isOwner && guest.status === "PENDING" && (
+      {isOwner && guest.status === "PENDING_APPROVAL" && (
         <TableCell className="text-right">
           <div className="flex justify-end gap-2">
             <Button
               size="sm"
               variant="default"
-              onClick={() => handleApprove(guest.id)}
+              onClick={() => {
+                void approveGuestsClient(groupId, {
+                  guestIds: [guest.id],
+                  status: "ACTIVE",
+                }).then(() => {
+                  toast.success("Đã duyệt khách vãng lai.")
+                  void invalidate()
+                })
+              }}
             >
               Duyệt
             </Button>
@@ -147,6 +189,17 @@ export function GuestMemberSection({
           </div>
         </TableCell>
       )}
+      {guest.status === "ACTIVE" && isOwner && (
+        <TableCell className="text-right">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handleDeactivate(guest.id)}
+          >
+            Hủy kích hoạt
+          </Button>
+        </TableCell>
+      )}
     </TableRow>
   )
 
@@ -155,20 +208,33 @@ export function GuestMemberSection({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle>Người vãng lai</CardTitle>
-          <Button size="sm" onClick={() => setDialogOpen(true)}>
-            Gửi yêu cầu
-          </Button>
+          <div className="flex gap-2">
+            {isOwner && pending.length > 0 && (
+              <Button size="sm" variant="default" onClick={handleApprove}>
+                Duyệt tất cả ({pending.length})
+              </Button>
+            )}
+            <Button size="sm" onClick={() => setDialogOpen(true)}>
+              Gửi yêu cầu
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
-        {requests.length === 0 ? (
-          <p className="py-4 text-sm text-muted-foreground">
-            Chưa có người vãng lai nào.
-          </p>
+        {guestsQuery.isPending ? (
+          <div className="flex items-center justify-center gap-2 py-10 text-muted-foreground">
+            <Loader2 className="size-5 animate-spin" />
+            Đang tải...
+          </div>
+        ) : guestsQuery.isError ? (
+          <ErrorSection
+            title="Lỗi tải dữ liệu"
+            message="Không thể tải danh sách khách vãng lai."
+          />
         ) : (
-          <Tabs defaultValue="approved">
+          <Tabs defaultValue="active">
             <TabsList>
-              <TabsTrigger value="approved">
+              <TabsTrigger value="active">
                 Đã duyệt ({approved.length})
               </TabsTrigger>
               <TabsTrigger value="pending">
@@ -177,33 +243,28 @@ export function GuestMemberSection({
               <TabsTrigger value="rejected">
                 Từ chối ({rejected.length})
               </TabsTrigger>
+              <TabsTrigger value="inactive">
+                Ngưng ({inactive.length})
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="approved" className="mt-4">
+            <TabsContent value="active" className="mt-4">
               {approved.length === 0 ? (
                 <p className="py-4 text-sm text-muted-foreground">
                   Chưa có người vãng lai nào được duyệt.
                 </p>
               ) : (
                 <Table>
-                  <colgroup>
-                    <col style={{ width: "16%" }} />
-                    <col style={{ width: "12%" }} />
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "22%" }} />
-                    <col style={{ width: "18%" }} />
-                    <col style={{ width: "12%" }} />
-                  </colgroup>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Họ tên</TableHead>
-                      <TableHead>Ngày sinh</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Trình độ</TableHead>
                       <TableHead>Giới tính</TableHead>
-                      <TableHead>Rank</TableHead>
-                      <TableHead>Ghi chú</TableHead>
-                      <TableHead>Người chịu trách nhiệm</TableHead>
+                      <TableHead>SĐT</TableHead>
+                      <TableHead>Người mời</TableHead>
                       <TableHead>Trạng thái</TableHead>
+                      {isOwner && <TableHead />}
                     </TableRow>
                   </TableHeader>
                   <TableBody>{approved.map(renderGuestRow)}</TableBody>
@@ -218,24 +279,14 @@ export function GuestMemberSection({
                 </p>
               ) : (
                 <Table>
-                  <colgroup>
-                    <col style={{ width: "14%" }} />
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "8%" }} />
-                    <col style={{ width: "8%" }} />
-                    <col style={{ width: "20%" }} />
-                    <col style={{ width: "16%" }} />
-                    <col style={{ width: "10%" }} />
-                    {isOwner && <col style={{ width: "14%" }} />}
-                  </colgroup>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Họ tên</TableHead>
-                      <TableHead>Ngày sinh</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Trình độ</TableHead>
                       <TableHead>Giới tính</TableHead>
-                      <TableHead>Rank</TableHead>
-                      <TableHead>Ghi chú</TableHead>
-                      <TableHead>Người chịu trách nhiệm</TableHead>
+                      <TableHead>SĐT</TableHead>
+                      <TableHead>Người mời</TableHead>
                       <TableHead>Trạng thái</TableHead>
                       {isOwner && (
                         <TableHead className="text-right">Thao tác</TableHead>
@@ -254,27 +305,41 @@ export function GuestMemberSection({
                 </p>
               ) : (
                 <Table>
-                  <colgroup>
-                    <col style={{ width: "16%" }} />
-                    <col style={{ width: "12%" }} />
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "22%" }} />
-                    <col style={{ width: "18%" }} />
-                    <col style={{ width: "12%" }} />
-                  </colgroup>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Họ tên</TableHead>
-                      <TableHead>Ngày sinh</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Trình độ</TableHead>
                       <TableHead>Giới tính</TableHead>
-                      <TableHead>Rank</TableHead>
-                      <TableHead>Ghi chú</TableHead>
-                      <TableHead>Người chịu trách nhiệm</TableHead>
+                      <TableHead>SĐT</TableHead>
+                      <TableHead>Người mời</TableHead>
                       <TableHead>Trạng thái</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>{rejected.map(renderGuestRow)}</TableBody>
+                </Table>
+              )}
+            </TabsContent>
+
+            <TabsContent value="inactive" className="mt-4">
+              {inactive.length === 0 ? (
+                <p className="py-4 text-sm text-muted-foreground">
+                  Không có người vãng lai nào ngưng hoạt động.
+                </p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Họ tên</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Trình độ</TableHead>
+                      <TableHead>Giới tính</TableHead>
+                      <TableHead>SĐT</TableHead>
+                      <TableHead>Người mời</TableHead>
+                      <TableHead>Trạng thái</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>{inactive.map(renderGuestRow)}</TableBody>
                 </Table>
               )}
             </TabsContent>

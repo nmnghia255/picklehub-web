@@ -9,6 +9,7 @@ import type {
   Member,
 } from "../types"
 import { financeQueryKeys } from "./finance-client"
+import { guestQueryKeys } from "./guests-client"
 
 type QueryParams = Record<string, string | number | boolean | null | undefined>
 
@@ -149,6 +150,9 @@ export function useGroupInvalidation(groupId: string) {
       queryClient.invalidateQueries({ queryKey: ["group-finance", groupId] }),
       queryClient.invalidateQueries({
         queryKey: ["group-activities", groupId],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: guestQueryKeys.all(groupId),
       }),
     ])
   }, [queryClient, groupId])

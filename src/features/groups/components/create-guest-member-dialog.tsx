@@ -18,11 +18,11 @@ interface CreateGuestMemberDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onSubmit: (input: {
-    fullName: string
-    dateOfBirth: string
-    gender: "MALE" | "FEMALE" | "OTHER" | null
-    selfRating: number
-    note: string
+    name: string
+    email: string
+    skillLevel: string
+    phone?: string
+    gender?: "MALE" | "FEMALE"
   }) => void
 }
 
@@ -31,26 +31,26 @@ export function CreateGuestMemberDialog({
   onOpenChange,
   onSubmit,
 }: CreateGuestMemberDialogProps) {
-  const [fullName, setFullName] = useState("")
-  const [dateOfBirth, setDateOfBirth] = useState("")
-  const [gender, setGender] = useState<"MALE" | "FEMALE" | "OTHER" | null>(null)
-  const [selfRating, setSelfRating] = useState(2.5)
-  const [note, setNote] = useState("")
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [skillLevel, setSkillLevel] = useState("INTERMEDIATE")
+  const [phone, setPhone] = useState("")
+  const [gender, setGender] = useState<"MALE" | "FEMALE" | "">("")
 
   const handleSubmit = () => {
-    if (!fullName.trim() || !dateOfBirth) return
+    if (!name.trim() || !email.trim()) return
     onSubmit({
-      fullName: fullName.trim(),
-      dateOfBirth,
-      gender,
-      selfRating,
-      note: note.trim(),
+      name: name.trim(),
+      email: email.trim(),
+      skillLevel,
+      ...(phone.trim() ? { phone: phone.trim() } : {}),
+      ...(gender ? { gender: gender as "MALE" | "FEMALE" } : {}),
     })
-    setFullName("")
-    setDateOfBirth("")
-    setGender(null)
-    setSelfRating(2.5)
-    setNote("")
+    setName("")
+    setEmail("")
+    setSkillLevel("INTERMEDIATE")
+    setPhone("")
+    setGender("")
     onOpenChange(false)
   }
 
@@ -63,79 +63,75 @@ export function CreateGuestMemberDialog({
 
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="guest-fullname">Họ tên</FieldLabel>
+            <FieldLabel htmlFor="guest-name">Họ tên</FieldLabel>
             <Input
-              id="guest-fullname"
+              id="guest-name"
               placeholder="Nhập họ tên"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="guest-dob">Ngày sinh</FieldLabel>
+            <FieldLabel htmlFor="guest-email">Email</FieldLabel>
             <Input
-              id="guest-dob"
-              type="date"
-              value={dateOfBirth}
-              onChange={(e) => setDateOfBirth(e.target.value)}
+              id="guest-email"
+              type="email"
+              placeholder="Nhập email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="guest-gender">Giới tính</FieldLabel>
+            <FieldLabel htmlFor="guest-skill">Trình độ</FieldLabel>
+            <NativeSelect
+              id="guest-skill"
+              value={skillLevel}
+              onChange={(e) => setSkillLevel(e.target.value)}
+            >
+              <option value="BEGINNER">Mới bắt đầu</option>
+              <option value="INTERMEDIATE">Trung bình</option>
+              <option value="ADVANCED">Khá</option>
+              <option value="EXPERT">Chuyên nghiệp</option>
+            </NativeSelect>
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="guest-phone">
+              Số điện thoại (tùy chọn)
+            </FieldLabel>
+            <Input
+              id="guest-phone"
+              placeholder="Nhập số điện thoại"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="guest-gender">Giới tính (tùy chọn)</FieldLabel>
             <NativeSelect
               id="guest-gender"
-              value={gender ?? ""}
-              onChange={(e) => {
-                const v = e.target.value
-                setGender(
-                  v === "MALE" || v === "FEMALE" || v === "OTHER" ? v : null
-                )
-              }}
+              value={gender}
+              onChange={(e) =>
+                setGender(e.target.value as "MALE" | "FEMALE" | "")
+              }
             >
               <option value="">Chọn giới tính</option>
               <option value="MALE">Nam</option>
               <option value="FEMALE">Nữ</option>
-              <option value="OTHER">Khác</option>
             </NativeSelect>
-          </Field>
-
-          <Field>
-            <FieldLabel htmlFor="guest-rating">Rank (trình độ)</FieldLabel>
-            <NativeSelect
-              id="guest-rating"
-              value={String(selfRating)}
-              onChange={(e) => setSelfRating(Number(e.target.value))}
-            >
-              <option value="2.0">2.0</option>
-              <option value="2.5">2.5</option>
-              <option value="3.0">3.0</option>
-              <option value="3.5">3.5</option>
-              <option value="4.0">4.0</option>
-              <option value="4.5">4.5</option>
-              <option value="5.0">5.0</option>
-            </NativeSelect>
-          </Field>
-
-          <Field>
-            <FieldLabel htmlFor="guest-note">Ghi chú</FieldLabel>
-            <Input
-              id="guest-note"
-              placeholder="Nhập ghi chú (nếu có)"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-            />
           </Field>
         </FieldGroup>
 
-        <DialogFooter showCloseButton>
+        <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Hủy
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={!fullName.trim() || !dateOfBirth}
+            disabled={!name.trim() || !email.trim()}
           >
             Gửi yêu cầu
           </Button>

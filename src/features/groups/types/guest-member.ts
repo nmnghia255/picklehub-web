@@ -1,25 +1,56 @@
-export type GuestMemberStatus = "PENDING" | "APPROVED" | "REJECTED"
+export type GuestStatus =
+  | "PENDING_APPROVAL"
+  | "ACTIVE"
+  | "INACTIVE"
+  | "REJECTED"
 
-export interface GuestMember {
+export interface Guest {
   id: string
-  fullName: string
-  dateOfBirth: string
-  gender: "MALE" | "FEMALE" | "OTHER" | null
-  selfRating: number
-  note: string
-  status: GuestMemberStatus
-  responsibleMemberId: string
-  responsibleMemberName: string
   groupId: string
+  name: string
+  email: string
+  skillLevel: string
+  phone: string | null
+  gender: "MALE" | "FEMALE" | null
+  invitedById: string
+  status: GuestStatus
   createdAt: string
-  approvedAt: string | null
-  rejectedAt: string | null
+  updatedAt: string
+  invitedBy?: {
+    id: string
+    name: string
+    avatarUrl?: string | null
+  } | null
 }
 
-export interface CreateGuestMemberInput {
-  fullName: string
-  dateOfBirth: string
-  gender: "MALE" | "FEMALE" | "OTHER" | null
-  selfRating: number
-  note: string
+export interface CreateGuestInput {
+  name: string
+  email: string
+  skillLevel: string
+  phone?: string
+  gender?: "MALE" | "FEMALE"
+}
+
+export interface ApproveGuestsInput {
+  guestIds: string[]
+  status: "ACTIVE" | "REJECTED"
+}
+
+export interface GuestListResponse {
+  message: string
+  data: Guest[]
+  meta: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
+
+export interface GuestActionResponse {
+  message: string
+  data: {
+    id: string
+    status: GuestStatus
+  }
 }

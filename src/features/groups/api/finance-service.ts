@@ -214,6 +214,7 @@ export async function createExpense(
     receiptUrl?: string
     expenseDate: string
     allocations: { userId: string; requiredFee: number }[]
+    guestAllocations?: { guestId: string; requiredFee: number }[]
   }
 ): Promise<ExpenseItem> {
   const axios = await getAuthenticatedAxios()

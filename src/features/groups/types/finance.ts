@@ -1,6 +1,24 @@
 export type TransactionStatus = "PENDING_REVIEW" | "VERIFIED" | "REJECTED"
 export type DebtStatus = "UNPAID" | "PARTIALLY_PAID" | "PAID" | "OVERPAID"
 
+export interface GuestPayment {
+  id: string
+  guestId: string
+  billedToId: string
+  requiredFee: number
+  amountPaid: number
+  status: DebtStatus
+  guest?: {
+    id: string
+    name: string
+  } | null
+  billedToUser?: {
+    id: string
+    name: string
+    email: string
+  } | null
+}
+
 export interface FinanceSummary {
   totalExpense: number
   totalRequiredCollection: number
@@ -62,6 +80,7 @@ export interface ExpenseItem {
   updatedAt: string
   createdBy?: FinanceUserSummary | null
   allocations?: Allocation[]
+  guestPayments?: GuestPayment[]
 }
 
 export interface UnpaidPayment {
@@ -71,6 +90,8 @@ export interface UnpaidPayment {
   amountPaid: number
   debt: number
   status: DebtStatus
+  isGuestPayment?: boolean
+  guestName?: string | null
 }
 
 export interface MyDebt {
@@ -113,6 +134,8 @@ export interface UnpaidPaymentItem {
   debt: number
   status: string
   createdAt: string
+  isGuestPayment?: boolean
+  guestName?: string | null
 }
 
 export interface GroupDebtItem {

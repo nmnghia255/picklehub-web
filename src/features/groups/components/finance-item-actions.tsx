@@ -45,6 +45,7 @@ import type {
   Transaction,
   TransactionStatus,
 } from "../types/finance"
+import type { Guest } from "../types/guest-member"
 
 function formatDateOnly(value?: string | null) {
   if (!value) return ""
@@ -302,12 +303,14 @@ function ExpenseForm({
   mode,
   expense,
   members,
+  activeGuests,
   onDone,
 }: {
   groupId: string
   mode: DialogMode
   expense?: ExpenseItem
   members: Member[]
+  activeGuests?: Guest[]
   onDone: () => void
 }) {
   const [state, formAction, isPending] = useActionState(
@@ -325,6 +328,10 @@ function ExpenseForm({
 
   const [selectedMap, setSelectedMap] = useState<Record<string, boolean>>({})
   const [feeMap, setFeeMap] = useState<Record<string, string>>({})
+  const [guestSelectedMap, setGuestSelectedMap] = useState<
+    Record<string, boolean>
+  >({})
+  const [guestFeeMap, setGuestFeeMap] = useState<Record<string, string>>({})
   const [totalAmount, setTotalAmount] = useState<string>(
     expense?.totalAmount?.toString() ?? ""
   )
@@ -353,7 +360,20 @@ function ExpenseForm({
     [feeMap, members, selectedMap]
   )
 
-  const totalAllocated = allocations.reduce((sum, a) => sum + a.requiredFee, 0)
+  const guestAllocations = useMemo(
+    () =>
+      (activeGuests ?? [])
+        .filter((g) => guestSelectedMap[g.id])
+        .map((g) => ({
+          guestId: g.id,
+          requiredFee: Number(guestFeeMap[g.id] || 0),
+        })),
+    [activeGuests, guestFeeMap, guestSelectedMap]
+  )
+
+  const totalAllocated =
+    allocations.reduce((sum, a) => sum + a.requiredFee, 0) +
+    guestAllocations.reduce((sum, a) => sum + a.requiredFee, 0)
   const totalAmountNum = Number(totalAmount)
   const isTotalMatching =
     totalAllocated === totalAmountNum && totalAmountNum > 0
@@ -447,11 +467,16 @@ function ExpenseForm({
                 variant="link"
                 size="xs"
                 onClick={() => {
-                  if (totalAmountNum > 0 && allocations.length > 0) {
+                  if (totalAmountNum > 0) {
+                    const allSelected = [
+                      ...allocations,
+                      ...(mode === "create" ? guestAllocations : []),
+                    ]
+                    if (allSelected.length === 0) return
                     const equalShare = Math.floor(
-                      totalAmountNum / allocations.length
+                      totalAmountNum / allSelected.length
                     )
-                    const remainder = totalAmountNum % allocations.length
+                    const remainder = totalAmountNum % allSelected.length
                     const newFees: Record<string, string> = { ...feeMap }
                     allocations.forEach((a, idx) => {
                       newFees[a.userId] = (
@@ -459,6 +484,18 @@ function ExpenseForm({
                       ).toString()
                     })
                     setFeeMap(newFees)
+                    if (mode === "create") {
+                      const newGuestFees: Record<string, string> = {}
+                      guestAllocations.forEach((a, idx) => {
+                        newGuestFees[a.guestId] = (
+                          equalShare +
+                          (idx === 0 && allocations.length === 0
+                            ? remainder
+                            : 0)
+                        ).toString()
+                      })
+                      setGuestFeeMap(newGuestFees)
+                    }
                   }
                 }}
               >
@@ -466,6 +503,44 @@ function ExpenseForm({
               </Button>
             </div>
           </Field>
+
+          {(activeGuests?.length ?? 0) > 0 && (
+            <Field>
+              <FieldLabel>Phân bổ cho khách vãng lai</FieldLabel>
+              <div className="max-h-60 space-y-2 overflow-y-auto rounded-md border p-2">
+                {activeGuests?.map((guest) => (
+                  <div key={guest.id} className="flex items-center gap-3">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={!!guestSelectedMap[guest.id]}
+                        onChange={(e) =>
+                          setGuestSelectedMap((prev) => ({
+                            ...prev,
+                            [guest.id]: e.target.checked,
+                          }))
+                        }
+                      />
+                      <span className="text-sm">{guest.name}</span>
+                    </label>
+                    <Input
+                      type="number"
+                      placeholder="Số tiền"
+                      className="ml-auto w-28"
+                      value={guestFeeMap[guest.id] ?? ""}
+                      onChange={(e) =>
+                        setGuestFeeMap((prev) => ({
+                          ...prev,
+                          [guest.id]: e.target.value,
+                        }))
+                      }
+                      disabled={!guestSelectedMap[guest.id]}
+                    />
+                  </div>
+                ))}
+              </div>
+            </Field>
+          )}
 
           <Field>
             <FieldLabel htmlFor="expense-receipt-file">Tệp biên lai</FieldLabel>
@@ -483,6 +558,11 @@ function ExpenseForm({
         type="hidden"
         name="allocations"
         value={JSON.stringify(allocations)}
+      />
+      <input
+        type="hidden"
+        name="guestAllocations"
+        value={JSON.stringify(guestAllocations)}
       />
 
       <DialogFooter showCloseButton>
@@ -564,9 +644,11 @@ export function CreateTransactionButton({ groupId }: { groupId: string }) {
 export function CreateExpenseButton({
   groupId,
   members,
+  activeGuests,
 }: {
   groupId: string
   members: Member[]
+  activeGuests?: Guest[]
 }) {
   const [open, setOpen] = useState(false)
   const invalidation = useFinanceInvalidation(groupId)
@@ -587,6 +669,7 @@ export function CreateExpenseButton({
           groupId={groupId}
           mode="create"
           members={members}
+          activeGuests={activeGuests}
           onDone={() => {
             void invalidation.refreshExpenses()
             setOpen(false)
@@ -685,12 +768,6 @@ export function RemindDebtButton({
     }, {})
   }, [members, debtsList, nowTime])
 
-  const getRecommendation = (totalDebt: number) => {
-    if (totalDebt <= 10000) return "Có thể bỏ qua (Nợ nhỏ)"
-    if (totalDebt > 50000) return "Nên nhắc (Nợ lớn)"
-    return "Tùy chọn"
-  }
-
   return (
     <>
       <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
@@ -757,9 +834,6 @@ export function RemindDebtButton({
                         <div className="ml-7 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
                           <div>Số khoản: {detail.unpaidCount}</div>
                           <div>Quá hạn: {detail.daysOverdue} ngày</div>
-                          <div className="col-span-2 text-primary italic">
-                            Gợi ý: {getRecommendation(detail.totalDebt)}
-                          </div>
                         </div>
                       </div>
                     )
@@ -851,11 +925,13 @@ export function ExpenseRowActions({
   groupId,
   expense,
   members,
+  activeGuests,
   canManage,
 }: {
   groupId: string
   expense: ExpenseItem
   members: Member[]
+  activeGuests?: Guest[]
   canManage: boolean
 }) {
   const [editOpen, setEditOpen] = useState(false)
@@ -977,36 +1053,75 @@ export function ExpenseRowActions({
             </div>
             <div>
               <div className="mb-2 text-xs text-muted-foreground uppercase">
-                Phân bổ
+                Phân bổ thành viên
               </div>
               <div className="space-y-2">
-                {expenseDetail.allocations?.map((a) => (
-                  <div
-                    key={a.id}
-                    className="flex items-center justify-between rounded-md border p-2 text-sm"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Avatar>
-                        <AvatarImage src={a.user?.avatarUrl || ""} />
-                        <AvatarFallback>
-                          {getInitials(a.user?.name || "?")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span>{a.user?.name}</span>
+                {expenseDetail.allocations?.length ? (
+                  expenseDetail.allocations.map((a) => (
+                    <div
+                      key={a.id}
+                      className="flex items-center justify-between rounded-md border p-2 text-sm"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Avatar>
+                          <AvatarImage src={a.user?.avatarUrl || ""} />
+                          <AvatarFallback>
+                            {getInitials(a.user?.name || "?")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span>{a.user?.name}</span>
+                      </div>
+                      <div className="text-right">
+                        <div>{formatCurrency(a.requiredFee)}</div>
+                        <Badge
+                          variant={a.status === "PAID" ? "default" : "outline"}
+                          className="h-4 text-[10px]"
+                        >
+                          {a.status}
+                        </Badge>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <div>{formatCurrency(a.requiredFee)}</div>
-                      <Badge
-                        variant={a.status === "PAID" ? "default" : "outline"}
-                        className="h-4 text-[10px]"
-                      >
-                        {a.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">Không có</p>
+                )}
               </div>
             </div>
+
+            {expenseDetail.guestPayments &&
+              expenseDetail.guestPayments.length > 0 && (
+                <div>
+                  <div className="mb-2 text-xs text-muted-foreground uppercase">
+                    Phân bổ khách vãng lai
+                  </div>
+                  <div className="space-y-2">
+                    {expenseDetail.guestPayments.map((gp) => (
+                      <div
+                        key={gp.id}
+                        className="flex items-center justify-between rounded-md border border-dashed p-2 text-sm"
+                      >
+                        <div>
+                          <span>{gp.guest?.name || "Khách"}</span>
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            (Người mời: {gp.billedToUser?.name || "-"})
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <div>{formatCurrency(gp.requiredFee)}</div>
+                          <Badge
+                            variant={
+                              gp.status === "PAID" ? "default" : "outline"
+                            }
+                            className="h-4 text-[10px]"
+                          >
+                            {gp.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
           </div>
         ) : null}
       </FinanceDialogShell>
@@ -1022,6 +1137,7 @@ export function ExpenseRowActions({
           mode="edit"
           expense={expense}
           members={members}
+          activeGuests={activeGuests}
           onDone={() => {
             void invalidation.refreshExpenses()
             setEditOpen(false)
