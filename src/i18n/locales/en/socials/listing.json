@@ -1,0 +1,54 @@
+{
+  "listing": {
+    "title": "Socials",
+    "subtitle": "Discover upcoming socials, tune the filters, and jump into the right session.",
+    "searchPlaceholder": "Search socials...",
+    "createSocial": "Create Social",
+    "filters": "Filters",
+    "showingAvailableSlotsOnly": "Showing: Available Slots Only",
+    "showAllAvailability": "Show All Availability",
+    "sessionCount_one": "{{count}} session",
+    "sessionCount_other": "{{count}} sessions",
+    "organizerCount_one": "{{count}} organizer",
+    "organizerCount_other": "{{count}} organizers",
+    "noResultsTitle": "No socials found",
+    "noResultsDescription": "Try clearing filters or searching for a different event."
+  },
+  "mySocials": {
+    "title": "My Socials",
+    "subtitle": "A list of socials you have joined or created"
+  },
+  "filters": {
+    "title": "Filters",
+    "status": "Status",
+    "selectStatus": "Select status",
+    "genderPolicy": "Gender Policy",
+    "selectGenderPolicy": "Select gender policy",
+    "ageGroup": "Age Group",
+    "selectAgeGroup": "Select age group",
+    "format": "Format",
+    "selectFormat": "Select format",
+    "all": "All",
+    "clearAll": "Clear All",
+    "notYet": "Chọn",
+    "close": "Đóng",
+    "upcomingOptions": {
+      "notYet": "Chọn",
+      "yes": "Có",
+      "no": "Không"
+    },
+    "hasAvailableSlotsOptions": {
+      "notYet": "Chọn",
+      "yes": "Còn chỗ trống",
+      "no": "Không còn chỗ trống"
+    },
+    "levelOptions": {
+      "1": "1 - Mới bắt đầu",
+      "2": "2 - Người mới chơi",
+      "3": "3 - Trung cấp",
+      "4": "4 - Nâng cao",
+      "5": "5 - Chuyên nghiệp",
+      "notYet": "Chọn"
+    }
+  }
+}

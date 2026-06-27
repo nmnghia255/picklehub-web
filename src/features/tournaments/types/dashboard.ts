@@ -17,11 +17,12 @@ export interface RecentActivity {
 
 export interface FinancialTransaction {
   id: number
+  tournamentId: number
   date: string
   description: string
   type: "income" | "expense" | "refund"
   amount: number
-  status: "completed" | "pending"
+  status: string
 }
 
 export interface RevenueData {

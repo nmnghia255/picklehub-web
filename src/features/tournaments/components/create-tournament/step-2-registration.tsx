@@ -21,6 +21,7 @@ export function Step2Registration() {
             type="date"
             value={formValues.regOpen}
             onChange={(e) => setFormValue("regOpen", e.target.value)}
+            max={formValues.regClose || formValues.startDate || undefined}
             className="mt-3"
           />
         </div>
@@ -31,6 +32,8 @@ export function Step2Registration() {
             type="date"
             value={formValues.regClose}
             onChange={(e) => setFormValue("regClose", e.target.value)}
+            min={formValues.regOpen || undefined}
+            max={formValues.startDate || undefined}
             className="mt-3"
           />
         </div>

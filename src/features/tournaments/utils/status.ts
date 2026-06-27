@@ -16,6 +16,10 @@ export const statusConfig: Record<
     labelKey: "list.statuses.open_registration",
     color: "bg-emerald-100 text-emerald-700",
   },
+  closed_registration: {
+    labelKey: "list.statuses.closed_registration",
+    color: "bg-orange-100 text-orange-700",
+  },
   in_progress: {
     labelKey: "list.statuses.in_progress",
     color: "bg-yellow-100 text-yellow-700",

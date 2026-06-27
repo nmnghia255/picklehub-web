@@ -4,6 +4,7 @@ import { Filter, Loader2, Plus, Search } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect, useRef, useTransition } from "react"
 
+import { Pagination } from "@/components/common/pagination"
 import { Button } from "@/components/ui/button"
 import {
   Empty,
@@ -14,14 +15,6 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { Input } from "@/components/ui/input"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
 import {
   useDiscoverFiltersStore,
   useMySocialsFiltersStore,
@@ -239,50 +232,12 @@ export default function SocialListing({
 
               {pagination && pagination.totalPages > 1 && (
                 <div className="mt-8 flex justify-center">
-                  <Pagination>
-                    <PaginationContent>
-                      <PaginationItem>
-                        {hasPrevPage ? (
-                          <PaginationPrevious
-                            href="#"
-                            onClick={(e) => {
-                              e.preventDefault()
-                              handlePageChange(pagination.page - 1)
-                            }}
-                          />
-                        ) : (
-                          <span className="inline-flex h-10 items-center justify-center rounded-md border border-transparent px-2.5 text-sm font-medium opacity-50">
-                            {t("common.previous", { defaultValue: "Previous" })}
-                          </span>
-                        )}
-                      </PaginationItem>
-
-                      <PaginationItem>
-                        <PaginationLink isActive size="default" href="#">
-                          {t("common.page", {
-                            page: pagination.page,
-                            defaultValue: `Trang ${pagination.page}`,
-                          })}
-                        </PaginationLink>
-                      </PaginationItem>
-
-                      <PaginationItem>
-                        {hasNextPage ? (
-                          <PaginationNext
-                            href="#"
-                            onClick={(e) => {
-                              e.preventDefault()
-                              handlePageChange(pagination.page + 1)
-                            }}
-                          />
-                        ) : (
-                          <span className="inline-flex h-10 items-center justify-center rounded-md border border-transparent px-2.5 text-sm font-medium opacity-50">
-                            {t("common.next", { defaultValue: "Next" })}
-                          </span>
-                        )}
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
+                  <Pagination
+                    currentPage={pagination.page}
+                    totalPages={pagination.totalPages}
+                    onPageChange={handlePageChange}
+                    variant="simple"
+                  />
                 </div>
               )}
             </>

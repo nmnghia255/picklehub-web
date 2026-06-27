@@ -124,6 +124,17 @@
       "bookedSlots_one": "{{count}} khung giờ đã kín",
       "bookedSlots_other": "{{count}} khung giờ đã kín"
     },
+    "grid": {
+      "title": "Visual Court Scheduling Grid",
+      "description": "Click on empty blocks to select court and time slots.",
+      "legendEmpty": "Available",
+      "legendBooked": "Booked",
+      "legendLocked": "Locked",
+      "legendSelected": "Selecting",
+      "loading": "Loading court availability...",
+      "noData": "No court availability data found.",
+      "courtHeader": "Court"
+    },
     "note": {
       "title": "Ghi chú đặt sân",
       "placeholder": "Ghi chú tùy chọn cho nhân viên sân (thiết bị, số lượng người chơi, yêu cầu...)"
@@ -198,6 +209,7 @@
       "bookingDate": "Ngày đặt",
       "totalMoney": "Tổng tiền",
       "actions": "Thao tác",
+      "pay": "Pay",
       "noCourtInfo": "Không có thông tin sân",
       "moreCourts": "+ {{count}} sân khác",
       "moreSlots": "+ {{count}} khung giờ"

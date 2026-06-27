@@ -1,6 +1,7 @@
 "use client"
 
-import { MoreHorizontal, Search, XCircle } from "lucide-react"
+import { CreditCard, MoreHorizontal, Search, XCircle } from "lucide-react"
+import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -28,6 +29,8 @@ export function BookingHistoryActionsDropdown({
   const canCancel =
     booking.status === "PENDING" || booking.status === "CONFIRMED"
 
+  const showPay = booking.status === "PENDING" && !booking.paymentProofUrl
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -44,6 +47,17 @@ export function BookingHistoryActionsDropdown({
           <Search className="mr-2 size-4" />
           {t("booking.history.viewDetail")}
         </DropdownMenuItem>
+
+        {showPay && (
+          <DropdownMenuItem asChild>
+            <Link
+              href={`/sport-center/${booking.center.id || booking.centerId}/booking/confirmation/payment?bookingId=${booking.id}`}
+            >
+              <CreditCard className="mr-2 size-4" />
+              {t("booking.history.pay", { defaultValue: "Thanh toán" })}
+            </Link>
+          </DropdownMenuItem>
+        )}
 
         {canCancel && (
           <>

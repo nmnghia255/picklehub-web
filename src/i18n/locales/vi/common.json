@@ -1,0 +1,22 @@
+{
+  "saving": "Đang lưu...",
+  "saveSuccess": "Lưu thành công",
+  "saveError": "Lưu thất bại",
+  "create": "Tạo",
+  "createSuccess": "Tạo thành công",
+  "createError": "Tạo thất bại",
+  "update": "Cập nhật",
+  "updateSuccess": "Cập nhật thành công",
+  "updateError": "Cập nhật thất bại",
+  "delete": "Xóa",
+  "deleteSuccess": "Xóa thành công",
+  "deleteError": "Xóa thất bại",
+  "loading": "Đang tải...",
+  "back": "Quay lại",
+  "pagination": {
+    "previous": "Trước",
+    "next": "Sau",
+    "page": "Trang {{page}}",
+    "pageInfo": "Trang {{currentPage}} / {{totalPages}}"
+  }
+}

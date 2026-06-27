@@ -1,0 +1,46 @@
+{
+  "registrations": {
+    "title": "Quản lý đăng ký",
+    "subtitle": "Xem xét và quản lý các lượt đăng ký",
+    "filterEvent": "Lọc sự kiện",
+    "filterStatus": "Lọc trạng thái",
+    "allEvents": "Tất cả",
+    "tabs": {
+      "pending": "Chờ duyệt ({{count}})",
+      "approved": "Đã duyệt ({{count}})",
+      "rejected": "Từ chối ({{count}})",
+      "waitlisted": "Danh sách chờ ({{count}})",
+      "withdrawn": "Đã rút lui ({{count}})"
+    },
+    "table": {
+      "player": "Người chơi",
+      "partner": "Bạn cùng chơi",
+      "event": "Sự kiện",
+      "rating": "Trình độ",
+      "payment": "Thanh toán",
+      "date": "Ngày",
+      "actions": "Thao tác",
+      "paid": "Đã thanh toán",
+      "pending": "Chờ xử lý"
+    },
+    "profile": {
+      "title": "Hồ sơ người chơi",
+      "description": "Xem thông tin người chơi, trình độ và lịch sử thi đấu",
+      "duprRating": "Trình độ DUPR: {{rating}}",
+      "registrationDetails": "Chi tiết đăng ký",
+      "event": "Sự kiện",
+      "registrationDate": "Ngày đăng ký",
+      "paymentStatus": "Trạng thái thanh toán",
+      "matchHistory": "Lịch sử thi đấu",
+      "historyStats": "{{wins}} Thắng - {{losses}} Thua",
+      "previousTournaments": "Số giải đã tham gia: {{count}}",
+      "filterEvent": "Lọc sự kiện",
+      "allEvents": "Tất cả sự kiện",
+      "approveSuccess": "Đã phê duyệt đăng ký cho {{name}}",
+      "rejectSuccess": "Đã từ chối đăng ký cho {{name}}",
+      "noRegistrations": "Không tìm thấy lượt đăng ký nào",
+      "paymentProof": "Minh chứng thanh toán",
+      "viewProof": "Xem minh chứng"
+    }
+  }
+}

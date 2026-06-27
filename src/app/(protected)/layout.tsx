@@ -28,7 +28,7 @@ export default async function ProtectedLayout({
           <SidebarTrigger />
           <Header user={session.user} />
         </header>
-        <div className="flex-1">{children}</div>
+        <div className="flex flex-1 flex-col">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   )

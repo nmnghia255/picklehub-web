@@ -1,7 +1,9 @@
 import type { Tournament } from "../types/tournament"
+
 export const tournaments: Tournament[] = [
   {
     id: 1,
+    uuid: "tournament-1",
     name: "San Diego Summer Slam 2026",
     venue: "Balboa Park Tennis & Pickleball Center",
     startDate: "June 15, 2026",
@@ -10,10 +12,17 @@ export const tournaments: Tournament[] = [
     capacity: 200,
     status: "in_progress" as const,
     banner:
-      "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=800&q=80",
+      "https://images.unsplash.com/photo-15540688655-24cecd4e34b8?w=800&q=80",
+    description: null,
+    registrationStartDate: null,
+    registrationEndDate: null,
+    paymentBankName: null,
+    paymentAccountName: null,
+    paymentAccountNumber: null,
   },
   {
     id: 2,
+    uuid: "tournament-2",
     name: "Pacific Coast Open",
     venue: "La Jolla Recreation Center",
     startDate: "July 1, 2026",
@@ -23,9 +32,16 @@ export const tournaments: Tournament[] = [
     status: "open_registration" as const,
     banner:
       "https://images.unsplash.com/photo-1622163642998-1ea32b0bbc67?w=800&q=80",
+    description: null,
+    registrationStartDate: null,
+    registrationEndDate: null,
+    paymentBankName: null,
+    paymentAccountName: null,
+    paymentAccountNumber: null,
   },
   {
     id: 3,
+    uuid: "tournament-3",
     name: "SoCal Championship Series",
     venue: "Mission Valley Sports Complex",
     startDate: "August 12, 2026",
@@ -35,9 +51,16 @@ export const tournaments: Tournament[] = [
     status: "published" as const,
     banner:
       "https://images.unsplash.com/photo-1610438235354-a6ae5528385c?w=800&q=80",
+    description: null,
+    registrationStartDate: null,
+    registrationEndDate: null,
+    paymentBankName: null,
+    paymentAccountName: null,
+    paymentAccountNumber: null,
   },
   {
     id: 4,
+    uuid: "tournament-4",
     name: "West Coast Masters",
     venue: "Del Mar Community Center",
     startDate: "September 5, 2026",
@@ -47,9 +70,16 @@ export const tournaments: Tournament[] = [
     status: "draft" as const,
     banner:
       "https://images.unsplash.com/photo-1602192509154-0b900ee1f851?w=800&q=80",
+    description: null,
+    registrationStartDate: null,
+    registrationEndDate: null,
+    paymentBankName: null,
+    paymentAccountName: null,
+    paymentAccountNumber: null,
   },
   {
     id: 5,
+    uuid: "tournament-5",
     name: "Spring Invitational 2026",
     venue: "Carlsbad Pickleball Courts",
     startDate: "May 20, 2026",
@@ -59,9 +89,16 @@ export const tournaments: Tournament[] = [
     status: "completed" as const,
     banner:
       "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=800&q=80",
+    description: null,
+    registrationStartDate: null,
+    registrationEndDate: null,
+    paymentBankName: null,
+    paymentAccountName: null,
+    paymentAccountNumber: null,
   },
   {
     id: 6,
+    uuid: "tournament-6",
     name: "Memorial Day Classic",
     venue: "Point Loma Sports Park",
     startDate: "May 25, 2026",
@@ -71,5 +108,11 @@ export const tournaments: Tournament[] = [
     status: "completed" as const,
     banner:
       "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=800&q=80",
+    description: null,
+    registrationStartDate: null,
+    registrationEndDate: null,
+    paymentBankName: null,
+    paymentAccountName: null,
+    paymentAccountNumber: null,
   },
 ]

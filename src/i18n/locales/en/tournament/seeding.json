@@ -1,0 +1,41 @@
+{
+  "seeding": {
+    "title": "Seeding",
+    "subtitle": "Generate and manage tournament seeding",
+    "autoSeed": "Auto Seed",
+    "lockSeeding": "Lock Seeding",
+    "noEventsCreatedYet": "No Events Created Yet",
+    "noEventsDescription": "You must create at least one event in the Events tab before you can manage and configure team seeds.",
+    "selectEvent": "Select Event",
+    "chooseEvent": "Choose an event...",
+    "loadingSeeds": "Loading seeds...",
+    "reorderSuccess": "Seeding order saved successfully",
+    "autoSeedSuccess": "Seeds generated successfully",
+    "lockSuccess": "Seeding locked successfully",
+    "eventSeeding": "{{eventName}} Seeding",
+    "statusNoticeTitle": "Seeding Management Locked",
+    "statusNoticeDescription": "Seeding can only be configured and locked when the tournament status is Open Registration. Current tournament status is {{status}}.",
+    "table": {
+      "title": "Men's Doubles 4.0 - Seeding",
+      "seed": "Seed",
+      "team": "Team",
+      "rating": "Rating",
+      "record": "Record",
+      "status": "Status",
+      "locked": "Locked",
+      "unlocked": "Unlocked"
+    },
+    "emptyState": {
+      "title": "No Seeds Generated",
+      "description": "Generate seeds based on player ratings and records to setup the tournament brackets.",
+      "button": "Generate Seeds Now"
+    },
+    "instructions": {
+      "title": "Seeding Instructions:",
+      "item1": "Use Auto Seed to generate seeding based on player ratings and records",
+      "item2": "Drag and drop teams to manually adjust seeding order",
+      "item3": "Lock individual seeds to prevent changes during auto-seeding",
+      "item4": "Click \"Lock Seeding\" when finalized to prevent further modifications"
+    }
+  }
+}

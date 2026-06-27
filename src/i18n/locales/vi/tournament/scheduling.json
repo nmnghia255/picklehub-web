@@ -1,0 +1,116 @@
+{
+  "scheduling": {
+    "title": "Lập Lịch & Phân Sân Đấu",
+    "subtitle": "Quản lý việc xếp lịch thi đấu, phân công sân đấu, và chỉ định trọng tài.",
+    "unscheduled": {
+      "title": "Trận Chưa Xếp Lịch",
+      "subtitle": "{{count}} trận cần xếp lịch",
+      "subtitle_singular": "1 trận cần xếp lịch",
+      "subtitle_none": "Không có trận nào cần xếp lịch",
+      "matchLabel": "Trận #{{id}}",
+      "min": "{{duration}} phút",
+      "autoSchedule": "Tự Động Xếp Lịch",
+      "optimizeSchedule": "Tối Ưu Hóa Lịch",
+      "noMatches": "Không tìm thấy trận đấu chưa xếp lịch"
+    },
+    "toolbar": {
+      "dates": {
+        "june15": "Ngày 15, Tháng 6, 2026",
+        "june16": "Ngày 16, Tháng 6, 2026",
+        "june17": "Ngày 17, Tháng 6, 2026"
+      },
+      "eventLabel": "Nội dung:",
+      "events": {
+        "all": "Tất Cả Nội Dung"
+      },
+      "reloadBtn": "Tải Lại Lịch Trình"
+    },
+    "grid": {
+      "courtsLabel": "Danh Sách Sân"
+    },
+    "match": {
+      "assignReferee": "Phân Công Trọng Tài",
+      "unschedule": "Hủy Lịch Đấu",
+      "refereeName": "Trọng tài: {{name}}",
+      "start": "Bắt đầu: {{time}}",
+      "duration": "Thời lượng: {{duration}} phút",
+      "court": "Sân: {{court}}",
+      "id": "ID: {{id}}",
+      "refName": "Trọng tài: {{refereeName}}"
+    },
+    "warnings": {
+      "detected": "Phát hiện {{count}} xung đột lịch trình:",
+      "details": "1 xung đột người chơi, 1 vi phạm thời gian nghỉ"
+    },
+    "autoScheduleForm": {
+      "title": "Tự Động Xếp Lịch & Tối Ưu Hóa Sân Đấu",
+      "description": "Hệ thống sẽ tính toán phân bổ các trận đấu vào sân trống và khung giờ tối ưu nhất.",
+      "selectEvent": "Chọn Phân Hạng Thi Đấu (Event)",
+      "selectEventPlaceholder": "Chọn nội dung",
+      "startTime": "Giờ Bắt Đầu Hàng Ngày",
+      "endTime": "Giờ Kết Thúc Hàng Ngày",
+      "matchDuration": "Thời Lượng Trận Đấu (Phút)",
+      "breakDuration": "Thời Gian Nghỉ Dọn Sân (Phút)",
+      "availableCourts": "Các sân đấu hiện có",
+      "restTime": "Nghỉ Giữa Các Trận Của VĐV (Phút)",
+      "optimizeFor": "Tiêu Chí Tối Ưu Hóa",
+      "optimizeOptions": {
+        "fastest": "Xong Sớm Nhất (Fastest)",
+        "balanced": "Cân Bằng Sân (Balanced)",
+        "rest": "Tối Đa Hóa Khoảng Nghỉ (Max Rest)"
+      },
+      "previewTitle": "Kết Quả Xem Trước (Preview)",
+      "projectedCompletedAt": "Thời gian hoàn thành:",
+      "scheduledMatchesCount": "Trận đấu xếp thành công:",
+      "courtsUsed": "Sân sử dụng:",
+      "courtsUsedCount": "{{count}} sân",
+      "previewAssignments": "Gợi ý phân bổ:",
+      "cancel": "Hủy",
+      "previewBtn": "Xem Trước Kết Quả",
+      "calculating": "Đang tính toán...",
+      "applying": "Đang áp dụng...",
+      "applyBtn": "Lưu & Áp Dụng Lịch"
+    },
+    "referee": {
+      "modalTitle": "Phân Công Trọng Tài Bắt Chính",
+      "modalDesc": "Nhập thông tin trọng tài được giao phụ trách trận đấu này.",
+      "name": "Tên Trọng Tài",
+      "namePlaceholder": "Nhập tên trọng tài...",
+      "id": "Mã Số Trọng Tài (ID - Tùy chọn)",
+      "idPlaceholder": "Mã số hoặc để trống...",
+      "assignBtn": "Xác Nhận Phân Công",
+      "close": "Đóng"
+    },
+    "manual": {
+      "modalTitle": "Xếp Lịch Đấu Thủ Công",
+      "modalDesc": "Chọn Sân đấu và Giờ thi đấu cho trận đấu: ",
+      "selectCourt": "Chọn Sân Đấu",
+      "selectTime": "Chọn Giờ Thi Đấu",
+      "scheduleBtn": "Xếp Lịch",
+      "close": "Đóng"
+    },
+    "toasts": {
+      "scheduleSuccess": "Xếp lịch trận đấu thành công",
+      "scheduleFailed": "Không thể xếp lịch trận đấu",
+      "manualError": "Có lỗi xảy ra trong quá trình xếp lịch thủ công",
+      "unscheduleSuccess": "Hủy xếp lịch trận đấu thành công",
+      "unscheduleFailed": "Không thể hủy xếp lịch trận đấu",
+      "unscheduleError": "Có lỗi xảy ra trong quá trình hủy xếp lịch",
+      "assignRefereeSuccess": "Phân công trọng tài thành công",
+      "assignRefereeFailed": "Không thể phân công trọng tài",
+      "assignRefereeError": "Có lỗi xảy ra trong quá trình phân công trọng tài",
+      "unassignRefereeSuccess": "Hủy phân công trọng tài thành công",
+      "unassignRefereeFailed": "Không thể hủy phân công trọng tài",
+      "unassignRefereeError": "Có lỗi xảy ra trong quá trình hủy phân công trọng tài",
+      "fillRefereeName": "Vui lòng nhập tên trọng tài",
+      "selectCourtAndTime": "Vui lòng chọn cả sân đấu và khung giờ thi đấu",
+      "selectEvent": "Vui lòng chọn một nội dung thi đấu",
+      "previewSuccess": "Tạo bản xem trước thành công",
+      "previewFailed": "Không thể tạo bản xem trước",
+      "executeSuccess": "Đã áp dụng lịch thi đấu và gửi thông báo tới các vận động viên!",
+      "executeFailed": "Không thể thực hiện xếp lịch tự động",
+      "loadFixturesFailed": "Không thể tải danh sách trận đấu",
+      "loadFixturesError": "Có lỗi xảy ra khi tải danh sách trận đấu của giải đấu"
+    }
+  }
+}

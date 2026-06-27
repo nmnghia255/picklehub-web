@@ -1,16 +1,18 @@
 "use client"
 
-import { useRouter, useSearchParams } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 
 import { PageContainer } from "@/components/page-container"
 import { Card, CardContent } from "@/components/ui/card"
+import { fetchSportCenterByIdAction } from "@/features/sport-center/actions/fetch-sport-center-by-id"
 import { submitPaymentProofAction } from "@/features/sport-center/actions/submit-payment-proof-action"
 import { uploadImageAction } from "@/features/sport-center/actions/upload-image-action"
 import { BookingConfirmationHeader } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-header"
 import { BookingConfirmationPaymentCard } from "@/features/sport-center/components/payment/payment-card"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
 import { useSportCenterStore } from "@/features/sport-center/stores/sport-center-store"
+import type { BookingResponse } from "@/features/sport-center/types/booking"
 import type { Product } from "@/features/sport-center/types/product"
 import type { Service } from "@/features/sport-center/types/service"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
@@ -18,8 +20,15 @@ import { formatCurrencyVnd } from "@/utils/expense-utils"
 export default function PaymentPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const params = useParams<{ id?: string }>()
+  const centerIdParam = params.id
+    ? Array.isArray(params.id)
+      ? params.id[0]
+      : params.id
+    : ""
 
   const sportCenter = useSportCenterStore((s) => s.sportCenter)
+  const setSportCenter = useSportCenterStore((s) => s.setSportCenter)
   const lastBookingId = useBookingStore((state) => state.lastBookingId)
   const useCredit = useBookingStore((state) => state.useCredit)
 
@@ -32,6 +41,9 @@ export default function PaymentPage() {
   const [creditBalance, setCreditBalance] = useState<number | null>(null)
   const [creditLoading, setCreditLoading] = useState(false)
   const [creditError, setCreditError] = useState("")
+  const [loadedTotalPrice, setLoadedTotalPrice] = useState<number | null>(null)
+  const [loadingBooking, setLoadingBooking] = useState(false)
+
   const bookingId = searchParams.get("bookingId") ?? lastBookingId ?? ""
 
   // snapshot booking draft from store to calculate totals
@@ -108,10 +120,71 @@ export default function PaymentPage() {
     }, 0)
   }, [bookingDraft.products, bookingDraft.selectedProducts])
 
-  const total = courtTotal + serviceTotal + productTotal
+  const total =
+    loadedTotalPrice !== null
+      ? loadedTotalPrice
+      : courtTotal + serviceTotal + productTotal
   const totalDisplay = formatCurrencyVnd(total)
   const requiresProof =
     !useCredit || (creditBalance !== null && creditBalance < total)
+
+  // Fetch booking details if not in memory (e.g. direct link from history)
+  useEffect(() => {
+    let isActive = true
+
+    if (!bookingId) return
+
+    void Promise.resolve().then(() => {
+      if (isActive) setLoadingBooking(true)
+    })
+
+    fetch(`/api/bookings/${bookingId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Không thể tải thông tin đặt sân.")
+        return res.json() as Promise<
+          { data?: BookingResponse } & BookingResponse
+        >
+      })
+      .then((payload) => {
+        if (!isActive) return
+        const bookingData = payload.data || payload
+        if (bookingData) {
+          setLoadedTotalPrice(bookingData.totalPrice)
+          if (bookingData.center) {
+            setSportCenter(bookingData.center)
+          }
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load booking details:", err)
+      })
+      .finally(() => {
+        if (isActive) setLoadingBooking(false)
+      })
+
+    return () => {
+      isActive = false
+    }
+  }, [bookingId, setSportCenter])
+
+  // Fetch sport center profile if not in store
+  useEffect(() => {
+    let isActive = true
+    if (!sportCenter || !sportCenter.id) {
+      if (centerIdParam) {
+        fetchSportCenterByIdAction(centerIdParam)
+          .then((center) => {
+            if (isActive) setSportCenter(center)
+          })
+          .catch((err) => {
+            console.error("Failed to load sport center:", err)
+          })
+      }
+    }
+    return () => {
+      isActive = false
+    }
+  }, [sportCenter, centerIdParam, setSportCenter])
 
   useEffect(() => {
     let isActive = true
@@ -222,7 +295,13 @@ export default function PaymentPage() {
     }
   }
 
-  if (!sportCenter) return null
+  if (loadingBooking || !sportCenter || !sportCenter.id) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+      </div>
+    )
+  }
 
   return (
     <PageContainer

@@ -1,9 +1,16 @@
 "use client"
 
-import { X } from "lucide-react"
+import { Check, Loader2, Lock, X } from "lucide-react"
+import { useMemo } from "react"
 
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
 import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
@@ -17,108 +24,196 @@ export function BookingAvailableCourtsCard() {
 
   const courtCount = availability?.courtCount ?? 0
 
+  const uniqueSlotKeys = useMemo(() => {
+    if (!availability || availability.courts.length === 0) return []
+    const keysSet = new Set<string>()
+    availability.courts.forEach((court) => {
+      court.slots.forEach((slot) => {
+        keysSet.add(`${slot.startTime} - ${slot.endTime}`)
+      })
+    })
+    return Array.from(keysSet).sort((a, b) => {
+      const startA = a.split(" - ")[0] || ""
+      const startB = b.split(" - ")[0] || ""
+      return startA.localeCompare(startB)
+    })
+  }, [availability])
+
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between gap-2">
-          <CardTitle className="text-lg">
-            {t("booking.availableCourts.title")}
-          </CardTitle>
-          <Badge variant="outline">
-            {t("detail.header.courtsCount", { count: courtCount })}
-          </Badge>
+    <Card className="gap-0 border-gray-200 bg-white pb-0 shadow-xs">
+      <CardHeader className="flex flex-col justify-between gap-4 space-y-0 border-b pb-3 md:flex-row md:items-center">
+        <div>
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-md font-bold text-gray-800">
+              {t("booking.availableCourts.title")}
+            </CardTitle>
+            <Badge variant="outline">
+              {t("detail.header.courtsCount", { count: courtCount })}
+            </Badge>
+          </div>
+          <CardDescription className="mt-0.5 text-sm">
+            {t("booking.grid.description", {
+              defaultValue:
+                "Click on empty blocks to select court and time slots.",
+            })}
+          </CardDescription>
+        </div>
+
+        {/* Clean Legend matching App Theme */}
+        <div className="flex flex-wrap items-center gap-4 text-[10px] font-semibold text-gray-600 select-none sm:text-xs">
+          <div className="flex items-center gap-1.5">
+            <div className="h-6 w-6 rounded border border-gray-300 bg-white" />
+            <span>
+              {t("booking.grid.legendEmpty", { defaultValue: "Available" })}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="h-6 w-6 rounded border border-rose-200 bg-rose-50" />
+            <span>
+              {t("booking.grid.legendBooked", { defaultValue: "Booked" })}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="h-6 w-6 rounded border border-gray-200 bg-gray-100" />
+            <span>
+              {t("booking.grid.legendLocked", { defaultValue: "Locked" })}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="h-6 w-6 rounded border border-emerald-600 bg-emerald-500" />
+            <span>
+              {t("booking.grid.legendSelected", {
+                defaultValue: "Selecting",
+              })}
+            </span>
+          </div>
         </div>
       </CardHeader>
-      <CardContent>
+
+      <CardContent className="p-0">
         {isLoading ? (
-          <p className="text-sm text-muted-foreground">
-            {t("booking.availableCourts.loading")}
-          </p>
+          <div className="flex flex-col items-center justify-center gap-2 bg-gray-50/10 py-16">
+            <Loader2 className="h-7 w-7 animate-spin text-emerald-600" />
+            <p className="text-xs font-medium text-gray-500">
+              {t("booking.grid.loading", {
+                defaultValue: "Loading court availability...",
+              })}
+            </p>
+          </div>
         ) : error ? (
-          <p className="text-sm text-destructive">{error}</p>
+          <div className="py-16 text-center text-xs font-semibold text-rose-600">
+            {error}
+          </div>
         ) : !availability ? (
-          <p className="text-sm text-muted-foreground">
+          <div className="py-16 text-center text-xs font-medium text-gray-400">
             {t("booking.availableCourts.selectDate")}
-          </p>
+          </div>
         ) : availability.courts.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
+          <div className="py-16 text-center text-xs font-medium text-gray-400">
             {t("booking.availableCourts.noData")}
-          </p>
+          </div>
         ) : (
-          <div className="space-y-4">
-            {availability.courts.map((court) => {
-              const isSelected =
-                selectedCourts[court.courtId] &&
-                selectedCourts[court.courtId].size > 0
-              const availableSlots = court.slots.filter(
-                (slot) => slot.available
-              )
-              const bookedCount = court.slots.length - availableSlots.length
-
-              return (
-                <div key={court.courtId} className="rounded-lg border p-4">
-                  <div className="mb-3 flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium">{court.courtName}</h3>
-                    </div>
-                    {isSelected && (
-                      <span className="text-xs font-semibold text-primary">
-                        {t("booking.availableCourts.selectedHours", {
-                          count: selectedCourts[court.courtId].size,
-                        })}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground">
-                    <span>
-                      {t("booking.availableCourts.availableSlots", {
-                        count: availableSlots.length,
-                      })}
-                    </span>
-                    <span>
-                      {t("booking.availableCourts.bookedSlots", {
-                        count: bookedCount,
-                      })}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                    {court.slots.map((slot) => {
-                      const isBooked = !slot.available
-                      const slotKey = `${slot.startTime} - ${slot.endTime}`
-                      const isSelectedSlot =
-                        selectedCourts[court.courtId]?.has(slotKey)
-
-                      return (
-                        <button
-                          key={slot.startTime}
-                          type="button"
-                          disabled={isBooked}
-                          onClick={() =>
-                            !isBooked &&
-                            onToggleCourtSlot(court.courtId, slotKey)
-                          }
-                          className={[
-                            "rounded-md border px-2 py-2 text-xs transition-colors sm:text-sm",
-                            isBooked
-                              ? "cursor-not-allowed border-muted bg-muted text-muted-foreground opacity-50"
-                              : isSelectedSlot
-                                ? "border-primary bg-primary text-primary-foreground"
-                                : "hover:bg-accent",
-                          ].join(" ")}
-                        >
-                          {slot.startTime} - {slot.endTime}
-                          {isBooked && (
-                            <X className="ml-1 inline size-5 text-destructive" />
-                          )}
-                        </button>
-                      )
-                    })}
-                  </div>
+          <div className="flex overflow-hidden">
+            {/* STICKY LEFT COLUMN - Court Names */}
+            <div className="z-10 flex w-32 shrink-0 flex-col border-r border-gray-200 bg-gray-50/80 sm:w-44">
+              <div className="flex h-12 items-center justify-center border-b border-gray-200 bg-gray-100 text-xs font-bold text-gray-500 select-none sm:text-sm">
+                {t("booking.grid.courtHeader", { defaultValue: "Court" })}
+              </div>
+              {availability.courts.map((court) => (
+                <div
+                  key={court.courtId}
+                  className="flex h-16 items-center overflow-hidden border-b border-gray-200 bg-gray-50/90 px-2 text-xs font-bold whitespace-nowrap text-gray-700 select-none sm:px-4 sm:text-sm"
+                >
+                  <span className="truncate" title={court.courtName}>
+                    {court.courtName}
+                  </span>
                 </div>
-              )
-            })}
+              ))}
+            </div>
+
+            {/* HORIZONTALLY SCROLLABLE TIMELINE GRID */}
+            <div className="flex-1 scrollbar-thin overflow-x-auto select-none">
+              {/* Time Headers Row */}
+              <div className="flex h-12 min-w-max border-b border-gray-200 bg-gray-50">
+                {uniqueSlotKeys.map((slotKey) => {
+                  const startTime = slotKey.split(" - ")[0]
+                  return (
+                    <div
+                      key={slotKey}
+                      className="flex w-20 items-center justify-center border-r border-gray-200 text-xs font-bold text-gray-500 sm:w-24"
+                    >
+                      {startTime}
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Timeline Grid Cells */}
+              <div className="min-w-max">
+                {availability.courts.map((court) => {
+                  const isCompletelyUnavailable = court.slots.every(
+                    (s) => !s.available
+                  )
+
+                  return (
+                    <div
+                      key={court.courtId}
+                      className="flex h-16 border-b border-gray-200 bg-white"
+                    >
+                      {uniqueSlotKeys.map((slotKey) => {
+                        const [startTime, endTime] = slotKey.split(" - ")
+                        const slot = court.slots.find(
+                          (s) =>
+                            s.startTime === startTime && s.endTime === endTime
+                        )
+
+                        const isBooked = !slot || !slot.available
+                        const isSelected =
+                          selectedCourts[court.courtId]?.has(slotKey)
+
+                        // Determine color themes matching standard UI
+                        let cellClass =
+                          "bg-white hover:bg-emerald-50/10 text-transparent border-r border-gray-100"
+                        if (isSelected) {
+                          cellClass =
+                            "bg-emerald-500 border border-emerald-600 text-white"
+                        } else if (isBooked) {
+                          cellClass = isCompletelyUnavailable
+                            ? "bg-gray-100 border-r border-gray-200 cursor-not-allowed opacity-80"
+                            : "bg-rose-50/60 border-r border-rose-100/80 cursor-not-allowed"
+                        }
+
+                        return (
+                          <button
+                            key={slotKey}
+                            type="button"
+                            disabled={isBooked}
+                            onClick={() =>
+                              onToggleCourtSlot(court.courtId, slotKey)
+                            }
+                            className={[
+                              "flex w-20 items-center justify-center transition-all sm:w-24",
+                              cellClass,
+                            ].join(" ")}
+                            title={`${court.courtName}: ${slotKey}`}
+                          >
+                            {isSelected && (
+                              <Check className="h-5.5 w-5.5 text-white" />
+                            )}
+                            {isBooked &&
+                              (isCompletelyUnavailable ? (
+                                <Lock className="h-4 w-4 text-gray-400 opacity-40" />
+                              ) : (
+                                <X className="h-4 w-4 text-rose-400 opacity-40" />
+                              ))}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
           </div>
         )}
       </CardContent>

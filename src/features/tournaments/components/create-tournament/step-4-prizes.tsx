@@ -42,8 +42,8 @@ function getPositionsForCapacity(capacity: number): PositionConfig[] {
   }
   if (capacity >= 3) {
     positions.push({ id: "3rd", name: "3rd Place" })
-  } else if (capacity >= 4) {
-    positions.push({ id: "3rd", name: "3rd Place" })
+  }
+  if (capacity >= 4) {
     positions.push({ id: "4th", name: "4th Place" })
   }
 

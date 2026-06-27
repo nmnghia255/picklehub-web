@@ -12,9 +12,8 @@ import { fetchSportCenterServicesAction } from "@/features/sport-center/actions/
 import { BookingServicesCard } from "@/features/sport-center/components/booking/booking-add-ons-card"
 import { BookingAvailableCourtsCard } from "@/features/sport-center/components/booking/booking-available-courts-card"
 import { BookingCourtInfoCard } from "@/features/sport-center/components/booking/booking-court-info-card"
-import { BookingDateSelectionCard } from "@/features/sport-center/components/booking/booking-date-selection-card"
 import { BookingNote } from "@/features/sport-center/components/booking/booking-note"
-import { BookingSummaryCard } from "@/features/sport-center/components/booking/booking-summary-card"
+import { BookingSummaryFooter } from "@/features/sport-center/components/booking/booking-summary-footer"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
 import { useSportCenterStore } from "@/features/sport-center/stores/sport-center-store"
 import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
@@ -147,19 +146,14 @@ export default function BookingPage() {
         </Button>
       </section>
 
-      <section className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="space-y-6">
-          <BookingCourtInfoCard sportCenter={sportCenter} />
-          <BookingDateSelectionCard />
-          <BookingAvailableCourtsCard />
-          <BookingServicesCard />
-          <BookingNote note={bookingNote} onNoteChange={setBookingNote} />
-        </div>
+      <div className="flex flex-col space-y-6">
+        <BookingCourtInfoCard sportCenter={sportCenter} />
+        <BookingAvailableCourtsCard />
+        <BookingServicesCard />
+        <BookingNote note={bookingNote} onNoteChange={setBookingNote} />
+      </div>
 
-        <aside className="xl:sticky xl:top-6">
-          <BookingSummaryCard />
-        </aside>
-      </section>
+      <BookingSummaryFooter />
     </PageContainer>
   )
 }

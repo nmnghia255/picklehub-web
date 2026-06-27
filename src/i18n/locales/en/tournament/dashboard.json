@@ -1,0 +1,120 @@
+{
+  "dashboard": {
+    "title": "Tournament Dashboard",
+    "subtitle": "San Diego Summer Slam 2026 • June 15-17, 2026",
+    "registrationProgress": "Registration Progress",
+    "full": "Full",
+    "tournamentLifecycle": "Tournament Lifecycle",
+    "upcomingMatches": "Upcoming Matches",
+    "vs": "vs",
+    "live": "Live",
+    "recentActivities": "Recent Activities",
+    "lifecycle": {
+      "created": "Tournament Created",
+      "openRegistration": "Registration Opens",
+      "closeRegistration": "Registration Closes",
+      "startTournament": "Tournament Starts",
+      "finishTournament": "Tournament Finishes"
+    }
+  },
+  "financials": {
+    "title": "Financial Dashboard",
+    "subtitle": "Tournament financial overview and transactions",
+    "exportPdf": "Export PDF",
+    "exportExcel": "Export Excel",
+    "exportSuccess": "Exported {{format}} report successfully!",
+    "summary": {
+      "totalRevenue": "Total Revenue",
+      "totalExpenses": "Total Expenses",
+      "netProfit": "Net Profit"
+    },
+    "charts": {
+      "revenueOverTime": "Revenue Over Time",
+      "expenseBreakdown": "Expense Breakdown"
+    },
+    "transactions": {
+      "title": "Recent Transactions",
+      "date": "Date",
+      "description": "Description",
+      "type": "Type",
+      "amount": "Amount",
+      "status": "Status",
+      "types": {
+        "income": "Income",
+        "expense": "Expense",
+        "refund": "Refund"
+      },
+      "statuses": {
+        "completed": "Completed",
+        "pending": "Pending"
+      }
+    }
+  },
+  "sponsors": {
+    "title": "Sponsorship Management",
+    "subtitle": "Display and manage sponsors supporting the tournament events",
+    "addSponsor": "Add Sponsor",
+    "topSponsor": "Top Supporter",
+    "top3Heading": "Top 3 Sponsors",
+    "otherHeading": "Other Sponsors",
+    "dialog": {
+      "title": "Add New Sponsor",
+      "description": "Add sponsor contribution details to display on the tournament dashboard",
+      "nameLabel": "Sponsor Name",
+      "namePlaceholder": "e.g., Apex Paddles Ltd.",
+      "priceLabel": "Contribution Amount (USD)",
+      "pricePlaceholder": "e.g., 5000",
+      "logoLabel": "Sponsor Logo",
+      "logoUploadHint": "Click to upload or drag & drop",
+      "logoSizeHint": "PNG, JPG up to 2MB",
+      "websiteUrlLabel": "Website URL (Optional)",
+      "websiteUrlPlaceholder": "e.g., https://example.com",
+      "cancel": "Cancel",
+      "submit": "Add Sponsor",
+      "validationName": "Please enter a sponsor name",
+      "validationPrice": "Please enter a valid positive contribution amount",
+      "validationWebsiteUrl": "Please enter a valid URL (starting with http:// or https://)"
+    },
+    "stats": {
+      "totalContributions": "Total Funding",
+      "activeSponsors": "Sponsors Count",
+      "avgContribution": "Avg. Contribution"
+    },
+    "emptyState": "No sponsors have been added yet.",
+    "deleteConfirm": "Are you sure you want to remove this sponsor?",
+    "rank1": "#1 Supporter",
+    "rank2": "#2 Supporter",
+    "rank3": "#3 Supporter",
+    "website": "Website",
+    "deleteTitle": "Remove Sponsor",
+    "delete": "Delete"
+  },
+  "paymentTab": {
+    "title": "Payment Settings",
+    "subtitle": "Manage bank transfer info and payment instructions for this tournament.",
+    "viewTitle": "Payment Information",
+    "viewSubtitle": "Transfer registration fees to the organizer using the details below.",
+    "editButton": "Edit Payment Details",
+    "saveButton": "Save Changes",
+    "cancelButton": "Cancel",
+    "bankName": "Bank Name",
+    "accountName": "Account Name",
+    "accountNumber": "Account Number",
+    "instructions": "Transfer Instructions",
+    "qrCode": "QR Code",
+    "noQrCode": "No QR Code uploaded",
+    "copied": "Copied to clipboard!",
+    "copyTooltip": "Copy Account Number",
+    "saveSuccess": "Payment details updated successfully!",
+    "saveError": "Failed to update payment details.",
+    "noInfoTitle": "No Payment Details",
+    "noInfoDescHost": "Please add your payment information to allow participants to pay registration fees.",
+    "noInfoDescPlayer": "The tournament organizer has not configured payment details yet. Please contact them directly.",
+    "bankDetailsTitle": "Bank Details",
+    "bankDetailsDesc": "Official bank transfer info for registration fees.",
+    "defaultNote": "Please transfer the registration fee with your Registration ID or Full Name as the transaction note.",
+    "qrDesc": "Scan the QR code to make a direct transfer.",
+    "viewFullImage": "Open Full QR Image",
+    "noQrAvailable": "Scan QR code is not available for this event."
+  }
+}

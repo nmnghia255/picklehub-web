@@ -2,6 +2,7 @@ import type { Seed } from "../types/seeding"
 export const seeds: Seed[] = [
   {
     seed: 1,
+    teamId: "team-1",
     team: "Martinez/Chen",
     rating: 4.15,
     wins: 23,
@@ -10,6 +11,7 @@ export const seeds: Seed[] = [
   },
   {
     seed: 2,
+    teamId: "team-2",
     team: "Williams/Jones",
     rating: 4.1,
     wins: 21,
@@ -18,6 +20,7 @@ export const seeds: Seed[] = [
   },
   {
     seed: 3,
+    teamId: "team-3",
     team: "Young/King",
     rating: 4.05,
     wins: 19,
@@ -26,6 +29,7 @@ export const seeds: Seed[] = [
   },
   {
     seed: 4,
+    teamId: "team-4",
     team: "Anderson/Smith",
     rating: 3.95,
     wins: 18,
@@ -34,6 +38,7 @@ export const seeds: Seed[] = [
   },
   {
     seed: 5,
+    teamId: "team-5",
     team: "Miller/Thomas",
     rating: 3.9,
     wins: 17,
@@ -42,6 +47,7 @@ export const seeds: Seed[] = [
   },
   {
     seed: 6,
+    teamId: "team-6",
     team: "Hill/Scott",
     rating: 3.85,
     wins: 16,
@@ -50,6 +56,7 @@ export const seeds: Seed[] = [
   },
   {
     seed: 7,
+    teamId: "team-7",
     team: "Robinson/Walker",
     rating: 3.8,
     wins: 15,
@@ -58,6 +65,7 @@ export const seeds: Seed[] = [
   },
   {
     seed: 8,
+    teamId: "team-8",
     team: "Wilson/Brown",
     rating: 3.75,
     wins: 14,
@@ -66,6 +74,7 @@ export const seeds: Seed[] = [
   },
   {
     seed: 9,
+    teamId: "team-9",
     team: "Taylor/White",
     rating: 3.7,
     wins: 13,
@@ -74,6 +83,7 @@ export const seeds: Seed[] = [
   },
   {
     seed: 10,
+    teamId: "team-10",
     team: "Hall/Allen",
     rating: 3.65,
     wins: 12,
@@ -82,6 +92,7 @@ export const seeds: Seed[] = [
   },
   {
     seed: 11,
+    teamId: "team-11",
     team: "Green/Adams",
     rating: 3.6,
     wins: 11,
@@ -90,6 +101,7 @@ export const seeds: Seed[] = [
   },
   {
     seed: 12,
+    teamId: "team-12",
     team: "Jackson/Moore",
     rating: 3.55,
     wins: 10,
@@ -98,6 +110,7 @@ export const seeds: Seed[] = [
   },
   {
     seed: 13,
+    teamId: "team-13",
     team: "Johnson/Garcia",
     rating: 3.5,
     wins: 9,
@@ -106,6 +119,7 @@ export const seeds: Seed[] = [
   },
   {
     seed: 14,
+    teamId: "team-14",
     team: "Wright/Lopez",
     rating: 3.45,
     wins: 8,
@@ -114,6 +128,7 @@ export const seeds: Seed[] = [
   },
   {
     seed: 15,
+    teamId: "team-15",
     team: "Clark/Lewis",
     rating: 3.4,
     wins: 7,
@@ -122,6 +137,7 @@ export const seeds: Seed[] = [
   },
   {
     seed: 16,
+    teamId: "team-16",
     team: "Davis/Lee",
     rating: 3.35,
     wins: 6,

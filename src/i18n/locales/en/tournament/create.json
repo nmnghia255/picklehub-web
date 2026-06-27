@@ -1,0 +1,145 @@
+{
+  "create": {
+    "back": "Back to Tournaments",
+    "title": "Create Tournament",
+    "subtitle": "Set up a new pickleball tournament",
+    "steps": {
+      "basicInfo": "Basic Information",
+      "registration": "Registration Settings",
+      "events": "Competition Content",
+      "prizes": "Prize Structure",
+      "payment": "Payment Information",
+      "review": "Review & Publish"
+    },
+    "buttons": {
+      "previous": "Previous",
+      "next": "Next Step",
+      "publish": "Publish Tournament"
+    },
+    "step1": {
+      "nameLabel": "Tournament Name *",
+      "namePlaceholder": "e.g., San Diego Summer Slam 2026",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe your tournament...",
+      "bannerLabel": "Tournament Banner",
+      "bannerUploadHint": "Click to upload or drag and drop",
+      "bannerSizeHint": "PNG, JPG up to 5MB",
+      "venueLabel": "Venue *",
+      "venuePlaceholder": "e.g., Balboa Park Tennis & Pickleball Center",
+      "startDateLabel": "Start Date *",
+      "endDateLabel": "End Date *"
+    },
+    "step2": {
+      "regOpenLabel": "Registration Opens *",
+      "regCloseLabel": "Registration Closes *",
+      "maxParticipantsLabel": "Maximum Participants",
+      "enableWaitlist": "Enable Waitlist",
+      "enableWaitlistDesc": "Allow players to join waitlist when tournament is full",
+      "requirePartner": "Require Partner Registration",
+      "requirePartnerDesc": "Require doubles players to register with a partner"
+    },
+    "step3": {
+      "eventsDesc": "Define the categories and competition contents for this tournament.",
+      "entryFeeLabel": "Entry Fee *",
+      "currencyLabel": "Currency",
+      "currencies": {
+        "usd": "USD ($)",
+        "cad": "CAD ($)",
+        "eur": "EUR (€)"
+      },
+      "refundPolicyLabel": "Refund Policy",
+      "refundPolicies": {
+        "full": "Full refund before registration closes",
+        "partial": "50% refund before registration closes",
+        "none": "No refunds"
+      },
+      "lateFeeLabel": "Late Registration Fee (Optional)",
+      "dupr": "DUPR: {{skillRange}}",
+      "capacity": "Capacity: {{capacity}}",
+      "fee": "Fee: {{fee}} VND",
+      "noEvents": "No events added yet. Click 'Add Event' to set up the competition content."
+    },
+    "step4": {
+      "prizesDesc": "Configure placement rewards (cash and trophies) for each event in your tournament. Click on any event card below to edit its prize list.",
+      "championLabel": "Champion Prize ($)",
+      "runnerUpLabel": "Runner-up Prize ($)",
+      "thirdPrizeLabel": "Third Place Prize ($)",
+      "prizeHint": "💡 Prize amounts can be customized per event after tournament creation",
+      "eventSummary": "Capacity: {{capacity}} Slots • DUPR: {{skillRange}}",
+      "capacity": "Capacity: {{capacity}} Slots",
+      "dupr": "DUPR: {{skillRange}}",
+      "noPrizes": "Prizes not configured yet. Click to configure.",
+      "noEvents": "⚠️ Please add at least one Event in the previous step before configuring prizes.",
+      "statusComplete": "Complete",
+      "statusUncompleted": "Uncompleted",
+      "dialogTitle": "Configure Prizes — {{eventName}}",
+      "dialogDesc": "Define the rewards for placement positions based on the event capacity of {{capacity}} slots.",
+      "cashPrizeLabel": "Cash Prize ({{currency}})",
+      "includeTrophy": "Include Trophy / Medal",
+      "descriptionOptional": "Description (Optional)",
+      "descPlaceholder": "e.g. Awarded on center court",
+      "cancel": "Cancel",
+      "savePrizes": "Save Prizes",
+      "positions": {
+        "1st": "1st Place (Champion)",
+        "2nd": "2nd Place (Runner-up)",
+        "3rd": "3rd Place",
+        "4th": "4th Place",
+        "5th-8th": "5th-8th Place",
+        "5th-rest": "5th-{{capacity}}th Place",
+        "9th-16th": "9th-16th Place",
+        "9th-rest": "9th-{{capacity}}th Place",
+        "17-32nd": "17th-32nd Place",
+        "17th-rest": "17th-{{capacity}}th Place",
+        "33-64th": "33rd-64th Place",
+        "33rd-rest": "33rd-{{capacity}}th Place"
+      }
+    },
+    "step5": {
+      "paymentTitle": "Payment Details",
+      "paymentSubtitle": "Configure your banking details for tournament registration fees.",
+      "bankNameLabel": "Bank Name *",
+      "bankNamePlaceholder": "e.g., Vietcombank",
+      "accountNameLabel": "Account Holder Name *",
+      "accountNamePlaceholder": "e.g., NGUYEN VAN A",
+      "accountNumberLabel": "Account Number *",
+      "accountNumberPlaceholder": "e.g., 1023456789",
+      "qrUrlLabel": "QR Code Image (optional)",
+      "qrUrlPlaceholder": "Click to upload QR code image",
+      "noteLabel": "Payment Note / Instructions (optional)",
+      "notePlaceholder": "e.g., Please enter [Registration ID] as transfer comment."
+    },
+    "step6": {
+      "summaryTitle": "Tournament Summary",
+      "name": "Tournament Name",
+      "venue": "Venue",
+      "dates": "Dates",
+      "maxParticipants": "Max Participants",
+      "description": "Description",
+      "entryFee": "Entry Fee",
+      "championPrize": "Champion Prize",
+      "reviewHint": "✓ Review all details carefully. You can edit these settings after publishing.",
+      "feeValue": "{{fee}} VND",
+      "dupr": "DUPR: {{skillRange}}",
+      "fee": "Fee: {{fee}} VND",
+      "capacity": "Cap: {{capacity}}",
+      "noEvents": "No events configured.",
+      "prizeType": "Type: {{type}}",
+      "free": "Free",
+      "noPrizes": "No prizes configured.",
+      "trophySuffix": "+ Trophy"
+    },
+    "validation": {
+      "requiredFields": "Please fill in all required fields marked with *",
+      "dateOrder": "Start date must be before end date",
+      "regDateOrder": "Registration open date must be before registration close date",
+      "regCloseBeforeStart": "Registration must close before the tournament starts",
+      "minEvents": "Please add at least one event",
+      "incompletePrizes": "Please configure prizes for all placement positions in all events",
+      "maxParticipants": "Maximum participants must be a number greater than 0",
+      "bankRequired": "Bank Name is required",
+      "accountNameRequired": "Account Holder Name is required",
+      "accountNumberRequired": "Account Number is required"
+    }
+  }
+}

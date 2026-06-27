@@ -93,20 +93,20 @@ export function Step3Events() {
   const [name, setName] = useState("")
   const [type, setType] = useState("singles")
   const [gender, setGender] = useState("men")
-  const [minRating, setMinRating] = useState("3.0")
-  const [maxRating, setMaxRating] = useState("4.5")
-  const [capacity, setCapacity] = useState("32")
-  const [entryFee, setEntryFee] = useState("150.000")
+  const [minRating, setMinRating] = useState("")
+  const [maxRating, setMaxRating] = useState("")
+  const [capacity, setCapacity] = useState("")
+  const [entryFee, setEntryFee] = useState("")
 
   const resetFormFields = () => {
     setEditingEventId(null)
     setName("")
     setType("singles")
     setGender("men")
-    setMinRating("3.0")
-    setMaxRating("4.5")
-    setCapacity("32")
-    setEntryFee("150.000")
+    setMinRating("")
+    setMaxRating("")
+    setCapacity("")
+    setEntryFee("")
   }
 
   const handleEntryFeeChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -286,6 +286,9 @@ export function Step3Events() {
                     id="min-rating"
                     type="number"
                     step="0.1"
+                    placeholder={t("events.dialog.minRatingPlaceholder", {
+                      defaultValue: "e.g. 3.0",
+                    })}
                     value={minRating}
                     onChange={(e) => setMinRating(e.target.value)}
                     className="mt-4 bg-white"
@@ -300,6 +303,9 @@ export function Step3Events() {
                     id="max-rating"
                     type="number"
                     step="0.1"
+                    placeholder={t("events.dialog.maxRatingPlaceholder", {
+                      defaultValue: "e.g. 4.5",
+                    })}
                     value={maxRating}
                     onChange={(e) => setMaxRating(e.target.value)}
                     className="mt-4 bg-white"
@@ -315,6 +321,9 @@ export function Step3Events() {
                   <Input
                     id="capacity"
                     type="number"
+                    placeholder={t("events.dialog.capacityPlaceholder", {
+                      defaultValue: "e.g. 32",
+                    })}
                     value={capacity}
                     onChange={(e) => setCapacity(e.target.value)}
                     className="mt-4 bg-white"
@@ -421,7 +430,7 @@ export function Step3Events() {
           </Card>
         ))}
         {events.length === 0 && (
-          <div className="rounded-lg border border-dashed bg-gray-50/50 py-8 text-center text-gray-500">
+          <div className="rounded-lg border border-dashed bg-gray-50/50 py-8 text-center text-sm text-gray-500">
             {t("create.step3.noEvents", {
               defaultValue:
                 "No events added yet. Click 'Add Event' to set up the competition content.",

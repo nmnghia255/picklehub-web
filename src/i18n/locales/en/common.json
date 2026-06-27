@@ -1,0 +1,9 @@
+{
+  "back": "Back",
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {{page}}",
+    "pageInfo": "Page {{currentPage}} of {{totalPages}}"
+  }
+}

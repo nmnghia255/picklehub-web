@@ -1,17 +1,39 @@
 export interface Player {
-  id?: number
+  id?: string | number
   name: string
   rating: number
   avatar?: string
   age?: number
-  gender?: "M" | "F" | "Mixed"
+  gender?: string
+  duprId?: string | null
   event?: string
 }
 
 export interface Team {
   id: number
+  tournamentId?: number
+  eventId?: number
   player1: Player
-  player2?: Player
+  player2: Player | null
+  avgRating: number | null
   matchScore?: number
-  avgRating?: number
+}
+
+export interface AutoMatchTeam {
+  matchedTeamsCount: number
+  teams: Team[]
+}
+
+export interface UnmatchedTeam {
+  id: string
+  tournamentId: string
+  eventId: string
+  player: Player
+  partner: Player
+  event: string
+  paymentStatus: "pending" | "paid"
+  paymentProofUrl: string
+  paymentProofUploadedAt: string
+  status: string
+  registrationDate: string
 }

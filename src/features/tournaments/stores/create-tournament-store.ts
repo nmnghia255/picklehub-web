@@ -16,7 +16,12 @@ export interface TournamentFormValues {
   regOpen: string
   regClose: string
   maxParticipants: string
-  entryFee: string
+
+  paymentBankName: string
+  paymentAccountName: string
+  paymentAccountNumber: string
+  paymentQrUrl: string
+  paymentNote: string
 }
 
 export interface CreateTournamentState {
@@ -46,63 +51,28 @@ export interface CreateTournamentState {
 }
 
 const initialFormValues: TournamentFormValues = {
-  name: "San Diego Summer Slam 2026",
+  name: "",
   description: "",
-  venue: "Balboa Park Tennis & Pickleball Center",
-  startDate: "2026-06-15",
-  endDate: "2026-06-17",
+  venue: "",
+  startDate: "",
+  endDate: "",
   banner: "",
-  regOpen: "2026-05-01",
-  regClose: "2026-06-10",
-  maxParticipants: "200",
-  entryFee: "150.000",
+  regOpen: "",
+  regClose: "",
+  maxParticipants: "",
+  paymentBankName: "",
+  paymentAccountName: "",
+  paymentAccountNumber: "",
+  paymentQrUrl: "",
+  paymentNote: "",
 }
 
 export const useCreateTournamentStore = create<CreateTournamentState>(
   (set) => ({
     currentStep: 1,
     formValues: initialFormValues,
-    events: [
-      {
-        id: 1,
-        name: "Men's Singles Open",
-        type: "Singles",
-        skillRange: "3.5-5.5",
-        gender: "Men",
-        capacity: 32,
-        entryFee: 145,
-        status: "open",
-      },
-      {
-        id: 2,
-        name: "Mixed Doubles 4.0",
-        type: "Doubles",
-        skillRange: "3.0-4.5",
-        gender: "Mixed",
-        capacity: 16,
-        entryFee: 290,
-        status: "open",
-      },
-    ],
-    prizes: [
-      {
-        id: "1",
-        name: "Men's Singles Winner Cash Prize",
-        rewardType: "cash",
-        value: 10000000,
-        description:
-          "Cash prize for the 1st place champion of Men's Singles Open",
-        eventId: 1,
-      },
-      {
-        id: "2",
-        name: "Mixed Doubles Champion Medal",
-        rewardType: "physical",
-        value: 500000,
-        description: "Gold medals for the winning pair of Mixed Doubles 4.0",
-        eventId: 2,
-      },
-    ],
+    events: [],
+    prizes: [],
 
     setCurrentStep: (step) => set({ currentStep: step }),
     setFormValue: (key, value) =>

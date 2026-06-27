@@ -98,3 +98,21 @@ export interface ApplyPriceResponse {
   status: string
   playSessions: PlaySessionPrice[]
 }
+
+export interface SocialStatisticsPlayer {
+  userId: string
+  userName: string
+  playedMatches: number
+  totalGoals: number
+}
+
+export interface SocialStatistics {
+  id: string
+  socialId: string
+  totalMatches: number
+  activePlayers: number
+  courtHours: string
+  playerStats: SocialStatisticsPlayer[]
+  createdAt: string
+  updatedAt: string
+}

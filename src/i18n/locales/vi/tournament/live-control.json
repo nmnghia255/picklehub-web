@@ -1,0 +1,57 @@
+{
+  "liveControl": {
+    "title": "Trung tâm điều khiển trực tiếp",
+    "subtitle": "Bảng điều khiển hoạt động giải đấu theo thời gian thực",
+    "metrics": {
+      "liveBadge": "Trực tiếp",
+      "activeMatches": "Trận đấu đang diễn ra",
+      "upcomingMatches": "Trận đấu sắp tới",
+      "availableCourts": "Sân có sẵn",
+      "checkedInPlayers": "Người chơi đã điểm danh"
+    },
+    "liveMatches": {
+      "title": "Trận đấu trực tiếp",
+      "vs": "đấu với"
+    },
+    "matchQueue": {
+      "title": "Hàng đợi trận đấu",
+      "ready": "Sẵn sàng",
+      "waiting": "Đang chờ"
+    },
+    "courtStatus": {
+      "title": "Trạng thái sân",
+      "available": "Trống",
+      "maintenance": "Bảo trì"
+    },
+    "announcements": {
+      "title": "Thông báo"
+    }
+  },
+  "referee": {
+    "matchInfo": {
+      "title": "Đôi nam 4.0 - Tứ kết",
+      "court": "Sân {{court}}",
+      "matchTime": "Thời gian trận đấu: {{time}}",
+      "set": "Hiệp {{set}}",
+      "inProgress": "Đang diễn ra"
+    },
+    "scoring": {
+      "teamA": "ĐỘI A",
+      "teamB": "ĐỘI B",
+      "seed": "Hạt giống #{{seed}}",
+      "currentScore": "Tỷ số hiện tại",
+      "addPoint": "+1 Điểm"
+    },
+    "vs": "ĐẤU VỚI",
+    "setHistory": {
+      "title": "Lịch sử các hiệp",
+      "set": "Hiệp {{set}}",
+      "inProgress": "Đang diễn ra",
+      "notStarted": "Chưa bắt đầu"
+    },
+    "actions": {
+      "undo": "Hoàn tác điểm trước",
+      "confirm": "Xác nhận kết quả trận đấu"
+    }
+  }
+}

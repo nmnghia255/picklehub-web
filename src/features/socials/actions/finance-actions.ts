@@ -38,3 +38,7 @@ export async function listMembersAction(
 ) {
   return FinanceService.listMembers(socialId, page, limit, minCredit, userId)
 }
+
+export async function listStatisticsAction(socialId: string) {
+  return FinanceService.listStatistics(socialId)
+}

@@ -52,9 +52,10 @@ const sidebarItems: SidebarItem[] = [
   { title: "Lịch của tôi", href: "/calendar", icon: CalendarCheck },
   { title: "Lịch sử", href: "/history", icon: History },
   { title: "Buổi chơi", href: "/socials", icon: CalendarDays },
-  { title: "Giải đấu", href: "/tournament", icon: Trophy },
+  { title: "Giải đấu", href: "/tournaments", icon: Trophy },
   { title: "Nhóm", href: "/groups", icon: Users },
   { title: "Bạn bè", href: "/friend", icon: Users },
+  { title: "Quản lý giải đấu", href: "/tournament-management", icon: Trophy },
   { title: "Thông báo", href: "/feed", icon: BellRing },
 ]
 const socialMenuItems = [
@@ -129,23 +130,30 @@ function SidebarLogo() {
   if (!mounted) return null
 
   const isDark = resolvedTheme === "dark"
+  const isCollapsed = state === "collapsed"
 
   return (
-    <div className="flex items-center gap-2 py-4">
+    <div
+      className={cn(
+        "flex items-center gap-2.5 transition-all duration-200",
+        isCollapsed ? "justify-center py-3" : "px-3 py-4"
+      )}
+    >
       <div
         className={cn(
-          "flex shrink-0 items-center justify-center rounded-xl transition-colors",
-          isDark && "bg-white"
+          "flex shrink-0 items-center justify-center overflow-hidden rounded-lg transition-all duration-200",
+          isDark && "bg-white",
+          isCollapsed ? "h-8 w-8" : "h-9 w-9"
         )}
       >
         <img
           src={isDark ? "/logo-dark.png" : "/logo-light.png"}
           alt="PickleHub Logo"
-          className="h-10 w-auto rounded-xl"
+          className="h-full w-full object-cover"
         />
       </div>
 
-      {state !== "collapsed" && (
+      {!isCollapsed && (
         <div className="text-md ml-1 font-semibold tracking-wide whitespace-nowrap text-sidebar-foreground">
           PickleHub
         </div>
@@ -295,7 +303,7 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar variant="inset" collapsible="icon">
+    <Sidebar collapsible="icon">
       <SidebarHeader>
         <SidebarLogo />
       </SidebarHeader>

@@ -2,14 +2,7 @@
 
 import { useState } from "react"
 
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
+import { Pagination } from "@/components/common/pagination"
 import type {
   BookingHistoryPagination,
   BookingResponse,
@@ -138,50 +131,16 @@ export function BookingHistoryResults({
 
       {pagination.totalPages > 1 && (
         <div className="mt-auto flex justify-center pt-2">
-          <Pagination className="w-full">
-            <PaginationContent className="justify-center">
-              <PaginationItem>
-                {pagination.hasPreviousPage ? (
-                  <PaginationPrevious
-                    href="#"
-                    onClick={(event) => {
-                      event.preventDefault()
-                      onPreviousPage()
-                    }}
-                  />
-                ) : (
-                  <span className="inline-flex h-10 items-center justify-center rounded-md border border-transparent px-2.5 text-sm font-medium opacity-50">
-                    Previous
-                  </span>
-                )}
-              </PaginationItem>
-
-              <PaginationItem>
-                <PaginationLink isActive size="default" href="#">
-                  {t("booking.history.page", {
-                    page: pagination.currentPage,
-                    defaultValue: `Trang ${pagination.currentPage}`,
-                  })}
-                </PaginationLink>
-              </PaginationItem>
-
-              <PaginationItem>
-                {pagination.hasNextPage ? (
-                  <PaginationNext
-                    href="#"
-                    onClick={(event) => {
-                      event.preventDefault()
-                      onNextPage()
-                    }}
-                  />
-                ) : (
-                  <span className="inline-flex h-10 items-center justify-center rounded-md border border-transparent px-2.5 text-sm font-medium opacity-50">
-                    Next
-                  </span>
-                )}
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+          <Pagination
+            className="w-full"
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            hasPreviousPage={pagination.hasPreviousPage}
+            hasNextPage={pagination.hasNextPage}
+            onPreviousPage={onPreviousPage}
+            onNextPage={onNextPage}
+            variant="simple"
+          />
         </div>
       )}
     </>

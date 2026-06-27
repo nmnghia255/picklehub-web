@@ -2,14 +2,7 @@
 
 import { useEffect } from "react"
 
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
+import { Pagination } from "@/components/common/pagination"
 import { SportCenterTabContent } from "@/features/sport-center/components/sport-center-listing/sport-center-tab-content"
 import {
   type SportCenterPaginationState,
@@ -56,14 +49,6 @@ export function SportCenterBrowser({
 
   const filteredSportCenters = getFilteredSportCenters()
   const activePagination = storePagination ?? pagination
-  const previousPage = Math.max(1, activePagination.currentPage - 1)
-  const nextPage = activePagination.currentPage + 1
-  const favoriteQuery = favoriteOnly ? "&favorite=favorite" : ""
-  const previousHref =
-    previousPage === 1
-      ? `/sport-center${favoriteQuery}`
-      : `/sport-center?page=${previousPage}${favoriteQuery}`
-  const nextHref = `/sport-center?page=${nextPage}${favoriteQuery}`
 
   return (
     <div className="flex flex-1 flex-col">
@@ -83,43 +68,19 @@ export function SportCenterBrowser({
       </div>
 
       <div className="mt-auto flex justify-center pt-6">
-        <Pagination className="w-full">
-          <PaginationContent className="justify-center">
-            <PaginationItem>
-              {activePagination.currentPage === 1 ? (
-                <span className="inline-flex h-10 items-center justify-center rounded-md border border-transparent px-2.5 text-sm font-medium opacity-50">
-                  <span className="hidden sm:block">
-                    {t("listing.previous")}
-                  </span>
-                </span>
-              ) : (
-                <PaginationPrevious href={previousHref}>
-                  <span className="hidden sm:block">
-                    {t("listing.previous")}
-                  </span>
-                </PaginationPrevious>
-              )}
-            </PaginationItem>
-
-            <PaginationItem>
-              <PaginationLink isActive size="default" href="#">
-                {t("listing.page", { page: activePagination.currentPage })}
-              </PaginationLink>
-            </PaginationItem>
-
-            <PaginationItem>
-              {activePagination.hasNextPage ? (
-                <PaginationNext href={nextHref}>
-                  <span className="hidden sm:block">{t("listing.next")}</span>
-                </PaginationNext>
-              ) : (
-                <span className="inline-flex h-10 items-center justify-center rounded-md border border-transparent px-2.5 text-sm font-medium opacity-50">
-                  <span className="hidden sm:block">{t("listing.next")}</span>
-                </span>
-              )}
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        <Pagination
+          className="w-full"
+          currentPage={activePagination.currentPage}
+          hasPreviousPage={activePagination.currentPage > 1}
+          hasNextPage={activePagination.hasNextPage}
+          createHref={(page) => {
+            const favoriteQuery = favoriteOnly ? "&favorite=favorite" : ""
+            return page === 1
+              ? `/sport-center${favoriteQuery}`
+              : `/sport-center?page=${page}${favoriteQuery}`
+          }}
+          variant="simple"
+        />
       </div>
     </div>
   )

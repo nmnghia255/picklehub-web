@@ -1,0 +1,92 @@
+{
+  "manager": {
+    "title": "Quản lý Giải đấu Pickleball",
+    "subtitle": "San Diego Summer Slam 2026",
+    "allTournaments": "Tất cả giải đấu",
+    "tabs": {
+      "dashboard": "Tổng quan",
+      "events": "Sự kiện",
+      "registrations": "Đăng ký",
+      "teamMatching": "Ghép đội",
+      "seeding": "Hạt giống",
+      "brackets": "Nhánh đấu",
+      "schedule": "Lịch thi đấu",
+      "booking": "Địa điểm & Đặt sân",
+      "live": "Trực tiếp",
+      "financials": "Tài chính",
+      "sponsors": "Nhà tài trợ",
+      "public": "Chế độ xem công khai",
+      "payment": "Thanh toán"
+    }
+  },
+  "list": {
+    "title": "Các Giải đấu",
+    "subtitle": "Quản lý và tổ chức các giải đấu pickleball",
+    "createTournament": "Tạo giải đấu",
+    "searchPlaceholder": "Tìm kiếm giải đấu...",
+    "statuses": {
+      "all": "Tất cả trạng thái",
+      "draft": "Bản nháp",
+      "published": "Đã công bố",
+      "open_registration": "Mở đăng ký",
+      "closed_registration": "Đóng đăng ký",
+      "in_progress": "Đang diễn ra",
+      "completed": "Đã hoàn thành"
+    },
+    "roles": {
+      "all": "Tất cả vai trò",
+      "organizer": "Nhà tổ chức",
+      "player": "Người chơi",
+      "referee": "Trọng tài"
+    },
+    "registered": "{{count}}/{{capacity}} người đã đăng ký",
+    "pagination": {
+      "previous": "Trước",
+      "next": "Sau",
+      "pageInfo": "Trang {{currentPage}} / {{totalPages}}"
+    },
+    "noResultsTitle": "Không tìm thấy giải đấu nào",
+    "noResultsDescription": "Hãy thử thay đổi từ khóa tìm kiếm hoặc bộ lọc trạng thái."
+  },
+  "public": {
+    "hero": {
+      "title": "San Diego Summer Slam 2026",
+      "location": "Trung tâm Quần vợt & Pickleball Balboa Park",
+      "dates": "Ngày 15-17, tháng 6, 2026",
+      "inProgress": "Giải đấu đang diễn ra"
+    },
+    "stats": {
+      "participants": "Người tham gia",
+      "events": "Sự kiện",
+      "totalMatches": "Tổng số trận"
+    },
+    "tabs": {
+      "overview": "Tổng quan",
+      "schedule": "Lịch trình",
+      "participants": "Người tham gia",
+      "liveScores": "Tỉ số trực tiếp",
+      "results": "Kết quả",
+      "payment": "Thanh toán"
+    },
+    "overview": {
+      "title": "Tổng quan giải đấu",
+      "description": "Hãy tham gia cùng chúng tôi trong giải đấu pickleball hàng đầu ở Nam California. Với 8 sự kiện cạnh tranh ở mọi cấp độ kỹ năng, giải đấu này quy tụ những người chơi xuất sắc nhất trong khu vực.",
+      "eventsLabel": "Các sự kiện:",
+      "sponsorsTitle": "Nhà tài trợ & Đối tác"
+    },
+    "venue": {
+      "title": "Thông tin địa điểm",
+      "location": "Vị trí",
+      "facilities": "Cơ sở vật chất",
+      "parking": "Đỗ xe"
+    },
+    "participantsList": {
+      "rating": "Trình độ:"
+    },
+    "liveScores": {
+      "vs": "đấu với",
+      "live": "Trực tiếp",
+      "final": "Chung cuộc"
+    }
+  }
+}

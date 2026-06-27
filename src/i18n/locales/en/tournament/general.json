@@ -1,0 +1,92 @@
+{
+  "manager": {
+    "title": "Pickleball Tournament Manager",
+    "subtitle": "San Diego Summer Slam 2026",
+    "allTournaments": "All Tournaments",
+    "tabs": {
+      "dashboard": "Dashboard",
+      "events": "Events",
+      "registrations": "Registrations",
+      "teamMatching": "Team Matching",
+      "seeding": "Seeding",
+      "brackets": "Brackets",
+      "schedule": "Schedule",
+      "booking": "Venues & Bookings",
+      "live": "Live",
+      "financials": "Financials",
+      "sponsors": "Sponsors",
+      "public": "Public View",
+      "payment": "Payment"
+    }
+  },
+  "list": {
+    "title": "Tournaments",
+    "subtitle": "Manage and organize pickleball tournaments",
+    "createTournament": "Create Tournament",
+    "searchPlaceholder": "Search tournaments...",
+    "statuses": {
+      "all": "All Statuses",
+      "draft": "Draft",
+      "published": "Published",
+      "open_registration": "Open Registration",
+      "closed_registration": "Closed Registration",
+      "in_progress": "In Progress",
+      "completed": "Completed"
+    },
+    "roles": {
+      "all": "All Roles",
+      "organizer": "Organizer",
+      "player": "Player",
+      "referee": "Referee"
+    },
+    "registered": "{{count}}/{{capacity}} registered",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "pageInfo": "Page {{currentPage}} of {{totalPages}}"
+    },
+    "noResultsTitle": "No tournaments found",
+    "noResultsDescription": "Try adjusting your search or status filter."
+  },
+  "public": {
+    "hero": {
+      "title": "San Diego Summer Slam 2026",
+      "location": "Balboa Park Tennis & Pickleball Center",
+      "dates": "June 15-17, 2026",
+      "inProgress": "Tournament In Progress"
+    },
+    "stats": {
+      "participants": "Participants",
+      "events": "Events",
+      "totalMatches": "Total Matches"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "schedule": "Schedule",
+      "participants": "Participants",
+      "liveScores": "Live Scores",
+      "results": "Results",
+      "payment": "Payment"
+    },
+    "overview": {
+      "title": "Tournament Overview",
+      "description": "Join us for the premier pickleball tournament in Southern California. Featuring 8 competitive events across all skill levels, this tournament brings together the best players in the region.",
+      "eventsLabel": "Events:",
+      "sponsorsTitle": "Sponsors & Partners"
+    },
+    "venue": {
+      "title": "Venue Information",
+      "location": "Location",
+      "facilities": "Facilities",
+      "parking": "Parking"
+    },
+    "participantsList": {
+      "rating": "Rating:"
+    },
+    "liveScores": {
+      "vs": "vs",
+      "live": "Live",
+      "final": "Final"
+    }
+  }
+}

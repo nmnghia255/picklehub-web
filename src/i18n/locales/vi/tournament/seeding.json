@@ -1,0 +1,41 @@
+{
+  "seeding": {
+    "title": "Hạt giống",
+    "subtitle": "Tạo và quản lý hạt giống giải đấu",
+    "autoSeed": "Tự động xếp",
+    "lockSeeding": "Khóa hạt giống",
+    "noEventsCreatedYet": "Chưa có sự kiện nào được tạo",
+    "noEventsDescription": "Bạn phải tạo ít nhất một sự kiện trong tab Sự kiện trước khi có thể quản lý và cấu hình hạt giống đội.",
+    "selectEvent": "Chọn sự kiện",
+    "chooseEvent": "Chọn một sự kiện...",
+    "loadingSeeds": "Đang tải hạt giống...",
+    "reorderSuccess": "Đã lưu thứ tự hạt giống thành công",
+    "autoSeedSuccess": "Đã tạo hạt giống thành công",
+    "lockSuccess": "Đã khóa hạt giống thành công",
+    "eventSeeding": "Hạt giống {{eventName}}",
+    "statusNoticeTitle": "Quản lý hạt giống đã bị khóa",
+    "statusNoticeDescription": "Chỉ có thể cấu hình và khóa hạt giống khi trạng thái giải đấu là Mở đăng ký (Open Registration). Trạng thái hiện tại: {{status}}.",
+    "table": {
+      "title": "Đôi Nam 4.0 - Hạt giống",
+      "seed": "Hạt giống",
+      "team": "Đội",
+      "rating": "Trình độ",
+      "record": "Thành tích",
+      "status": "Trạng thái",
+      "locked": "Đã khóa",
+      "unlocked": "Chưa khóa"
+    },
+    "emptyState": {
+      "title": "Chưa có hạt giống nào được tạo",
+      "description": "Tạo hạt giống dựa trên trình độ và thành tích của người chơi để thiết lập sơ đồ thi đấu.",
+      "button": "Tạo hạt giống ngay"
+    },
+    "instructions": {
+      "title": "Hướng dẫn xếp hạt giống:",
+      "item1": "Sử dụng Tự động xếp để tạo hạt giống dựa trên trình độ và thành tích",
+      "item2": "Kéo thả các đội để điều chỉnh thứ tự thủ công",
+      "item3": "Khóa từng hạt giống để tránh thay đổi khi tự động xếp",
+      "item4": "Nhấn \"Khóa hạt giống\" khi hoàn tất để ngăn chặn sửa đổi"
+    }
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "brackets": {
+    "loading": "Loading brackets...",
+    "generateSuccess": "Bracket generated successfully!",
+    "generateError": "Failed to generate bracket",
+    "deleteConfirm": "Are you sure you want to delete this bracket? This cannot be undone.",
+    "deleteConfirmTitle": "Delete Bracket",
+    "deleteSuccess": "Bracket deleted successfully!",
+    "deleteError": "Failed to delete bracket",
+    "dialog": {
+      "cancel": "Cancel",
+      "delete": "Delete"
+    },
+    "sidebar": {
+      "selectEvent": "Select Event",
+      "selectEventPlaceholder": "Choose an event",
+      "title": "Bracket Controller",
+      "subtitle": "Manage and structure brackets for this tournament.",
+      "badges": {
+        "singles": "Singles",
+        "doubles": "Doubles",
+        "team": "Team",
+        "completed": "Completed",
+        "inProgress": "In Progress",
+        "notStarted": "Not Generated"
+      },
+      "quickActions": "Quick Actions",
+      "generateBracket": "Generate Bracket",
+      "deleteBracket": "Delete Bracket",
+      "lockBracket": "Lock Bracket",
+      "exportPdf": "Export PDF",
+      "viewControls": "View Controls",
+      "zoomOut": "Zoom Out",
+      "zoomIn": "Zoom In",
+      "fitScreen": "Fit Screen ({{zoom}}%)",
+      "stats": {
+        "total": "Total Matches",
+        "completed": "Completed",
+        "inProgress": "In Progress",
+        "remaining": "Remaining"
+      }
+    },
+    "toolbar": {
+      "searchPlaceholder": "Search matches...",
+      "formats": {
+        "single": "Single Elimination",
+        "double": "Double Elimination",
+        "roundRobin": "Round Robin"
+      },
+      "viewModes": {
+        "compact": "Compact View",
+        "standard": "Standard View",
+        "full": "Full Details"
+      }
+    },
+    "empty": {
+      "title": "No Bracket Generated",
+      "descHost": "Please generate the bracket for this event using the side controller.",
+      "descPlayer": "The organizer has not generated brackets for this event yet."
+    },
+    "match": {
+      "tbd": "TBD",
+      "rating": "Rating",
+      "position": "Position",
+      "statuses": {
+        "scheduled": "Scheduled",
+        "ready": "Ready",
+        "in_progress": "In Progress",
+        "completed": "Completed",
+        "walkover": "Walkover"
+      },
+      "rounds": {
+        "Round 1": "Round 1",
+        "Round 2": "Round 2",
+        "Round 3": "Round 3",
+        "Round of 16": "Round of 16",
+        "Round of 32": "Round of 32",
+        "Round of 64": "Round of 64",
+        "Quarterfinal": "Quarterfinals",
+        "Semifinal": "Semifinals",
+        "Final": "Finals",
+        "Bronze Match": "Bronze Match"
+      },
+      "details": {
+        "title": "Match Details",
+        "description": "View and manage match details.",
+        "status": "Match Status",
+        "participants": "Participants",
+        "seed": "Seed #{{seed}}",
+        "rating": "Rating: {{rating}}",
+        "score": "Match Score",
+        "info": "Match Information",
+        "court": "Court:",
+        "time": "Time:",
+        "round": "Round:",
+        "tbd": "TBD",
+        "actions": "Match Actions",
+        "editMatch": "Edit Match Schedule",
+        "reassignCourt": "Reassign Court",
+        "updateScore": "Update Score",
+        "markWalkover": "Mark Walkover / Forfeit"
+      }
+    }
+  }
+}

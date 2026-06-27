@@ -1,0 +1,57 @@
+{
+  "liveControl": {
+    "title": "Live Control Center",
+    "subtitle": "Real-time tournament operations dashboard",
+    "metrics": {
+      "liveBadge": "Live",
+      "activeMatches": "Active Matches",
+      "upcomingMatches": "Upcoming Matches",
+      "availableCourts": "Available Courts",
+      "checkedInPlayers": "Checked-in Players"
+    },
+    "liveMatches": {
+      "title": "Live Matches",
+      "vs": "vs"
+    },
+    "matchQueue": {
+      "title": "Match Queue",
+      "ready": "Ready",
+      "waiting": "Waiting"
+    },
+    "courtStatus": {
+      "title": "Court Status",
+      "available": "Available",
+      "maintenance": "Maintenance"
+    },
+    "announcements": {
+      "title": "Announcements"
+    }
+  },
+  "referee": {
+    "matchInfo": {
+      "title": "Men's Doubles 4.0 - Quarterfinals",
+      "court": "Court {{court}}",
+      "matchTime": "Match Time: {{time}}",
+      "set": "Set {{set}}",
+      "inProgress": "In Progress"
+    },
+    "scoring": {
+      "teamA": "TEAM A",
+      "teamB": "TEAM B",
+      "seed": "Seed #{{seed}}",
+      "currentScore": "Current Score",
+      "addPoint": "+1 Point"
+    },
+    "vs": "VS",
+    "setHistory": {
+      "title": "Set History",
+      "set": "Set {{set}}",
+      "inProgress": "In Progress",
+      "notStarted": "Not Started"
+    },
+    "actions": {
+      "undo": "Undo Last Point",
+      "confirm": "Confirm Match Result"
+    }
+  }
+}

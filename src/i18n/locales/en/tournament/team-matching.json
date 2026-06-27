@@ -1,0 +1,16 @@
+{
+  "teamMatching": {
+    "title": "Team Matching",
+    "subtitle": "Match players for doubles events",
+    "autoMatch": "Auto Match",
+    "ungroupedPlayers": "Ungrouped Players ({{count}})",
+    "generatedTeams": "Generated Teams ({{count}})",
+    "genderMale": "Male",
+    "genderFemale": "Female",
+    "age": "Age {{age}}",
+    "matchScore": "{{score}}% Match",
+    "avgRating": "Avg Rating: {{rating}}",
+    "playerRating": "Rating: {{rating}}",
+    "instructions": "Drag players from the left to create custom teams, or use the Auto Match button to generate optimal pairings based on rating, age, and skill level."
+  }
+}

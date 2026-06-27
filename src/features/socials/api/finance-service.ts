@@ -6,6 +6,7 @@ import type {
   CourtBookingExpense,
   FinanceMember,
   FinanceSummary,
+  SocialStatistics,
   SuggestedPriceRequest,
   SuggestedPriceResponse,
 } from "../types/finance"
@@ -101,5 +102,11 @@ export const FinanceService = {
       applyPriceRequest
     )
     return unwrapApiResponse<ApplyPriceResponse>(response.data)
+  },
+
+  listStatistics: async function (socialId: string): Promise<SocialStatistics> {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.get(`/api/events/socials/${socialId}/stats`)
+    return unwrapApiResponse<SocialStatistics>(response.data)
   },
 }

@@ -1,0 +1,122 @@
+{
+  "dashboard": {
+    "title": "Tổng quan Giải đấu",
+    "subtitle": "San Diego Summer Slam 2026 • 15-17 tháng 6, 2026",
+    "registrationProgress": "Tiến độ đăng ký",
+    "full": "Đầy",
+    "tournamentLifecycle": "Vòng đời giải đấu",
+    "upcomingMatches": "Các trận sắp tới",
+    "vs": "vs",
+    "live": "Trực tiếp",
+    "recentActivities": "Hoạt động gần đây",
+    "lifecycle": {
+      "created": "Đã tạo giải đấu",
+      "openRegistration": "Mở đăng ký",
+      "closeRegistration": "Đóng đăng ký",
+      "startTournament": "Bắt đầu giải đấu",
+      "finishTournament": "Kết thúc giải đấu"
+    }
+  },
+  "financials": {
+    "title": "Tài chính",
+    "subtitle": "Tổng quan tài chính giải đấu và các giao dịch",
+    "exportPdf": "Xuất PDF",
+    "exportExcel": "Xuất Excel",
+    "exportSuccess": "Xuất báo cáo {{format}} thành công!",
+    "summary": {
+      "totalRevenue": "Tổng doanh thu",
+      "totalExpenses": "Tổng chi phí",
+      "netProfit": "Lợi nhuận ròng"
+    },
+    "charts": {
+      "revenueOverTime": "Doanh thu theo thời gian",
+      "expenseBreakdown": "Phân bổ chi phí"
+    },
+    "transactions": {
+      "title": "Giao dịch gần đây",
+      "date": "Ngày",
+      "description": "Mô tả",
+      "type": "Loại",
+      "amount": "Số tiền",
+      "status": "Trạng thái",
+      "types": {
+        "income": "Thu nhập",
+        "expense": "Chi phí",
+        "refund": "Hoàn tiền"
+      },
+      "statuses": {
+        "completed": "Hoàn thành",
+        "pending": "Đang xử lý"
+      }
+    }
+  },
+  "sponsors": {
+    "title": "Quản lý Nhà tài trợ",
+    "subtitle": "Hiển thị và quản lý các đơn vị tài trợ cho giải đấu",
+    "addSponsor": "Thêm nhà tài trợ",
+    "addSuccess": "Thêm thành công",
+    "deleteConfirm": "Bạn có chắc chắn muốn xóa nhà tài trợ này?",
+    "deleteSuccess": "Xóa thành công",
+    "topSponsor": "Nhà tài trợ hàng đầu",
+    "top3Heading": "Top 3 Nhà tài trợ",
+    "otherHeading": "Các Nhà tài trợ khác",
+    "dialog": {
+      "title": "Thêm Nhà tài trợ mới",
+      "description": "Nhập chi tiết thông tin nhà tài trợ để hiển thị trên bảng thông tin giải đấu",
+      "nameLabel": "Tên nhà tài trợ",
+      "namePlaceholder": "vd: Công ty Apex Paddles",
+      "priceLabel": "Mức tài trợ",
+      "pricePlaceholder": "vd: 5.000.0000",
+      "logoLabel": "Logo nhà tài trợ",
+      "logoUploadHint": "Nhấp để tải lên hoặc kéo thả",
+      "logoSizeHint": "Chấp nhận PNG, JPG tối đa 2MB",
+      "websiteUrlLabel": "Đường dẫn trang web",
+      "websiteUrlPlaceholder": "vd: https://example.com",
+      "cancel": "Hủy",
+      "submit": "Thêm tài trợ",
+      "validationName": "Vui lòng nhập tên nhà tài trợ",
+      "validationPrice": "Vui lòng nhập mức tài trợ hợp lệ lớn hơn 0",
+      "validationWebsiteUrl": "Vui lòng nhập đường dẫn hợp lệ (bắt đầu bằng http:// hoặc https://)"
+    },
+    "stats": {
+      "totalContributions": "Tổng nguồn vốn",
+      "activeSponsors": "Số lượng tài trợ",
+      "avgContribution": "Tài trợ trung bình"
+    },
+    "emptyState": "Chưa có nhà tài trợ nào được thêm vào.",
+    "rank1": "Nhà tài trợ #1",
+    "rank2": "Nhà tài trợ #2",
+    "rank3": "Nhà tài trợ #3",
+    "website": "Trang web",
+    "deleteTitle": "Xóa nhà tài trợ",
+    "delete": "Xóa"
+  },
+  "paymentTab": {
+    "title": "Cài đặt thanh toán",
+    "subtitle": "Quản lý thông tin chuyển khoản ngân hàng và hướng dẫn thanh toán cho giải đấu.",
+    "viewTitle": "Thông tin thanh toán",
+    "viewSubtitle": "Chuyển khoản lệ phí đăng ký cho ban tổ chức sử dụng thông tin bên dưới.",
+    "editButton": "Chỉnh sửa thông tin",
+    "saveButton": "Lưu thay đổi",
+    "cancelButton": "Hủy",
+    "bankName": "Ngân hàng",
+    "accountName": "Tên tài khoản",
+    "accountNumber": "Số tài khoản",
+    "instructions": "Hướng dẫn chuyển khoản",
+    "qrCode": "Mã QR",
+    "noQrCode": "Chưa tải lên mã QR",
+    "copied": "Đã sao chép vào bộ nhớ tạm!",
+    "copyTooltip": "Sao chép số tài khoản",
+    "saveSuccess": "Cập nhật thông tin thanh toán thành công!",
+    "saveError": "Cập nhật thông tin thanh toán thất bại.",
+    "noInfoTitle": "Chưa có thông tin thanh toán",
+    "noInfoDescHost": "Vui lòng thêm thông tin thanh toán để người tham gia có thể đóng lệ phí đăng ký.",
+    "noInfoDescPlayer": "Ban tổ chức giải đấu chưa cấu hình thông tin thanh toán. Vui lòng liên hệ trực tiếp với họ.",
+    "bankDetailsTitle": "Thông tin tài khoản",
+    "bankDetailsDesc": "Thông tin chuyển khoản ngân hàng chính thức cho lệ phí đăng ký.",
+    "defaultNote": "Vui lòng chuyển khoản lệ phí đăng ký kèm theo Mã Đăng ký hoặc Họ và Tên của bạn trong nội dung giao dịch.",
+    "qrDesc": "Quét mã QR để thực hiện chuyển khoản trực tiếp.",
+    "viewFullImage": "Mở ảnh QR đầy đủ",
+    "noQrAvailable": "Mã QR thanh toán không khả dụng cho sự kiện này."
+  }
+}

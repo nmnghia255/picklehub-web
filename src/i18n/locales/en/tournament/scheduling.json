@@ -1,0 +1,116 @@
+{
+  "scheduling": {
+    "title": "Fixtures & Scheduling",
+    "subtitle": "Manage matches scheduling, courts assignment, and referees assignments.",
+    "unscheduled": {
+      "title": "Unscheduled Matches",
+      "subtitle": "{{count}} matches need scheduling",
+      "subtitle_singular": "1 match needs scheduling",
+      "subtitle_none": "No matches need scheduling",
+      "matchLabel": "Match #{{id}}",
+      "min": "{{duration}} min",
+      "autoSchedule": "Auto Schedule",
+      "optimizeSchedule": "Optimize Schedule",
+      "noMatches": "No unscheduled matches found"
+    },
+    "toolbar": {
+      "dates": {
+        "june15": "June 15, 2026",
+        "june16": "June 16, 2026",
+        "june17": "June 17, 2026"
+      },
+      "eventLabel": "Event:",
+      "events": {
+        "all": "All Events"
+      },
+      "reloadBtn": "Reload Schedule"
+    },
+    "grid": {
+      "courtsLabel": "Courts"
+    },
+    "match": {
+      "assignReferee": "Assign Referee",
+      "unschedule": "Unschedule",
+      "refereeName": "Referee: {{name}}",
+      "start": "Start: {{time}}",
+      "duration": "Duration: {{duration}} min",
+      "court": "Court: {{court}}",
+      "id": "ID: {{id}}",
+      "refName": "Ref: {{refereeName}}"
+    },
+    "warnings": {
+      "detected": "{{count}} scheduling conflicts detected:",
+      "details": "1 player conflict, 1 rest time violation"
+    },
+    "autoScheduleForm": {
+      "title": "Auto Schedule & Court Optimization",
+      "description": "The system will calculate and allocate matches into empty courts and optimal time slots.",
+      "selectEvent": "Select Event Category",
+      "selectEventPlaceholder": "Select Event",
+      "startTime": "Daily Start Time",
+      "endTime": "Daily End Time",
+      "matchDuration": "Match Duration (Minutes)",
+      "breakDuration": "Court Cleaning Break (Minutes)",
+      "availableCourts": "Available Courts",
+      "restTime": "Minimum Rest Time Between Athlete Matches (Minutes)",
+      "optimizeFor": "Optimization Criteria",
+      "optimizeOptions": {
+        "fastest": "Fastest Completion",
+        "balanced": "Balanced Court Usage",
+        "rest": "Maximum Rest Time"
+      },
+      "previewTitle": "Preview Result",
+      "projectedCompletedAt": "Estimated Completion Time:",
+      "scheduledMatchesCount": "Matches Scheduled Successfully:",
+      "courtsUsed": "Courts Used:",
+      "courtsUsedCount": "{{count}} courts",
+      "previewAssignments": "Suggested Allocation:",
+      "cancel": "Cancel",
+      "previewBtn": "Preview Result",
+      "calculating": "Calculating...",
+      "applying": "Applying...",
+      "applyBtn": "Save & Apply Schedule"
+    },
+    "referee": {
+      "modalTitle": "Assign Chief Referee",
+      "modalDesc": "Enter information of the referee assigned to be in charge of this match.",
+      "name": "Referee Name",
+      "namePlaceholder": "Enter referee name...",
+      "id": "Referee ID (Optional)",
+      "idPlaceholder": "Referee ID or leave empty...",
+      "assignBtn": "Confirm Assignment",
+      "close": "Close"
+    },
+    "manual": {
+      "modalTitle": "Manual Match Scheduling",
+      "modalDesc": "Select Court and Match Time for: ",
+      "selectCourt": "Select Court",
+      "selectTime": "Select Match Time",
+      "scheduleBtn": "Schedule Match",
+      "close": "Close"
+    },
+    "toasts": {
+      "scheduleSuccess": "Match scheduled successfully",
+      "scheduleFailed": "Failed to schedule match",
+      "manualError": "An error occurred during manual scheduling",
+      "unscheduleSuccess": "Match unscheduled successfully",
+      "unscheduleFailed": "Failed to unschedule match",
+      "unscheduleError": "An error occurred while unscheduling",
+      "assignRefereeSuccess": "Referee assigned successfully",
+      "assignRefereeFailed": "Failed to assign referee",
+      "assignRefereeError": "An error occurred during referee assignment",
+      "unassignRefereeSuccess": "Referee unassigned successfully",
+      "unassignRefereeFailed": "Failed to unassign referee",
+      "unassignRefereeError": "An error occurred while unassigning referee",
+      "fillRefereeName": "Please enter referee name",
+      "selectCourtAndTime": "Please select both court and time slot",
+      "selectEvent": "Please select an event",
+      "previewSuccess": "Preview generated successfully",
+      "previewFailed": "Failed to generate preview",
+      "executeSuccess": "Schedule applied and notifications sent to players!",
+      "executeFailed": "Failed to execute auto-schedule",
+      "loadFixturesFailed": "Failed to load fixtures",
+      "loadFixturesError": "Failed to load tournament fixtures"
+    }
+  }
+}

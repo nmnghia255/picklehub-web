@@ -1,0 +1,43 @@
+{
+  "registrations": {
+    "title": "Registration Management",
+    "subtitle": "Review and manage participant registrations",
+    "tabs": {
+      "pending": "Pending ({{count}})",
+      "approved": "Approved ({{count}})",
+      "rejected": "Rejected ({{count}})",
+      "waitlisted": "Waitlisted ({{count}})",
+      "withdrawn": "Withdrawn ({{count}})"
+    },
+    "table": {
+      "player": "Player",
+      "partner": "Partner",
+      "event": "Event",
+      "rating": "Rating",
+      "payment": "Payment",
+      "date": "Date",
+      "actions": "Actions",
+      "paid": "Paid",
+      "pending": "Pending"
+    },
+    "profile": {
+      "title": "Player Profile",
+      "description": "View player information, rating, and tournament history",
+      "duprRating": "DUPR Rating: {{rating}}",
+      "registrationDetails": "Registration Details",
+      "event": "Event",
+      "registrationDate": "Registration Date",
+      "paymentStatus": "Payment Status",
+      "matchHistory": "Match History",
+      "historyStats": "{{wins}} Wins - {{losses}} Losses",
+      "previousTournaments": "Previous tournaments: {{count}}",
+      "filterEvent": "Filter Event",
+      "allEvents": "All Events",
+      "approveSuccess": "Approved registration for {{name}}",
+      "rejectSuccess": "Rejected registration for {{name}}",
+      "noRegistrations": "No registrations found",
+      "paymentProof": "Payment Proof",
+      "viewProof": "View Proof"
+    }
+  }
+}

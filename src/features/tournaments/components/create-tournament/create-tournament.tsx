@@ -17,7 +17,8 @@ import { Step1BasicInfo } from "./step-1-basic-info"
 import { Step2Registration } from "./step-2-registration"
 import { Step3Events } from "./step-3-events"
 import { Step4Prizes } from "./step-4-prizes"
-import { Step5Review } from "./step-5-review"
+import { Step5Payment } from "./step-5-payment"
+import { Step6Review } from "./step-6-review"
 
 export function CreateTournament() {
   const router = useRouter()
@@ -34,15 +35,207 @@ export function CreateTournament() {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const totalSteps = 5
+  const totalSteps = 6
 
   const steps = [
     { number: 1, title: t("create.steps.basicInfo") },
     { number: 2, title: t("create.steps.registration") },
     { number: 3, title: t("create.steps.events") },
     { number: 4, title: t("create.steps.prizes") },
-    { number: 5, title: t("create.steps.review") },
+    { number: 5, title: t("create.steps.payment") },
+    { number: 6, title: t("create.steps.review") },
   ]
+
+  const validateStep = (step: number): boolean => {
+    switch (step) {
+      case 1:
+        if (!formValues.name?.trim()) {
+          toast.error(
+            t("create.validation.requiredFields", {
+              defaultValue: "Please fill in all required fields marked with *",
+            })
+          )
+          return false
+        }
+        if (!formValues.venue?.trim()) {
+          toast.error(
+            t("create.validation.requiredFields", {
+              defaultValue: "Please fill in all required fields marked with *",
+            })
+          )
+          return false
+        }
+        if (!formValues.startDate) {
+          toast.error(
+            t("create.validation.requiredFields", {
+              defaultValue: "Please fill in all required fields marked with *",
+            })
+          )
+          return false
+        }
+        if (!formValues.endDate) {
+          toast.error(
+            t("create.validation.requiredFields", {
+              defaultValue: "Please fill in all required fields marked with *",
+            })
+          )
+          return false
+        }
+        if (new Date(formValues.startDate) >= new Date(formValues.endDate)) {
+          toast.error(
+            t("create.validation.dateOrder", {
+              defaultValue: "Start date must be before end date",
+            })
+          )
+          return false
+        }
+        return true
+
+      case 2:
+        if (!formValues.regOpen) {
+          toast.error(
+            t("create.validation.requiredFields", {
+              defaultValue: "Please fill in all required fields marked with *",
+            })
+          )
+          return false
+        }
+        if (!formValues.regClose) {
+          toast.error(
+            t("create.validation.requiredFields", {
+              defaultValue: "Please fill in all required fields marked with *",
+            })
+          )
+          return false
+        }
+        if (new Date(formValues.regOpen) >= new Date(formValues.regClose)) {
+          toast.error(
+            t("create.validation.regDateOrder", {
+              defaultValue:
+                "Registration open date must be before registration close date",
+            })
+          )
+          return false
+        }
+        if (new Date(formValues.regClose) > new Date(formValues.startDate)) {
+          toast.error(
+            t("create.validation.regCloseBeforeStart", {
+              defaultValue:
+                "Registration must close before the tournament starts",
+            })
+          )
+          return false
+        }
+        if (
+          !formValues.maxParticipants ||
+          Number(formValues.maxParticipants) <= 0
+        ) {
+          toast.error(
+            t("create.validation.maxParticipants", {
+              defaultValue:
+                "Maximum participants must be a number greater than 0",
+            })
+          )
+          return false
+        }
+        return true
+
+      case 3:
+        if (events.length === 0) {
+          toast.error(
+            t("create.validation.minEvents", {
+              defaultValue: "Please add at least one event",
+            })
+          )
+          return false
+        }
+        return true
+
+      case 4: {
+        const getPositionsForCapacity = (capacity: number) => {
+          const positions = []
+          if (capacity >= 1) positions.push("1st")
+          if (capacity >= 2) positions.push("2nd")
+          if (capacity >= 3) positions.push("3rd")
+          if (capacity >= 4) positions.push("4th")
+          if (capacity > 4) {
+            if (capacity <= 8) positions.push("5th-rest")
+            else positions.push("5th-8th")
+          }
+          if (capacity > 8) {
+            if (capacity <= 16) positions.push("9th-rest")
+            else positions.push("9th-16th")
+          }
+          if (capacity > 16) {
+            if (capacity <= 32) positions.push("17th-rest")
+            else positions.push("17-32nd")
+          }
+          if (capacity > 32) {
+            if (capacity <= 64) positions.push("33rd-rest")
+            else positions.push("33-64th")
+          }
+          return positions
+        }
+
+        const isComplete = events.every((event) => {
+          const positions = getPositionsForCapacity(event.capacity)
+          const eventPrizes = prizes.filter(
+            (p) => String(p.eventId) === String(event.id)
+          )
+          return positions.every((posId) => {
+            return eventPrizes.some(
+              (p) =>
+                String(p.id) === `${event.id}-${posId}-cash` ||
+                String(p.id) === `${event.id}-${posId}-trophy` ||
+                String(p.id).endsWith(`-${posId}-cash`) ||
+                String(p.id).endsWith(`-${posId}-trophy`)
+            )
+          })
+        })
+
+        if (!isComplete) {
+          toast.error(
+            t("create.validation.incompletePrizes", {
+              defaultValue:
+                "Please configure prizes for all placement positions in all events",
+            })
+          )
+          return false
+        }
+        return true
+      }
+
+      case 5:
+        if (!formValues.paymentBankName?.trim()) {
+          toast.error(
+            t("create.validation.bankRequired", {
+              defaultValue: "Bank Name is required",
+            })
+          )
+          return false
+        }
+        if (!formValues.paymentAccountName?.trim()) {
+          toast.error(
+            t("create.validation.accountNameRequired", {
+              defaultValue: "Account Holder Name is required",
+            })
+          )
+          return false
+        }
+        if (!formValues.paymentAccountNumber?.trim()) {
+          toast.error(
+            t("create.validation.accountNumberRequired", {
+              defaultValue: "Account Number is required",
+            })
+          )
+          return false
+        }
+        return true
+
+      default:
+        return true
+    }
+  }
 
   const handlePublish = async () => {
     setIsSubmitting(true)
@@ -56,6 +249,14 @@ export function CreateTournament() {
         banner:
           formValues.banner ||
           "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=800&q=80",
+        description: formValues.description,
+        registrationStartDate: formValues.regOpen,
+        registrationEndDate: formValues.regClose,
+        paymentBankName: formValues.paymentBankName,
+        paymentAccountName: formValues.paymentAccountName,
+        paymentAccountNumber: formValues.paymentAccountNumber,
+        paymentQrUrl: formValues.paymentQrUrl,
+        paymentNote: formValues.paymentNote,
       }
 
       const eventsPayload = events.map((event) => ({
@@ -69,11 +270,11 @@ export function CreateTournament() {
       }))
 
       const prizesPayload = prizes.map((prize) => ({
-        localEventId: prize.eventId,
+        localEventId: prize.eventId ?? "",
         name: prize.name,
         rewardType: prize.rewardType,
         value: prize.value,
-        description: prize.description,
+        description: prize.description || null,
       }))
 
       const result = await createFullTournamentAction({
@@ -111,6 +312,9 @@ export function CreateTournament() {
   }
 
   const goToNextStep = async () => {
+    if (!validateStep(currentStep)) {
+      return
+    }
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1)
     } else {
@@ -190,7 +394,8 @@ export function CreateTournament() {
             {currentStep === 2 && <Step2Registration />}
             {currentStep === 3 && <Step3Events />}
             {currentStep === 4 && <Step4Prizes />}
-            {currentStep === 5 && <Step5Review />}
+            {currentStep === 5 && <Step5Payment />}
+            {currentStep === 6 && <Step6Review />}
 
             {/* Navigation Buttons */}
             <div className="mt-8 flex items-center justify-between border-t pt-6">

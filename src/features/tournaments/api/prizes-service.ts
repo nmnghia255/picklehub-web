@@ -70,16 +70,28 @@ export const TournamentPrizeService = {
     return unwrapApiResponse(response.data)
   },
 
+  awardPrizeToTeam: async (
+    tournamentId: string,
+    prizeId: string,
+    winnerTeamId: number | string | null
+  ) => {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.post<ApiResponse<TournamentPrize>>(
+      `/api/tournaments/${tournamentId}/prizes/${prizeId}/award`,
+      { winnerTeamId }
+    )
+    return unwrapApiResponse(response.data)
+  },
+
   bindPrizeToTeam: async (
     tournamentId: string,
     prizeId: string,
     teamId: string
   ) => {
-    const axios = await getAuthenticatedAxios()
-    const response = await axios.post<ApiResponse<TournamentPrize>>(
-      `/api/tournaments/${tournamentId}/prizes/${prizeId}/award`,
+    return TournamentPrizeService.awardPrizeToTeam(
+      tournamentId,
+      prizeId,
       teamId
     )
-    return unwrapApiResponse(response.data)
   },
 }
