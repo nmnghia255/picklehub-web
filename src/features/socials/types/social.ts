@@ -19,6 +19,8 @@ export interface CreateSocialRequest {
   startTime: string
   endTime: string
   isFree: boolean
+  isPrivate: boolean
+  maxSlots: number
   submitDupr: boolean
   minimumLevel: number | null
   maximumLevel: number | null

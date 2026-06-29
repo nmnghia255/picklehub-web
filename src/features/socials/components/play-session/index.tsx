@@ -225,9 +225,6 @@ export default function PlaySessionDetail({
                     session={session}
                     participants={participants}
                     duration={duration}
-                    completedMatchesCount={completedMatches.length}
-                    activeMatchesCount={inProgressMatches.length}
-                    upcomingMatchesCount={scheduledMatches.length}
                     matches={matches}
                     isHost={isHost}
                     socialId={socialId}

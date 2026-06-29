@@ -107,7 +107,6 @@ export default function SocialExpenseTab({
           <ExpenseSummaryGrid
             totalCourtExpense={summary.totalExpense}
             confirmedParticipants={summary.participants.joinedCount}
-            totalParticipants={summary.participants.maxSlots}
             extraExpense={
               courtBookings
                 ? summary.totalExpense -

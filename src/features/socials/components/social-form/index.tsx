@@ -190,14 +190,12 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
 
         await updateSocialAction(id as string, {
           ...updateData,
-          allowGuests: formData.allowGuests ?? true,
         })
         toast.success(t("form.updateSuccess"))
         router.push(`/socials/${id}`)
       } else {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { packageFee, totalExpense, status, allowGuests, ...createData } =
-          formData
+        const { packageFee, totalExpense, status, ...createData } = formData
 
         // Ensure numeric fields are correctly typed
         createData.minimumLevel =

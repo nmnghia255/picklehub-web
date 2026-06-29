@@ -12,10 +12,6 @@ export default async function Page(props: {
   const params: ListSocialRequest = {}
 
   if (searchParams) {
-    if (searchParams.sortBy)
-      params.sortBy = searchParams.sortBy as ListSocialRequest["sortBy"]
-    if (searchParams.order)
-      params.order = searchParams.order as ListSocialRequest["order"]
     if (searchParams.page)
       params.page = parseInt(searchParams.page as string, 10)
     if (searchParams.limit)
@@ -38,7 +34,6 @@ export default async function Page(props: {
         searchParams.genderPolicy as ListSocialRequest["genderPolicy"]
     if (searchParams.ageGroup)
       params.ageGroup = searchParams.ageGroup as ListSocialRequest["ageGroup"]
-    if (searchParams.joinedOnly === "true") params.joinedOnly = true
   }
 
   params.page = params.page || 1
