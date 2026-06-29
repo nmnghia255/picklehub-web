@@ -3,22 +3,9 @@
 import { differenceInHours } from "date-fns"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { toast } from "sonner"
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { joinSocialAction } from "@/features/socials/actions/join-social"
-import { leaveSocialAction } from "@/features/socials/actions/leave-social"
 import { PlaySessionForm } from "@/features/socials/components/play-session/play-session-form"
 import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
 import type { PlaySession } from "@/features/socials/types/play-session"
@@ -36,7 +23,6 @@ import SocialParticipantsTab from "./participants-tab/social-participants-tab"
 import SocialPaymentTab from "./payment-tab/social-payment-tab"
 import SocialHeader from "./social-header"
 import SocialHero from "./social-hero"
-import SocialJoinDialog from "./social-join-dialog"
 import SocialSidebar from "./social-sidebar"
 import SocialStatisticsTab from "./statistics-tab/social-statistics-tab"
 
@@ -53,8 +39,6 @@ export default function SocialDetail({
 }: SocialDetailProps) {
   const router = useRouter()
   const { t } = useSocialsTranslation()
-  const joinDialogOpen = useSocialDetailStore((s) => s.joinDialogOpen)
-  const setJoinDialogOpen = useSocialDetailStore((s) => s.setJoinDialogOpen)
 
   const playSessionModalOpen = useSocialDetailStore(
     (s) => s.playSessionModalOpen
@@ -69,10 +53,7 @@ export default function SocialDetail({
   const setTabValue = useSocialDetailStore((s) => s.setTabValue)
 
   const social = initialSocial
-
-  const [isJoining, setIsJoining] = useState(false)
-  const [isLeaving, setIsLeaving] = useState(false)
-  const [leaveDialogOpen, setLeaveDialogOpen] = useState(false)
+  const isEditable = true || social?.isHost
 
   if (!social) {
     return (
@@ -102,59 +83,6 @@ export default function SocialDetail({
 
   const socialParticipants = initialParticipants
   const sessions = initialPlaySessions
-  const maxSlots = social.maxSlots
-
-  const handleJoin = async (isFullPackage: boolean, sessionIds: string[]) => {
-    setIsJoining(true)
-    try {
-      await joinSocialAction(social.id, isFullPackage, sessionIds)
-      toast.success(
-        t("dialogs.joinSuccess", {
-          defaultValue: "Successfully joined the social!",
-        })
-      )
-      setJoinDialogOpen(false)
-      router.refresh()
-    } catch (e: unknown) {
-      const errorMsg =
-        e instanceof Error ? e.message : "Failed to join the social."
-      toast.error(
-        errorMsg ||
-          t("dialogs.joinError", { defaultValue: "Failed to join the social." })
-      )
-    } finally {
-      setIsJoining(false)
-    }
-  }
-
-  const handleLeaveClick = () => {
-    setLeaveDialogOpen(true)
-  }
-
-  const confirmLeave = async () => {
-    setIsLeaving(true)
-    setLeaveDialogOpen(false)
-    try {
-      await leaveSocialAction(social.id)
-      toast.success(
-        t("dialogs.leaveSuccess", {
-          defaultValue: "Successfully left the social!",
-        })
-      )
-      router.refresh()
-    } catch (e: unknown) {
-      const errorMsg =
-        e instanceof Error ? e.message : "Failed to leave the social."
-      toast.error(
-        errorMsg ||
-          t("dialogs.leaveError", {
-            defaultValue: "Failed to leave the social.",
-          })
-      )
-    } finally {
-      setIsLeaving(false)
-    }
-  }
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
@@ -167,6 +95,7 @@ export default function SocialDetail({
             status={social.status}
             format={social.format}
             isHost={isHost}
+            isEditable={isEditable}
             isParticipant={isParticipant}
             onBack={() => router.back()}
             onEdit={() => router.push(`/socials/${social.id}/edit`)}
@@ -195,9 +124,8 @@ export default function SocialDetail({
             <TabsContent value="0" className="space-y-4">
               <SocialOverview social={social} duration={duration} />
               <SocialSessions
-                maxSlots={maxSlots}
                 sessions={sessions}
-                isHost={isHost && social.status === "DRAFT"}
+                isEditable={isEditable}
                 onCreateSession={() => {
                   setSelectedSession(null)
                   setPlaySessionModalOpen(true)
@@ -215,7 +143,7 @@ export default function SocialDetail({
             <TabsContent value="1" className="space-y-4">
               <SocialParticipantsTab
                 participants={socialParticipants}
-                isHost={isHost}
+                isEditable={isEditable}
                 socialId={social.id}
                 status={social.status}
               />
@@ -252,22 +180,10 @@ export default function SocialDetail({
 
         <SocialSidebar
           social={social}
-          onJoin={() => setJoinDialogOpen(true)}
           isParticipant={isParticipant}
-          onLeave={handleLeaveClick}
-          isLeaving={isLeaving}
+          isEditable={isEditable}
         />
       </div>
-
-      <SocialJoinDialog
-        open={joinDialogOpen}
-        onOpenChange={setJoinDialogOpen}
-        title={social.title}
-        autoApproveJoinRequests={social.autoApproveJoinRequests}
-        sessions={sessions}
-        onConfirm={handleJoin}
-        isJoining={isJoining}
-      />
 
       <Dialog
         open={playSessionModalOpen}
@@ -294,33 +210,6 @@ export default function SocialDetail({
           />
         </DialogContent>
       </Dialog>
-
-      <AlertDialog open={leaveDialogOpen} onOpenChange={setLeaveDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {t("dialogs.confirmLeaveTitle", { defaultValue: "Leave Social" })}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("dialogs.confirmLeave", {
-                defaultValue: "Are you sure you want to leave this social?",
-              })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isLeaving}>
-              {t("dialogs.cancel", { defaultValue: "Cancel" })}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmLeave}
-              disabled={isLeaving}
-              className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
-            >
-              {t("dialogs.confirmLeaveAction", { defaultValue: "Leave" })}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }

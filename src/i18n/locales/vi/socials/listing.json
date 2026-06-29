@@ -12,7 +12,9 @@
     "organizerCount_one": "{{count}} người tổ chức",
     "organizerCount_other": "{{count}} người tổ chức",
     "noResultsTitle": "Không tìm thấy buổi chơi nào",
-    "noResultsDescription": "Thử xóa bộ lọc hoặc tìm kiếm một sự kiện khác."
+    "noResultsDescription": "Thử xóa bộ lọc hoặc tìm kiếm một sự kiện khác.",
+    "participants": "người tham gia",
+    "free": "Miễn phí"
   },
   "mySocials": {
     "title": "Buổi chơi của tôi",

@@ -102,11 +102,13 @@
     "bookingLabel": "Mã đặt sân *",
     "bookingPlaceholder": "Chọn mã đặt sân",
     "feeLabel": "Phí buổi chơi *",
+    "maxSlotLabel": "Số lượng người tối đa *",
     "validation": {
       "titleRequired": "Vui lòng nhập tên buổi chơi",
       "bookingRequired": "Vui lòng chọn ít nhất 1 mã đặt sân",
       "priceInvalid": "Giá mỗi người chơi không hợp lệ",
-      "feeInvalid": "Phí buổi chơi không hợp lệ"
+      "feeInvalid": "Phí buổi chơi không hợp lệ",
+      "maxSlotInvalid": "Số lượng người tối đa không hợp lệ"
     },
     "defaultCourt": "Sân",
     "timeLabel": "Giờ: {{time}}",
@@ -117,6 +119,7 @@
     },
     "errors": {
       "create": "Lỗi khi tạo buổi chơi",
+      "update": "Lỗi khi cập nhật buổi chơi",
       "processing": "Đang xử lý..."
     }
   },

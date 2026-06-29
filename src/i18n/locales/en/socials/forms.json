@@ -102,11 +102,13 @@
     "bookingLabel": "Booked Court *",
     "bookingPlaceholder": "Select booked court",
     "feeLabel": "Session Fee *",
+    "maxSlotLabel": "Maximum slots *",
     "validation": {
       "titleRequired": "Please enter the session title",
       "bookingRequired": "Please select at least 1 booked court",
       "priceInvalid": "Invalid price per player",
-      "feeInvalid": "Invalid session fee"
+      "feeInvalid": "Invalid session fee",
+      "maxSlotInvalid": "Invalid maximum slots"
     },
     "defaultCourt": "Court",
     "timeLabel": "Time: {{time}}",
@@ -117,6 +119,7 @@
     },
     "errors": {
       "create": "Error creating play session",
+      "update": "Error updating play session",
       "processing": "Processing..."
     }
   },

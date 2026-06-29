@@ -1,7 +1,7 @@
 "use client"
 
 import { format } from "date-fns"
-import { Check, Clock3, Info } from "lucide-react"
+import { Calendar, Check, Clock3, Info } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -50,9 +50,9 @@ export default function SocialOverview({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <InfoRow
-            icon={<Clock3 className="size-5" />}
+            icon={<Calendar className="size-5" />}
             label={t("detail.schedule")}
-            value={format(new Date(social.startTime), "MMM d, yyyy • h:mm a")}
+            value={format(new Date(social.startTime), "dd/MM/yyyy • h:mm a")}
             iconClassName="bg-blue-500/10 text-blue-600 dark:text-blue-400"
           />
           <InfoRow

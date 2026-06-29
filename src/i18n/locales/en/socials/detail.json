@@ -23,10 +23,13 @@
     "minutes": "Minutes",
     "players": "Players",
     "completed": "Completed",
+    "participants": "Participants",
     "upcomingActive": "Upcoming / Active",
     "date": "Date",
     "time": "Time",
-    "location": "Vị trí"
+    "location": "Location",
+    "totalMatches": "Total Matches",
+    "joinedMatches": "My Matches"
   },
   "expenses": {
     "tracking": {

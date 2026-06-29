@@ -28,12 +28,12 @@ import { getParticipantStatusLabel } from "../../../utils"
 
 export default function SocialParticipantsTab({
   participants,
-  isHost,
+  isEditable,
   socialId,
   status,
 }: {
   participants: SocialParticipant[]
-  isHost: boolean
+  isEditable: boolean
   socialId?: string
   status?: string
 }) {
@@ -158,7 +158,7 @@ export default function SocialParticipantsTab({
                     })}
                   </p>
 
-                  {isHost && !participant.isHost && (
+                  {isEditable && !participant.isHost && (
                     <div className="flex items-center gap-2">
                       {participant.status === "ON_HOLD" && (
                         <Button

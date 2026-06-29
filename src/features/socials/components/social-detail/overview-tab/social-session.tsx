@@ -21,16 +21,14 @@ import { formatCurrencyVnd } from "@/utils/expense-utils"
 import { getSessionStatusClasses, getSessionStatusLabel } from "../../../utils"
 
 export default function SocialSessions({
-  maxSlots,
   sessions,
-  isHost,
+  isEditable,
   onCreateSession,
   onEditSession,
   onOpenSession,
 }: {
-  maxSlots: number
   sessions: PlaySession[]
-  isHost: boolean
+  isEditable: boolean
   onCreateSession: () => void
   onEditSession: (session: PlaySession) => void
   onOpenSession: (sessionId: string) => void
@@ -43,7 +41,7 @@ export default function SocialSessions({
         <CardContent className="space-y-4 p-6">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-semibold">{t("sessions.title")}</h2>
-            {isHost && (
+            {isEditable && (
               <Button size="sm" onClick={onCreateSession}>
                 <Plus className="mr-2 size-4" />
                 {t("sessions.addSession")}
@@ -86,7 +84,7 @@ export default function SocialSessions({
                           </p>
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {isHost && (
+                          {isEditable && (
                             <div className="flex items-center gap-1">
                               <Button
                                 variant="ghost"
@@ -121,11 +119,13 @@ export default function SocialSessions({
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span>{t("sessions.participants")}</span>
                           <span>
-                            {session.joinedCount} / {maxSlots}
+                            {session.joinedCount} /{" "}
+                            {session.maxSlot ??
+                              t("playSessionOverview.unlimited")}
                           </span>
                         </div>
                         <ProgressBar
-                          value={(session.joinedCount / maxSlots) * 100}
+                          value={(session.joinedCount / session.maxSlot) * 100}
                         />
                       </div>
                     </CardContent>

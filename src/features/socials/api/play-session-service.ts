@@ -60,7 +60,7 @@ export const PlaySessionService = {
   updatePlaySession: async function (
     socialId: string,
     sessionId: string,
-    payload: PlaySessionRequest
+    payload: Partial<PlaySessionRequest>
   ): Promise<PlaySession> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.patch<ApiResponse<PlaySession>>(

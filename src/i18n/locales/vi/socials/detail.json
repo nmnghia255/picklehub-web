@@ -27,10 +27,14 @@
     "minutes": "Phút",
     "players": "Người chơi",
     "completed": "Hoàn tất",
+    "participants": "Người tham gia",
+    "unlimited": "Không giới hạn",
     "upcomingActive": "Sắp diễn ra / Đang diễn ra",
     "date": "Ngày",
     "time": "Thời gian",
-    "location": "Vị trí"
+    "location": "Vị trí",
+    "totalMatches": "Tổng số trận",
+    "joinedMatches": "Số trận tham gia"
   },
   "expenses": {
     "tab": "Quản lý chi phí",

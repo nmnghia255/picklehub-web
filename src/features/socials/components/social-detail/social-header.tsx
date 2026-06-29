@@ -29,6 +29,7 @@ interface SocialHeaderProps {
   status: SocialStatus
   format: SocialFormat
   isHost: boolean
+  isEditable: boolean
   isParticipant?: boolean
   onBack: () => void
   onEdit: () => void
@@ -39,6 +40,7 @@ export default function SocialHeader({
   status,
   format,
   isHost,
+  isEditable,
   isParticipant,
   onBack,
   onEdit,
@@ -75,7 +77,7 @@ export default function SocialHeader({
             <Button variant="ghost" size="icon" onClick={onBack}>
               <ArrowLeft className="size-4" />
             </Button>
-            {isHost && (
+            {isEditable && (
               <Button variant="ghost" size="icon" onClick={onEdit}>
                 <Edit className="size-4" />
               </Button>

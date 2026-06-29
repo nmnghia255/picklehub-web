@@ -146,22 +146,18 @@ export default function SocialListing({
       </div>
 
       <div className="flex flex-col gap-3 md:flex-row md:items-center">
-        {!isMySocials ? (
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              className="h-11 pl-10"
-              placeholder={t("listing.searchPlaceholder")}
-              value={filters.search ?? ""}
-              onChange={(e) => updateSingleFilter("search", e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") applyFilters()
-              }}
-            />
-          </div>
-        ) : (
-          <div className="flex-1" />
-        )}
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            className="h-11 pl-10"
+            placeholder={t("listing.searchPlaceholder")}
+            value={filters.search ?? ""}
+            onChange={(e) => updateSingleFilter("search", e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") applyFilters()
+            }}
+          />
+        </div>
         {hasSocialHostPlan && (
           <Button
             className="h-11 gap-2"

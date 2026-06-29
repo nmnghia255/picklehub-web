@@ -23,7 +23,7 @@
     "inProgress": "Đang diễn ra",
     "menOnly": "Nam",
     "womenOnly": "Nữ",
-    "any": "Bất kỳ",
+    "any": "Tự do",
     "mixedOnly": "Nam & Nữ",
     "junior": "Trẻ",
     "adult": "Người lớn",
@@ -74,8 +74,6 @@
     "cancellationPolicy": "Chính sách hủy",
     "visibility": "Hiển thị",
     "payment": "Thanh toán",
-    "joinSocial": "Tham gia",
-    "leaveSocial": "Rời buổi chơi",
     "joinSession": "Tham gia phiên",
     "leaving": "Đang rời...",
     "completing": "Đang hoàn tất...",
@@ -85,8 +83,15 @@
     "completeSuccess": "Hoàn tất buổi chơi thành công",
     "publishSuccess": "Đăng buổi chơi thành công",
     "full": "Đầy",
+    "available": "Còn trống",
     "publishSocial": "Đăng sự kiện",
-    "viewDetails": "Xem chi tiết"
+    "viewDetails": "Xem chi tiết",
+    "publishConfirmTitle": "Đăng sự kiện",
+    "publishConfirmDescription": "Bạn có chắc chắn muốn đăng sự kiện này không? Lưu ý rằng bạn sẽ không thể thay đổi thông tin sau khi sự kiện đã được đăng.",
+    "publishValidation": {
+      "noSessions": "Bạn phải tạo ít nhất một phiên chơi trước khi đăng sự kiện.",
+      "noPayment": "Vui lòng thiết lập thông tin thanh toán (Tên ngân hàng, tên tài khoản, số tài khoản) trước khi đăng sự kiện."
+    }
   },
   "hero": {
     "privateEvent": "Sự kiện riêng tư"

@@ -17,7 +17,7 @@ export interface PlaySession {
   startTime: string
   endTime: string
   status: string
-  maxslot: number
+  maxSlot: number
   isHost: boolean
   creatorId: string
   createdAt: string
@@ -27,8 +27,8 @@ export interface PlaySession {
 export interface PlaySessionRequest {
   title: string
   bookingIds: string[]
-  pricePerPlayer: number
   sessionFee: number
+  maxSlot: number
 }
 
 export interface ParticipantPayment {
@@ -49,14 +49,16 @@ export interface PlaySessionParticipant {
   playSessionId: string
   userId: string
   status: string
-  isGuest: boolean
+  isHost: boolean
   guestName: string | null
   skillLevel: number | null
   joinedAt: string
   user: {
     id: string
     name: string
+    email: string
     avatarUrl: string | null
+    role: string
   }
   payments: ParticipantPayment[]
 }

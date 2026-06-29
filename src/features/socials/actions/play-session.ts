@@ -27,3 +27,22 @@ export async function completePlaySession(
 ) {
   return await PlaySessionService.completePlaySession(social, playSessionId)
 }
+
+export async function updateSocialPlaySessionAction(
+  socialId: string,
+  sessionId: string,
+  input: Partial<PlaySessionRequest>
+) {
+  try {
+    const session = await PlaySessionService.updatePlaySession(
+      socialId,
+      sessionId,
+      input
+    )
+    return { success: true, data: session }
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Lỗi khi cập nhật buổi chơi"
+    return { success: false, error: errorMessage }
+  }
+}

@@ -36,7 +36,8 @@ export const SocialService = {
     role: string | null,
     page: number | null,
     limit: number | null,
-    status?: string | null
+    status?: string | null,
+    search?: string | null
   ): Promise<{
     data: ListSocial[]
     meta: ApiResponse<ListSocial[]>["meta"]
@@ -46,6 +47,7 @@ export const SocialService = {
     if (tab) searchParams.set("tab", tab)
     if (role) searchParams.set("role", role)
     if (status) searchParams.set("status", status)
+    if (search) searchParams.set("search", search)
     if (page !== null) searchParams.set("page", page.toString())
     if (limit !== null) searchParams.set("limit", limit.toString())
 
@@ -73,11 +75,10 @@ export const SocialService = {
   }> {
     const axios = await getAuthenticatedAxios()
     const searchParams = new URLSearchParams()
-    if (params.sortBy) searchParams.set("sortBy", params.sortBy)
-    if (params.order) searchParams.set("order", params.order)
+
     if (params.page) searchParams.set("page", params.page.toString())
     if (params.limit) searchParams.set("limit", params.limit.toString())
-    if (params.status) searchParams.set("status", params.status)
+
     if (params.search) searchParams.set("search", params.search)
     if (params.startFrom) searchParams.set("startFrom", params.startFrom)
     if (params.startTo) searchParams.set("startTo", params.startTo)
@@ -93,8 +94,6 @@ export const SocialService = {
     if (params.genderPolicy)
       searchParams.set("genderPolicy", params.genderPolicy)
     if (params.ageGroup) searchParams.set("ageGroup", params.ageGroup)
-    if (params.joinedOnly)
-      searchParams.set("joinedOnly", params.joinedOnly.toString())
 
     const response = await axios.get<ApiResponse<ListSocial[]>>(
       "/api/events/socials/discover",

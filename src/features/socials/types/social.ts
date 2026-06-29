@@ -16,10 +16,8 @@ export interface CreateSocialRequest {
   title: string
   note: string
   format: SocialFormat
-  maxSlots: number
   startTime: string
   endTime: string
-  isPrivate: boolean
   isFree: boolean
   submitDupr: boolean
   minimumLevel: number | null
@@ -60,7 +58,6 @@ export interface CreateSocialResponse {
   autoApproveJoinRequests: true
   hostRole: string
   cancellationFreezeHours: number | null
-  maxSlots: number
   joinedCount: number
   status: SocialStatus
   creatorId: string
@@ -74,14 +71,11 @@ export interface UpdateSocialRequest {
   title?: string
   note?: string
   format?: SocialFormat
-  maxSlots?: number
-  isPrivate?: boolean
   isFree?: boolean
   minimumLevel?: number | null
   maximumLevel?: number | null
   genderPolicy?: GenderPolicy
   ageGroup?: AgeGroup
-  allowGuests?: boolean
   submitDupr?: boolean
   cancellationFreezeHours?: number | null
   autoApproveJoinRequests?: boolean
@@ -97,7 +91,6 @@ export interface UpdateSocialRequest {
 
 export type SocialFormData = CreateSocialRequest & {
   packageFee?: number | null
-  allowGuests?: boolean
   totalExpense?: number
   status?: SocialStatus
 }
@@ -111,11 +104,8 @@ export interface User {
 }
 
 export interface ListSocialRequest {
-  sortBy?: "createdAt" | "startTime"
-  order?: "asc" | "desc"
   page?: number
   limit?: number
-  status?: SocialStatus
   search?: string
   startFrom?: string
   startTo?: string
@@ -126,7 +116,6 @@ export interface ListSocialRequest {
   format?: SocialFormat
   genderPolicy?: GenderPolicy
   ageGroup?: AgeGroup
-  joinedOnly?: boolean
 }
 
 export interface ListSocial {
@@ -135,14 +124,6 @@ export interface ListSocial {
   note: string
   startTime: string
   endTime: string
-  totalBookingCost: number
-  packageFee: number
-  totalExpense: number
-  paymentBankName: string | null
-  paymentAccountNumber: string | null
-  paymentAccountName: string | null
-  paymentQrUrl: string | null
-  paymentNote: string | null
   hasAvailableSlots: boolean
   genderPolicy: GenderPolicy
   ageGroup: AgeGroup
@@ -150,15 +131,12 @@ export interface ListSocial {
   submitDupr: boolean
   minimumLevel: number | null
   maximumLevel: number | null
-  isPrivate: boolean
   isFree: boolean
   autoApproveJoinRequests: boolean
   hostRole: string
   cancellationFreezeHours: number | null
-  maxSlots: number
   joinedCount: number
   status: SocialStatus
-  creatorId: string
   createdAt: string
   updatedAt: string
   creator: User

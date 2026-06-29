@@ -228,6 +228,7 @@ export default function PlaySessionDetail({
                     completedMatchesCount={completedMatches.length}
                     activeMatchesCount={inProgressMatches.length}
                     upcomingMatchesCount={scheduledMatches.length}
+                    matches={matches}
                     isHost={isHost}
                     socialId={socialId}
                     onJoin={handleJoin}

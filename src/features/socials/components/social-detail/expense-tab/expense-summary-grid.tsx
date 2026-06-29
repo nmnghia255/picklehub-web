@@ -46,7 +46,6 @@ function ExpenseStatCard({
 export function ExpenseSummaryGrid({
   totalCourtExpense,
   confirmedParticipants,
-  totalParticipants,
   extraExpense,
   paidMembers,
   collectedAmount,
@@ -54,7 +53,6 @@ export function ExpenseSummaryGrid({
 }: {
   totalCourtExpense: number
   confirmedParticipants: number
-  totalParticipants: number
   extraExpense: number
   paidMembers: number
   collectedAmount: number
@@ -72,7 +70,7 @@ export function ExpenseSummaryGrid({
       />
       <ExpenseStatCard
         label={t("expenses.summary.participants")}
-        value={`${confirmedParticipants} / ${totalParticipants}`}
+        value={confirmedParticipants.toString()}
         iconClassName="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 lg:size-10"
         icon={Users}
       />

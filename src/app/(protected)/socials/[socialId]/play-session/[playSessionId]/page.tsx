@@ -18,9 +18,8 @@ export default async function Page(props: {
   let matches: PlaySessionMatch[] = []
 
   try {
-    const [fetchedSocial, fetchedSession, fetchedParticipants, fetchedMatches] =
+    const [fetchedSession, fetchedParticipants, fetchedMatches] =
       await Promise.all([
-        SocialService.getSocial(params.socialId),
         PlaySessionService.getPlaySession(
           params.socialId,
           params.playSessionId

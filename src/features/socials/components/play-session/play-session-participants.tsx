@@ -13,11 +13,6 @@ import type { PlaySessionParticipant } from "../../types/play-session"
 import type { User } from "../../types/social"
 import { getParticipantStatusLabel } from "../../utils"
 
-interface SessionParticipants extends Omit<PlaySessionParticipant, "user"> {
-  user?: User
-  isHost?: boolean
-}
-
 export default function PlaySessionParticipants({
   participants,
   socialId,
@@ -33,19 +28,6 @@ export default function PlaySessionParticipants({
     enabled: !!socialId,
   })
 
-  const sessionParticipants: SessionParticipants[] = participants.map(
-    (participant) => {
-      const sp = socialParticipants.find(
-        (sp) => sp.userId === participant.userId
-      )
-      return {
-        ...participant,
-        user: sp?.user,
-        isHost: sp?.isHost,
-      }
-    }
-  )
-
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold">{t("detail.participants")}</h2>
@@ -55,7 +37,7 @@ export default function PlaySessionParticipants({
         </div>
       ) : (
         <div className="mt-4 space-y-3">
-          {sessionParticipants.map((participant) => {
+          {participants.map((participant) => {
             return (
               <Card
                 key={participant.id}
@@ -67,13 +49,13 @@ export default function PlaySessionParticipants({
                       <AvatarImage
                         src={participant.user?.avatarUrl ?? undefined}
                         alt={
-                          participant.isGuest
+                          participant.isHost
                             ? participant.guestName || "Guest"
                             : participant.user?.name || "Unknown"
                         }
                       />
                       <AvatarFallback>
-                        {(participant.isGuest
+                        {(participant.isHost
                           ? participant.guestName || "Guest"
                           : participant.user?.name || "Unknown"
                         ).slice(0, 1) ?? "Host"}
@@ -81,7 +63,7 @@ export default function PlaySessionParticipants({
                     </Avatar>
                     <div>
                       <p className="flex items-center text-sm font-medium">
-                        {participant.isGuest
+                        {participant.isHost
                           ? participant.guestName || "Guest"
                           : participant.user?.name || "Unknown"}
                         {participant.isHost && (
@@ -115,7 +97,7 @@ export default function PlaySessionParticipants({
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {t("detail.joinedOn", {
-                      date: format(new Date(participant.joinedAt), "MMM d"),
+                      date: format(new Date(participant.joinedAt), "dd/MM"),
                     })}
                   </p>
                 </CardContent>

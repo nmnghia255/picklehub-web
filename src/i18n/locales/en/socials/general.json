@@ -70,15 +70,20 @@
     "cancellationPolicy": "Cancellation Policy",
     "visibility": "Visibility",
     "payment": "Payment",
-    "joinSocial": "Join Social",
-    "leaveSocial": "Leave Social",
     "joinSession": "Join Session",
     "leaveSession": "Leave Session",
     "full": "Full",
+    "available": "Available",
     "leaving": "Leaving...",
     "publishing": "Publishing...",
     "publishSocial": "Publish Event",
-    "viewDetails": "Xem chi tiết"
+    "viewDetails": "View Details",
+    "publishConfirmTitle": "Publish Event",
+    "publishConfirmDescription": "Are you sure you want to publish this event? Note that you will not be able to make any changes after it is published.",
+    "publishValidation": {
+      "noSessions": "You must create at least one play session before publishing.",
+      "noPayment": "Please set up payment information (Bank name, account name, account number) before publishing."
+    }
   },
   "hero": {
     "privateEvent": "Private Event"

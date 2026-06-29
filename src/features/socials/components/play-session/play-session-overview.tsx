@@ -25,12 +25,12 @@ import {
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
+import type { PlaySessionCardMatch } from "../../types/match"
 import type {
   PlaySession,
   PlaySessionParticipant,
 } from "../../types/play-session"
 import { InfoRow } from "../social-detail/infor-row"
-import ProgressBar from "./progress-bar"
 
 function StatCard({
   value,
@@ -43,12 +43,16 @@ function StatCard({
 }) {
   return (
     <Card className="p-0">
-      <CardContent className="flex h-full min-h-[105px] flex-col justify-between p-5">
+      <CardContent className="flex h-full flex-col justify-center px-4 py-6">
         <div>
-          <div className="text-3xl font-semibold">{value}</div>
-          <div className="mt-1 text-sm text-muted-foreground">{label}</div>
+          <div className="text-2xl leading-none font-bold tracking-tight">
+            {value}
+          </div>
+          <div className="mt-1.5 text-xs leading-none font-medium text-muted-foreground">
+            {label}
+          </div>
         </div>
-        {children}
+        {children && <div className="mt-2">{children}</div>}
       </CardContent>
     </Card>
   )
@@ -58,9 +62,7 @@ export default function PlaySessionOverview({
   session,
   participants,
   duration,
-  completedMatchesCount,
-  activeMatchesCount,
-  upcomingMatchesCount,
+  matches = [],
   isHost = false,
   socialId,
   onJoin,
@@ -69,10 +71,8 @@ export default function PlaySessionOverview({
   session: PlaySession
   participants: PlaySessionParticipant[]
   duration: number
-  completedMatchesCount: number
-  activeMatchesCount: number
-  upcomingMatchesCount: number
-  isHost?: boolean
+  matches?: PlaySessionCardMatch[]
+  isHost: boolean
   socialId?: string
   onJoin: () => void
   onLeave: () => void
@@ -128,33 +128,50 @@ export default function PlaySessionOverview({
     }
   }
 
-  const hasAvailableSlots = session.joinedCount < session.maxslot
+  const hasAvailableSlots = session.joinedCount < session.maxSlot
   const currentUserId = sessionData?.user?.id
   const isParticipant = participants.some(
     (p) => p.userId === currentUserId && p.status !== "CANCELLED"
   )
 
+  const isEditable = true || (isHost && !isCompleted)
+
+  const myParticipant = participants.find((p) => p.userId === currentUserId)
+  const totalMatchesCount = matches.length
+  const userJoinedMatchesCount = matches.filter((m) => {
+    const playerIds = [
+      m.team1?.player1?.id,
+      m.team1?.player2?.id,
+      m.team2?.player1?.id,
+      m.team2?.player2?.id,
+    ].filter(Boolean)
+    return (
+      playerIds.includes(currentUserId) ||
+      (myParticipant && playerIds.includes(myParticipant.id))
+    )
+  }).length
+
   return (
     <div className="space-y-0">
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-2 gap-10 md:grid-cols-4">
         <StatCard value={duration} label={t("playSessionOverview.minutes")} />
         <StatCard
-          value={`${session.joinedCount} / ${session.maxslot}`}
-          label={t("sidebar.participants", { defaultValue: "Participants" })}
-        >
-          <div className="mt-2 space-y-1">
-            <ProgressBar
-              value={(session.joinedCount / session.maxslot) * 100}
-            />
-          </div>
-        </StatCard>
-        <StatCard
-          value={completedMatchesCount}
-          label={t("playSessionOverview.completed")}
+          value={`${session.joinedCount} / ${session.maxSlot ?? t("playSessionOverview.unlimited")}`}
+          label={t("playSessionOverview.participants", {
+            defaultValue: "Participants",
+          })}
         />
         <StatCard
-          value={upcomingMatchesCount + activeMatchesCount}
-          label={t("playSessionOverview.upcomingActive")}
+          value={totalMatchesCount}
+          label={t("playSessionOverview.totalMatches", {
+            defaultValue: "Total Matches",
+          })}
+        />
+        <StatCard
+          value={userJoinedMatchesCount}
+          label={t("playSessionOverview.joinedMatches", {
+            defaultValue: "My Matches",
+          })}
         />
       </div>
 
@@ -164,7 +181,7 @@ export default function PlaySessionOverview({
         <InfoRow
           icon={<CalendarDays className="size-5" />}
           label={t("playSessionOverview.date")}
-          value={format(new Date(session.startTime), "MMM d, yyyy")}
+          value={format(new Date(session.startTime), "dd/MM/yyyy")}
           iconClassName="bg-blue-500/10 text-blue-600 dark:text-blue-400"
         />
         <InfoRow
@@ -193,11 +210,11 @@ export default function PlaySessionOverview({
         )}
       </div>
 
-      {(isHost || session.status === "PUBLISHED" || isParticipant) && (
+      {(isEditable || session.status === "PUBLISHED" || isParticipant) && (
         <>
           <Separator className="my-6" />
           <div className="flex flex-wrap items-center gap-3">
-            {isHost && !isCompleted && isNotStarted && (
+            {isEditable && !isCompleted && isNotStarted && (
               <Button
                 onClick={handleStart}
                 disabled={isPending}
