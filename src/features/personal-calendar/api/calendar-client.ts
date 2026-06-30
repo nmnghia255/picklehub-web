@@ -9,7 +9,6 @@ const localClient = axios.create({
 })
 
 // --- Types ---
-// ... (keep types same)
 export type CalendarActivityType =
   | "BOOKING"
   | "SOCIAL_SESSION"
@@ -24,7 +23,12 @@ export type CalendarActivityStatus =
   | "COMPLETED"
   | "CANCELLED"
 
-export type CalendarUserRole = "OWNER" | "PARTICIPANT" | "COACH"
+export type CalendarUserRole =
+  | "OWNER"
+  | "PARTICIPANT"
+  | "COACH"
+  | "PLAYER"
+  | "HOST"
 
 export interface CalendarLocation {
   name: string
@@ -48,6 +52,52 @@ export interface CalendarActivity {
 
 export type GetMyCalendarResponse = CalendarActivity[]
 
+// Raw item shape from the backend API
+interface CalendarApiItem {
+  id: string
+  type: string
+  title: string
+  startTime: string
+  endTime: string
+  location: {
+    name: string
+    address?: string
+    centerId?: string
+  }
+  status: string
+  role: string
+  metadata?: Record<string, unknown>
+}
+
+interface CalendarApiResponse {
+  success: boolean
+  message?: string
+  data: {
+    items: CalendarApiItem[]
+    warnings?: string[]
+  }
+}
+
+function mapApiItem(item: CalendarApiItem): CalendarActivity {
+  return {
+    id: item.id,
+    title: item.title,
+    startTime: item.startTime,
+    endTime: item.endTime,
+    type: item.type as CalendarActivityType,
+    status: item.status as CalendarActivityStatus,
+    role: item.role as CalendarUserRole,
+    location: {
+      name: item.location.name,
+      address: item.location.address ?? "",
+    },
+    metadata: item.metadata,
+    participantsCount: 0,
+    organizer: "",
+    description: "",
+  }
+}
+
 // --- API Layer ---
 
 export const calendarQueryKeys = {
@@ -64,18 +114,13 @@ export async function getMyCalendar(
   if (startDate) params.startDate = startDate
   if (endDate) params.endDate = endDate
 
-  const response = await localClient.get<
-    { activities?: GetMyCalendarResponse } | GetMyCalendarResponse
-  >("/api/users/me/calendar", {
-    params,
-  })
+  const response = await localClient.get<CalendarApiResponse>(
+    "/api/users/me/calendar",
+    { params }
+  )
 
-  // Handle case where API might return { activities: [...] } or just [...]
-  const data = response.data
-  if (Array.isArray(data)) {
-    return data
-  }
-  return (data as { activities: GetMyCalendarResponse }).activities || []
+  const items = response.data?.data?.items ?? []
+  return items.map(mapApiItem)
 }
 
 // --- React Query Hook ---
