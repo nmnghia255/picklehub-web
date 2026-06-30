@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowRight, CalendarDays, Plus, UserPlus } from "lucide-react"
+import { ArrowRight, CalendarDays, UserPlus } from "lucide-react"
 import Link from "next/link"
 
 import { Badge } from "@/components/ui/badge"
@@ -116,9 +116,6 @@ export function CoachDashboardStats() {
                 className="h-12 w-full justify-start rounded-2xl"
               >
                 <Link href={action.href}>
-                  {action.label === "Tạo giáo án" ? (
-                    <Plus className="size-4" />
-                  ) : null}
                   {action.label === "Thêm học viên" ? (
                     <UserPlus className="size-4" />
                   ) : null}

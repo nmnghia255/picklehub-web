@@ -52,7 +52,7 @@ export const todaySchedule: TodayScheduleItem[] = [
 ]
 
 export const quickActions = [
-  { label: "Tạo giáo án", href: "/coach/curriculum" },
+  { label: "Hồ sơ HLV", href: "/coach/profile" },
   { label: "Tạo lịch dạy", href: "/coach/schedule" },
   { label: "Thêm học viên", href: "/coach/students" },
 ] as const

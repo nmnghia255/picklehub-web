@@ -108,11 +108,6 @@ export function CoachStudentsTable({ students }: CoachStudentsTableProps) {
                       Xem hồ sơ
                     </Link>
                   </Button>
-                  <Button asChild className="rounded-full">
-                    <Link href={`/coach/roadmap?studentId=${student.id}`}>
-                      Xem lộ trình
-                    </Link>
-                  </Button>
                 </div>
               </div>
             </CardContent>
