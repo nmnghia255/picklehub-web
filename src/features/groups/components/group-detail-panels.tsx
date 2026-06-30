@@ -1,6 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { GroupActivitySchedulePage } from "@/features/group-activity-schedule/components/group-activity-schedule-page"
-import { GroupChat } from "@/features/groups/components/group-chat"
 import type { Group, Invitation, Member } from "@/features/groups/types"
 import { GroupFeedNotificationsContainer } from "@/features/notifications/components/group-feed-notifications-container"
 
@@ -20,7 +19,7 @@ interface GroupDetailPanelsProps {
   currentUserId: string
   currentUserRole: string | null
   invitations: Invitation[]
-  defaultTab?: "overview" | "activity" | "finance" | "court-bookings" | "chat"
+  defaultTab?: "overview" | "activity" | "finance" | "court-bookings"
 }
 
 export async function GroupDetailPanels({
@@ -103,11 +102,6 @@ export async function GroupDetailPanels({
           currentUserId={currentUserId}
           currentUserRole={currentUserRole}
         />
-      }
-      chat={
-        <div className="h-[70vh] min-h-136 min-w-0 overflow-hidden rounded-xl border bg-card shadow-sm">
-          <GroupChat groupId={groupId} fullPage />
-        </div>
       }
       defaultValue={
         defaultTab === "court-bookings" ? "court-bookings" : defaultTab

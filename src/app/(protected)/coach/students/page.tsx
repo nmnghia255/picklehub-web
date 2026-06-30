@@ -1,6 +1,5 @@
 import { CoachPageHeader } from "@/features/coach/components/coach-page-header"
 import { CoachStudentsTable } from "@/features/coach/components/coach-students-table"
-import { students } from "@/features/coach/data/mockStudents"
 
 export default function CoachStudentsPage() {
   return (
@@ -11,7 +10,7 @@ export default function CoachStudentsPage() {
           description="Tìm kiếm theo tên hoặc SĐT, lọc theo level và mở nhanh hồ sơ hoặc lộ trình của từng học viên."
         />
 
-        <CoachStudentsTable students={students} />
+        <CoachStudentsTable students={[]} />
       </div>
     </div>
   )

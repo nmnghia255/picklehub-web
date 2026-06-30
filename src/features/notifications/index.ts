@@ -20,10 +20,7 @@ export type { GroupFeedNotificationItem } from "./components/group-feed-notifica
 export { GroupFeedNotifications } from "./components/group-feed-notifications"
 
 // Export server actions
-export {
-  fetchGroupFeedNotifications,
-  sendGroupFeedNotificationAction,
-} from "./actions/notifications"
+export { sendGroupFeedNotificationAction } from "./actions/notifications"
 
 // Export hooks
 export { useGroupFeedNotifications } from "./hooks/use-group-feed-notifications"

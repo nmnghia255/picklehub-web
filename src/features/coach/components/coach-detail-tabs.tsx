@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useState } from "react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CoachDashboardStats } from "@/features/coach/components/coach-dashboard-stats"
@@ -8,13 +8,9 @@ import { CoachIncomeOverview } from "@/features/coach/components/coach-income-ov
 import { CoachProfileForm } from "@/features/coach/components/coach-profile-form"
 import { CoachStudentsTable } from "@/features/coach/components/coach-students-table"
 import { CoachWeekSchedule } from "@/features/coach/components/coach-week-schedule"
-import { getCoachStudents } from "@/features/coach/data/coach-learner-relationship"
-import { students } from "@/features/coach/data/mockStudents"
 
 import { CoachRecommendation } from "./coach-recommendation"
 import { CoachReviews } from "./coach-reviews"
-
-const CURRENT_COACH_ID = "c1"
 
 export type CoachTabValue =
   | "overview"
@@ -26,11 +22,6 @@ export type CoachTabValue =
 
 export function CoachDetailTabs() {
   const [activeTab, setActiveTab] = useState<CoachTabValue>("overview")
-
-  const coachStudents = useMemo(() => {
-    const coachStudentIds = getCoachStudents(CURRENT_COACH_ID).map((s) => s.id)
-    return students.filter((s) => coachStudentIds.includes(s.id))
-  }, [])
 
   return (
     <Tabs
@@ -71,7 +62,7 @@ export function CoachDetailTabs() {
       </TabsContent>
 
       <TabsContent value="students" className="mt-6 w-full min-w-0">
-        <CoachStudentsTable students={coachStudents} />
+        <CoachStudentsTable students={[]} />
       </TabsContent>
 
       <TabsContent value="schedule" className="mt-6 w-full min-w-0">
@@ -84,7 +75,7 @@ export function CoachDetailTabs() {
 
       <TabsContent value="reviews" className="mt-6 w-full min-w-0">
         <div className="space-y-8">
-          <CoachReviews coachId={CURRENT_COACH_ID} />
+          <CoachReviews coachId="" />
           <CoachRecommendation />
         </div>
       </TabsContent>

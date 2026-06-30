@@ -16,10 +16,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import type {
-  StudentLevel,
-  StudentRecord,
-} from "@/features/coach/data/mockStudents"
+
+type StudentLevel = "Beginner" | "Intermediate" | "Advanced"
+
+interface StudentRecord {
+  id: string
+  name: string
+  phone: string
+  avatar: string
+  level: StudentLevel
+  sessionsCompleted: number
+  currentPlan: string
+  email: string
+  notes: string
+}
 
 type CoachStudentsTableProps = {
   students: StudentRecord[]

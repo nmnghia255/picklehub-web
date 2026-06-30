@@ -11,7 +11,6 @@ export type GroupDetailTabValue =
   | "court-bookings"
   | "equipment"
   | "guest-members"
-  | "chat"
 
 const GroupDetailTabContext = createContext<GroupDetailTabValue>("overview")
 
@@ -26,7 +25,6 @@ interface GroupDetailTabsProps {
   courtBookings: ReactNode
   equipment: ReactNode
   guestMembers: ReactNode
-  chat: ReactNode
   defaultValue?: GroupDetailTabValue
 }
 
@@ -37,7 +35,6 @@ export function GroupDetailTabs({
   courtBookings,
   equipment,
   guestMembers,
-  chat,
   defaultValue = "overview",
 }: GroupDetailTabsProps) {
   const [activeTab, setActiveTab] = useState<GroupDetailTabValue>(defaultValue)
@@ -71,9 +68,6 @@ export function GroupDetailTabs({
           <TabsTrigger value="guest-members" className="sm:flex-none">
             Người vãng lai
           </TabsTrigger>
-          <TabsTrigger value="chat" className="sm:flex-none">
-            Chat
-          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-6 w-full min-w-0">
@@ -93,9 +87,6 @@ export function GroupDetailTabs({
         </TabsContent>
         <TabsContent value="guest-members" className="mt-6 w-full min-w-0">
           {guestMembers}
-        </TabsContent>
-        <TabsContent value="chat" className="mt-6 w-full min-w-0">
-          {chat}
         </TabsContent>
       </Tabs>
     </GroupDetailTabContext.Provider>

@@ -1,5 +1,5 @@
 import { atom } from "jotai"
 
-import { feedNotifications } from "../mock-data/feed-notifications"
+import type { FeedNotification } from "@/features/feed/types"
 
-export const notificationFeedAtom = atom(feedNotifications)
+export const notificationFeedAtom = atom<FeedNotification[]>([])

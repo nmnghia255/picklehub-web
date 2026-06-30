@@ -3,7 +3,7 @@
 import type {
   FeedNotification,
   FeedNotificationType,
-} from "@/features/feed/mock-data/feed-notifications"
+} from "@/features/feed/types"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 /**

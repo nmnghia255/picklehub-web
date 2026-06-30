@@ -17,17 +17,18 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import type {
-  ScheduleBlock,
-  ScheduleView,
-} from "@/features/coach/data/mockSchedule"
-import {
-  daySlots,
-  scheduleBlocks,
-  weekDays,
-} from "@/features/coach/data/mockSchedule"
 
-const viewTabs: ScheduleView[] = ["week", "day"]
+type ScheduleBlock = {
+  id: string
+  day: string
+  startTime: string
+  endTime: string
+  student: string
+  lessonPlan: string
+  location: string
+  status: "Đã hoàn thành" | "Chưa hoàn thành"
+  note: string
+}
 
 type ScheduleDraft = {
   student: string
@@ -37,16 +38,20 @@ type ScheduleDraft = {
   note: string
 }
 
+const weekDays = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"]
+const daySlots = ["08:00", "10:00", "13:30", "15:00", "17:00"]
+const viewTabs = ["week", "day"] as const
+
 export function CoachWeekSchedule() {
-  const [view, setView] = useState<ScheduleView>("week")
-  const [blocks, setBlocks] = useState<ScheduleBlock[]>(scheduleBlocks)
+  const [view, setView] = useState<"week" | "day">("week")
+  const [blocks, setBlocks] = useState<ScheduleBlock[]>([])
   const [detailBlock, setDetailBlock] = useState<ScheduleBlock | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
   const [draft, setDraft] = useState<ScheduleDraft>({
     student: "",
-    date: "2026-04-07",
+    date: "",
     time: "08:00",
-    location: "Sân A2 - PickleHub Center",
+    location: "",
     note: "",
   })
 

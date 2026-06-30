@@ -1,13 +1,6 @@
 "use client"
 
-import {
-  MessageCircle,
-  Search,
-  UserCheck,
-  UserPlus,
-  UserRoundX,
-  XCircle,
-} from "lucide-react"
+import { Search, UserCheck, UserPlus, UserRoundX, XCircle } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -461,10 +454,6 @@ export default function FriendClient({
 
                           {tab === "friends" && (
                             <>
-                              <Button size="sm" type="button">
-                                <MessageCircle className="size-4" />
-                                Chat
-                              </Button>
                               <Button
                                 size="sm"
                                 variant="outline"

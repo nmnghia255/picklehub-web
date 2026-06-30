@@ -4,44 +4,27 @@ import { DashboardGroups } from "@/components/dashboard-groups"
 import { DashboardPendingInvites } from "@/components/dashboard-pending-invites"
 import { DashboardQuickActions } from "@/components/dashboard-quick-actions"
 import { DashboardStats } from "@/components/dashboard-stats"
+import { getMyGroups } from "@/features/groups/api/groups-service"
 import { getSession } from "@/lib/session"
 
-// Mock data - In production, this should come from API
-const mockGroups = [
-  {
-    id: "1",
-    name: "Nhóm Pickleball Hà Nội",
-    description: "Nhóm chơi pickleball tại Hà Nội",
-    memberCount: 12,
-    role: "OWNER" as const,
-  },
-  {
-    id: "2",
-    name: "Nhóm Bạn Đại Học",
-    description: "Nhóm bạn bè từ thời đại học",
-    memberCount: 8,
-    role: "MEMBER" as const,
-  },
-  {
-    id: "3",
-    name: "Nhóm Du Lịch",
-    memberCount: 5,
-    role: "MEMBER" as const,
-  },
-]
-
-const mockPendingInvites = [
-  {
-    id: "1",
-    groupName: "Nhóm Pickleball TP HCM",
-    invitedBy: "Nguyễn Văn A",
-    createdAt: "2024-03-25",
-  },
-]
+function mapGroup(g: Awaited<ReturnType<typeof getMyGroups>>[number]) {
+  return {
+    id: g.id,
+    name: g.name,
+    description: g.description ?? undefined,
+    memberCount: g.memberCount,
+    role: g.role as "OWNER" | "MEMBER",
+  }
+}
 
 export default async function HomePage() {
   const session = await getSession()
   const userName = session?.user?.email?.split("@")[0] || "Bạn"
+
+  const groups = (await getMyGroups().catch(() => [])).map(mapGroup)
+  const groupsCount = groups.length
+  const membersCount = groups.reduce((acc, g) => acc + g.memberCount, 0)
+  const pendingInvitesCount = 0
 
   return (
     <div className="container mx-auto max-w-6xl">
@@ -61,9 +44,9 @@ export default async function HomePage() {
           fallback={<div className="h-24 animate-pulse rounded-lg bg-muted" />}
         >
           <DashboardStats
-            groupsCount={mockGroups.length}
-            membersCount={mockGroups.reduce((acc, g) => acc + g.memberCount, 0)}
-            pendingInvitesCount={mockPendingInvites.length}
+            groupsCount={groupsCount}
+            membersCount={membersCount}
+            pendingInvitesCount={pendingInvitesCount}
           />
         </Suspense>
 
@@ -75,13 +58,13 @@ export default async function HomePage() {
         </Suspense>
 
         {/* Pending Invites */}
-        {mockPendingInvites.length > 0 && (
+        {pendingInvitesCount > 0 && (
           <Suspense
             fallback={
               <div className="h-32 animate-pulse rounded-lg bg-muted" />
             }
           >
-            <DashboardPendingInvites invites={mockPendingInvites} />
+            <DashboardPendingInvites invites={[]} />
           </Suspense>
         )}
 
@@ -98,7 +81,7 @@ export default async function HomePage() {
               <div className="h-40 animate-pulse rounded-lg bg-muted" />
             }
           >
-            <DashboardGroups groups={mockGroups} />
+            <DashboardGroups groups={groups} />
           </Suspense>
         </div>
       </div>

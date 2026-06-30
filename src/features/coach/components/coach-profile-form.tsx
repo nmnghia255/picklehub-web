@@ -49,12 +49,42 @@ import {
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  type CoachCertification,
-  type CoachProfile,
-  coachProfile as initialCoachProfile,
-  skillOptions,
-} from "@/features/coach/data/mockCoachProfile"
+
+type CoachCertification = {
+  id: string
+  name: string
+  organization: string
+  level: 1 | 2 | 3
+  year: number
+  verified: boolean
+  fileUrl: string
+  fileName: string
+}
+
+type CoachProfile = {
+  id: string
+  name: string
+  avatar: string
+  bio: string
+  location: string
+  experienceYears: number
+  certifications: CoachCertification[]
+  skills: string[]
+  teachingMethod: string
+  stats: {
+    totalSessions: number
+    totalStudents: number
+    rating: number
+    totalReviews: number
+  }
+}
+
+const skillOptions = [
+  { value: "Beginner Coaching", label: "Dạy người mới" },
+  { value: "Advanced Strategy", label: "Dạy nâng cao" },
+  { value: "Kids Coaching", label: "Dạy trẻ em" },
+  { value: "Tournament Coaching", label: "Huấn luyện thi đấu" },
+] as const
 
 type BasicInfoDraft = {
   avatar: string
@@ -109,25 +139,37 @@ function createCertificationDraft(
   }
 }
 
+const emptyCoach: CoachProfile = {
+  id: "",
+  name: "",
+  avatar: "",
+  bio: "",
+  location: "",
+  experienceYears: 0,
+  certifications: [],
+  skills: [],
+  teachingMethod: "",
+  stats: {
+    totalSessions: 0,
+    totalStudents: 0,
+    rating: 0,
+    totalReviews: 0,
+  },
+}
+
 export function CoachProfileForm() {
-  const [coach, setCoach] = useState<CoachProfile>(initialCoachProfile)
+  const [coach, setCoach] = useState<CoachProfile>(emptyCoach)
   const [isEditingBasicInfo, setIsEditingBasicInfo] = useState(false)
   const [basicInfoDraft, setBasicInfoDraft] = useState<BasicInfoDraft>({
-    avatar: initialCoachProfile.avatar,
-    bio: initialCoachProfile.bio,
-    location: initialCoachProfile.location,
-    experienceYears: String(initialCoachProfile.experienceYears),
+    avatar: "",
+    bio: "",
+    location: "",
+    experienceYears: "0",
     avatarFileName: "Chưa tải ảnh mới",
   })
-  const [selectedSkills, setSelectedSkills] = useState<string[]>(
-    initialCoachProfile.skills
-  )
-  const [teachingMethodDraft, setTeachingMethodDraft] = useState(
-    initialCoachProfile.teachingMethod
-  )
-  const [certifications, setCertifications] = useState<CoachCertification[]>(
-    initialCoachProfile.certifications
-  )
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([])
+  const [teachingMethodDraft, setTeachingMethodDraft] = useState("")
+  const [certifications, setCertifications] = useState<CoachCertification[]>([])
   const [certDialogOpen, setCertDialogOpen] = useState(false)
   const [certDialogMode, setCertDialogMode] = useState<"create" | "edit">(
     "create"
@@ -240,8 +282,8 @@ export function CoachProfileForm() {
       level: Number(certificationDraft.level) as CoachCertification["level"],
       year,
       verified: certificationDraft.verified === "verified",
-      fileUrl: certificationDraft.fileUrl || "/mock/cert-new.pdf",
-      fileName: certificationDraft.fileName || "cert-new.pdf",
+      fileUrl: certificationDraft.fileUrl || "",
+      fileName: certificationDraft.fileName || "",
     }
 
     setCertifications((prev) =>
@@ -284,17 +326,13 @@ export function CoachProfileForm() {
       <section className="rounded-3xl border bg-linear-to-br from-primary/15 via-sky-500/10 to-emerald-500/10 p-6 shadow-sm md:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl space-y-3">
-            <Badge variant="secondary" className="rounded-full px-3 py-1">
-              Mock profile workspace
-            </Badge>
             <div className="space-y-2">
               <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
                 Hồ sơ chuyên môn huấn luyện viên
               </h2>
               <p className="text-sm text-muted-foreground md:text-base">
                 Cập nhật thông tin cơ bản, chứng chỉ, chuyên môn và mô tả phương
-                pháp giảng dạy trong một màn hình duy nhất. Dữ liệu hiện đang là
-                mock để thay API sau.
+                pháp giảng dạy trong một màn hình duy nhất.
               </p>
             </div>
           </div>
@@ -401,7 +439,7 @@ export function CoachProfileForm() {
                       </Avatar>
 
                       <div className="space-y-2 rounded-2xl border border-dashed p-4">
-                        <Label htmlFor="avatarUpload">Upload avatar mock</Label>
+                        <Label htmlFor="avatarUpload">Upload avatar</Label>
                         <Input
                           id="avatarUpload"
                           type="file"
@@ -417,7 +455,7 @@ export function CoachProfileForm() {
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="space-y-2 sm:col-span-2">
                         <Label>Họ tên</Label>
-                        <Input value={coach.name} disabled />
+                        <Input value={coach.name || ""} disabled />
                       </div>
 
                       <div className="space-y-2 sm:col-span-2">
@@ -664,7 +702,7 @@ export function CoachProfileForm() {
                   className="rounded-full"
                 >
                   <Upload className="size-4" />
-                  Import mock
+                  Tải lên
                 </Button>
               </div>
 
@@ -697,8 +735,7 @@ export function CoachProfileForm() {
                   {coach.teachingMethod}
                 </div>
                 <p className="mt-2">
-                  Phần này đang lưu cục bộ trên mock state, sẵn sàng nối sang
-                  API sau.
+                  Phần này sẽ được kết nối với dữ liệu thực khi có API.
                 </p>
               </div>
             </CardContent>
@@ -763,7 +800,7 @@ export function CoachProfileForm() {
               {certDialogMode === "create" ? "Thêm chứng chỉ" : "Sửa chứng chỉ"}
             </DialogTitle>
             <DialogDescription>
-              Tải file mock và cập nhật các trường chứng chỉ ngay trong dialog.
+              Tải file và cập nhật các trường chứng chỉ ngay trong dialog.
             </DialogDescription>
           </DialogHeader>
 
@@ -872,9 +909,7 @@ export function CoachProfileForm() {
                 />
                 <div className="flex items-center gap-2 rounded-2xl border border-dashed px-3 py-2 text-sm text-muted-foreground">
                   <ImageIcon className="size-4" />
-                  <span>
-                    {certificationDraft.fileName || "Chưa chọn file mock"}
-                  </span>
+                  <span>{certificationDraft.fileName || "Chưa chọn file"}</span>
                 </div>
               </div>
             </div>

@@ -25,20 +25,14 @@ function getHttpStatus(error: unknown): number | null {
 
 interface GroupDetailPageProps {
   params: Promise<{ groupId: string }>
-  searchParams: Promise<{
-    delete?: string
-    view?: string
-  }>
 }
 
 export default async function GroupDetailPage({
   params,
-  searchParams,
 }: GroupDetailPageProps) {
   const { groupId } = await params
-  const { view } = await searchParams
   const session = await getSession()
-  const defaultTab = view === "chat" ? "chat" : "overview"
+  const defaultTab = "overview"
 
   let group
   let members = []

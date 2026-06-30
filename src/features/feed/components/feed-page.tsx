@@ -22,15 +22,15 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { fetchMyNotifications } from "@/features/notifications/actions/user-notifications"
-import { cn } from "@/lib/utils"
-
 import type {
   FeedFilter,
   FeedNotification,
   FeedNotificationStatus,
   FeedNotificationType,
-} from "../mock-data/feed-notifications"
+} from "@/features/feed/types"
+import { fetchMyNotifications } from "@/features/notifications/actions/user-notifications"
+import { cn } from "@/lib/utils"
+
 import { notificationFeedAtom } from "../store/feed-store"
 
 type FeedTypeMeta = {

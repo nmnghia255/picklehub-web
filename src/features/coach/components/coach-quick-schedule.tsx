@@ -1,7 +1,15 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { TodayScheduleItem } from "@/features/coach/data/mockDashboard"
+
+type TodayScheduleItem = {
+  id: string
+  time: string
+  target: string
+  location: string
+  lessonPlan: string
+  status: "Sắp bắt đầu" | "Đang diễn ra" | "Chưa bắt đầu"
+}
 
 type CoachQuickScheduleProps = {
   schedules: TodayScheduleItem[]
