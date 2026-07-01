@@ -1,6 +1,6 @@
 "use client"
 
-import { CalendarDays, Plus } from "lucide-react"
+import { CalendarDays } from "lucide-react"
 import { Fragment, useMemo, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
@@ -14,294 +14,240 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { Skeleton } from "@/components/ui/skeleton"
 
-type ScheduleBlock = {
-  id: string
-  day: string
-  startTime: string
-  endTime: string
-  student: string
-  lessonPlan: string
-  location: string
-  status: "Đã hoàn thành" | "Chưa hoàn thành"
-  note: string
+import type { CoachScheduleItem } from "../types/coach"
+import { useCoachSchedule } from "../hooks/use-coach-queries"
+
+const weekDays = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"]
+const displayDays = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"]
+const hourSlots = Array.from({ length: 12 }, (_, i) => `${String(i + 6).padStart(2, "0")}:00`)
+
+const statusColors: Record<string, string> = {
+  upcoming: "border-blue-300 bg-blue-50",
+  live: "border-green-300 bg-green-50",
+  past: "border-gray-200 bg-gray-50",
+  pending: "border-yellow-300 bg-yellow-50",
 }
 
-type ScheduleDraft = {
-  student: string
-  date: string
-  time: string
-  location: string
-  note: string
+const statusLabels: Record<string, string> = {
+  upcoming: "Sắp diễn ra",
+  live: "Đang diễn ra",
+  past: "Đã kết thúc",
+  pending: "Chờ xác nhận",
 }
 
-const weekDays = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"]
-const daySlots = ["08:00", "10:00", "13:30", "15:00", "17:00"]
-const viewTabs = ["week", "day"] as const
+function parseTimeIso(iso: string) {
+  const date = new Date(iso)
+  const dayIndex = date.getDay()
+  const hours = date.getHours()
+  const minutes = date.getMinutes()
+  return {
+    dayIndex,
+    dayName: weekDays[dayIndex],
+    timeKey: `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`,
+    hourKey: `${String(hours).padStart(2, "0")}:00`,
+    date,
+  }
+}
 
 export function CoachWeekSchedule() {
-  const [view, setView] = useState<"week" | "day">("week")
-  const [blocks, setBlocks] = useState<ScheduleBlock[]>([])
-  const [detailBlock, setDetailBlock] = useState<ScheduleBlock | null>(null)
-  const [createOpen, setCreateOpen] = useState(false)
-  const [draft, setDraft] = useState<ScheduleDraft>({
-    student: "",
-    date: "",
-    time: "08:00",
-    location: "",
-    note: "",
-  })
+  const { data, isLoading } = useCoachSchedule()
+  const [detailItem, setDetailItem] = useState<CoachScheduleItem | null>(null)
 
-  const blocksByKey = useMemo(
-    () =>
-      new Map(
-        blocks.map((block) => [`${block.day}-${block.startTime}`, block])
-      ),
-    [blocks]
-  )
+  const items = data?.data ?? []
 
-  const dayViewBlocks = useMemo(
-    () => blocks.filter((block) => block.day === "Thứ 2"),
-    [blocks]
-  )
+  const scheduleMap = useMemo(() => {
+    const map = new Map<string, CoachScheduleItem[]>()
+    for (const item of items) {
+      const { dayName, hourKey } = parseTimeIso(item.startTime)
+      if (!displayDays.includes(dayName)) continue
+      const key = `${dayName}-${hourKey}`
+      const existing = map.get(key) ?? []
+      existing.push(item)
+      map.set(key, existing)
+    }
+    return map
+  }, [items])
 
-  const openBlockDetail = (block: ScheduleBlock) => setDetailBlock(block)
-
-  const saveBlock = () => {
-    setBlocks((prev) => [
-      ...prev,
-      {
-        id: `sc-${Date.now()}`,
-        day: "Thứ 2",
-        startTime: draft.time,
-        endTime: `${String(Number(draft.time.slice(0, 2)) + 1).padStart(2, "0")}:${draft.time.slice(3)}`,
-        student: draft.student,
-        lessonPlan: "Buổi tập",
-        location: draft.location,
-        status: "Chưa hoàn thành",
-        note: draft.note,
-      },
-    ])
-    setCreateOpen(false)
+  if (isLoading) {
+    return (
+      <Card className="rounded-2xl border shadow-sm">
+        <CardContent className="p-8">
+          <div className="grid min-w-[920px] grid-cols-[100px_repeat(6,minmax(120px,1fr))] gap-2">
+            <div />
+            {displayDays.map((day) => (
+              <Skeleton key={day} className="h-10 rounded-xl" />
+            ))}
+            {hourSlots.map((time) => (
+              <Fragment key={time}>
+                <Skeleton className="h-24 rounded-2xl" />
+                {displayDays.map((day) => (
+                  <Skeleton key={`cell-${day}-${time}`} className="h-24 rounded-2xl" />
+                ))}
+              </Fragment>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2 rounded-2xl border bg-card p-2">
-        {viewTabs.map((tab) => (
-          <Button
-            key={tab}
-            type="button"
-            variant={view === tab ? "default" : "ghost"}
-            className="rounded-full"
-            onClick={() => setView(tab)}
-          >
-            {tab === "week" ? "Week view" : "Day view"}
-          </Button>
-        ))}
+      <Card className="rounded-2xl border shadow-sm">
+        <CardContent className="overflow-x-auto p-4">
+          <div className="grid min-w-[920px] grid-cols-[100px_repeat(6,minmax(120px,1fr))] gap-2">
+            <div />
+            {displayDays.map((day) => (
+              <div
+                key={day}
+                className="rounded-xl bg-muted/50 px-3 py-2 text-center text-sm font-medium"
+              >
+                {day}
+              </div>
+            ))}
 
-        <div className="ml-auto">
-          <Button className="rounded-full" onClick={() => setCreateOpen(true)}>
-            <Plus className="size-4" />
-            Tạo lịch
-          </Button>
-        </div>
-      </div>
-
-      {view === "week" ? (
-        <Card className="rounded-2xl border shadow-sm">
-          <CardContent className="overflow-x-auto p-4">
-            <div className="grid min-w-[920px] grid-cols-[100px_repeat(6,minmax(120px,1fr))] gap-2">
-              <div />
-              {weekDays.map((day) => (
+            {hourSlots.map((time) => (
+              <Fragment key={time}>
                 <div
-                  key={day}
-                  className="rounded-xl bg-muted/50 px-3 py-2 text-center text-sm font-medium"
+                  className="rounded-xl px-3 py-4 text-sm font-medium text-muted-foreground"
                 >
-                  {day}
+                  {time}
                 </div>
-              ))}
+                {displayDays.map((day) => {
+                  const key = `${day}-${time}`
+                  const cells = scheduleMap.get(key) ?? []
 
-              {daySlots.map((time) => (
-                <Fragment key={time}>
-                  <div className="rounded-xl px-3 py-4 text-sm font-medium">
-                    {time}
-                  </div>
-                  {weekDays.map((day) => {
-                    const block = blocksByKey.get(`${day}-${time}`)
-
-                    return (
-                      <button
-                        key={`${day}-${time}`}
-                        type="button"
-                        className={`min-h-24 rounded-2xl border p-3 text-left text-xs transition ${
-                          block
-                            ? "border-primary/30 bg-primary/10"
-                            : "border-dashed bg-muted/30 hover:bg-accent"
-                        }`}
-                        onClick={() => block && openBlockDetail(block)}
-                      >
-                        {block ? (
-                          <div className="space-y-1">
-                            <Badge variant="secondary" className="rounded-full">
-                              {block.status}
-                            </Badge>
-                            <p className="font-medium">{block.student}</p>
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      className={`min-h-24 rounded-2xl border p-2 text-left text-xs transition ${
+                        cells.length > 0
+                          ? "border-primary/30 bg-primary/5 hover:bg-primary/10"
+                          : "border-dashed bg-muted/30 hover:bg-accent"
+                      }`}
+                      onClick={() => cells.length > 0 && setDetailItem(cells[0])}
+                    >
+                      {cells.length > 0 ? (
+                        <div className="space-y-1">
+                          <Badge
+                            variant="outline"
+                            className={`rounded-full text-[10px] ${
+                              statusColors[cells[0].status] ?? ""
+                            }`}
+                          >
+                            {statusLabels[cells[0].status] ?? cells[0].status}
+                          </Badge>
+                          <p className="truncate font-medium">{cells[0].title}</p>
+                          {cells.length > 1 && (
                             <p className="text-muted-foreground">
-                              {block.lessonPlan}
+                              +{cells.length - 1} thêm
                             </p>
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground">Trống</span>
-                        )}
-                      </button>
-                    )
-                  })}
-                </Fragment>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-3">
-          {dayViewBlocks.map((block) => (
-            <Card key={block.id} className="rounded-2xl border shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <CalendarDays className="size-4 text-muted-foreground" />
-                      <p className="font-semibold">
-                        {block.startTime} - {block.endTime}
-                      </p>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {block.student}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {block.location}
-                    </p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    className="rounded-full"
-                    onClick={() => openBlockDetail(block)}
-                  >
-                    Xem chi tiết
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="sm:max-w-xl">
-          <DialogHeader>
-            <DialogTitle>Tạo lịch huấn luyện</DialogTitle>
-            <DialogDescription>
-              Chọn học viên, giáo án, thời gian và địa điểm cho buổi học mới.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid gap-4">
-            <div className="space-y-2">
-              <Label>Chọn học viên</Label>
-              <Input
-                value={draft.student}
-                onChange={(event) =>
-                  setDraft((prev) => ({ ...prev, student: event.target.value }))
-                }
-                placeholder="An Nguyễn"
-              />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Thời gian</Label>
-                <Input
-                  type="time"
-                  value={draft.time}
-                  onChange={(event) =>
-                    setDraft((prev) => ({ ...prev, time: event.target.value }))
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Địa điểm</Label>
-                <Input
-                  value={draft.location}
-                  onChange={(event) =>
-                    setDraft((prev) => ({
-                      ...prev,
-                      location: event.target.value,
-                    }))
-                  }
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Ghi chú</Label>
-              <Textarea
-                value={draft.note}
-                onChange={(event) =>
-                  setDraft((prev) => ({ ...prev, note: event.target.value }))
-                }
-                rows={3}
-              />
-            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">Trống</span>
+                      )}
+                    </button>
+                  )
+                })}
+              </Fragment>
+            ))}
           </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>
-              Hủy
-            </Button>
-            <Button onClick={saveBlock}>Lưu lịch</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </CardContent>
+      </Card>
 
       <Dialog
-        open={Boolean(detailBlock)}
-        onOpenChange={() => setDetailBlock(null)}
+        open={Boolean(detailItem)}
+        onOpenChange={() => setDetailItem(null)}
       >
         <DialogContent className="sm:max-w-xl">
-          {detailBlock ? (
+          {detailItem ? (
             <>
               <DialogHeader>
-                <DialogTitle>Chi tiết buổi học</DialogTitle>
+                <DialogTitle>{detailItem.title}</DialogTitle>
                 <DialogDescription>
-                  {detailBlock.day}, {detailBlock.startTime} -{" "}
-                  {detailBlock.endTime}
+                  {new Date(detailItem.startTime).toLocaleDateString("vi-VN", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                  ,{" "}
+                  {new Date(detailItem.startTime).toLocaleTimeString("vi-VN", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}{" "}
+                  -{" "}
+                  {new Date(detailItem.endTime).toLocaleTimeString("vi-VN", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant="outline"
+                    className={`rounded-full ${
+                      statusColors[detailItem.status] ?? ""
+                    }`}
+                  >
+                    {statusLabels[detailItem.status] ?? detailItem.status}
+                  </Badge>
+                  <Badge variant="secondary" className="rounded-full">
+                    {detailItem.type === "class" ? "Lớp học" : "Đặt lịch riêng"}
+                  </Badge>
+                </div>
+
+                {detailItem.description && (
+                  <p>{detailItem.description}</p>
+                )}
+
+                {detailItem.learners.length > 0 && (
+                  <div>
+                    <span className="font-medium">Học viên:</span>
+                    <ul className="mt-1 list-inside list-disc space-y-1 text-muted-foreground">
+                      {detailItem.learners.map((learner, index) => (
+                        <li key={learner.userId ?? index}>{learner.name}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {detailItem.location && (
+                  <p>
+                    <span className="font-medium">Địa điểm:</span>{" "}
+                    {detailItem.location}
+                  </p>
+                )}
+
+                {detailItem.meetingUrl && (
+                  <p>
+                    <span className="font-medium">Meeting URL:</span>{" "}
+                    <a
+                      href={detailItem.meetingUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-primary underline underline-offset-4"
+                    >
+                      {detailItem.meetingUrl}
+                    </a>
+                  </p>
+                )}
+
                 <p>
-                  <span className="font-medium">Học viên:</span>{" "}
-                  {detailBlock.student}
-                </p>
-                <p>
-                  <span className="font-medium">Giáo án:</span>{" "}
-                  {detailBlock.lessonPlan}
-                </p>
-                <p>
-                  <span className="font-medium">Địa điểm:</span>{" "}
-                  {detailBlock.location}
-                </p>
-                <p>
-                  <span className="font-medium">Trạng thái:</span>{" "}
-                  {detailBlock.status}
-                </p>
-                <p>
-                  <span className="font-medium">Ghi chú:</span>{" "}
-                  {detailBlock.note}
+                  <span className="font-medium">Số học viên:</span>{" "}
+                  {detailItem.learnerCount}
                 </p>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setDetailBlock(null)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setDetailItem(null)}
+                >
                   Đóng
                 </Button>
               </DialogFooter>

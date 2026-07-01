@@ -28,8 +28,8 @@ export function CoachQuickSchedule({ schedules }: CoachQuickScheduleProps) {
         <CardTitle>Lịch hôm nay</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {schedules.map((schedule) => (
-          <div key={schedule.id} className="rounded-2xl border p-4">
+        {schedules.map((schedule, index) => (
+          <div key={schedule.id ?? index} className="rounded-2xl border p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">

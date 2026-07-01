@@ -60,6 +60,7 @@ const sidebarItems: SidebarItem[] = [
   { title: "Thông báo", href: "/feed", icon: BellRing },
   { title: "Người học", href: "/learner", icon: BookOpen },
   { title: "Huấn luyện viên", href: "/coach", icon: Shield },
+  { title: "Quản trị viên", href: "/admin", icon: Shield },
 ]
 const socialMenuItems = [
   { title: "Danh sách buổi chơi", href: "/socials" },
@@ -264,6 +265,7 @@ export function AppSidebar() {
         )
       }
     }
+
   }
 
   return (

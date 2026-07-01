@@ -16,45 +16,47 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Skeleton } from "@/components/ui/skeleton"
 
-type StudentLevel = "Beginner" | "Intermediate" | "Advanced"
+import { useCoachLearners } from "../hooks/use-coach-queries"
 
-interface StudentRecord {
-  id: string
-  name: string
-  phone: string
-  avatar: string
-  level: StudentLevel
-  sessionsCompleted: number
-  currentPlan: string
-  email: string
-  notes: string
+const statusLabels: Record<string, string> = {
+  active: "Đang hoạt động",
+  inactive: "Không hoạt động",
 }
 
-type CoachStudentsTableProps = {
-  students: StudentRecord[]
-}
-
-const levelLabels: Record<StudentLevel, string> = {
-  Beginner: "Mới bắt đầu",
-  Intermediate: "Trung cấp",
-  Advanced: "Nâng cao",
-}
-
-export function CoachStudentsTable({ students }: CoachStudentsTableProps) {
+export function CoachStudentsTable() {
   const [query, setQuery] = useState("")
-  const [level, setLevel] = useState<StudentLevel | "all">("all")
+  const [status, setStatus] = useState<string>("all")
+
+  const { data, isLoading } = useCoachLearners({ search: query || undefined })
+
+  const students = data?.data ?? []
 
   const filteredStudents = useMemo(() => {
-    return students.filter((student) => {
-      const matchesQuery =
-        student.name.toLowerCase().includes(query.toLowerCase()) ||
-        student.phone.toLowerCase().includes(query.toLowerCase())
-      const matchesLevel = level === "all" || student.level === level
+    if (status === "all") return students
+    return students.filter((s) => s.status === status)
+  }, [status, students])
 
-      return matchesQuery && matchesLevel
-    })
-  }, [level, query, students])
+  if (isLoading) {
+    return (
+      <div className="grid gap-4 xl:grid-cols-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card key={i} className="rounded-2xl border shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-4">
+                <Skeleton className="size-12 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">
@@ -64,50 +66,52 @@ export function CoachStudentsTable({ students }: CoachStudentsTableProps) {
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Tìm theo tên hoặc SĐT"
+            placeholder="Tìm theo tên hoặc email"
             className="pl-9"
           />
         </div>
 
-        <Select
-          value={level}
-          onValueChange={(value) => setLevel(value as StudentLevel | "all")}
-        >
+        <Select value={status} onValueChange={setStatus}>
           <SelectTrigger>
-            <SelectValue placeholder="Filter level" />
+            <SelectValue placeholder="Filter trạng thái" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tất cả level</SelectItem>
-            <SelectItem value="Beginner">Beginner</SelectItem>
-            <SelectItem value="Intermediate">Intermediate</SelectItem>
-            <SelectItem value="Advanced">Advanced</SelectItem>
+            <SelectItem value="all">Tất cả</SelectItem>
+            <SelectItem value="active">Đang hoạt động</SelectItem>
+            <SelectItem value="inactive">Không hoạt động</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        {filteredStudents.map((student) => (
-          <Card key={student.id} className="rounded-2xl border shadow-sm">
+        {filteredStudents.map((student, index) => (
+          <Card key={student.id ?? index} className="rounded-2xl border shadow-sm">
             <CardContent className="p-4">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-start gap-4">
-                  <Avatar size="lg" className="size-12">
-                    <AvatarImage src={student.avatar} alt={student.name} />
+                  <Avatar className="size-12">
+                    <AvatarImage src={student.avatar ?? ""} alt={student.name} />
                     <AvatarFallback>
-                      {student.name.slice(0, 2).toUpperCase()}
+                      {(student.name ?? "?").slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
 
                   <div className="space-y-1">
                     <p className="font-semibold">{student.name}</p>
                     <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                      <Badge variant="secondary" className="rounded-full">
-                        {levelLabels[student.level]}
+                      <Badge
+                        variant={
+                          student.status === "active" ? "default" : "secondary"
+                        }
+                        className="rounded-full"
+                      >
+                        {statusLabels[student.status]}
                       </Badge>
-                      <span>{student.sessionsCompleted} buổi đã học</span>
+                      <span>{student.enrolledClassCount} lớp đã tham gia</span>
+                      <span>{student.completedBookingCount} buổi đã học</span>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {student.phone}
+                      {student.email}
                     </p>
                   </div>
                 </div>

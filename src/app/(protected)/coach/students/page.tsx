@@ -10,7 +10,7 @@ export default function CoachStudentsPage() {
           description="Tìm kiếm theo tên hoặc SĐT, lọc theo level và mở nhanh hồ sơ hoặc lộ trình của từng học viên."
         />
 
-        <CoachStudentsTable students={[]} />
+        <CoachStudentsTable />
       </div>
     </div>
   )

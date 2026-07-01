@@ -9,6 +9,8 @@ import { CoachProfileForm } from "@/features/coach/components/coach-profile-form
 import { CoachStudentsTable } from "@/features/coach/components/coach-students-table"
 import { CoachWeekSchedule } from "@/features/coach/components/coach-week-schedule"
 
+import { CoachBookingsPanel } from "./coach-bookings-panel"
+import { CoachClassesPanel } from "./coach-classes-panel"
 import { CoachRecommendation } from "./coach-recommendation"
 import { CoachReviews } from "./coach-reviews"
 
@@ -17,6 +19,8 @@ export type CoachTabValue =
   | "profile"
   | "students"
   | "schedule"
+  | "classes"
+  | "bookings"
   | "finance"
   | "reviews"
 
@@ -38,6 +42,12 @@ export function CoachDetailTabs() {
         </TabsTrigger>
         <TabsTrigger value="profile" className="sm:flex-none">
           Hồ sơ HLV
+        </TabsTrigger>
+        <TabsTrigger value="classes" className="sm:flex-none">
+          Lớp học
+        </TabsTrigger>
+        <TabsTrigger value="bookings" className="sm:flex-none">
+          Đặt lịch
         </TabsTrigger>
         <TabsTrigger value="students" className="sm:flex-none">
           Quản lý học viên
@@ -61,8 +71,16 @@ export function CoachDetailTabs() {
         <CoachProfileForm />
       </TabsContent>
 
+      <TabsContent value="classes" className="mt-6 w-full min-w-0">
+        <CoachClassesPanel />
+      </TabsContent>
+
+      <TabsContent value="bookings" className="mt-6 w-full min-w-0">
+        <CoachBookingsPanel />
+      </TabsContent>
+
       <TabsContent value="students" className="mt-6 w-full min-w-0">
-        <CoachStudentsTable students={[]} />
+        <CoachStudentsTable />
       </TabsContent>
 
       <TabsContent value="schedule" className="mt-6 w-full min-w-0">
@@ -75,7 +93,7 @@ export function CoachDetailTabs() {
 
       <TabsContent value="reviews" className="mt-6 w-full min-w-0">
         <div className="space-y-8">
-          <CoachReviews coachId="" />
+          <CoachReviews />
           <CoachRecommendation />
         </div>
       </TabsContent>

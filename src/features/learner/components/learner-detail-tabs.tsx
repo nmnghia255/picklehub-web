@@ -3,7 +3,9 @@
 import { useState } from "react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { LearnerBookingsPanel } from "@/features/learner/components/learner-bookings-panel"
 import { LearnerCoachDiscovery } from "@/features/learner/components/learner-coach-discovery"
+import { LearnerEnrollmentsPanel } from "@/features/learner/components/learner-enrollments-panel"
 import { LearnerOverview } from "@/features/learner/components/learner-overview"
 import { LearnerPayments } from "@/features/learner/components/learner-payments"
 import { LearnerProfile } from "@/features/learner/components/learner-profile"
@@ -13,6 +15,8 @@ export type LearnerTabValue =
   | "overview"
   | "profile"
   | "schedule"
+  | "enrollments"
+  | "bookings"
   | "payments"
   | "discovery"
 
@@ -38,6 +42,12 @@ export function LearnerDetailTabs() {
         <TabsTrigger value="schedule" className="sm:flex-none">
           Lịch tập
         </TabsTrigger>
+        <TabsTrigger value="enrollments" className="sm:flex-none">
+          Lớp đã đăng ký
+        </TabsTrigger>
+        <TabsTrigger value="bookings" className="sm:flex-none">
+          Đặt lịch riêng
+        </TabsTrigger>
         <TabsTrigger value="payments" className="sm:flex-none">
           Thanh toán
         </TabsTrigger>
@@ -56,6 +66,14 @@ export function LearnerDetailTabs() {
 
       <TabsContent value="schedule" className="mt-6 w-full min-w-0">
         <LearnerSchedule />
+      </TabsContent>
+
+      <TabsContent value="enrollments" className="mt-6 w-full min-w-0">
+        <LearnerEnrollmentsPanel />
+      </TabsContent>
+
+      <TabsContent value="bookings" className="mt-6 w-full min-w-0">
+        <LearnerBookingsPanel />
       </TabsContent>
 
       <TabsContent value="payments" className="mt-6 w-full min-w-0">
