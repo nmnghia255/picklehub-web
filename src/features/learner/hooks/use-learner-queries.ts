@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
+import type * as CoachTypes from "@/features/coach/types/coach"
 import { coachQueryKeys, learnerQueryKeys } from "@/features/coach/api/query-keys"
 import { CoachClient } from "@/features/coach/api/coach-client"
 
@@ -79,7 +80,7 @@ export function useMyBookings(params?: { status?: string; from?: string; to?: st
 export function useCreateBooking() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ coachId, dto }: { coachId: string; dto: import("../../coach/types/coach").CreateBookingDto }) =>
+    mutationFn: ({ coachId, dto }: { coachId: string; dto: CoachTypes.CreateBookingDto }) =>
       CoachClient.createBooking(coachId, dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: learnerQueryKeys.bookings() })

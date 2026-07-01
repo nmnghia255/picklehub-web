@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
+import type * as CoachTypes from "../types/coach"
 import { CoachClient } from "../api/coach-client"
 import { coachQueryKeys } from "../api/query-keys"
 
@@ -156,7 +157,7 @@ export function useCreateClass() {
 export function useUpdateClass() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ classId, dto }: { classId: string; dto: import("../types/coach").UpdateCoachClassDto }) =>
+    mutationFn: ({ classId, dto }: { classId: string; dto: CoachTypes.UpdateCoachClassDto }) =>
       CoachClient.updateClass(classId, dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClasses() })
@@ -195,7 +196,7 @@ export function useClassScheduleEntries(classId: string, params?: { from?: strin
 export function useAddScheduleSlot() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ classId, dto }: { classId: string; dto: import("../types/coach").CreateClassScheduleDto }) =>
+    mutationFn: ({ classId, dto }: { classId: string; dto: CoachTypes.CreateClassScheduleDto }) =>
       CoachClient.addScheduleSlot(classId, dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClasses() })
@@ -277,7 +278,7 @@ export function useCoachReviews(coachId: string) {
 export function useCreateReview() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ coachId, dto }: { coachId: string; dto: import("../types/coach").CreateReviewDto }) =>
+    mutationFn: ({ coachId, dto }: { coachId: string; dto: CoachTypes.CreateReviewDto }) =>
       CoachClient.createReview(coachId, dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [...coachQueryKeys.all, "reviews"] })
@@ -288,7 +289,7 @@ export function useCreateReview() {
 export function useUpdateReview() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ coachId, reviewId, dto }: { coachId: string; reviewId: string; dto: import("../types/coach").UpdateReviewDto }) =>
+    mutationFn: ({ coachId, reviewId, dto }: { coachId: string; reviewId: string; dto: CoachTypes.UpdateReviewDto }) =>
       CoachClient.updateReview(coachId, reviewId, dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [...coachQueryKeys.all, "reviews"] })
@@ -308,9 +309,8 @@ export function useDeleteReview() {
 }
 
 export function useRecommendCoach() {
-  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ coachId, dto }: { coachId: string; dto: import("../types/coach").CreateRecommendationDto }) =>
+    mutationFn: ({ coachId, dto }: { coachId: string; dto: CoachTypes.CreateRecommendationDto }) =>
       CoachClient.recommendCoach(coachId, dto),
   })
 }

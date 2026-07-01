@@ -113,7 +113,7 @@ function CoachListTab() {
       limit,
       ...(levelFilter !== "ALL" ? { level: levelFilter } : {}),
       /* TODO: Missing API - Server-side search/filter for coaches. Need search & verificationStatus params on GET /api/coaches */
-    } as any
+    }
   )
 
   const coaches = useMemo(() => {

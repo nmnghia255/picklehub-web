@@ -159,8 +159,8 @@ export async function DELETE(
 }
 
 export async function OPTIONS(
-  request: NextRequest,
-  context: { params: Promise<{ path: string[] }> }
+  _request: NextRequest,
+  _context: { params: Promise<{ path: string[] }> }
 ) {
   return new NextResponse(null, { status: 204 })
 }

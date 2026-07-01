@@ -14,7 +14,6 @@ import {
   Save,
   Star,
   Trash2,
-  Upload,
   Users,
 } from "lucide-react"
 import {
@@ -45,7 +44,7 @@ import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
 
-import type { Certification } from "../types/coach"
+
 import {
   useAddCertification,
   useDeleteCertification,
@@ -124,8 +123,6 @@ export function CoachProfileForm() {
   const [avatarFileName, setAvatarFileName] = useState("Chưa tải ảnh mới")
 
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
-  const [teachingMethodDraft, setTeachingMethodDraft] = useState("")
-
   const [certDialogOpen, setCertDialogOpen] = useState(false)
   const [certName, setCertName] = useState("")
   const [certOrg, setCertOrg] = useState("")
@@ -137,6 +134,7 @@ export function CoachProfileForm() {
 
   useEffect(() => {
     if (profile) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDisplayName(profile.displayName)
       setBio(profile.bio ?? "")
       setLocationCity(profile.locationCity ?? "")
@@ -540,7 +538,7 @@ export function CoachProfileForm() {
 
               {certifications.length === 0 && (
                 <p className="py-4 text-center text-sm text-muted-foreground">
-                  Chưa có chứng chỉ nào. Nhấn "Thêm chứng chỉ" để bắt đầu.
+                  Chưa có chứng chỉ nào. Nhấn \u201CThêm chứng chỉ\u201D để bắt đầu.
                 </p>
               )}
             </CardContent>

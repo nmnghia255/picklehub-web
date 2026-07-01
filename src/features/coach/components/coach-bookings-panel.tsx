@@ -75,8 +75,6 @@ export function CoachBookingsPanel() {
   const settlePayment = useSettleBookingPayment()
   const completeBooking = useCompleteBooking()
   const rejectPayment = useRejectBookingPayment()
-  const cancelBooking = useCancelBookingCoach()
-
   const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; booking: Booking | null; note: string }>({ open: false, booking: null, note: "" })
   const [rejectDialog, setRejectDialog] = useState<{ open: boolean; booking: Booking | null; reason: string }>({ open: false, booking: null, reason: "" })
   const [settleDialog, setSettleDialog] = useState<{ open: boolean; booking: Booking | null }>({ open: false, booking: null })

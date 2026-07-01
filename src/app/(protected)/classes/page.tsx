@@ -110,7 +110,9 @@ export default function ClassesPage() {
   const meta = data?.meta
   const totalPages = meta?.totalPages ?? 0
 
+  // Reset pagination when filters change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1)
   }, [debouncedCity, level, from, to])
 

@@ -168,6 +168,7 @@ export default function CoachClassDetailPage() {
 
   useEffect(() => {
     if (classData) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTitle(classData.title)
       setDescription(classData.description)
       setLevel(classData.level)

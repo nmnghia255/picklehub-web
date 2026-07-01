@@ -1,5 +1,6 @@
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
+import type * as CoachTypes from "../types/coach"
 import type {
   ApiResponse,
   Booking,
@@ -575,7 +576,7 @@ export const CoachService = {
     sort?: string
   }): Promise<{
     success: boolean
-    data: import("../types/coach").LearnerScheduleItem[]
+    data: CoachTypes.LearnerScheduleItem[]
     pagination: PaginationMeta
     summary: { total: number; classCount: number; bookingCount: number; upcomingCount: number; liveCount: number; pastCount: number; pendingCount: number }
     filters: { coachProfiles: { coachProfileId: string; name: string }[]; classes: { classId: string; title: string }[] }
@@ -583,7 +584,7 @@ export const CoachService = {
     const axios = await getAuthenticatedAxios()
     const response = await axios.get<{
       success: boolean
-      data: import("../types/coach").LearnerScheduleItem[]
+      data: CoachTypes.LearnerScheduleItem[]
       pagination: PaginationMeta
       summary: { total: number; classCount: number; bookingCount: number; upcomingCount: number; liveCount: number; pastCount: number; pendingCount: number }
       filters: { coachProfiles: { coachProfileId: string; name: string }[]; classes: { classId: string; title: string }[] }
