@@ -82,6 +82,8 @@ export default async function OtherProfilePage({ params }: PageProps) {
     winRate: stats?.winRate ?? 0,
   }
 
+  console.log("user", user)
+
   return (
     <div className="min-h-screen bg-background py-6 text-foreground">
       <PageContainer className="space-y-6">

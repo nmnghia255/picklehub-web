@@ -1,3 +1,17 @@
+export interface RefereeRequest {
+  refereeId: string
+  refereeName: string
+  refereeEmail: string
+  refereeAvatar: string
+  phone: string
+}
+
+export interface Referee extends RefereeRequest {
+  id: number
+  enrolledAt: string
+  workload: number
+}
+
 export interface AssignedReferee {
   id: string
   tournamentId: string
@@ -22,9 +36,4 @@ export interface AssignedReferee {
   court: {
     name: string
   }
-}
-
-export interface Referee {
-  refereeId: string
-  refereeName: string
 }

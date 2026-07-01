@@ -35,7 +35,7 @@ export function BookingHistoryFilters({
   const selectedDate = dateFilter ? new Date(dateFilter) : undefined
 
   return (
-    <div className="sticky top-4 z-30">
+    <div className="sticky top-16 z-30">
       <section className="space-y-4 rounded-3xl border bg-card/60 p-4 shadow-sm">
         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           <Filter className="size-4" />

@@ -48,6 +48,16 @@
       "description": "Choose one of the associated venues to start booking slots.",
       "continueBtn": "Continue"
     },
+    "eventDialog": {
+      "title": "Select Event to Book Courts For",
+      "description": "Choose the tournament event you are booking courts for. The booking page will show the minimum courts required based on the event participants.",
+      "eventLabel": "Tournament Event",
+      "selectPlaceholder": "Search and select an event...",
+      "noEvents": "No events found for this tournament.",
+      "matchesLabel": "matches",
+      "requirementHint": "You will need to book at least {{count}} court slot(s) to cover all matches in this event.",
+      "confirmBtn": "Continue to Booking"
+    },
     "page": {
       "title": "Book Tournament Slots",
       "subtitle": "Select a date and click on empty slots to select courts.",
@@ -86,7 +96,14 @@
       "unifiedDesc": "Enter contact details, perform bank transfer, and upload transfer receipt image below to complete reservation.",
       "bookingDetails": "Booking Details",
       "bankInfo": "Transfer Information",
-      "confirmAndBook": "Confirm Booking & Submit Payment"
+      "confirmAndBook": "Confirm Booking & Submit Payment",
+      "eventContext": "Event: {{name}}",
+      "matchRequirement": "Minimum {{count}} court slot(s) required for all matches",
+      "slotsRemaining": "{{count}} more needed",
+      "notEnoughSlotsTooltip": "Select at least {{count}} slots to book",
+      "selectedDate": "Booked Dates",
+      "selectDates": "Select Dates",
+      "selectedDatesCount": "{{count}} dates selected"
     },
     "grid": {
       "description": "Click on empty blocks to select court and time slots.",

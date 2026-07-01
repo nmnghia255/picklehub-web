@@ -2,6 +2,7 @@
   "scheduling": {
     "title": "Lập Lịch & Phân Sân Đấu",
     "subtitle": "Quản lý việc xếp lịch thi đấu, phân công sân đấu, và chỉ định trọng tài.",
+    "noMatchesCompletedYet": "Chưa có trận đấu nào hoàn thành",
     "unscheduled": {
       "title": "Trận Chưa Xếp Lịch",
       "subtitle": "{{count}} trận cần xếp lịch",

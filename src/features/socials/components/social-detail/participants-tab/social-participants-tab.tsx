@@ -87,7 +87,7 @@ export default function SocialParticipantsTab({
   }
 
   return (
-    <Card className="sticky top-6 h-fit p-0">
+    <Card className="sticky top-16 h-fit p-0">
       <CardContent className="space-y-6 p-6">
         <h2 className="text-lg font-semibold">{t("detail.participants")}</h2>
         {!participants || participants.length === 0 ? (

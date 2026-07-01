@@ -6,7 +6,7 @@ import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
 import { useCreateTournamentStore } from "../../stores/create-tournament-store"
 
-export function Step2Registration() {
+export function Step3Registration() {
   const { t } = useTournamentTranslation()
   const formValues = useCreateTournamentStore((state) => state.formValues)
   const setFormValue = useCreateTournamentStore((state) => state.setFormValue)

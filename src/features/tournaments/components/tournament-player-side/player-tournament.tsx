@@ -8,11 +8,6 @@ import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 import { cn } from "@/lib/utils"
 
 import { getMyProfileAction } from "../../actions/tournament-registration-actions"
-import {
-  liveScores as mockLiveScores,
-  mockSponsors as mockSponsorsData,
-  participants as mockParticipants,
-} from "../../mock-data/player-tournament"
 import type { Match } from "../../types/match"
 import type { Player } from "../../types/player"
 import type { Sponsor as TournamentSponsor } from "../../types/sponsor"
@@ -39,7 +34,7 @@ export function PlayerTournament({
   events = [],
   sponsors = [],
   participants = [],
-  matches,
+  matches = [],
 }: PlayerTournamentProps) {
   const { t } = useTournamentTranslation()
 
@@ -63,29 +58,20 @@ export function PlayerTournament({
   )
 
   // Fallbacks for display
-  const displaySponsors: TournamentSponsor[] =
-    sponsors && sponsors.length > 0
-      ? sponsors
-      : mockSponsorsData.map((s) => ({
-          id: s.id,
-          name: s.name,
-          logoUrl: s.logo || null,
-          amount: s.price,
-          websiteUrl: "",
-          createdAt: "",
-          updatedAt: "",
-        }))
-  const displayParticipants =
-    participants && participants.length > 0 ? participants : mockParticipants
-  const displayLiveScores = matches || mockLiveScores
+  const displaySponsors: TournamentSponsor[] = sponsors
+  const displayParticipants = participants
+  const displayLiveScores = matches
 
   // Calculate dynamic stats
-  const participantsCount =
-    participants && participants.length > 0
-      ? participants.length
-      : tournament?.registered || 156
-  const eventsCount = events.length > 0 ? events.length : 8
-  const totalMatchesCount = 64 // Standard mock fallback matches count
+  const participantsCount = events.reduce((acc, event) => {
+    const isDouble =
+      event.type?.toLowerCase() === "doubles" ||
+      event.type?.toLowerCase() === "double"
+    const multiplier = isDouble ? 2 : 1
+    return acc + (event.participants ?? 0) * multiplier
+  }, 0)
+  const eventsCount = events.length
+  const totalMatchesCount = 0
 
   return (
     <div className="min-h-screen bg-background">

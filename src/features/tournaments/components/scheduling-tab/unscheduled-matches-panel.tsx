@@ -1,8 +1,10 @@
 "use client"
 
-import { Loader2, Zap } from "lucide-react"
+import { Clock, Loader2, Zap } from "lucide-react"
 
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
@@ -15,7 +17,6 @@ interface UnscheduledMatchesPanelProps {
   onAutoScheduleClick: () => void
 }
 
-/*
 function getTeamName(
   team: { name?: string } | string | null | undefined
 ): string {
@@ -23,12 +24,10 @@ function getTeamName(
   if (typeof team === "object") return team.name || "TBD"
   return String(team)
 }
-*/
 
 export function UnscheduledMatchesPanel({
   unscheduledMatches,
   isLoading,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onMatchClick,
   onAutoScheduleClick,
 }: UnscheduledMatchesPanelProps) {
@@ -50,7 +49,7 @@ export function UnscheduledMatchesPanel({
         </p>
       </div>
 
-      <ScrollArea className="flex-1 p-4">
+      <ScrollArea className="min-h-0 flex-1 p-4">
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
@@ -65,7 +64,7 @@ export function UnscheduledMatchesPanel({
           </div>
         ) : (
           <div className="space-y-3">
-            {/* {unscheduledMatches.map((match) => (
+            {unscheduledMatches.map((match) => (
               <Card
                 key={match.id}
                 className="cursor-pointer border-l-4 transition-all hover:bg-gray-50 hover:shadow-md"
@@ -121,7 +120,7 @@ export function UnscheduledMatchesPanel({
                   </div>
                 </CardContent>
               </Card>
-            ))} */}
+            ))}
           </div>
         )}
       </ScrollArea>

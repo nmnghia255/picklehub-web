@@ -1,7 +1,11 @@
-export interface CreateTournamentBookingResponse {
+/** A single element of the array returned by the create-bookings API */
+export interface CreateTournamentBookingEntry {
   booking: CreateBooking
   sportCenter: SportCenter
 }
+
+/** The API returns an array of booking entries */
+export type CreateTournamentBookingResponse = CreateTournamentBookingEntry[]
 
 interface CreateBooking {
   id: string
@@ -19,29 +23,33 @@ interface SportCenter {
   id: string
   status: string
   totalPrice: number
-  bookingItems: BookingItem[]
+  bookingItems: CreateBookingItemResponse[]
   expiresAt: string
 }
 
-interface BookingItem {
+interface CreateBookingItemResponse {
   id: string
   courtId: string
   startTime: string
   endTime: string
 }
 
-export interface TournamentBookingRequest {
-  centerId: string
-  date: string
-  items: BookingItemRequest[]
-  playerName: string
-  phoneNumber: string
-}
-
-interface BookingItemRequest {
+export interface BookingItemRequest {
   courtId: string
   startTime: string
   endTime: string
+}
+
+interface Bookings {
+  date: string
+  items: BookingItemRequest[]
+}
+
+export interface TournamentBookingRequest {
+  centerId: string
+  bookings: Bookings[]
+  playerName: string
+  phoneNumber: string
 }
 
 export interface TournamentBooking {
@@ -87,4 +95,17 @@ export interface CancelBookingResponse {
   totalPrice: number
   createdAt: string
   updatedAt: string
+}
+
+export interface BookingItemResponse {
+  bookingId: number
+  externalBookingId: string
+  bookingItemId: string
+  date: string
+  startTime: string
+  endTime: string
+  courtId: string
+  courtName: string
+  status: string
+  assignedMatch: string | null
 }

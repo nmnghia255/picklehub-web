@@ -55,6 +55,7 @@
     "subtitle": "Hiển thị và quản lý các đơn vị tài trợ cho giải đấu",
     "addSponsor": "Thêm nhà tài trợ",
     "addSuccess": "Thêm thành công",
+    "loading": "Đang tải...",
     "deleteConfirm": "Bạn có chắc chắn muốn xóa nhà tài trợ này?",
     "deleteSuccess": "Xóa thành công",
     "topSponsor": "Nhà tài trợ hàng đầu",

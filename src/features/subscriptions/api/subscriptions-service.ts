@@ -2,6 +2,7 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type {
   AvailableSubscriptionPlan,
+  SubscribeToPlanResponse,
   Subscription,
   SubscriptionDetail,
 } from "../types/subscriptions"
@@ -41,6 +42,16 @@ export const SubscriptionService = {
     return unwrapApiResponse(response.data)
   },
 
+  // Admin only
+  // updatePlan: async (id: string, payload: UpdateSubscriptionPlanPayload) => {
+  //   const axios = await getAuthenticatedAxios()
+  //   const response = await axios.patch<ApiResponse<Subscription>>(
+  //     `/api/subscriptions/plans/${id}`,
+  //     {  }
+  //   )
+  //   return unwrapApiResponse(response.data)
+  // },
+
   getMySubscriptions: async () => {
     const axios = await getAuthenticatedAxios()
     const response = await axios.get<ApiResponse<Subscription[]>>(
@@ -65,9 +76,12 @@ export const SubscriptionService = {
     return unwrapApiResponse(response.data)
   },
 
+  // Creates a PENDING_PAYMENT subscription record and returns a VNPay payment URL.
+  // Redirect the user to paymentUrl to complete payment.
+  // The subscription only becomes ACTIVE after VNPay confirms payment via the IPN webhook.
   subscribeToPlan: async (planId: string) => {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post<ApiResponse<Subscription>>(
+    const response = await axios.post<ApiResponse<SubscribeToPlanResponse>>(
       "/api/subscriptions",
       { planId }
     )

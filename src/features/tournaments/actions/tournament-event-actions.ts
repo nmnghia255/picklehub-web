@@ -7,6 +7,44 @@ import { TournamentPrizeService } from "../api/prizes-service"
 import type { TournamentPrizeRequest } from "../types/prize"
 import type { TournamentEventRequest } from "../types/tournament-event"
 
+export async function getTournamentEventsAction(tournamentId: string) {
+  try {
+    const data = await TournamentEventService.getTournamentEvents(tournamentId)
+    return { success: true, data }
+  } catch (error: unknown) {
+    console.error("Failed to fetch tournament events:", error)
+    let errorMessage = "An unknown error occurred"
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.message || error.message
+    } else if (error instanceof Error) {
+      errorMessage = error.message
+    }
+    return { success: false, error: errorMessage }
+  }
+}
+
+export async function getTournamentEventAction(
+  tournamentId: string,
+  eventId: string
+) {
+  try {
+    const data = await TournamentEventService.getTournamentEvent(
+      tournamentId,
+      eventId
+    )
+    return { success: true, data }
+  } catch (error: unknown) {
+    console.error("Failed to fetch tournament event:", error)
+    let errorMessage = "An unknown error occurred"
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.message || error.message
+    } else if (error instanceof Error) {
+      errorMessage = error.message
+    }
+    return { success: false, error: errorMessage }
+  }
+}
+
 export async function createTournamentEventAction(
   tournamentId: string,
   event: TournamentEventRequest

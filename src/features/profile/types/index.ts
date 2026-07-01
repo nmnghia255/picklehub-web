@@ -1,10 +1,14 @@
 export interface User {
   id: string
   fullName: string
+  name: string
+  email: string
   avatarUrl?: string
   bio?: string
   gender?: "MALE" | "FEMALE" | "OTHER"
+  phoneNumber: string
   selfRating: number
+  address: string
   preferredHand: "RIGHT" | "LEFT" | "AMBIDEXTROUS"
   dupr?: DuprProfile
 }
@@ -22,5 +26,8 @@ export interface UpdateProfileRequest {
   avatarUrl?: string | null
   bio?: string | null
   gender?: "MALE" | "FEMALE" | "OTHER" | null
+  phoneNumber: string
   preferredHand?: "RIGHT" | "LEFT" | "AMBIDEXTROUS" | null
+  address: string
+  name: string
 }

@@ -12,6 +12,7 @@ import {
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
 import {
+  useActiveDateSelectedCourts,
   useBookingStore,
   useUniqueSlotKeys,
 } from "../../stores/use-booking-store"
@@ -21,7 +22,7 @@ export default function CourtTimelineGrid() {
   const isLoadingAvailability = useBookingStore((s) => s.isLoadingAvailability)
   const availabilityError = useBookingStore((s) => s.availabilityError)
   const courtAvailability = useBookingStore((s) => s.courtAvailability)
-  const selectedCourts = useBookingStore((s) => s.selectedCourts)
+  const activeDateSelectedCourts = useActiveDateSelectedCourts()
   const toggleSlot = useBookingStore((s) => s.toggleSlot)
   const uniqueSlotKeys = useUniqueSlotKeys()
 
@@ -151,7 +152,9 @@ export default function CourtTimelineGrid() {
 
                           const isBooked = !slot || !slot.available
                           const isSelected =
-                            selectedCourts[court.courtId]?.has(slotKey)
+                            activeDateSelectedCourts[court.courtId]?.has(
+                              slotKey
+                            )
 
                           // Determine color themes matching standard UI
                           let cellClass =

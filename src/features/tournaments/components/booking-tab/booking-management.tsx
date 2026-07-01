@@ -17,8 +17,10 @@ import {
   removeTournamentCenterAction,
   syncBookingStatusAction,
 } from "../../actions/booking-actions"
+import { getTournamentEventsAction } from "../../actions/tournament-event-actions"
 import type { TournamentBooking } from "../../types/booking"
 import type { TournamentCenter } from "../../types/tournament-center"
+import type { TournamentEvent } from "../../types/tournament-event"
 import { AssociatedVenues } from "./associated-venues"
 import { BookingsHistory } from "./bookings-history"
 
@@ -26,6 +28,7 @@ export function BookingManagement({ tournamentId }: { tournamentId: number }) {
   const { t } = useTournamentTranslation()
   const [centers, setCenters] = useState<TournamentCenter[]>([])
   const [bookings, setBookings] = useState<TournamentBooking[]>([])
+  const [events, setEvents] = useState<TournamentEvent[]>([])
   const [allSportCenters, setAllSportCenters] = useState<SportCenter[]>([])
 
   // Loading States
@@ -38,9 +41,10 @@ export function BookingManagement({ tournamentId }: { tournamentId: number }) {
   const loadData = useCallback(async () => {
     setIsLoading(true)
     try {
-      const [centersRes, bookingsRes] = await Promise.all([
+      const [centersRes, bookingsRes, eventsRes] = await Promise.all([
         getTournamentCentersAction(tournamentId.toString()),
         getTournamentBookingsAction(tournamentId),
+        getTournamentEventsAction(tournamentId.toString()),
       ])
 
       if (centersRes.success && centersRes.data) {
@@ -85,6 +89,12 @@ export function BookingManagement({ tournamentId }: { tournamentId: number }) {
         setBookings(bookingsArray)
       } else {
         toast.error(bookingsRes.error || t("booking.toasts.loadBookingsFailed"))
+      }
+
+      if (eventsRes.success && eventsRes.data) {
+        const rawEvents = eventsRes.data
+        const eventsArray = Array.isArray(rawEvents) ? rawEvents : []
+        setEvents(eventsArray)
       }
     } catch (error) {
       console.error(error)
@@ -236,6 +246,7 @@ export function BookingManagement({ tournamentId }: { tournamentId: number }) {
         <AssociatedVenues
           tournamentId={tournamentId}
           centers={centers}
+          events={events}
           allSportCenters={allSportCenters}
           onAddCenter={handleAddCenter}
           onRemoveCenter={handleRemoveCenter}

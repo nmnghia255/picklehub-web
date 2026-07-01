@@ -4,6 +4,7 @@ import create from "./create.json"
 import dashboard from "./dashboard.json"
 import events from "./events.json"
 import general from "./general.json"
+import groupStage from "./group-stage.json"
 import liveControl from "./live-control.json"
 import registrations from "./registrations.json"
 import scheduling from "./scheduling.json"
@@ -22,6 +23,7 @@ const enTournament = {
   ...scheduling,
   ...liveControl,
   ...booking,
+  ...groupStage,
 }
 
 export default enTournament

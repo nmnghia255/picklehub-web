@@ -16,11 +16,11 @@ function formatDateRange(startDateStr?: string, endDateStr?: string) {
       month: "short",
       day: "numeric",
     }
-    const startFormatted = start.toLocaleDateString("en-US", options)
+    const startFormatted = start.toLocaleDateString("vi-VN", options)
 
     if (endDateStr && endDateStr !== startDateStr) {
       const end = new Date(endDateStr)
-      const endFormatted = end.toLocaleDateString("en-US", {
+      const endFormatted = end.toLocaleDateString("vi-VN", {
         month: start.getMonth() === end.getMonth() ? undefined : "short",
         day: "numeric",
         year: "numeric",
@@ -47,7 +47,7 @@ export function TournamentHero({ tournament }: TournamentHeroProps) {
   return (
     <div className="relative h-96 overflow-hidden bg-linear-to-r from-emerald-700 via-emerald-800 to-emerald-900 shadow-inner">
       <div className="absolute inset-0 bg-black/30" />
-      <div className="absolute top-4 right-4 z-10 md:top-6 md:right-8">
+      <div className="absolute top-4 right-4 z-1 md:top-6 md:right-8">
         <BackButton
           variant="outline"
           className="border-white/20 bg-white/5 font-semibold text-white backdrop-blur-xs transition-all duration-200 hover:bg-white/15 hover:text-white"

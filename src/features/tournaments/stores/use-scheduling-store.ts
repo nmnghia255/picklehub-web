@@ -18,7 +18,7 @@ interface FixtureRawData {
   round?: string | null
   team1?: { name: string } | string | null
   team2?: { name: string } | string | null
-  winner?: number | null
+  winner?: string | number | null
   score?: string | null
   status?: string | null
   court?: string | null
@@ -115,7 +115,7 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
   tournamentId: null,
   fixtures: [],
   isLoading: true,
-  selectedDate: "2026-06-26",
+  selectedDate: "",
   selectedEventId: "all",
 
   unscheduledMatches: [],
@@ -313,7 +313,7 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
       tournamentId: null,
       fixtures: [],
       isLoading: true,
-      selectedDate: "2026-06-26",
+      selectedDate: "",
       selectedEventId: "all",
       unscheduledMatches: [],
       scheduledMatches: [],

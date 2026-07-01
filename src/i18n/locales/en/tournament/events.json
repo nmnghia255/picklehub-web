@@ -37,6 +37,10 @@
         "women": "Women",
         "mixed": "Mixed"
       },
+      "skills": {
+        "open": "Open",
+        "all": "All Levels"
+      },
       "minRating": "Min Rating",
       "minRatingPlaceholder": "e.g. 3.0",
       "maxRating": "Max Rating",

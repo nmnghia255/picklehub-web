@@ -1,7 +1,7 @@
 "use client"
 
 import { CalendarDays } from "lucide-react"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -27,6 +27,7 @@ import {
   useSchedulingStore,
   useUnscheduledMatches,
 } from "../../stores/use-scheduling-store"
+import type { Tournament } from "../../types/tournament"
 import type { TournamentEvent } from "../../types/tournament-event"
 import { AutoScheduleDialogForm } from "./auto-schedule-dialog-form"
 import { ManualScheduleForm } from "./manual-schedule-form"
@@ -59,9 +60,35 @@ const defaultTimeSlots = [
   "18:00",
 ]
 
+// Helper function to generate all dates between startDate and endDate (inclusive)
+const getDatesRange = (startStr: string, endStr: string): string[] => {
+  const dates: string[] = []
+  if (!startStr || !endStr) return dates
+  const start = new Date(startStr)
+  const end = new Date(endStr)
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return dates
+  }
+
+  const current = new Date(start)
+  current.setHours(0, 0, 0, 0)
+  const target = new Date(end)
+  target.setHours(0, 0, 0, 0)
+
+  while (current <= target) {
+    const yyyy = current.getFullYear()
+    const mm = String(current.getMonth() + 1).padStart(2, "0")
+    const dd = String(current.getDate()).padStart(2, "0")
+    dates.push(`${yyyy}-${mm}-${dd}`)
+    current.setDate(current.getDate() + 1)
+  }
+  return dates
+}
+
 interface SchedulingProps {
   tournamentId: number
   events: TournamentEvent[]
+  tournament: Tournament
 }
 
 function getTeamName(
@@ -72,8 +99,15 @@ function getTeamName(
   return String(team)
 }
 
-export function Scheduling({ tournamentId, events }: SchedulingProps) {
-  const { t } = useTournamentTranslation()
+export function Scheduling({
+  tournamentId,
+  events,
+  tournament,
+}: SchedulingProps) {
+  const { t, i18n } = useTournamentTranslation()
+
+  // Generate dates range from tournament
+  const dates = getDatesRange(tournament.startDate, tournament.endDate)
 
   // Zustand Store states
   const setTournamentId = useSchedulingStore((s) => s.setTournamentId)
@@ -114,15 +148,41 @@ export function Scheduling({ tournamentId, events }: SchedulingProps) {
   const scheduledMatches = useScheduledMatches()
   const courtsList = useCourtsList()
 
+  // Keep a ref of selectedDate so we can read the current value inside the
+  // effect without making selectedDate a dependency (which would cause an
+  // infinite loop because the effect itself calls setSelectedDate).
+  const selectedDateRef = useRef(selectedDate)
+  useEffect(() => {
+    selectedDateRef.current = selectedDate
+  }, [selectedDate])
+
   // Initialize store configuration and trigger load
   useEffect(() => {
     setTournamentId(tournamentId)
+    const computedDates = getDatesRange(
+      tournament.startDate,
+      tournament.endDate
+    )
+    if (
+      computedDates.length > 0 &&
+      !computedDates.includes(selectedDateRef.current)
+    ) {
+      setSelectedDate(computedDates[0])
+    }
     loadSchedule()
 
     return () => {
       reset()
     }
-  }, [tournamentId, setTournamentId, loadSchedule, reset])
+  }, [
+    tournamentId,
+    tournament.startDate,
+    tournament.endDate,
+    setTournamentId,
+    setSelectedDate,
+    loadSchedule,
+    reset,
+  ])
 
   const handleUnschedule = async (fixtureId: string) => {
     const res = await unscheduleMatch(fixtureId)
@@ -202,6 +262,21 @@ export function Scheduling({ tournamentId, events }: SchedulingProps) {
     }
   }
 
+  const formatDateValue = (dateStr: string) => {
+    try {
+      const date = new Date(dateStr)
+      const locale = i18n.language === "vi" ? "vi-VN" : "en-US"
+      return date.toLocaleDateString(locale, {
+        weekday: "long",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    } catch {
+      return dateStr
+    }
+  }
+
   return (
     <div className="flex h-full min-h-0 w-full flex-1 overflow-hidden border-t border-gray-200">
       {/* Left Panel - Unscheduled Matches */}
@@ -228,21 +303,19 @@ export function Scheduling({ tournamentId, events }: SchedulingProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="2026-06-26">
-                    {t("scheduling.toolbar.dates.june15", {
-                      defaultValue: "Friday, Jun 26, 2026",
-                    })}
-                  </SelectItem>
-                  <SelectItem value="2026-06-27">
-                    {t("scheduling.toolbar.dates.june16", {
-                      defaultValue: "Saturday, Jun 27, 2026",
-                    })}
-                  </SelectItem>
-                  <SelectItem value="2026-06-28">
-                    {t("scheduling.toolbar.dates.june17", {
-                      defaultValue: "Sunday, Jun 28, 2026",
-                    })}
-                  </SelectItem>
+                  {dates.length > 0 ? (
+                    dates.map((dateVal) => (
+                      <SelectItem key={dateVal} value={dateVal}>
+                        {formatDateValue(dateVal)}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="none" disabled>
+                      {t("scheduling.toolbar.dates.noDates", {
+                        defaultValue: "No dates configured",
+                      })}
+                    </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -294,7 +367,9 @@ export function Scheduling({ tournamentId, events }: SchedulingProps) {
         <TimelineGrid
           courtsList={courtsList}
           timeSlots={defaultTimeSlots}
-          scheduledMatches={scheduledMatches}
+          scheduledMatches={scheduledMatches.filter((m) =>
+            m.startTime ? m.startTime.startsWith(selectedDate) : false
+          )}
           onUnschedule={handleUnschedule}
           onUnassignReferee={handleUnassignReferee}
           onAssignRefereeClick={(match) => {

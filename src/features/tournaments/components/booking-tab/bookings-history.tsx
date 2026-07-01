@@ -1,5 +1,6 @@
 "use client"
 
+import { format } from "date-fns"
 import { Calendar } from "lucide-react"
 import { useState } from "react"
 
@@ -147,7 +148,7 @@ export function BookingsHistory({
                       </TableCell>
                       <TableCell className="min-w-[90px] px-4 py-3 text-sm whitespace-nowrap text-gray-600">
                         {booking.date
-                          ? new Date(booking.date).toLocaleDateString()
+                          ? format(new Date(booking.date), "dd/MM/yyyy")
                           : "TBD"}
                       </TableCell>
                       <TableCell
@@ -264,7 +265,7 @@ export function BookingsHistory({
                 </span>
                 <span className="text-sm font-semibold text-gray-900">
                   {selectedBooking?.date
-                    ? new Date(selectedBooking.date).toLocaleDateString()
+                    ? format(new Date(selectedBooking.date), "dd/MM/yyyy")
                     : "TBD"}
                 </span>
               </div>

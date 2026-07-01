@@ -14,8 +14,8 @@ import { createFullTournamentAction } from "../../actions/tournament-actions"
 import { useCreateTournamentStore } from "../../stores/create-tournament-store"
 import type { TournamentRequest } from "../../types/tournament"
 import { Step1BasicInfo } from "./step-1-basic-info"
-import { Step2Registration } from "./step-2-registration"
-import { Step3Events } from "./step-3-events"
+import { Step2Events } from "./step-2-events"
+import { Step3Registration } from "./step-3-registration"
 import { Step4Prizes } from "./step-4-prizes"
 import { Step5Payment } from "./step-5-payment"
 import { Step6Review } from "./step-6-review"
@@ -39,8 +39,8 @@ export function CreateTournament() {
 
   const steps = [
     { number: 1, title: t("create.steps.basicInfo") },
-    { number: 2, title: t("create.steps.registration") },
-    { number: 3, title: t("create.steps.events") },
+    { number: 2, title: t("create.steps.events") },
+    { number: 3, title: t("create.steps.registration") },
     { number: 4, title: t("create.steps.prizes") },
     { number: 5, title: t("create.steps.payment") },
     { number: 6, title: t("create.steps.review") },
@@ -391,8 +391,8 @@ export function CreateTournament() {
           </CardHeader>
           <CardContent>
             {currentStep === 1 && <Step1BasicInfo />}
-            {currentStep === 2 && <Step2Registration />}
-            {currentStep === 3 && <Step3Events />}
+            {currentStep === 2 && <Step2Events />}
+            {currentStep === 3 && <Step3Registration />}
             {currentStep === 4 && <Step4Prizes />}
             {currentStep === 5 && <Step5Payment />}
             {currentStep === 6 && <Step6Review />}

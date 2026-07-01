@@ -183,6 +183,8 @@ export function PaymentTab({ tournament, isHost }: PaymentTabProps) {
     tournament.paymentQrUrl
   )
 
+  const isEditable = true || isHost
+
   return (
     <div className="p-8">
       <div className="mx-auto max-w-7xl">
@@ -209,7 +211,7 @@ export function PaymentTab({ tournament, isHost }: PaymentTabProps) {
             </p>
           </div>
 
-          {isHost && !isEditing && (
+          {isEditable && !isEditing && (
             <Button
               onClick={() => setIsEditing(true)}
               className="w-full bg-emerald-600 font-medium text-white transition-all hover:bg-emerald-700 md:w-auto"
@@ -432,7 +434,7 @@ export function PaymentTab({ tournament, isHost }: PaymentTabProps) {
               })}
             </h3>
             <p className="mb-6 max-w-sm text-sm text-gray-500">
-              {isHost
+              {isEditable
                 ? t("paymentTab.noInfoDescHost", {
                     defaultValue:
                       "Please add your payment information to allow participants to pay registration fees.",
@@ -442,7 +444,7 @@ export function PaymentTab({ tournament, isHost }: PaymentTabProps) {
                       "The tournament organizer has not configured payment details yet. Please contact them directly.",
                   })}
             </p>
-            {isHost && (
+            {isEditable && (
               <Button
                 onClick={() => setIsEditing(true)}
                 className="bg-emerald-600 font-medium text-white transition-all hover:bg-emerald-700"

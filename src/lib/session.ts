@@ -6,6 +6,7 @@ export interface SessionUser {
   email: string
   name?: string | null
   phoneNumber?: string | null
+  avatarUrl?: string | null
 }
 
 export interface SessionData {

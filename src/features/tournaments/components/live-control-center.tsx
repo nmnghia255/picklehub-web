@@ -41,8 +41,8 @@ import {
   syncFixturesAction,
 } from "../actions/schedule-actions"
 import { listTournamentRegistrationsAction } from "../actions/tournament-registration-actions"
+import type { CheckIn } from "../types/checkin"
 import type { Match, MatchTeam, MatchWarning } from "../types/match"
-import type { CheckIn } from "../types/new_types"
 import type { RegistrationResponse } from "../types/registration"
 import type { TournamentEvent } from "../types/tournament-event"
 
@@ -58,7 +58,7 @@ interface FixtureRawData {
   round?: string | null
   team1?: { name: string } | string | null
   team2?: { name: string } | string | null
-  winner?: number | null
+  winner?: string | number | null
   score?: string | null
   status?: string | null
   court?: string | null

@@ -47,7 +47,9 @@ export async function updateMyProfile(
     "/api/users/me",
     payload
   )
-  return unwrapApiResponse(response.data)
+  const user = unwrapApiResponse(response.data)
+
+  return user
 }
 
 export async function getUserProfile(userId: string): Promise<User> {

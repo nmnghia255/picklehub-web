@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { TournamentService } from "@/features/tournaments/api/tournaments-service"
 import { TournamentList } from "@/features/tournaments/components/tournament-list"
 import type { Tournament } from "@/features/tournaments/types/tournament"

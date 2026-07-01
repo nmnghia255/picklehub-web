@@ -1,6 +1,6 @@
 "use client"
 
-import { Building, Loader2, Plus, Trash2 } from "lucide-react"
+import { Building, CalendarDays, Loader2, Plus, Trash2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useRef, useState } from "react"
 
@@ -35,10 +35,12 @@ import type { SportCenter } from "@/features/sport-center/types/sport-center"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
 import type { TournamentCenter } from "../../types/tournament-center"
+import type { TournamentEvent } from "../../types/tournament-event"
 
 interface AssociatedVenuesProps {
   tournamentId: number
   centers: TournamentCenter[]
+  events: TournamentEvent[]
   allSportCenters: SportCenter[]
   onAddCenter: (centerId: string) => Promise<void>
   onRemoveCenter: (centerId: string) => Promise<void>
@@ -50,6 +52,7 @@ interface AssociatedVenuesProps {
 export function AssociatedVenues({
   tournamentId,
   centers,
+  events,
   allSportCenters,
   onAddCenter,
   onRemoveCenter,
@@ -65,6 +68,13 @@ export function AssociatedVenues({
   const [associatedSearchQuery, setAssociatedSearchQuery] = useState("")
   const [centerSearchQuery, setCenterSearchQuery] = useState("")
   const containerRef = useRef<HTMLDivElement>(null)
+  const eventContainerRef = useRef<HTMLDivElement>(null)
+
+  // Event selection dialog state
+  const [isEventDialogOpen, setIsEventDialogOpen] = useState(false)
+  const [pendingCenterId, setPendingCenterId] = useState<string | null>(null)
+  const [selectedEventId, setSelectedEventId] = useState<string>("")
+  const [eventSearchQuery, setEventSearchQuery] = useState("")
 
   // Filter already linked/associated centers in the main card list
   const filteredAssociatedCenters = centers.filter((center) => {
@@ -90,6 +100,12 @@ export function AssociatedVenues({
     )
   })
 
+  const filteredEvents = events.filter((ev) => {
+    const q = eventSearchQuery.toLowerCase().trim()
+    if (!q) return true
+    return ev.name.toLowerCase().includes(q)
+  })
+
   const handleAssociate = async () => {
     const selectedCenter = availableCenters.find(
       (c) => c.name === selectedCenterToAssociate
@@ -106,9 +122,23 @@ export function AssociatedVenues({
     }
   }
 
-  function handleNavigateToBookSlots(centerId: string) {
-    router.push(`/tournament-management/${tournamentId}/booking/${centerId}`)
+  function handleBookClick(centerId: string) {
+    setPendingCenterId(centerId)
+    setSelectedEventId("")
+    setEventSearchQuery("")
+    setIsEventDialogOpen(true)
   }
+
+  function handleConfirmEventSelection() {
+    if (!pendingCenterId || !selectedEventId) return
+    setIsEventDialogOpen(false)
+    router.push(
+      `/tournament-management/${tournamentId}/booking/${pendingCenterId}?eventId=${selectedEventId}`
+    )
+  }
+
+  const selectedEventLabel =
+    events.find((e) => String(e.id) === selectedEventId)?.name ?? ""
 
   return (
     <Card className="h-fit gap-0 border-gray-200 pb-2 shadow-sm lg:col-span-1">
@@ -181,7 +211,7 @@ export function AssociatedVenues({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleNavigateToBookSlots(center.centerId)}
+                    onClick={() => handleBookClick(center.centerId)}
                     className="h-8 border-emerald-600 px-3 text-xs font-semibold text-emerald-700 hover:bg-emerald-50"
                   >
                     {t("booking.venuesCard.bookBtn")}
@@ -280,6 +310,155 @@ export function AssociatedVenues({
               ) : (
                 t("booking.associateBtn")
               )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Event Selection Dialog */}
+      <Dialog
+        open={isEventDialogOpen}
+        onOpenChange={(open) => {
+          setIsEventDialogOpen(open)
+          if (!open) {
+            setPendingCenterId(null)
+            setSelectedEventId("")
+            setEventSearchQuery("")
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[460px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CalendarDays className="h-5 w-5 text-emerald-600" />
+              {t("booking.eventDialog.title", {
+                defaultValue: "Select Event to Book Courts For",
+              })}
+            </DialogTitle>
+            <DialogDescription>
+              {t("booking.eventDialog.description", {
+                defaultValue:
+                  "Choose the tournament event you are booking courts for. The booking page will show the minimum courts required based on the event participants.",
+              })}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-2" ref={eventContainerRef}>
+            <div className="space-y-1">
+              <Label>
+                {t("booking.eventDialog.eventLabel", {
+                  defaultValue: "Tournament Event",
+                })}
+              </Label>
+              <Combobox
+                value={selectedEventLabel}
+                onValueChange={(val) => {
+                  const found = events.find((e) => e.name === val)
+                  setSelectedEventId(found ? String(found.id) : "")
+                }}
+                inputValue={eventSearchQuery}
+                onInputValueChange={(val) => {
+                  setEventSearchQuery(val || "")
+                }}
+              >
+                <ComboboxInput
+                  placeholder={t("booking.eventDialog.selectPlaceholder", {
+                    defaultValue: "Search and select an event...",
+                  })}
+                  className="mt-1.5 w-full bg-white"
+                  showClear
+                />
+                <ComboboxContent container={eventContainerRef}>
+                  <ComboboxList>
+                    {filteredEvents.length === 0 ? (
+                      <ComboboxEmpty className="p-4 text-center text-xs text-gray-500">
+                        {events.length === 0
+                          ? t("booking.eventDialog.noEvents", {
+                              defaultValue:
+                                "No events found for this tournament.",
+                            })
+                          : t("booking.form.noMatchesFound")}
+                      </ComboboxEmpty>
+                    ) : (
+                      filteredEvents.map((ev) => {
+                        const isDouble =
+                          ev.type?.toLowerCase() === "doubles" ||
+                          ev.type?.toLowerCase() === "double"
+                        const participantCount = ev.participants ?? 0
+                        const totalMatches = Math.max(0, participantCount - 1)
+                        return (
+                          <ComboboxItem key={ev.id} value={ev.name}>
+                            <div className="flex w-full flex-col gap-0.5 py-0.5 text-left">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-sm font-semibold text-gray-900">
+                                  {ev.name}
+                                </span>
+                                <Badge
+                                  variant="outline"
+                                  className="px-1.5 py-0 text-[9px] font-bold"
+                                >
+                                  {ev.type}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-3 text-xs text-gray-500">
+                                <span>
+                                  {isDouble
+                                    ? `${participantCount} teams`
+                                    : `${participantCount} players`}
+                                </span>
+                                <span className="font-medium text-emerald-600">
+                                  ~{totalMatches}{" "}
+                                  {t("booking.eventDialog.matchesLabel", {
+                                    defaultValue: "matches",
+                                  })}
+                                </span>
+                              </div>
+                            </div>
+                          </ComboboxItem>
+                        )
+                      })
+                    )}
+                  </ComboboxList>
+                </ComboboxContent>
+              </Combobox>
+            </div>
+
+            {selectedEventId && (
+              <div className="rounded-lg border border-emerald-100 bg-emerald-50/50 p-3 text-xs text-emerald-800">
+                {(() => {
+                  const ev = events.find(
+                    (e) => String(e.id) === selectedEventId
+                  )
+                  const participantCount = ev?.participants ?? 0
+                  const totalMatches = Math.max(0, participantCount - 1)
+                  return (
+                    <span>
+                      {t("booking.eventDialog.requirementHint", {
+                        defaultValue: `You will need to book at least ${totalMatches} court slot(s) to cover all matches in this event.`,
+                        count: totalMatches,
+                      })}
+                    </span>
+                  )
+                })()}
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsEventDialogOpen(false)}
+            >
+              {t("booking.cancelBtn")}
+            </Button>
+            <Button
+              onClick={handleConfirmEventSelection}
+              disabled={!selectedEventId}
+              className="bg-emerald-600 text-white hover:bg-emerald-700"
+            >
+              {t("booking.eventDialog.confirmBtn", {
+                defaultValue: "Continue to Booking",
+              })}
             </Button>
           </DialogFooter>
         </DialogContent>

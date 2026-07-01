@@ -137,7 +137,20 @@ export default function ConfirmBookingDialog() {
         throw new Error(bookingRes.error || "Failed to book court slots")
       }
 
-      reservedBookingId = bookingRes.data.booking.externalBookingId
+      // The API returns an array of booking entries; pick the first one.
+      const bookingData = Array.isArray(bookingRes.data)
+        ? bookingRes.data[0]
+        : bookingRes.data
+      console.log("[ConfirmBookingDialog] Raw booking entry:", bookingData)
+      reservedBookingId =
+        (bookingData as { booking?: { externalBookingId?: string } })?.booking
+          ?.externalBookingId ?? null
+
+      if (!reservedBookingId) {
+        throw new Error(
+          "Booking succeeded but no booking ID was returned by the server"
+        )
+      }
 
       // 2. Upload image to media server
       const imageUrl = await uploadImageAction(file)
@@ -151,6 +164,8 @@ export default function ConfirmBookingDialog() {
             "Booking created and payment proof uploaded successfully!",
         })
       )
+      // Clear selected slots now that booking is fully completed
+      useBookingStore.setState({ selectedCourts: {} })
       setIsConfirmDialogOpen(false)
       if (tournamentId) {
         router.push(`/tournament-management/${tournamentId}?tab=bookings`)

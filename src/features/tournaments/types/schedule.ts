@@ -4,8 +4,8 @@ export interface TournamentSchedule {
   round: string
   team1: Team
   team2: Team
-  winner: null
-  score: null
+  winner: string | null
+  score: string | null
   status: string
   court: string
   courtId: string
@@ -20,7 +20,17 @@ interface Team {
   name: string
   seed: number
   rating: number
-  score: null
+  player1: Player
+  player2: Player
+  score: string // only for scheduleFixture api response
+}
+
+interface Player {
+  id: string
+  name: string
+  rating: number
+  gender: "M" | "F"
+  dupr: string
 }
 
 export interface TournamentScheduleRequest {

@@ -5,6 +5,13 @@ import { getSession } from "./session"
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL || ""
 const ACCESS_TOKEN_TTL_MS = 900_000
 
+// Deduplicates concurrent token refresh calls.
+// When multiple Server Component requests fire simultaneously and all see a
+// near-expiry token, only the first actually calls the auth API.
+// The rest await this same promise and reuse the resulting access token,
+// preventing the "thundering herd" that exhausts the single-use refresh token.
+let refreshPromise: Promise<string> | null = null
+
 async function refreshSessionAccessToken(
   session: Awaited<ReturnType<typeof getSession>>
 ) {
@@ -53,7 +60,15 @@ export async function getAuthenticatedAxios() {
 
   if (shouldRefresh) {
     try {
-      accessToken = await refreshSessionAccessToken(session)
+      // If a refresh is already in-flight (e.g. from another parallel request
+      // on the same page load), reuse that promise instead of firing a new one.
+      // This ensures only one call to /api/auth/refresh is made at a time.
+      if (!refreshPromise) {
+        refreshPromise = refreshSessionAccessToken(session).finally(() => {
+          refreshPromise = null
+        })
+      }
+      accessToken = await refreshPromise
     } catch {
       throw new Error("Session expired")
     }
@@ -83,7 +98,13 @@ export async function getAuthenticatedAxios() {
         originalConfig._retry = true
 
         try {
-          accessToken = await refreshSessionAccessToken(session)
+          // Also deduplicate retry-triggered refreshes
+          if (!refreshPromise) {
+            refreshPromise = refreshSessionAccessToken(session).finally(() => {
+              refreshPromise = null
+            })
+          }
+          accessToken = await refreshPromise
 
           originalConfig.headers = {
             ...originalConfig.headers,

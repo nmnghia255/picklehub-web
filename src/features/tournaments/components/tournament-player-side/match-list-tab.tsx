@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
-import { scheduledMatches as mockScheduledMatches } from "../../mock-data/scheduling"
 import type { Match } from "../../types/match"
 
 interface MatchListTabProps {
@@ -89,7 +88,7 @@ export function MatchListTab({ type, matches }: MatchListTabProps) {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {mockScheduledMatches.map((match, index) => (
+            {/* {scheduledMatches.map((match, index) => (
               <div
                 key={index}
                 className="flex flex-col justify-between gap-4 rounded-lg border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 hover:border-emerald-100 sm:flex-row sm:items-center"
@@ -121,7 +120,7 @@ export function MatchListTab({ type, matches }: MatchListTabProps) {
                   </div>
                 </div>
               </div>
-            ))}
+            ))} */}
           </div>
         </CardContent>
       </Card>
@@ -180,7 +179,7 @@ export function MatchListTab({ type, matches }: MatchListTabProps) {
             ))
           ) : (
             <div className="py-8 text-center text-gray-500">
-              No matches completed yet.
+              {t("scheduling.noMatchesCompletedYet")}
             </div>
           )}
         </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { Camera } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { startTransition, useActionState, useEffect, useState } from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -106,6 +107,7 @@ export function EditPlayerInfoForm({
   initialValues?: EditPlayerInfoValues
 }) {
   const { t } = useProfileTranslation()
+  const router = useRouter()
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false)
   const [avatarMethod, setAvatarMethod] = useState<"file" | "url">("file")
   const setUser = useProfileEditStore((state) => state.setUser)
@@ -133,8 +135,9 @@ export function EditPlayerInfoForm({
       setUser(state.user)
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelfRatingValue(getInitialSelfRatingValue(state.user.selfRating))
+      router.refresh()
     }
-  }, [setUser, state.success, state.user])
+  }, [setUser, state.success, state.user, router])
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect

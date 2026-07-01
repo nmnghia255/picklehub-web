@@ -4,7 +4,7 @@ import { Clock, MapPin, Trash2, UserCheck, UserX } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import {
   Tooltip,
   TooltipContent,
@@ -58,19 +58,19 @@ export function TimelineGrid({
   }
 
   return (
-    <ScrollArea className="flex-1">
+    <ScrollArea className="min-h-0 w-full flex-1">
       <div className="p-6">
         <div className="inline-block min-w-full">
           {/* Time Header */}
           <div className="mb-2 flex border-b pb-2">
-            <div className="w-32 flex-shrink-0 text-sm font-semibold text-gray-700">
+            <div className="w-32 shrink-0 text-sm font-semibold text-gray-700">
               {t("scheduling.grid.courtsLabel", { defaultValue: "Courts" })}
             </div>
-            <div className="flex">
+            <div className="flex pl-2">
               {timeSlots.map((time) => (
                 <div
                   key={time}
-                  className="w-24 flex-shrink-0 text-center text-xs font-semibold text-gray-600"
+                  className="w-24 shrink-0 text-center text-xs font-semibold text-gray-600"
                 >
                   {time}
                 </div>
@@ -83,7 +83,7 @@ export function TimelineGrid({
             {courtsList.map((court) => (
               <div key={court} className="flex min-h-24">
                 {/* Court Label */}
-                <div className="flex w-32 flex-shrink-0 items-center">
+                <div className="flex w-32 shrink-0 items-center">
                   <div className="flex w-full items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-3 text-sm font-medium text-gray-900 shadow-sm">
                     <MapPin className="h-4 w-4 text-emerald-600" />
                     <span className="truncate">{court}</span>
@@ -127,7 +127,7 @@ export function TimelineGrid({
                     return (
                       <div
                         key={time}
-                        className="relative w-24 flex-shrink-0 border-r border-dashed border-gray-200 px-0.5"
+                        className="relative w-24 shrink-0 border-r border-dashed border-gray-200 px-0.5"
                       >
                         {isFirstSlot && match ? (
                           <TooltipProvider>
@@ -256,7 +256,7 @@ export function TimelineGrid({
                             </Tooltip>
                           </TooltipProvider>
                         ) : (
-                          <div className="h-full min-h-[5rem] rounded border border-dashed border-gray-200 bg-white/40 transition-colors hover:border-emerald-400 hover:bg-emerald-50/40" />
+                          <div className="h-full min-h-20 rounded border border-dashed border-gray-200 bg-white/40 transition-colors hover:border-emerald-400 hover:bg-emerald-50/40" />
                         )}
                       </div>
                     )
@@ -267,6 +267,7 @@ export function TimelineGrid({
           </div>
         </div>
       </div>
+      <ScrollBar orientation="horizontal" />
     </ScrollArea>
   )
 }

@@ -49,6 +49,16 @@
       "description": "Chọn một trong các địa điểm đã liên kết để thực hiện đặt lịch sân.",
       "continueBtn": "Tiếp tục"
     },
+    "eventDialog": {
+      "title": "Chọn Sự kiện thi đấu để Đặt sân",
+      "description": "Chọn sự kiện giải đấu mà bạn muốn đặt sân. Trang đặt sân sẽ hiển thị số sân tối thiểu cần đặt tương ứng số trận của sự kiện đó.",
+      "eventLabel": "Sự kiện Giải đấu",
+      "selectPlaceholder": "Tìm kiếm và chọn sự kiện...",
+      "noEvents": "Không tìm thấy sự kiện nào cho giải đấu này.",
+      "matchesLabel": "trận đấu",
+      "requirementHint": "Bạn sẽ cần đặt ít nhất {{count}} khung giờ sân để đáp ứng tất cả các trận đấu trong sự kiện này.",
+      "confirmBtn": "Tiếp tục đặt sân"
+    },
     "page": {
       "title": "Đặt lịch Sân giải đấu",
       "subtitle": "Chọn ngày và bấm chọn các khung giờ trống để đăng ký sân.",
@@ -87,7 +97,14 @@
       "unifiedDesc": "Nhập thông tin liên hệ, thực hiện chuyển khoản và tải lên hình ảnh minh chứng chuyển khoản bên dưới để hoàn tất đặt sân.",
       "bookingDetails": "Chi tiết Đặt sân",
       "bankInfo": "Thông tin Chuyển khoản",
-      "confirmAndBook": "Xác nhận Đặt sân & Gửi Thanh toán"
+      "confirmAndBook": "Xác nhận Đặt sân & Gửi Thanh toán",
+      "eventContext": "Sự kiện: {{name}}",
+      "matchRequirement": "Yêu cầu tối thiểu {{count}} lượt đặt sân cho tất cả các trận đấu",
+      "slotsRemaining": "cần đặt thêm {{count}} lượt nữa",
+      "notEnoughSlotsTooltip": "Vui lòng chọn ít nhất {{count}} lượt để tiến hành đặt",
+      "selectedDate": "Ngày đã đặt",
+      "selectDates": "Chọn ngày",
+      "selectedDatesCount": "Đã chọn {{count}} ngày"
     },
     "grid": {
       "title": "Chọn Khung giờ trống",

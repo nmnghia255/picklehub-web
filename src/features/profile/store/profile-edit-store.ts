@@ -25,7 +25,7 @@ function getFallbackDisplayName(email: string): string {
 }
 
 function buildDisplayName(user: User | null, sessionEmail: string): string {
-  return user?.fullName?.trim() || getFallbackDisplayName(sessionEmail)
+  return user?.name?.trim() || getFallbackDisplayName(sessionEmail)
 }
 
 export const useProfileEditStore = create<ProfileEditState>((set, get) => ({

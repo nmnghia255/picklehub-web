@@ -1,6 +1,7 @@
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type {
+  BookingItemResponse,
   CancelBookingResponse,
   CreateTournamentBookingResponse,
   TournamentBooking,
@@ -43,6 +44,14 @@ export const TournamentBookingService = {
     const axios = await getAuthenticatedAxios()
     const response = await axios.get<ApiResponse<TournamentBooking[]>>(
       `/api/tournaments/${tournamentId}/bookings`
+    )
+    return unwrapApiResponse(response.data)
+  },
+
+  getBookingItems: async (tournamentId: number) => {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.get<ApiResponse<BookingItemResponse[]>>(
+      `/api/tournaments/${tournamentId}/bookings/items`
     )
     return unwrapApiResponse(response.data)
   },

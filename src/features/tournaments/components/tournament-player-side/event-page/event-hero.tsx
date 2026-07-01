@@ -1,8 +1,8 @@
 "use client"
 
-import { ArrowLeft, Calendar, MapPin } from "lucide-react"
-import Link from "next/link"
+import { Calendar, MapPin } from "lucide-react"
 
+import { BackButton } from "@/components/common/back-button"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
 import type { Tournament } from "../../../types/tournament"
@@ -17,7 +17,7 @@ export function EventHero({ tournament, event }: EventHeroProps) {
   const { t } = useTournamentTranslation()
 
   return (
-    <div className="relative mb-8 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-800 to-emerald-950 p-8 text-white shadow-lg">
+    <div className="relative mb-8 overflow-hidden rounded-2xl bg-linear-to-r from-emerald-800 to-emerald-950 p-8 text-white shadow-lg">
       <div className="absolute top-0 right-0 h-40 w-40 translate-x-12 -translate-y-12 rounded-full bg-emerald-700/20 blur-2xl" />
       <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         <div className="relative">
@@ -34,7 +34,7 @@ export function EventHero({ tournament, event }: EventHeroProps) {
             </span>
             <span className="flex items-center gap-1.5">
               <Calendar className="h-4 w-4 text-emerald-400" />
-              {new Date(tournament.startDate).toLocaleDateString("en-US", {
+              {new Date(tournament.startDate).toLocaleDateString("vi-VN", {
                 month: "short",
                 day: "numeric",
                 year: "numeric",
@@ -43,15 +43,11 @@ export function EventHero({ tournament, event }: EventHeroProps) {
           </div>
         </div>
         <div className="shrink-0">
-          <Link
-            href={`/tournament/${tournament.id}`}
-            className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-white/20"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {t("eventDetail.backToTournament", {
-              defaultValue: "Back to Tournament Details",
-            })}
-          </Link>
+          <BackButton
+            variant="outline"
+            className="border-white/20 bg-white/5 font-semibold text-white backdrop-blur-xs transition-all duration-200 hover:bg-white/15 hover:text-white"
+            size="sm"
+          />
         </div>
       </div>
     </div>

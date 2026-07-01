@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import type { LinkedProvider } from "@/features/auth/types"
 import {
   getMyLinkedProviders,

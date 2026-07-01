@@ -39,7 +39,7 @@ export function EventsTab({ tournamentId, events = [] }: EventsTabProps) {
             return (
               <Link
                 key={evt.id}
-                href={`/tournament/${tournamentId}/event/${evt.id}`}
+                href={`/tournaments/${tournamentId}/event/${evt.id}`}
                 className="block"
               >
                 <Card className="relative h-full cursor-pointer overflow-hidden border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-md">
@@ -89,7 +89,12 @@ export function EventsTab({ tournamentId, events = [] }: EventsTabProps) {
                     </h3>
                     <p className="mb-5 flex items-center gap-1.5 text-sm font-semibold text-emerald-700">
                       <Award className="h-4 w-4" />
-                      DUPR: {evt.skillRange}
+                      {t(
+                        `events.dialog.skills.${evt.skillRange.toLowerCase()}`,
+                        {
+                          defaultValue: evt.skillRange,
+                        }
+                      )}
                     </p>
 
                     {/* Progress Bar */}
@@ -102,8 +107,7 @@ export function EventsTab({ tournamentId, events = [] }: EventsTabProps) {
                           })}
                         </span>
                         <span className="text-gray-900">
-                          {registeredSlots} / {maxCapacity}{" "}
-                          {/* {t("events.slots", { defaultValue: "slots" })} */}
+                          {registeredSlots} / {maxCapacity}
                         </span>
                       </div>
                       <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">

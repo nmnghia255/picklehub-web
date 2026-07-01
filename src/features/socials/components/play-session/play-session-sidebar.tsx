@@ -40,7 +40,7 @@ export default function PlaySessionSidebar({
     false
 
   return (
-    <Card className="sticky top-6 h-fit p-0">
+    <Card className="sticky top-16 h-fit p-0">
       <CardContent className="space-y-5 p-6">
         <div>
           <p className="text-sm text-muted-foreground">

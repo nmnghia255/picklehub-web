@@ -11,7 +11,7 @@ export async function assignRefereeToMatchAction(
   refereeName: string
 ) {
   try {
-    const data = await TournamentRefereeService.assignRefereeToMatch(
+    const data = await TournamentRefereeService.assignMatchReferee(
       tournamentId,
       matchId,
       refereeId,
@@ -35,7 +35,7 @@ export async function unassignRefereeFromMatchAction(
   matchId: string
 ) {
   try {
-    const data = await TournamentRefereeService.unassignRefereeFromMatch(
+    const data = await TournamentRefereeService.unassignMatchReferee(
       tournamentId,
       matchId
     )

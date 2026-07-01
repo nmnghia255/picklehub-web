@@ -236,7 +236,7 @@ export function AddSponsorForm({ onAdd, onClose }: AddSponsorFormProps) {
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t("common.saving", { defaultValue: "Saving..." })}
+              {t("sponsors.dialog.loading", { defaultValue: "Loading..." })}
             </>
           ) : (
             t("sponsors.dialog.submit")

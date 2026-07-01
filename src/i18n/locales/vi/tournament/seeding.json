@@ -14,7 +14,7 @@
     "lockSuccess": "Đã khóa hạt giống thành công",
     "eventSeeding": "Hạt giống {{eventName}}",
     "statusNoticeTitle": "Quản lý hạt giống đã bị khóa",
-    "statusNoticeDescription": "Chỉ có thể cấu hình và khóa hạt giống khi trạng thái giải đấu là Mở đăng ký (Open Registration). Trạng thái hiện tại: {{status}}.",
+    "statusNoticeDescription": "Chỉ có thể cấu hình và khóa hạt giống khi trạng thái giải đấu là Đóng đăng ký. Trạng thái hiện tại: {{status}}.",
     "table": {
       "title": "Đôi Nam 4.0 - Hạt giống",
       "seed": "Hạt giống",
@@ -27,7 +27,7 @@
     },
     "emptyState": {
       "title": "Chưa có hạt giống nào được tạo",
-      "description": "Tạo hạt giống dựa trên trình độ và thành tích của người chơi để thiết lập sơ đồ thi đấu.",
+      "description": "Tạo hạt giống dựa trên trình độ và thành tích của người chơi/đội để thiết lập sơ đồ thi đấu.",
       "button": "Tạo hạt giống ngay"
     },
     "instructions": {

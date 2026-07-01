@@ -2,6 +2,8 @@
 
 import axios from "axios"
 
+import { getAuthenticatedAxios } from "@/lib/server-api"
+
 import { TournamentScheduleService } from "../api/schedule-service"
 import type {
   AutoScheduleConfigDto,
@@ -9,13 +11,25 @@ import type {
   TournamentScheduleRequest,
 } from "../types/schedule"
 
+function unwrapApiResponse<T>(payload: unknown): T {
+  if (
+    payload &&
+    typeof payload === "object" &&
+    "success" in payload &&
+    "data" in payload
+  ) {
+    return (payload as { data: T }).data
+  }
+  return payload as T
+}
+
 export async function linkBookingItemToFixtureAction(
   tournamentId: number,
   fixtureId: string,
   payload: TournamentScheduleRequest
 ) {
   try {
-    const data = await TournamentScheduleService.linkBookingItemToFixture(
+    const data = await TournamentScheduleService.scheduleFixture(
       tournamentId,
       fixtureId,
       payload
@@ -38,7 +52,7 @@ export async function unlinkBookingItemFromFixtureAction(
   fixtureId: string
 ) {
   try {
-    const data = await TournamentScheduleService.unlinkBookingItemFromFixture(
+    const data = await TournamentScheduleService.unlinkFixture(
       tournamentId,
       fixtureId
     )
@@ -60,9 +74,7 @@ export async function getTournamentFixturesWithScheduleAction(
 ) {
   try {
     const data =
-      await TournamentScheduleService.getTournamentFixturesWithSchedule(
-        tournamentId
-      )
+      await TournamentScheduleService.getTournamentFixtures(tournamentId)
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to fetch tournament fixtures with schedule:", error)
@@ -83,8 +95,8 @@ export async function previewAutoScheduleAction(
 ) {
   try {
     const data = await TournamentScheduleService.previewAutoSchedule(
-      tournamentId,
-      eventId,
+      Number(tournamentId),
+      Number(eventId),
       config
     )
     return { success: true, data }
@@ -106,9 +118,9 @@ export async function executeAutoScheduleAction(
   config: AutoScheduleConfigDto
 ) {
   try {
-    const data = await TournamentScheduleService.executeAutoSchedule(
-      tournamentId,
-      eventId,
+    const data = await TournamentScheduleService.runAutoSchedule(
+      Number(tournamentId),
+      Number(eventId),
       config
     )
     return { success: true, data }
@@ -129,10 +141,12 @@ export async function dispatchFixturesAction(
   eventId: string | number
 ) {
   try {
-    const data = await TournamentScheduleService.dispatchFixtures(
-      tournamentId,
-      eventId
+    const axiosInstance = await getAuthenticatedAxios()
+    const response = await axiosInstance.post(
+      `/api/tournaments/${tournamentId}/fixtures/dispatch`,
+      { eventId }
     )
+    const data = unwrapApiResponse(response.data)
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to dispatch fixtures:", error)
@@ -152,11 +166,12 @@ export async function updateFixtureResultAction(
   result: FixtureResultRequest
 ) {
   try {
-    const data = await TournamentScheduleService.updateFixtureResult(
-      tournamentId,
-      fixtureId,
+    const axiosInstance = await getAuthenticatedAxios()
+    const response = await axiosInstance.post(
+      `/api/tournaments/${tournamentId}/fixtures/${fixtureId}/result`,
       result
     )
+    const data = unwrapApiResponse(response.data)
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to update fixture result:", error)
@@ -172,7 +187,11 @@ export async function updateFixtureResultAction(
 
 export async function syncFixturesAction(tournamentId: string | number) {
   try {
-    const data = await TournamentScheduleService.syncFixtures(tournamentId)
+    const axiosInstance = await getAuthenticatedAxios()
+    const response = await axiosInstance.post(
+      `/api/tournaments/${tournamentId}/fixtures/sync`
+    )
+    const data = unwrapApiResponse(response.data)
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to sync fixtures:", error)

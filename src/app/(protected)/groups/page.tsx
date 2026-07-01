@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { getMyGroups } from "@/features/groups/api/groups-service"
 import { GroupsPageContent } from "@/features/groups/components/groups-page-content"
 

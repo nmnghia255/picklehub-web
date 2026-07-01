@@ -119,7 +119,7 @@ export function TournamentList({
           setIsLoading(false)
         }
       }
-    }, 200) // 400ms debounce
+    }, 100) // 100ms debounce
 
     return () => {
       active = false

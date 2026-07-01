@@ -65,3 +65,8 @@ export interface SubscriptionPayment {
 export interface SubscriptionDetail extends Subscription {
   payment: SubscriptionPayment
 }
+
+export interface SubscribeToPlanResponse {
+  subscription: Subscription
+  paymentUrl: string
+}

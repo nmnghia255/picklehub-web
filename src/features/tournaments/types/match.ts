@@ -29,7 +29,7 @@ export interface Match {
   team1?: MatchTeam | string | null
   team2Id?: number | null
   team2?: MatchTeam | string | null
-  winner?: number | null
+  winner?: string | number | null
   score?: string | null
   status: string
   court?: string | null

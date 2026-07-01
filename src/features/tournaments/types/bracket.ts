@@ -29,3 +29,11 @@ export interface Bracket {
   team1: Team
   team2: Team
 }
+
+export interface EditBracketRequest {
+  matches: {
+    id: number
+    team1Id: number
+    team2Id: number
+  }[]
+}

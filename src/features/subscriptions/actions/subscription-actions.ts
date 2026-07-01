@@ -8,16 +8,15 @@ import { SubscriptionService } from "../api/subscriptions-service"
 export interface SubscriptionActionState {
   error?: string
   success?: boolean
+  paymentUrl?: string
 }
 
 export async function subscribeToPlanAction(
   planId: string
 ): Promise<SubscriptionActionState> {
   try {
-    await SubscriptionService.subscribeToPlan(planId)
-    revalidatePath("/subscriptions")
-    revalidatePath("/profile")
-    return { success: true }
+    const result = await SubscriptionService.subscribeToPlan(planId)
+    return { success: true, paymentUrl: result.paymentUrl }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {

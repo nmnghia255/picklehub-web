@@ -1,14 +1,15 @@
 "use client"
 
 import { ArrowLeft, Loader2 } from "lucide-react"
-import { useParams, useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useRef } from "react"
 
 import { Button } from "@/components/ui/button"
 import { fetchBulkCourtAvailabilityAction } from "@/features/sport-center/actions/fetch-bulk-court-availability"
 import { fetchSportCenterByIdAction } from "@/features/sport-center/actions/fetch-sport-center-by-id"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
+import { getTournamentEventAction } from "../../actions/tournament-event-actions"
 import { useBookingStore } from "../../stores/use-booking-store"
 import BookingHeader from "./booking-header"
 import BookingSummaryFooter from "./booking-summary-footer"
@@ -18,14 +19,22 @@ import VenueInfoCard from "./venue-info-card"
 
 export default function BookingPage() {
   const { t } = useTournamentTranslation()
+  // Store t in a ref so effects can read the latest translator
+  // without declaring it as a reactive dependency (t changes reference every render)
+  const tRef = useRef(t)
+  useEffect(() => {
+    tRef.current = t
+  })
   const router = useRouter()
   const params = useParams<{ tournamentId: string; centerId: string }>()
+  const searchParams = useSearchParams()
   const tournamentId = params.tournamentId ? Number(params.tournamentId) : null
   const centerId = params.centerId || null
+  const eventId = searchParams.get("eventId")
 
   const isLoadingCenter = useBookingStore((s) => s.isLoadingCenter)
   const sportCenter = useBookingStore((s) => s.sportCenter)
-  const selectedDate = useBookingStore((s) => s.selectedDate)
+  const activeDate = useBookingStore((s) => s.activeDate)
 
   const setTournamentId = useBookingStore((s) => s.setTournamentId)
   const setCenterId = useBookingStore((s) => s.setCenterId)
@@ -36,6 +45,7 @@ export default function BookingPage() {
     (s) => s.setIsLoadingAvailability
   )
   const setAvailabilityError = useBookingStore((s) => s.setAvailabilityError)
+  const setSelectedEvent = useBookingStore((s) => s.setSelectedEvent)
   const reset = useBookingStore((s) => s.reset)
 
   // Sync parameters to store
@@ -46,6 +56,24 @@ export default function BookingPage() {
   useEffect(() => {
     setCenterId(centerId)
   }, [centerId, setCenterId])
+
+  // Fetch the selected event so booking page can show match count requirements
+  useEffect(() => {
+    if (!tournamentId || !eventId) {
+      setSelectedEvent(null)
+      return
+    }
+    let isActive = true
+    void (async () => {
+      const res = await getTournamentEventAction(String(tournamentId), eventId)
+      if (isActive && res.success && res.data) {
+        setSelectedEvent(res.data)
+      }
+    })()
+    return () => {
+      isActive = false
+    }
+  }, [tournamentId, eventId, setSelectedEvent])
 
   // Fetch Sport Center profile when centerId changes
   useEffect(() => {
@@ -76,9 +104,9 @@ export default function BookingPage() {
     }
   }, [centerId, setSportCenter, setIsLoadingCenter])
 
-  // Fetch availability when centerId or selectedDate changes
+  // Fetch availability when centerId or activeDate changes
   useEffect(() => {
-    if (!centerId || !selectedDate) return
+    if (!centerId || !activeDate) return
 
     let isActive = true
     setIsLoadingAvailability(true)
@@ -88,7 +116,7 @@ export default function BookingPage() {
       try {
         const availability = await fetchBulkCourtAvailabilityAction(
           centerId,
-          selectedDate
+          activeDate
         )
         if (isActive) {
           setCourtAvailability(availability)
@@ -98,7 +126,7 @@ export default function BookingPage() {
         if (isActive) {
           setCourtAvailability(null)
           setAvailabilityError(
-            t("booking.toasts.loadAvailabilityFailed", {
+            tRef.current("booking.toasts.loadAvailabilityFailed", {
               defaultValue: "Failed to load court availability for this date",
             })
           )
@@ -115,11 +143,10 @@ export default function BookingPage() {
     }
   }, [
     centerId,
-    selectedDate,
+    activeDate,
     setCourtAvailability,
     setIsLoadingAvailability,
     setAvailabilityError,
-    t,
   ])
 
   // Reset store on unmount

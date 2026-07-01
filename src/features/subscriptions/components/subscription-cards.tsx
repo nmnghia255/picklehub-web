@@ -134,7 +134,17 @@ export function SubscriptionCards({
     startTransition(async () => {
       setSubscribingPlan(null)
       const res = await subscribeToPlanAction(planId)
-      if (res.success) {
+      if (res.success && res.paymentUrl) {
+        toast.success(
+          t("redirectingToPayment", {
+            planName,
+            defaultValue: `Đang chuyển đến trang thanh toán VNPay cho gói ${planName}...`,
+          })
+        )
+        // Redirect to VNPay payment gateway
+        window.location.href = res.paymentUrl
+      } else if (res.success) {
+        // Free plan — no payment URL
         toast.success(t("subscribeSuccess", { planName }))
         router.refresh()
       } else {
@@ -273,7 +283,7 @@ export function SubscriptionCards({
             onValueChange={(val) => setActiveCycle(val as BillingCycles)}
             className="w-full max-w-lg"
           >
-            <TabsList className="grid !h-14 w-full grid-cols-3 rounded-full border border-border bg-muted/50">
+            <TabsList className="grid h-14! w-full grid-cols-3 rounded-full border border-border bg-muted/50">
               {cycles.map((cycle) => (
                 <TabsTrigger
                   key={cycle}
@@ -350,7 +360,7 @@ export function SubscriptionCards({
                   {plan.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start gap-2.5">
                       <span className="mt-0.5 rounded-full bg-primary/10 p-0.5">
-                        <Check className="size-3 stroke-[3] text-primary" />
+                        <Check className="size-3 stroke-3 text-primary" />
                       </span>
                       <span className="text-sm leading-relaxed text-muted-foreground">
                         {feature}
@@ -400,10 +410,14 @@ export function SubscriptionCards({
           if (!open) setSubscribingPlan(null)
         }}
       >
-        <AlertDialogContent size="sm">
+        <AlertDialogContent size="default">
           <AlertDialogHeader>
             <div className="mb-2 w-fit rounded-full bg-primary/10 p-3">
-              <Sparkles className="size-6 text-primary" />
+              {subscribingPlan?.priceVnd && subscribingPlan.priceVnd > 0 ? (
+                <CreditCard className="size-6 text-primary" />
+              ) : (
+                <Sparkles className="size-6 text-primary" />
+              )}
             </div>
             <AlertDialogTitle>
               {t("confirmSubscribeTitle", {
@@ -411,10 +425,33 @@ export function SubscriptionCards({
               })}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs leading-relaxed sm:text-sm">
-              {t("confirmSubscribeDesc", {
-                planName: subscribingPlan?.name || "",
-              })}
+              {subscribingPlan?.priceVnd && subscribingPlan.priceVnd > 0
+                ? t("confirmSubscribeVNPayDesc", {
+                    planName: subscribingPlan?.name || "",
+                    defaultValue: `Bạn sẽ được chuyển đến cổng thanh toán VNPay để hoàn tất đăng ký gói "${subscribingPlan?.name}". Sau khi thanh toán thành công, gói của bạn sẽ được kích hoạt ngay lập tức.`,
+                  })
+                : t("confirmSubscribeDesc", {
+                    planName: subscribingPlan?.name || "",
+                  })}
             </AlertDialogDescription>
+            {subscribingPlan?.priceVnd && subscribingPlan.priceVnd > 0 && (
+              <div className="mt-3 flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 dark:border-blue-800 dark:bg-blue-950/30">
+                <img
+                  src="https://vnpay.vn/s1/statics/img/logo-icon.svg"
+                  alt="VNPay"
+                  className="h-5 w-auto"
+                  onError={(e) => {
+                    ;(e.target as HTMLImageElement).style.display = "none"
+                  }}
+                />
+                <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                  {t("vnpaySecureNote", {
+                    defaultValue:
+                      "Thanh toán an toàn qua VNPay — hỗ trợ thẻ nội địa, thẻ quốc tế và ví điện tử.",
+                  })}
+                </span>
+              </div>
+            )}
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isPending}>
@@ -426,7 +463,11 @@ export function SubscriptionCards({
               className="bg-primary font-semibold text-primary-foreground hover:bg-primary/95"
             >
               {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {t("confirm")}
+              {subscribingPlan?.priceVnd && subscribingPlan.priceVnd > 0
+                ? t("proceedToPayment", {
+                    defaultValue: "Thanh toán qua VNPay",
+                  })
+                : t("confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

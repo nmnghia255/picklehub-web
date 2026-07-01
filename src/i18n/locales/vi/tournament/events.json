@@ -37,6 +37,10 @@
         "women": "Nữ",
         "mixed": "Nam/Nữ"
       },
+      "skills": {
+        "open": "Tự do",
+        "all": "Tất cả trình độ"
+      },
       "minRating": "Trình độ tối thiểu",
       "minRatingPlaceholder": "vd: 3.0",
       "maxRating": "Trình độ tối đa",

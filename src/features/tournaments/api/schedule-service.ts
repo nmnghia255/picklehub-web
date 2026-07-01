@@ -3,7 +3,6 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 import type {
   AutoScheduleConfigDto,
   AutoSchedulePreviewResponse,
-  FixtureResultRequest,
   TournamentSchedule,
   TournamentScheduleRequest,
 } from "../types/schedule"
@@ -28,7 +27,7 @@ function unwrapApiResponse<T>(payload: ApiResponse<T> | T): T {
 
 export const TournamentScheduleService = {
   // Links a fixture to a specific court+time slot (booking item) of a booking. Rejects if the slot is already used by another fixture.
-  linkBookingItemToFixture: async (
+  scheduleFixture: async (
     tournamentId: number,
     fixtureId: string,
     payload: TournamentScheduleRequest
@@ -42,10 +41,7 @@ export const TournamentScheduleService = {
   },
 
   // Detaches the fixture from its booked slot (needed before removing its center).
-  unlinkBookingItemFromFixture: async (
-    tournamentId: number,
-    fixtureId: string
-  ) => {
+  unlinkFixture: async (tournamentId: number, fixtureId: string) => {
     const axios = await getAuthenticatedAxios()
     const response = await axios.delete<ApiResponse<TournamentSchedule>>(
       `/api/tournaments/${tournamentId}/fixtures/${fixtureId}/booking`
@@ -55,7 +51,7 @@ export const TournamentScheduleService = {
 
   // Returns the tournament fixtures enriched to the FE Match shape (teams, court name + status, event, winner as 1/2),
   // plus a count of fixtures that still need a booking.
-  getTournamentFixturesWithSchedule: async (tournamentId: number) => {
+  getTournamentFixtures: async (tournamentId: number) => {
     const axios = await getAuthenticatedAxios()
     const response = await axios.get<ApiResponse<TournamentSchedule[]>>(
       `/api/tournaments/${tournamentId}/schedule`
@@ -65,61 +61,28 @@ export const TournamentScheduleService = {
 
   // Dry-runs the auto-scheduling algorithm in-memory to estimate expected completion time, scheduled matches count, and total courts used.
   previewAutoSchedule: async (
-    tournamentId: string | number,
-    eventId: string | number,
-    config: AutoScheduleConfigDto
+    tournamentId: number,
+    eventId: number,
+    payload: AutoScheduleConfigDto
   ) => {
     const axios = await getAuthenticatedAxios()
     const response = await axios.post<ApiResponse<AutoSchedulePreviewResponse>>(
       `/api/tournaments/${tournamentId}/events/${eventId}/auto-schedule/preview`,
-      config
+      payload
     )
     return unwrapApiResponse(response.data)
   },
 
   // Runs the auto-scheduling algorithm, persists match court/time slot assignments to the database, writes audit logs, and emails VĐVs.
-  executeAutoSchedule: async (
-    tournamentId: string | number,
-    eventId: string | number,
-    config: AutoScheduleConfigDto
+  runAutoSchedule: async (
+    tournamentId: number,
+    eventId: number,
+    payload: AutoScheduleConfigDto
   ) => {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post<ApiResponse<void>>(
+    const response = await axios.post<ApiResponse<AutoSchedulePreviewResponse>>(
       `/api/tournaments/${tournamentId}/events/${eventId}/auto-schedule`,
-      config
-    )
-    return unwrapApiResponse(response.data)
-  },
-
-  dispatchFixtures: async (
-    tournamentId: string | number,
-    eventId: string | number
-  ) => {
-    const axios = await getAuthenticatedAxios()
-    const response = await axios.post<ApiResponse<void>>(
-      `/api/tournaments/${tournamentId}/fixtures/dispatch`,
-      { eventId }
-    )
-    return unwrapApiResponse(response.data)
-  },
-
-  updateFixtureResult: async (
-    tournamentId: string | number,
-    fixtureId: string,
-    result: FixtureResultRequest
-  ) => {
-    const axios = await getAuthenticatedAxios()
-    const response = await axios.post<ApiResponse<void>>(
-      `/api/tournaments/${tournamentId}/fixtures/${fixtureId}/result`,
-      result
-    )
-    return unwrapApiResponse(response.data)
-  },
-
-  syncFixtures: async (tournamentId: string | number) => {
-    const axios = await getAuthenticatedAxios()
-    const response = await axios.post<ApiResponse<void>>(
-      `/api/tournaments/${tournamentId}/fixtures/sync`
+      payload
     )
     return unwrapApiResponse(response.data)
   },

@@ -3,6 +3,7 @@
 import axios from "axios"
 
 import { TournamentBracketService } from "../api/bracket-service"
+import type { EditBracketRequest } from "../types/bracket"
 
 export async function generateEventBracketsAction(
   tournamentId: number,
@@ -58,6 +59,49 @@ export async function deleteEventBracketsAction(
   } catch (error: unknown) {
     console.error("Failed to delete event brackets:", error)
     let errorMessage = "Failed to delete event brackets."
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.message || error.message
+    } else if (error instanceof Error) {
+      errorMessage = error.message
+    }
+    return { success: false as const, error: errorMessage }
+  }
+}
+
+export async function editEventBracketAction(
+  tournamentId: number,
+  eventId: number,
+  payload: EditBracketRequest
+) {
+  try {
+    const data = await TournamentBracketService.editEventBracket(
+      tournamentId,
+      eventId,
+      payload
+    )
+    return { success: true as const, data }
+  } catch (error: unknown) {
+    console.error("Failed to edit event bracket:", error)
+    let errorMessage = "Failed to edit event bracket."
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.message || error.message
+    } else if (error instanceof Error) {
+      errorMessage = error.message
+    }
+    return { success: false as const, error: errorMessage }
+  }
+}
+
+export async function lockEventBracketAction(
+  tournamentId: number,
+  eventId: number
+) {
+  try {
+    await TournamentBracketService.lockEventBracket(tournamentId, eventId)
+    return { success: true as const }
+  } catch (error: unknown) {
+    console.error("Failed to lock event bracket:", error)
+    let errorMessage = "Failed to lock event bracket."
     if (axios.isAxiosError(error)) {
       errorMessage = error.response?.data?.message || error.message
     } else if (error instanceof Error) {

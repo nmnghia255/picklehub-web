@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
 import { useLayoutEffect, useState } from "react"
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -272,6 +272,10 @@ export function Header({ user }: HeaderProps) {
         <DropdownMenuTrigger asChild>
           <button className="flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-accent hover:text-accent-foreground">
             <Avatar size="sm">
+              <AvatarImage
+                src={user.avatarUrl || undefined}
+                alt={user.name || undefined}
+              />
               <AvatarFallback className="text-xs font-semibold">
                 {initials || "U"}
               </AvatarFallback>

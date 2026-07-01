@@ -57,7 +57,9 @@ export function EventInfoCard({ event }: EventInfoCardProps) {
             </span>
             <span className="mt-1.5 flex items-center gap-1.5 text-lg font-black text-emerald-700">
               <Award className="h-5 w-5 text-emerald-600" />
-              {event.skillRange}
+              {t(`events.dialog.skills.${event.skillRange.toLowerCase()}`, {
+                defaultValue: event.skillRange,
+              })}
             </span>
           </div>
           <div className="rounded-lg border border-gray-100/50 bg-gray-200/70 p-4">

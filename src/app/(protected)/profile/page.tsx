@@ -76,6 +76,8 @@ export default async function ProfilePage() {
     console.warn("Failed to fetch user subscriptions:", error)
   }
 
+  subscriptions = subscriptions.filter((sub) => sub.status === "ACTIVE")
+
   const safeStats: UserMatchStats = {
     totalMatches: stats?.totalMatches ?? 0,
     wins: stats?.wins ?? 0,

@@ -8,6 +8,7 @@ import {
   CreditCard,
   DollarSign,
   GitBranch,
+  Grid,
   Heart,
   LayoutDashboard,
   ListOrdered,
@@ -30,6 +31,7 @@ import { BracketManagement } from "@/features/tournaments/components/bracket-tab
 import { TournamentDashboard } from "@/features/tournaments/components/dashboard-tab/tournament-dashboard"
 import { EventManagement } from "@/features/tournaments/components/events-tab/event-management"
 import { FinancialDashboard } from "@/features/tournaments/components/financial-tab/financial-dashboard"
+import { GroupManagement } from "@/features/tournaments/components/group-tab/group-management"
 import { LiveControlCenter } from "@/features/tournaments/components/live-control-center"
 import { RegistrationManagement } from "@/features/tournaments/components/registrations-tab/registration-management"
 import { Scheduling } from "@/features/tournaments/components/scheduling-tab/scheduling"
@@ -56,15 +58,20 @@ const tabMetadata: Record<
 > = {
   dashboard: { labelKey: "manager.tabs.dashboard", icon: LayoutDashboard },
   events: { labelKey: "manager.tabs.events", icon: Calendar },
-  registrations: { labelKey: "manager.tabs.registrations", icon: Users },
-  brackets: { labelKey: "manager.tabs.brackets", icon: GitBranch },
-  schedule: { labelKey: "manager.tabs.schedule", icon: CalendarClock },
+  seeding: { labelKey: "manager.tabs.seeding", icon: ListOrdered },
   bookings: {
     labelKey: "manager.tabs.booking",
     defaultValue: "Venue Bookings",
     icon: Building,
   },
-  seeding: { labelKey: "manager.tabs.seeding", icon: ListOrdered },
+  registrations: { labelKey: "manager.tabs.registrations", icon: Users },
+  groups: {
+    labelKey: "manager.tabs.groups",
+    defaultValue: "Group Stage",
+    icon: Grid,
+  },
+  brackets: { labelKey: "manager.tabs.brackets", icon: GitBranch },
+  schedule: { labelKey: "manager.tabs.schedule", icon: CalendarClock },
   live: { labelKey: "manager.tabs.live", icon: Activity },
   financials: { labelKey: "manager.tabs.financials", icon: DollarSign },
   payment: { labelKey: "manager.tabs.payment", icon: CreditCard },
@@ -107,6 +114,8 @@ export function TournamentManager({
         return isXl
       case "seeding":
         return isXl
+      case "groups":
+        return isXl
       default:
         return false
     }
@@ -117,10 +126,11 @@ export function TournamentManager({
     "dashboard",
     "events",
     "registrations",
+    "seeding",
+    "bookings",
+    "groups",
     "brackets",
     "schedule",
-    "bookings",
-    "seeding",
   ]
 
   // Compute which of these are natively visible
@@ -140,10 +150,11 @@ export function TournamentManager({
   // All selectables that can be in the "More" dropdown
   const allSelectableTabs = [
     "registrations",
+    "seeding",
+    "bookings",
+    "groups",
     "brackets",
     "schedule",
-    "bookings",
-    "seeding",
     "live",
     "financials",
     "payment",
@@ -316,15 +327,29 @@ export function TournamentManager({
           </TabsContent>
           <TabsContent
             value="schedule"
-            className="m-0 flex flex-1 flex-col overflow-hidden border-none p-0 outline-none"
+            className="m-0 flex min-h-0 flex-1 flex-col overflow-hidden border-none p-0 outline-none"
           >
-            <Scheduling tournamentId={tournament.id} events={events} />
+            <Scheduling
+              tournamentId={tournament.id}
+              events={events}
+              tournament={tournament}
+            />
           </TabsContent>
           <TabsContent
             value="bookings"
             className="m-0 border-none p-0 outline-none"
           >
             <BookingManagement tournamentId={tournament.id} />
+          </TabsContent>
+          <TabsContent
+            value="groups"
+            className="m-0 border-none p-0 outline-none"
+          >
+            <GroupManagement
+              tournamentId={tournament.id}
+              events={events}
+              isHost={isHost}
+            />
           </TabsContent>
           <TabsContent
             value="live"

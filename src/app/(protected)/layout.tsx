@@ -7,6 +7,8 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { getMyProfile } from "@/features/profile/api/profile-service"
+import type { SessionUser } from "@/lib/session"
 import { getSession } from "@/lib/session"
 
 export default async function ProtectedLayout({
@@ -20,13 +22,29 @@ export default async function ProtectedLayout({
     redirect("/login")
   }
 
+  // Enrich session user with fresh profile data (avatarUrl, name, etc.)
+  // so the Header always displays the correct avatar.
+  let headerUser: SessionUser = session.user
+  try {
+    const profile = await getMyProfile()
+    headerUser = {
+      id: profile.id,
+      email: profile.email ?? session.user.email,
+      name: profile.fullName ?? profile.name ?? session.user.name,
+      phoneNumber: profile.phoneNumber ?? session.user.phoneNumber,
+      avatarUrl: profile.avatarUrl ?? session.user.avatarUrl,
+    }
+  } catch {
+    // Profile fetch failed — fall back to session data
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b bg-background/90 px-4 backdrop-blur">
+        <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b bg-background/90 px-4 backdrop-blur">
           <SidebarTrigger />
-          <Header user={session.user} />
+          <Header user={headerUser} />
         </header>
         <div className="flex flex-1 flex-col">{children}</div>
       </SidebarInset>

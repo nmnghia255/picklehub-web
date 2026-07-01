@@ -54,7 +54,6 @@ export async function loginAction(
       id: user.id,
       email: user.email,
       name: user.name,
-      phoneNumber: user.phoneNumber,
     }
     session.accessToken = accessToken
     session.refreshToken = refreshToken

@@ -1,6 +1,7 @@
 "use client"
 
 import {
+  Lock,
   Maximize2,
   RefreshCw,
   Shuffle,
@@ -46,6 +47,8 @@ interface BracketSidebarProps {
   hasBrackets: boolean
   handleGenerateBracket: () => Promise<void>
   handleDeleteBracket: () => Promise<void>
+  handleLockBracket: () => Promise<void>
+  isLocked: boolean
   isLoading: boolean
   isPending: boolean
   zoom: number
@@ -70,6 +73,8 @@ export function BracketSidebar({
   hasBrackets,
   handleGenerateBracket,
   handleDeleteBracket,
+  handleLockBracket,
+  isLocked,
   isLoading,
   isPending,
   zoom,
@@ -167,55 +172,79 @@ export function BracketSidebar({
                   {t("brackets.sidebar.generateBracket")}
                 </Button>
               ) : (
-                <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-                  <AlertDialogTrigger asChild>
+                <>
+                  {isLocked ? (
+                    <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-2.5 text-sm font-medium text-gray-600">
+                      <Lock className="h-4 w-4 shrink-0 text-emerald-600" />
+                      <span>
+                        {t("brackets.sidebar.lockedStatus", {
+                          defaultValue: "Locked (Official Matches)",
+                        })}
+                      </span>
+                    </div>
+                  ) : (
                     <Button
-                      variant="outline"
+                      onClick={handleLockBracket}
                       disabled={isLoading || isPending}
-                      className="w-full justify-start border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                      className="w-full justify-start bg-emerald-600 font-medium text-white hover:bg-emerald-700"
                     >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      {t("brackets.sidebar.deleteBracket", {
-                        defaultValue: "Delete Bracket",
+                      <Lock className="mr-2 h-4 w-4" />
+                      {t("brackets.sidebar.lockBracket", {
+                        defaultValue: "Lock Matchups",
                       })}
                     </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        {t("brackets.deleteConfirmTitle", {
+                  )}
+
+                  <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        disabled={isLoading || isPending || isLocked}
+                        className="w-full justify-start border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        {t("brackets.sidebar.deleteBracket", {
                           defaultValue: "Delete Bracket",
                         })}
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {t("brackets.deleteConfirm", {
-                          defaultValue:
-                            "Are you sure you want to delete this bracket? This cannot be undone.",
-                        })}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel disabled={isLoading || isPending}>
-                        {t("brackets.dialog.cancel", {
-                          defaultValue: "Cancel",
-                        })}
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        variant="destructive"
-                        disabled={isLoading || isPending}
-                        onClick={async (e) => {
-                          e.preventDefault()
-                          await handleDeleteBracket()
-                          setIsAlertOpen(false)
-                        }}
-                      >
-                        {t("brackets.dialog.delete", {
-                          defaultValue: "Delete",
-                        })}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          {t("brackets.deleteConfirmTitle", {
+                            defaultValue: "Delete Bracket",
+                          })}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {t("brackets.deleteConfirm", {
+                            defaultValue:
+                              "Are you sure you want to delete this bracket? This cannot be undone.",
+                          })}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isLoading || isPending}>
+                          {t("brackets.dialog.cancel", {
+                            defaultValue: "Cancel",
+                          })}
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          variant="destructive"
+                          disabled={isLoading || isPending}
+                          onClick={async (e) => {
+                            e.preventDefault()
+                            await handleDeleteBracket()
+                            setIsAlertOpen(false)
+                          }}
+                        >
+                          {t("brackets.dialog.delete", {
+                            defaultValue: "Delete",
+                          })}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </>
               )}
             </div>
           </div>

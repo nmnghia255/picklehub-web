@@ -79,7 +79,7 @@ function EventFee({ fee }: EventFeeProps) {
   )
 }
 
-export function Step3Events() {
+export function Step2Events() {
   const { t } = useTournamentTranslation()
   const events = useCreateTournamentStore((state) => state.events)
   const addEvent = useCreateTournamentStore((state) => state.addEvent)

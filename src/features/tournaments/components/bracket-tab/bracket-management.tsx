@@ -5,7 +5,6 @@ import { useEffect } from "react"
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
@@ -43,6 +42,7 @@ export function BracketManagement({
     isLoading,
     isPending,
     searchQuery,
+    isLocked,
     setSelectedEventId,
     setViewMode,
     setSelectedMatch,
@@ -51,6 +51,7 @@ export function BracketManagement({
     loadBrackets,
     generateBracket,
     deleteBracket,
+    lockBracket,
   } = useBracketStore()
 
   useEffect(() => {
@@ -85,6 +86,17 @@ export function BracketManagement({
       defaultValue: "Failed to delete bracket",
     })
     await deleteBracket(tournamentId, selectedEventId, successMsg, errorMsg)
+  }
+
+  const handleLockBracket = async () => {
+    if (!selectedEventId) return
+    const successMsg = t("brackets.lockSuccess", {
+      defaultValue: "Bracket matchups locked successfully!",
+    })
+    const errorMsg = t("brackets.lockError", {
+      defaultValue: "Failed to lock bracket matchups",
+    })
+    await lockBracket(tournamentId, selectedEventId, successMsg, errorMsg)
   }
 
   const currentEvent = events.find((e) => e.id === selectedEventId)
@@ -167,6 +179,8 @@ export function BracketManagement({
         hasBrackets={safeBrackets.length > 0}
         handleGenerateBracket={handleGenerateBracket}
         handleDeleteBracket={handleDeleteBracket}
+        handleLockBracket={handleLockBracket}
+        isLocked={isLocked}
         isLoading={isLoading}
         isPending={isPending}
         zoom={zoom}
@@ -198,14 +212,19 @@ export function BracketManagement({
 
       {/* Match Details Drawer */}
       <Sheet open={!!selectedMatch} onOpenChange={() => setSelectedMatch(null)}>
-        <SheetContent className="w-[500px] overflow-y-auto px-6 py-8 sm:max-w-[500px]">
-          <SheetHeader className="mb-6">
-            <SheetTitle>{t("brackets.match.details.title")}</SheetTitle>
-            <SheetDescription>
-              {t("brackets.match.details.description")}
-            </SheetDescription>
+        <SheetContent className="w-[500px] gap-0 overflow-y-auto px-6 py-2 sm:max-w-[500px]">
+          <SheetHeader className="px-0">
+            <SheetTitle className="text-xl font-bold">
+              {t("brackets.match.details.title")}
+            </SheetTitle>
           </SheetHeader>
-          {selectedMatch && <MatchDetailsContent match={selectedMatch} />}
+          {selectedMatch && (
+            <MatchDetailsContent
+              match={selectedMatch}
+              isHost={isHost}
+              tournamentId={tournamentId}
+            />
+          )}
         </SheetContent>
       </Sheet>
     </div>
