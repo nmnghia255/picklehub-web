@@ -24,12 +24,16 @@ interface BracketManagementProps {
   events: TournamentEvent[]
   isHost: boolean
   tournamentStatus?: TournamentStatus
+  eventId?: number
+  hideEventSelect?: boolean
 }
 
 export function BracketManagement({
   tournamentId,
   events = [],
   isHost,
+  eventId,
+  hideEventSelect = false,
 }: BracketManagementProps) {
   const { t } = useTournamentTranslation()
 
@@ -55,10 +59,12 @@ export function BracketManagement({
   } = useBracketStore()
 
   useEffect(() => {
-    if (selectedEventId === null && events.length > 0) {
+    if (eventId !== undefined) {
+      setSelectedEventId(eventId)
+    } else if (selectedEventId === null && events.length > 0) {
       setSelectedEventId(events[0].id)
     }
-  }, [events, selectedEventId, setSelectedEventId])
+  }, [eventId, events, selectedEventId, setSelectedEventId])
 
   useEffect(() => {
     if (selectedEventId !== null) {
@@ -191,6 +197,7 @@ export function BracketManagement({
         loadBrackets={loadBrackets}
         tournamentId={tournamentId}
         isHost={isHost}
+        hideEventSelect={hideEventSelect}
       />
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-gray-50/50">

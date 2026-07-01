@@ -4,16 +4,22 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { User } from "@/features/profile/types"
 import { registerTournamentEventAction } from "@/features/tournaments/actions/tournament-registration-actions"
+import { BracketManagement } from "@/features/tournaments/components/bracket-tab/bracket-management"
 import { EventHero } from "@/features/tournaments/components/tournament-player-side/event-page/event-hero"
 import { EventInfoCard } from "@/features/tournaments/components/tournament-player-side/event-page/event-info-card"
 import { EventPrizesCard } from "@/features/tournaments/components/tournament-player-side/event-page/event-prizes-card"
 import { EventRegistrationCard } from "@/features/tournaments/components/tournament-player-side/event-page/event-registration-card"
 import { PaymentProofDialog } from "@/features/tournaments/components/tournament-player-side/event-page/payment-proof-dialog"
 import { RegisterConfirmDialog } from "@/features/tournaments/components/tournament-player-side/event-page/register-confirm-dialog"
+import { MatchListTab } from "@/features/tournaments/components/tournament-player-side/match-list-tab"
+import { ParticipantsTab } from "@/features/tournaments/components/tournament-player-side/participants-tab"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
+import type { Match } from "../../../types/match"
+import type { Player } from "../../../types/player"
 import type { TournamentPrize } from "../../../types/prize"
 import type {
   RegistrationRequest,
@@ -28,6 +34,7 @@ interface EventDetailClientProps {
   prizes: TournamentPrize[]
   registrations: RegistrationResponse[]
   currentUser: User
+  initialMatches?: Match[]
 }
 
 export function EventDetailClient({
@@ -36,6 +43,7 @@ export function EventDetailClient({
   prizes = [],
   registrations = [],
   currentUser,
+  initialMatches = [],
 }: EventDetailClientProps) {
   const router = useRouter()
   const { t } = useTournamentTranslation()
@@ -54,6 +62,65 @@ export function EventDetailClient({
     // Dynamically refresh the page to reload server-side props
     router.refresh()
   }
+
+  // Construct event participants list from approved registrations
+  const approvedRegistrations = registrations.filter(
+    (reg) => reg.status === "approved"
+  )
+  const eventParticipants = approvedRegistrations.flatMap((reg) => {
+    const list: Player[] = []
+    if (reg.player) {
+      list.push({
+        name: reg.player.name,
+        rating: reg.player.rating || 0.0,
+        avatar:
+          reg.player.avatar || reg.player.name.substring(0, 2).toUpperCase(),
+        event: reg.event,
+      })
+    }
+    if (reg.partner) {
+      list.push({
+        name: reg.partner.name,
+        rating: reg.partner.rating || 0.0,
+        avatar:
+          reg.partner.avatar || reg.partner.name.substring(0, 2).toUpperCase(),
+        event: reg.event,
+      })
+    }
+    return list
+  })
+
+  // Robust check to extract array of matches
+  let rawMatches: Match[] = []
+  if (Array.isArray(initialMatches)) {
+    rawMatches = initialMatches
+  } else if (initialMatches && typeof initialMatches === "object") {
+    const obj = initialMatches as Record<string, unknown>
+    if ("fixtures" in obj && Array.isArray(obj.fixtures)) {
+      rawMatches = obj.fixtures as Match[]
+    } else if ("data" in obj && Array.isArray(obj.data)) {
+      rawMatches = obj.data as Match[]
+    } else if ("matches" in obj && Array.isArray(obj.matches)) {
+      rawMatches = obj.matches as Match[]
+    }
+  }
+
+  // Map and filter tournament fixtures for this event
+  const eventMatches = rawMatches
+    .map((m) => {
+      return {
+        ...m,
+        team1:
+          typeof m.team1 === "object" && m.team1
+            ? m.team1
+            : { name: String(m.team1 || "TBD") },
+        team2:
+          typeof m.team2 === "object" && m.team2
+            ? m.team2
+            : { name: String(m.team2 || "TBD") },
+      } as Match
+    })
+    .filter((m) => m.eventId === event.id || m.event === event.name)
 
   const handleRegister = async (partner?: User) => {
     setIsRegistering(true)
@@ -144,24 +211,108 @@ export function EventDetailClient({
       <div className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
         <EventHero tournament={tournament} event={event} />
 
-        {/* Main Grid */}
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          {/* Left / Info Cards */}
-          <div className="space-y-6 md:col-span-2">
-            <EventInfoCard event={event} />
-            <EventPrizesCard prizes={prizes} eventId={event.id} />
-          </div>
+        {/* Tab Controls */}
+        <div className="mt-8">
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList className="border-gray-150 mb-8 grid h-12 w-full grid-cols-5 rounded-xl border bg-white p-0.5 shadow-sm">
+              <TabsTrigger
+                value="overview"
+                className="rounded-lg font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+              >
+                {t("public.tabs.overview")}
+              </TabsTrigger>
+              <TabsTrigger
+                value="schedule"
+                className="rounded-lg font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+              >
+                {t("public.tabs.schedule")}
+              </TabsTrigger>
+              <TabsTrigger
+                value="participants"
+                className="rounded-lg font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+              >
+                {t("public.tabs.participants")}
+              </TabsTrigger>
+              <TabsTrigger
+                value="brackets"
+                className="rounded-lg font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+              >
+                {t("manager.tabs.brackets", { defaultValue: "Bracket" })}
+              </TabsTrigger>
+              <TabsTrigger
+                value="results"
+                className="rounded-lg font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+              >
+                {t("public.tabs.results")}
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Right / Registration Actions Card */}
-          <div className="space-y-6">
-            <EventRegistrationCard
-              event={event}
-              userRegistration={userRegistration}
-              onRegisterClick={() => setIsRegisterConfirmOpen(true)}
-              onUploadProofClick={() => setIsPaymentProofOpen(true)}
-              isRegistering={isRegistering}
-            />
-          </div>
+            {/* Overview Tab Content */}
+            <TabsContent
+              value="overview"
+              className="mt-0 focus-visible:outline-none"
+            >
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+                {/* Left / Info Cards */}
+                <div className="space-y-6 md:col-span-2">
+                  <EventInfoCard event={event} />
+                  <EventPrizesCard prizes={prizes} eventId={event.id} />
+                </div>
+
+                {/* Right / Registration Actions Card */}
+                <div className="space-y-6">
+                  <EventRegistrationCard
+                    event={event}
+                    userRegistration={userRegistration}
+                    onRegisterClick={() => setIsRegisterConfirmOpen(true)}
+                    onUploadProofClick={() => setIsPaymentProofOpen(true)}
+                    isRegistering={isRegistering}
+                  />
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Schedule Tab Content */}
+            <TabsContent
+              value="schedule"
+              className="mt-0 focus-visible:outline-none"
+            >
+              <MatchListTab type="schedule" matches={eventMatches} />
+            </TabsContent>
+
+            {/* Participants Tab Content */}
+            <TabsContent
+              value="participants"
+              className="mt-0 focus-visible:outline-none"
+            >
+              <ParticipantsTab
+                participants={eventParticipants}
+                hideEvent={true}
+              />
+            </TabsContent>
+
+            {/* Brackets Tab Content */}
+            <TabsContent
+              value="brackets"
+              className="mt-0 focus-visible:outline-none"
+            >
+              <BracketManagement
+                tournamentId={Number(tournament.id)}
+                events={[event]}
+                isHost={false}
+                eventId={Number(event.id)}
+                hideEventSelect={true}
+              />
+            </TabsContent>
+
+            {/* Results Tab Content */}
+            <TabsContent
+              value="results"
+              className="mt-0 focus-visible:outline-none"
+            >
+              <MatchListTab type="results" matches={eventMatches} />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
 

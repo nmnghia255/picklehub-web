@@ -127,7 +127,7 @@ export function TournamentDashboard({
   return (
     <div className="h-full w-full max-w-7xl p-8">
       {/* Tournament Info Banner */}
-      <div className="mb-8 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-200 hover:shadow-md">
+      <div className="mb-8 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-200 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
         {tournament.banner ? (
           <div className="relative h-48 w-full overflow-hidden">
             <img
@@ -140,10 +140,10 @@ export function TournamentDashboard({
               <h1 className="text-3xl font-bold tracking-tight">
                 {tournament.name}
               </h1>
-              <p className="mt-2 flex items-center gap-2 text-sm text-gray-200">
+              <p className="mt-2 flex items-center gap-2 text-sm text-gray-200 dark:text-zinc-300">
                 <MapPin className="h-4 w-4 shrink-0" />
                 <span>{tournament.venue}</span>
-                <span className="text-gray-400">•</span>
+                <span className="text-gray-400 dark:text-zinc-500">•</span>
                 <Calendar className="h-4 w-4 shrink-0" />
                 <span>
                   {formatDateRange(tournament.startDate, tournament.endDate)}
@@ -168,8 +168,8 @@ export function TournamentDashboard({
           </div>
         )}
         {tournament.description && (
-          <div className="border-t border-gray-50 p-6">
-            <p className="text-sm leading-relaxed whitespace-pre-line text-gray-600">
+          <div className="border-t border-gray-50 p-6 dark:border-zinc-800">
+            <p className="text-sm leading-relaxed whitespace-pre-line text-gray-600 dark:text-zinc-300">
               {tournament.description}
             </p>
           </div>
@@ -184,12 +184,16 @@ export function TournamentDashboard({
             <Card key={stat.label}>
               <CardContent className="p-6">
                 <div className="mb-3 flex items-center justify-between">
-                  {Icon && <Icon className="h-5 w-5 text-emerald-600" />}
+                  {Icon && (
+                    <Icon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                  )}
                 </div>
-                <div className="mb-1 text-2xl font-semibold text-gray-900">
+                <div className="mb-1 text-2xl font-semibold text-gray-900 dark:text-zinc-100">
                   {stat.value}
                 </div>
-                <div className="text-sm text-gray-600">{stat.label}</div>
+                <div className="text-sm text-gray-600 dark:text-zinc-400">
+                  {stat.label}
+                </div>
               </CardContent>
             </Card>
           )
@@ -204,7 +208,7 @@ export function TournamentDashboard({
           </CardHeader>
           <CardContent className="space-y-4">
             {events.length === 0 ? (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-zinc-400">
                 {t("dashboard.noEvents", {
                   defaultValue: "No events added to this tournament yet.",
                 })}
@@ -213,15 +217,15 @@ export function TournamentDashboard({
               events.map((event) => (
                 <div key={event.name}>
                   <div className="mb-2 flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-gray-900 dark:text-zinc-100">
                       {event.name}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 dark:text-zinc-400">
                         {event.participants ?? 0}/{event.capacity}
                       </span>
                       {event.status === "full" && (
-                        <Badge className="bg-emerald-100 text-emerald-700">
+                        <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
                           {t("dashboard.full")}
                         </Badge>
                       )}
@@ -344,23 +348,27 @@ function TimelineItem({
               ? "border-emerald-600 bg-emerald-600"
               : status === "active" || status === "open_registration"
                 ? "animate-pulse border-yellow-500 bg-yellow-500"
-                : "border-gray-300 bg-white"
+                : "border-gray-300 bg-white dark:border-zinc-700 dark:bg-zinc-950"
           )}
         />
-        <div className="mt-1 h-full w-px bg-gray-200" />
+        <div className="mt-1 h-full w-px bg-gray-200 dark:bg-zinc-800" />
       </div>
       <div className="flex-1 pb-4">
         <div
           className={cn(
             "font-medium",
             status === "active" || status === "open_registration"
-              ? "text-gray-900"
-              : "text-gray-700"
+              ? "text-gray-900 dark:text-zinc-100"
+              : "text-gray-700 dark:text-zinc-300"
           )}
         >
           {title}
         </div>
-        {date && <div className="mt-1 text-sm text-gray-500">{date}</div>}
+        {date && (
+          <div className="mt-1 text-sm text-gray-500 dark:text-zinc-400">
+            {date}
+          </div>
+        )}
       </div>
     </div>
   )

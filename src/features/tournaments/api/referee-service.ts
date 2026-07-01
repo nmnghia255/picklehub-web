@@ -80,7 +80,7 @@ export const TournamentRefereeService = {
   listMatchesWithReferees: async (tournamentId: string, eventId?: string) => {
     const axios = await getAuthenticatedAxios()
     const response = await axios.get<ApiResponse<AssignedReferee[]>>(
-      `/api/tournaments/${tournamentId}/assignments`,
+      `/api/tournaments/${tournamentId}/referees/assignments`,
       {
         params: {
           eventId,
@@ -94,7 +94,7 @@ export const TournamentRefereeService = {
   listUnassignedMatches: async (tournamentId: string, eventId?: string) => {
     const axios = await getAuthenticatedAxios()
     const response = await axios.get<ApiResponse<AssignedReferee[]>>(
-      `/api/tournaments/${tournamentId}/matches/unassigned-matches`,
+      `/api/tournaments/${tournamentId}/referees/unassigned-matches`,
       {
         params: {
           eventId,

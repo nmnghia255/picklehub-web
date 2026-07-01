@@ -17,7 +17,8 @@
       "financials": "Financials",
       "sponsors": "Sponsors",
       "public": "Public View",
-      "payment": "Payment"
+      "payment": "Payment",
+      "personnel": "Personnel"
     }
   },
   "list": {
@@ -67,7 +68,8 @@
       "participants": "Participants",
       "liveScores": "Live Scores",
       "results": "Results",
-      "payment": "Payment"
+      "payment": "Payment",
+      "referee": "Referee"
     },
     "overview": {
       "title": "Tournament Overview",

@@ -22,11 +22,13 @@ export default async function TournamentPage() {
   }
 
   return (
-    <TournamentList
-      initialTournaments={tournaments}
-      initialTotalItems={totalItems}
-      initialTotalPages={totalPages}
-      mode="public"
-    />
+    <div className="tournament-player-root flex flex-1 flex-col">
+      <TournamentList
+        initialTournaments={tournaments}
+        initialTotalItems={totalItems}
+        initialTotalPages={totalPages}
+        mode="public"
+      />
+    </div>
   )
 }

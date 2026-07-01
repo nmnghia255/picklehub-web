@@ -59,6 +59,7 @@ interface BracketSidebarProps {
   loadBrackets: (tournamentId: number, eventId: number) => Promise<void>
   tournamentId: number
   isHost: boolean
+  hideEventSelect?: boolean
 }
 
 export function BracketSidebar({
@@ -85,6 +86,7 @@ export function BracketSidebar({
   loadBrackets,
   tournamentId,
   isHost,
+  hideEventSelect = false,
 }: BracketSidebarProps) {
   const { t } = useTournamentTranslation()
   const [isAlertOpen, setIsAlertOpen] = useState(false)
@@ -93,38 +95,40 @@ export function BracketSidebar({
     <div className="flex h-full min-h-0 w-80 shrink-0 flex-col border-r border-gray-200 bg-white">
       {/* Scrollable Upper Content */}
       <div className="flex-1 overflow-y-auto p-6">
-        <div className="mb-6">
-          <label
-            htmlFor="event-select"
-            className="mb-2 block text-xs font-semibold tracking-wider text-gray-500 uppercase"
-          >
-            {t("brackets.sidebar.selectEvent", {
-              defaultValue: "Select Event",
-            })}
-          </label>
-          <Select
-            value={selectedEventId?.toString()}
-            onValueChange={(val) => setSelectedEventId(Number(val))}
-          >
-            <SelectTrigger
-              id="event-select"
-              className="w-full border-gray-300 focus:ring-emerald-500"
+        {!hideEventSelect && (
+          <div className="mb-6">
+            <label
+              htmlFor="event-select"
+              className="mb-2 block text-xs font-semibold tracking-wider text-gray-500 uppercase"
             >
-              <SelectValue
-                placeholder={t("brackets.sidebar.selectEventPlaceholder", {
-                  defaultValue: "Choose an event",
-                })}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              {events.map((e) => (
-                <SelectItem key={e.id} value={e.id.toString()}>
-                  {e.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+              {t("brackets.sidebar.selectEvent", {
+                defaultValue: "Select Event",
+              })}
+            </label>
+            <Select
+              value={selectedEventId?.toString()}
+              onValueChange={(val) => setSelectedEventId(Number(val))}
+            >
+              <SelectTrigger
+                id="event-select"
+                className="w-full border-gray-300 focus:ring-emerald-500"
+              >
+                <SelectValue
+                  placeholder={t("brackets.sidebar.selectEventPlaceholder", {
+                    defaultValue: "Choose an event",
+                  })}
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {events.map((e) => (
+                  <SelectItem key={e.id} value={e.id.toString()}>
+                    {e.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         <div className="mb-8">
           <h2 className="mb-1 text-lg font-semibold text-gray-900">

@@ -4,8 +4,10 @@ import { getMyProfile } from "@/features/profile/api/profile-service"
 import { TournamentEventService } from "@/features/tournaments/api/events-service"
 import { TournamentPrizeService } from "@/features/tournaments/api/prizes-service"
 import { TournamentRegistrationService } from "@/features/tournaments/api/registration-service"
+import { TournamentScheduleService } from "@/features/tournaments/api/schedule-service"
 import { TournamentService } from "@/features/tournaments/api/tournaments-service"
 import { EventDetailClient } from "@/features/tournaments/components/tournament-player-side/event-page/event-detail-client"
+import type { Match } from "@/features/tournaments/types/match"
 import type { TournamentPrize } from "@/features/tournaments/types/prize"
 import type { RegistrationResponse } from "@/features/tournaments/types/registration"
 import type { Tournament } from "@/features/tournaments/types/tournament"
@@ -22,6 +24,7 @@ export default async function TournamentEventDetailPage(props: {
   let prizes: TournamentPrize[] = []
   let registrations: RegistrationResponse[] = []
   let currentUser = null
+  let fixtures: Match[] = []
 
   try {
     const [
@@ -30,6 +33,7 @@ export default async function TournamentEventDetailPage(props: {
       prizesData,
       registrationsData,
       profileData,
+      fixturesData,
     ] = await Promise.all([
       TournamentService.getTournamentById(tournamentId),
       TournamentEventService.getTournamentEvent(tournamentId, eventId),
@@ -40,6 +44,9 @@ export default async function TournamentEventDetailPage(props: {
         ""
       ).catch(() => []),
       getMyProfile().catch(() => null),
+      TournamentScheduleService.getTournamentFixtures(
+        Number(tournamentId)
+      ).catch(() => []),
     ])
 
     tournament = tournamentData
@@ -47,6 +54,7 @@ export default async function TournamentEventDetailPage(props: {
     prizes = prizesData || []
     registrations = registrationsData || []
     currentUser = profileData
+    fixtures = (fixturesData || []) as unknown as Match[]
   } catch (error) {
     console.error("Failed to fetch tournament event detail data:", error)
   }
@@ -56,12 +64,15 @@ export default async function TournamentEventDetailPage(props: {
   }
 
   return (
-    <EventDetailClient
-      tournament={tournament}
-      event={event}
-      prizes={prizes}
-      registrations={registrations}
-      currentUser={currentUser}
-    />
+    <div className="tournament-player-root flex flex-1 flex-col">
+      <EventDetailClient
+        tournament={tournament}
+        event={event}
+        prizes={prizes}
+        registrations={registrations}
+        currentUser={currentUser}
+        initialMatches={fixtures}
+      />
+    </div>
   )
 }

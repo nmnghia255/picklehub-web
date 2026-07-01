@@ -41,7 +41,8 @@
       "courtsCount": "{{count}} Courts",
       "searchPlaceholder": "Search associated venues...",
       "noMatches": "No matching venues found.",
-      "bookBtn": "Book"
+      "bookBtn": "Book",
+      "viewBtn": "Detail"
     },
     "selectCenterDialog": {
       "title": "Select Sport Center",
@@ -56,6 +57,7 @@
       "noEvents": "No events found for this tournament.",
       "matchesLabel": "matches",
       "requirementHint": "You will need to book at least {{count}} court slot(s) to cover all matches in this event.",
+      "generalBookingLabel": "Book without linking to a specific event (General / Additional booking)",
       "confirmBtn": "Continue to Booking"
     },
     "page": {

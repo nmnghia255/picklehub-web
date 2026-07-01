@@ -7,19 +7,20 @@ import type { User } from "@/features/profile/types"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 import { cn } from "@/lib/utils"
 
+import { listMatchesWithRefereesAction } from "../../actions/referee-actions"
 import { getMyProfileAction } from "../../actions/tournament-registration-actions"
 import type { Match } from "../../types/match"
 import type { Player } from "../../types/player"
+import type { AssignedReferee } from "../../types/referee"
 import type { Sponsor as TournamentSponsor } from "../../types/sponsor"
 import type { Tournament } from "../../types/tournament"
 import type { TournamentEvent } from "../../types/tournament-event"
-import { BracketManagement } from "../bracket-tab/bracket-management"
 import { EventsTab } from "./events-tab"
 import { TournamentHero } from "./hero-section"
-import { MatchListTab } from "./match-list-tab"
 import { TournamentOverview } from "./overview-tab"
 import { ParticipantsTab } from "./participants-tab"
 import { PaymentTab } from "./payment-tab"
+import { RefereeTab } from "./referee-tab"
 
 interface PlayerTournamentProps {
   tournament?: Tournament
@@ -41,6 +42,7 @@ export function PlayerTournament({
   const [currentUserProfile, setCurrentUserProfile] = useState<User | null>(
     null
   )
+  const [refereeMatches, setRefereeMatches] = useState<AssignedReferee[]>([])
 
   useEffect(() => {
     getMyProfileAction().then((res) => {
@@ -49,6 +51,20 @@ export function PlayerTournament({
       }
     })
   }, [])
+
+  const fetchRefereeAssignments = () => {
+    if (tournament?.id) {
+      listMatchesWithRefereesAction(String(tournament.id)).then((res) => {
+        if (res.success && res.data) {
+          setRefereeMatches(res.data)
+        }
+      })
+    }
+  }
+
+  useEffect(() => {
+    fetchRefereeAssignments()
+  }, [tournament?.id])
 
   const isParticipant = Boolean(
     currentUserProfile &&
@@ -60,7 +76,31 @@ export function PlayerTournament({
   // Fallbacks for display
   const displaySponsors: TournamentSponsor[] = sponsors
   const displayParticipants = participants
-  const displayLiveScores = matches
+
+  const hasRefereeAssignments =
+    refereeMatches.some(
+      (m) =>
+        currentUserProfile &&
+        String(m.refereeId) === String(currentUserProfile.id)
+    ) || true
+
+  const myAssignments = refereeMatches.filter(
+    (m) =>
+      currentUserProfile &&
+      String(m.refereeId) === String(currentUserProfile.id)
+  )
+
+  // Calculate dynamic grid cols class
+  let colsClass = "grid-cols-3"
+  let tabsCount = 3
+  if (isParticipant) tabsCount++
+  if (hasRefereeAssignments) tabsCount++
+
+  if (tabsCount === 5) {
+    colsClass = "grid-cols-5"
+  } else if (tabsCount === 4) {
+    colsClass = "grid-cols-4"
+  }
 
   // Calculate dynamic stats
   const participantsCount = events.reduce((acc, event) => {
@@ -85,7 +125,7 @@ export function PlayerTournament({
           <TabsList
             className={cn(
               "border-gray-150 mb-8 grid h-12 w-full rounded-xl border bg-white p-0.5 shadow-sm",
-              isParticipant ? "grid-cols-7" : "grid-cols-6"
+              colsClass
             )}
           >
             <TabsTrigger
@@ -101,29 +141,19 @@ export function PlayerTournament({
               {t("manager.tabs.events")}
             </TabsTrigger>
             <TabsTrigger
-              value="schedule"
-              className="rounded-lg font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
-            >
-              {t("public.tabs.schedule")}
-            </TabsTrigger>
-            <TabsTrigger
               value="participants"
               className="rounded-lg font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
             >
               {t("public.tabs.participants")}
             </TabsTrigger>
-            <TabsTrigger
-              value="brackets"
-              className="rounded-lg font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
-            >
-              {t("manager.tabs.brackets", { defaultValue: "Bracket" })}
-            </TabsTrigger>
-            <TabsTrigger
-              value="results"
-              className="rounded-lg font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
-            >
-              {t("public.tabs.results")}
-            </TabsTrigger>
+            {hasRefereeAssignments && (
+              <TabsTrigger
+                value="referee"
+                className="rounded-lg font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+              >
+                {t("public.tabs.referee", { defaultValue: "Referee" })}
+              </TabsTrigger>
+            )}
             {isParticipant && (
               <TabsTrigger
                 value="payment"
@@ -156,14 +186,6 @@ export function PlayerTournament({
             <EventsTab tournamentId={String(tournament?.id)} events={events} />
           </TabsContent>
 
-          {/* Schedule Tab Content */}
-          <TabsContent
-            value="schedule"
-            className="mt-0 focus-visible:outline-none"
-          >
-            <MatchListTab type="schedule" matches={[]} />
-          </TabsContent>
-
           {/* Participants Tab Content */}
           <TabsContent
             value="participants"
@@ -172,27 +194,18 @@ export function PlayerTournament({
             <ParticipantsTab participants={displayParticipants} />
           </TabsContent>
 
-          {/* Brackets Tab Content */}
-          <TabsContent
-            value="brackets"
-            className="mt-0 focus-visible:outline-none"
-          >
-            {tournament && (
-              <BracketManagement
-                tournamentId={tournament.id}
-                events={events}
-                isHost={false}
+          {/* Referee Tab Content */}
+          {hasRefereeAssignments && (
+            <TabsContent
+              value="referee"
+              className="mt-0 focus-visible:outline-none"
+            >
+              <RefereeTab
+                assignments={myAssignments}
+                onRefresh={fetchRefereeAssignments}
               />
-            )}
-          </TabsContent>
-
-          {/* Results Tab Content */}
-          <TabsContent
-            value="results"
-            className="mt-0 focus-visible:outline-none"
-          >
-            <MatchListTab type="results" matches={displayLiveScores} />
-          </TabsContent>
+            </TabsContent>
+          )}
 
           {/* Payment Tab Content */}
           {isParticipant && (

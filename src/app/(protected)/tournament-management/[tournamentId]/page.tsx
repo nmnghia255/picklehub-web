@@ -65,13 +65,15 @@ export default async function TournamentDetailPage(props: {
   }
 
   return (
-    <TournamentManager
-      tournament={tournament}
-      events={events}
-      prizes={prizes}
-      sponsors={sponsors}
-      registrations={registrations}
-      isHost={isHost}
-    />
+    <div className="tournament-management-root flex flex-1 flex-col">
+      <TournamentManager
+        tournament={tournament}
+        events={events}
+        prizes={prizes}
+        sponsors={sponsors}
+        registrations={registrations}
+        isHost={isHost}
+      />
+    </div>
   )
 }

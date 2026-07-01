@@ -1,0 +1,90 @@
+{
+  "personnel": {
+    "title": "Tournament Personnel",
+    "subtitle": "Manage your tournament referee roster and match assignments.",
+    "tabs": {
+      "roster": "Referees Roster",
+      "assignments": "Match Assignments"
+    },
+    "stats": {
+      "totalReferees": "Total Referees",
+      "activeAssignments": "Active Assignments",
+      "avgWorkload": "Avg. Workload"
+    },
+    "roster": {
+      "searchPlaceholder": "Search referees by name, email, or ID...",
+      "reload": "Reload Roster",
+      "enrollBtn": "Enroll Referee",
+      "emptyTitle": "No Referees Found",
+      "emptyDesc": "Start enrolling referees to assign them to matches in this tournament.",
+      "emptySearch": "Try checking your spelling or adjusting your search term.",
+      "enrollFirst": "Enroll First Referee",
+      "idLabel": "ID",
+      "enrolledDate": "Enrolled: {{date}}",
+      "workload": "Workload",
+      "matchesCount": "{{count}} matches",
+      "unenrollTitle": "Unenroll Referee?",
+      "unenrollDesc": "Are you sure you want to remove {{name}} from the roster? This action cannot be undone and will fail if the referee is currently assigned to any matches.",
+      "unenrollConfirm": "Unenroll Referee",
+      "cancel": "Cancel"
+    },
+    "enrollDialog": {
+      "title": "Enroll New Referee",
+      "description": "Register a new referee into the tournament roster so they can be assigned to matches.",
+      "avatarLabel": "Avatar Image",
+      "avatarPlaceholder": "Avatar URL...",
+      "idLabel": "Unique Referee ID (Required)",
+      "idPlaceholder": "e.g. ref_john_doe",
+      "nameLabel": "Full Name (Required)",
+      "namePlaceholder": "e.g. John Doe",
+      "emailLabel": "Email Address (Required)",
+      "emailPlaceholder": "e.g. john.doe@referee.com",
+      "phoneLabel": "Phone Number (Optional)",
+      "phonePlaceholder": "e.g. +1234567890",
+      "submitBtn": "Enroll Referee"
+    },
+    "assignments": {
+      "searchPlaceholder": "Search match, round, team or referee...",
+      "allEvents": "All Events",
+      "unassignedOnly": "Unassigned Matches Only",
+      "emptyTitle": "No Matches Found",
+      "emptyDesc": "No fixtures match your current filters. Adjust your search or toggle off filters.",
+      "eventLabel": "Event",
+      "roundLabel": "Fixture",
+      "vs": "VS",
+      "scoreLabel": "Score: {{score}}",
+      "refereeLabel": "Assigned Referee",
+      "unassigned": "Unassigned",
+      "reassignPlaceholder": "Reassign",
+      "assignPlaceholder": "Assign Referee"
+    }
+  },
+  "referee": {
+    "title": "Referee Assignments",
+    "noAssignments": "You have no matches assigned for this tournament.",
+    "vs": "vs",
+    "score": "Score",
+    "matchInfo": {
+      "title": "Match Info",
+      "inProgress": "In Progress",
+      "set": "Set {{set}}"
+    },
+    "scoring": {
+      "teamA": "Team A",
+      "teamB": "Team B",
+      "seed": "Seed {{seed}}",
+      "currentScore": "Current Score",
+      "addPoint": "Add Point"
+    },
+    "setHistory": {
+      "title": "Set History",
+      "set": "Set {{set}}",
+      "notStarted": "Not Started"
+    },
+    "actions": {
+      "startScoring": "Enter Score",
+      "undo": "Undo",
+      "confirm": "Confirm"
+    }
+  }
+}

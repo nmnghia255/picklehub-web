@@ -6,6 +6,7 @@ import events from "./events.json"
 import general from "./general.json"
 import groupStage from "./group-stage.json"
 import liveControl from "./live-control.json"
+import personnel from "./personnel.json"
 import registrations from "./registrations.json"
 import scheduling from "./scheduling.json"
 import seeding from "./seeding.json"
@@ -24,6 +25,7 @@ const enTournament = {
   ...liveControl,
   ...booking,
   ...groupStage,
+  ...personnel,
 }
 
 export default enTournament

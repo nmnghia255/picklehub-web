@@ -17,7 +17,8 @@
       "financials": "Tài chính",
       "sponsors": "Nhà tài trợ",
       "public": "Chế độ xem công khai",
-      "payment": "Thanh toán"
+      "payment": "Thanh toán",
+      "personnel": "Nhân sự"
     }
   },
   "list": {
@@ -67,7 +68,8 @@
       "participants": "Người tham gia",
       "liveScores": "Tỉ số trực tiếp",
       "results": "Kết quả",
-      "payment": "Thanh toán"
+      "payment": "Thanh toán",
+      "referee": "Trọng tài"
     },
     "overview": {
       "title": "Tổng quan giải đấu",

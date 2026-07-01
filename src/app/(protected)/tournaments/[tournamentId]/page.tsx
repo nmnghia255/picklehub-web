@@ -75,11 +75,13 @@ export default async function TournamentDetailPage(props: {
   }
 
   return (
-    <PlayerTournament
-      tournament={tournament}
-      events={events}
-      sponsors={sponsors}
-      participants={participants}
-    />
+    <div className="tournament-player-root flex flex-1 flex-col">
+      <PlayerTournament
+        tournament={tournament}
+        events={events}
+        sponsors={sponsors}
+        participants={participants}
+      />
+    </div>
   )
 }

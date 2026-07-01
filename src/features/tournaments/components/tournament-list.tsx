@@ -155,10 +155,12 @@ export function TournamentList({
       <div className="mb-8">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="mb-2 text-3xl font-semibold text-gray-900">
+            <h1 className="mb-2 text-3xl font-semibold text-gray-900 dark:text-zinc-100">
               {t("list.title")}
             </h1>
-            <p className="text-gray-600">{t("list.subtitle")}</p>
+            <p className="text-gray-600 dark:text-zinc-400">
+              {t("list.subtitle")}
+            </p>
           </div>
           {mode === "management" && (
             <Button
@@ -175,7 +177,7 @@ export function TournamentList({
         <div className="flex gap-4">
           {mode === "management" ? (
             <Select value={role} onValueChange={(val) => setRole(val)}>
-              <SelectTrigger className="h-12! w-64 bg-white">
+              <SelectTrigger className="h-12! w-64 bg-white dark:bg-zinc-900">
                 <SelectValue
                   placeholder={t("list.roles.all", {
                     defaultValue: "All Roles",
@@ -211,7 +213,7 @@ export function TournamentList({
                   setStatus(val as TournamentStatus | "all")
                 }
               >
-                <SelectTrigger className="h-12! w-48">
+                <SelectTrigger className="h-12! w-48 bg-white dark:bg-zinc-900">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -248,13 +250,13 @@ export function TournamentList({
 
         {tournaments.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <Search className="mb-4 h-12 w-12 text-gray-400" />
-            <h3 className="mb-1 text-lg font-medium text-gray-900">
+            <Search className="mb-4 h-12 w-12 text-gray-400 dark:text-zinc-600" />
+            <h3 className="mb-1 text-lg font-medium text-gray-900 dark:text-zinc-100">
               {t("list.noResultsTitle", {
                 defaultValue: "No tournaments found",
               })}
             </h3>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-zinc-400">
               {t("list.noResultsDescription", {
                 defaultValue: "Try adjusting your search or status filter.",
               })}
@@ -268,9 +270,9 @@ export function TournamentList({
                 <Card
                   key={tournament.id}
                   onClick={() => handleNavigation(tournament)}
-                  className="cursor-pointer overflow-hidden py-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                  className="cursor-pointer overflow-hidden border py-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-zinc-800"
                 >
-                  <div className="relative aspect-video overflow-hidden bg-gray-200">
+                  <div className="relative aspect-video overflow-hidden bg-gray-200 dark:bg-zinc-800">
                     <img
                       src={tournament.banner || undefined}
                       alt={tournament.name}
@@ -292,22 +294,22 @@ export function TournamentList({
                     </div>
                   </div>
                   <CardContent className="p-5">
-                    <h3 className="mb-3 font-semibold text-gray-900">
+                    <h3 className="mb-3 font-semibold text-gray-900 dark:text-zinc-100">
                       {tournament.name}
                     </h3>
 
-                    <div className="space-y-2 text-sm text-gray-600">
+                    <div className="space-y-2 text-sm text-gray-600 dark:text-zinc-400">
                       <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-gray-400" />
+                        <MapPin className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
                         {tournament.venue}
                       </div>
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-gray-400" />
+                        <Calendar className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
                         {formatDate(tournament.startDate)} •{" "}
                         {formatDate(tournament.endDate)}
                       </div>
                       <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4 text-gray-400" />
+                        <Users className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
                         {t("list.registered", {
                           count: tournament.registered ?? 0,
                           capacity: tournament.capacity,

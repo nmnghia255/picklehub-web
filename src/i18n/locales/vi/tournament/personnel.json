@@ -1,0 +1,90 @@
+{
+  "personnel": {
+    "title": "Quản lý Nhân sự",
+    "subtitle": "Quản lý danh sách trọng tài và phân công trận đấu của giải đấu.",
+    "tabs": {
+      "roster": "Danh sách Trọng tài",
+      "assignments": "Phân công Trận đấu"
+    },
+    "stats": {
+      "totalReferees": "Tổng số Trọng tài",
+      "activeAssignments": "Trận đấu Phân công",
+      "avgWorkload": "Khối lượng TB"
+    },
+    "roster": {
+      "searchPlaceholder": "Tìm kiếm trọng tài theo tên, email, hoặc ID...",
+      "reload": "Tải lại Danh sách",
+      "enrollBtn": "Thêm Trọng tài",
+      "emptyTitle": "Không tìm thấy Trọng tài",
+      "emptyDesc": "Bắt đầu thêm trọng tài để phân công họ vào các trận đấu trong giải đấu này.",
+      "emptySearch": "Hãy thử kiểm tra lại chính tả hoặc thay đổi từ khóa tìm kiếm.",
+      "enrollFirst": "Thêm Trọng tài",
+      "idLabel": "ID",
+      "enrolledDate": "Đã thêm: {{date}}",
+      "workload": "Khối lượng công việc",
+      "matchesCount": "{{count}} trận đấu",
+      "unenrollTitle": "Xóa Trọng tài?",
+      "unenrollDesc": "Bạn có chắc chắn muốn xóa {{name}} khỏi danh sách? Hành động này không thể hoàn tác và sẽ thất bại nếu trọng tài này đang được phân công cho bất kỳ trận đấu nào.",
+      "unenrollConfirm": "Xóa Trọng tài",
+      "cancel": "Hủy"
+    },
+    "enrollDialog": {
+      "title": "Thêm Trọng tài Mới",
+      "description": "Đăng ký trọng tài mới vào danh sách giải đấu để phân công cho các trận đấu.",
+      "avatarLabel": "Ảnh đại diện",
+      "avatarPlaceholder": "URL ảnh đại diện...",
+      "idLabel": "Mã trọng tài (UUID) *",
+      "idPlaceholder": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+      "nameLabel": "Họ và Tên *",
+      "namePlaceholder": "Nguyễn Văn An",
+      "emailLabel": "Địa chỉ Email *",
+      "emailPlaceholder": "nguyenvanan@email.com",
+      "phoneLabel": "Số Điện thoại",
+      "phonePlaceholder": "+84987654321",
+      "submitBtn": "Thêm Trọng tài"
+    },
+    "assignments": {
+      "searchPlaceholder": "Tìm trận đấu, vòng đấu, đội hoặc trọng tài...",
+      "allEvents": "Tất cả Sự kiện",
+      "unassignedOnly": "Chỉ Trận chưa phân công",
+      "emptyTitle": "Không tìm thấy Trận đấu",
+      "emptyDesc": "Không có trận đấu nào khớp với bộ lọc hiện tại. Hãy thử thay đổi tìm kiếm hoặc tắt bộ lọc.",
+      "eventLabel": "Sự kiện",
+      "roundLabel": "Vòng đấu",
+      "vs": "ĐẤU VỚI",
+      "scoreLabel": "Tỉ số: {{score}}",
+      "refereeLabel": "Trọng tài phân công",
+      "unassigned": "Chưa phân công",
+      "reassignPlaceholder": "Đổi trọng tài",
+      "assignPlaceholder": "Phân công Trọng tài"
+    }
+  },
+  "referee": {
+    "title": "Phân công Trọng tài",
+    "noAssignments": "Bạn không có trận đấu nào được phân công trong giải đấu này.",
+    "vs": "vs",
+    "score": "Tỷ số",
+    "matchInfo": {
+      "title": "Thông tin Trận đấu",
+      "inProgress": "Đang diễn ra",
+      "set": "Hiệp {{set}}"
+    },
+    "scoring": {
+      "teamA": "Đội A",
+      "teamB": "Đội B",
+      "seed": "Hạt giống {{seed}}",
+      "currentScore": "Điểm số hiện tại",
+      "addPoint": "Cộng Điểm"
+    },
+    "setHistory": {
+      "title": "Lịch sử Hiệp đấu",
+      "set": "Hiệp {{set}}",
+      "notStarted": "Chưa bắt đầu"
+    },
+    "actions": {
+      "startScoring": "Nhập Điểm",
+      "undo": "Hoàn tác",
+      "confirm": "Xác nhận"
+    }
+  }
+}

@@ -42,7 +42,8 @@
       "courtsCount": "{{count}} Sân",
       "searchPlaceholder": "Tìm kiếm địa điểm đã liên kết...",
       "noMatches": "Không tìm thấy địa điểm phù hợp.",
-      "bookBtn": "Đặt sân"
+      "bookBtn": "Đặt sân",
+      "viewBtn": "Chi tiết"
     },
     "selectCenterDialog": {
       "title": "Chọn Trung tâm Thể thao",
@@ -57,6 +58,7 @@
       "noEvents": "Không tìm thấy sự kiện nào cho giải đấu này.",
       "matchesLabel": "trận đấu",
       "requirementHint": "Bạn sẽ cần đặt ít nhất {{count}} khung giờ sân để đáp ứng tất cả các trận đấu trong sự kiện này.",
+      "generalBookingLabel": "Đặt sân không liên kết sự kiện cụ thể (Đặt sân chung / đặt thêm khi thiếu sân)",
       "confirmBtn": "Tiếp tục đặt sân"
     },
     "page": {

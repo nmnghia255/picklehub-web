@@ -78,6 +78,7 @@ export function MatchListTab({ type, matches }: MatchListTabProps) {
   }
 
   if (type === "schedule") {
+    const scheduledMatches = matches.filter((m) => m.status !== "completed")
     return (
       <Card className="border-gray-200 shadow-sm">
         <CardHeader>
@@ -88,39 +89,77 @@ export function MatchListTab({ type, matches }: MatchListTabProps) {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {/* {scheduledMatches.map((match, index) => (
-              <div
-                key={index}
-                className="flex flex-col justify-between gap-4 rounded-lg border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 hover:border-emerald-100 sm:flex-row sm:items-center"
-              >
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge
-                      variant="outline"
-                      className="border-emerald-200 bg-emerald-50 font-bold text-emerald-700"
-                    >
-                      {match.event}
-                    </Badge>
-                    <span className="text-xs font-bold tracking-wider text-gray-500 uppercase">
-                      {match.round}
-                    </span>
+            {scheduledMatches.length > 0 ? (
+              scheduledMatches.map((match, index) => {
+                const team1Name =
+                  typeof match.team1 === "object"
+                    ? match.team1?.name
+                    : match.team1
+                const team2Name =
+                  typeof match.team2 === "object"
+                    ? match.team2?.name
+                    : match.team2
+                const courtName = match.court || `Court ${(index % 4) + 1}`
+                const timeStr =
+                  match.time ||
+                  `${9 + Math.floor(index / 2)}:${index % 2 === 0 ? "00" : "30"} AM`
+
+                return (
+                  <div
+                    key={index}
+                    className="flex flex-col justify-between gap-4 rounded-lg border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 hover:border-emerald-100 sm:flex-row sm:items-center"
+                  >
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {match.event && (
+                          <Badge
+                            variant="outline"
+                            className="border-emerald-200 bg-emerald-50 font-bold text-emerald-700"
+                          >
+                            {match.event}
+                          </Badge>
+                        )}
+                        {match.round && (
+                          <span className="text-xs font-bold tracking-wider text-gray-500 uppercase">
+                            {match.round}
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="mt-2 text-lg font-bold text-gray-900">
+                        {match.match || (
+                          <>
+                            {team1Name}
+                            <span className="mx-2 text-xs font-normal text-gray-400">
+                              {t("public.liveScores.vs")}
+                            </span>
+                            {team2Name}
+                          </>
+                        )}
+                      </h4>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-gray-500 sm:text-right">
+                      <div className="flex flex-col gap-1 sm:items-end">
+                        <span className="font-extrabold text-emerald-600">
+                          {courtName}
+                        </span>
+                        <span className="font-medium text-gray-500">
+                          {t("public.liveScores.time", {
+                            defaultValue: "Time",
+                          })}
+                          : {timeStr}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <h4 className="mt-2 text-lg font-bold text-gray-900">
-                    {match.match}
-                  </h4>
-                </div>
-                <div className="flex items-center gap-4 text-sm text-gray-500 sm:text-right">
-                  <div className="flex flex-col gap-1 sm:items-end">
-                    <span className="font-extrabold text-emerald-600">
-                      {`Court ${(index % 4) + 1}`}
-                    </span>
-                    <span className="font-medium text-gray-500">
-                      {`Time: ${9 + Math.floor(index / 2)}:${index % 2 === 0 ? "00" : "30"} AM`}
-                    </span>
-                  </div>
-                </div>
+                )
+              })
+            ) : (
+              <div className="py-8 text-center text-gray-500">
+                {t("scheduling.noMatchesScheduledYet", {
+                  defaultValue: "No matches scheduled yet",
+                })}
               </div>
-            ))} */}
+            )}
           </div>
         </CardContent>
       </Card>

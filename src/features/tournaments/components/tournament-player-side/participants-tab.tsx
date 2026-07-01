@@ -8,9 +8,13 @@ import type { Player } from "../../types/player"
 
 interface ParticipantsTabProps {
   participants: Player[]
+  hideEvent?: boolean
 }
 
-export function ParticipantsTab({ participants }: ParticipantsTabProps) {
+export function ParticipantsTab({
+  participants,
+  hideEvent = false,
+}: ParticipantsTabProps) {
   const { t } = useTournamentTranslation()
 
   return (
@@ -42,7 +46,7 @@ export function ParticipantsTab({ participants }: ParticipantsTabProps) {
                   <span className="font-bold text-emerald-600">
                     {participant.rating}
                   </span>
-                  {participant.event && (
+                  {participant.event && !hideEvent && (
                     <>
                       <span className="text-gray-300">•</span>
                       <span className="truncate">{participant.event}</span>

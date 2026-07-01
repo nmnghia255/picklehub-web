@@ -19,6 +19,10 @@ function formatDateKey(date: Date): string {
 // selectedCourts: dateKey -> courtId -> Set<slotKey>
 type SelectedCourtsMap = Record<string, Record<string, Set<string>>>
 
+// slotPrices: dateKey -> courtId -> slotKey -> pricePerHour
+// Persisted across date switches so useTotalPrice can always use exact slot prices.
+type SlotPricesMap = Record<string, Record<string, Record<string, number>>>
+
 interface BookingState {
   // States
   tournamentId: number | null
@@ -34,6 +38,8 @@ interface BookingState {
   uniqueSlotKeys: string[]
   /** dateKey -> courtId -> Set<slotKey> */
   selectedCourts: SelectedCourtsMap
+  /** dateKey -> courtId -> slotKey -> pricePerHour (persisted across date switches) */
+  slotPrices: SlotPricesMap
   playerName: string
   phoneNumber: string
 
@@ -54,7 +60,10 @@ interface BookingState {
   toggleSelectedDate: (date: Date) => void
   /** Set the active (viewed) date in the grid */
   setActiveDate: (date: Date | undefined) => void
-  setCourtAvailability: (availability: BulkCourtAvailability | null) => void
+  setCourtAvailability: (
+    availability: BulkCourtAvailability | null,
+    dateKey?: string
+  ) => void
   setSelectedCourts: (courts: SelectedCourtsMap) => void
   setPlayerName: (name: string) => void
   setPhoneNumber: (phone: string) => void
@@ -84,6 +93,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   courtAvailability: null,
   uniqueSlotKeys: [],
   selectedCourts: {},
+  slotPrices: {},
   playerName: "",
   phoneNumber: "",
   isLoadingCenter: true,
@@ -152,7 +162,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   setActiveDate: (activeDate) =>
     set({ activeDate, courtAvailability: null, uniqueSlotKeys: [] }),
 
-  setCourtAvailability: (courtAvailability) => {
+  setCourtAvailability: (courtAvailability, dateKey) => {
     if (!courtAvailability || courtAvailability.courts.length === 0) {
       set({ courtAvailability, uniqueSlotKeys: [] })
       return
@@ -168,7 +178,39 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       const startB = b.split(" - ")[0] || ""
       return startA.localeCompare(startB)
     })
-    set({ courtAvailability, uniqueSlotKeys })
+
+    // Persist per-slot prices so they remain available after the user switches dates
+    const resolvedDateKey =
+      dateKey ??
+      (() => {
+        const d = get().activeDate
+        return d ? formatDateKey(d) : null
+      })()
+
+    if (resolvedDateKey) {
+      const existingPrices = get().slotPrices
+      const datePrices: Record<string, Record<string, number>> = {
+        ...(existingPrices[resolvedDateKey] ?? {}),
+      }
+      courtAvailability.courts.forEach((court) => {
+        if (!datePrices[court.courtId]) {
+          datePrices[court.courtId] = {}
+        } else {
+          datePrices[court.courtId] = { ...datePrices[court.courtId] }
+        }
+        court.slots.forEach((slot) => {
+          const slotKey = `${slot.startTime} - ${slot.endTime}`
+          datePrices[court.courtId]![slotKey] = slot.pricePerHour
+        })
+      })
+      set({
+        courtAvailability,
+        uniqueSlotKeys,
+        slotPrices: { ...existingPrices, [resolvedDateKey]: datePrices },
+      })
+    } else {
+      set({ courtAvailability, uniqueSlotKeys })
+    }
   },
   setSelectedCourts: (selectedCourts) => set({ selectedCourts }),
   setPlayerName: (playerName) => set({ playerName }),
@@ -298,6 +340,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       courtAvailability: null,
       uniqueSlotKeys: [],
       selectedCourts: {},
+      slotPrices: {},
       playerName: "",
       phoneNumber: "",
       isLoadingCenter: true,
@@ -372,23 +415,17 @@ export const useTotalSlotsCount = () =>
 
 export const useTotalPrice = () =>
   useBookingStore((s) => {
-    const { courtAvailability, selectedCourts, sportCenter, activeDate } = s
-    // Price calculation: use courtAvailability for slots on active date,
-    // fall back to sportCenter base price for other dates
+    const { slotPrices, selectedCourts, sportCenter } = s
+    // Price calculation: use persisted slotPrices (populated when availability loads)
+    // and fall back to sportCenter basePrice only when a slot price is unknown.
     let sum = 0
     Object.entries(selectedCourts).forEach(([dateKey, courts]) => {
-      const isActiveDate = activeDate && formatDateKey(activeDate) === dateKey
       Object.entries(courts).forEach(([courtId, slots]) => {
-        const court =
-          isActiveDate && courtAvailability
-            ? courtAvailability.courts.find((c) => c.courtId === courtId)
-            : undefined
         slots.forEach((slotKey) => {
-          const [startTime = "", endTime = ""] = slotKey.split(" - ")
-          const slot = court?.slots.find(
-            (s) => s.startTime === startTime && s.endTime === endTime
-          )
-          const price = slot?.pricePerHour ?? sportCenter?.basePrice ?? 0
+          const price =
+            slotPrices[dateKey]?.[courtId]?.[slotKey] ??
+            sportCenter?.basePrice ??
+            0
           sum += Number(price)
         })
       })

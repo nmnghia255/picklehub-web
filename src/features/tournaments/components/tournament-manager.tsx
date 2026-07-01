@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   ListOrdered,
   MoreHorizontal,
+  Shield,
   Trophy,
   Users,
 } from "lucide-react"
@@ -47,6 +48,7 @@ import type { Sponsor } from "../types/sponsor"
 import type { Tournament } from "../types/tournament"
 import type { TournamentEvent } from "../types/tournament-event"
 import { PaymentTab } from "./payment-tab/payment"
+import { PersonnelManagement } from "./personnel-tab/personnel-management"
 
 const tabMetadata: Record<
   string,
@@ -76,6 +78,11 @@ const tabMetadata: Record<
   financials: { labelKey: "manager.tabs.financials", icon: DollarSign },
   payment: { labelKey: "manager.tabs.payment", icon: CreditCard },
   sponsors: { labelKey: "manager.tabs.sponsors", icon: Heart },
+  personnel: {
+    labelKey: "manager.tabs.personnel",
+    defaultValue: "Personnel",
+    icon: Shield,
+  },
 }
 
 export function TournamentManager({
@@ -159,6 +166,7 @@ export function TournamentManager({
     "financials",
     "payment",
     "sponsors",
+    "personnel",
   ]
 
   // The dropdown tabs are the ones not currently displayed in the tablist
@@ -186,17 +194,19 @@ export function TournamentManager({
           : ""
       )}
     >
-      <div className="bg-white">
+      <div className="border-b bg-white dark:border-zinc-900 dark:bg-zinc-950">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
-              <Trophy className="h-6 w-6 text-emerald-600" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-950/20">
+              <Trophy className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-zinc-100">
                 {t("manager.title")}
               </h1>
-              <p className="text-sm text-gray-500">{t("manager.subtitle")}</p>
+              <p className="text-sm text-gray-500 dark:text-zinc-400">
+                {t("manager.subtitle")}
+              </p>
             </div>
           </div>
           <BackButton />
@@ -208,7 +218,7 @@ export function TournamentManager({
         onValueChange={setActiveTab}
         className="flex min-h-0 flex-1 flex-col gap-0 overflow-hidden p-0"
       >
-        <div className="border-y border-gray-200 bg-white">
+        <div className="border-y border-gray-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
           <div className="mx-auto w-full max-w-7xl px-6">
             <TabsList className="h-auto w-full justify-start gap-0 rounded-none border-b-0 bg-transparent p-0">
               {displayTabs.map((tabValue) => {
@@ -219,7 +229,7 @@ export function TournamentManager({
                   <TabsTrigger
                     key={tabValue}
                     value={tabValue}
-                    className="relative flex items-center gap-2 rounded-none border-b-2 border-transparent px-2 py-3 text-sm font-medium text-gray-600 data-[state=active]:border-emerald-600 data-[state=active]:text-emerald-600 data-[state=active]:shadow-none"
+                    className="relative flex items-center gap-2 rounded-none border-b-2 border-transparent px-2 py-3 text-sm font-medium text-gray-600 data-[state=active]:border-emerald-600 data-[state=active]:text-emerald-600 data-[state=active]:shadow-none dark:text-zinc-400 dark:data-[state=active]:text-emerald-400"
                   >
                     <Icon className="h-4 w-4" />
                     {metadata.defaultValue
@@ -234,14 +244,14 @@ export function TournamentManager({
               {dropdownTabs.length > 0 && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="relative flex cursor-pointer items-center gap-2 rounded-none border-b-2 border-transparent px-2 py-3 text-sm font-medium text-gray-600 hover:text-emerald-600 focus:outline-hidden">
+                    <button className="relative flex cursor-pointer items-center gap-2 rounded-none border-b-2 border-transparent px-2 py-3 text-sm font-medium text-gray-600 hover:text-emerald-600 focus:outline-hidden dark:text-zinc-400 dark:hover:text-emerald-400">
                       <MoreHorizontal className="h-4 w-4" />
                       <span>
                         {t("manager.tabs.more", { defaultValue: "Thêm" })}
                       </span>
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="z-50 w-48 rounded-md border border-gray-200 bg-white p-1 shadow-md">
+                  <DropdownMenuContent className="z-50 w-48 rounded-md border border-gray-200 bg-white p-1 shadow-md dark:border-zinc-800 dark:bg-zinc-900">
                     {dropdownTabs.map((tabValue) => {
                       const metadata = tabMetadata[tabValue]
                       if (!metadata) return null
@@ -250,7 +260,7 @@ export function TournamentManager({
                         <DropdownMenuItem
                           key={tabValue}
                           onClick={() => setActiveTab(tabValue)}
-                          className="flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-emerald-600"
+                          className="flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-emerald-600 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-emerald-400"
                         >
                           <Icon className="h-4 w-4" />
                           {metadata.defaultValue
@@ -374,6 +384,15 @@ export function TournamentManager({
             className="m-0 border-none p-0 outline-none"
           >
             <Sponsors tournamentId={tournament.id.toString()} />
+          </TabsContent>
+          <TabsContent
+            value="personnel"
+            className="m-0 border-none p-0 outline-none"
+          >
+            <PersonnelManagement
+              tournamentId={tournament.id.toString()}
+              events={events}
+            />
           </TabsContent>
         </div>
       </Tabs>
