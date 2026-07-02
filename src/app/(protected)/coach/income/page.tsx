@@ -1,3 +1,5 @@
+import { Suspense } from "react"
+
 import { CoachIncomeOverview } from "@/features/coach/components/coach-income-overview"
 import { CoachPageHeader } from "@/features/coach/components/coach-page-header"
 
@@ -10,7 +12,9 @@ export default function CoachIncomePage() {
           description="Lọc theo ngày, tháng hoặc năm, xem biểu đồ cột và danh sách giao dịch mock."
         />
 
-        <CoachIncomeOverview />
+        <Suspense fallback={null}>
+          <CoachIncomeOverview />
+        </Suspense>
       </div>
     </div>
   )

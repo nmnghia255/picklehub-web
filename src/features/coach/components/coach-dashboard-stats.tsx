@@ -1,6 +1,6 @@
 "use client"
 
-import { CalendarDays, DollarSign, Users, AlertTriangle } from "lucide-react"
+import { AlertTriangle, CalendarDays, DollarSign, Users } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -41,10 +41,26 @@ export function CoachDashboardStats() {
 
   const stats = [
     { icon: Users, label: "Tổng học viên", value: data.totalLearners },
-    { icon: DollarSign, label: "Thanh toán lớp chờ duyệt", value: data.learnersWithPendingClassPayments },
-    { icon: DollarSign, label: "Thanh toán đặt lịch chờ duyệt", value: data.learnersWithPendingBookingPayments },
-    { icon: CalendarDays, label: "Học viên có lịch sắp tới", value: data.learnersWithUpcomingSessions },
-    { icon: CalendarDays, label: "Tổng lịch sắp tới", value: data.upcomingSessionTotal },
+    {
+      icon: DollarSign,
+      label: "Thanh toán lớp chờ duyệt",
+      value: data.learnersWithPendingClassPayments,
+    },
+    {
+      icon: DollarSign,
+      label: "Thanh toán đặt lịch chờ duyệt",
+      value: data.learnersWithPendingBookingPayments,
+    },
+    {
+      icon: CalendarDays,
+      label: "Học viên có lịch sắp tới",
+      value: data.learnersWithUpcomingSessions,
+    },
+    {
+      icon: CalendarDays,
+      label: "Tổng lịch sắp tới",
+      value: data.upcomingSessionTotal,
+    },
   ]
 
   return (
@@ -76,21 +92,25 @@ export function CoachDashboardStats() {
           <CardContent className="space-y-3">
             {data.attentionLearners.map((learner, index) => (
               <div
-                key={learner.learnerProfile.name ?? index}
+                key={learner.learnerProfile?.name ?? index}
                 className="flex flex-wrap items-center gap-4 rounded-xl border p-4"
               >
                 <Avatar className="size-10">
                   <AvatarImage
-                    src={learner.learnerProfile.avatarUrl ?? ""}
-                    alt={learner.learnerProfile.name}
+                    src={learner.learnerProfile?.avatarUrl ?? ""}
+                    alt={learner.learnerProfile?.name ?? "?"}
                   />
                   <AvatarFallback>
-                    {(learner.learnerProfile.name ?? "?").slice(0, 2).toUpperCase()}
+                    {(learner.learnerProfile?.name ?? "?")
+                      .slice(0, 2)
+                      .toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
 
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold">{learner.learnerProfile.name}</p>
+                  <p className="font-semibold">
+                    {learner.learnerProfile?.name ?? "?"}
+                  </p>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
@@ -98,13 +118,20 @@ export function CoachDashboardStats() {
                     {learner.upcomingSessionCount} buổi sắp tới
                   </Badge>
                   {learner.classPaymentPendingReviewCount > 0 && (
-                    <Badge variant="outline" className="rounded-full border-amber-300 text-amber-700">
+                    <Badge
+                      variant="outline"
+                      className="rounded-full border-amber-300 text-amber-700"
+                    >
                       {learner.classPaymentPendingReviewCount} thanh toán lớp
                     </Badge>
                   )}
                   {learner.bookingPaymentPendingReviewCount > 0 && (
-                    <Badge variant="outline" className="rounded-full border-amber-300 text-amber-700">
-                      {learner.bookingPaymentPendingReviewCount} thanh toán đặt lịch
+                    <Badge
+                      variant="outline"
+                      className="rounded-full border-amber-300 text-amber-700"
+                    >
+                      {learner.bookingPaymentPendingReviewCount} thanh toán đặt
+                      lịch
                     </Badge>
                   )}
                 </div>

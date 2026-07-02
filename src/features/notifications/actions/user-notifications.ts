@@ -73,7 +73,9 @@ export async function fetchMyNotifications(): Promise<FeedNotification[]> {
 
     return mapped
   } catch (error) {
-    console.error("Error fetching my notifications:", error)
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[notifications] fetchMyNotifications failed:", error)
+    }
     return []
   }
 }

@@ -2,11 +2,16 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
-import type * as CoachTypes from "../types/coach"
 import { CoachClient } from "../api/coach-client"
 import { coachQueryKeys } from "../api/query-keys"
+import type * as CoachTypes from "../types/coach"
 
-export function useCoachList(params?: { city?: string; level?: string; page?: number; limit?: number }) {
+export function useCoachList(params?: {
+  city?: string
+  level?: string
+  page?: number
+  limit?: number
+}) {
   return useQuery({
     queryKey: coachQueryKeys.coaches(params),
     queryFn: () => CoachClient.listCoaches(params),
@@ -79,7 +84,9 @@ export function useAddCertification() {
   return useMutation({
     mutationFn: CoachClient.addCertification,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: coachQueryKeys.certifications() })
+      queryClient.invalidateQueries({
+        queryKey: coachQueryKeys.certifications(),
+      })
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.myProfile() })
     },
   })
@@ -90,13 +97,20 @@ export function useDeleteCertification() {
   return useMutation({
     mutationFn: CoachClient.deleteCertification,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: coachQueryKeys.certifications() })
+      queryClient.invalidateQueries({
+        queryKey: coachQueryKeys.certifications(),
+      })
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.myProfile() })
     },
   })
 }
 
-export function useAdminCertifications(params?: { verificationStatus?: string; coachProfileId?: string; page?: number; limit?: number }) {
+export function useAdminCertifications(params?: {
+  verificationStatus?: string
+  coachProfileId?: string
+  page?: number
+  limit?: number
+}) {
   return useQuery({
     queryKey: [...coachQueryKeys.all, "admin-certifications", params],
     queryFn: () => CoachClient.adminListCertifications(params),
@@ -113,11 +127,20 @@ export function useAdminPendingCertifications() {
 export function useAdminReviewCertification() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ certId, dto }: { certId: string; dto: { verificationStatus: "VERIFIED" | "REJECTED"; reviewNote?: string } }) =>
-      CoachClient.adminReviewCertification(certId, dto),
+    mutationFn: ({
+      certId,
+      dto,
+    }: {
+      certId: string
+      dto: { verificationStatus: "VERIFIED" | "REJECTED"; reviewNote?: string }
+    }) => CoachClient.adminReviewCertification(certId, dto),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [...coachQueryKeys.all, "admin-certifications"] })
-      queryClient.invalidateQueries({ queryKey: [...coachQueryKeys.all, "admin-pending-certifications"] })
+      queryClient.invalidateQueries({
+        queryKey: [...coachQueryKeys.all, "admin-certifications"],
+      })
+      queryClient.invalidateQueries({
+        queryKey: [...coachQueryKeys.all, "admin-pending-certifications"],
+      })
     },
   })
 }
@@ -129,7 +152,14 @@ export function useCoachSchedule(params?: Record<string, unknown>) {
   })
 }
 
-export function useMyClasses(params?: { status?: string; level?: string; from?: string; to?: string; page?: number; limit?: number }) {
+export function useMyClasses(params?: {
+  status?: string
+  level?: string
+  from?: string
+  to?: string
+  page?: number
+  limit?: number
+}) {
   return useQuery({
     queryKey: coachQueryKeys.myClasses(params),
     queryFn: () => CoachClient.listMyClasses(params),
@@ -157,11 +187,18 @@ export function useCreateClass() {
 export function useUpdateClass() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ classId, dto }: { classId: string; dto: CoachTypes.UpdateCoachClassDto }) =>
-      CoachClient.updateClass(classId, dto),
+    mutationFn: ({
+      classId,
+      dto,
+    }: {
+      classId: string
+      dto: CoachTypes.UpdateCoachClassDto
+    }) => CoachClient.updateClass(classId, dto),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClasses() })
-      queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClass(variables.classId) })
+      queryClient.invalidateQueries({
+        queryKey: coachQueryKeys.myClass(variables.classId),
+      })
     },
   })
 }
@@ -172,7 +209,9 @@ export function usePublishClass() {
     mutationFn: CoachClient.publishClass,
     onSuccess: (_data, classId) => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClasses() })
-      queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClass(classId) })
+      queryClient.invalidateQueries({
+        queryKey: coachQueryKeys.myClass(classId),
+      })
     },
   })
 }
@@ -183,12 +222,17 @@ export function useCancelClass() {
     mutationFn: CoachClient.cancelClass,
     onSuccess: (_data, classId) => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClasses() })
-      queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClass(classId) })
+      queryClient.invalidateQueries({
+        queryKey: coachQueryKeys.myClass(classId),
+      })
     },
   })
 }
 
-export function useClassScheduleEntries(classId: string, params?: { from?: string; to?: string }) {
+export function useClassScheduleEntries(
+  classId: string,
+  params?: { from?: string; to?: string }
+) {
   return useQuery({
     queryKey: [...coachQueryKeys.myClass(classId), "schedules", params],
     queryFn: () => CoachClient.listScheduleEntries(classId, params),
@@ -199,11 +243,18 @@ export function useClassScheduleEntries(classId: string, params?: { from?: strin
 export function useAddScheduleSlot() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ classId, dto }: { classId: string; dto: CoachTypes.CreateClassScheduleDto }) =>
-      CoachClient.addScheduleSlot(classId, dto),
+    mutationFn: ({
+      classId,
+      dto,
+    }: {
+      classId: string
+      dto: CoachTypes.CreateClassScheduleDto
+    }) => CoachClient.addScheduleSlot(classId, dto),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClasses() })
-      queryClient.invalidateQueries({ queryKey: [...coachQueryKeys.myClass(variables.classId), "schedules"] })
+      queryClient.invalidateQueries({
+        queryKey: [...coachQueryKeys.myClass(variables.classId), "schedules"],
+      })
     },
   })
 }
@@ -211,11 +262,18 @@ export function useAddScheduleSlot() {
 export function useRemoveScheduleSlot() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ classId, scheduleId }: { classId: string; scheduleId: string }) =>
-      CoachClient.removeScheduleSlot(classId, scheduleId),
+    mutationFn: ({
+      classId,
+      scheduleId,
+    }: {
+      classId: string
+      scheduleId: string
+    }) => CoachClient.removeScheduleSlot(classId, scheduleId),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClasses() })
-      queryClient.invalidateQueries({ queryKey: [...coachQueryKeys.myClass(variables.classId), "schedules"] })
+      queryClient.invalidateQueries({
+        queryKey: [...coachQueryKeys.myClass(variables.classId), "schedules"],
+      })
     },
   })
 }
@@ -231,10 +289,17 @@ export function useClassEnrollments(classId: string) {
 export function useSettleEnrollmentPayment() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ classId, enrollmentId }: { classId: string; enrollmentId: string }) =>
-      CoachClient.settleEnrollmentPayment(classId, enrollmentId),
+    mutationFn: ({
+      classId,
+      enrollmentId,
+    }: {
+      classId: string
+      enrollmentId: string
+    }) => CoachClient.settleEnrollmentPayment(classId, enrollmentId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [...coachQueryKeys.all, "enrollments"] })
+      queryClient.invalidateQueries({
+        queryKey: [...coachQueryKeys.all, "enrollments"],
+      })
     },
   })
 }
@@ -242,15 +307,30 @@ export function useSettleEnrollmentPayment() {
 export function useRejectEnrollmentPayment() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ classId, enrollmentId, reason }: { classId: string; enrollmentId: string; reason?: string }) =>
+    mutationFn: ({
+      classId,
+      enrollmentId,
+      reason,
+    }: {
+      classId: string
+      enrollmentId: string
+      reason?: string
+    }) =>
       CoachClient.rejectEnrollmentPayment(classId, enrollmentId, { reason }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [...coachQueryKeys.all, "enrollments"] })
+      queryClient.invalidateQueries({
+        queryKey: [...coachQueryKeys.all, "enrollments"],
+      })
     },
   })
 }
 
-export function useCoachLearners(params?: { search?: string; kind?: string; page?: number; limit?: number }) {
+export function useCoachLearners(params?: {
+  search?: string
+  kind?: string
+  page?: number
+  limit?: number
+}) {
   return useQuery({
     queryKey: coachQueryKeys.learners(params),
     queryFn: () => CoachClient.listLearners(params),
@@ -283,10 +363,17 @@ export function useCoachReviews(coachId: string) {
 export function useCreateReview() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ coachId, dto }: { coachId: string; dto: CoachTypes.CreateReviewDto }) =>
-      CoachClient.createReview(coachId, dto),
+    mutationFn: ({
+      coachId,
+      dto,
+    }: {
+      coachId: string
+      dto: CoachTypes.CreateReviewDto
+    }) => CoachClient.createReview(coachId, dto),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [...coachQueryKeys.all, "reviews"] })
+      queryClient.invalidateQueries({
+        queryKey: [...coachQueryKeys.all, "reviews"],
+      })
     },
   })
 }
@@ -294,10 +381,19 @@ export function useCreateReview() {
 export function useUpdateReview() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ coachId, reviewId, dto }: { coachId: string; reviewId: string; dto: CoachTypes.UpdateReviewDto }) =>
-      CoachClient.updateReview(coachId, reviewId, dto),
+    mutationFn: ({
+      coachId,
+      reviewId,
+      dto,
+    }: {
+      coachId: string
+      reviewId: string
+      dto: CoachTypes.UpdateReviewDto
+    }) => CoachClient.updateReview(coachId, reviewId, dto),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [...coachQueryKeys.all, "reviews"] })
+      queryClient.invalidateQueries({
+        queryKey: [...coachQueryKeys.all, "reviews"],
+      })
     },
   })
 }
@@ -305,18 +401,30 @@ export function useUpdateReview() {
 export function useDeleteReview() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ coachId, reviewId }: { coachId: string; reviewId: string }) =>
-      CoachClient.deleteReview(coachId, reviewId),
+    mutationFn: ({
+      coachId,
+      reviewId,
+    }: {
+      coachId: string
+      reviewId: string
+    }) => CoachClient.deleteReview(coachId, reviewId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [...coachQueryKeys.all, "reviews"] })
+      queryClient.invalidateQueries({
+        queryKey: [...coachQueryKeys.all, "reviews"],
+      })
     },
   })
 }
 
 export function useRecommendCoach() {
   return useMutation({
-    mutationFn: ({ coachId, dto }: { coachId: string; dto: CoachTypes.CreateRecommendationDto }) =>
-      CoachClient.recommendCoach(coachId, dto),
+    mutationFn: ({
+      coachId,
+      dto,
+    }: {
+      coachId: string
+      dto: CoachTypes.CreateRecommendationDto
+    }) => CoachClient.recommendCoach(coachId, dto),
   })
 }
 
@@ -327,21 +435,35 @@ export function useRevenueSummary(params?: { period?: string; year?: number }) {
   })
 }
 
-export function useClassRevenue(params?: { page?: number; limit?: number; from?: string; to?: string }) {
+export function useClassRevenue(
+  params?: { page?: number; limit?: number; from?: string; to?: string },
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: coachQueryKeys.classRevenue(params),
     queryFn: () => CoachClient.getClassRevenue(params),
+    ...options,
   })
 }
 
-export function useBookingRevenue(params?: { page?: number; limit?: number; from?: string; to?: string }) {
+export function useBookingRevenue(
+  params?: { page?: number; limit?: number; from?: string; to?: string },
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: coachQueryKeys.bookingRevenue(params),
     queryFn: () => CoachClient.getBookingRevenue(params),
+    ...options,
   })
 }
 
-export function useIncomingBookings(params?: { status?: string; from?: string; to?: string; page?: number; limit?: number }) {
+export function useIncomingBookings(params?: {
+  status?: string
+  from?: string
+  to?: string
+  page?: number
+  limit?: number
+}) {
   return useQuery({
     queryKey: coachQueryKeys.bookings(params),
     queryFn: () => CoachClient.listIncomingBookings(params),
@@ -351,8 +473,13 @@ export function useIncomingBookings(params?: { status?: string; from?: string; t
 export function useConfirmBooking() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ bookingId, coachNote }: { bookingId: string; coachNote?: string }) =>
-      CoachClient.confirmBooking(bookingId, { coachNote }),
+    mutationFn: ({
+      bookingId,
+      coachNote,
+    }: {
+      bookingId: string
+      coachNote?: string
+    }) => CoachClient.confirmBooking(bookingId, { coachNote }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.bookings() })
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.schedule() })
@@ -363,8 +490,13 @@ export function useConfirmBooking() {
 export function useRejectBooking() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ bookingId, cancelReason }: { bookingId: string; cancelReason?: string }) =>
-      CoachClient.rejectBooking(bookingId, { cancelReason }),
+    mutationFn: ({
+      bookingId,
+      cancelReason,
+    }: {
+      bookingId: string
+      cancelReason?: string
+    }) => CoachClient.rejectBooking(bookingId, { cancelReason }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.bookings() })
     },
@@ -405,8 +537,13 @@ export function useRejectBookingPayment() {
 export function useCancelBookingCoach() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ bookingId, cancelReason }: { bookingId: string; cancelReason?: string }) =>
-      CoachClient.cancelBooking(bookingId, { cancelReason }),
+    mutationFn: ({
+      bookingId,
+      cancelReason,
+    }: {
+      bookingId: string
+      cancelReason?: string
+    }) => CoachClient.cancelBooking(bookingId, { cancelReason }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.bookings() })
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.schedule() })

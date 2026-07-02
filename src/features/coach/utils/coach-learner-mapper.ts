@@ -45,36 +45,65 @@ export interface NormalizedLearner {
   }[]
 }
 
-export function normalizeLearner(item: any): NormalizedLearner {
-  const profile = item.learnerProfile ?? item
+type RawLearner = Record<string, unknown>
+
+function rawStr(val: unknown): string {
+  return typeof val === "string" ? val : ""
+}
+
+function rawNum(val: unknown): number {
+  return typeof val === "number" ? val : 0
+}
+
+export function normalizeLearner(item: RawLearner): NormalizedLearner {
+  const profile = (item.learnerProfile ?? item) as RawLearner
   return {
-    id: item.learnerId ?? item.id ?? "",
-    name: profile.name ?? "",
-    email: profile.email ?? "",
-    avatarUrl: profile.avatarUrl ?? profile.avatar ?? "",
-    latestActivityAt: item.latestActivityAt ?? null,
-    classEnrollmentCount: item.classEnrollmentCount ?? 0,
-    activeClassEnrollmentCount: item.activeClassEnrollmentCount ?? 0,
-    cancelledClassEnrollmentCount: item.cancelledClassEnrollmentCount ?? 0,
-    classPaymentPendingReviewCount: item.classPaymentPendingReviewCount ?? 0,
-    classPaymentSettledCount: item.classPaymentSettledCount ?? 0,
-    classPaymentRejectedCount: item.classPaymentRejectedCount ?? 0,
-    privateBookingCount: item.privateBookingCount ?? 0,
-    pendingBookingCount: item.pendingBookingCount ?? 0,
-    confirmedBookingCount: item.confirmedBookingCount ?? 0,
-    completedBookingCount: item.completedBookingCount ?? 0,
-    cancelledBookingCount: item.cancelledBookingCount ?? 0,
-    rejectedBookingCount: item.rejectedBookingCount ?? 0,
-    bookingPaymentPendingReviewCount: item.bookingPaymentPendingReviewCount ?? 0,
-    bookingPaymentSettledCount: item.bookingPaymentSettledCount ?? 0,
-    bookingPaymentRejectedCount: item.bookingPaymentRejectedCount ?? 0,
-    phone: item.phone ?? null,
-    bio: item.bio ?? null,
-    joinedAt: item.joinedAt ?? null,
-    totalSessions: item.totalSessions ?? 0,
-    completedSessions: item.completedSessions ?? 0,
-    enrollments: Array.isArray(item.enrollments) ? item.enrollments : [],
-    bookings: Array.isArray(item.bookings) ? item.bookings : [],
-    upcomingSessions: Array.isArray(item.upcomingSessions) ? item.upcomingSessions : [],
+    id: rawStr(item.learnerId ?? item.id),
+    name: rawStr(profile.name),
+    email: rawStr(profile.email),
+    avatarUrl: rawStr(profile.avatarUrl ?? profile.avatar),
+    latestActivityAt: rawStr(item.latestActivityAt) || null,
+    classEnrollmentCount: rawNum(item.classEnrollmentCount),
+    activeClassEnrollmentCount: rawNum(item.activeClassEnrollmentCount),
+    cancelledClassEnrollmentCount: rawNum(item.cancelledClassEnrollmentCount),
+    classPaymentPendingReviewCount: rawNum(item.classPaymentPendingReviewCount),
+    classPaymentSettledCount: rawNum(item.classPaymentSettledCount),
+    classPaymentRejectedCount: rawNum(item.classPaymentRejectedCount),
+    privateBookingCount: rawNum(item.privateBookingCount),
+    pendingBookingCount: rawNum(item.pendingBookingCount),
+    confirmedBookingCount: rawNum(item.confirmedBookingCount),
+    completedBookingCount: rawNum(item.completedBookingCount),
+    cancelledBookingCount: rawNum(item.cancelledBookingCount),
+    rejectedBookingCount: rawNum(item.rejectedBookingCount),
+    bookingPaymentPendingReviewCount: rawNum(
+      item.bookingPaymentPendingReviewCount
+    ),
+    bookingPaymentSettledCount: rawNum(item.bookingPaymentSettledCount),
+    bookingPaymentRejectedCount: rawNum(item.bookingPaymentRejectedCount),
+    phone: rawStr(item.phone) || null,
+    bio: rawStr(item.bio) || null,
+    joinedAt: rawStr(item.joinedAt) || null,
+    totalSessions: rawNum(item.totalSessions),
+    completedSessions: rawNum(item.completedSessions),
+    enrollments: Array.isArray(item.enrollments)
+      ? (item.enrollments as NormalizedLearner["enrollments"])
+      : [],
+    bookings: Array.isArray(item.bookings)
+      ? (item.bookings as RawLearner[]).map((b) => ({
+          bookingId: rawStr(b.bookingId ?? b.id),
+          scheduledAt: rawStr(b.sessionAt ?? b.scheduledAt),
+          status: rawStr(b.status),
+          durationMinutes: rawNum(b.durationMinutes),
+        }))
+      : [],
+    upcomingSessions: Array.isArray(item.upcomingSessions)
+      ? (item.upcomingSessions as RawLearner[]).map((s) => ({
+          type: rawStr(s.type),
+          title: rawStr(s.title),
+          startTime: rawStr(s.startsAt ?? s.startTime),
+          endTime: rawStr(s.endsAt ?? s.endTime),
+          status: rawStr(s.status),
+        }))
+      : [],
   }
 }

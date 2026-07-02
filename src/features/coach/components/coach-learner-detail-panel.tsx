@@ -1,6 +1,7 @@
 "use client"
 
-import { ChevronLeft, Calendar, BookOpen, Clock } from "lucide-react"
+import { format } from "date-fns"
+import { BookOpen, Calendar, ChevronLeft, Clock } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -10,22 +11,11 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 import { useCoachLearnerDetail } from "../hooks/use-coach-queries"
 
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("vi-VN", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
-}
-
-function formatDateTime(value: string) {
-  return new Date(value).toLocaleDateString("vi-VN", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
+function safeFormatDateTime(value?: string) {
+  if (!value) return "-"
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return "-"
+  return format(date, "dd/MM/yyyy HH:mm")
 }
 
 export function CoachLearnerDetailPanel({
@@ -63,11 +53,7 @@ export function CoachLearnerDetailPanel({
 
   return (
     <div className="space-y-6">
-      <Button
-        variant="ghost"
-        className="gap-2 rounded-full"
-        onClick={onBack}
-      >
+      <Button variant="ghost" className="gap-2 rounded-full" onClick={onBack}>
         <ChevronLeft className="size-4" />
         Quay lại
       </Button>
@@ -84,7 +70,9 @@ export function CoachLearnerDetailPanel({
             </AvatarFallback>
           </Avatar>
           <div className="space-y-1 text-center sm:text-left">
-            <p className="text-xl font-semibold">{data.name || "Không có tên"}</p>
+            <p className="text-xl font-semibold">
+              {data.name || "Không có tên"}
+            </p>
             <p className="text-sm text-muted-foreground">{data.email || "-"}</p>
             <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
               <Badge variant="secondary" className="rounded-full">
@@ -109,24 +97,26 @@ export function CoachLearnerDetailPanel({
           <CardContent className="space-y-3">
             {upcomingSessions.map((session, index) => {
               const sessionKey =
-                session.title +
-                (session.startTime ?? `session-${index}`)
+                session.title + (session.startTime ?? `session-${index}`)
               return (
                 <div
                   key={sessionKey}
                   className="flex items-center justify-between rounded-xl border p-4"
                 >
                   <div className="space-y-1">
-                    <p className="font-medium">{session.title || "Không có tiêu đề"}</p>
+                    <p className="font-medium">
+                      {session.title || "Không có tiêu đề"}
+                    </p>
                     <p className="text-sm text-muted-foreground">
-                      <Clock className="inline size-3.5 align-middle" />
-                      {" "}
-                      {session.startTime ? formatDateTime(session.startTime) : "?"} -{" "}
-                      {session.endTime ? formatDateTime(session.endTime) : "?"}
+                      <Clock className="inline size-3.5 align-middle" />{" "}
+                      {safeFormatDateTime(session.startTime)} -{" "}
+                      {safeFormatDateTime(session.endTime)}
                     </p>
                   </div>
                   <Badge
-                    variant={session.status === "live" ? "default" : "secondary"}
+                    variant={
+                      session.status === "live" ? "default" : "secondary"
+                    }
                     className="rounded-full"
                   >
                     {session.status === "live" ? "Đang diễn ra" : "Sắp tới"}
@@ -148,7 +138,9 @@ export function CoachLearnerDetailPanel({
           </CardHeader>
           <CardContent>
             {enrollments.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Chưa tham gia lớp nào.</p>
+              <p className="text-sm text-muted-foreground">
+                Chưa tham gia lớp nào.
+              </p>
             ) : (
               <div className="space-y-3">
                 {enrollments.map((enr, index) => {
@@ -159,8 +151,13 @@ export function CoachLearnerDetailPanel({
                       key={enrKey}
                       className="flex items-center justify-between rounded-lg border p-3"
                     >
-                      <p className="text-sm font-medium">{enr.className || "Không xác định"}</p>
-                      <Badge variant="outline" className="rounded-full text-[11px]">
+                      <p className="text-sm font-medium">
+                        {enr.className || "Không xác định"}
+                      </p>
+                      <Badge
+                        variant="outline"
+                        className="rounded-full text-[11px]"
+                      >
                         {enr.status === "active"
                           ? "Đang học"
                           : enr.status === "completed"
@@ -184,12 +181,13 @@ export function CoachLearnerDetailPanel({
           </CardHeader>
           <CardContent>
             {bookings.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Chưa có lịch đặt riêng.</p>
+              <p className="text-sm text-muted-foreground">
+                Chưa có lịch đặt riêng.
+              </p>
             ) : (
               <div className="space-y-3">
                 {bookings.map((bk, index) => {
-                  const bkKey =
-                    bk.bookingId ?? `booking-${index}`
+                  const bkKey = bk.bookingId ?? `booking-${index}`
                   return (
                     <div
                       key={bkKey}
@@ -197,13 +195,16 @@ export function CoachLearnerDetailPanel({
                     >
                       <div className="space-y-0.5">
                         <p className="text-sm font-medium">
-                          {bk.scheduledAt ? formatDate(bk.scheduledAt) : "?"}
+                          {safeFormatDateTime(bk.scheduledAt)}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {bk.durationMinutes ?? 0} phút
                         </p>
                       </div>
-                      <Badge variant="outline" className="rounded-full text-[11px]">
+                      <Badge
+                        variant="outline"
+                        className="rounded-full text-[11px]"
+                      >
                         {bk.status === "confirmed"
                           ? "Đã xác nhận"
                           : bk.status === "completed"

@@ -42,7 +42,11 @@ export interface CoachProfile {
 
 export type CoachLevel = "Beginner" | "Intermediate" | "Advanced" | "Pro"
 export type CoachStatus = "DRAFT" | "ACTIVE" | "SUSPENDED"
-export type VerificationStatus = "UNVERIFIED" | "PENDING" | "VERIFIED" | "REJECTED"
+export type VerificationStatus =
+  | "UNVERIFIED"
+  | "PENDING"
+  | "VERIFIED"
+  | "REJECTED"
 
 export interface Certification {
   id: string
@@ -237,7 +241,13 @@ export interface CoachClass {
   }
 }
 
-export type ClassStatus = "DRAFT" | "OPEN" | "FULL" | "ONGOING" | "COMPLETED" | "CANCELLED"
+export type ClassStatus =
+  | "DRAFT"
+  | "OPEN"
+  | "FULL"
+  | "ONGOING"
+  | "COMPLETED"
+  | "CANCELLED"
 
 export interface ClassScheduleEntry {
   id: string
@@ -338,7 +348,11 @@ export interface Enrollment {
 }
 
 export type EnrollmentStatus = "ACTIVE" | "CANCELLED" | "COMPLETED"
-export type PaymentStatus = "PENDING_PROOF" | "PENDING_REVIEW" | "SETTLED" | "REJECTED"
+export type PaymentStatus =
+  | "PENDING_PROOF"
+  | "PENDING_REVIEW"
+  | "SETTLED"
+  | "REJECTED"
 
 export interface CoachLearner {
   id: string
@@ -466,13 +480,18 @@ export interface RevenueBucket {
 
 export interface ClassRevenue {
   classId: string
-  className: string
-  totalSessions: number
-  settledSessions: number
+  title?: string
+  className?: string
+  status?: string
+  level?: string
+  locationDescription?: string | null
+  coverImageUrl?: string | null
   enrolledLearnerCount: number
   settledEnrollmentCount: number
   settledRevenueVnd: number
-  settledAt: string | null
+  firstSettledAt?: string | null
+  lastSettledAt?: string | null
+  settledAt?: string | null
 }
 
 export interface BookingRevenue {
@@ -481,10 +500,13 @@ export interface BookingRevenue {
     name: string
     avatarUrl: string | null
   }
-  scheduledAt: string
+  sessionAt: string
   durationMinutes: number
+  status?: string
+  paymentStatus?: string
   priceVnd: number
   settledAt: string | null
+  coachNote?: string | null
 }
 
 export interface Booking {
