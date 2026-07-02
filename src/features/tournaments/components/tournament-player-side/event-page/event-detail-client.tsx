@@ -8,18 +8,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { User } from "@/features/profile/types"
 import { registerTournamentEventAction } from "@/features/tournaments/actions/tournament-registration-actions"
 import { BracketManagement } from "@/features/tournaments/components/bracket-tab/bracket-management"
+import { GroupManagement } from "@/features/tournaments/components/group-tab/group-management"
 import { EventHero } from "@/features/tournaments/components/tournament-player-side/event-page/event-hero"
 import { EventInfoCard } from "@/features/tournaments/components/tournament-player-side/event-page/event-info-card"
 import { EventPrizesCard } from "@/features/tournaments/components/tournament-player-side/event-page/event-prizes-card"
 import { EventRegistrationCard } from "@/features/tournaments/components/tournament-player-side/event-page/event-registration-card"
+import { EventTeamsTab } from "@/features/tournaments/components/tournament-player-side/event-page/event-teams-tab"
 import { PaymentProofDialog } from "@/features/tournaments/components/tournament-player-side/event-page/payment-proof-dialog"
 import { RegisterConfirmDialog } from "@/features/tournaments/components/tournament-player-side/event-page/register-confirm-dialog"
 import { MatchListTab } from "@/features/tournaments/components/tournament-player-side/match-list-tab"
-import { ParticipantsTab } from "@/features/tournaments/components/tournament-player-side/participants-tab"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
 import type { Match } from "../../../types/match"
-import type { Player } from "../../../types/player"
+import type { Player, Team } from "../../../types/player"
 import type { TournamentPrize } from "../../../types/prize"
 import type {
   RegistrationRequest,
@@ -34,7 +35,8 @@ interface EventDetailClientProps {
   prizes: TournamentPrize[]
   registrations: RegistrationResponse[]
   currentUser: User
-  initialMatches?: Match[]
+  initialMatches: Match[]
+  initialTeams?: Team[]
 }
 
 export function EventDetailClient({
@@ -44,6 +46,7 @@ export function EventDetailClient({
   registrations = [],
   currentUser,
   initialMatches = [],
+  initialTeams = [],
 }: EventDetailClientProps) {
   const router = useRouter()
   const { t } = useTournamentTranslation()
@@ -217,33 +220,33 @@ export function EventDetailClient({
             <TabsList className="border-gray-150 mb-8 grid h-12 w-full grid-cols-5 rounded-xl border bg-white p-0.5 shadow-sm">
               <TabsTrigger
                 value="overview"
-                className="rounded-lg font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+                className="rounded-lg text-xs font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white md:text-sm"
               >
                 {t("public.tabs.overview")}
               </TabsTrigger>
               <TabsTrigger
-                value="schedule"
-                className="rounded-lg font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+                value="groups"
+                className="rounded-lg text-xs font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white md:text-sm"
               >
-                {t("public.tabs.schedule")}
+                {t("manager.tabs.groups", { defaultValue: "Group Stage" })}
+              </TabsTrigger>
+              <TabsTrigger
+                value="matches"
+                className="rounded-lg text-xs font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white md:text-sm"
+              >
+                {t("public.tabs.matches", { defaultValue: "Matches" })}
               </TabsTrigger>
               <TabsTrigger
                 value="participants"
-                className="rounded-lg font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+                className="rounded-lg text-xs font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white md:text-sm"
               >
                 {t("public.tabs.participants")}
               </TabsTrigger>
               <TabsTrigger
                 value="brackets"
-                className="rounded-lg font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+                className="rounded-lg text-xs font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white md:text-sm"
               >
                 {t("manager.tabs.brackets", { defaultValue: "Bracket" })}
-              </TabsTrigger>
-              <TabsTrigger
-                value="results"
-                className="rounded-lg font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
-              >
-                {t("public.tabs.results")}
               </TabsTrigger>
             </TabsList>
 
@@ -272,12 +275,26 @@ export function EventDetailClient({
               </div>
             </TabsContent>
 
-            {/* Schedule Tab Content */}
+            {/* Groups Tab Content */}
             <TabsContent
-              value="schedule"
+              value="groups"
               className="mt-0 focus-visible:outline-none"
             >
-              <MatchListTab type="schedule" matches={eventMatches} />
+              <GroupManagement
+                tournamentId={Number(tournament.id)}
+                events={[event]}
+                isHost={false}
+                eventId={Number(event.id)}
+                hideEventSelect={true}
+              />
+            </TabsContent>
+
+            {/* Matches Tab Content */}
+            <TabsContent
+              value="matches"
+              className="mt-0 focus-visible:outline-none"
+            >
+              <MatchListTab matches={eventMatches} />
             </TabsContent>
 
             {/* Participants Tab Content */}
@@ -285,9 +302,9 @@ export function EventDetailClient({
               value="participants"
               className="mt-0 focus-visible:outline-none"
             >
-              <ParticipantsTab
-                participants={eventParticipants}
-                hideEvent={true}
+              <EventTeamsTab
+                teams={initialTeams}
+                isSingles={event.type === "Singles"}
               />
             </TabsContent>
 
@@ -303,14 +320,6 @@ export function EventDetailClient({
                 eventId={Number(event.id)}
                 hideEventSelect={true}
               />
-            </TabsContent>
-
-            {/* Results Tab Content */}
-            <TabsContent
-              value="results"
-              className="mt-0 focus-visible:outline-none"
-            >
-              <MatchListTab type="results" matches={eventMatches} />
             </TabsContent>
           </Tabs>
         </div>

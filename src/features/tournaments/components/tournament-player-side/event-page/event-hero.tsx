@@ -17,7 +17,7 @@ export function EventHero({ tournament, event }: EventHeroProps) {
   const { t } = useTournamentTranslation()
 
   return (
-    <div className="relative mb-8 overflow-hidden rounded-2xl bg-linear-to-r from-emerald-800 to-emerald-950 p-8 text-white shadow-lg">
+    <div className="relative mb-8 overflow-hidden rounded-2xl bg-linear-to-r from-emerald-800 to-emerald-950 p-8 text-white shadow-lg [--color-white:#ffffff]">
       <div className="absolute top-0 right-0 h-40 w-40 translate-x-12 -translate-y-12 rounded-full bg-emerald-700/20 blur-2xl" />
       <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         <div className="relative">

@@ -24,7 +24,15 @@ import type { TournamentEvent } from "../../types/tournament-event"
 import { AssociatedVenues } from "./associated-venues"
 import { BookingsHistory } from "./bookings-history"
 
-export function BookingManagement({ tournamentId }: { tournamentId: number }) {
+export function BookingManagement({
+  tournamentId,
+  tournamentStartDate,
+  tournamentEndDate,
+}: {
+  tournamentId: number
+  tournamentStartDate?: string | null
+  tournamentEndDate?: string | null
+}) {
   const { t } = useTournamentTranslation()
   const [centers, setCenters] = useState<TournamentCenter[]>([])
   const [bookings, setBookings] = useState<TournamentBooking[]>([])
@@ -253,6 +261,8 @@ export function BookingManagement({ tournamentId }: { tournamentId: number }) {
           onOpenCenterDialog={handleOpenCenterDialog}
           isCenterDialogOpen={isCenterDialogOpen}
           setIsCenterDialogOpen={setIsCenterDialogOpen}
+          tournamentStartDate={tournamentStartDate}
+          tournamentEndDate={tournamentEndDate}
         />
 
         {/* Bookings List Card */}

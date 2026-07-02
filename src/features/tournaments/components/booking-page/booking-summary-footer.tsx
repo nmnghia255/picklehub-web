@@ -39,7 +39,8 @@ export default function BookingSummaryFooter() {
 
   // Calculate total matches required from event participants
   const totalMatchesRequired = selectedEvent
-    ? Math.max(0, (selectedEvent.participants ?? 0) - 1)
+    ? (selectedEvent.totalMatches ??
+      Math.max(0, (selectedEvent.participants ?? 0) - 1))
     : 0
 
   const hasEnoughSlots =

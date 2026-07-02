@@ -1,8 +1,8 @@
 export interface ConfigureGroupStageRequest {
-  groupStageEnabled: boolean
   numGroups: number
   advancePerGroup: number
   advanceMethod: string
+  totalAdvance: number // number of teams advancing to the knockout stage
 }
 
 export interface GroupMembership {
@@ -24,6 +24,7 @@ export interface GroupMembership {
 }
 
 export interface DrawGroupsRequest {
+  force?: boolean
   priorityTeamIds?: number[]
 }
 

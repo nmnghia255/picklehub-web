@@ -15,6 +15,36 @@
       "closeRegistration": "Registration Closes",
       "startTournament": "Tournament Starts",
       "finishTournament": "Tournament Finishes"
+    },
+    "statusPanel": {
+      "title": "Tournament Status Control",
+      "currentStatus": "Current Status:",
+      "btn": {
+        "publish": "Publish Tournament",
+        "openReg": "Open Registration",
+        "closeReg": "Close Registration",
+        "start": "Start Tournament",
+        "complete": "Complete Tournament",
+        "update": "Update Status"
+      }
+    },
+    "validation": {
+      "requireEvent": "Requires at least one event setup.",
+      "requirePrize": "Requires tournament prizes setup.",
+      "requirePayment": "Requires complete payment configuration (bank, account name, account number).",
+      "requireSponsor": "Requires at least one sponsor setup.",
+      "waitOpenRegistration": "Wait until the registration start date ({{date}}) to open registration.",
+      "noOpenDate": "No registration start date configured.",
+      "waitCloseRegistration": "Wait until the registration end date ({{date}}) to close registration.",
+      "noCloseDate": "No registration end date configured.",
+      "waitStartDate": "Wait until the tournament start date ({{date}}) to begin the tournament.",
+      "noStartDate": "No tournament start date configured.",
+      "requireSchedule": "Requires seeding, group stage, and schedule/matches generated.",
+      "noMatches": "No matches generated for this tournament.",
+      "waitAllMatchesCompleted": "All matches must be completed ({{completed}}/{{total}} completed).",
+      "statusUpdated": "Tournament status successfully updated.",
+      "failedUpdate": "Failed to update tournament status.",
+      "errorOccurred": "An error occurred while updating status."
     }
   },
   "financials": {
@@ -34,6 +64,8 @@
     },
     "transactions": {
       "title": "Recent Transactions",
+      "registrationTitle": "Registration Fee Transactions",
+      "otherTitle": "Other Finance Transactions",
       "date": "Date",
       "description": "Description",
       "type": "Type",
@@ -47,7 +79,25 @@
       "statuses": {
         "completed": "Completed",
         "pending": "Pending"
-      }
+      },
+      "add": "Add Transaction",
+      "dialogTitle": "Add New Transaction",
+      "dialogDesc": "Record a new financial entry for this tournament.",
+      "fieldDesc": "Description",
+      "fieldType": "Type",
+      "fieldAmount": "Amount",
+      "fieldStatus": "Status",
+      "cancel": "Cancel",
+      "submit": "Save Transaction",
+      "actions": "Actions",
+      "deleteConfirm": "Are you sure you want to delete this transaction?",
+      "successAdd": "Transaction added successfully!",
+      "failedAdd": "Failed to add transaction",
+      "successDelete": "Transaction deleted successfully!",
+      "failedDelete": "Failed to delete transaction",
+      "descPlaceholder": "e.g., Referee salaries, Balls purchase",
+      "validationDesc": "Please enter a description",
+      "validationAmount": "Please enter a valid amount greater than 0"
     }
   },
   "sponsors": {

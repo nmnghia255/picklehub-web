@@ -9,7 +9,7 @@
       "registrations": "Đăng ký",
       "teamMatching": "Ghép đội",
       "seeding": "Hạt giống",
-      "groups": "Vòng bảng",
+      "groups": "Bảng đấu",
       "brackets": "Nhánh đấu",
       "schedule": "Lịch thi đấu",
       "booking": "Địa điểm & Đặt sân",
@@ -51,6 +51,7 @@
     "noResultsDescription": "Hãy thử thay đổi từ khóa tìm kiếm hoặc bộ lọc trạng thái."
   },
   "public": {
+    "noMatches": "Chưa có trận đấu",
     "hero": {
       "title": "San Diego Summer Slam 2026",
       "location": "Trung tâm Quần vợt & Pickleball Balboa Park",
@@ -58,14 +59,15 @@
       "inProgress": "Giải đấu đang diễn ra"
     },
     "stats": {
-      "participants": "Người tham gia",
+      "participants": "Tham gia",
       "events": "Sự kiện",
-      "totalMatches": "Tổng số trận"
+      "totalMatches": "Tổng số trận",
+      "totalPrizes": "Tổng giải thưởng"
     },
     "tabs": {
       "overview": "Tổng quan",
-      "schedule": "Lịch trình",
-      "participants": "Người tham gia",
+      "matches": "Trận đấu",
+      "participants": "Tham gia",
       "liveScores": "Tỉ số trực tiếp",
       "results": "Kết quả",
       "payment": "Thanh toán",
@@ -75,7 +77,10 @@
       "title": "Tổng quan giải đấu",
       "description": "Hãy tham gia cùng chúng tôi trong giải đấu pickleball hàng đầu ở Nam California. Với 8 sự kiện cạnh tranh ở mọi cấp độ kỹ năng, giải đấu này quy tụ những người chơi xuất sắc nhất trong khu vực.",
       "eventsLabel": "Các sự kiện:",
-      "sponsorsTitle": "Nhà tài trợ & Đối tác"
+      "sponsorsTitle": "Nhà tài trợ & Đối tác",
+      "tournamentDates": "Thời gian thi đấu",
+      "registrationDates": "Thời gian đăng ký",
+      "detailsTitle": "Địa điểm & Lịch trình"
     },
     "venue": {
       "title": "Thông tin địa điểm",
@@ -86,6 +91,10 @@
     "participantsList": {
       "rating": "Trình độ:"
     },
+    "upcomingMatches": "Trận đấu sắp tới",
+    "finishedMatches": "Trận đấu đã kết thúc",
+    "team": "Đội",
+    "noParticipantsYet": "Chưa có người chơi nào tham gia",
     "liveScores": {
       "vs": "đấu với",
       "live": "Trực tiếp",

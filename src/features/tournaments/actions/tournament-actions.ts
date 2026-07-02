@@ -6,7 +6,7 @@ import { TournamentEventService } from "../api/events-service"
 import { TournamentPrizeService } from "../api/prizes-service"
 import { TournamentService } from "../api/tournaments-service"
 import type { TournamentPrizeRequest } from "../types/prize"
-import type { TournamentRequest } from "../types/tournament"
+import type { TournamentRequest, TournamentStatus } from "../types/tournament"
 import type { TournamentEventRequest } from "../types/tournament-event"
 
 export interface CreateTournamentPayload {
@@ -142,6 +142,28 @@ export async function updateTournamentAction(
     return { success: true as const, data: updated }
   } catch (error: unknown) {
     console.error("Failed to update tournament:", error)
+    let errorMessage = "An unknown error occurred"
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.message || error.message
+    } else if (error instanceof Error) {
+      errorMessage = error.message
+    }
+    return {
+      success: false as const,
+      error: errorMessage,
+    }
+  }
+}
+
+export async function changeTournamentStatusAction(
+  id: string,
+  status: TournamentStatus
+) {
+  try {
+    const updated = await TournamentService.changeTournamentStatus(id, status)
+    return { success: true as const, data: updated }
+  } catch (error: unknown) {
+    console.error("Failed to change tournament status:", error)
     let errorMessage = "An unknown error occurred"
     if (axios.isAxiosError(error)) {
       errorMessage = error.response?.data?.message || error.message

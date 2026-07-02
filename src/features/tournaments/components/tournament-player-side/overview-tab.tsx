@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { fetchSportCenterByIdAction } from "@/features/sport-center/actions/fetch-sport-center-by-id"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
+import { getDateOnly } from "@/utils/time-helper"
 
 import { getTournamentCentersAction } from "../../actions/booking-actions"
 import type { Sponsor as TournamentSponsor } from "../../types/sponsor"
@@ -18,7 +19,7 @@ interface TournamentOverviewProps {
   tournament?: Tournament
   participantsCount: number
   eventsCount: number
-  totalMatchesCount: number
+  totalPrizes?: number
   sponsors?: TournamentSponsor[]
 }
 
@@ -26,7 +27,7 @@ export function TournamentOverview({
   tournament,
   participantsCount,
   eventsCount,
-  totalMatchesCount,
+  totalPrizes = 0,
   sponsors,
 }: TournamentOverviewProps) {
   const { t } = useTournamentTranslation()
@@ -93,7 +94,9 @@ export function TournamentOverview({
         <Card className="border-gray-200 bg-white shadow-sm">
           <CardHeader>
             <CardTitle className="text-xl font-bold text-gray-900">
-              {t("public.venue.title")}
+              {t("public.overview.detailsTitle", {
+                defaultValue: "Venue & Schedule",
+              })}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -101,36 +104,76 @@ export function TournamentOverview({
               <div className="flex h-32 items-center justify-center">
                 <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
               </div>
-            ) : sportCenters.length > 0 ? (
+            ) : (
               <div className="space-y-6">
-                {sportCenters.map((sc, idx) => (
-                  <div
-                    key={sc.id}
-                    className={idx > 0 ? "border-gray-150 border-t pt-5" : ""}
-                  >
-                    <div className="space-y-4">
-                      <div>
-                        <div className="mb-1 font-bold text-gray-900">
-                          {t("public.venue.location")}
+                {sportCenters.length > 0 ? (
+                  <div className="space-y-6">
+                    {sportCenters.map((sc, idx) => (
+                      <div
+                        key={sc.id}
+                        className={
+                          idx > 0 ? "border-gray-150 border-t pt-5" : ""
+                        }
+                      >
+                        <div>
+                          <div className="mb-1 font-bold text-gray-900">
+                            {t("public.venue.location")}
+                          </div>
+                          <p className="font-medium text-gray-800">{sc.name}</p>
+                          <p className="mt-0.5 text-sm text-gray-600">
+                            {sc.address}
+                          </p>
                         </div>
-                        <p className="font-medium text-gray-800">{sc.name}</p>
-                        <p className="mt-0.5 text-sm text-gray-600">
-                          {sc.address}
-                        </p>
                       </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div>
+                    <div className="mb-1 font-bold text-gray-900">
+                      {t("public.venue.location")}
+                    </div>
+                    <p className="font-medium text-gray-800">
+                      {tournament?.venue || "No venue assigned"}
+                    </p>
+                  </div>
+                )}
+
+                {/* Schedule and Registration Dates Block */}
+                <div className="border-gray-150 border-t pt-5">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                      <div className="mb-1 font-bold text-gray-900">
+                        {t("public.overview.tournamentDates", {
+                          defaultValue: "Tournament Schedule",
+                        })}
+                      </div>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {tournament?.startDate
+                          ? getDateOnly(tournament.startDate)
+                          : "-"}
+                        {" - "}
+                        {tournament?.endDate
+                          ? getDateOnly(tournament.endDate)
+                          : "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <div className="mb-1 font-bold text-gray-900">
+                        {t("public.overview.registrationDates", {
+                          defaultValue: "Registration Window",
+                        })}
+                      </div>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {tournament?.registrationStartDate
+                          ? getDateOnly(tournament.registrationStartDate)
+                          : "-"}
+                        {" - "}
+                        {tournament?.registrationEndDate
+                          ? getDateOnly(tournament.registrationEndDate)
+                          : "-"}
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-5">
-                <div>
-                  <div className="mb-1 font-bold text-gray-900">
-                    {t("public.venue.location")}
-                  </div>
-                  <p className="font-medium text-gray-800">
-                    {tournament?.venue || "No venue assigned"}
-                  </p>
                 </div>
               </div>
             )}
@@ -164,10 +207,10 @@ export function TournamentOverview({
           <CardContent className="p-6 text-center">
             <Trophy className="mx-auto mb-3 h-8 w-8 text-emerald-600" />
             <div className="mb-1 text-3xl font-extrabold text-gray-900">
-              {totalMatchesCount}
+              {totalPrizes.toLocaleString("vi-VN")} VND
             </div>
             <div className="text-sm font-semibold text-gray-500">
-              {t("public.stats.totalMatches")}
+              {t("public.stats.totalPrizes", { defaultValue: "Total Prizes" })}
             </div>
           </CardContent>
         </Card>

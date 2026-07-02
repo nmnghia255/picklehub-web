@@ -19,7 +19,7 @@ import { useGroupStageStore } from "../../stores/use-group-stage-store"
 export function GroupDrawCard() {
   const { t } = useTournamentTranslation()
 
-  const groupStageEnabled = useGroupStageStore((s) => s.groupStageEnabled)
+  const groups = useGroupStageStore((s) => s.groups)
   const seedsList = useGroupStageStore((s) => s.seedsList)
   const safeSeeds = Array.isArray(seedsList) ? seedsList : []
   const selectedPriorityTeamIds = useGroupStageStore(
@@ -34,8 +34,10 @@ export function GroupDrawCard() {
     void drawGroups(t)
   }
 
+  const hasGroupsDrawn = groups.length > 0
+
   return (
-    <Card className="gap-0 border-gray-200 bg-white">
+    <Card className="flex flex-col justify-between gap-0 border-gray-200 bg-white">
       <CardHeader className="border-b border-gray-100 bg-gray-50/50 pb-3">
         <CardTitle className="flex items-center gap-2 text-lg font-medium text-gray-900">
           <Shuffle className="h-5 w-5 text-gray-500" />
@@ -47,7 +49,7 @@ export function GroupDrawCard() {
           })}
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex h-full flex-col pt-4">
+      <CardContent className="flex flex-1 flex-col justify-between pt-4">
         <div className="flex-1 space-y-2">
           <Label className="text-sm font-medium text-gray-700">
             {t("groupStage.priorityTeamsLabel", {
@@ -73,6 +75,7 @@ export function GroupDrawCard() {
                     <Checkbox
                       id={`team-${seed.teamId}`}
                       checked={isChecked}
+                      disabled={isDrawing || hasGroupsDrawn}
                       onCheckedChange={() => togglePriorityTeamId(seed.teamId!)}
                     />
                     <label
@@ -90,7 +93,7 @@ export function GroupDrawCard() {
 
         <Button
           onClick={handleDraw}
-          disabled={isDrawing || !groupStageEnabled || safeSeeds.length === 0}
+          disabled={isDrawing || safeSeeds.length === 0 || hasGroupsDrawn}
           className="mt-6 w-full bg-emerald-600 text-white hover:bg-emerald-700"
         >
           {isDrawing ? (

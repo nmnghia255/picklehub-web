@@ -30,6 +30,10 @@ interface BookingState {
   sportCenter: SportCenter | null
   /** The event the host is booking courts for */
   selectedEvent: TournamentEvent | null
+  /** Tournament start date (ISO YYYY-MM-DD) – used to restrict the calendar picker */
+  tournamentStartDate: string | null
+  /** Tournament end date (ISO YYYY-MM-DD) – used to restrict the calendar picker */
+  tournamentEndDate: string | null
   /** The set of dates the user has chosen to book on */
   selectedDates: Date[]
   /** The date currently being viewed/edited in the grid */
@@ -51,11 +55,23 @@ interface BookingState {
   file: File | null
   previewUrl: string
 
+  // Event selection dialog states
+  isEventDialogOpen: boolean
+  pendingCenterId: string | null
+  selectedEventId: string
+  eventSearchQuery: string
+  isGeneralBooking: boolean
+  events: TournamentEvent[]
+
   // Actions
   setTournamentId: (id: number | null) => void
   setCenterId: (id: string | null) => void
   setSportCenter: (center: SportCenter | null) => void
   setSelectedEvent: (event: TournamentEvent | null) => void
+  setTournamentDateRange: (
+    startDate: string | null,
+    endDate: string | null
+  ) => void
   /** Toggle a date in/out of selectedDates; also manages activeDate */
   toggleSelectedDate: (date: Date) => void
   /** Set the active (viewed) date in the grid */
@@ -80,6 +96,12 @@ interface BookingState {
     data?: CreateTournamentBookingResponse
     error?: string
   }>
+  setIsEventDialogOpen: (open: boolean) => void
+  setPendingCenterId: (centerId: string | null) => void
+  setSelectedEventId: (eventId: string) => void
+  setEventSearchQuery: (query: string) => void
+  setIsGeneralBooking: (isGeneral: boolean) => void
+  setEvents: (events: TournamentEvent[]) => void
   reset: () => void
 }
 
@@ -88,6 +110,8 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   centerId: null,
   sportCenter: null,
   selectedEvent: null,
+  tournamentStartDate: null,
+  tournamentEndDate: null,
   selectedDates: [new Date()],
   activeDate: new Date(),
   courtAvailability: null,
@@ -104,10 +128,75 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   file: null,
   previewUrl: "",
 
+  // Event selection dialog initial state
+  isEventDialogOpen: false,
+  pendingCenterId: null,
+  selectedEventId: "",
+  eventSearchQuery: "",
+  isGeneralBooking: false,
+  events: [],
+
   setTournamentId: (tournamentId) => set({ tournamentId }),
   setCenterId: (centerId) => set({ centerId }),
   setSportCenter: (sportCenter) => set({ sportCenter }),
   setSelectedEvent: (selectedEvent) => set({ selectedEvent }),
+  setTournamentDateRange: (tournamentStartDate, tournamentEndDate) => {
+    set({ tournamentStartDate, tournamentEndDate })
+    if (tournamentStartDate) {
+      const { selectedDates, activeDate } = get()
+      // Normalize dates to local midnight to avoid time-of-day discrepancy
+      const start = new Date(tournamentStartDate + "T00:00:00")
+      const end = tournamentEndDate
+        ? new Date(tournamentEndDate + "T23:59:59")
+        : null
+
+      const isDateOutOfRange = (date: Date) => {
+        // Clear time of day for date comparisons
+        const d = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+        const s = new Date(
+          start.getFullYear(),
+          start.getMonth(),
+          start.getDate()
+        )
+        if (d < s) return true
+        if (end) {
+          const e = new Date(end.getFullYear(), end.getMonth(), end.getDate())
+          if (d > e) return true
+        }
+        return false
+      }
+
+      let updatedActive = activeDate
+      if (!activeDate || isDateOutOfRange(activeDate)) {
+        updatedActive = start
+      }
+
+      let updatedSelected = selectedDates
+      if (selectedDates.length === 1 && isDateOutOfRange(selectedDates[0])) {
+        updatedSelected = [start]
+      } else {
+        updatedSelected = selectedDates.filter((d) => !isDateOutOfRange(d))
+        if (updatedSelected.length === 0) {
+          updatedSelected = [start]
+        }
+      }
+
+      set({
+        activeDate: updatedActive,
+        selectedDates: updatedSelected,
+        // Reset availability so it loads for the correct date
+        courtAvailability: null,
+        uniqueSlotKeys: [],
+      })
+    }
+  },
+
+  setIsEventDialogOpen: (isEventDialogOpen) => set({ isEventDialogOpen }),
+  setPendingCenterId: (pendingCenterId) => set({ pendingCenterId }),
+  setSelectedEventId: (selectedEventId) => set({ selectedEventId }),
+  setEventSearchQuery: (eventSearchQuery) => set({ eventSearchQuery }),
+  setIsGeneralBooking: (isGeneralBooking) => set({ isGeneralBooking }),
+  setEvents: (events) => set({ events }),
 
   toggleSelectedDate: (date) => {
     const { selectedDates, selectedCourts, activeDate } = get()
@@ -335,6 +424,8 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       centerId: null,
       sportCenter: null,
       selectedEvent: null,
+      tournamentStartDate: null,
+      tournamentEndDate: null,
       selectedDates: [new Date()],
       activeDate: new Date(),
       courtAvailability: null,
@@ -350,6 +441,12 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       isConfirmDialogOpen: false,
       file: null,
       previewUrl: "",
+      isEventDialogOpen: false,
+      pendingCenterId: null,
+      selectedEventId: "",
+      eventSearchQuery: "",
+      isGeneralBooking: false,
+      events: [],
     }),
 }))
 

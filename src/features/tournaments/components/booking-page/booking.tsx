@@ -31,6 +31,8 @@ export default function BookingPage() {
   const tournamentId = params.tournamentId ? Number(params.tournamentId) : null
   const centerId = params.centerId || null
   const eventId = searchParams.get("eventId")
+  const startDateParam = searchParams.get("startDate")
+  const endDateParam = searchParams.get("endDate")
 
   const isLoadingCenter = useBookingStore((s) => s.isLoadingCenter)
   const sportCenter = useBookingStore((s) => s.sportCenter)
@@ -46,6 +48,9 @@ export default function BookingPage() {
   )
   const setAvailabilityError = useBookingStore((s) => s.setAvailabilityError)
   const setSelectedEvent = useBookingStore((s) => s.setSelectedEvent)
+  const setTournamentDateRange = useBookingStore(
+    (s) => s.setTournamentDateRange
+  )
   const reset = useBookingStore((s) => s.reset)
 
   // Sync parameters to store
@@ -56,6 +61,11 @@ export default function BookingPage() {
   useEffect(() => {
     setCenterId(centerId)
   }, [centerId, setCenterId])
+
+  // Sync tournament date range so the calendar is constrained
+  useEffect(() => {
+    setTournamentDateRange(startDateParam, endDateParam)
+  }, [startDateParam, endDateParam, setTournamentDateRange])
 
   // Fetch the selected event so booking page can show match count requirements
   useEffect(() => {

@@ -1,7 +1,7 @@
 "use client"
 
 import { CalendarDays } from "lucide-react"
-import { useRef, useState } from "react"
+import { useRef } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -25,28 +25,33 @@ import {
 import { Label } from "@/components/ui/label"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
+import { useBookingStore } from "../../stores/use-booking-store"
 import type { TournamentEvent } from "../../types/tournament-event"
 
 interface EventSelectionDialogProps {
-  isOpen: boolean
-  onOpenChange: (open: boolean) => void
   events: TournamentEvent[]
   onConfirm: (eventId: string | null) => void
 }
 
 export function EventSelectionDialog({
-  isOpen,
-  onOpenChange,
   events,
   onConfirm,
 }: EventSelectionDialogProps) {
   const { t } = useTournamentTranslation()
-  const [selectedEventId, setSelectedEventId] = useState<string>("")
-  const [eventSearchQuery, setEventSearchQuery] = useState("")
-  const [isGeneralBooking, setIsGeneralBooking] = useState(false)
+  const isEventDialogOpen = useBookingStore((s) => s.isEventDialogOpen)
+  const setIsEventDialogOpen = useBookingStore((s) => s.setIsEventDialogOpen)
+  const selectedEventId = useBookingStore((s) => s.selectedEventId)
+  const setSelectedEventId = useBookingStore((s) => s.setSelectedEventId)
+  const eventSearchQuery = useBookingStore((s) => s.eventSearchQuery)
+  const setEventSearchQuery = useBookingStore((s) => s.setEventSearchQuery)
+  const isGeneralBooking = useBookingStore((s) => s.isGeneralBooking)
+  const setIsGeneralBooking = useBookingStore((s) => s.setIsGeneralBooking)
+  const setSelectedEvent = useBookingStore((s) => s.setSelectedEvent)
   const eventContainerRef = useRef<HTMLDivElement>(null)
 
   const filteredEvents = events.filter((ev) => {
+    // Exclude events that have no group stage (totalMatches is null/undefined)
+    if (ev.totalMatches == null) return false
     const q = eventSearchQuery.toLowerCase().trim()
     if (!q) return true
     return ev.name.toLowerCase().includes(q)
@@ -57,17 +62,21 @@ export function EventSelectionDialog({
 
   const handleConfirm = () => {
     if (isGeneralBooking) {
+      setSelectedEvent(null)
       onConfirm(null)
     } else {
+      const selected =
+        events.find((e) => String(e.id) === selectedEventId) || null
+      setSelectedEvent(selected)
       onConfirm(selectedEventId || null)
     }
   }
 
   return (
     <Dialog
-      open={isOpen}
+      open={isEventDialogOpen}
       onOpenChange={(open) => {
-        onOpenChange(open)
+        setIsEventDialogOpen(open)
         if (!open) {
           setSelectedEventId("")
           setEventSearchQuery("")
@@ -127,7 +136,12 @@ export function EventSelectionDialog({
                             defaultValue:
                               "No events found for this tournament.",
                           })
-                        : t("booking.form.noMatchesFound")}
+                        : events.every((ev) => ev.totalMatches == null)
+                          ? t("booking.eventDialog.noGroupStage", {
+                              defaultValue:
+                                "No events have a group stage set up yet. Please create a group stage first.",
+                            })
+                          : t("booking.form.noMatchesFound")}
                     </ComboboxEmpty>
                   ) : (
                     filteredEvents.map((ev) => {
@@ -135,7 +149,10 @@ export function EventSelectionDialog({
                         ev.type?.toLowerCase() === "doubles" ||
                         ev.type?.toLowerCase() === "double"
                       const participantCount = ev.participants ?? 0
-                      const totalMatches = Math.max(0, participantCount - 1)
+                      // Prefer server-provided totalMatches; fall back to estimate only if absent
+                      const totalMatches =
+                        ev.totalMatches ?? Math.max(0, participantCount - 1)
+                      const isExact = ev.totalMatches !== undefined
                       return (
                         <ComboboxItem key={ev.id} value={ev.name}>
                           <div className="flex w-full flex-col gap-0.5 py-0.5 text-left">
@@ -157,7 +174,8 @@ export function EventSelectionDialog({
                                   : `${participantCount} players`}
                               </span>
                               <span className="font-medium text-emerald-600">
-                                ~{totalMatches}{" "}
+                                {!isExact && "~"}
+                                {totalMatches}{" "}
                                 {t("booking.eventDialog.matchesLabel", {
                                   defaultValue: "matches",
                                 })}
@@ -201,11 +219,13 @@ export function EventSelectionDialog({
               {(() => {
                 const ev = events.find((e) => String(e.id) === selectedEventId)
                 const participantCount = ev?.participants ?? 0
-                const totalMatches = Math.max(0, participantCount - 1)
+                const totalMatches =
+                  ev?.totalMatches ?? Math.max(0, participantCount - 1)
+                const isExact = ev?.totalMatches !== undefined
                 return (
                   <span>
                     {t("booking.eventDialog.requirementHint", {
-                      defaultValue: `You will need to book at least ${totalMatches} court slot(s) to cover all matches in this event.`,
+                      defaultValue: `You will need to book at least ${isExact ? "" : "~"}${totalMatches} court slot(s) to cover all matches in this event.`,
                       count: totalMatches,
                     })}
                   </span>
@@ -216,7 +236,7 @@ export function EventSelectionDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => setIsEventDialogOpen(false)}>
             {t("booking.cancelBtn")}
           </Button>
           <Button

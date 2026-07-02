@@ -28,6 +28,7 @@ interface PlayerTournamentProps {
   sponsors?: TournamentSponsor[]
   participants?: Player[]
   matches?: Match[]
+  totalPrizes?: number
 }
 
 export function PlayerTournament({
@@ -36,6 +37,7 @@ export function PlayerTournament({
   sponsors = [],
   participants = [],
   matches = [],
+  totalPrizes = 0,
 }: PlayerTournamentProps) {
   const { t } = useTournamentTranslation()
 
@@ -173,7 +175,7 @@ export function PlayerTournament({
               tournament={tournament}
               participantsCount={participantsCount}
               eventsCount={eventsCount}
-              totalMatchesCount={totalMatchesCount}
+              totalPrizes={totalPrizes}
               sponsors={displaySponsors}
             />
           </TabsContent>

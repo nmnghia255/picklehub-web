@@ -30,6 +30,42 @@ function formatDateKey(date: Date): string {
   return `${year}-${month}-${day}`
 }
 
+function formatDate(dateInput: string | Date | null | undefined): string {
+  if (!dateInput) return ""
+
+  if (dateInput instanceof Date) {
+    const day = String(dateInput.getDate()).padStart(2, "0")
+    const month = String(dateInput.getMonth() + 1).padStart(2, "0")
+    const year = dateInput.getFullYear()
+    return `${day}/${month}/${year}`
+  }
+
+  try {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+      const [year, month, day] = dateInput.split("-")
+      return `${day}/${month}/${year}`
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}T/.test(dateInput)) {
+      const datePart = dateInput.split("T")[0]
+      const [year, month, day] = datePart.split("-")
+      return `${day}/${month}/${year}`
+    }
+
+    const parsedDate = new Date(dateInput)
+    if (!isNaN(parsedDate.getTime())) {
+      const day = String(parsedDate.getDate()).padStart(2, "0")
+      const month = String(parsedDate.getMonth() + 1).padStart(2, "0")
+      const year = parsedDate.getFullYear()
+      return `${day}/${month}/${year}`
+    }
+  } catch (e) {
+    console.error("Error parsing date:", e)
+  }
+
+  return String(dateInput)
+}
+
 export default function VenueInfoCard() {
   const { t } = useTournamentTranslation()
   const sportCenter = useBookingStore((s) => s.sportCenter)
@@ -39,10 +75,39 @@ export default function VenueInfoCard() {
   const toggleSelectedDate = useBookingStore((s) => s.toggleSelectedDate)
   const setActiveDate = useBookingStore((s) => s.setActiveDate)
   const activeDateText = useActiveDateText()
+  const tournamentStartDate = useBookingStore((s) => s.tournamentStartDate)
+  const tournamentEndDate = useBookingStore((s) => s.tournamentEndDate)
 
   if (!sportCenter) return null
 
   const activeDateKey = activeDate ? formatDateKey(activeDate) : undefined
+
+  // Parse tournament date bounds for the calendar picker
+  const calendarFromDate = (() => {
+    if (!tournamentStartDate) return undefined
+    if (/^\d{4}-\d{2}-\d{2}$/.test(tournamentStartDate)) {
+      return new Date(tournamentStartDate + "T00:00:00")
+    }
+    if (/^\d{4}-\d{2}-\d{2}T/.test(tournamentStartDate)) {
+      const datePart = tournamentStartDate.split("T")[0]
+      return new Date(datePart + "T00:00:00")
+    }
+    const d = new Date(tournamentStartDate)
+    return isNaN(d.getTime()) ? undefined : d
+  })()
+
+  const calendarToDate = (() => {
+    if (!tournamentEndDate) return undefined
+    if (/^\d{4}-\d{2}-\d{2}$/.test(tournamentEndDate)) {
+      return new Date(tournamentEndDate + "T23:59:59")
+    }
+    if (/^\d{4}-\d{2}-\d{2}T/.test(tournamentEndDate)) {
+      const datePart = tournamentEndDate.split("T")[0]
+      return new Date(datePart + "T23:59:59")
+    }
+    const d = new Date(tournamentEndDate)
+    return isNaN(d.getTime()) ? undefined : d
+  })()
 
   return (
     <section className="w-full">
@@ -64,69 +129,116 @@ export default function VenueInfoCard() {
               </div>
             </div>
 
-            {/* Multi-date picker */}
-            <div className="flex shrink-0 items-center gap-2 select-none">
-              <span className="text-xs font-bold text-gray-600">
-                {t("booking.page.bookingDate", { defaultValue: "Add Date" })}:
-              </span>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="h-9 border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            {/* Multi-date picker wrapper */}
+            <div className="flex flex-col items-start gap-1.5 select-none sm:items-end">
+              <div className="flex shrink-0 items-center gap-2">
+                <span className="text-xs font-bold text-gray-600">
+                  {t("booking.page.bookingDate", { defaultValue: "Add Date" })}:
+                </span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="h-9 border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                    >
+                      <CalendarIcon className="mr-2 h-3.5 w-3.5 text-emerald-600" />
+                      <span>
+                        {t("booking.page.selectDates", {
+                          defaultValue: "Select Dates",
+                        })}
+                      </span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="border-gray-150 w-auto rounded-md border bg-white p-0 shadow-md"
+                    align="start"
                   >
-                    <CalendarIcon className="mr-2 h-3.5 w-3.5 text-emerald-600" />
-                    <span>
-                      {t("booking.page.selectDates", {
-                        defaultValue: "Select Dates",
+                    <Calendar
+                      mode="multiple"
+                      selected={selectedDates.filter((date) => {
+                        const key = formatDateKey(date)
+                        const isActive = key === activeDateKey
+                        const hasBookings =
+                          selectedCourts[key] &&
+                          Object.values(selectedCourts[key]).some(
+                            (slots) => slots.size > 0
+                          )
+                        return isActive || hasBookings
                       })}
-                    </span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent
-                  className="border-gray-150 w-auto rounded-md border bg-white p-0 shadow-md"
-                  align="start"
-                >
-                  <Calendar
-                    mode="multiple"
-                    selected={selectedDates.filter((date) => {
-                      const key = formatDateKey(date)
-                      const isActive = key === activeDateKey
-                      const hasBookings =
-                        selectedCourts[key] &&
-                        Object.values(selectedCourts[key]).some(
-                          (slots) => slots.size > 0
-                        )
-                      return isActive || hasBookings
-                    })}
-                    onSelect={(dates) => {
-                      // react-day-picker multiple mode gives us a new array;
-                      // we diff it to figure out which date was toggled
-                      if (!dates) return
-                      const prevKeys = new Set(
-                        selectedDates.map((d) => formatDateKey(d))
-                      )
-                      const nextKeys = new Set(
-                        dates.map((d) => formatDateKey(d))
-                      )
+                      disabled={[
+                        calendarFromDate
+                          ? { before: calendarFromDate }
+                          : undefined,
+                        calendarToDate ? { after: calendarToDate } : undefined,
+                      ].filter(
+                        (x): x is { before: Date } | { after: Date } => !!x
+                      )}
+                      onSelect={(dates) => {
+                        // react-day-picker multiple mode gives us a new array;
+                        // we diff it to figure out which date was toggled
+                        if (!dates) return
 
-                      // Find added dates
-                      dates.forEach((d) => {
-                        if (!prevKeys.has(formatDateKey(d))) {
-                          toggleSelectedDate(d)
-                        }
-                      })
-                      // Find removed dates
-                      selectedDates.forEach((d) => {
-                        if (!nextKeys.has(formatDateKey(d))) {
-                          toggleSelectedDate(d)
-                        }
-                      })
-                    }}
-                    className="rounded-md bg-white"
-                  />
-                </PopoverContent>
-              </Popover>
+                        // Filter out any date that is out of range
+                        const validDates = dates.filter((date) => {
+                          const d = new Date(
+                            date.getFullYear(),
+                            date.getMonth(),
+                            date.getDate()
+                          )
+                          if (calendarFromDate) {
+                            const start = new Date(
+                              calendarFromDate.getFullYear(),
+                              calendarFromDate.getMonth(),
+                              calendarFromDate.getDate()
+                            )
+                            if (d < start) return false
+                          }
+                          if (calendarToDate) {
+                            const end = new Date(
+                              calendarToDate.getFullYear(),
+                              calendarToDate.getMonth(),
+                              calendarToDate.getDate()
+                            )
+                            if (d > end) return false
+                          }
+                          return true
+                        })
+
+                        const prevKeys = new Set(
+                          selectedDates.map((d) => formatDateKey(d))
+                        )
+                        const nextKeys = new Set(
+                          validDates.map((d) => formatDateKey(d))
+                        )
+
+                        // Find added dates
+                        validDates.forEach((d) => {
+                          if (!prevKeys.has(formatDateKey(d))) {
+                            toggleSelectedDate(d)
+                          }
+                        })
+                        // Find removed dates
+                        selectedDates.forEach((d) => {
+                          if (!nextKeys.has(formatDateKey(d))) {
+                            toggleSelectedDate(d)
+                          }
+                        })
+                      }}
+                      className="rounded-md bg-white"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {tournamentStartDate && tournamentEndDate && (
+                <span className="text-[11px] font-medium text-gray-500">
+                  {t("booking.page.tournamentDates", {
+                    start: formatDate(tournamentStartDate),
+                    end: formatDate(tournamentEndDate),
+                    defaultValue: `Tournament: ${formatDate(tournamentStartDate)} - ${formatDate(tournamentEndDate)}`,
+                  })}
+                </span>
+              )}
             </div>
           </div>
 

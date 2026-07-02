@@ -1,6 +1,6 @@
 {
   "groupStage": {
-    "title": "Vòng bảng",
+    "title": "Bảng đấu",
     "subtitle": "Quản lý phân chia vòng bảng, bảng xếp hạng và các trận đấu vòng bảng.",
     "configCardTitle": "Cấu hình vòng bảng",
     "configCardDesc": "Thiết lập cấu hình thông số vòng bảng cho nội dung này.",
@@ -20,10 +20,10 @@
     "generateMatchesBtn": "Tạo lịch thi đấu vòng bảng",
     "totalAdvanceLabel": "Tổng số đội đi tiếp vòng Knockout",
     "advanceTeamsBtn": "Đưa đội đi tiếp",
-    "standingsTitle": "Bảng xếp hạng & Chia bảng",
+    "standingsTitle": "Bảng đấu",
     "noGroupsDrawnYet": "Chưa có bảng đấu nào được bốc thăm",
     "noGroupsHostDesc": "Vui lòng cấu hình thông số và nhấn 'Bốc thăm chia bảng' để tạo các bảng đấu.",
-    "noGroupsUserDesc": "Hiện tại chưa có bảng đấu hoặc bảng xếp hạng. Ban tổ chức chưa thực hiện bốc thăm chia bảng.",
+    "noGroupsUserDesc": "Hiện tại chưa có bảng đấu. Ban tổ chức chưa thực hiện bốc thăm chia bảng.",
     "configSuccess": "Lưu cấu hình vòng bảng thành công",
     "configFailed": "Lưu cấu hình vòng bảng thất bại",
     "drawSuccess": "Bốc thăm chia bảng thành công",

@@ -16,6 +16,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
 import { useLayoutEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -38,6 +39,7 @@ export interface HeaderProps {
 }
 
 export function Header({ user }: HeaderProps) {
+  const { t } = useTranslation("common")
   const { theme, setTheme } = useTheme()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
@@ -68,7 +70,7 @@ export function Header({ user }: HeaderProps) {
     }
   }
 
-  const displayName = user.email?.split("@")[0] || "Người dùng"
+  const displayName = user.email?.split("@")[0] || t("header.defaultUser")
   const initials = displayName
     .split(/[\s._-]+/)
     .filter(Boolean)
@@ -116,7 +118,7 @@ export function Header({ user }: HeaderProps) {
           <Button
             variant="ghost"
             size="icon"
-            title="Thông báo"
+            title={t("header.notifications")}
             className="relative"
           >
             <BellRing className="size-4" />
@@ -129,11 +131,13 @@ export function Header({ user }: HeaderProps) {
           <div className="border-b px-4 py-3">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold">Thông báo</p>
+                <p className="text-sm font-semibold">
+                  {t("header.notifications")}
+                </p>
                 <p className="text-xs text-muted-foreground">
                   {unreadCount > 0
-                    ? `Có ${unreadCount} thông báo chưa đọc`
-                    : "Không có thông báo chưa đọc"}
+                    ? t("header.unreadCount", { count: unreadCount })
+                    : t("header.noUnread")}
                 </p>
               </div>
               <Badge variant="secondary" className="rounded-full">
@@ -149,10 +153,10 @@ export function Header({ user }: HeaderProps) {
                 className="flex-1"
               >
                 <CheckCheck className="size-4" />
-                Đã đọc hết
+                {t("header.markAllAsRead")}
               </Button>
               <Button asChild size="sm" className="flex-1">
-                <Link href="/feed">Xem tất cả</Link>
+                <Link href="/feed">{t("header.viewAll")}</Link>
               </Button>
             </div>
           </div>
@@ -202,7 +206,7 @@ export function Header({ user }: HeaderProps) {
                         }
                       >
                         <XCircle className="size-4" />
-                        Từ chối
+                        {t("header.decline")}
                       </Button>
                       <Button
                         size="sm"
@@ -212,7 +216,7 @@ export function Header({ user }: HeaderProps) {
                         }
                       >
                         <CheckCircle2 className="size-4" />
-                        Chấp nhận
+                        {t("header.accept")}
                       </Button>
                     </div>
                   ) : (
@@ -224,7 +228,7 @@ export function Header({ user }: HeaderProps) {
                         className="flex-1"
                       >
                         <Link href={notification.actionHref ?? "/feed"}>
-                          Xem
+                          {t("header.view")}
                         </Link>
                       </Button>
                       <Button
@@ -234,7 +238,7 @@ export function Header({ user }: HeaderProps) {
                         onClick={() => handleMarkRead(notification.id)}
                       >
                         <CheckCheck className="size-4" />
-                        Đã đọc
+                        {t("header.markAsRead")}
                       </Button>
                     </div>
                   )}
@@ -253,8 +257,8 @@ export function Header({ user }: HeaderProps) {
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           title={
             theme === "dark"
-              ? "Chuyển sang chế độ sáng"
-              : "Chuyển sang chế độ tối"
+              ? t("header.switchToLight")
+              : t("header.switchToDark")
           }
         >
           {theme === "dark" ? (
@@ -312,13 +316,13 @@ export function Header({ user }: HeaderProps) {
             <DropdownMenuItem asChild>
               <Link href="/profile">
                 <User className="size-4" />
-                <span>Hồ sơ</span>
+                <span>{t("header.profile")}</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/settings">
                 <Settings className="size-4" />
-                <span>Cài đặt</span>
+                <span>{t("header.settings")}</span>
               </Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>
@@ -329,7 +333,9 @@ export function Header({ user }: HeaderProps) {
             disabled={isLoading}
           >
             <LogOut className="size-4" />
-            <span>{isLoading ? "Đang đăng xuất..." : "Đăng xuất"}</span>
+            <span>
+              {isLoading ? t("header.loggingOut") : t("header.logout")}
+            </span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

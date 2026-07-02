@@ -43,7 +43,8 @@ function Calendar({
       captionLayout={captionLayout}
       formatters={{
         formatMonthDropdown: (date) => `Tháng ${date.getMonth() + 1}`,
-        formatMonthCaption: (date) => `Tháng ${date.getMonth() + 1} năm ${date.getFullYear()}`,
+        formatMonthCaption: (date) =>
+          `Tháng ${date.getMonth() + 1} năm ${date.getFullYear()}`,
         formatWeekdayName: (date) => {
           // Map to Vietnamese short weekday labels: T2..T7, CN
           const map = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"]
@@ -204,6 +205,7 @@ function CalendarDayButton({
       ref={ref}
       variant="ghost"
       size="icon"
+      disabled={modifiers.disabled}
       data-day={day.date.toLocaleDateString()}
       data-selected-single={
         modifiers.selected &&

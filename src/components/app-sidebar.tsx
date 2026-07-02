@@ -9,7 +9,6 @@ import {
   CalendarClock,
   CalendarDays,
   ChevronDown,
-  History,
   House,
   type LucideIcon,
   MapPinned,
@@ -22,6 +21,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import {
   Sidebar,
@@ -42,55 +42,58 @@ import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscr
 import { cn } from "@/lib/utils"
 
 type SidebarItem = {
-  title: string
+  titleKey: string
   href: string
   icon: LucideIcon
 }
 
 const sidebarItems: SidebarItem[] = [
-  { title: "Trang chủ", href: "/home", icon: House },
-  { title: "Hồ sơ", href: "/profile", icon: UserRound },
-  { title: "Lịch của tôi", href: "/calendar", icon: CalendarCheck },
-  { title: "Lịch sử", href: "/history", icon: History },
-  { title: "Buổi chơi", href: "/socials", icon: CalendarDays },
-  { title: "Giải đấu", href: "/tournaments", icon: Trophy },
-  { title: "Nhóm", href: "/groups", icon: Users },
-  { title: "Bạn bè", href: "/friend", icon: Users },
-  { title: "Quản lý giải đấu", href: "/tournament-management", icon: Trophy },
-  { title: "Thông báo", href: "/feed", icon: BellRing },
-  { title: "Người học", href: "/learner", icon: BookOpen },
-  { title: "Huấn luyện viên", href: "/coach", icon: Shield },
+  { titleKey: "home", href: "/home", icon: House },
+  { titleKey: "profile", href: "/profile", icon: UserRound },
+  { titleKey: "myCalendar", href: "/calendar", icon: CalendarCheck },
+  { titleKey: "sessions", href: "/socials", icon: CalendarDays },
+  { titleKey: "tournaments", href: "/tournaments", icon: Trophy },
+  { titleKey: "groups", href: "/groups", icon: Users },
+  { titleKey: "friends", href: "/friend", icon: Users },
+  {
+    titleKey: "tournamentManagement",
+    href: "/tournament-management",
+    icon: Trophy,
+  },
+  { titleKey: "notifications", href: "/feed", icon: BellRing },
+  { titleKey: "learner", href: "/learner", icon: BookOpen },
+  { titleKey: "coach", href: "/coach", icon: Shield },
 ]
 const socialMenuItems = [
-  { title: "Danh sách buổi chơi", href: "/socials" },
-  { title: "Buổi chơi của tôi", href: "/socials/me" },
+  { titleKey: "sessions", href: "/socials" },
+  { titleKey: "mySessions", href: "/socials/me" },
 ]
 
 const sportCenterMenuItems = [
-  { title: "Danh sách sân", href: "/sport-center" },
-  { title: "Lịch sử đặt sân", href: "/sport-center/booking-history" },
+  { titleKey: "courtList", href: "/sport-center" },
+  { titleKey: "bookingHistory", href: "/sport-center/booking-history" },
 ]
 
 const sportCenterManagementMenuItems = [
   {
-    title: "Quản lý sân",
+    titleKey: "courtManagement",
     href: "/sport-center-management/courts-management",
   },
   {
-    title: "Quản lý khách hàng",
+    titleKey: "customerManagement",
     href: "/sport-center-management/customer",
   },
   {
-    title: "Danh sách đặt sân",
+    titleKey: "bookingList",
     href: "/sport-center-management/booking-list",
     icon: CalendarClock,
   },
   {
-    title: "Dịch vụ & Sản phẩm",
+    titleKey: "servicesProducts",
     href: "/sport-center-management/services-products",
   },
   {
-    title: "Báo cáo doanh thu",
+    titleKey: "revenueReport",
     href: "/sport-center-management/analytics",
   },
 ]
@@ -155,6 +158,7 @@ function SidebarLogo() {
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const { t } = useTranslation("common")
   const notifications = useAtomValue(notificationFeedAtom)
   const { data: subscriptions = [] } = useMySubscriptions()
   const hasSportCenterManagerPlan = subscriptions.some(
@@ -281,13 +285,13 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     isActive={isActivePath(pathname, item.href)}
-                    tooltip={item.title}
+                    tooltip={t(`sidebar.${item.titleKey}`)}
                   >
                     <Link href={item.href} onClick={handlePrimaryItemClick}>
                       <span className="relative inline-flex items-center justify-center">
                         <item.icon className="size-4" />
                       </span>
-                      <span>{item.title}</span>
+                      <span>{t(`sidebar.${item.titleKey}`)}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -296,11 +300,11 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={shouldShowSportCenterMenu}
-                  tooltip="Sân"
+                  tooltip={t("sidebar.courts")}
                   onClick={handleSportCenterMenuToggle}
                 >
                   <Building2 className="size-4" />
-                  <span>Sân</span>
+                  <span>{t("sidebar.courts")}</span>
                   <ChevronDown
                     className={cn(
                       "ml-auto size-4 transition-transform",
@@ -320,7 +324,7 @@ export function AppSidebar() {
                             href={item.href}
                             onClick={handlePrimaryItemClick}
                           >
-                            <span>{item.title}</span>
+                            <span>{t(`sidebar.${item.titleKey}`)}</span>
                           </Link>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
@@ -335,11 +339,11 @@ export function AppSidebar() {
                     <SidebarMenuItem key="socials-menu">
                       <SidebarMenuButton
                         isActive={shouldShowSocialMenu}
-                        tooltip="Buổi chơi"
+                        tooltip={t("sidebar.sessions")}
                         onClick={handleSocialMenuToggle}
                       >
                         <CalendarDays className="size-4" />
-                        <span>Buổi chơi</span>
+                        <span>{t("sidebar.sessions")}</span>
                         <ChevronDown
                           className={cn(
                             "ml-auto size-4 transition-transform",
@@ -363,7 +367,9 @@ export function AppSidebar() {
                                   href={subItem.href}
                                   onClick={handlePrimaryItemClick}
                                 >
-                                  <span>{subItem.title}</span>
+                                  <span>
+                                    {t(`sidebar.${subItem.titleKey}`)}
+                                  </span>
                                 </Link>
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
@@ -379,7 +385,7 @@ export function AppSidebar() {
                     <SidebarMenuButton
                       asChild
                       isActive={isActivePath(pathname, item.href)}
-                      tooltip={item.title}
+                      tooltip={t(`sidebar.${item.titleKey}`)}
                     >
                       <Link href={item.href} onClick={handlePrimaryItemClick}>
                         <span className="relative inline-flex items-center justify-center">
@@ -388,7 +394,7 @@ export function AppSidebar() {
                             <span className="ring-sidebar-background absolute -top-1 -right-1 size-2 rounded-full bg-red-500 ring-2" />
                           )}
                         </span>
-                        <span>{item.title}</span>
+                        <span>{t(`sidebar.${item.titleKey}`)}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -399,11 +405,11 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     isActive={shouldShowSportCenterManagementMenu}
-                    tooltip="Quản lý trung tâm"
+                    tooltip={t("sidebar.centerManagement")}
                     onClick={handleSportCenterManagementMenuToggle}
                   >
                     <MapPinned className="size-4" />
-                    <span>Quản lý trung tâm</span>
+                    <span>{t("sidebar.centerManagement")}</span>
                     <ChevronDown
                       className={cn(
                         "ml-auto size-4 transition-transform",
@@ -423,7 +429,7 @@ export function AppSidebar() {
                               href={item.href}
                               onClick={handlePrimaryItemClick}
                             >
-                              <span>{item.title}</span>
+                              <span>{t(`sidebar.${item.titleKey}`)}</span>
                             </Link>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>

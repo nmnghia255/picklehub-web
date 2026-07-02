@@ -106,7 +106,8 @@
       "notEnoughSlotsTooltip": "Vui lòng chọn ít nhất {{count}} lượt để tiến hành đặt",
       "selectedDate": "Ngày đã đặt",
       "selectDates": "Chọn ngày",
-      "selectedDatesCount": "Đã chọn {{count}} ngày"
+      "selectedDatesCount": "Đã chọn {{count}} ngày",
+      "tournamentDates": "Thời gian giải: {{start}} - {{end}}"
     },
     "grid": {
       "title": "Chọn Khung giờ trống",

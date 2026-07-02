@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
+import { useBookingStore } from "../../stores/use-booking-store"
 import type { TournamentCenter } from "../../types/tournament-center"
 import type { TournamentEvent } from "../../types/tournament-event"
 import { AssociateCenterDialog } from "./associate-center-dialog"
@@ -32,6 +33,10 @@ interface AssociatedVenuesProps {
   onOpenCenterDialog: () => Promise<void>
   isCenterDialogOpen: boolean
   setIsCenterDialogOpen: (open: boolean) => void
+  /** Tournament start date (ISO YYYY-MM-DD) – restricts the date picker on the booking page */
+  tournamentStartDate?: string | null
+  /** Tournament end date (ISO YYYY-MM-DD) – restricts the date picker on the booking page */
+  tournamentEndDate?: string | null
 }
 
 export function AssociatedVenues({
@@ -44,14 +49,17 @@ export function AssociatedVenues({
   onOpenCenterDialog,
   isCenterDialogOpen,
   setIsCenterDialogOpen,
+  tournamentStartDate,
+  tournamentEndDate,
 }: AssociatedVenuesProps) {
   const { t } = useTournamentTranslation()
   const router = useRouter()
   const [associatedSearchQuery, setAssociatedSearchQuery] = useState("")
 
-  // Event selection dialog state
-  const [isEventDialogOpen, setIsEventDialogOpen] = useState(false)
-  const [pendingCenterId, setPendingCenterId] = useState<string | null>(null)
+  const isEventDialogOpen = useBookingStore((s) => s.isEventDialogOpen)
+  const setIsEventDialogOpen = useBookingStore((s) => s.setIsEventDialogOpen)
+  const pendingCenterId = useBookingStore((s) => s.pendingCenterId)
+  const setPendingCenterId = useBookingStore((s) => s.setPendingCenterId)
 
   // Filter already linked/associated centers in the main card list
   const filteredAssociatedCenters = centers.filter((center) => {
@@ -71,15 +79,15 @@ export function AssociatedVenues({
   function handleConfirmEventSelection(eventId: string | null) {
     if (!pendingCenterId) return
     setIsEventDialogOpen(false)
-    if (eventId) {
-      router.push(
-        `/tournament-management/${tournamentId}/booking/${pendingCenterId}?eventId=${eventId}`
-      )
-    } else {
-      router.push(
-        `/tournament-management/${tournamentId}/booking/${pendingCenterId}`
-      )
-    }
+    // Build query params: eventId + optional tournament date range for calendar constraints
+    const params = new URLSearchParams()
+    if (eventId) params.set("eventId", eventId)
+    if (tournamentStartDate) params.set("startDate", tournamentStartDate)
+    if (tournamentEndDate) params.set("endDate", tournamentEndDate)
+    const qs = params.toString()
+    router.push(
+      `/tournament-management/${tournamentId}/booking/${pendingCenterId}${qs ? `?${qs}` : ""}`
+    )
   }
 
   return (
@@ -194,8 +202,6 @@ export function AssociatedVenues({
 
       {/* Event Selection Dialog */}
       <EventSelectionDialog
-        isOpen={isEventDialogOpen}
-        onOpenChange={setIsEventDialogOpen}
         events={events}
         onConfirm={handleConfirmEventSelection}
       />

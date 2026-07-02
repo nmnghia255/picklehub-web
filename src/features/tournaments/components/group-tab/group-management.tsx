@@ -24,12 +24,16 @@ interface GroupManagementProps {
   tournamentId: number
   events: TournamentEvent[]
   isHost: boolean
+  eventId?: number
+  hideEventSelect?: boolean
 }
 
 export function GroupManagement({
   tournamentId,
   events = [],
   isHost,
+  eventId,
+  hideEventSelect = false,
 }: GroupManagementProps) {
   const { t } = useTournamentTranslation()
 
@@ -38,7 +42,6 @@ export function GroupManagement({
 
   const setTournamentId = useGroupStageStore((s) => s.setTournamentId)
   const setSelectedEventId = useGroupStageStore((s) => s.setSelectedEventId)
-  const setGroupStageEnabled = useGroupStageStore((s) => s.setGroupStageEnabled)
   const fetchData = useGroupStageStore((s) => s.fetchData)
   const reset = useGroupStageStore((s) => s.reset)
 
@@ -49,10 +52,12 @@ export function GroupManagement({
 
   // Set default event selection
   useEffect(() => {
-    if (events.length > 0 && !selectedEventId) {
+    if (eventId) {
+      setSelectedEventId(eventId.toString())
+    } else if (events.length > 0 && !selectedEventId) {
       setSelectedEventId(events[0].id.toString())
     }
-  }, [events, selectedEventId, setSelectedEventId])
+  }, [eventId, events, selectedEventId, setSelectedEventId])
 
   // Fetch data on event change
   useEffect(() => {
@@ -61,14 +66,6 @@ export function GroupManagement({
     }
   }, [selectedEventId, fetchData, t])
 
-  // Sync event format with Group Stage switch
-  const selectedEvent = events.find((e) => e.id.toString() === selectedEventId)
-  useEffect(() => {
-    if (selectedEvent) {
-      setGroupStageEnabled(selectedEvent.format === "round_robin")
-    }
-  }, [selectedEvent, setGroupStageEnabled])
-
   // Reset store state on unmount
   useEffect(() => {
     return () => {
@@ -76,23 +73,25 @@ export function GroupManagement({
     }
   }, [reset])
 
-  const isEditable = true || isHost // tournamentStatus === "closed_registration"
+  const isEditable = true || (isHost && !hideEventSelect)
 
   if (events.length === 0) {
     return (
-      <div className="p-8">
+      <div className={hideEventSelect ? "" : "p-8"}>
         <div className="mx-auto max-w-7xl">
-          <div className="mb-8">
-            <h1 className="mb-2 text-3xl font-semibold text-gray-900">
-              {t("groupStage.title", { defaultValue: "Group Stage" })}
-            </h1>
-            <p className="text-gray-600">
-              {t("groupStage.subtitle", {
-                defaultValue:
-                  "Manage tournament group stage divisions, standings, and matches.",
-              })}
-            </p>
-          </div>
+          {!hideEventSelect && (
+            <div className="mb-8">
+              <h1 className="mb-2 text-3xl font-semibold text-gray-900">
+                {t("groupStage.title", { defaultValue: "Group Stage" })}
+              </h1>
+              <p className="text-gray-600">
+                {t("groupStage.subtitle", {
+                  defaultValue:
+                    "Manage tournament group stage divisions, standings, and matches.",
+                })}
+              </p>
+            </div>
+          )}
           <Card className="flex flex-col items-center justify-center border-gray-200 bg-white p-12 text-center">
             <div className="mb-4 rounded-full bg-emerald-50 p-4">
               <Grid className="h-8 w-8 text-emerald-600" />
@@ -110,43 +109,50 @@ export function GroupManagement({
   }
 
   return (
-    <div className="p-8">
+    <div className={hideEventSelect ? "" : "p-8"}>
       <div className="mx-auto max-w-7xl space-y-8">
-        {/* Header Section */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="mb-2 text-3xl font-semibold text-gray-900">
-              {t("groupStage.title", { defaultValue: "Group Stage" })}
-            </h1>
-            <p className="text-gray-600">
-              {t("groupStage.subtitle", {
-                defaultValue:
-                  "Manage tournament group stage divisions, standings, and matches.",
-              })}
-            </p>
-          </div>
-        </div>
+        {!hideEventSelect && (
+          <>
+            {/* Header Section */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h1 className="mb-2 text-3xl font-semibold text-gray-900">
+                  {t("groupStage.title", { defaultValue: "Group Stage" })}
+                </h1>
+                <p className="text-gray-600">
+                  {t("groupStage.subtitle", {
+                    defaultValue:
+                      "Manage tournament group stage divisions, standings, and matches.",
+                  })}
+                </p>
+              </div>
+            </div>
 
-        {/* Dropdown Selector */}
-        <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold tracking-wider text-gray-500 uppercase">
-            {t("seeding.selectEvent")}
-          </label>
-          <div className="w-full sm:w-[280px]">
-            <Select value={selectedEventId} onValueChange={setSelectedEventId}>
-              <SelectTrigger className="w-full bg-white">
-                <SelectValue placeholder={t("seeding.chooseEvent")} />
-              </SelectTrigger>
-              <SelectContent>
-                {events.map((event) => (
-                  <SelectItem key={event.id} value={event.id.toString()}>
-                    {event.name} ({event.skillRange})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+            {/* Dropdown Selector */}
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                {t("seeding.selectEvent")}
+              </label>
+              <div className="w-full sm:w-[280px]">
+                <Select
+                  value={selectedEventId}
+                  onValueChange={setSelectedEventId}
+                >
+                  <SelectTrigger className="w-full bg-white">
+                    <SelectValue placeholder={t("seeding.chooseEvent")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {events.map((event) => (
+                      <SelectItem key={event.id} value={event.id.toString()}>
+                        {event.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </>
+        )}
 
         {isLoadingData ? (
           <div className="flex h-64 items-center justify-center">

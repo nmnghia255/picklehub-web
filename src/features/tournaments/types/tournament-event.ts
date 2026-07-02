@@ -29,4 +29,5 @@ export interface TournamentEvent {
   status: EventStatus
   format?: EventFormat
   tournamentId?: number
+  totalMatches?: number
 }

@@ -37,7 +37,7 @@ export function GroupStandingsGrid({ isEditable }: GroupStandingsGridProps) {
       </div>
 
       {groups.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center border-gray-200 bg-white p-12 text-center">
+        <Card className="flex flex-col items-center justify-center gap-0 border-gray-200 bg-white p-12 text-center">
           <div className="mb-4 rounded-full bg-gray-50 p-4">
             <Grid className="h-8 w-8 text-gray-400" />
           </div>
@@ -63,10 +63,10 @@ export function GroupStandingsGrid({ isEditable }: GroupStandingsGridProps) {
           {groups.map((group) => (
             <Card
               key={group.id}
-              className="gap-0 overflow-hidden border-gray-200 bg-white shadow-sm"
+              className="gap-0 overflow-hidden border-gray-200 bg-white py-0 shadow-sm"
             >
               <CardHeader className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
-                <CardTitle className="text-lg font-semibold text-gray-900">
+                <CardTitle className="pt-4 text-lg font-semibold text-gray-900">
                   {group.name}
                 </CardTitle>
               </CardHeader>

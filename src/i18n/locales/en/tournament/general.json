@@ -60,11 +60,12 @@
     "stats": {
       "participants": "Participants",
       "events": "Events",
-      "totalMatches": "Total Matches"
+      "totalMatches": "Total Matches",
+      "totalPrizes": "Total Prizes"
     },
     "tabs": {
       "overview": "Overview",
-      "schedule": "Schedule",
+      "matches": "Matches",
       "participants": "Participants",
       "liveScores": "Live Scores",
       "results": "Results",
@@ -75,7 +76,10 @@
       "title": "Tournament Overview",
       "description": "Join us for the premier pickleball tournament in Southern California. Featuring 8 competitive events across all skill levels, this tournament brings together the best players in the region.",
       "eventsLabel": "Events:",
-      "sponsorsTitle": "Sponsors & Partners"
+      "sponsorsTitle": "Sponsors & Partners",
+      "tournamentDates": "Tournament Schedule",
+      "registrationDates": "Registration Window",
+      "detailsTitle": "Venue & Schedule"
     },
     "venue": {
       "title": "Venue Information",
@@ -86,6 +90,10 @@
     "participantsList": {
       "rating": "Rating:"
     },
+    "upcomingMatches": "Upcoming Matches",
+    "finishedMatches": "Finished Matches",
+    "team": "Team",
+    "noParticipantsYet": "No participants registered yet",
     "liveScores": {
       "vs": "vs",
       "live": "Live",

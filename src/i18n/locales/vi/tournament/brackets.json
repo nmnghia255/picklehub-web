@@ -76,9 +76,9 @@
         "Round of 16": "Vòng 16",
         "Round of 32": "Vòng 32",
         "Round of 64": "Vòng 64",
-        "Quarterfinal": "Tứ kết",
-        "Semifinal": "Bán kết",
-        "Final": "Chung kết",
+        "Quarterfinals": "Tứ kết",
+        "Semifinals": "Bán kết",
+        "Finals": "Chung kết",
         "Bronze Match": "Tranh hạng ba"
       },
       "details": {

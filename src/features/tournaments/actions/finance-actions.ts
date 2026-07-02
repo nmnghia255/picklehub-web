@@ -3,6 +3,7 @@
 import axios from "axios"
 
 import { TournamentFinanceService } from "../api/finance-service"
+import type { FinanceRequest } from "../types/finance"
 
 export async function getFinanceTransactionsAction(tournamentId: string) {
   try {
@@ -64,6 +65,50 @@ export async function exportFinanceReportAction(
       } else {
         errorMessage = error.response?.data?.message || error.message
       }
+    } else if (error instanceof Error) {
+      errorMessage = error.message
+    }
+    return { success: false as const, error: errorMessage }
+  }
+}
+
+export async function createFinanceTransactionAction(
+  tournamentId: string,
+  finance: FinanceRequest
+) {
+  try {
+    const data = await TournamentFinanceService.createFinanceTransaction(
+      tournamentId,
+      finance
+    )
+    return { success: true as const, data }
+  } catch (error: unknown) {
+    console.error("Failed to create finance transaction:", error)
+    let errorMessage = "Failed to create transaction"
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.message || error.message
+    } else if (error instanceof Error) {
+      errorMessage = error.message
+    }
+    return { success: false as const, error: errorMessage }
+  }
+}
+
+export async function deleteFinanceTransactionAction(
+  tournamentId: string,
+  transactionId: string
+) {
+  try {
+    await TournamentFinanceService.deleteFinanceTransaction(
+      tournamentId,
+      transactionId
+    )
+    return { success: true as const }
+  } catch (error: unknown) {
+    console.error("Failed to delete finance transaction:", error)
+    let errorMessage = "Failed to delete transaction"
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.message || error.message
     } else if (error instanceof Error) {
       errorMessage = error.message
     }

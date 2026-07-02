@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 
 import { TournamentEventService } from "@/features/tournaments/api/events-service"
+import { TournamentPrizeService } from "@/features/tournaments/api/prizes-service"
 import { TournamentRegistrationService } from "@/features/tournaments/api/registration-service"
 import { TournamentSponsorService } from "@/features/tournaments/api/sponsor-service"
 import { TournamentService } from "@/features/tournaments/api/tournaments-service"
@@ -20,25 +21,33 @@ export default async function TournamentDetailPage(props: {
   let events: TournamentEvent[] = []
   let sponsors: Sponsor[] = []
   let participants: Player[] = []
+  let totalPrizes = 0
 
   try {
-    const [tournamentData, eventsData, sponsorsData, registrationsData] =
-      await Promise.all([
-        TournamentService.getTournamentById(tournamentId),
-        TournamentEventService.getTournamentEvents(tournamentId).catch(
-          () => []
-        ),
-        TournamentSponsorService.getSponsors(tournamentId).catch(() => []),
-        TournamentRegistrationService.listTournamentEventRegistrations(
-          tournamentId,
-          "",
-          "approved"
-        ).catch(() => []),
-      ])
+    const [
+      tournamentData,
+      eventsData,
+      sponsorsData,
+      registrationsData,
+      prizesData,
+    ] = await Promise.all([
+      TournamentService.getTournamentById(tournamentId),
+      TournamentEventService.getTournamentEvents(tournamentId).catch(() => []),
+      TournamentSponsorService.getSponsors(tournamentId).catch(() => []),
+      TournamentRegistrationService.listTournamentEventRegistrations(
+        tournamentId,
+        "",
+        "approved"
+      ).catch(() => []),
+      TournamentPrizeService.getAllPrizes(tournamentId).catch(() => []),
+    ])
 
     tournament = tournamentData
     events = eventsData || []
     sponsors = sponsorsData || []
+    totalPrizes = Array.isArray(prizesData)
+      ? prizesData.reduce((sum, prize) => sum + (prize.value || 0), 0)
+      : 0
 
     if (registrationsData && Array.isArray(registrationsData)) {
       participants = registrationsData.flatMap((reg) => {
@@ -81,6 +90,7 @@ export default async function TournamentDetailPage(props: {
         events={events}
         sponsors={sponsors}
         participants={participants}
+        totalPrizes={totalPrizes}
       />
     </div>
   )

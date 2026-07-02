@@ -40,7 +40,6 @@ function safeExtractSeedsList(data: unknown): Seed[] {
 interface GroupStageState {
   tournamentId: number | null
   selectedEventId: string
-  groupStageEnabled: boolean
   numGroups: number
   advancePerGroup: number
   groups: Group[]
@@ -58,7 +57,6 @@ interface GroupStageState {
   // Actions
   setTournamentId: (id: number) => void
   setSelectedEventId: (id: string) => void
-  setGroupStageEnabled: (enabled: boolean) => void
   setNumGroups: (num: number) => void
   setAdvancePerGroup: (num: number) => void
   setSelectedPriorityTeamIds: (ids: string[]) => void
@@ -76,7 +74,6 @@ interface GroupStageState {
 export const useGroupStageStore = create<GroupStageState>((set, get) => ({
   tournamentId: null,
   selectedEventId: "",
-  groupStageEnabled: false,
   numGroups: 4,
   advancePerGroup: 2,
   groups: [],
@@ -92,7 +89,6 @@ export const useGroupStageStore = create<GroupStageState>((set, get) => ({
 
   setTournamentId: (tournamentId) => set({ tournamentId }),
   setSelectedEventId: (selectedEventId) => set({ selectedEventId }),
-  setGroupStageEnabled: (groupStageEnabled) => set({ groupStageEnabled }),
   setNumGroups: (numGroups) => set({ numGroups }),
   setAdvancePerGroup: (advancePerGroup) => set({ advancePerGroup }),
   setSelectedPriorityTeamIds: (selectedPriorityTeamIds) =>
@@ -141,9 +137,9 @@ export const useGroupStageStore = create<GroupStageState>((set, get) => ({
     const {
       tournamentId,
       selectedEventId,
-      groupStageEnabled,
       numGroups,
       advancePerGroup,
+      totalAdvance,
     } = get()
     if (!tournamentId || !selectedEventId) return
 
@@ -153,10 +149,10 @@ export const useGroupStageStore = create<GroupStageState>((set, get) => ({
         tournamentId,
         Number(selectedEventId),
         {
-          groupStageEnabled,
           numGroups,
           advancePerGroup,
           advanceMethod: "standard",
+          totalAdvance,
         }
       )
       if (res.success) {
@@ -305,7 +301,6 @@ export const useGroupStageStore = create<GroupStageState>((set, get) => ({
     set({
       tournamentId: null,
       selectedEventId: "",
-      groupStageEnabled: false,
       numGroups: 4,
       advancePerGroup: 2,
       groups: [],

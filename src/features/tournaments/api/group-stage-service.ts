@@ -69,8 +69,7 @@ export const TournamentGroupStageService = {
     return unwrapApiResponse(response.data)
   },
 
-  // Generates the round-robin matches for all drawn groups.
-  // Deletes previous group stage matches if none have started.
+  // Generates round-robin fixtures for all teams in each group.
   generateMatches: async (
     tournamentId: number,
     eventId: number
@@ -94,7 +93,7 @@ export const TournamentGroupStageService = {
     return unwrapApiResponse(response.data)
   },
 
-  // Promotes the top teams and lucky losers from groups, seeds them sequentially, and prepares the event for the knockout stage.
+  // Locks advanced teams from group stages and registers/seeds them for the knockout bracket.
   advanceTeams: async (
     tournamentId: number,
     eventId: number,

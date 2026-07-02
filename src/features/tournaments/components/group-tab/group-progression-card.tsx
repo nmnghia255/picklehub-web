@@ -10,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
@@ -24,7 +23,6 @@ export function GroupProgressionCard() {
   const isGeneratingMatches = useGroupStageStore((s) => s.isGeneratingMatches)
   const isAdvancing = useGroupStageStore((s) => s.isAdvancing)
 
-  const setTotalAdvance = useGroupStageStore((s) => s.setTotalAdvance)
   const generateMatches = useGroupStageStore((s) => s.generateMatches)
   const advanceTeams = useGroupStageStore((s) => s.advanceTeams)
 
@@ -37,7 +35,7 @@ export function GroupProgressionCard() {
   }
 
   return (
-    <Card className="gap-0 border-gray-200 bg-white">
+    <Card className="flex flex-col justify-between gap-0 border-gray-200 bg-white">
       <CardHeader className="border-b border-gray-100 bg-gray-50/50 pb-3">
         <CardTitle className="flex items-center gap-2 text-lg font-medium text-gray-900">
           <Play className="h-5 w-5 text-gray-500" />
@@ -51,7 +49,7 @@ export function GroupProgressionCard() {
           })}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4 pt-4">
+      <CardContent className="flex flex-1 flex-col justify-between pt-4">
         <div className="space-y-2">
           <Label className="text-sm font-medium text-gray-700">
             {t("groupStage.matchGenLabel", {
@@ -75,40 +73,31 @@ export function GroupProgressionCard() {
           </Button>
         </div>
 
-        <div className="my-2 space-y-2 border-t border-gray-100 pt-2">
-          <Label
-            htmlFor="total-advance"
-            className="text-sm font-medium text-gray-700"
-          >
-            {t("groupStage.totalAdvanceLabel", {
-              defaultValue: "Total Teams to Advance",
-            })}
-          </Label>
-          <div className="flex gap-2">
-            <Input
-              id="total-advance"
-              type="number"
-              min={1}
-              value={totalAdvance}
-              onChange={(e) => setTotalAdvance(Number(e.target.value))}
-              disabled={groups.length === 0}
-              className="w-24 border-gray-200 bg-white"
-            />
-            <Button
-              onClick={handleAdvance}
-              disabled={isAdvancing || groups.length === 0}
-              className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700"
-            >
-              {isAdvancing ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Trophy className="mr-2 h-4 w-4" />
-              )}
-              {t("groupStage.advanceTeamsBtn", {
-                defaultValue: "Advance Teams",
+        <div className="mt-2 space-y-3 border-t border-gray-100 pt-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-700">
+              {t("groupStage.totalAdvanceLabel", {
+                defaultValue: "Total Teams to Advance",
               })}
-            </Button>
+            </span>
+            <span className="rounded bg-gray-100 px-2 py-0.5 text-sm font-semibold text-gray-900">
+              {totalAdvance}
+            </span>
           </div>
+          <Button
+            onClick={handleAdvance}
+            disabled={isAdvancing || groups.length === 0}
+            className="w-full bg-emerald-600 text-white hover:bg-emerald-700"
+          >
+            {isAdvancing ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Trophy className="mr-2 h-4 w-4" />
+            )}
+            {t("groupStage.advanceTeamsBtn", {
+              defaultValue: "Advance Teams",
+            })}
+          </Button>
         </div>
       </CardContent>
     </Card>

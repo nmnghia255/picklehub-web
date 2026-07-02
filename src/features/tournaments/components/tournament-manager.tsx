@@ -90,6 +90,7 @@ export function TournamentManager({
   events,
   prizes,
   isHost,
+  sponsors,
 }: {
   tournament: Tournament
   events: TournamentEvent[]
@@ -290,7 +291,13 @@ export function TournamentManager({
             value="dashboard"
             className="m-0 border-none p-0 outline-none"
           >
-            <TournamentDashboard tournament={tournament} events={events} />
+            <TournamentDashboard
+              tournament={tournament}
+              events={events}
+              prizes={prizes}
+              sponsors={sponsors}
+              isHost={isHost}
+            />
           </TabsContent>
           <TabsContent
             value="events"
@@ -349,7 +356,11 @@ export function TournamentManager({
             value="bookings"
             className="m-0 border-none p-0 outline-none"
           >
-            <BookingManagement tournamentId={tournament.id} />
+            <BookingManagement
+              tournamentId={tournament.id}
+              tournamentStartDate={tournament.startDate}
+              tournamentEndDate={tournament.endDate}
+            />
           </TabsContent>
           <TabsContent
             value="groups"

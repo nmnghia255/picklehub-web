@@ -45,7 +45,7 @@ export function TournamentHero({ tournament }: TournamentHeroProps) {
     : t("public.hero.dates")
 
   return (
-    <div className="relative h-96 overflow-hidden bg-linear-to-r from-emerald-700 via-emerald-800 to-emerald-900 shadow-inner">
+    <div className="relative h-96 overflow-hidden bg-linear-to-r from-emerald-700 via-emerald-800 to-emerald-900 shadow-inner [--color-white:#ffffff]">
       <div className="absolute inset-0 bg-black/30" />
       <div className="absolute top-4 right-4 z-1 md:top-6 md:right-8">
         <BackButton

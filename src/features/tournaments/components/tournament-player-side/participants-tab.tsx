@@ -21,7 +21,7 @@ export function ParticipantsTab({
     <Card className="border-gray-200 shadow-sm">
       <CardHeader>
         <CardTitle className="text-xl font-bold text-gray-900">
-          {t("public.tabs.participants")} ({participants.length})
+          {t("public.tabs.participants")}
         </CardTitle>
       </CardHeader>
       <CardContent>

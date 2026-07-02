@@ -1,7 +1,7 @@
 "use client"
 
 import { Loader2, QrCode, Upload, User, X } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { toast } from "sonner"
 
@@ -31,6 +31,7 @@ import {
 export default function ConfirmBookingDialog() {
   const { t } = useTournamentTranslation()
   const router = useRouter()
+  const routeParams = useParams<{ tournamentId: string }>()
 
   // Store fields
   const tournamentId = useBookingStore((s) => s.tournamentId)
@@ -167,8 +168,11 @@ export default function ConfirmBookingDialog() {
       // Clear selected slots now that booking is fully completed
       useBookingStore.setState({ selectedCourts: {} })
       setIsConfirmDialogOpen(false)
-      if (tournamentId) {
-        router.push(`/tournament-management/${tournamentId}?tab=bookings`)
+      const finalTournamentId =
+        tournamentId ||
+        (routeParams.tournamentId ? Number(routeParams.tournamentId) : null)
+      if (finalTournamentId) {
+        router.push(`/tournament-management/${finalTournamentId}?tab=bookings`)
         router.refresh()
       }
     } catch (err: unknown) {
@@ -183,8 +187,13 @@ export default function ConfirmBookingDialog() {
           })
         )
         setIsConfirmDialogOpen(false)
-        if (tournamentId) {
-          router.push(`/tournament-management/${tournamentId}?tab=bookings`)
+        const finalTournamentId =
+          tournamentId ||
+          (routeParams.tournamentId ? Number(routeParams.tournamentId) : null)
+        if (finalTournamentId) {
+          router.push(
+            `/tournament-management/${finalTournamentId}?tab=bookings`
+          )
           router.refresh()
         }
       } else {

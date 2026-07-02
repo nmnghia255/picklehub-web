@@ -105,7 +105,8 @@
       "notEnoughSlotsTooltip": "Select at least {{count}} slots to book",
       "selectedDate": "Booked Dates",
       "selectDates": "Select Dates",
-      "selectedDatesCount": "{{count}} dates selected"
+      "selectedDatesCount": "{{count}} dates selected",
+      "tournamentDates": "Tournament: {{start}} - {{end}}"
     },
     "grid": {
       "description": "Click on empty blocks to select court and time slots.",
