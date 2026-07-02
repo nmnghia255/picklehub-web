@@ -159,8 +159,9 @@ export function useUpdateClass() {
   return useMutation({
     mutationFn: ({ classId, dto }: { classId: string; dto: CoachTypes.UpdateCoachClassDto }) =>
       CoachClient.updateClass(classId, dto),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClasses() })
+      queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClass(variables.classId) })
     },
   })
 }
@@ -169,8 +170,9 @@ export function usePublishClass() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: CoachClient.publishClass,
-    onSuccess: () => {
+    onSuccess: (_data, classId) => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClasses() })
+      queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClass(classId) })
     },
   })
 }
@@ -179,8 +181,9 @@ export function useCancelClass() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: CoachClient.cancelClass,
-    onSuccess: () => {
+    onSuccess: (_data, classId) => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClasses() })
+      queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClass(classId) })
     },
   })
 }
@@ -198,8 +201,9 @@ export function useAddScheduleSlot() {
   return useMutation({
     mutationFn: ({ classId, dto }: { classId: string; dto: CoachTypes.CreateClassScheduleDto }) =>
       CoachClient.addScheduleSlot(classId, dto),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClasses() })
+      queryClient.invalidateQueries({ queryKey: [...coachQueryKeys.myClass(variables.classId), "schedules"] })
     },
   })
 }
@@ -209,8 +213,9 @@ export function useRemoveScheduleSlot() {
   return useMutation({
     mutationFn: ({ classId, scheduleId }: { classId: string; scheduleId: string }) =>
       CoachClient.removeScheduleSlot(classId, scheduleId),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClasses() })
+      queryClient.invalidateQueries({ queryKey: [...coachQueryKeys.myClass(variables.classId), "schedules"] })
     },
   })
 }

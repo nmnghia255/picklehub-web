@@ -107,6 +107,60 @@ export interface CreateCertificationDto {
   documentUrl?: string
 }
 
+export interface CoachScheduleParticipant {
+  userId: string
+  name: string
+  avatar: string | null
+}
+
+export interface CoachScheduleApiProfile {
+  id?: string
+  userId?: string
+  displayName?: string
+  fullName?: string
+  name?: string
+  avatarUrl?: string | null
+  avatar?: string | null
+}
+
+export interface CoachScheduleApiItem {
+  id: string
+  kind?: "class" | "booking"
+  type?: "class" | "booking"
+  title: string
+  description?: string | null
+  startsAt?: string
+  startTime?: string
+  endsAt?: string
+  endTime?: string
+  status: string
+  sourceStatus?: string | null
+  paymentStatus?: string | null
+  learners?: Array<{
+    id?: string
+    userId?: string
+    name?: string
+    avatar?: string | null
+    avatarUrl?: string | null
+  }>
+  learnerProfile?: CoachScheduleApiProfile | null
+  coachProfile?: CoachScheduleApiProfile | null
+  classId?: string | null
+  bookingId?: string | null
+  locationDescription?: string | null
+  location?: string | null
+  meetingUrl?: string | null
+  learnerCount?: number
+}
+
+export interface CoachScheduleApiResponse {
+  success: boolean
+  data: CoachScheduleApiItem[]
+  pagination: PaginationMeta
+  summary: CoachScheduleSummary
+  filters: CoachScheduleFilters
+}
+
 export interface CoachScheduleItem {
   id: string
   type: "class" | "booking"
@@ -115,16 +169,16 @@ export interface CoachScheduleItem {
   startTime: string
   endTime: string
   status: "upcoming" | "live" | "past" | "pending"
-  learners: {
-    userId: string
-    name: string
-    avatar: string | null
-  }[]
+  sourceStatus: string | null
+  paymentStatus: string | null
+  learners: CoachScheduleParticipant[]
   classId: string | null
   bookingId: string | null
   location: string | null
   meetingUrl: string | null
   learnerCount: number
+  coachName: string | null
+  learnerName: string | null
 }
 
 export interface CoachScheduleSummary {
@@ -290,52 +344,69 @@ export interface CoachLearner {
   id: string
   name: string
   email: string
-  avatar: string | null
-  phone: string | null
-  enrolledClassCount: number
+  avatarUrl: string
+  latestActivityAt: string | null
+  classEnrollmentCount: number
+  activeClassEnrollmentCount: number
+  cancelledClassEnrollmentCount: number
+  classPaymentPendingReviewCount: number
+  classPaymentSettledCount: number
+  classPaymentRejectedCount: number
+  privateBookingCount: number
+  pendingBookingCount: number
+  confirmedBookingCount: number
   completedBookingCount: number
-  lastActiveAt: string | null
-  status: "active" | "inactive"
+  cancelledBookingCount: number
+  rejectedBookingCount: number
+  bookingPaymentPendingReviewCount: number
+  bookingPaymentSettledCount: number
+  bookingPaymentRejectedCount: number
 }
 
-export interface CoachLearnerDetail {
-  id: string
-  name: string
-  email: string
-  avatar: string | null
+export interface CoachLearnerDetail extends CoachLearner {
   phone: string | null
   bio: string | null
-  joinedAt: string
+  joinedAt: string | null
+  totalSessions: number
+  completedSessions: number
   enrollments: {
     classId: string
     className: string
     enrolledAt: string
-    status: "active" | "completed" | "cancelled"
+    status: string
   }[]
   bookings: {
     bookingId: string
     scheduledAt: string
-    status: "confirmed" | "completed" | "cancelled"
+    status: string
     durationMinutes: number
   }[]
   upcomingSessions: {
-    type: "class" | "booking"
+    type: string
     title: string
     startTime: string
     endTime: string
-    status: "upcoming" | "live"
+    status: string
   }[]
-  totalSessions: number
-  completedSessions: number
+}
+
+export interface AttentionLearner {
+  learnerProfile: {
+    name: string
+    avatarUrl: string | null
+  }
+  upcomingSessionCount: number
+  classPaymentPendingReviewCount: number
+  bookingPaymentPendingReviewCount: number
 }
 
 export interface CoachLearnerDashboard {
   totalLearners: number
-  activeLearners: number
-  newThisMonth: number
-  classLearners: number
-  bookingLearners: number
-  unenrolledLearners: number
+  learnersWithPendingClassPayments: number
+  learnersWithPendingBookingPayments: number
+  learnersWithUpcomingSessions: number
+  upcomingSessionTotal: number
+  attentionLearners: AttentionLearner[]
 }
 
 export interface Review {
@@ -373,9 +444,16 @@ export interface CreateRecommendationDto {
 }
 
 export interface RevenueSummary {
-  classRevenueVnd: number
-  bookingRevenueVnd: number
-  totalRevenueVnd: number
+  year: number
+  period: string
+  totals: {
+    classRevenueVnd: number
+    bookingRevenueVnd: number
+    totalRevenueVnd: number
+    classSettlementCount: number
+    bookingSettlementCount: number
+    totalSettlementCount: number
+  }
   buckets: RevenueBucket[]
 }
 
@@ -391,21 +469,21 @@ export interface ClassRevenue {
   className: string
   totalSessions: number
   settledSessions: number
-  enrolledLearners: number
-  revenueVnd: number
+  enrolledLearnerCount: number
+  settledEnrollmentCount: number
+  settledRevenueVnd: number
   settledAt: string | null
 }
 
 export interface BookingRevenue {
   bookingId: string
-  learner: {
-    userId: string
+  learnerProfile: {
     name: string
-    avatar: string | null
+    avatarUrl: string | null
   }
   scheduledAt: string
   durationMinutes: number
-  revenueVnd: number
+  priceVnd: number
   settledAt: string | null
 }
 
@@ -421,13 +499,16 @@ export interface Booking {
   paymentProofUrl: string | null
   learnerProfile?: {
     id: string
-    fullName: string
+    name: string
+    fullName?: string
     avatarUrl: string
-    bio: string
+    email?: string
+    role?: string
   }
   coachProfile?: {
     id: string
-    fullName: string
+    fullName?: string
+    name?: string
     avatarUrl: string
     hourlyRateVnd: number
     bio: string

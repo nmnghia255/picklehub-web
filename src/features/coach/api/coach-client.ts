@@ -1,4 +1,6 @@
 import type * as CoachTypes from "../types/coach"
+import { normalizeCoachScheduleResponse } from "../utils/coach-schedule-mapper"
+import { normalizeLearner } from "../utils/coach-learner-mapper"
 
 const PROXY_BASE = "/api/proxy"
 
@@ -124,9 +126,9 @@ export const CoachClient = {
 
   // ===================== Coach Schedule =====================
   getCoachSchedule: (params?: Record<string, unknown>) =>
-    apiFetch<CoachTypes.CoachScheduleResponse>(
+    apiFetch<CoachTypes.CoachScheduleApiResponse>(
       "/coach/schedule", { method: "GET" }, params as QueryParams
-    ),
+    ).then(normalizeCoachScheduleResponse),
 
   // ===================== Class Schedules =====================
   addScheduleSlot: (classId: string, dto: CoachTypes.CreateClassScheduleDto) =>
@@ -220,16 +222,28 @@ export const CoachClient = {
     ),
 
   // ===================== Learners =====================
-  listLearners: (params?: { search?: string; kind?: string; page?: number; limit?: number }) =>
-    apiFetch<{ data: CoachTypes.CoachLearner[]; pagination: CoachTypes.PaginationMeta }>(
+  listLearners: async (params?: { search?: string; kind?: string; page?: number; limit?: number }) => {
+    const res = await apiFetch<{ data: any[]; pagination: CoachTypes.PaginationMeta }>(
       "/coach/learners", { method: "GET" }, params as QueryParams
-    ),
+    )
+    return {
+      data: res.data.map(normalizeLearner),
+      pagination: res.pagination,
+    }
+  },
 
   getLearnerDashboard: () =>
     apiFetch<CoachTypes.CoachLearnerDashboard>("/coach/learners/dashboard"),
 
-  getLearnerDetail: (learnerId: string) =>
-    apiFetch<CoachTypes.CoachLearnerDetail>(`/coach/learners/${learnerId}`),
+  getLearnerDetail: async (learnerId: string) => {
+    const raw = await apiFetch<any>(`/coach/learners/${learnerId}`)
+    const detail =
+      raw && typeof raw === "object" && "success" in raw && "data" in raw
+        ? raw.data
+        : raw
+
+    return normalizeLearner(detail)
+  },
 
   // ===================== Reviews =====================
   createReview: (coachId: string, dto: CoachTypes.CreateReviewDto) =>
@@ -265,12 +279,12 @@ export const CoachClient = {
     ),
 
   getClassRevenue: (params?: { page?: number; limit?: number; from?: string; to?: string }) =>
-    apiFetch<{ data: CoachTypes.ClassRevenue[]; pagination: CoachTypes.PaginationMeta }>(
+    apiFetch<{ data: CoachTypes.ClassRevenue[]; pagination: CoachTypes.PaginationMeta; totals: { settledEnrollmentCount: number; settledRevenueVnd: number } }>(
       "/coach/revenue/classes", { method: "GET" }, params as QueryParams
     ),
 
   getBookingRevenue: (params?: { page?: number; limit?: number; from?: string; to?: string }) =>
-    apiFetch<{ data: CoachTypes.BookingRevenue[]; pagination: CoachTypes.PaginationMeta }>(
+    apiFetch<{ data: CoachTypes.BookingRevenue[]; pagination: CoachTypes.PaginationMeta; totals: { settledBookingCount: number; settledRevenueVnd: number } }>(
       "/coach/revenue/bookings", { method: "GET" }, params as QueryParams
     ),
 

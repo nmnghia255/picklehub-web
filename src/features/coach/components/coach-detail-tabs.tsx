@@ -1,10 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CoachDashboardStats } from "@/features/coach/components/coach-dashboard-stats"
 import { CoachIncomeOverview } from "@/features/coach/components/coach-income-overview"
+import { CoachLearnerDetailPanel } from "@/features/coach/components/coach-learner-detail-panel"
 import { CoachProfileForm } from "@/features/coach/components/coach-profile-form"
 import { CoachStudentsTable } from "@/features/coach/components/coach-students-table"
 import { CoachWeekSchedule } from "@/features/coach/components/coach-week-schedule"
@@ -24,13 +26,35 @@ export type CoachTabValue =
   | "finance"
   | "reviews"
 
-export function CoachDetailTabs() {
-  const [activeTab, setActiveTab] = useState<CoachTabValue>("overview")
+function CoachDetailTabsInner() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const tabFromUrl = searchParams.get("tab") as CoachTabValue | null
+  const [activeTab, setActiveTab] = useState<CoachTabValue>(tabFromUrl ?? "overview")
+  const [selectedLearnerId, setSelectedLearnerId] = useState<string | null>(null)
+
+  // Sync tab from URL on mount / URL change
+  useEffect(() => {
+    if (tabFromUrl && tabFromUrl !== activeTab) {
+      setActiveTab(tabFromUrl)
+    }
+    // Only run when URL tab param changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabFromUrl])
+
+  const handleTabChange = (value: string) => {
+    const tab = value as CoachTabValue
+    setActiveTab(tab)
+    // Sync to URL so navigation from child pages can land on the correct tab.
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("tab", tab)
+    router.replace(`/coach?${params.toString()}`, { scroll: false })
+  }
 
   return (
     <Tabs
       value={activeTab}
-      onValueChange={(value) => setActiveTab(value as CoachTabValue)}
+      onValueChange={handleTabChange}
       className="w-full gap-6"
     >
       <TabsList
@@ -80,7 +104,14 @@ export function CoachDetailTabs() {
       </TabsContent>
 
       <TabsContent value="students" className="mt-6 w-full min-w-0">
-        <CoachStudentsTable />
+        {selectedLearnerId ? (
+          <CoachLearnerDetailPanel
+            learnerId={selectedLearnerId}
+            onBack={() => setSelectedLearnerId(null)}
+          />
+        ) : (
+          <CoachStudentsTable onSelect={setSelectedLearnerId} />
+        )}
       </TabsContent>
 
       <TabsContent value="schedule" className="mt-6 w-full min-w-0">
@@ -98,5 +129,13 @@ export function CoachDetailTabs() {
         </div>
       </TabsContent>
     </Tabs>
+  )
+}
+
+export function CoachDetailTabs() {
+  return (
+    <Suspense fallback={null}>
+      <CoachDetailTabsInner />
+    </Suspense>
   )
 }

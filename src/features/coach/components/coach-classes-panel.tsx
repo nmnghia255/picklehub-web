@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form"
 import { useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
 import { toast } from "sonner"
+import { CoachMediaService } from "@/features/coach/api/media-service"
 import {
   useMyClasses,
   useCreateClass,
@@ -142,7 +143,7 @@ function ClassCard({
               <Send /> Xuất bản
             </Button>
             <Button size="sm" variant="outline" asChild>
-              <Link href={`/coach/classes/${cls.id}/edit`}>
+              <Link href={`/coach/classes/${cls.id}`}>
                 <Edit3 /> Chỉnh sửa
               </Link>
             </Button>
@@ -154,7 +155,7 @@ function ClassCard({
         {cls.status === "OPEN" && (
           <>
             <Button size="sm" variant="outline" asChild>
-              <Link href={`/coach/classes/${cls.id}/edit`}>
+              <Link href={`/coach/classes/${cls.id}`}>
                 <Edit3 /> Chỉnh sửa
               </Link>
             </Button>
@@ -196,9 +197,8 @@ export function CoachClassesPanel() {
     defaultValues: {
       title: "",
       description: "",
-      level: undefined,
-      capacity: undefined,
-      priceVnd: undefined,
+      capacity: 0,
+      priceVnd: 0,
       locationDescription: "",
       coverImageUrl: "",
       startDate: "",
@@ -207,7 +207,23 @@ export function CoachClassesPanel() {
   })
 
   const onCreateSubmit = (values: CreateCoachClassDto) => {
-    createClass.mutate(values, {
+    // Log raw form values for debugging
+    console.log("[CreateClass] raw form values:", values)
+
+    // Normalize payload before sending:
+    // - Backend rejects empty strings for optional fields (e.g. startDate: "" → 500)
+    // - Remove undefined keys so JSON.stringify omits them
+    const payload = { ...values }
+    if (!payload.description) delete payload.description
+    if (!payload.locationDescription) delete payload.locationDescription
+    if (!payload.coverImageUrl) delete payload.coverImageUrl
+    if (!payload.startDate) delete payload.startDate
+    if (!payload.endDate) delete payload.endDate
+    if (!payload.level) delete payload.level
+
+    console.log("[CreateClass] normalized payload:", payload)
+
+    createClass.mutate(payload, {
       onSuccess: () => {
         toast.success("Tạo lớp học thành công")
         setDialogOpen(false)
@@ -237,9 +253,6 @@ export function CoachClassesPanel() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-muted-foreground">Quản lý các lớp học của bạn.</p>
-        </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button>
@@ -287,7 +300,7 @@ export function CoachClassesPanel() {
                       <FormItem>
                         <FormLabel>Cấp độ</FormLabel>
                         <FormControl>
-                          <Select value={field.value} onValueChange={field.onChange}>
+                          <Select value={field.value ?? ""} onValueChange={field.onChange}>
                             <SelectTrigger className="w-full">
                               <SelectValue placeholder="Chọn cấp độ" />
                             </SelectTrigger>
@@ -316,7 +329,11 @@ export function CoachClassesPanel() {
                             type="number"
                             placeholder="Ví dụ: 10"
                             {...field}
-                            onChange={(e) => field.onChange(e.target.valueAsNumber || undefined)}
+                            value={field.value ?? 0}
+                            onChange={(e) => {
+                              const val = e.target.valueAsNumber
+                              field.onChange(Number.isNaN(val) ? 0 : val)
+                            }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -336,7 +353,11 @@ export function CoachClassesPanel() {
                           type="number"
                           placeholder="Ví dụ: 500000"
                           {...field}
-                          onChange={(e) => field.onChange(e.target.valueAsNumber || undefined)}
+                          value={field.value ?? 0}
+                          onChange={(e) => {
+                            const val = e.target.valueAsNumber
+                            field.onChange(Number.isNaN(val) ? 0 : val)
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -361,9 +382,34 @@ export function CoachClassesPanel() {
                   name="coverImageUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Ảnh bìa (URL)</FormLabel>
+                      <FormLabel>Ảnh bìa</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://..." {...field} />
+                        <div className="space-y-3">
+                          {field.value && (
+                            <div className="relative overflow-hidden rounded-lg border">
+                              <img
+                                src={field.value}
+                                alt="Preview"
+                                className="h-40 w-full object-cover"
+                              />
+                            </div>
+                          )}
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0]
+                              if (!file) return
+                              try {
+                                const url = await CoachMediaService.uploadImage(file)
+                                field.onChange(url)
+                                toast.success("Tải ảnh lên thành công")
+                              } catch {
+                                toast.error("Tải ảnh lên thất bại")
+                              }
+                            }}
+                          />
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>

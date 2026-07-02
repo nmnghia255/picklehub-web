@@ -1,14 +1,21 @@
 "use client"
 
 import { Search } from "lucide-react"
-import Link from "next/link"
-import { useMemo, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 import {
   Select,
   SelectContent,
@@ -20,23 +27,45 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 import { useCoachLearners } from "../hooks/use-coach-queries"
 
-const statusLabels: Record<string, string> = {
-  active: "Đang hoạt động",
-  inactive: "Không hoạt động",
+const kindLabels: Record<string, string> = {
+  all: "Tất cả",
+  class: "Lớp học",
+  booking: "Đặt lịch",
 }
 
-export function CoachStudentsTable() {
-  const [query, setQuery] = useState("")
-  const [status, setStatus] = useState<string>("all")
+const DEFAULT_LIMIT = 12
 
-  const { data, isLoading } = useCoachLearners({ search: query || undefined })
+export function CoachStudentsTable({
+  onSelect,
+}: {
+  onSelect?: (learnerId: string) => void
+}) {
+  const [search, setSearch] = useState("")
+  const [debouncedSearch, setDebouncedSearch] = useState("")
+  const [kind, setKind] = useState("all")
+  const [page, setPage] = useState(1)
+
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+
+  useEffect(() => {
+    debounceRef.current = setTimeout(() => {
+      setDebouncedSearch(search)
+      setPage(1)
+    }, 400)
+    return () => clearTimeout(debounceRef.current)
+  }, [search])
+
+  const params: { search?: string; kind?: string; page?: number; limit?: number } = {
+    page,
+    limit: DEFAULT_LIMIT,
+  }
+  if (debouncedSearch) params.search = debouncedSearch
+  if (kind !== "all") params.kind = kind
+
+  const { data, isLoading } = useCoachLearners(params)
 
   const students = data?.data ?? []
-
-  const filteredStudents = useMemo(() => {
-    if (status === "all") return students
-    return students.filter((s) => s.status === status)
-  }, [status, students])
+  const pagination = data?.pagination
 
   if (isLoading) {
     return (
@@ -64,51 +93,53 @@ export function CoachStudentsTable() {
         <div className="relative">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Tìm theo tên hoặc email"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Tìm theo tên, email hoặc ID"
             className="pl-9"
           />
         </div>
 
-        <Select value={status} onValueChange={setStatus}>
+        <Select
+          value={kind}
+          onValueChange={(value) => {
+            setKind(value)
+            setPage(1)
+          }}
+        >
           <SelectTrigger>
-            <SelectValue placeholder="Filter trạng thái" />
+            <SelectValue placeholder="Loại học viên" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tất cả</SelectItem>
-            <SelectItem value="active">Đang hoạt động</SelectItem>
-            <SelectItem value="inactive">Không hoạt động</SelectItem>
+            <SelectItem value="all">{kindLabels.all}</SelectItem>
+            <SelectItem value="class">{kindLabels.class}</SelectItem>
+            <SelectItem value="booking">{kindLabels.booking}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        {filteredStudents.map((student, index) => (
-          <Card key={student.id ?? index} className="rounded-2xl border shadow-sm">
+        {students.map((student) => (
+          <Card key={student.id} className="rounded-2xl border shadow-sm">
             <CardContent className="p-4">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-start gap-4">
                   <Avatar className="size-12">
-                    <AvatarImage src={student.avatar ?? ""} alt={student.name} />
+                    <AvatarImage
+                      src={student.avatarUrl}
+                      alt={student.name}
+                    />
                     <AvatarFallback>
-                      {(student.name ?? "?").slice(0, 2).toUpperCase()}
+                      {student.name.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
 
                   <div className="space-y-1">
                     <p className="font-semibold">{student.name}</p>
                     <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                      <Badge
-                        variant={
-                          student.status === "active" ? "default" : "secondary"
-                        }
-                        className="rounded-full"
-                      >
-                        {statusLabels[student.status]}
-                      </Badge>
-                      <span>{student.enrolledClassCount} lớp đã tham gia</span>
-                      <span>{student.completedBookingCount} buổi đã học</span>
+                      <span>{student.classEnrollmentCount} lớp tham gia</span>
+                      <span>{student.activeClassEnrollmentCount} lớp đang hoạt động</span>
+                      <span>{student.privateBookingCount} lịch đặt riêng</span>
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {student.email}
@@ -117,10 +148,12 @@ export function CoachStudentsTable() {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <Button asChild variant="outline" className="rounded-full">
-                    <Link href={`/coach/students/${student.id}`}>
-                      Xem hồ sơ
-                    </Link>
+                  <Button
+                    variant="outline"
+                    className="rounded-full"
+                    onClick={() => onSelect?.(student.id)}
+                  >
+                    Xem hồ sơ
                   </Button>
                 </div>
               </div>
@@ -129,11 +162,56 @@ export function CoachStudentsTable() {
         ))}
       </div>
 
-      {filteredStudents.length === 0 ? (
+      {students.length === 0 ? (
         <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
           Không tìm thấy học viên phù hợp.
         </div>
       ) : null}
+
+      {pagination && pagination.totalPages > 1 && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  setPage((p) => Math.max(1, p - 1))
+                }}
+                className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+              />
+            </PaginationItem>
+            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => (
+              <PaginationItem key={p}>
+                <PaginationLink
+                  href="#"
+                  isActive={p === page}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setPage(p)
+                  }}
+                >
+                  {p}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  setPage((p) => Math.min(pagination.totalPages, p + 1))
+                }}
+                className={
+                  page >= pagination.totalPages
+                    ? "pointer-events-none opacity-50"
+                    : ""
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   )
 }

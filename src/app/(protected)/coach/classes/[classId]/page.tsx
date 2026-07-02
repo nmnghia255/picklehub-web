@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import dayjs from "dayjs"
@@ -168,13 +169,17 @@ export default function CoachClassDetailPage() {
 
   useEffect(() => {
     if (classData) {
+      // Normalize: API may return null for string/number fields.
+      // React throws "value prop on input should not be null" and
+      // "changing controlled input to uncontrolled" when state flips
+      // from ""/0 → null → "".
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTitle(classData.title)
-      setDescription(classData.description)
-      setLevel(classData.level)
-      setCapacity(classData.capacity)
-      setPriceVnd(classData.priceVnd)
-      setLocationDescription(classData.locationDescription)
+      setTitle(classData.title ?? "")
+      setDescription(classData.description ?? "")
+      setLevel(classData.level ?? "Beginner")
+      setCapacity(classData.capacity ?? 0)
+      setPriceVnd(classData.priceVnd ?? 0)
+      setLocationDescription(classData.locationDescription ?? "")
       setStartDate(classData.startDate ? dayjs(classData.startDate).format("YYYY-MM-DD") : "")
       setEndDate(classData.endDate ? dayjs(classData.endDate).format("YYYY-MM-DD") : "")
     }
@@ -304,6 +309,9 @@ export default function CoachClassDetailPage() {
     <PageContainer variant="wide" className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/coach?tab=classes">← Quay lại</Link>
+          </Button>
           <h1 className="text-2xl font-semibold tracking-tight">{classData.title}</h1>
           <Badge variant={statusVariant[classData.status]}>
             {statusLabel[classData.status]}
@@ -339,7 +347,7 @@ export default function CoachClassDetailPage() {
                   <Label htmlFor="title">Tên lớp</Label>
                   <Input
                     id="title"
-                    value={title}
+                    value={title ?? ""}
                     onChange={(e) => setTitle(e.target.value)}
                     disabled={!canEdit}
                   />
@@ -347,7 +355,7 @@ export default function CoachClassDetailPage() {
                 <div className="space-y-2">
                   <Label htmlFor="level">Cấp độ</Label>
                   <Select
-                    value={level}
+                    value={level ?? undefined}
                     onValueChange={(v) => setLevel(v as CoachLevel)}
                     disabled={!canEdit}
                   >
@@ -368,7 +376,7 @@ export default function CoachClassDetailPage() {
                   <Input
                     id="capacity"
                     type="number"
-                    value={capacity}
+                    value={capacity ?? ""}
                     onChange={(e) => setCapacity(Number(e.target.value))}
                     disabled={!canEdit}
                   />
@@ -378,7 +386,7 @@ export default function CoachClassDetailPage() {
                   <Input
                     id="price"
                     type="number"
-                    value={priceVnd}
+                    value={priceVnd ?? ""}
                     onChange={(e) => setPriceVnd(Number(e.target.value))}
                     disabled={!canEdit}
                   />
@@ -388,7 +396,7 @@ export default function CoachClassDetailPage() {
                   <Input
                     id="startDate"
                     type="date"
-                    value={startDate}
+                    value={startDate ?? ""}
                     onChange={(e) => setStartDate(e.target.value)}
                     disabled={!canEdit}
                   />
@@ -398,7 +406,7 @@ export default function CoachClassDetailPage() {
                   <Input
                     id="endDate"
                     type="date"
-                    value={endDate}
+                    value={endDate ?? ""}
                     onChange={(e) => setEndDate(e.target.value)}
                     disabled={!canEdit}
                   />
@@ -408,7 +416,7 @@ export default function CoachClassDetailPage() {
                 <Label htmlFor="location">Địa điểm</Label>
                 <Input
                   id="location"
-                  value={locationDescription}
+                  value={locationDescription ?? ""}
                   onChange={(e) => setLocationDescription(e.target.value)}
                   disabled={!canEdit}
                   placeholder="Ví dụ: Sân PickleHub Quận 1"
@@ -418,7 +426,7 @@ export default function CoachClassDetailPage() {
                 <Label htmlFor="description">Mô tả</Label>
                 <Textarea
                   id="description"
-                  value={description}
+                  value={description ?? ""}
                   onChange={(e) => setDescription(e.target.value)}
                   disabled={!canEdit}
                   rows={4}
@@ -475,10 +483,10 @@ export default function CoachClassDetailPage() {
             <CardHeader>
               <CardTitle>Thống kê</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-4 sm:grid-cols-3">
+            <CardContent className="grid gap-4 grid-cols-1 md:grid-cols-3">
               <div className="flex items-center gap-3 rounded-lg border p-4">
-                <Users className="size-5 text-muted-foreground" />
-                <div>
+                <Users className="size-5 shrink-0 text-muted-foreground" />
+                <div className="min-w-0">
                   <p className="text-sm text-muted-foreground">Đã đăng ký</p>
                   <p className="text-lg font-semibold">
                     {classData.enrolledCount}/{classData.capacity}
@@ -486,8 +494,8 @@ export default function CoachClassDetailPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3 rounded-lg border p-4">
-                <DollarSign className="size-5 text-muted-foreground" />
-                <div>
+                <DollarSign className="size-5 shrink-0 text-muted-foreground" />
+                <div className="min-w-0">
                   <p className="text-sm text-muted-foreground">Học phí</p>
                   <p className="text-lg font-semibold">
                     {classData.priceVnd.toLocaleString("vi-VN")}₫
@@ -495,8 +503,8 @@ export default function CoachClassDetailPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3 rounded-lg border p-4">
-                <MapPin className="size-5 text-muted-foreground" />
-                <div>
+                <MapPin className="size-5 shrink-0 text-muted-foreground" />
+                <div className="min-w-0">
                   <p className="text-sm text-muted-foreground">Địa điểm</p>
                   <p className="text-lg font-semibold truncate">
                     {classData.locationDescription || "Chưa có"}
@@ -600,14 +608,14 @@ export default function CoachClassDetailPage() {
                   <Input
                     id="scheduleAt"
                     type="datetime-local"
-                    value={scheduleScheduledAt}
+                    value={scheduleScheduledAt ?? ""}
                     onChange={(e) => setScheduleScheduledAt(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="scheduleDuration">Thời lượng</Label>
                   <Select
-                    value={String(scheduleDuration)}
+                    value={String(scheduleDuration ?? 60)}
                     onValueChange={(v) => setScheduleDuration(Number(v))}
                   >
                     <SelectTrigger className="w-full">
@@ -626,7 +634,7 @@ export default function CoachClassDetailPage() {
                   <Label htmlFor="scheduleTopic">Chủ đề</Label>
                   <Input
                     id="scheduleTopic"
-                    value={scheduleTopic}
+                    value={scheduleTopic ?? ""}
                     onChange={(e) => setScheduleTopic(e.target.value)}
                     placeholder="Ví dụ: Kỹ thuật giao bóng"
                   />
@@ -635,7 +643,7 @@ export default function CoachClassDetailPage() {
                   <Label htmlFor="scheduleNote">Ghi chú</Label>
                   <Textarea
                     id="scheduleNote"
-                    value={scheduleNote}
+                    value={scheduleNote ?? ""}
                     onChange={(e) => setScheduleNote(e.target.value)}
                     rows={3}
                     placeholder="Ghi chú thêm (không bắt buộc)"

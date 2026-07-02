@@ -1,6 +1,14 @@
 "use client"
 
-import { useIncomingBookings, useConfirmBooking, useRejectBooking, useSettleBookingPayment, useCompleteBooking, useRejectBookingPayment, useCancelBookingCoach } from "@/features/coach/hooks/use-coach-queries"
+import {
+  useIncomingBookings,
+  useConfirmBooking,
+  useRejectBooking,
+  useSettleBookingPayment,
+  useCompleteBooking,
+  useRejectBookingPayment,
+  useCancelBookingCoach,
+} from "@/features/coach/hooks/use-coach-queries"
 import dayjs from "dayjs"
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
@@ -75,11 +83,13 @@ export function CoachBookingsPanel() {
   const settlePayment = useSettleBookingPayment()
   const completeBooking = useCompleteBooking()
   const rejectPayment = useRejectBookingPayment()
+  const cancelBookingCoach = useCancelBookingCoach()
   const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; booking: Booking | null; note: string }>({ open: false, booking: null, note: "" })
   const [rejectDialog, setRejectDialog] = useState<{ open: boolean; booking: Booking | null; reason: string }>({ open: false, booking: null, reason: "" })
   const [settleDialog, setSettleDialog] = useState<{ open: boolean; booking: Booking | null }>({ open: false, booking: null })
   const [completeDialog, setCompleteDialog] = useState<{ open: boolean; booking: Booking | null }>({ open: false, booking: null })
   const [proofDialog, setProofDialog] = useState<{ open: boolean; booking: Booking | null }>({ open: false, booking: null })
+  const [cancelDialog, setCancelDialog] = useState<{ open: boolean; booking: Booking | null; reason: string }>({ open: false, booking: null, reason: "" })
 
   function handleConfirm() {
     const b = confirmDialog.booking
@@ -142,6 +152,21 @@ export function CoachBookingsPanel() {
     })
   }
 
+  function handleCancelBooking() {
+    const b = cancelDialog.booking
+    if (!b) return
+    cancelBookingCoach.mutate(
+      { bookingId: b.id, cancelReason: cancelDialog.reason || undefined },
+      {
+        onSuccess: () => {
+          toast.success("Đã hủy lịch học")
+          setCancelDialog({ open: false, booking: null, reason: "" })
+        },
+        onError: () => toast.error("Hủy lịch thất bại"),
+      }
+    )
+  }
+
   function renderActions(booking: Booking) {
     if (booking.status === "PENDING_CONFIRMATION") {
       return (
@@ -177,13 +202,23 @@ export function CoachBookingsPanel() {
 
       if (booking.paymentStatus === "SETTLED") {
         return (
-          <Button
-            size="sm"
-            onClick={() => setCompleteDialog({ open: true, booking })}
-            disabled={completeBooking.isPending && completeDialog.booking?.id === booking.id}
-          >
-            <CheckCircle2 /> Hoàn thành buổi học
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              onClick={() => setCompleteDialog({ open: true, booking })}
+              disabled={completeBooking.isPending && completeDialog.booking?.id === booking.id}
+            >
+              <CheckCircle2 /> Hoàn thành buổi học
+            </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => setCancelDialog({ open: true, booking, reason: "" })}
+              disabled={cancelBookingCoach.isPending}
+            >
+              <Ban /> Hủy lịch
+            </Button>
+          </div>
         )
       }
 
@@ -212,7 +247,28 @@ export function CoachBookingsPanel() {
             >
               <XCircle /> Từ chối thanh toán
             </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setCancelDialog({ open: true, booking, reason: "" })}
+              disabled={cancelBookingCoach.isPending}
+            >
+              <Ban /> Hủy lịch
+            </Button>
           </div>
+        )
+      }
+
+      if (booking.paymentStatus === null || booking.paymentStatus === undefined) {
+        return (
+          <Button
+            size="sm"
+            variant="destructive"
+            onClick={() => setCancelDialog({ open: true, booking, reason: "" })}
+            disabled={cancelBookingCoach.isPending}
+          >
+            <Ban /> Hủy lịch
+          </Button>
         )
       }
 
@@ -237,7 +293,6 @@ export function CoachBookingsPanel() {
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-muted-foreground">Xem và xử lý các yêu cầu đặt lịch từ học viên.</p>
 
       {meta && (
         <div className="flex gap-4">
@@ -286,7 +341,7 @@ export function CoachBookingsPanel() {
 
                 <div className="flex-1 space-y-1.5">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold">{booking.learnerProfile?.fullName ?? "Học viên"}</span>
+                    <span className="font-semibold">{booking.learnerProfile?.name ?? booking.learnerProfile?.fullName ?? "Học viên"}</span>
                     <Badge variant={STATUS_VARIANT[booking.status] ?? "default"}>
                       {booking.status === "PENDING_CONFIRMATION"
                         ? "Chờ xác nhận"
@@ -446,6 +501,31 @@ export function CoachBookingsPanel() {
             </Button>
             <Button onClick={handleComplete} disabled={completeBooking.isPending}>
               {completeBooking.isPending ? "Đang xử lý..." : "Hoàn thành"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={cancelDialog.open} onOpenChange={(open) => setCancelDialog((prev) => ({ ...prev, open }))}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hủy lịch học</DialogTitle>
+            <DialogDescription>Bạn có chắc muốn hủy lịch học này? Hành động này sẽ thông báo đến học viên.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Lý do (không bắt buộc)</label>
+            <Textarea
+              placeholder="Nhập lý do hủy lịch..."
+              value={cancelDialog.reason}
+              onChange={(e) => setCancelDialog((prev) => ({ ...prev, reason: e.target.value }))}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCancelDialog({ open: false, booking: null, reason: "" })}>
+              Giữ lịch
+            </Button>
+            <Button variant="destructive" onClick={handleCancelBooking} disabled={cancelBookingCoach.isPending}>
+              {cancelBookingCoach.isPending ? "Đang xử lý..." : "Xác nhận hủy"}
             </Button>
           </DialogFooter>
         </DialogContent>

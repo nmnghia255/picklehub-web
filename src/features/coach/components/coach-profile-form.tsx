@@ -12,6 +12,7 @@ import {
   MapPin,
   Plus,
   Save,
+  Send,
   Star,
   Trash2,
   Users,
@@ -50,6 +51,7 @@ import {
   useDeleteCertification,
   useMyCertifications,
   useMyCoachProfile,
+  usePublishMyProfile,
   useUpdateMyCoachProfile,
 } from "../hooks/use-coach-queries"
 
@@ -110,6 +112,7 @@ export function CoachProfileForm() {
   const { data: profile, isLoading: profileLoading } = useMyCoachProfile()
   const { data: certs, isLoading: certsLoading } = useMyCertifications()
   const updateProfile = useUpdateMyCoachProfile()
+  const publishProfile = usePublishMyProfile()
   const addCert = useAddCertification()
   const deleteCert = useDeleteCertification()
 
@@ -279,6 +282,17 @@ export function CoachProfileForm() {
               </p>
               <p className="mt-1 text-2xl font-semibold">{pendingCount}</p>
             </div>
+            {profile?.status === "DRAFT" && (
+              <Button
+                type="button"
+                className="rounded-full col-span-full"
+                onClick={() => publishProfile.mutate()}
+                disabled={publishProfile.isPending}
+              >
+                <Send className="size-4" />
+                {publishProfile.isPending ? "Đang công khai..." : "Công khai hồ sơ"}
+              </Button>
+            )}
           </div>
         </div>
       </section>
@@ -752,6 +766,12 @@ export function CoachProfileForm() {
       {updateProfile.isSuccess && (
         <p className="text-sm font-medium text-green-600">
           Đã cập nhật hồ sơ thành công!
+        </p>
+      )}
+
+      {publishProfile.isSuccess && (
+        <p className="text-sm font-medium text-green-600">
+          Hồ sơ đã được công khai!
         </p>
       )}
 

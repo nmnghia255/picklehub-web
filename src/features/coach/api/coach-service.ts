@@ -1,6 +1,7 @@
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type * as CoachTypes from "../types/coach"
+import { normalizeCoachScheduleResponse } from "../utils/coach-schedule-mapper"
 import type {
   ApiResponse,
   Booking,
@@ -166,8 +167,8 @@ export const CoachService = {
     sort?: string
   }): Promise<CoachScheduleResponse> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<CoachScheduleResponse>("/api/coach/schedule", { params })
-    return response.data
+    const response = await axios.get<CoachTypes.CoachScheduleApiResponse>("/api/coach/schedule", { params })
+    return normalizeCoachScheduleResponse(response.data)
   },
 
   // ===================== Class Schedules - Coach Actions =====================

@@ -65,11 +65,12 @@ async function proxyRequest(request: NextRequest, pathSegments: string[]) {
     headers["authorization"] = `Bearer ${session.accessToken}`
   }
 
-  const init: RequestInit = {
+  const init: RequestInit & { duplex?: string } = {
     method: request.method,
     headers,
     body: request.body ?? undefined,
     redirect: "manual",
+    ...(request.body ? { duplex: "half" } : {}),
   }
 
   if (request.method === "OPTIONS") {
