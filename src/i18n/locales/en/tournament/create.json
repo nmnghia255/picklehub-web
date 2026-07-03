@@ -32,7 +32,6 @@
     "step2": {
       "regOpenLabel": "Registration Opens *",
       "regCloseLabel": "Registration Closes *",
-      "maxParticipantsLabel": "Maximum Participants",
       "enableWaitlist": "Enable Waitlist",
       "enableWaitlistDesc": "Allow players to join waitlist when tournament is full",
       "requirePartner": "Require Partner Registration",
@@ -114,7 +113,6 @@
       "name": "Tournament Name",
       "venue": "Venue",
       "dates": "Dates",
-      "maxParticipants": "Max Participants",
       "description": "Description",
       "entryFee": "Entry Fee",
       "championPrize": "Champion Prize",
@@ -136,7 +134,6 @@
       "regCloseBeforeStart": "Registration must close before the tournament starts",
       "minEvents": "Please add at least one event",
       "incompletePrizes": "Please configure prizes for all placement positions in all events",
-      "maxParticipants": "Maximum participants must be a number greater than 0",
       "bankRequired": "Bank Name is required",
       "accountNameRequired": "Account Holder Name is required",
       "accountNumberRequired": "Account Number is required"

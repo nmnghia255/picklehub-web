@@ -1,15 +1,26 @@
 import { create } from "zustand"
 
+import { getTournamentCentersAction } from "../actions/booking-actions"
 import {
   assignRefereeToMatchAction,
   unassignRefereeFromMatchAction,
 } from "../actions/referee-actions"
 import {
+  getAvailableCourtsAction,
+  getBookedSlotsAction,
   getTournamentFixturesWithScheduleAction,
   linkBookingItemToFixtureAction,
   unlinkBookingItemFromFixtureAction,
 } from "../actions/schedule-actions"
+import type { BookingItemResponse, TournamentBooking } from "../types/booking"
 import type { Match, MatchWarning } from "../types/match"
+import type {
+  AutoScheduleConfigDto,
+  PreviewAssignment,
+} from "../types/schedule"
+import type { TournamentCenter } from "../types/tournament-center"
+import type { CourtInfo, TournamentCourt } from "../types/tournament-court"
+import type { TournamentEvent } from "../types/tournament-event"
 
 interface FixtureRawData {
   id: number | string
@@ -35,10 +46,14 @@ interface FixtureRawData {
   warnings?: MatchWarning[] | null
 }
 
-const defaultCourts = ["Court 1", "Court 2", "Court 3", "Court 4"]
-
 // Helper function to compute stable arrays from state
-const computeDerivations = (fixtures: Match[], selectedEventId: string) => {
+const computeDerivations = (
+  fixtures: Match[],
+  selectedEventId: string,
+  selectedCenterId: string,
+  selectedDate: string,
+  bookings: TournamentBooking[]
+) => {
   const unscheduledMatches = fixtures.filter(
     (m) =>
       !m.court &&
@@ -55,10 +70,30 @@ const computeDerivations = (fixtures: Match[], selectedEventId: string) => {
         m.eventId?.toString() === selectedEventId)
   )
 
-  const uniqueCourts = Array.from(
-    new Set(fixtures.map((f) => f.court).filter(Boolean))
-  ) as string[]
-  const courtsList = uniqueCourts.length > 0 ? uniqueCourts : defaultCourts
+  // Filter bookings for the selected center and selected date that are active (not CANCELLED or EXPIRED)
+  const centerBookings = bookings.filter(
+    (b) =>
+      b.centerId === selectedCenterId &&
+      b.date &&
+      (b.date === selectedDate || b.date.startsWith(selectedDate)) &&
+      b.statusMirror &&
+      b.statusMirror.toUpperCase() !== "CANCELLED" &&
+      b.statusMirror.toUpperCase() !== "EXPIRED"
+  )
+
+  // Extract unique court objects from these bookings' items
+  const uniqueCourtsMap: Record<string, string> = {}
+  centerBookings
+    .flatMap((b) => b.items || [])
+    .forEach((item) => {
+      if (item.courtId && item.court?.name) {
+        uniqueCourtsMap[item.courtId] = item.court.name
+      }
+    })
+
+  const courtsList: CourtInfo[] = Object.entries(uniqueCourtsMap).map(
+    ([courtId, courtName]) => ({ courtId, courtName })
+  )
 
   return { unscheduledMatches, scheduledMatches, courtsList }
 }
@@ -66,14 +101,19 @@ const computeDerivations = (fixtures: Match[], selectedEventId: string) => {
 interface SchedulingState {
   tournamentId: number | null
   fixtures: Match[]
+  bookings: TournamentBooking[]
+  centers: TournamentCenter[]
+  availableCourts: TournamentCourt[]
+  events: TournamentEvent[]
   isLoading: boolean
   selectedDate: string
   selectedEventId: string
+  selectedCenterId: string
 
   // Cached derivations
   unscheduledMatches: Match[]
   scheduledMatches: Match[]
-  courtsList: string[]
+  courtsList: CourtInfo[]
 
   // Modals state
   showAutoSchedule: boolean
@@ -84,28 +124,54 @@ interface SchedulingState {
 
   // Setters
   setTournamentId: (id: number | null) => void
+  setEvents: (events: TournamentEvent[]) => void
   setSelectedDate: (date: string) => void
   setSelectedEventId: (eventId: string) => void
+  setSelectedCenterId: (centerId: string) => void
   setShowAutoSchedule: (show: boolean) => void
   setShowAssignReferee: (show: boolean) => void
   setSelectedMatchForReferee: (match: Match | null) => void
   setShowManualSchedule: (show: boolean) => void
   setSelectedMatchForManual: (match: Match | null) => void
 
+  // Preview state
+  autoScheduleConfig: AutoScheduleConfigDto | null
+  previewAssignments: PreviewAssignment[]
+  previewEventId: string | null
+  isPreviewMode: boolean
+  viewMode: "normal" | "preview"
+  setViewMode: (viewMode: "normal" | "preview") => void
+  setPreview: (
+    config: AutoScheduleConfigDto,
+    assignments: PreviewAssignment[],
+    eventId: string
+  ) => void
+  clearPreview: () => void
+  updatePreviewAssignment: (
+    matchId: number | string,
+    updates: {
+      bookingId: number
+      bookingItemId: string
+      courtName: string
+      startTime: string
+      endTime: string
+    }
+  ) => void
+
   // Actions
   loadSchedule: () => Promise<void>
+  loadAvailableCourts: () => Promise<void>
   unscheduleMatch: (
     fixtureId: string
   ) => Promise<{ success: boolean; error?: string }>
   assignReferee: (
-    refereeId: string,
-    refereeName: string
+    refereeId: string
   ) => Promise<{ success: boolean; error?: string }>
   unassignReferee: (
     fixtureId: string
   ) => Promise<{ success: boolean; error?: string }>
   manualSchedule: (
-    courtName: string,
+    courtId: string,
     timeSlot: string
   ) => Promise<{ success: boolean; error?: string }>
   reset: () => void
@@ -114,13 +180,18 @@ interface SchedulingState {
 export const useSchedulingStore = create<SchedulingState>((set, get) => ({
   tournamentId: null,
   fixtures: [],
+  bookings: [],
+  centers: [],
+  availableCourts: [],
+  events: [],
   isLoading: true,
   selectedDate: "",
   selectedEventId: "all",
+  selectedCenterId: "",
 
   unscheduledMatches: [],
   scheduledMatches: [],
-  courtsList: defaultCourts,
+  courtsList: [],
 
   showAutoSchedule: false,
   showAssignReferee: false,
@@ -128,11 +199,58 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
   showManualSchedule: false,
   selectedMatchForManual: null,
 
+  autoScheduleConfig: null,
+  previewAssignments: [],
+  previewEventId: null,
+  isPreviewMode: false,
+  viewMode: "normal",
+  setViewMode: (viewMode) => set({ viewMode }),
+  setPreview: (autoScheduleConfig, previewAssignments, previewEventId) =>
+    set({
+      autoScheduleConfig,
+      previewAssignments,
+      previewEventId,
+      isPreviewMode: true,
+      viewMode: "preview",
+    }),
+  clearPreview: () =>
+    set({
+      autoScheduleConfig: null,
+      previewAssignments: [],
+      previewEventId: null,
+      isPreviewMode: false,
+      viewMode: "normal",
+    }),
+  updatePreviewAssignment: (matchId, updates) =>
+    set((state) => ({
+      previewAssignments: state.previewAssignments.map((a) =>
+        a.matchId.toString() === matchId.toString() ? { ...a, ...updates } : a
+      ),
+    })),
+
   setTournamentId: (tournamentId) => set({ tournamentId }),
-  setSelectedDate: (selectedDate) => set({ selectedDate }),
+  setEvents: (events) => set({ events }),
+  setSelectedDate: (selectedDate) => {
+    const current = get().selectedDate
+    if (current === selectedDate) return
+    set({ selectedDate })
+    get().loadSchedule()
+  },
+  setSelectedCenterId: (selectedCenterId) => {
+    const current = get().selectedCenterId
+    if (current === selectedCenterId) return
+    set({ selectedCenterId })
+    get().loadSchedule()
+  },
   setSelectedEventId: (selectedEventId) => {
-    const { fixtures } = get()
-    const derivations = computeDerivations(fixtures, selectedEventId)
+    const { fixtures, selectedCenterId, selectedDate, bookings } = get()
+    const derivations = computeDerivations(
+      fixtures,
+      selectedEventId,
+      selectedCenterId,
+      selectedDate,
+      bookings
+    )
     set({ selectedEventId, ...derivations })
   },
   setShowAutoSchedule: (showAutoSchedule) => set({ showAutoSchedule }),
@@ -144,14 +262,113 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
     set({ selectedMatchForManual }),
 
   loadSchedule: async () => {
-    const { tournamentId, selectedEventId } = get()
+    const {
+      tournamentId,
+      selectedEventId,
+      selectedCenterId,
+      selectedDate,
+      events,
+    } = get()
     if (!tournamentId) return
 
     set({ isLoading: true })
     try {
-      const res = await getTournamentFixturesWithScheduleAction(tournamentId)
-      if (res.success && res.data) {
-        let rawFixtures: FixtureRawData[] = []
+      const [fixturesRes, centersRes] = await Promise.all([
+        getTournamentFixturesWithScheduleAction(tournamentId),
+        getTournamentCentersAction(tournamentId.toString()),
+      ])
+
+      let loadedCenters: TournamentCenter[] = []
+      let newCenterId = selectedCenterId
+
+      if (centersRes.success && centersRes.data) {
+        const rawCenters = centersRes.data
+        loadedCenters = Array.isArray(rawCenters)
+          ? rawCenters
+          : rawCenters &&
+              typeof rawCenters === "object" &&
+              "centers" in rawCenters &&
+              Array.isArray((rawCenters as Record<string, unknown>).centers)
+            ? ((rawCenters as Record<string, unknown>)
+                .centers as TournamentCenter[])
+            : rawCenters &&
+                typeof rawCenters === "object" &&
+                "data" in rawCenters &&
+                Array.isArray((rawCenters as Record<string, unknown>).data)
+              ? ((rawCenters as Record<string, unknown>)
+                  .data as TournamentCenter[])
+              : []
+      }
+
+      // If selectedCenterId is not set, default to first center
+      if (!newCenterId && loadedCenters.length > 0) {
+        newCenterId = loadedCenters[0].centerId
+      }
+
+      let loadedBookings: TournamentBooking[] = []
+      if (newCenterId && selectedDate) {
+        const bookedRes = await getBookedSlotsAction(
+          tournamentId,
+          newCenterId,
+          selectedDate
+        )
+        if (bookedRes.success && bookedRes.data) {
+          const rawBooked = bookedRes.data as unknown as BookingItemResponse[]
+
+          const slotsByBookingId: Record<
+            number,
+            {
+              bookingId: number
+              centerId: string
+              date: string
+              items: NonNullable<TournamentBooking["items"]>
+            }
+          > = {}
+
+          rawBooked.forEach((item) => {
+            const bId = item.bookingId || 1
+            const centerVal = newCenterId
+            const dateVal = item.date || selectedDate
+
+            if (!slotsByBookingId[bId]) {
+              slotsByBookingId[bId] = {
+                bookingId: bId,
+                centerId: centerVal,
+                date: dateVal,
+                items: [],
+              }
+            }
+
+            slotsByBookingId[bId].items.push({
+              id: item.bookingItemId,
+              courtId: item.courtId,
+              startTime: item.startTime,
+              endTime: item.endTime,
+              court: {
+                id: item.courtId,
+                name: item.courtName,
+              },
+            })
+          })
+
+          loadedBookings = Object.values(slotsByBookingId).map((group) => ({
+            id: group.bookingId,
+            tournamentId: Number(tournamentId),
+            externalBookingId: "",
+            centerId: group.centerId,
+            date: group.date,
+            statusMirror: "CONFIRMED",
+            totalPrice: null,
+            createdAt: "",
+            updatedAt: "",
+            items: group.items,
+          }))
+        }
+      }
+
+      let rawFixtures: FixtureRawData[] = []
+      if (fixturesRes.success && fixturesRes.data) {
+        const res = fixturesRes
         if (Array.isArray(res.data)) {
           rawFixtures = res.data
         } else if (res.data && typeof res.data === "object") {
@@ -169,11 +386,43 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
               .data as FixtureRawData[]
           }
         }
+      }
 
-        const mappedMatches: Match[] = rawFixtures.map((f) => ({
+      const mappedMatches: Match[] = rawFixtures.map((f) => {
+        let startTime = f.startTime || undefined
+        let courtName = f.court || undefined
+
+        if (f.bookingId && f.bookingItemId) {
+          const booking = loadedBookings.find(
+            (b) => b.id === Number(f.bookingId)
+          )
+          if (booking) {
+            const item = booking.items?.find((i) => i.id === f.bookingItemId)
+            if (item) {
+              if (booking.date && item.startTime) {
+                startTime = `${booking.date}T${item.startTime}`
+              }
+              if (item.court?.name) {
+                courtName = item.court.name
+              }
+            }
+          }
+        }
+
+        let eventId = f.eventId || 0
+        if (f.event && events && events.length > 0) {
+          const foundEvent = events.find(
+            (e) => e.name.toLowerCase() === f.event?.toLowerCase()
+          )
+          if (foundEvent) {
+            eventId = foundEvent.id
+          }
+        }
+
+        return {
           id: f.id,
           tournamentId: tournamentId,
-          eventId: f.eventId || 0,
+          eventId: eventId,
           event: f.event,
           round: f.round,
           team1:
@@ -187,11 +436,11 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
           winner: f.winner,
           score: f.score,
           status: f.status || "pending",
-          court: f.court,
+          court: courtName,
           courtId: f.courtId,
           courtStatus: f.courtStatus,
           time: f.time,
-          startTime: f.startTime,
+          startTime: startTime,
           duration: f.duration || 45,
           priority: f.priority || "medium",
           refereeId: f.refereeId,
@@ -199,14 +448,73 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
           bookingId: f.bookingId ? Number(f.bookingId) : null,
           bookingItemId: f.bookingItemId,
           warnings: f.warnings || [],
-        }))
-        const derivations = computeDerivations(mappedMatches, selectedEventId)
-        set({ fixtures: mappedMatches, ...derivations })
-      }
+        }
+      })
+
+      const derivations = computeDerivations(
+        mappedMatches,
+        selectedEventId,
+        newCenterId,
+        selectedDate,
+        loadedBookings
+      )
+
+      set({
+        fixtures: mappedMatches,
+        bookings: loadedBookings,
+        centers: loadedCenters,
+        selectedCenterId: newCenterId,
+        ...derivations,
+      })
     } catch (err) {
       console.error(err)
     } finally {
       set({ isLoading: false })
+    }
+  },
+
+  loadAvailableCourts: async () => {
+    const { tournamentId, selectedCenterId, selectedDate } = get()
+    if (!tournamentId || !selectedCenterId || !selectedDate) {
+      set({ availableCourts: [], courtsList: [] })
+      return
+    }
+
+    try {
+      const res = await getAvailableCourtsAction(
+        tournamentId,
+        selectedCenterId,
+        selectedDate
+      )
+      if (res.success && res.data) {
+        const rawCourts = res.data
+        const availableCourts = Array.isArray(rawCourts)
+          ? rawCourts
+          : rawCourts && typeof rawCourts === "object"
+            ? [rawCourts as TournamentCourt]
+            : []
+
+        // Extract unique court objects from availableCourts
+        const uniqueCourtsMap: Record<string, string> = {}
+        availableCourts
+          .flatMap((tc) => tc.courts || [])
+          .forEach((c) => {
+            if (c.courtId && c.courtName) {
+              uniqueCourtsMap[c.courtId] = c.courtName
+            }
+          })
+
+        const courtsList: CourtInfo[] = Object.entries(uniqueCourtsMap).map(
+          ([courtId, courtName]) => ({ courtId, courtName })
+        )
+
+        set({ availableCourts, courtsList })
+      } else {
+        set({ availableCourts: [], courtsList: [] })
+      }
+    } catch (err) {
+      console.error("Error loading available courts:", err)
+      set({ availableCourts: [], courtsList: [] })
     }
   },
 
@@ -233,7 +541,7 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
     }
   },
 
-  assignReferee: async (refereeId, refereeName) => {
+  assignReferee: async (refereeId) => {
     const { tournamentId, selectedMatchForReferee, loadSchedule } = get()
     if (!tournamentId || !selectedMatchForReferee) {
       return { success: false, error: "Missing required details" }
@@ -243,8 +551,7 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
       const res = await assignRefereeToMatchAction(
         tournamentId.toString(),
         selectedMatchForReferee.id.toString(),
-        refereeId,
-        refereeName
+        refereeId
       )
       if (res.success) {
         set({ showAssignReferee: false, selectedMatchForReferee: null })
@@ -281,10 +588,58 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
     }
   },
 
-  manualSchedule: async (courtName, timeSlot) => {
-    const { tournamentId, selectedMatchForManual, loadSchedule } = get()
+  manualSchedule: async (courtId, timeSlot) => {
+    const {
+      tournamentId,
+      selectedMatchForManual,
+      selectedDate,
+      selectedCenterId,
+      bookings,
+      loadSchedule,
+    } = get()
     if (!tournamentId || !selectedMatchForManual) {
       return { success: false, error: "Missing required details" }
+    }
+
+    let foundBookingId: number | null = null
+    let foundBookingItemId: string | null = null
+
+    for (const booking of bookings) {
+      if (booking.centerId !== selectedCenterId) continue
+      if (!booking.date) continue
+
+      const bDate = booking.date.split("T")[0]
+      if (bDate !== selectedDate) continue
+
+      if (
+        booking.statusMirror.toUpperCase() === "CANCELLED" ||
+        booking.statusMirror.toUpperCase() === "EXPIRED"
+      ) {
+        continue
+      }
+
+      if (booking.items) {
+        const item = booking.items.find((it) => {
+          if (it.courtId !== courtId) return false
+
+          const itemTime = it.startTime.substring(0, 5)
+          return itemTime === timeSlot
+        })
+
+        if (item) {
+          foundBookingId = booking.id
+          foundBookingItemId = item.id
+          break
+        }
+      }
+    }
+
+    if (!foundBookingId || !foundBookingItemId) {
+      return {
+        success: false,
+        error:
+          "No matching active booking slot found for the selected court and time.",
+      }
     }
 
     try {
@@ -292,8 +647,8 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
         tournamentId,
         selectedMatchForManual.id.toString(),
         {
-          bookingId: 1, // Mock Booking ID
-          bookingItemId: `${courtName}_${timeSlot}`,
+          bookingId: foundBookingId,
+          bookingItemId: foundBookingItemId,
         }
       )
       if (res.success) {
@@ -301,7 +656,10 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
         await loadSchedule()
         return { success: true }
       }
-      return { success: false, error: res.error || "Failed to schedule match" }
+      return {
+        success: false,
+        error: res.error || "Failed to schedule match",
+      }
     } catch (err) {
       console.error(err)
       return { success: false, error: "An unexpected error occurred" }
@@ -312,17 +670,26 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
     set({
       tournamentId: null,
       fixtures: [],
+      bookings: [],
+      centers: [],
+      availableCourts: [],
       isLoading: true,
       selectedDate: "",
       selectedEventId: "all",
+      selectedCenterId: "",
       unscheduledMatches: [],
       scheduledMatches: [],
-      courtsList: defaultCourts,
+      courtsList: [],
       showAutoSchedule: false,
       showAssignReferee: false,
       selectedMatchForReferee: null,
       showManualSchedule: false,
       selectedMatchForManual: null,
+      autoScheduleConfig: null,
+      previewAssignments: [],
+      previewEventId: null,
+      isPreviewMode: false,
+      viewMode: "normal",
     }),
 }))
 
@@ -332,3 +699,23 @@ export const useUnscheduledMatches = () =>
 export const useScheduledMatches = () =>
   useSchedulingStore((s) => s.scheduledMatches)
 export const useCourtsList = () => useSchedulingStore((s) => s.courtsList)
+export const useBookings = () => useSchedulingStore((s) => s.bookings)
+export const useCenters = () => useSchedulingStore((s) => s.centers)
+export const useSelectedCenterId = () =>
+  useSchedulingStore((s) => s.selectedCenterId)
+export const useAvailableCourts = () =>
+  useSchedulingStore((s) => s.availableCourts)
+
+export const useIsPreviewMode = () => useSchedulingStore((s) => s.isPreviewMode)
+export const usePreviewAssignments = () =>
+  useSchedulingStore((s) => s.previewAssignments)
+export const useAutoScheduleConfig = () =>
+  useSchedulingStore((s) => s.autoScheduleConfig)
+export const usePreviewEventId = () =>
+  useSchedulingStore((s) => s.previewEventId)
+
+export const useUpdatePreviewAssignment = () =>
+  useSchedulingStore((s) => s.updatePreviewAssignment)
+
+export const useViewMode = () => useSchedulingStore((s) => s.viewMode)
+export const useSetViewMode = () => useSchedulingStore((s) => s.setViewMode)

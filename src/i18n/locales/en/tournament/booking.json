@@ -55,6 +55,7 @@
       "eventLabel": "Tournament Event",
       "selectPlaceholder": "Search and select an event...",
       "noEvents": "No events found for this tournament.",
+      "noGroupStage": "No events have a group stage set up yet. Please create a group stage first.",
       "matchesLabel": "matches",
       "requirementHint": "You will need to book at least {{count}} court slot(s) to cover all matches in this event.",
       "generalBookingLabel": "Book without linking to a specific event (General / Additional booking)",

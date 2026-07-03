@@ -312,7 +312,6 @@ export function TournamentList({
                         <Users className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
                         {t("list.registered", {
                           count: tournament.registered ?? 0,
-                          capacity: tournament.capacity,
                         })}
                       </div>
                     </div>

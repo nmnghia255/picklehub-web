@@ -1,6 +1,5 @@
 export interface ConfigureGroupStageRequest {
   numGroups: number
-  advancePerGroup: number
   advanceMethod: string
   totalAdvance: number // number of teams advancing to the knockout stage
 }

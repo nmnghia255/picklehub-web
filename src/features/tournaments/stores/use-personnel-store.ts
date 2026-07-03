@@ -161,8 +161,7 @@ export const usePersonnelStore = create<PersonnelState>((set, get) => ({
       const res = await assignRefereeToMatchAction(
         tournamentId,
         matchId,
-        refereeId,
-        refereeName
+        refereeId
       )
       if (res.success) {
         await fetchMatches()

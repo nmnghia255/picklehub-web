@@ -9,6 +9,7 @@
     "numGroupsLabel": "Number of Groups",
     "advancePerGroupLabel": "Advancement Per Group",
     "saveConfigBtn": "Save Configuration",
+    "configSavedBtn": "Configuration Saved",
     "drawCardTitle": "Group Draw",
     "drawCardDesc": "Select priority teams (placed in Pot 1) and perform draw.",
     "priorityTeamsLabel": "Priority Teams (Pot 1)",

@@ -13,6 +13,8 @@ export interface TournamentSchedule {
   externalMatchId: string
   bookingId: string
   bookingItemId: string
+  refereeId: string
+  refereeName: string
 }
 
 interface Team {
@@ -45,15 +47,17 @@ export interface AutoScheduleConfigDto {
   restDurationMinutes: number
   minBreakBetweenMatchesMinutes: number
   optimizationCriteria: "fastest" | "balanced" | "max_rest"
-  courtIds: string[]
 }
 
 export interface PreviewAssignment {
   matchId: number
-  courtId: string
-  courtName: string
-  scheduledStartTime: string // ISO date string
-  scheduledEndTime: string // ISO date string
+  round?: string
+  team1Name?: string
+  team2Name?: string
+  courtName: string // API returns the court GUID in this field
+  date: string // e.g. "2026-07-25"
+  startTime: string // e.g. "10:30"
+  endTime: string // e.g. "11:00"
   bookingId: number
   bookingItemId: string
 }

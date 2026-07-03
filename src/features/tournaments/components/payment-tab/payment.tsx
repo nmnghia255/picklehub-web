@@ -129,7 +129,6 @@ export function PaymentTab({ tournament, isHost }: PaymentTabProps) {
       venue: tournament.venue,
       startDate: tournament.startDate,
       endDate: tournament.endDate,
-      capacity: tournament.capacity,
       banner: tournament.banner,
       description: tournament.description,
       registrationStartDate: tournament.registrationStartDate,

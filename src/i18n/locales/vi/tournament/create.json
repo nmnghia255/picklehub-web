@@ -35,7 +35,6 @@
     "step2": {
       "regOpenLabel": "Mở đăng ký *",
       "regCloseLabel": "Đóng đăng ký *",
-      "maxParticipantsLabel": "Số lượng tối đa",
       "enableWaitlist": "Cho phép danh sách chờ",
       "enableWaitlistDesc": "Cho phép người chơi tham gia danh sách chờ khi giải đấu đầy",
       "requirePartner": "Yêu cầu đăng ký theo cặp",
@@ -111,7 +110,6 @@
       "name": "Tên giải đấu",
       "venue": "Địa điểm",
       "dates": "Ngày diễn ra",
-      "maxParticipants": "Số người tham gia tối đa",
       "description": "Mô tả",
       "entryFee": "Phí tham gia",
       "championPrize": "Giải Nhất",
@@ -133,7 +131,6 @@
       "regCloseBeforeStart": "Hạn đăng ký phải đóng trước khi giải đấu bắt đầu",
       "minEvents": "Vui lòng thêm ít nhất một nội dung thi đấu",
       "incompletePrizes": "Vui lòng cấu hình giải thưởng cho tất cả các vị trí trong tất cả sự kiện",
-      "maxParticipants": "Số lượng tối đa phải là một số lớn hơn 0",
       "bankRequired": "Vui lòng điền tên ngân hàng",
       "accountNameRequired": "Vui lòng điền tên chủ tài khoản",
       "accountNumberRequired": "Vui lòng điền số tài khoản"

@@ -126,18 +126,6 @@ export function CreateTournament() {
           )
           return false
         }
-        if (
-          !formValues.maxParticipants ||
-          Number(formValues.maxParticipants) <= 0
-        ) {
-          toast.error(
-            t("create.validation.maxParticipants", {
-              defaultValue:
-                "Maximum participants must be a number greater than 0",
-            })
-          )
-          return false
-        }
         return true
 
       case 3:
@@ -245,7 +233,6 @@ export function CreateTournament() {
         venue: formValues.venue,
         startDate: formValues.startDate,
         endDate: formValues.endDate,
-        capacity: Number(formValues.maxParticipants) || 0,
         banner:
           formValues.banner ||
           "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=800&q=80",

@@ -86,4 +86,13 @@ export const TournamentScheduleService = {
     )
     return unwrapApiResponse(response.data)
   },
+
+  // Returns the event fixtures enriched to the FE Match shape.
+  getEventFixtures: async (tournamentId: number, eventId: number) => {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.get<ApiResponse<TournamentSchedule[]>>(
+      `/api/tournaments/${tournamentId}/events/${eventId}/matches`
+    )
+    return unwrapApiResponse(response.data)
+  },
 }

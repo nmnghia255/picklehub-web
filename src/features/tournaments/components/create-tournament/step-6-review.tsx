@@ -192,14 +192,7 @@ export function Step6Review() {
               {formValues.startDate} - {formValues.endDate}
             </p>
           </div>
-          <div className="space-y-1">
-            <span className="text-xs font-medium tracking-wider text-gray-500 uppercase">
-              {t("create.step6.maxParticipants")}
-            </span>
-            <p className="text-base font-medium text-gray-900">
-              {formValues.maxParticipants}
-            </p>
-          </div>
+
           <div className="space-y-1 md:col-span-2">
             <span className="text-xs font-medium tracking-wider text-gray-500 uppercase">
               {t("create.step6.description", { defaultValue: "Description" })}

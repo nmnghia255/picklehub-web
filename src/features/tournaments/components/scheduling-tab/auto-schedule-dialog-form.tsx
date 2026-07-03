@@ -1,7 +1,7 @@
 "use client"
 
 import { Loader2, Zap } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -20,6 +20,7 @@ import {
   executeAutoScheduleAction,
   previewAutoScheduleAction,
 } from "../../actions/schedule-actions"
+import { useSchedulingStore } from "../../stores/use-scheduling-store"
 import type {
   AutoScheduleConfigDto,
   AutoSchedulePreviewResponse,
@@ -30,7 +31,8 @@ import type { TournamentEvent } from "../../types/tournament-event"
 interface AutoScheduleDialogFormProps {
   tournamentId: number
   events: TournamentEvent[]
-  courtsList: string[]
+  defaultStartTime?: string
+  defaultEndTime?: string
   onClose: () => void
   onApplied: () => void
 }
@@ -38,26 +40,61 @@ interface AutoScheduleDialogFormProps {
 export function AutoScheduleDialogForm({
   tournamentId,
   events,
-  courtsList,
+  defaultStartTime = "08:00",
+  defaultEndTime = "20:00",
   onClose,
   onApplied,
 }: AutoScheduleDialogFormProps) {
   const { t } = useTournamentTranslation()
-  const [selectedEventId, setSelectedEventId] = useState<string>("")
+  const autoScheduleConfig = useSchedulingStore((s) => s.autoScheduleConfig)
+  const previewEventId = useSchedulingStore((s) => s.previewEventId)
+  const setPreview = useSchedulingStore((s) => s.setPreview)
+
+  const [selectedEventId, setSelectedEventId] = useState<string>(
+    previewEventId || ""
+  )
   const activeEventId =
     selectedEventId || (events.length > 0 ? events[0].id.toString() : "")
-  const [startTime, setStartTime] = useState("08:00")
-  const [endTime, setEndTime] = useState("20:00")
-  const [matchDuration, setMatchDuration] = useState("45")
-  const [bufferDuration, setBufferDuration] = useState("15")
-  const [restTime, setRestTime] = useState("30")
+  const [startTime, setStartTime] = useState(
+    autoScheduleConfig?.startTime || defaultStartTime
+  )
+  const [endTime, setEndTime] = useState(
+    autoScheduleConfig?.endTime || defaultEndTime
+  )
+  const [matchDuration, setMatchDuration] = useState(
+    autoScheduleConfig?.matchDurationMinutes?.toString() || "15"
+  )
+  const [bufferDuration, setBufferDuration] = useState(
+    autoScheduleConfig?.minBreakBetweenMatchesMinutes?.toString() || "15"
+  )
+  const [restTime, setRestTime] = useState(
+    autoScheduleConfig?.restDurationMinutes?.toString() || "30"
+  )
   const [optimization, setOptimization] = useState<
     "fastest" | "balanced" | "max_rest"
-  >("fastest")
+  >(autoScheduleConfig?.optimizationCriteria || "fastest")
   const [isPreviewing, setIsPreviewing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [previewResult, setPreviewResult] =
     useState<AutoSchedulePreviewResponse | null>(null)
+
+  useEffect(() => {
+    if (defaultStartTime && !autoScheduleConfig) {
+      const timer = setTimeout(() => {
+        setStartTime(defaultStartTime)
+      }, 0)
+      return () => clearTimeout(timer)
+    }
+  }, [defaultStartTime, autoScheduleConfig])
+
+  useEffect(() => {
+    if (defaultEndTime && !autoScheduleConfig) {
+      const timer = setTimeout(() => {
+        setEndTime(defaultEndTime)
+      }, 0)
+      return () => clearTimeout(timer)
+    }
+  }, [defaultEndTime, autoScheduleConfig])
 
   const buildConfig = (): AutoScheduleConfigDto => ({
     startTime: startTime,
@@ -65,7 +102,6 @@ export function AutoScheduleDialogForm({
     matchDurationMinutes: Number(matchDuration),
     restDurationMinutes: Number(restTime),
     minBreakBetweenMatchesMinutes: Number(bufferDuration),
-    courtIds: courtsList,
     optimizationCriteria: optimization,
   })
 
@@ -81,18 +117,22 @@ export function AutoScheduleDialogForm({
     setIsPreviewing(true)
     setPreviewResult(null)
     try {
+      const config = buildConfig()
       const res = await previewAutoScheduleAction(
         tournamentId,
         activeEventId,
-        buildConfig()
+        config
       )
       if (res.success && res.data) {
         setPreviewResult(res.data)
+        setPreview(config, res.data.previewAssignments || [], activeEventId)
         toast.success(
           t("scheduling.toasts.previewSuccess", {
-            defaultValue: "Preview generated successfully",
+            defaultValue:
+              "Preview generated and loaded onto the timeline grid!",
           })
         )
+        onClose()
       } else {
         toast.error(
           res.error ||
@@ -158,17 +198,20 @@ export function AutoScheduleDialogForm({
   }
 
   return (
-    <form onSubmit={handleSave} className="space-y-6">
-      <div className="space-y-4">
+    <form onSubmit={handleSave} className="space-y-8">
+      <div className="space-y-6">
         {/* Select Event */}
-        <div>
+        <div className="w-full">
           <Label htmlFor="auto-schedule-event">
             {t("scheduling.autoScheduleForm.selectEvent", {
               defaultValue: "Select Event Category",
             })}
           </Label>
           <Select value={activeEventId} onValueChange={setSelectedEventId}>
-            <SelectTrigger id="auto-schedule-event" className="mt-1.5 bg-white">
+            <SelectTrigger
+              id="auto-schedule-event"
+              className="mt-3 w-full bg-white"
+            >
               <SelectValue
                 placeholder={t(
                   "scheduling.autoScheduleForm.selectEventPlaceholder",
@@ -187,7 +230,7 @@ export function AutoScheduleDialogForm({
         </div>
 
         {/* Start/End Time */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-6">
           <div>
             <Label htmlFor="start-time">
               {t("scheduling.autoScheduleForm.startTime", {
@@ -199,7 +242,7 @@ export function AutoScheduleDialogForm({
               type="time"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
-              className="mt-1.5"
+              className="mt-3"
             />
           </div>
           <div>
@@ -213,13 +256,13 @@ export function AutoScheduleDialogForm({
               type="time"
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
-              className="mt-1.5"
+              className="mt-3"
             />
           </div>
         </div>
 
         {/* Match Duration & Buffer */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-6">
           <div>
             <Label htmlFor="match-duration">
               {t("scheduling.autoScheduleForm.matchDuration", {
@@ -231,7 +274,7 @@ export function AutoScheduleDialogForm({
               type="number"
               value={matchDuration}
               onChange={(e) => setMatchDuration(e.target.value)}
-              className="mt-1.5"
+              className="mt-3"
             />
           </div>
           <div>
@@ -245,13 +288,13 @@ export function AutoScheduleDialogForm({
               type="number"
               value={bufferDuration}
               onChange={(e) => setBufferDuration(e.target.value)}
-              className="mt-1.5"
+              className="mt-3"
             />
           </div>
         </div>
 
         {/* Athlete Rest Time & Optimization */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-6">
           <div>
             <Label htmlFor="rest-time">
               {t("scheduling.autoScheduleForm.restTime", {
@@ -264,11 +307,11 @@ export function AutoScheduleDialogForm({
               type="number"
               value={restTime}
               onChange={(e) => setRestTime(e.target.value)}
-              className="mt-1.5"
+              className="mt-3"
             />
           </div>
-          <div>
-            <Label htmlFor="optimize-for">
+          <div className="min-w-0">
+            <Label htmlFor="optimize-for" className="block truncate">
               {t("scheduling.autoScheduleForm.optimizeFor", {
                 defaultValue: "Optimization Criteria",
               })}
@@ -279,7 +322,10 @@ export function AutoScheduleDialogForm({
                 setOptimization(val)
               }
             >
-              <SelectTrigger id="optimize-for" className="mt-1.5 bg-white">
+              <SelectTrigger
+                id="optimize-for"
+                className="mt-3 w-full truncate bg-white"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -358,7 +404,7 @@ export function AutoScheduleDialogForm({
 
           {previewResult.previewAssignments &&
             previewResult.previewAssignments.length > 0 && (
-              <div className="mt-2 text-xs">
+              <div className="mt-3 text-xs">
                 <span className="mb-1 block font-medium text-gray-500">
                   {t("scheduling.autoScheduleForm.previewAssignments", {
                     defaultValue: "Suggested Allocation:",
@@ -376,13 +422,7 @@ export function AutoScheduleDialogForm({
                         </span>
                         <span className="text-gray-600">{a.courtName}</span>
                         <span className="font-semibold text-emerald-700">
-                          {new Date(a.scheduledStartTime).toLocaleTimeString(
-                            [],
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }
-                          )}
+                          {a.startTime}
                         </span>
                       </div>
                     )
@@ -394,7 +434,7 @@ export function AutoScheduleDialogForm({
       )}
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-3 border-t pt-4">
+      <div className="mt-8 flex items-center justify-end gap-4 border-t pt-6">
         <Button
           type="button"
           variant="outline"

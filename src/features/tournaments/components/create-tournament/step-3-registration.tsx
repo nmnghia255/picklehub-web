@@ -38,22 +38,6 @@ export function Step3Registration() {
           />
         </div>
       </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="max-participants">
-            {t("create.step2.maxParticipantsLabel")}
-          </Label>
-          <Input
-            id="max-participants"
-            type="number"
-            placeholder="100"
-            value={formValues.maxParticipants}
-            onChange={(e) => setFormValue("maxParticipants", e.target.value)}
-            className="mt-3"
-          />
-        </div>
-      </div>
     </div>
   )
 }

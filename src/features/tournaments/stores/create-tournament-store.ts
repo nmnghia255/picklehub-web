@@ -15,7 +15,6 @@ export interface TournamentFormValues {
 
   regOpen: string
   regClose: string
-  maxParticipants: string
 
   paymentBankName: string
   paymentAccountName: string
@@ -59,7 +58,6 @@ const initialFormValues: TournamentFormValues = {
   banner: "",
   regOpen: "",
   regClose: "",
-  maxParticipants: "",
   paymentBankName: "",
   paymentAccountName: "",
   paymentAccountNumber: "",

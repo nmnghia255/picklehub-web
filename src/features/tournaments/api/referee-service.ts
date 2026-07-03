@@ -53,15 +53,13 @@ export const TournamentRefereeService = {
   assignMatchReferee: async (
     tournamentId: string,
     matchId: string,
-    refereeId: string,
-    refereeName: string
+    refereeId: string
   ) => {
     const axios = await getAuthenticatedAxios()
     const response = await axios.post<ApiResponse<AssignedReferee>>(
       `/api/tournaments/${tournamentId}/matches/${matchId}/assign`,
       {
         refereeId,
-        refereeName,
       }
     )
     return unwrapApiResponse(response.data)

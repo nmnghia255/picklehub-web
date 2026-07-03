@@ -1,6 +1,6 @@
 "use client"
 
-import { Loader2, RefreshCw, UserPlus2 } from "lucide-react"
+import { Loader2, UserPlus2 } from "lucide-react"
 import { useState, useTransition } from "react"
 import { toast } from "sonner"
 
@@ -16,8 +16,10 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import type { User } from "@/features/profile/types"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
+import { getUserProfileAction } from "../../actions/tournament-registration-actions"
 import { usePersonnelStore } from "../../stores/use-personnel-store"
 
 interface EnrollRefereeDialogProps {
@@ -33,63 +35,75 @@ export function EnrollRefereeDialog({
   const enrollReferee = usePersonnelStore((s) => s.enrollReferee)
   const [isPending, startTransition] = useTransition()
 
-  // Generate a random avatar URL using Dicebear
-  const generateRandomAvatar = () => {
-    const randomSeed = Math.random().toString(36).substring(7)
-    return `https://api.dicebear.com/7.x/adventurer/svg?seed=${randomSeed}`
-  }
-
   // Local Form State
-  const [form, setForm] = useState({
-    refereeId: "",
-    refereeName: "",
-    refereeEmail: "",
-    refereeAvatar: "",
-    phone: "",
-  })
+  const [refereeId, setRefereeId] = useState("")
+  const [userProfile, setUserProfile] = useState<User | null>(null)
+  const [isFetching, setIsFetching] = useState(false)
+  const [fetchError, setFetchError] = useState<string | null>(null)
 
-  // Set defaults when opening the dialog
+  // Set defaults when opening/closing the dialog
   const handleOpenChange = (open: boolean) => {
     if (open) {
-      setForm({
-        refereeId: `ref_${Date.now()}`,
-        refereeName: "",
-        refereeEmail: "",
-        refereeAvatar: generateRandomAvatar(),
-        phone: "",
-      })
+      setRefereeId("")
+      setUserProfile(null)
+      setFetchError(null)
+      setIsFetching(false)
     }
     onOpenChange(open)
   }
 
-  const handleRefreshAvatar = () => {
-    setForm((prev) => ({
-      ...prev,
-      refereeAvatar: generateRandomAvatar(),
-    }))
+  const handleVerify = async () => {
+    const trimmedId = refereeId.trim()
+    if (!trimmedId) return
+
+    setIsFetching(true)
+    setFetchError(null)
+    setUserProfile(null)
+
+    try {
+      const res = await getUserProfileAction(trimmedId)
+      if (res.success && res.data) {
+        setUserProfile(res.data)
+      } else {
+        setFetchError(
+          res.error ||
+            t("personnel.enrollDialog.profileNotFound", {
+              defaultValue: "User profile not found. Please verify the ID.",
+            })
+        )
+        toast.error(res.error || "User profile not found")
+      }
+    } catch (err) {
+      setFetchError(
+        t("personnel.enrollDialog.fetchFailed", {
+          defaultValue: "Failed to fetch user profile.",
+        })
+      )
+      toast.error("Failed to verify user ID")
+    } finally {
+      setIsFetching(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.refereeName.trim()) {
+    if (!userProfile) {
       toast.error(
-        t("personnel.enrollDialog.nameRequired", {
-          defaultValue: "Full Name is required",
-        })
-      )
-      return
-    }
-    if (!form.refereeEmail.trim()) {
-      toast.error(
-        t("personnel.enrollDialog.emailRequired", {
-          defaultValue: "Email is required",
+        t("personnel.enrollDialog.verifyFirst", {
+          defaultValue: "Please verify the referee ID first",
         })
       )
       return
     }
 
     startTransition(async () => {
-      const res = await enrollReferee(form)
+      const res = await enrollReferee({
+        refereeId: userProfile.id,
+        refereeName: userProfile.fullName || userProfile.name || "",
+        refereeEmail: userProfile.email || "",
+        refereeAvatar: userProfile.avatarUrl || "",
+        phone: userProfile.phoneNumber || "",
+      })
       if (res.success) {
         toast.success(
           t("personnel.enrollDialog.successToast", {
@@ -123,45 +137,7 @@ export function EnrollRefereeDialog({
           </DialogHeader>
 
           <div className="my-4 space-y-4 border-t border-b border-gray-100 py-5">
-            {/* Referee Photo / Avatar Preview */}
-            <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16 rounded-xl border border-emerald-100 bg-gray-50 shadow-xs">
-                <AvatarImage src={form.refereeAvatar} alt="Avatar preview" />
-                <AvatarFallback className="rounded-xl bg-emerald-50 text-xl font-bold text-emerald-700">
-                  RF
-                </AvatarFallback>
-              </Avatar>
-              <div className="space-y-1">
-                <Label className="text-xs font-semibold text-gray-500">
-                  {t("personnel.enrollDialog.avatarLabel")}
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder={t("personnel.enrollDialog.avatarPlaceholder")}
-                    value={form.refereeAvatar}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        refereeAvatar: e.target.value,
-                      }))
-                    }
-                    className="h-8 w-60 bg-white text-xs"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8 shrink-0 text-gray-500 hover:bg-gray-50 hover:text-emerald-600"
-                    onClick={handleRefreshAvatar}
-                    title="Generate Random Avatar"
-                  >
-                    <RefreshCw className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* Unique ID */}
+            {/* Unique ID Input with Verify Button */}
             <div className="space-y-1.5">
               <Label
                 htmlFor="enroll-id"
@@ -169,78 +145,119 @@ export function EnrollRefereeDialog({
               >
                 {t("personnel.enrollDialog.idLabel")}
               </Label>
-              <Input
-                id="enroll-id"
-                placeholder={t("personnel.enrollDialog.idPlaceholder")}
-                value={form.refereeId}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, refereeId: e.target.value }))
-                }
-                className="bg-white text-sm"
-                required
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="enroll-id"
+                  placeholder={t("personnel.enrollDialog.idPlaceholder")}
+                  value={refereeId}
+                  onChange={(e) => {
+                    setRefereeId(e.target.value)
+                    setUserProfile(null)
+                    setFetchError(null)
+                  }}
+                  className="flex-1 bg-white text-sm"
+                  required
+                  disabled={isFetching || isPending}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault()
+                      handleVerify()
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  onClick={handleVerify}
+                  disabled={isFetching || isPending || !refereeId.trim()}
+                  variant="outline"
+                  className="shrink-0 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+                >
+                  {isFetching ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    t("personnel.enrollDialog.verifyBtn", {
+                      defaultValue: "Verify",
+                    })
+                  )}
+                </Button>
+              </div>
             </div>
 
-            {/* Full Name */}
-            <div className="space-y-1.5">
-              <Label
-                htmlFor="enroll-name"
-                className="text-sm font-semibold text-gray-700"
-              >
-                {t("personnel.enrollDialog.nameLabel")}
-              </Label>
-              <Input
-                id="enroll-name"
-                placeholder={t("personnel.enrollDialog.namePlaceholder")}
-                value={form.refereeName}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, refereeName: e.target.value }))
-                }
-                className="bg-white text-sm"
-                required
-              />
-            </div>
+            {/* Error Message */}
+            {fetchError && (
+              <div className="rounded-lg border border-red-100 bg-red-50 p-3 text-sm text-red-600">
+                {fetchError}
+              </div>
+            )}
 
-            {/* Email */}
-            <div className="space-y-1.5">
-              <Label
-                htmlFor="enroll-email"
-                className="text-sm font-semibold text-gray-700"
-              >
-                {t("personnel.enrollDialog.emailLabel")}
-              </Label>
-              <Input
-                id="enroll-email"
-                type="email"
-                placeholder={t("personnel.enrollDialog.emailPlaceholder")}
-                value={form.refereeEmail}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, refereeEmail: e.target.value }))
-                }
-                className="bg-white text-sm"
-                required
-              />
-            </div>
+            {/* Profile Preview Card */}
+            {userProfile && (
+              <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 p-4 transition-all hover:bg-emerald-50/50">
+                <div className="flex items-start gap-4">
+                  <Avatar className="h-14 w-14 rounded-xl border border-emerald-100 bg-white shadow-xs">
+                    <AvatarImage
+                      src={userProfile.avatarUrl}
+                      alt={userProfile.fullName || userProfile.name}
+                    />
+                    <AvatarFallback className="rounded-xl bg-emerald-100 text-lg font-bold text-emerald-700">
+                      {(userProfile.fullName || userProfile.name || "RF")
+                        .substring(0, 2)
+                        .toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-bold text-gray-900">
+                        {userProfile.fullName || userProfile.name}
+                      </h4>
+                      {userProfile.selfRating && (
+                        <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-600/10 ring-inset">
+                          ★ {userProfile.selfRating.toFixed(2)}
+                        </span>
+                      )}
+                    </div>
 
-            {/* Phone */}
-            <div className="space-y-1.5">
-              <Label
-                htmlFor="enroll-phone"
-                className="text-sm font-semibold text-gray-700"
-              >
-                {t("personnel.enrollDialog.phoneLabel")}
-              </Label>
-              <Input
-                id="enroll-phone"
-                type="tel"
-                placeholder={t("personnel.enrollDialog.phonePlaceholder")}
-                value={form.phone}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, phone: e.target.value }))
-                }
-                className="bg-white text-sm"
-              />
-            </div>
+                    <div className="space-y-1 text-xs text-gray-600">
+                      <p className="flex items-center gap-1.5">
+                        <span className="font-medium text-gray-500">
+                          Email:
+                        </span>
+                        <span
+                          className="max-w-[200px] truncate"
+                          title={userProfile.email}
+                        >
+                          {userProfile.email || "N/A"}
+                        </span>
+                      </p>
+                      {userProfile.phoneNumber && (
+                        <p className="flex items-center gap-1.5">
+                          <span className="font-medium text-gray-500">
+                            Phone:
+                          </span>
+                          <span>{userProfile.phoneNumber}</span>
+                        </p>
+                      )}
+                      {userProfile.preferredHand && (
+                        <p className="flex items-center gap-1.5">
+                          <span className="font-medium text-gray-500">
+                            Hand:
+                          </span>
+                          <span className="capitalize">
+                            {userProfile.preferredHand.toLowerCase()}
+                          </span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 border-t border-emerald-100/50 pt-2 text-center text-[11px] font-medium text-emerald-600">
+                  ✓{" "}
+                  {t("personnel.enrollDialog.verifiedStatus", {
+                    defaultValue: "Profile verified and ready to be enrolled",
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           <DialogFooter className="gap-2 sm:gap-2">
@@ -253,7 +270,7 @@ export function EnrollRefereeDialog({
             </Button>
             <Button
               type="submit"
-              disabled={isPending}
+              disabled={isPending || isFetching || !userProfile}
               className="bg-emerald-600 font-semibold text-white hover:bg-emerald-700"
             >
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

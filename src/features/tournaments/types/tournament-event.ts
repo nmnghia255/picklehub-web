@@ -30,4 +30,9 @@ export interface TournamentEvent {
   format?: EventFormat
   tournamentId?: number
   totalMatches?: number
+  bracketStatus?: string
+  advanceMethod: string
+  numGroups?: number
+  totalAdvance?: number
+  currentStage: string
 }

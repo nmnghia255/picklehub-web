@@ -14,10 +14,12 @@ import {
 } from "@/components/ui/select"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
+import type { CourtInfo } from "../../types/tournament-court"
+
 interface ManualScheduleFormProps {
-  courtsList: string[]
+  courtsList: CourtInfo[]
   timeSlots: string[]
-  onSubmit: (courtName: string, timeSlot: string) => void
+  onSubmit: (courtId: string, timeSlot: string) => void
   onClose: () => void
 }
 
@@ -28,7 +30,9 @@ export function ManualScheduleForm({
   onClose,
 }: ManualScheduleFormProps) {
   const { t } = useTournamentTranslation()
-  const [selectedCourt, setSelectedCourt] = useState(courtsList[0] || "")
+  const [selectedCourt, setSelectedCourt] = useState(
+    courtsList[0]?.courtId || ""
+  )
   const [selectedTime, setSelectedTime] = useState(timeSlots[0] || "")
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -56,8 +60,8 @@ export function ManualScheduleForm({
           </SelectTrigger>
           <SelectContent>
             {courtsList.map((court) => (
-              <SelectItem key={court} value={court}>
-                {court}
+              <SelectItem key={court.courtId} value={court.courtId}>
+                {court.courtName}
               </SelectItem>
             ))}
           </SelectContent>

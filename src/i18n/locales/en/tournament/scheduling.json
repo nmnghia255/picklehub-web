@@ -23,10 +23,17 @@
       "events": {
         "all": "All Events"
       },
-      "reloadBtn": "Reload Schedule"
+      "reloadBtn": "Reload Schedule",
+      "modes": {
+        "normal": "Normal Mode",
+        "preview": "Preview Mode"
+      }
     },
     "grid": {
-      "courtsLabel": "Courts"
+      "courtsLabel": "Courts",
+      "noCourts": "No courts booked for this Sport Center on the selected date.",
+      "noCourtsSub": "Please confirm your court bookings in the Booking tab first.",
+      "unavailableSlot": "Slot not booked"
     },
     "match": {
       "assignReferee": "Assign Referee",
@@ -36,7 +43,18 @@
       "duration": "Duration: {{duration}} min",
       "court": "Court: {{court}}",
       "id": "ID: {{id}}",
-      "refName": "Ref: {{refereeName}}"
+      "refName": "Ref: {{refereeName}}",
+      "previewLabel": "Preview",
+      "previewAllocation": "Preview Allocation",
+      "previewNote": "This is a preview assignment. Click \"Confirm & Run Auto-Scheduling\" in the banner to apply this configuration."
+    },
+    "preview": {
+      "title": "Auto-Scheduling Preview Active",
+      "description": "Showing estimated allocation for {{count}} matches. Review the dashed cards on the grid below.",
+      "btnAdjust": "Adjust Config",
+      "btnCancel": "Cancel Preview",
+      "applying": "Applying...",
+      "btnConfirm": "Confirm & Run Auto-Scheduling"
     },
     "warnings": {
       "detected": "{{count}} scheduling conflicts detected:",
@@ -79,7 +97,11 @@
       "id": "Referee ID (Optional)",
       "idPlaceholder": "Referee ID or leave empty...",
       "assignBtn": "Confirm Assignment",
-      "close": "Close"
+      "close": "Close",
+      "loading": "Loading referees roster...",
+      "selectLabel": "Select Enrolled Referee",
+      "emptyRosterWarning": "No referees are currently enrolled in this tournament. You can enter information manually below or enroll referees in the Personnel tab first.",
+      "enterManually": "Enter referee information manually"
     },
     "manual": {
       "modalTitle": "Manual Match Scheduling",
@@ -88,6 +110,14 @@
       "selectTime": "Select Match Time",
       "scheduleBtn": "Schedule Match",
       "close": "Close"
+    },
+    "slotModal": {
+      "title": "Select Match to Schedule",
+      "desc": "Select an unassigned match to schedule onto: ",
+      "atLocation": "{{court}} at {{time}}",
+      "noUnscheduled": "All matches are already scheduled.",
+      "scheduleBtn": "Schedule",
+      "closeBtn": "Cancel"
     },
     "toasts": {
       "scheduleSuccess": "Match scheduled successfully",
@@ -110,7 +140,9 @@
       "executeSuccess": "Schedule applied and notifications sent to players!",
       "executeFailed": "Failed to execute auto-schedule",
       "loadFixturesFailed": "Failed to load fixtures",
-      "loadFixturesError": "Failed to load tournament fixtures"
+      "loadFixturesError": "Failed to load tournament fixtures",
+      "noBookingItemAtSlot": "No booking item covers this slot.",
+      "previewMoveSuccess": "Preview assignment updated!"
     }
   }
 }

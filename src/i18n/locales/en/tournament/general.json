@@ -41,7 +41,7 @@
       "player": "Player",
       "referee": "Referee"
     },
-    "registered": "{{count}}/{{capacity}} registered",
+    "registered": "{{count}} registered",
     "pagination": {
       "previous": "Previous",
       "next": "Next",

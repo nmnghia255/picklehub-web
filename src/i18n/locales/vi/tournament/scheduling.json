@@ -16,19 +16,23 @@
       "noMatches": "Không tìm thấy trận đấu chưa xếp lịch"
     },
     "toolbar": {
-      "dates": {
-        "june15": "Ngày 15, Tháng 6, 2026",
-        "june16": "Ngày 16, Tháng 6, 2026",
-        "june17": "Ngày 17, Tháng 6, 2026"
-      },
       "eventLabel": "Nội dung:",
       "events": {
         "all": "Tất Cả Nội Dung"
       },
-      "reloadBtn": "Tải Lại Lịch Trình"
+      "reloadBtn": "Tải Lại Lịch Trình",
+      "autoScheduleBtn": "Tự động xếp lịch",
+      "cancelAutoScheduleBtn": "Hủy",
+      "modes": {
+        "normal": "Chế độ Thường",
+        "preview": "Chế độ Xem trước"
+      }
     },
     "grid": {
-      "courtsLabel": "Danh Sách Sân"
+      "courtsLabel": "Danh Sách Sân",
+      "noCourts": "Không có sân đấu được đặt cho Trung tâm Thể thao này vào ngày đã chọn.",
+      "noCourtsSub": "Vui lòng xác nhận thông tin đặt sân trong tab Đặt Sân trước.",
+      "unavailableSlot": "Khung giờ chưa được đặt"
     },
     "match": {
       "assignReferee": "Phân Công Trọng Tài",
@@ -38,7 +42,18 @@
       "duration": "Thời lượng: {{duration}} phút",
       "court": "Sân: {{court}}",
       "id": "ID: {{id}}",
-      "refName": "Trọng tài: {{refereeName}}"
+      "refName": "Trọng tài: {{refereeName}}",
+      "previewLabel": "Xem trước",
+      "previewAllocation": "Phân bổ xem trước",
+      "previewNote": "Đây là phân bổ xem trước. Bấm \"Xác nhận & Chạy Lập lịch tự động\" ở biểu ngữ để áp dụng cấu hình này."
+    },
+    "preview": {
+      "title": "Chế độ xem trước Lịch Trình Tự Động đang hoạt động",
+      "description": "Đang hiển thị phân bổ dự kiến cho {{count}} trận đấu. Hãy xem các thẻ viền đứt trên lưới bên dưới.",
+      "btnAdjust": "Điều chỉnh cấu hình",
+      "btnCancel": "Hủy xem trước",
+      "applying": "Đang áp dụng...",
+      "btnConfirm": "Xác nhận & Chạy Lập lịch tự động"
     },
     "warnings": {
       "detected": "Phát hiện {{count}} xung đột lịch trình:",
@@ -54,7 +69,7 @@
       "matchDuration": "Thời Lượng Trận Đấu (Phút)",
       "breakDuration": "Thời Gian Nghỉ Dọn Sân (Phút)",
       "availableCourts": "Các sân đấu hiện có",
-      "restTime": "Nghỉ Giữa Các Trận Của VĐV (Phút)",
+      "restTime": "Nghỉ Giữa Các Trận (Phút)",
       "optimizeFor": "Tiêu Chí Tối Ưu Hóa",
       "optimizeOptions": {
         "fastest": "Xong Sớm Nhất (Fastest)",
@@ -81,7 +96,11 @@
       "id": "Mã Số Trọng Tài (ID - Tùy chọn)",
       "idPlaceholder": "Mã số hoặc để trống...",
       "assignBtn": "Xác Nhận Phân Công",
-      "close": "Đóng"
+      "close": "Đóng",
+      "loading": "Đang tải danh sách trọng tài...",
+      "selectLabel": "Chọn trọng tài trong danh sách",
+      "emptyRosterWarning": "Không có trọng tài nào được ghi danh trong giải đấu này. Bạn có thể tự nhập thông tin bên dưới hoặc ghi danh trọng tài tại tab Nhân Sự trước.",
+      "enterManually": "Nhập thủ công thông tin trọng tài"
     },
     "manual": {
       "modalTitle": "Xếp Lịch Đấu Thủ Công",
@@ -90,6 +109,14 @@
       "selectTime": "Chọn Giờ Thi Đấu",
       "scheduleBtn": "Xếp Lịch",
       "close": "Đóng"
+    },
+    "slotModal": {
+      "title": "Chọn trận đấu để xếp lịch",
+      "desc": "Chọn một trận đấu chưa xếp lịch để xếp vào: ",
+      "atLocation": "{{court}} vào lúc {{time}}",
+      "noUnscheduled": "Tất cả các trận đấu đã được xếp lịch.",
+      "scheduleBtn": "Xếp lịch",
+      "closeBtn": "Hủy"
     },
     "toasts": {
       "scheduleSuccess": "Xếp lịch trận đấu thành công",
@@ -112,7 +139,9 @@
       "executeSuccess": "Đã áp dụng lịch thi đấu và gửi thông báo tới các vận động viên!",
       "executeFailed": "Không thể thực hiện xếp lịch tự động",
       "loadFixturesFailed": "Không thể tải danh sách trận đấu",
-      "loadFixturesError": "Có lỗi xảy ra khi tải danh sách trận đấu của giải đấu"
+      "loadFixturesError": "Có lỗi xảy ra khi tải danh sách trận đấu của giải đấu",
+      "noBookingItemAtSlot": "Không có lịch đặt sân nào khớp với khung giờ này.",
+      "previewMoveSuccess": "Đã cập nhật phân bổ xem trước!"
     }
   }
 }

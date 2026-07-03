@@ -56,6 +56,7 @@
       "eventLabel": "Sự kiện Giải đấu",
       "selectPlaceholder": "Tìm kiếm và chọn sự kiện...",
       "noEvents": "Không tìm thấy sự kiện nào cho giải đấu này.",
+      "noGroupStage": "Chưa có sự kiện nào được thiết lập vòng bảng. Vui lòng tạo vòng bảng trước.",
       "matchesLabel": "trận đấu",
       "requirementHint": "Bạn sẽ cần đặt ít nhất {{count}} khung giờ sân để đáp ứng tất cả các trận đấu trong sự kiện này.",
       "generalBookingLabel": "Đặt sân không liên kết sự kiện cụ thể (Đặt sân chung / đặt thêm khi thiếu sân)",

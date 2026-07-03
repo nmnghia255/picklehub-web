@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
-import { useBracketStore } from "../../stores/bracket-store"
+import { useBracketStore } from "../../stores/use-bracket-store"
 import type { Bracket, Team } from "../../types/bracket"
 
 interface MatchDetailsProps {

@@ -12,6 +12,7 @@ import {
 import { getEventSeedingAction } from "../actions/seeding-actions"
 import type { Group } from "../types/group-stage"
 import type { Seed } from "../types/seeding"
+import { useTournamentDashboardStore } from "./tournament-dashboard-store"
 
 function safeExtractSeedsList(data: unknown): Seed[] {
   if (Array.isArray(data)) {
@@ -134,13 +135,7 @@ export const useGroupStageStore = create<GroupStageState>((set, get) => ({
   },
 
   saveConfig: async (t) => {
-    const {
-      tournamentId,
-      selectedEventId,
-      numGroups,
-      advancePerGroup,
-      totalAdvance,
-    } = get()
+    const { tournamentId, selectedEventId, numGroups, totalAdvance } = get()
     if (!tournamentId || !selectedEventId) return
 
     set({ isSavingConfig: true })
@@ -150,7 +145,6 @@ export const useGroupStageStore = create<GroupStageState>((set, get) => ({
         Number(selectedEventId),
         {
           numGroups,
-          advancePerGroup,
           advanceMethod: "standard",
           totalAdvance,
         }
@@ -161,6 +155,22 @@ export const useGroupStageStore = create<GroupStageState>((set, get) => ({
             defaultValue: "Configuration saved successfully",
           })
         )
+
+        // Sync new group config to dashboard events list to disable config inputs & save button immediately
+        const dashboardStore = useTournamentDashboardStore.getState()
+        if (dashboardStore.events) {
+          const updatedEvents = dashboardStore.events.map((e) =>
+            e.id.toString() === selectedEventId
+              ? {
+                  ...e,
+                  numGroups,
+                  totalAdvance,
+                  advanceMethod: "standard",
+                }
+              : e
+          )
+          useTournamentDashboardStore.setState({ events: updatedEvents })
+        }
       } else {
         toast.error(
           res.error ||

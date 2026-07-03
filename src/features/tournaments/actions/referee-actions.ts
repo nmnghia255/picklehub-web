@@ -109,15 +109,13 @@ export async function listUnassignedMatchesAction(
 export async function assignRefereeToMatchAction(
   tournamentId: string,
   matchId: string,
-  refereeId: string,
-  refereeName: string
+  refereeId: string
 ) {
   try {
     const data = await TournamentRefereeService.assignMatchReferee(
       tournamentId,
       matchId,
-      refereeId,
-      refereeName
+      refereeId
     )
     return { success: true, data }
   } catch (error: unknown) {

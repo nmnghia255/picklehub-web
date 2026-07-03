@@ -1,5 +1,6 @@
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
+import type { BookingItemResponse } from "../types/booking"
 import type { TournamentCourt } from "../types/tournament-court"
 
 interface ApiResponse<T> {
@@ -28,8 +29,26 @@ export const TournamentCourtService = {
     date: string
   ) => {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<TournamentCourt[]>>(
-      `/api/tournaments/${tournamentId}/courts/availability`,
+    const response = await axios.get<
+      ApiResponse<TournamentCourt | TournamentCourt[]>
+    >(`/api/tournaments/${tournamentId}/courts/availability`, {
+      params: {
+        centerId,
+        date,
+      },
+    })
+    return unwrapApiResponse(response.data)
+  },
+
+  // Get all booked slots (booking items) of a tournament filtered by centerId and date.
+  getBookedSlots: async (
+    tournamentId: string,
+    centerId: string,
+    date: string
+  ) => {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.get<ApiResponse<BookingItemResponse[]>>(
+      `/api/tournaments/${tournamentId}/courts/booked-slots`,
       {
         params: {
           centerId,

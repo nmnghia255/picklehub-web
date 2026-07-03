@@ -5,6 +5,7 @@ import axios from "axios"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import { TournamentScheduleService } from "../api/schedule-service"
+import { TournamentCourtService } from "../api/tournament-court-service"
 import type {
   AutoScheduleConfigDto,
   FixtureResultRequest,
@@ -196,6 +197,54 @@ export async function syncFixturesAction(tournamentId: string | number) {
   } catch (error: unknown) {
     console.error("Failed to sync fixtures:", error)
     let errorMessage = "Failed to sync fixtures"
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.message || error.message
+    } else if (error instanceof Error) {
+      errorMessage = error.message
+    }
+    return { success: false, error: errorMessage }
+  }
+}
+
+export async function getAvailableCourtsAction(
+  tournamentId: string | number,
+  centerId: string,
+  date: string
+) {
+  try {
+    const data = await TournamentCourtService.getAvailableCourts(
+      tournamentId.toString(),
+      centerId,
+      date
+    )
+    return { success: true, data }
+  } catch (error: unknown) {
+    console.error("Failed to fetch available courts:", error)
+    let errorMessage = "Failed to fetch available courts"
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.message || error.message
+    } else if (error instanceof Error) {
+      errorMessage = error.message
+    }
+    return { success: false, error: errorMessage }
+  }
+}
+
+export async function getBookedSlotsAction(
+  tournamentId: string | number,
+  centerId: string,
+  date: string
+) {
+  try {
+    const data = await TournamentCourtService.getBookedSlots(
+      tournamentId.toString(),
+      centerId,
+      date
+    )
+    return { success: true, data }
+  } catch (error: unknown) {
+    console.error("Failed to fetch booked slots:", error)
+    let errorMessage = "Failed to fetch booked slots"
     if (axios.isAxiosError(error)) {
       errorMessage = error.response?.data?.message || error.message
     } else if (error instanceof Error) {

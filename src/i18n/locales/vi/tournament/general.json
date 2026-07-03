@@ -41,7 +41,7 @@
       "player": "Người chơi",
       "referee": "Trọng tài"
     },
-    "registered": "{{count}}/{{capacity}} người đã đăng ký",
+    "registered": "{{count}} người đã đăng ký",
     "pagination": {
       "previous": "Trước",
       "next": "Sau",

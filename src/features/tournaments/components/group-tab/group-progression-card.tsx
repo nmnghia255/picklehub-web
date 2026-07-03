@@ -36,7 +36,7 @@ export function GroupProgressionCard() {
 
   return (
     <Card className="flex flex-col justify-between gap-0 border-gray-200 bg-white">
-      <CardHeader className="border-b border-gray-100 bg-gray-50/50 pb-3">
+      <CardHeader className="border-b border-gray-100 pb-3">
         <CardTitle className="flex items-center gap-2 text-lg font-medium text-gray-900">
           <Play className="h-5 w-5 text-gray-500" />
           {t("groupStage.progressionCardTitle", {

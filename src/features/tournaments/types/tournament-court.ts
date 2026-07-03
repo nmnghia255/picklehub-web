@@ -16,4 +16,12 @@ export interface CourtSlot {
   endTime: string
   available: boolean
   pricePerHour: number
+  bookingId?: number
+  bookingItemId?: string
+  id?: string
+}
+
+export interface CourtInfo {
+  courtId: string
+  courtName: string
 }

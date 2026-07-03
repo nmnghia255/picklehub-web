@@ -14,7 +14,6 @@ export interface TournamentRequest {
   venue: string
   startDate: string
   endDate: string
-  capacity: number
   banner: string | null
   description: string | null
   registrationStartDate: string | null
@@ -36,7 +35,6 @@ export interface Tournament {
   startDate: string
   endDate: string
   registered: number
-  capacity: number
   status: TournamentStatus
   banner: string | null
   description: string | null
