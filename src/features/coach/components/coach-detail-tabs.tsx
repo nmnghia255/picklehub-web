@@ -13,7 +13,6 @@ import { CoachWeekSchedule } from "@/features/coach/components/coach-week-schedu
 
 import { CoachBookingsPanel } from "./coach-bookings-panel"
 import { CoachClassesPanel } from "./coach-classes-panel"
-import { CoachRecommendation } from "./coach-recommendation"
 import { CoachReviews } from "./coach-reviews"
 
 export type CoachTabValue =
@@ -123,10 +122,7 @@ function CoachDetailTabsInner() {
       </TabsContent>
 
       <TabsContent value="reviews" className="mt-6 w-full min-w-0">
-        <div className="space-y-8">
-          <CoachReviews />
-          <CoachRecommendation />
-        </div>
+        <CoachReviews />
       </TabsContent>
     </Tabs>
   )

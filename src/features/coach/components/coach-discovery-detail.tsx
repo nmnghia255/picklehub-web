@@ -19,6 +19,7 @@ import { useSession } from "@/features/auth/hooks/use-session"
 import { useCoachOpenClasses, useCoachPublicProfile, useCoachReviews, useCreateReview, useDeleteReview,useUpdateReview } from "@/features/coach/hooks/use-coach-queries"
 import type { Certification, CoachLevel, CoachProfile, LearnerScheduleItem,VerificationStatus } from "@/features/coach/types/coach"
 import { useCreateBooking, useEnrollInClass, useLearnerSchedule } from "@/features/learner/hooks/use-learner-queries"
+import { LearnerCoachRecommendationDialog } from "@/features/learner/components/learner-coach-recommendation-dialog"
 
 const LEVEL_LABELS: Record<CoachLevel, string> = {
   Beginner: "Cơ bản",
@@ -1005,10 +1006,10 @@ function CoachDiscoveryDetailInner({
                   <Plus className="size-4" />
                   Đặt lịch riêng
                 </Button>
-                <Button variant="outline" disabled title="Tính năng tạm thời không khả dụng. Đang chờ hỗ trợ tìm kiếm người dùng.">
-                  <Star className="size-4" />
-                  Giới thiệu bạn bè
-                </Button>
+                <LearnerCoachRecommendationDialog
+                  coachId={coachId}
+                  coachName={coach.displayName}
+                />
               </div>
             )}
           </div>
