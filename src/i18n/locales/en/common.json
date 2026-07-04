@@ -28,7 +28,8 @@
     "customerManagement": "Customer Management",
     "bookingList": "Booking List",
     "servicesProducts": "Services & Products",
-    "revenueReport": "Revenue Report"
+    "revenueReport": "Revenue Report",
+    "admin": "Admin"
   },
   "header": {
     "notifications": "Notifications",

@@ -1,14 +1,18 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CoachDashboardStats } from "@/features/coach/components/coach-dashboard-stats"
 import { CoachIncomeOverview } from "@/features/coach/components/coach-income-overview"
+import { CoachLearnerDetailPanel } from "@/features/coach/components/coach-learner-detail-panel"
 import { CoachProfileForm } from "@/features/coach/components/coach-profile-form"
 import { CoachStudentsTable } from "@/features/coach/components/coach-students-table"
 import { CoachWeekSchedule } from "@/features/coach/components/coach-week-schedule"
 
+import { CoachBookingsPanel } from "./coach-bookings-panel"
+import { CoachClassesPanel } from "./coach-classes-panel"
 import { CoachRecommendation } from "./coach-recommendation"
 import { CoachReviews } from "./coach-reviews"
 
@@ -17,16 +21,41 @@ export type CoachTabValue =
   | "profile"
   | "students"
   | "schedule"
+  | "classes"
+  | "bookings"
   | "finance"
   | "reviews"
 
-export function CoachDetailTabs() {
-  const [activeTab, setActiveTab] = useState<CoachTabValue>("overview")
+function CoachDetailTabsInner() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const tabFromUrl = searchParams.get("tab") as CoachTabValue | null
+  const [activeTab, setActiveTab] = useState<CoachTabValue>(tabFromUrl ?? "overview")
+  const [selectedLearnerId, setSelectedLearnerId] = useState<string | null>(null)
+
+  // Sync tab from URL on mount / URL change
+  useEffect(() => {
+    if (tabFromUrl && tabFromUrl !== activeTab) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setActiveTab(tabFromUrl)
+    }
+    // Only run when URL tab param changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabFromUrl])
+
+  const handleTabChange = (value: string) => {
+    const tab = value as CoachTabValue
+    setActiveTab(tab)
+    // Sync to URL so navigation from child pages can land on the correct tab.
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("tab", tab)
+    router.replace(`/coach?${params.toString()}`, { scroll: false })
+  }
 
   return (
     <Tabs
       value={activeTab}
-      onValueChange={(value) => setActiveTab(value as CoachTabValue)}
+      onValueChange={handleTabChange}
       className="w-full gap-6"
     >
       <TabsList
@@ -38,6 +67,12 @@ export function CoachDetailTabs() {
         </TabsTrigger>
         <TabsTrigger value="profile" className="sm:flex-none">
           Hồ sơ HLV
+        </TabsTrigger>
+        <TabsTrigger value="classes" className="sm:flex-none">
+          Lớp học
+        </TabsTrigger>
+        <TabsTrigger value="bookings" className="sm:flex-none">
+          Đặt lịch
         </TabsTrigger>
         <TabsTrigger value="students" className="sm:flex-none">
           Quản lý học viên
@@ -61,8 +96,23 @@ export function CoachDetailTabs() {
         <CoachProfileForm />
       </TabsContent>
 
+      <TabsContent value="classes" className="mt-6 w-full min-w-0">
+        <CoachClassesPanel />
+      </TabsContent>
+
+      <TabsContent value="bookings" className="mt-6 w-full min-w-0">
+        <CoachBookingsPanel />
+      </TabsContent>
+
       <TabsContent value="students" className="mt-6 w-full min-w-0">
-        <CoachStudentsTable students={[]} />
+        {selectedLearnerId ? (
+          <CoachLearnerDetailPanel
+            learnerId={selectedLearnerId}
+            onBack={() => setSelectedLearnerId(null)}
+          />
+        ) : (
+          <CoachStudentsTable onSelect={setSelectedLearnerId} />
+        )}
       </TabsContent>
 
       <TabsContent value="schedule" className="mt-6 w-full min-w-0">
@@ -75,10 +125,18 @@ export function CoachDetailTabs() {
 
       <TabsContent value="reviews" className="mt-6 w-full min-w-0">
         <div className="space-y-8">
-          <CoachReviews coachId="" />
+          <CoachReviews />
           <CoachRecommendation />
         </div>
       </TabsContent>
     </Tabs>
+  )
+}
+
+export function CoachDetailTabs() {
+  return (
+    <Suspense fallback={null}>
+      <CoachDetailTabsInner />
+    </Suspense>
   )
 }

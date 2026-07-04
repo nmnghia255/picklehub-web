@@ -1,12 +1,12 @@
 "use client"
 
-import { Loader2, ShieldAlert } from "lucide-react"
+import { ShieldAlert } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { startTransition, useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
-import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
+
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import {
@@ -98,10 +98,6 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
   )
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const { isLoading } = useMySubscriptions()
-  // const hasSocialHostPlan = subscriptions?.some(
-  //   (sub) => sub.status === "ACTIVE" && sub.plan.type === "SOCIAL_HOST"
-  // )
   const hasSocialHostPlan = true
 
   useEffect(() => {
@@ -249,14 +245,6 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
         setIsSubmitting(false)
       }
     }
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
   }
 
   if (!hasSocialHostPlan) {

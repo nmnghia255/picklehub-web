@@ -41,7 +41,8 @@
     "customerManagement": "Quản lý khách hàng",
     "bookingList": "Danh sách đặt sân",
     "servicesProducts": "Dịch vụ & Sản phẩm",
-    "revenueReport": "Báo cáo doanh thu"
+    "revenueReport": "Báo cáo doanh thu",
+    "admin": "Quản trị viên"
   },
   "header": {
     "notifications": "Thông báo",
