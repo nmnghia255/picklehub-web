@@ -65,6 +65,8 @@ export interface Allocation {
   paidAmount: number
   status: DebtStatus
   user?: FinanceUserSummary | null
+  guestCount?: number | null
+  guestFee?: number | null
 }
 
 export interface ExpenseItem {

@@ -45,7 +45,6 @@ import type {
   Transaction,
   TransactionStatus,
 } from "../types/finance"
-import type { Guest } from "../types/guest-member"
 
 function formatDateOnly(value?: string | null) {
   if (!value) return ""
@@ -74,13 +73,6 @@ function formatCurrency(value?: string | number | null) {
   }
 
   return formatCurrencyVnd(numericValue)
-}
-
-function formatTransactionStatus(status?: TransactionStatus | null) {
-  if (status === "VERIFIED") return "Đã xác nhận"
-  if (status === "REJECTED") return "Đã từ chối"
-  if (status === "PENDING_REVIEW") return "Đang chờ duyệt"
-  return status ?? "-"
 }
 
 function getInitials(name: string) {
@@ -303,14 +295,12 @@ function ExpenseForm({
   mode,
   expense,
   members,
-  activeGuests,
   onDone,
 }: {
   groupId: string
   mode: DialogMode
   expense?: ExpenseItem
   members: Member[]
-  activeGuests?: Guest[]
   onDone: () => void
 }) {
   const [state, formAction, isPending] = useActionState(
@@ -328,9 +318,7 @@ function ExpenseForm({
 
   const [selectedMap, setSelectedMap] = useState<Record<string, boolean>>({})
   const [feeMap, setFeeMap] = useState<Record<string, string>>({})
-  const [guestSelectedMap, setGuestSelectedMap] = useState<
-    Record<string, boolean>
-  >({})
+  const [guestCountMap, setGuestCountMap] = useState<Record<string, string>>({})
   const [guestFeeMap, setGuestFeeMap] = useState<Record<string, string>>({})
   const [totalAmount, setTotalAmount] = useState<string>(
     expense?.totalAmount?.toString() ?? ""
@@ -340,12 +328,18 @@ function ExpenseForm({
     if (mode === "edit" && expense?.allocations) {
       const newSelected: Record<string, boolean> = {}
       const newFees: Record<string, string> = {}
+      const newGuestCounts: Record<string, string> = {}
+      const newGuestFees: Record<string, string> = {}
       expense.allocations.forEach((a) => {
         newSelected[a.userId] = true
         newFees[a.userId] = a.requiredFee.toString()
+        newGuestCounts[a.userId] = (a.guestCount ?? 0).toString()
+        newGuestFees[a.userId] = (a.guestFee ?? 0).toString()
       })
       setSelectedMap(newSelected)
       setFeeMap(newFees)
+      setGuestCountMap(newGuestCounts)
+      setGuestFeeMap(newGuestFees)
     }
   }, [expense, mode])
 
@@ -356,24 +350,20 @@ function ExpenseForm({
         .map((m) => ({
           userId: m.userId,
           requiredFee: Number(feeMap[m.userId] || 0),
+          guestCount: Number(guestCountMap[m.userId] || 0),
+          guestFee: Number(guestFeeMap[m.userId] || 0),
         })),
-    [feeMap, members, selectedMap]
+    [feeMap, guestCountMap, guestFeeMap, members, selectedMap]
   )
 
-  const guestAllocations = useMemo(
+  const totalAllocated = useMemo(
     () =>
-      (activeGuests ?? [])
-        .filter((g) => guestSelectedMap[g.id])
-        .map((g) => ({
-          guestId: g.id,
-          requiredFee: Number(guestFeeMap[g.id] || 0),
-        })),
-    [activeGuests, guestFeeMap, guestSelectedMap]
+      allocations.reduce(
+        (sum, a) => sum + a.requiredFee + a.guestCount * a.guestFee,
+        0
+      ),
+    [allocations]
   )
-
-  const totalAllocated =
-    allocations.reduce((sum, a) => sum + a.requiredFee, 0) +
-    guestAllocations.reduce((sum, a) => sum + a.requiredFee, 0)
   const totalAmountNum = Number(totalAmount)
   const isTotalMatching =
     totalAllocated === totalAmountNum && totalAmountNum > 0
@@ -425,40 +415,87 @@ function ExpenseForm({
 
           <Field>
             <FieldLabel>Phân bổ cho thành viên</FieldLabel>
-            <div className="max-h-60 space-y-2 overflow-y-auto rounded-md border p-2">
+            <div className="max-h-80 space-y-3 overflow-y-auto rounded-md border bg-muted/5 p-3">
               {members.map((member) => (
-                <div key={member.userId} className="flex items-center gap-3">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={!!selectedMap[member.userId]}
-                      onChange={(e) =>
-                        setSelectedMap((prev) => ({
-                          ...prev,
-                          [member.userId]: e.target.checked,
-                        }))
-                      }
-                    />
-                    <span className="text-sm">{member.name}</span>
-                  </label>
-                  <Input
-                    type="number"
-                    placeholder="Số tiền"
-                    className="ml-auto w-28"
-                    value={feeMap[member.userId] ?? ""}
-                    onChange={(e) =>
-                      setFeeMap((prev) => ({
-                        ...prev,
-                        [member.userId]: e.target.value,
-                      }))
-                    }
-                    disabled={!selectedMap[member.userId]}
-                  />
+                <div
+                  key={member.userId}
+                  className="flex flex-col gap-2 rounded-md border bg-card p-2 shadow-sm"
+                >
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-2 font-medium">
+                      <input
+                        type="checkbox"
+                        checked={!!selectedMap[member.userId]}
+                        onChange={(e) =>
+                          setSelectedMap((prev) => ({
+                            ...prev,
+                            [member.userId]: e.target.checked,
+                          }))
+                        }
+                      />
+                      <span className="text-sm">{member.name}</span>
+                    </label>
+                  </div>
+                  {selectedMap[member.userId] && (
+                    <div className="mt-1 grid grid-cols-3 gap-2">
+                      <div>
+                        <span className="mb-0.5 block text-[10px] font-medium text-muted-foreground">
+                          Tiền cá nhân
+                        </span>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          className="h-8 text-xs"
+                          value={feeMap[member.userId] ?? ""}
+                          onChange={(e) =>
+                            setFeeMap((prev) => ({
+                              ...prev,
+                              [member.userId]: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div>
+                        <span className="mb-0.5 block text-[10px] font-medium text-muted-foreground">
+                          Số khách
+                        </span>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          className="h-8 text-xs"
+                          value={guestCountMap[member.userId] ?? ""}
+                          onChange={(e) =>
+                            setGuestCountMap((prev) => ({
+                              ...prev,
+                              [member.userId]: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div>
+                        <span className="mb-0.5 block text-[10px] font-medium text-muted-foreground">
+                          Đơn giá khách
+                        </span>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          className="h-8 text-xs"
+                          value={guestFeeMap[member.userId] ?? ""}
+                          onChange={(e) =>
+                            setGuestFeeMap((prev) => ({
+                              ...prev,
+                              [member.userId]: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">
+            <div className="mt-2 flex items-center justify-between text-xs">
+              <span className="font-medium text-muted-foreground">
                 Đã phân bổ: {formatCurrency(totalAllocated)} /{" "}
                 {formatCurrency(totalAmountNum)}
               </span>
@@ -468,34 +505,41 @@ function ExpenseForm({
                 size="xs"
                 onClick={() => {
                   if (totalAmountNum > 0) {
-                    const allSelected = [
-                      ...allocations,
-                      ...(mode === "create" ? guestAllocations : []),
-                    ]
-                    if (allSelected.length === 0) return
-                    const equalShare = Math.floor(
-                      totalAmountNum / allSelected.length
+                    const selectedMembers = members.filter(
+                      (m) => selectedMap[m.userId]
                     )
-                    const remainder = totalAmountNum % allSelected.length
+                    if (selectedMembers.length === 0) return
+
+                    let totalSlots = 0
+                    selectedMembers.forEach((m) => {
+                      const gCount = Number(guestCountMap[m.userId] || 0)
+                      totalSlots += 1 + gCount
+                    })
+
+                    if (totalSlots === 0) return
+                    const equalShare = Math.floor(totalAmountNum / totalSlots)
+                    const remainder = totalAmountNum % totalSlots
+
                     const newFees: Record<string, string> = { ...feeMap }
-                    allocations.forEach((a, idx) => {
-                      newFees[a.userId] = (
+                    const newGuestFees: Record<string, string> = {
+                      ...guestFeeMap,
+                    }
+
+                    selectedMembers.forEach((m, idx) => {
+                      newFees[m.userId] = (
                         equalShare + (idx === 0 ? remainder : 0)
                       ).toString()
+
+                      const gCount = Number(guestCountMap[m.userId] || 0)
+                      if (gCount > 0) {
+                        newGuestFees[m.userId] = equalShare.toString()
+                      } else {
+                        newGuestFees[m.userId] = "0"
+                      }
                     })
+
                     setFeeMap(newFees)
-                    if (mode === "create") {
-                      const newGuestFees: Record<string, string> = {}
-                      guestAllocations.forEach((a, idx) => {
-                        newGuestFees[a.guestId] = (
-                          equalShare +
-                          (idx === 0 && allocations.length === 0
-                            ? remainder
-                            : 0)
-                        ).toString()
-                      })
-                      setGuestFeeMap(newGuestFees)
-                    }
+                    setGuestFeeMap(newGuestFees)
                   }
                 }}
               >
@@ -503,44 +547,6 @@ function ExpenseForm({
               </Button>
             </div>
           </Field>
-
-          {(activeGuests?.length ?? 0) > 0 && (
-            <Field>
-              <FieldLabel>Phân bổ cho khách vãng lai</FieldLabel>
-              <div className="max-h-60 space-y-2 overflow-y-auto rounded-md border p-2">
-                {activeGuests?.map((guest) => (
-                  <div key={guest.id} className="flex items-center gap-3">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={!!guestSelectedMap[guest.id]}
-                        onChange={(e) =>
-                          setGuestSelectedMap((prev) => ({
-                            ...prev,
-                            [guest.id]: e.target.checked,
-                          }))
-                        }
-                      />
-                      <span className="text-sm">{guest.name}</span>
-                    </label>
-                    <Input
-                      type="number"
-                      placeholder="Số tiền"
-                      className="ml-auto w-28"
-                      value={guestFeeMap[guest.id] ?? ""}
-                      onChange={(e) =>
-                        setGuestFeeMap((prev) => ({
-                          ...prev,
-                          [guest.id]: e.target.value,
-                        }))
-                      }
-                      disabled={!guestSelectedMap[guest.id]}
-                    />
-                  </div>
-                ))}
-              </div>
-            </Field>
-          )}
 
           <Field>
             <FieldLabel htmlFor="expense-receipt-file">Tệp biên lai</FieldLabel>
@@ -559,14 +565,9 @@ function ExpenseForm({
         name="allocations"
         value={JSON.stringify(allocations)}
       />
-      <input
-        type="hidden"
-        name="guestAllocations"
-        value={JSON.stringify(guestAllocations)}
-      />
 
       <DialogFooter showCloseButton>
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={isPending || !isTotalMatching}>
           {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
           {mode === "create" ? "Tạo khoản chi" : "Lưu thay đổi"}
         </Button>
@@ -644,11 +645,9 @@ export function CreateTransactionButton({ groupId }: { groupId: string }) {
 export function CreateExpenseButton({
   groupId,
   members,
-  activeGuests,
 }: {
   groupId: string
   members: Member[]
-  activeGuests?: Guest[]
 }) {
   const [open, setOpen] = useState(false)
   const invalidation = useFinanceInvalidation(groupId)
@@ -669,7 +668,6 @@ export function CreateExpenseButton({
           groupId={groupId}
           mode="create"
           members={members}
-          activeGuests={activeGuests}
           onDone={() => {
             void invalidation.refreshExpenses()
             setOpen(false)
@@ -925,13 +923,11 @@ export function ExpenseRowActions({
   groupId,
   expense,
   members,
-  activeGuests,
   canManage,
 }: {
   groupId: string
   expense: ExpenseItem
   members: Member[]
-  activeGuests?: Guest[]
   canManage: boolean
 }) {
   const [editOpen, setEditOpen] = useState(false)
@@ -948,7 +944,7 @@ export function ExpenseRowActions({
       const res = await fetch(`/api/groups/${groupId}/expenses/${expense.id}`)
       const json = await res.json()
       setExpenseDetail(json.data)
-    } catch (err) {
+    } catch {
       toast.error("Không thể tải chi tiết khoản chi.")
     } finally {
       setDetailLoading(false)
@@ -1072,10 +1068,21 @@ export function ExpenseRowActions({
                         <span>{a.user?.name}</span>
                       </div>
                       <div className="text-right">
-                        <div>{formatCurrency(a.requiredFee)}</div>
+                        <div className="font-semibold">
+                          {formatCurrency(
+                            a.requiredFee +
+                              (a.guestCount ?? 0) * (a.guestFee ?? 0)
+                          )}
+                        </div>
+                        {a.guestCount && a.guestCount > 0 ? (
+                          <div className="text-[10px] text-muted-foreground">
+                            (Cá nhân: {formatCurrency(a.requiredFee)} +{" "}
+                            {a.guestCount} khách × {formatCurrency(a.guestFee)})
+                          </div>
+                        ) : null}
                         <Badge
                           variant={a.status === "PAID" ? "default" : "outline"}
-                          className="h-4 text-[10px]"
+                          className="mt-0.5 h-4 text-[10px]"
                         >
                           {a.status}
                         </Badge>
@@ -1087,41 +1094,6 @@ export function ExpenseRowActions({
                 )}
               </div>
             </div>
-
-            {expenseDetail.guestPayments &&
-              expenseDetail.guestPayments.length > 0 && (
-                <div>
-                  <div className="mb-2 text-xs text-muted-foreground uppercase">
-                    Phân bổ khách vãng lai
-                  </div>
-                  <div className="space-y-2">
-                    {expenseDetail.guestPayments.map((gp) => (
-                      <div
-                        key={gp.id}
-                        className="flex items-center justify-between rounded-md border border-dashed p-2 text-sm"
-                      >
-                        <div>
-                          <span>{gp.guest?.name || "Khách"}</span>
-                          <span className="ml-2 text-xs text-muted-foreground">
-                            (Người mời: {gp.billedToUser?.name || "-"})
-                          </span>
-                        </div>
-                        <div className="text-right">
-                          <div>{formatCurrency(gp.requiredFee)}</div>
-                          <Badge
-                            variant={
-                              gp.status === "PAID" ? "default" : "outline"
-                            }
-                            className="h-4 text-[10px]"
-                          >
-                            {gp.status}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
           </div>
         ) : null}
       </FinanceDialogShell>
@@ -1137,7 +1109,6 @@ export function ExpenseRowActions({
           mode="edit"
           expense={expense}
           members={members}
-          activeGuests={activeGuests}
           onDone={() => {
             void invalidation.refreshExpenses()
             setEditOpen(false)

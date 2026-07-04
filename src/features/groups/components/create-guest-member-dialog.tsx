@@ -12,18 +12,13 @@ import {
 } from "@/components/ui/dialog"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { NativeSelect } from "@/components/ui/native-select"
+
+import type { CreateGuestInput } from "../types/guest-member"
 
 interface CreateGuestMemberDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (input: {
-    name: string
-    email: string
-    skillLevel: string
-    phone?: string
-    gender?: "MALE" | "FEMALE"
-  }) => void
+  onSubmit: (input: CreateGuestInput) => void
 }
 
 export function CreateGuestMemberDialog({
@@ -31,26 +26,18 @@ export function CreateGuestMemberDialog({
   onOpenChange,
   onSubmit,
 }: CreateGuestMemberDialogProps) {
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [skillLevel, setSkillLevel] = useState("INTERMEDIATE")
-  const [phone, setPhone] = useState("")
-  const [gender, setGender] = useState<"MALE" | "FEMALE" | "">("")
+  const [guestCount, setGuestCount] = useState<number>(1)
+  const [sessionCount, setSessionCount] = useState<number>(1)
 
   const handleSubmit = () => {
-    if (!name.trim() || !email.trim()) return
+    if (guestCount < 1 || sessionCount < 1) return
     onSubmit({
-      name: name.trim(),
-      email: email.trim(),
-      skillLevel,
-      ...(phone.trim() ? { phone: phone.trim() } : {}),
-      ...(gender ? { gender: gender as "MALE" | "FEMALE" } : {}),
+      // Backend only accepts guestsCount / sessionsCount
+      guestsCount: guestCount,
+      sessionsCount: sessionCount,
     })
-    setName("")
-    setEmail("")
-    setSkillLevel("INTERMEDIATE")
-    setPhone("")
-    setGender("")
+    setGuestCount(1)
+    setSessionCount(1)
     onOpenChange(false)
   }
 
@@ -58,70 +45,36 @@ export function CreateGuestMemberDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Gửi yêu cầu người vãng lai</DialogTitle>
+          <DialogTitle>Gửi yêu cầu khách vãng lai</DialogTitle>
         </DialogHeader>
 
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="guest-name">Họ tên</FieldLabel>
+            <FieldLabel htmlFor="guest-count">Số lượng khách</FieldLabel>
             <Input
-              id="guest-name"
-              placeholder="Nhập họ tên"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </Field>
-
-          <Field>
-            <FieldLabel htmlFor="guest-email">Email</FieldLabel>
-            <Input
-              id="guest-email"
-              type="email"
-              placeholder="Nhập email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </Field>
-
-          <Field>
-            <FieldLabel htmlFor="guest-skill">Trình độ</FieldLabel>
-            <NativeSelect
-              id="guest-skill"
-              value={skillLevel}
-              onChange={(e) => setSkillLevel(e.target.value)}
-            >
-              <option value="BEGINNER">Mới bắt đầu</option>
-              <option value="INTERMEDIATE">Trung bình</option>
-              <option value="ADVANCED">Khá</option>
-              <option value="EXPERT">Chuyên nghiệp</option>
-            </NativeSelect>
-          </Field>
-
-          <Field>
-            <FieldLabel htmlFor="guest-phone">
-              Số điện thoại (tùy chọn)
-            </FieldLabel>
-            <Input
-              id="guest-phone"
-              placeholder="Nhập số điện thoại"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </Field>
-
-          <Field>
-            <FieldLabel htmlFor="guest-gender">Giới tính (tùy chọn)</FieldLabel>
-            <NativeSelect
-              id="guest-gender"
-              value={gender}
+              id="guest-count"
+              type="number"
+              min={1}
+              placeholder="Nhập số lượng khách"
+              value={guestCount}
               onChange={(e) =>
-                setGender(e.target.value as "MALE" | "FEMALE" | "")
+                setGuestCount(Math.max(1, parseInt(e.target.value) || 1))
               }
-            >
-              <option value="">Chọn giới tính</option>
-              <option value="MALE">Nam</option>
-              <option value="FEMALE">Nữ</option>
-            </NativeSelect>
+            />
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="session-count">Số buổi đăng ký</FieldLabel>
+            <Input
+              id="session-count"
+              type="number"
+              min={1}
+              placeholder="Nhập số buổi"
+              value={sessionCount}
+              onChange={(e) =>
+                setSessionCount(Math.max(1, parseInt(e.target.value) || 1))
+              }
+            />
           </Field>
         </FieldGroup>
 
@@ -131,7 +84,7 @@ export function CreateGuestMemberDialog({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={!name.trim() || !email.trim()}
+            disabled={guestCount < 1 || sessionCount < 1}
           >
             Gửi yêu cầu
           </Button>

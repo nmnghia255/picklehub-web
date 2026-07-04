@@ -27,7 +27,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -86,14 +85,52 @@ const CONDITION_LABELS: Record<string, string> = {
   RETIRED: "Đã loại bỏ",
 }
 
-const CONDITION_VARIANTS: Record<
-  string,
-  "default" | "secondary" | "outline" | "destructive"
-> = {
-  NEW: "default",
-  GOOD: "secondary",
-  WORN: "outline",
-  RETIRED: "destructive",
+function EquipmentConditionBadge({ condition }: { condition: string }) {
+  const label = CONDITION_LABELS[condition] ?? condition
+  const baseStyles =
+    "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+  switch (condition) {
+    case "NEW":
+      return (
+        <span
+          className={`${baseStyles} border-emerald-500/20 bg-emerald-500/10 text-emerald-500`}
+        >
+          {label}
+        </span>
+      )
+    case "GOOD":
+      return (
+        <span
+          className={`${baseStyles} border-blue-500/20 bg-blue-500/10 text-blue-500`}
+        >
+          {label}
+        </span>
+      )
+    case "WORN":
+      return (
+        <span
+          className={`${baseStyles} border-amber-500/20 bg-amber-500/10 text-amber-500`}
+        >
+          {label}
+        </span>
+      )
+    case "RETIRED":
+      return (
+        <span
+          className={`${baseStyles} border-rose-500/20 bg-rose-500/10 text-rose-500`}
+        >
+          {label}
+        </span>
+      )
+    default:
+      return (
+        <span
+          className={`${baseStyles} border-zinc-500/20 bg-zinc-500/10 text-zinc-400`}
+        >
+          {label}
+        </span>
+      )
+  }
 }
 
 function formatCurrency(value?: number | null) {
@@ -1100,15 +1137,9 @@ export function GroupEquipmentSection({
                             </TableCell>
                             <TableCell>{item.quantity}</TableCell>
                             <TableCell>
-                              <Badge
-                                variant={
-                                  CONDITION_VARIANTS[item.condition] ??
-                                  "outline"
-                                }
-                              >
-                                {CONDITION_LABELS[item.condition] ??
-                                  item.condition}
-                              </Badge>
+                              <EquipmentConditionBadge
+                                condition={item.condition}
+                              />
                             </TableCell>
                             <TableCell>
                               {formatCurrency(item.purchaseCost)}
@@ -1270,15 +1301,9 @@ export function GroupEquipmentSection({
                           <TableCell>{item.defaultQuantity ?? "-"}</TableCell>
                           <TableCell>
                             {item.defaultCondition ? (
-                              <Badge
-                                variant={
-                                  CONDITION_VARIANTS[item.defaultCondition] ??
-                                  "outline"
-                                }
-                              >
-                                {CONDITION_LABELS[item.defaultCondition] ??
-                                  item.defaultCondition}
-                              </Badge>
+                              <EquipmentConditionBadge
+                                condition={item.defaultCondition}
+                              />
                             ) : (
                               "-"
                             )}
