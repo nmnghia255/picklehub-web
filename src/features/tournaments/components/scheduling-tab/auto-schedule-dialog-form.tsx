@@ -64,11 +64,8 @@ export function AutoScheduleDialogForm({
   const [matchDuration, setMatchDuration] = useState(
     autoScheduleConfig?.matchDurationMinutes?.toString() || "15"
   )
-  const [bufferDuration, setBufferDuration] = useState(
-    autoScheduleConfig?.minBreakBetweenMatchesMinutes?.toString() || "15"
-  )
   const [restTime, setRestTime] = useState(
-    autoScheduleConfig?.restDurationMinutes?.toString() || "30"
+    autoScheduleConfig?.restDurationMinutes?.toString() || "15"
   )
   const [optimization, setOptimization] = useState<
     "fastest" | "balanced" | "max_rest"
@@ -101,7 +98,6 @@ export function AutoScheduleDialogForm({
     endTime: endTime,
     matchDurationMinutes: Number(matchDuration),
     restDurationMinutes: Number(restTime),
-    minBreakBetweenMatchesMinutes: Number(bufferDuration),
     optimizationCriteria: optimization,
   })
 
@@ -125,7 +121,12 @@ export function AutoScheduleDialogForm({
       )
       if (res.success && res.data) {
         setPreviewResult(res.data)
-        setPreview(config, res.data.previewAssignments || [], activeEventId)
+        setPreview(
+          config,
+          res.data.previewAssignments || [],
+          activeEventId,
+          res.data.warnings || []
+        )
         toast.success(
           t("scheduling.toasts.previewSuccess", {
             defaultValue:
@@ -261,7 +262,7 @@ export function AutoScheduleDialogForm({
           </div>
         </div>
 
-        {/* Match Duration & Buffer */}
+        {/* Match Duration & Athlete Rest Time */}
         <div className="grid grid-cols-2 gap-6">
           <div>
             <Label htmlFor="match-duration">
@@ -278,24 +279,6 @@ export function AutoScheduleDialogForm({
             />
           </div>
           <div>
-            <Label htmlFor="break-duration">
-              {t("scheduling.autoScheduleForm.breakDuration", {
-                defaultValue: "Court Cleaning Break (Minutes)",
-              })}
-            </Label>
-            <Input
-              id="break-duration"
-              type="number"
-              value={bufferDuration}
-              onChange={(e) => setBufferDuration(e.target.value)}
-              className="mt-3"
-            />
-          </div>
-        </div>
-
-        {/* Athlete Rest Time & Optimization */}
-        <div className="grid grid-cols-2 gap-6">
-          <div>
             <Label htmlFor="rest-time">
               {t("scheduling.autoScheduleForm.restTime", {
                 defaultValue:
@@ -310,43 +293,42 @@ export function AutoScheduleDialogForm({
               className="mt-3"
             />
           </div>
-          <div className="min-w-0">
-            <Label htmlFor="optimize-for" className="block truncate">
-              {t("scheduling.autoScheduleForm.optimizeFor", {
-                defaultValue: "Optimization Criteria",
-              })}
-            </Label>
-            <Select
-              value={optimization}
-              onValueChange={(val: "fastest" | "balanced" | "max_rest") =>
-                setOptimization(val)
-              }
-            >
-              <SelectTrigger
-                id="optimize-for"
-                className="mt-3 w-full truncate bg-white"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="fastest">
-                  {t("scheduling.autoScheduleForm.optimizeOptions.fastest", {
-                    defaultValue: "Fastest Completion",
-                  })}
-                </SelectItem>
-                <SelectItem value="balanced">
-                  {t("scheduling.autoScheduleForm.optimizeOptions.balanced", {
-                    defaultValue: "Balanced Court Usage",
-                  })}
-                </SelectItem>
-                <SelectItem value="max_rest">
-                  {t("scheduling.autoScheduleForm.optimizeOptions.rest", {
-                    defaultValue: "Maximum Rest Time",
-                  })}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        </div>
+
+        {/* Optimization Criteria */}
+        <div>
+          <Label htmlFor="optimize-for">
+            {t("scheduling.autoScheduleForm.optimizeFor", {
+              defaultValue: "Optimization Criteria",
+            })}
+          </Label>
+          <Select
+            value={optimization}
+            onValueChange={(val: "fastest" | "balanced" | "max_rest") =>
+              setOptimization(val)
+            }
+          >
+            <SelectTrigger id="optimize-for" className="mt-3 w-full bg-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="fastest">
+                {t("scheduling.autoScheduleForm.optimizeOptions.fastest", {
+                  defaultValue: "Fastest Completion",
+                })}
+              </SelectItem>
+              <SelectItem value="balanced">
+                {t("scheduling.autoScheduleForm.optimizeOptions.balanced", {
+                  defaultValue: "Balanced Court Usage",
+                })}
+              </SelectItem>
+              <SelectItem value="max_rest">
+                {t("scheduling.autoScheduleForm.optimizeOptions.rest", {
+                  defaultValue: "Maximum Rest Time",
+                })}
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -367,13 +349,15 @@ export function AutoScheduleDialogForm({
                 })}
               </span>
               <span className="text-sm font-bold">
-                {previewResult.projectedCompletedAt
-                  ? new Date(
-                      previewResult.projectedCompletedAt
-                    ).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })
+                {previewResult.expectedCompletionTime
+                  ? isNaN(Date.parse(previewResult.expectedCompletionTime))
+                    ? previewResult.expectedCompletionTime
+                    : new Date(
+                        previewResult.expectedCompletionTime
+                      ).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
                   : "N/A"}
               </span>
             </div>
@@ -395,8 +379,8 @@ export function AutoScheduleDialogForm({
               </span>
               <span className="text-sm font-bold">
                 {t("scheduling.autoScheduleForm.courtsUsedCount", {
-                  count: previewResult.courtsUsedCount,
-                  defaultValue: `${previewResult.courtsUsedCount} courts`,
+                  count: previewResult.totalCourtsUsed,
+                  defaultValue: `${previewResult.totalCourtsUsed} courts`,
                 })}
               </span>
             </div>
@@ -430,6 +414,21 @@ export function AutoScheduleDialogForm({
                 </div>
               </div>
             )}
+
+          {previewResult.warnings && previewResult.warnings.length > 0 && (
+            <div className="mt-3 rounded border border-yellow-200 bg-yellow-50 p-3 text-xs text-yellow-800">
+              <div className="mb-1.5 font-bold">
+                {t("scheduling.autoScheduleForm.warningsTitle", {
+                  defaultValue: "Warnings:",
+                })}
+              </div>
+              <ul className="list-disc space-y-1 pl-4">
+                {previewResult.warnings.map((w, idx) => (
+                  <li key={idx}>{w}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
 

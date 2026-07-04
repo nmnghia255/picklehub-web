@@ -5,7 +5,7 @@ import { toast } from "sonner"
 
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
-import { executeAutoScheduleAction } from "../../actions/schedule-actions"
+import { confirmAutoScheduleAction } from "../../actions/schedule-actions"
 import {
   useAutoScheduleConfig,
   useBookings,
@@ -14,7 +14,6 @@ import {
   useIsPreviewMode,
   usePreviewAssignments,
   usePreviewEventId,
-  useScheduledMatches,
   useSchedulingStore,
   useSelectedCenterId,
   useSetViewMode,
@@ -244,8 +243,20 @@ export function Scheduling({
 
   // Computed selector hooks
   const unscheduledMatches = useUnscheduledMatches()
-  const scheduledMatches = useScheduledMatches()
   const courtsList = useCourtsList()
+
+  // Filter scheduled matches and mark other event matches
+  const allScheduledMatchesForGrid = useMemo(() => {
+    return fixtures
+      .filter((f) => f.court)
+      .map((m) => ({
+        ...m,
+        isOtherEvent:
+          selectedEventId &&
+          selectedEventId !== "all" &&
+          m.eventId?.toString() !== selectedEventId,
+      }))
+  }, [fixtures, selectedEventId])
   const bookings = useBookings()
   const centers = useCenters()
   const selectedCenterId = useSelectedCenterId()
@@ -332,10 +343,10 @@ export function Scheduling({
 
     setIsConfirmingAutoSchedule(true)
     try {
-      const res = await executeAutoScheduleAction(
+      const res = await confirmAutoScheduleAction(
         tournamentId,
         previewEventId,
-        autoScheduleConfig
+        { assignments: previewAssignments }
       )
 
       if (res.success) {
@@ -667,7 +678,7 @@ export function Scheduling({
         <TimelineGrid
           courtsList={courtsList}
           timeSlots={dynamicTimeSlots}
-          scheduledMatches={scheduledMatches.filter((m) =>
+          scheduledMatches={allScheduledMatchesForGrid.filter((m) =>
             isSameLocalDate(m.startTime, selectedDate)
           )}
           previewMatches={

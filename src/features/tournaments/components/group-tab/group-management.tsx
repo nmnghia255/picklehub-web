@@ -73,7 +73,7 @@ export function GroupManagement({
     }
   }, [reset])
 
-  const isEditable = true || (isHost && !hideEventSelect)
+  const isEditable = isHost
 
   if (events.length === 0) {
     return (

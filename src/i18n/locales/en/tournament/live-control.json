@@ -1,21 +1,53 @@
 {
   "liveControl": {
     "title": "Live Control Center",
-    "subtitle": "Real-time tournament operations dashboard",
+    "subtitle": "Monitor live matches, check-in players, and synchronize referee sheets.",
     "metrics": {
       "liveBadge": "Live",
       "activeMatches": "Active Matches",
-      "upcomingMatches": "Upcoming Matches",
-      "availableCourts": "Available Courts",
+      "upcomingBadge": "Upcoming",
+      "upcomingMatches": "Scheduled Queue",
+      "courtsBadge": "Courts",
+      "courtsInUse": "Courts in Use",
+      "playersBadge": "Players",
       "checkedInPlayers": "Checked-in Players"
+    },
+    "operations": {
+      "title": "Tournament Operations",
+      "dispatchTitle": "Dispatch Matches",
+      "dispatchDesc": "Send scheduled matches of the selected event to the match service for referee scoring.",
+      "chooseEvent": "Choose Event",
+      "btnDispatch": "Dispatch",
+      "syncTitle": "Sync Match Results",
+      "syncDesc": "Fetch and update match scores, completed sets, and advancement status from referee scoring sheets.",
+      "btnSync": "Synchronize All Matches"
+    },
+    "checkin": {
+      "title": "Desk Player Check-In",
+      "searchPlaceholder": "Search athlete name, partner name, or registration ID...",
+      "noMatchingRegs": "No matching registrations found",
+      "eventLabel": "Event:",
+      "clearSelection": "Clear Selection",
+      "regDetail": "Registration ID: {{id}} • Event: {{event}}",
+      "checkedInAt": "Checked in: {{time}}",
+      "btnCheckin": "Check In",
+      "noRegSelected": "Select a player registration above to manage check-in."
     },
     "liveMatches": {
       "title": "Live Matches",
+      "titleWithCount": "Active Live Matches ({{count}})",
+      "noMatches": "No live matches currently in progress",
+      "refName": "Ref: {{refName}}",
       "vs": "vs"
     },
     "matchQueue": {
       "title": "Match Queue",
+      "titleWithCount": "Scheduled Queue ({{count}})",
+      "noMatches": "No upcoming scheduled matches",
+      "noCourt": "No Court",
+      "tbd": "TBD",
       "ready": "Ready",
+      "scheduled": "Scheduled",
       "waiting": "Waiting"
     },
     "courtStatus": {
@@ -25,6 +57,19 @@
     },
     "announcements": {
       "title": "Announcements"
+    },
+    "toasts": {
+      "loadFailed": "Failed to load control center data",
+      "selectEventDispatch": "Please select an event to dispatch",
+      "dispatchSuccess": "Matches dispatched to referee score sheets successfully!",
+      "dispatchFailed": "Failed to dispatch matches",
+      "dispatchError": "An error occurred during dispatch",
+      "syncSuccess": "Tournament results and brackets synchronized from referee service!",
+      "syncFailed": "Failed to sync tournament matches",
+      "syncError": "An error occurred during match sync",
+      "checkinSuccess": "Checked in {{player}} successfully!",
+      "checkinFailed": "Failed to check-in player",
+      "checkinError": "An error occurred during check-in"
     }
   },
   "referee": {

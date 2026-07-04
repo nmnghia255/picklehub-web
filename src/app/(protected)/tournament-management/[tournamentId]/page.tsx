@@ -1,4 +1,6 @@
+import { Loader2 } from "lucide-react"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
 import { TournamentEventService } from "@/features/tournaments/api/events-service"
 import { TournamentPrizeService } from "@/features/tournaments/api/prizes-service"
@@ -66,14 +68,22 @@ export default async function TournamentDetailPage(props: {
 
   return (
     <div className="tournament-management-root flex flex-1 flex-col">
-      <TournamentManager
-        tournament={tournament}
-        events={events}
-        prizes={prizes}
-        sponsors={sponsors}
-        registrations={registrations}
-        isHost={isHost}
-      />
+      <Suspense
+        fallback={
+          <div className="flex h-screen items-center justify-center bg-gray-50/50">
+            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+          </div>
+        }
+      >
+        <TournamentManager
+          tournament={tournament}
+          events={events}
+          prizes={prizes}
+          sponsors={sponsors}
+          registrations={registrations}
+          isHost={isHost}
+        />
+      </Suspense>
     </div>
   )
 }

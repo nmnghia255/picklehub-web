@@ -20,12 +20,24 @@
       "events": {
         "all": "Tất Cả Nội Dung"
       },
+      "centers": {
+        "placeholder": "Chọn sân"
+      },
       "reloadBtn": "Tải Lại Lịch Trình",
       "autoScheduleBtn": "Tự động xếp lịch",
       "cancelAutoScheduleBtn": "Hủy",
       "modes": {
-        "normal": "Chế độ Thường",
-        "preview": "Chế độ Xem trước"
+        "normal": "Chế độ thường",
+        "preview": "Xem trước"
+      },
+      "warningsCount": "Có {{count}} Cảnh Báo",
+      "warningsTitle": "Cảnh báo Lập lịch tự động:",
+      "warningsDialog": {
+        "title": "Cảnh Báo Lập Lịch Tự Động",
+        "close": "Đóng"
+      },
+      "dates": {
+        "noDates": "Không có lịch"
       }
     },
     "grid": {
@@ -38,6 +50,7 @@
       "assignReferee": "Phân Công Trọng Tài",
       "unschedule": "Hủy Lịch Đấu",
       "refereeName": "Trọng tài: {{name}}",
+      "referee": "Trọng tài",
       "start": "Bắt đầu: {{time}}",
       "duration": "Thời lượng: {{duration}} phút",
       "court": "Sân: {{court}}",
@@ -45,7 +58,9 @@
       "refName": "Trọng tài: {{refereeName}}",
       "previewLabel": "Xem trước",
       "previewAllocation": "Phân bổ xem trước",
-      "previewNote": "Đây là phân bổ xem trước. Bấm \"Xác nhận & Chạy Lập lịch tự động\" ở biểu ngữ để áp dụng cấu hình này."
+      "previewNote": "Đây là phân bổ xem trước. Bấm \"Xác nhận & Chạy Lập lịch tự động\" ở biểu ngữ để áp dụng cấu hình này.",
+      "otherEvent": "Nội dung khác",
+      "otherEventNote": "Trận đấu này thuộc nội dung khác ({{event}}). Chuyển nội dung để quản lý."
     },
     "preview": {
       "title": "Chế độ xem trước Lịch Trình Tự Động đang hoạt động",
@@ -86,7 +101,8 @@
       "previewBtn": "Xem Trước Kết Quả",
       "calculating": "Đang tính toán...",
       "applying": "Đang áp dụng...",
-      "applyBtn": "Lưu & Áp Dụng Lịch"
+      "applyBtn": "Lưu & Áp Dụng Lịch",
+      "warningsTitle": "Cảnh báo:"
     },
     "referee": {
       "modalTitle": "Phân Công Trọng Tài Bắt Chính",

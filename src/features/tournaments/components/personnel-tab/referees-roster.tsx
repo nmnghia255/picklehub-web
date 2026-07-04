@@ -281,7 +281,9 @@ export function RefereesRoster() {
                     <Calendar className="h-3.5 w-3.5 shrink-0 text-gray-400" />
                     <span>
                       {t("personnel.roster.enrolledDate", {
-                        date: new Date(referee.enrolledAt).toLocaleDateString(),
+                        date: new Date(referee.enrolledAt).toLocaleDateString(
+                          "vi-VN"
+                        ),
                       })}
                     </span>
                   </div>

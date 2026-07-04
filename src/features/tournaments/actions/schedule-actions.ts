@@ -8,6 +8,7 @@ import { TournamentScheduleService } from "../api/schedule-service"
 import { TournamentCourtService } from "../api/tournament-court-service"
 import type {
   AutoScheduleConfigDto,
+  ConfirmAutoScheduleRequest,
   FixtureResultRequest,
   TournamentScheduleRequest,
 } from "../types/schedule"
@@ -30,6 +31,7 @@ export async function linkBookingItemToFixtureAction(
   payload: TournamentScheduleRequest
 ) {
   try {
+    payload.matchDurationMinutes = 15
     const data = await TournamentScheduleService.scheduleFixture(
       tournamentId,
       fixtureId,
@@ -119,15 +121,44 @@ export async function executeAutoScheduleAction(
   config: AutoScheduleConfigDto
 ) {
   try {
-    const data = await TournamentScheduleService.runAutoSchedule(
+    const previewData = await TournamentScheduleService.previewAutoSchedule(
       Number(tournamentId),
       Number(eventId),
       config
+    )
+    const data = await TournamentScheduleService.confirmAutoSchedule(
+      Number(tournamentId),
+      Number(eventId),
+      { assignments: previewData.previewAssignments }
     )
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to execute auto-schedule:", error)
     let errorMessage = "Failed to execute auto-schedule"
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.message || error.message
+    } else if (error instanceof Error) {
+      errorMessage = error.message
+    }
+    return { success: false, error: errorMessage }
+  }
+}
+
+export async function confirmAutoScheduleAction(
+  tournamentId: string | number,
+  eventId: string | number,
+  payload: ConfirmAutoScheduleRequest
+) {
+  try {
+    const data = await TournamentScheduleService.confirmAutoSchedule(
+      Number(tournamentId),
+      Number(eventId),
+      payload
+    )
+    return { success: true, data }
+  } catch (error: unknown) {
+    console.error("Failed to confirm auto-schedule:", error)
+    let errorMessage = "Failed to confirm auto-schedule"
     if (axios.isAxiosError(error)) {
       errorMessage = error.response?.data?.message || error.message
     } else if (error instanceof Error) {

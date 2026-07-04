@@ -17,7 +17,8 @@ import {
   Trophy,
   Users,
 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
+import { useState } from "react"
 
 import { BackButton } from "@/components/common/back-button"
 import {
@@ -33,7 +34,7 @@ import { TournamentDashboard } from "@/features/tournaments/components/dashboard
 import { EventManagement } from "@/features/tournaments/components/events-tab/event-management"
 import { FinancialDashboard } from "@/features/tournaments/components/financial-tab/financial-dashboard"
 import { GroupManagement } from "@/features/tournaments/components/group-tab/group-management"
-import { LiveControlCenter } from "@/features/tournaments/components/live-control-center"
+import { LiveControlCenter } from "@/features/tournaments/components/live-control-tab/live-control-center"
 import { RegistrationManagement } from "@/features/tournaments/components/registrations-tab/registration-management"
 import { Scheduling } from "@/features/tournaments/components/scheduling-tab/scheduling"
 import { Seeding } from "@/features/tournaments/components/seeds-tab/seeding"
@@ -100,7 +101,15 @@ export function TournamentManager({
   registrations?: RegistrationResponse[]
 }) {
   const { t } = useTournamentTranslation()
-  const [activeTab, setActiveTab] = useState("dashboard")
+  const searchParams = useSearchParams()
+  const tabParam = searchParams?.get("tab")
+  const [activeTab, setActiveTab] = useState(tabParam || "dashboard")
+  const [prevTabParam, setPrevTabParam] = useState(tabParam)
+
+  if (tabParam !== prevTabParam) {
+    setPrevTabParam(tabParam)
+    setActiveTab(tabParam || "dashboard")
+  }
 
   const isSm = useMediaQuery("(min-width: 640px)")
   const isMd = useMediaQuery("(min-width: 768px)")
@@ -174,17 +183,6 @@ export function TournamentManager({
   const dropdownTabs = allSelectableTabs.filter(
     (tab) => !displayTabs.includes(tab)
   )
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const tab = params.get("tab")
-    if (tab) {
-      const timer = setTimeout(() => {
-        setActiveTab(tab)
-      }, 0)
-      return () => clearTimeout(timer)
-    }
-  }, [])
 
   return (
     <div

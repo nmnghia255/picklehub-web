@@ -38,6 +38,7 @@ interface Player {
 export interface TournamentScheduleRequest {
   bookingId: number
   bookingItemId: string
+  matchDurationMinutes: number
 }
 
 export interface AutoScheduleConfigDto {
@@ -45,13 +46,12 @@ export interface AutoScheduleConfigDto {
   endTime: string
   matchDurationMinutes: number
   restDurationMinutes: number
-  minBreakBetweenMatchesMinutes: number
   optimizationCriteria: "fastest" | "balanced" | "max_rest"
 }
 
 export interface PreviewAssignment {
   matchId: number
-  round?: string
+  round: string
   team1Name?: string
   team2Name?: string
   courtName: string // API returns the court GUID in this field
@@ -63,9 +63,10 @@ export interface PreviewAssignment {
 }
 
 export interface AutoSchedulePreviewResponse {
-  projectedCompletedAt: string
+  expectedCompletionTime: string
   scheduledMatchesCount: number
-  courtsUsedCount: number
+  totalCourtsUsed: number
+  warnings: string[]
   previewAssignments: PreviewAssignment[]
 }
 
@@ -74,4 +75,8 @@ export interface FixtureResultRequest {
   score?: string | null
   status?: string
   sets?: { score1: number; score2: number }[]
+}
+
+export interface ConfirmAutoScheduleRequest {
+  assignments: PreviewAssignment[]
 }

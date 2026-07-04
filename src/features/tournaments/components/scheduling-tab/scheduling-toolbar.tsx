@@ -1,8 +1,15 @@
 "use client"
 
-import { CalendarDays, MapPin, RefreshCw } from "lucide-react"
+import { AlertTriangle, CalendarDays, MapPin, RefreshCw } from "lucide-react"
+import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   Select,
   SelectContent,
@@ -10,8 +17,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
+import { useSchedulingStore } from "../../stores/use-scheduling-store"
 import type { TournamentCenter } from "../../types/tournament-center"
 import type { TournamentEvent } from "../../types/tournament-event"
 
@@ -51,6 +65,8 @@ export function SchedulingToolbar({
   hasPreview = false,
 }: SchedulingToolbarProps) {
   const { t } = useTournamentTranslation()
+  const previewWarnings = useSchedulingStore((s) => s.previewWarnings)
+  const [isWarningsDialogOpen, setIsWarningsDialogOpen] = useState(false)
 
   return (
     <div className="border-b border-gray-200 bg-white p-4">
@@ -110,9 +126,9 @@ export function SchedulingToolbar({
 
         {/* Event Select */}
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-600">
+          {/* <span className="text-sm font-medium text-gray-600">
             {t("scheduling.toolbar.eventLabel", { defaultValue: "Event:" })}
-          </span>
+          </span> */}
           <Select value={selectedEventId} onValueChange={setSelectedEventId}>
             <SelectTrigger className="w-64 bg-white">
               <SelectValue
@@ -164,6 +180,80 @@ export function SchedulingToolbar({
               })}
             </button>
           </div>
+        )}
+
+        {/* Warnings Section */}
+        {hasPreview && previewWarnings && previewWarnings.length > 0 && (
+          <>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    onClick={() => setIsWarningsDialogOpen(true)}
+                    className="ml-4 flex cursor-pointer items-center gap-1.5 rounded-lg border border-yellow-200 bg-yellow-50 px-3 py-1.5 text-xs font-semibold text-yellow-800 shadow-xs hover:bg-yellow-100/80"
+                  >
+                    <AlertTriangle className="h-4 w-4 animate-bounce text-yellow-600" />
+                    <span>
+                      {t("scheduling.toolbar.warningsCount", {
+                        count: previewWarnings.length,
+                        defaultValue: `${previewWarnings.length} Warnings`,
+                      })}
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="bottom"
+                  className="w-80 rounded-lg border border-yellow-200 bg-white p-3 text-gray-900 shadow-lg"
+                >
+                  <div className="space-y-1.5 text-xs">
+                    <div className="font-bold text-yellow-900">
+                      {t("scheduling.toolbar.warningsTitle", {
+                        defaultValue: "Auto-Scheduling Warnings:",
+                      })}
+                    </div>
+                    <ul className="list-disc space-y-1 pl-4 text-gray-700">
+                      {previewWarnings.map((warning, idx) => (
+                        <li key={idx}>{warning}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <Dialog
+              open={isWarningsDialogOpen}
+              onOpenChange={setIsWarningsDialogOpen}
+            >
+              <DialogContent className="max-w-md bg-white p-6">
+                <DialogHeader className="mb-4">
+                  <DialogTitle className="flex items-center gap-2 text-yellow-800">
+                    <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                    {t("scheduling.toolbar.warningsDialog.title", {
+                      defaultValue: "Auto-Scheduling Warnings",
+                    })}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="max-h-60 space-y-2 overflow-y-auto rounded border bg-gray-50 p-4 text-xs text-gray-700">
+                  <ul className="list-disc space-y-2 pl-4">
+                    {previewWarnings.map((warning, idx) => (
+                      <li key={idx}>{warning}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="mt-0 flex justify-end">
+                  <Button
+                    onClick={() => setIsWarningsDialogOpen(false)}
+                    className="bg-emerald-600 font-medium text-white hover:bg-emerald-700"
+                  >
+                    {t("scheduling.toolbar.warningsDialog.close", {
+                      defaultValue: "Close",
+                    })}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </>
         )}
 
         {/* Action Buttons */}

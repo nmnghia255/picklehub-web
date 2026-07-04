@@ -168,13 +168,17 @@ export default function ConfirmBookingDialog() {
       // Clear selected slots now that booking is fully completed
       useBookingStore.setState({ selectedCourts: {} })
       setIsConfirmDialogOpen(false)
+      const rawTournamentId = tournamentId || routeParams.tournamentId
       const finalTournamentId =
-        tournamentId ||
-        (routeParams.tournamentId ? Number(routeParams.tournamentId) : null)
+        rawTournamentId && !isNaN(Number(rawTournamentId))
+          ? Number(rawTournamentId)
+          : null
       if (finalTournamentId) {
         router.push(`/tournament-management/${finalTournamentId}?tab=bookings`)
-        router.refresh()
+      } else {
+        router.push("/tournament-management")
       }
+      router.refresh()
     } catch (err: unknown) {
       console.error("Booking error:", err)
 
@@ -187,15 +191,19 @@ export default function ConfirmBookingDialog() {
           })
         )
         setIsConfirmDialogOpen(false)
+        const rawTournamentId = tournamentId || routeParams.tournamentId
         const finalTournamentId =
-          tournamentId ||
-          (routeParams.tournamentId ? Number(routeParams.tournamentId) : null)
+          rawTournamentId && !isNaN(Number(rawTournamentId))
+            ? Number(rawTournamentId)
+            : null
         if (finalTournamentId) {
           router.push(
             `/tournament-management/${finalTournamentId}?tab=bookings`
           )
-          router.refresh()
+        } else {
+          router.push("/tournament-management")
         }
+        router.refresh()
       } else {
         // Reservation failed entirely
         toast.error(

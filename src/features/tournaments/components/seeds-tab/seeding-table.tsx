@@ -74,8 +74,8 @@ export function SeedingTable({
   const handleDrop = useSeedingStore((s) => s.handleDrop)
 
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="border-b border-gray-100 bg-gray-50/50 py-4">
+    <Card className="gap-0 overflow-hidden pb-0">
+      <CardHeader className="border-b border-gray-100 py-4">
         <CardTitle className="text-lg font-medium text-gray-900">
           {selectedEvent
             ? t("seeding.eventSeeding", { eventName: selectedEvent.name })

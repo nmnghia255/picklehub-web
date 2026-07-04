@@ -3,6 +3,7 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 import type {
   AutoScheduleConfigDto,
   AutoSchedulePreviewResponse,
+  ConfirmAutoScheduleRequest,
   TournamentSchedule,
   TournamentScheduleRequest,
 } from "../types/schedule"
@@ -73,15 +74,16 @@ export const TournamentScheduleService = {
     return unwrapApiResponse(response.data)
   },
 
-  // Runs the auto-scheduling algorithm, persists match court/time slot assignments to the database, writes audit logs, and emails VĐVs.
-  runAutoSchedule: async (
+  // Validates a customized preview layout and commits the match assignments to the database in a transaction,
+  // writing audit logs and dispatching notifications.
+  confirmAutoSchedule: async (
     tournamentId: number,
     eventId: number,
-    payload: AutoScheduleConfigDto
+    payload: ConfirmAutoScheduleRequest
   ) => {
     const axios = await getAuthenticatedAxios()
     const response = await axios.post<ApiResponse<AutoSchedulePreviewResponse>>(
-      `/api/tournaments/${tournamentId}/events/${eventId}/auto-schedule`,
+      `/api/tournaments/${tournamentId}/events/${eventId}/auto-schedule/confirm`,
       payload
     )
     return unwrapApiResponse(response.data)

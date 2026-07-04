@@ -27,6 +27,12 @@
       "modes": {
         "normal": "Normal Mode",
         "preview": "Preview Mode"
+      },
+      "warningsCount": "{{count}} Warnings",
+      "warningsTitle": "Auto-Scheduling Warnings:",
+      "warningsDialog": {
+        "title": "Auto-Scheduling Warnings",
+        "close": "Close"
       }
     },
     "grid": {
@@ -39,6 +45,7 @@
       "assignReferee": "Assign Referee",
       "unschedule": "Unschedule",
       "refereeName": "Referee: {{name}}",
+      "referee": "Referee",
       "start": "Start: {{time}}",
       "duration": "Duration: {{duration}} min",
       "court": "Court: {{court}}",
@@ -46,7 +53,9 @@
       "refName": "Ref: {{refereeName}}",
       "previewLabel": "Preview",
       "previewAllocation": "Preview Allocation",
-      "previewNote": "This is a preview assignment. Click \"Confirm & Run Auto-Scheduling\" in the banner to apply this configuration."
+      "previewNote": "This is a preview assignment. Click \"Confirm & Run Auto-Scheduling\" in the banner to apply this configuration.",
+      "otherEvent": "Other Event",
+      "otherEventNote": "This match belongs to another event ({{event}}). Switch events to manage it."
     },
     "preview": {
       "title": "Auto-Scheduling Preview Active",
@@ -87,7 +96,8 @@
       "previewBtn": "Preview Result",
       "calculating": "Calculating...",
       "applying": "Applying...",
-      "applyBtn": "Save & Apply Schedule"
+      "applyBtn": "Save & Apply Schedule",
+      "warningsTitle": "Warnings:"
     },
     "referee": {
       "modalTitle": "Assign Chief Referee",

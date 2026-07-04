@@ -32,6 +32,7 @@
       "viewControls": "Bảng điều khiển xem",
       "zoomOut": "Thu nhỏ",
       "zoomIn": "Phóng to",
+      "refresh": "Tải lại",
       "fitScreen": "Vừa màn hình ({{zoom}}%)",
       "stats": {
         "total": "Tổng số trận",

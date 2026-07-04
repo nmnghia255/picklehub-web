@@ -137,6 +137,7 @@ interface SchedulingState {
   // Preview state
   autoScheduleConfig: AutoScheduleConfigDto | null
   previewAssignments: PreviewAssignment[]
+  previewWarnings: string[]
   previewEventId: string | null
   isPreviewMode: boolean
   viewMode: "normal" | "preview"
@@ -144,7 +145,8 @@ interface SchedulingState {
   setPreview: (
     config: AutoScheduleConfigDto,
     assignments: PreviewAssignment[],
-    eventId: string
+    eventId: string,
+    warnings: string[]
   ) => void
   clearPreview: () => void
   updatePreviewAssignment: (
@@ -201,14 +203,21 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
 
   autoScheduleConfig: null,
   previewAssignments: [],
+  previewWarnings: [],
   previewEventId: null,
   isPreviewMode: false,
   viewMode: "normal",
   setViewMode: (viewMode) => set({ viewMode }),
-  setPreview: (autoScheduleConfig, previewAssignments, previewEventId) =>
+  setPreview: (
+    autoScheduleConfig,
+    previewAssignments,
+    previewEventId,
+    previewWarnings
+  ) =>
     set({
       autoScheduleConfig,
       previewAssignments,
+      previewWarnings,
       previewEventId,
       isPreviewMode: true,
       viewMode: "preview",
@@ -217,6 +226,7 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
     set({
       autoScheduleConfig: null,
       previewAssignments: [],
+      previewWarnings: [],
       previewEventId: null,
       isPreviewMode: false,
       viewMode: "normal",
@@ -649,6 +659,7 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
         {
           bookingId: foundBookingId,
           bookingItemId: foundBookingItemId,
+          matchDurationMinutes: selectedMatchForManual.duration || 15,
         }
       )
       if (res.success) {
