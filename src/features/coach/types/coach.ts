@@ -562,26 +562,29 @@ export interface CreateBookingDto {
 
 export interface LearnerScheduleItem {
   id: string
-  type: "class" | "booking"
+  kind: "class" | "booking"
   title: string
-  description: string | null
-  startTime: string
-  endTime: string
-  status: "upcoming" | "live" | "past" | "pending"
-  coach: {
-    coachProfileId: string
-    name: string
-    avatar: string | null
-  }
+  startsAt: string
+  endsAt: string
+  durationMinutes: number
+  status: string
+  sourceStatus: string | null
+  coachProfile: {
+    id: string
+    displayName: string
+    avatarUrl: string | null
+    verificationStatus: string
+    locationCity: string | null
+  } | null
+  locationDescription: string | null
+  topic: string | null
+  note: string | null
+  paymentStatus: string | null
   classId: string | null
   bookingId: string | null
-  location: string | null
-  meetingUrl: string | null
-  isReviewed: boolean
 }
 
 export interface LearnerScheduleResponse {
-  success: boolean
   data: LearnerScheduleItem[]
   pagination: PaginationMeta
   summary: {
@@ -590,12 +593,16 @@ export interface LearnerScheduleResponse {
     bookingCount: number
     upcomingCount: number
     liveCount: number
-    pastCount: number
-    pendingCount: number
+    completedCount: number
+    cancelledCount: number
+    pendingConfirmationCount: number
+    distinctCoachCount: number
+    nextSessionAt: string | null
+    lastSessionAt: string | null
   }
   filters: {
-    coachProfiles: { coachProfileId: string; name: string }[]
-    classes: { classId: string; title: string }[]
+    coachProfiles: { id: string; displayName: string }[]
+    classes: { id: string; title: string }[]
   }
 }
 
@@ -606,3 +613,5 @@ export interface ApiResponse<T> {
   meta?: PaginationMeta
   message?: string
 }
+
+export type DiscoveryTabValue = "overview" | "schedule" | "reviews" | "classes" | "info" | "stats"

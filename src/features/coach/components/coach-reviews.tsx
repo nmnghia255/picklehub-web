@@ -2,17 +2,41 @@
 
 import { Star } from "lucide-react"
 
+import { ErrorState } from "@/components/shared/error-state"
+import { getErrorMessage } from "@/lib/api-client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
+import { useSession } from "@/features/auth/hooks/use-session"
 import { useCoachReviews, useMyCoachProfile } from "../hooks/use-coach-queries"
 
 export function CoachReviews() {
-  const { data: profile } = useMyCoachProfile()
+  const session = useSession()
+  const { data: profile, isError: profileError, error: profileErr, refetch: profileRefetch } = useMyCoachProfile({ enabled: !!session?.user })
   const coachId = profile?.id ?? ""
 
-  const { data, isLoading } = useCoachReviews(coachId)
+  const { data, isLoading, isError, error, refetch } = useCoachReviews(coachId)
+
+  if (profileError) {
+    return (
+      <ErrorState
+        title="Không thể tải thông tin HLV"
+        description={getErrorMessage(profileErr)}
+        retry={profileRefetch}
+      />
+    )
+  }
+
+  if (isError) {
+    return (
+      <ErrorState
+        title="Không thể tải đánh giá"
+        description={getErrorMessage(error)}
+        retry={refetch}
+      />
+    )
+  }
 
   if (!coachId || isLoading) {
     return (

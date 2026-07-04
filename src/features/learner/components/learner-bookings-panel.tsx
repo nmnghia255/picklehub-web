@@ -1,22 +1,25 @@
 "use client"
 
-import { useState } from "react"
-import { useMyBookings, useUploadBookingPaymentProof, useCancelMyBooking } from "@/features/learner/hooks/use-learner-queries"
 import dayjs from "dayjs"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { AlertTriangle, Calendar, CheckCircle2, Clock, CreditCard, MessageSquare,Upload, XCircle } from "lucide-react"
+import { useState } from "react"
+import { toast } from "sonner"
+
+import { ErrorState } from "@/components/shared/error-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { Input } from "@/components/ui/input"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
-import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
-import { toast } from "sonner"
-import { Calendar, Clock, CreditCard, Upload, XCircle, CheckCircle2, AlertTriangle, MessageSquare } from "lucide-react"
-
+import { Skeleton } from "@/components/ui/skeleton"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useSession } from "@/features/auth/hooks/use-session"
 import type { Booking } from "@/features/coach/types/coach"
+import { useCancelMyBooking,useMyBookings, useUploadBookingPaymentProof } from "@/features/learner/hooks/use-learner-queries"
+import { getErrorMessage } from "@/lib/api-client"
 
 const TAB_STATUSES: { label: string; value: string }[] = [
   { label: "Tất cả", value: "all" },
@@ -151,12 +154,14 @@ function renderActions(
 }
 
 export function LearnerBookingsPanel() {
-  const [status, setStatus] = useState<string>("all")
+  const session = useSession()
+  const [status, setStatus] = useState("all")
   const [page, setPage] = useState(1)
   const LIMIT = 10
 
-  const { data, isLoading } = useMyBookings(
-    status === "all" ? { page, limit: LIMIT } : { status, page, limit: LIMIT }
+  const { data, isLoading, isError, error, refetch } = useMyBookings(
+    status === "all" ? { page, limit: LIMIT } : { status, page, limit: LIMIT },
+    { enabled: !!session?.user }
   )
 
   const bookings: Booking[] = data?.data ?? []
@@ -171,6 +176,16 @@ export function LearnerBookingsPanel() {
 
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
   const [cancellingBookingId, setCancellingBookingId] = useState<string | null>(null)
+
+  if (isError) {
+    return (
+      <ErrorState
+        title="Không thể tải danh sách đặt lịch"
+        description={getErrorMessage(error)}
+        retry={refetch}
+      />
+    )
+  }
 
   function openUploadDialog(bookingId: string) {
     setUploadingBookingId(bookingId)
@@ -256,8 +271,8 @@ export function LearnerBookingsPanel() {
           ) : (
             <>
               <div className="space-y-4">
-                {bookings.map((booking) => (
-                  <Card key={booking.id}>
+                {bookings.map((booking, idx) => (
+                  <Card key={booking.id ?? `booking-${idx}`}>
                     <CardHeader>
                       <div className="flex items-center gap-3">
                         <Avatar>
@@ -336,17 +351,20 @@ export function LearnerBookingsPanel() {
                         className={page <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                       />
                     </PaginationItem>
-                    {Array.from({ length: pagination.totalPages }).map((_, i) => (
-                      <PaginationItem key={i}>
-                        <PaginationLink
-                          isActive={page === i + 1}
-                          onClick={() => setPage(i + 1)}
-                          className="cursor-pointer"
-                        >
-                          {i + 1}
-                        </PaginationLink>
-                      </PaginationItem>
-                    ))}
+                    {Array.from({ length: pagination.totalPages }).map((_, i) => {
+                      const pageNum = i + 1
+                      return (
+                        <PaginationItem key={pageNum}>
+                          <PaginationLink
+                            isActive={page === pageNum}
+                            onClick={() => setPage(pageNum)}
+                            className="cursor-pointer"
+                          >
+                            {pageNum}
+                          </PaginationLink>
+                        </PaginationItem>
+                      )
+                    })}
                     <PaginationItem>
                       <PaginationNext
                         onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}

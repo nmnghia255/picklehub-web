@@ -1,28 +1,32 @@
 "use client"
 
-import {
-  useIncomingBookings,
-  useConfirmBooking,
-  useRejectBooking,
-  useSettleBookingPayment,
-  useCompleteBooking,
-  useRejectBookingPayment,
-  useCancelBookingCoach,
-} from "@/features/coach/hooks/use-coach-queries"
 import dayjs from "dayjs"
+import { Ban,Calendar, CheckCircle2, Clock, DollarSign, Image as ImageIcon, MessageSquare, User, XCircle } from "lucide-react"
 import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
+import { toast } from "sonner"
+
+import { ErrorState } from "@/components/shared/error-state"
+import { Avatar, AvatarFallback,AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogDescription, DialogFooter,DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
-import { toast } from "sonner"
-import { CheckCircle2, XCircle, Clock, DollarSign, Calendar, User, Image as ImageIcon, MessageSquare, Ban } from "lucide-react"
+import { useSession } from "@/features/auth/hooks/use-session"
+import {
+  useCancelBookingCoach,
+  useCompleteBooking,
+  useConfirmBooking,
+  useIncomingBookings,
+  useRejectBooking,
+  useRejectBookingPayment,
+  useSettleBookingPayment,
+} from "@/features/coach/hooks/use-coach-queries"
 import type { Booking, PaginationMeta } from "@/features/coach/types/coach"
+import { getErrorMessage } from "@/lib/api-client"
 
 const STATUS_TABS: { label: string; value: string }[] = [
   { label: "Tất cả", value: "" },
@@ -69,11 +73,12 @@ function BookingSkeleton() {
 }
 
 export function CoachBookingsPanel() {
+  const session = useSession()
   const [tab, setTab] = useState("")
   const [page, setPage] = useState(1)
   const limit = 10
 
-  const { data, isLoading } = useIncomingBookings({ status: tab || undefined, page, limit })
+  const { data, isLoading, isError, error, refetch } = useIncomingBookings({ status: tab || undefined, page, limit }, { enabled: !!session?.user })
 
   const bookings: Booking[] = data?.data ?? []
   const meta: PaginationMeta | undefined = data?.meta
@@ -90,6 +95,16 @@ export function CoachBookingsPanel() {
   const [completeDialog, setCompleteDialog] = useState<{ open: boolean; booking: Booking | null }>({ open: false, booking: null })
   const [proofDialog, setProofDialog] = useState<{ open: boolean; booking: Booking | null }>({ open: false, booking: null })
   const [cancelDialog, setCancelDialog] = useState<{ open: boolean; booking: Booking | null; reason: string }>({ open: false, booking: null, reason: "" })
+
+  if (isError) {
+    return (
+      <ErrorState
+        title="Không thể tải danh sách đặt lịch"
+        description={getErrorMessage(error)}
+        retry={refetch}
+      />
+    )
+  }
 
   function handleConfirm() {
     const b = confirmDialog.booking

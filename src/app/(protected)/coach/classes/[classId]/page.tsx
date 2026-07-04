@@ -19,6 +19,7 @@ import {
   BookOpen,
 } from "lucide-react"
 
+import { useSession } from "@/features/auth/hooks/use-session"
 import {
   useMyClassDetail,
   useUpdateClass,
@@ -132,12 +133,13 @@ function LoadingSkeleton() {
 }
 
 export default function CoachClassDetailPage() {
+  const session = useSession()
   const params = useParams()
   const classId = params.classId as string
 
-  const { data: classData, isLoading, isError } = useMyClassDetail(classId)
-  const { data: scheduleData, isLoading: scheduleLoading } = useClassScheduleEntries(classId)
-  const { data: enrollmentData, isLoading: enrollmentLoading } = useClassEnrollments(classId)
+  const { data: classData, isLoading, isError } = useMyClassDetail(classId, { enabled: !!session?.user })
+  const { data: scheduleData, isLoading: scheduleLoading } = useClassScheduleEntries(classId, undefined, { enabled: !!session?.user })
+  const { data: enrollmentData, isLoading: enrollmentLoading } = useClassEnrollments(classId, { enabled: !!session?.user })
 
   const updateClass = useUpdateClass()
   const publishClass = usePublishClass()
@@ -688,19 +690,19 @@ export default function CoachClassDetailPage() {
                   <CardContent className="flex items-center gap-4 p-4">
                     <Avatar>
                       <AvatarImage
-                        src={enrollment.learnerProfile.avatarUrl}
-                        alt={enrollment.learnerProfile.name}
+                        src={enrollment.learnerProfile?.avatarUrl ?? ""}
+                        alt={enrollment.learnerProfile?.name ?? "Học viên"}
                       />
                       <AvatarFallback>
-                        {enrollment.learnerProfile.name.charAt(0).toUpperCase()}
+                        {enrollment.learnerProfile?.name?.charAt(0)?.toUpperCase() ?? "?"}
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">
                       <p className="font-medium truncate">
-                        {enrollment.learnerProfile.name}
+                        {enrollment.learnerProfile?.name ?? "Không có tên"}
                       </p>
                       <p className="text-sm text-muted-foreground truncate">
-                        {enrollment.learnerProfile.email}
+                        {enrollment.learnerProfile?.email ?? "—"}
                       </p>
                       <div className="mt-1 flex flex-wrap gap-2">
                         <Badge variant="outline">
@@ -725,8 +727,8 @@ export default function CoachClassDetailPage() {
                               <AlertDialogTitle>Xác nhận thanh toán</AlertDialogTitle>
                               <AlertDialogDescription>
                                 Xác nhận học viên{" "}
-                                <strong>{enrollment.learnerProfile.name}</strong> đã thanh toán{" "}
-                                {enrollment.amountVnd.toLocaleString("vi-VN")}₫?
+                                <strong>{enrollment.learnerProfile?.name ?? "Không có tên"}</strong> đã thanh toán{" "}
+                                {enrollment?.amountVnd?.toLocaleString("vi-VN") ?? "0"}₫?
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -756,7 +758,7 @@ export default function CoachClassDetailPage() {
                               <AlertDialogTitle>Từ chối thanh toán</AlertDialogTitle>
                               <AlertDialogDescription>
                                 Từ chối thanh toán của học viên{" "}
-                                <strong>{enrollment.learnerProfile.name}</strong>?
+                                <strong>{enrollment.learnerProfile?.name ?? "Không có tên"}</strong>?
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>

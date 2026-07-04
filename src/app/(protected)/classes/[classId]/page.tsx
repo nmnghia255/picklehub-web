@@ -1,7 +1,7 @@
 "use client"
 
 import { useParams } from "next/navigation"
-import { useQuery, useMutation } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import dayjs from "dayjs"
 import { toast } from "sonner"
@@ -16,6 +16,7 @@ import {
 
 import { CoachClient } from "@/features/coach/api/coach-client"
 import { coachQueryKeys } from "@/features/coach/api/query-keys"
+import { useClassDetail } from "@/features/coach/hooks/use-coach-queries"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -29,6 +30,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
+import { useMyEnrollments } from "@/features/learner/hooks/use-learner-queries"
 
 const levelLabel: Record<string, string> = {
   Beginner: "Cơ bản",
@@ -62,9 +64,29 @@ const verificationLabel: Record<string, string> = {
   REJECTED: "Từ chối",
 }
 
+const enrollmentStatusLabel: Record<string, string> = {
+  ACTIVE: "Đang hoạt động",
+  COMPLETED: "Đã hoàn thành",
+  CANCELLED: "Đã hủy",
+}
+
 function maskAccountNumber(num: string): string {
   if (num.length <= 4) return num
   return "****" + num.slice(-4)
+}
+
+async function fetchSession() {
+  try {
+    const response = await fetch("/api/auth/session")
+
+    if (!response.ok) {
+      return null
+    }
+
+    return response.json()
+  } catch {
+    return null
+  }
 }
 
 function ClassDetailSkeleton() {
@@ -85,6 +107,11 @@ function ClassDetailSkeleton() {
 export default function ClassDetailPage() {
   const params = useParams()
   const classId = params.classId as string
+  const { data: session, isLoading: isSessionLoading } = useQuery({
+    queryKey: ["session"],
+    queryFn: fetchSession,
+    staleTime: Infinity,
+  })
 
   const [showBankDialog, setShowBankDialog] = useState(false)
   const [bankInfo, setBankInfo] = useState<{
@@ -93,11 +120,16 @@ export default function ClassDetailPage() {
     bankAccountName: string
   } | null>(null)
 
-  const { data: classData, isLoading, isError } = useQuery({
-    queryKey: coachQueryKeys.classDetail(classId),
-    queryFn: () => CoachClient.getClassPublicDetail(classId),
+  const { data: classData, isLoading, isError } = useClassDetail(classId)
+  const { data: enrollments, isLoading: isLoadingEnrollments } = useMyEnrollments({
+    enabled: !!session?.user,
   })
 
+  const currentEnrollment = enrollments?.find(
+    (enrollment) => enrollment.classId === classId && enrollment.status !== "CANCELLED"
+  )
+
+  const queryClient = useQueryClient()
   const enrollMutation = useMutation({
     mutationFn: () => CoachClient.enrollInClass(classId),
     onSuccess: (enrollment) => {
@@ -110,6 +142,8 @@ export default function ClassDetailPage() {
         })
         setShowBankDialog(true)
       }
+      queryClient.invalidateQueries({ queryKey: coachQueryKeys.classDetail(classId) })
+      queryClient.invalidateQueries({ queryKey: ["learner", "enrollments"] })
       toast.success("Đăng ký lớp học thành công!")
     },
     onError: (error: Error) => {
@@ -145,6 +179,7 @@ export default function ClassDetailPage() {
   const isOpen = status === "OPEN"
   const isFull = status === "FULL" || spotsLeft <= 0
   const canEnroll = isOpen && !isFull
+  const showEnrollmentAction = !isSessionLoading && (!isLoadingEnrollments || !session?.user)
 
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-8">
@@ -298,7 +333,11 @@ export default function ClassDetailPage() {
       {/* Enrollment */}
       <Card>
         <CardContent className="pt-6">
-          {canEnroll ? (
+          {currentEnrollment ? (
+            <Button size="lg" className="w-full" disabled variant="secondary">
+              {enrollmentStatusLabel[currentEnrollment.status] ?? "Đã đăng ký"}
+            </Button>
+          ) : canEnroll && showEnrollmentAction ? (
             <Button
               size="lg"
               className="w-full"
@@ -306,6 +345,10 @@ export default function ClassDetailPage() {
               disabled={enrollMutation.isPending}
             >
               {enrollMutation.isPending ? "Đang xử lý..." : "Đăng ký ngay"}
+            </Button>
+          ) : canEnroll ? (
+            <Button size="lg" className="w-full" disabled variant="secondary">
+              Đang kiểm tra...
             </Button>
           ) : isFull ? (
             <Button size="lg" className="w-full" disabled variant="secondary">

@@ -1,13 +1,26 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
-import { CoachClient } from "@/features/coach/api/coach-client"
-import { coachQueryKeys } from "@/features/coach/api/query-keys"
+import dayjs from "dayjs"
+import { Calendar, Clock,MapPin, Users } from "lucide-react"
 import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
+import { useCallback,useEffect, useState } from "react"
+
+import { PageContainer } from "@/components/page-container"
+import { ErrorState } from "@/components/shared/error-state"
+import { Avatar, AvatarFallback,AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
+import { Progress } from "@/components/ui/progress"
 import {
   Select,
   SelectContent,
@@ -16,20 +29,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationPrevious,
-  PaginationNext,
-  PaginationEllipsis,
-} from "@/components/ui/pagination"
-import { Progress } from "@/components/ui/progress"
-import { MapPin, Calendar, Users, Clock } from "lucide-react"
-import { PageContainer } from "@/components/page-container"
-import dayjs from "dayjs"
-import { useState, useEffect, useCallback } from "react"
+import { useDiscoverClasses } from "@/features/coach/hooks/use-coach-queries"
+import { getErrorMessage } from "@/lib/api-client"
 
 const LEVELS = ["Beginner", "Intermediate", "Advanced", "Pro"] as const
 
@@ -101,20 +102,11 @@ export default function ClassesPage() {
     limit: 12,
   }
 
-  const { data, isLoading } = useQuery({
-    queryKey: coachQueryKeys.discoverClasses(params),
-    queryFn: () => CoachClient.discoverOpenClasses(params),
-  })
+  const { data, isLoading, isError, error, refetch } = useDiscoverClasses(params)
 
   const classes = data?.data ?? []
   const meta = data?.meta
   const totalPages = meta?.totalPages ?? 0
-
-  // Reset pagination when filters change
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPage(1)
-  }, [debouncedCity, level, from, to])
 
   const handlePageChange = useCallback(
     (newPage: number) => {
@@ -125,6 +117,16 @@ export default function ClassesPage() {
     },
     [totalPages]
   )
+
+  if (isError) {
+    return (
+      <ErrorState
+        title="Không thể tải danh sách lớp học"
+        description={getErrorMessage(error)}
+        retry={refetch}
+      />
+    )
+  }
 
   return (
     <PageContainer className="space-y-6 py-6">

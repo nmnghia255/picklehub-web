@@ -3,8 +3,8 @@
 import { Search } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
+import { ErrorState } from "@/components/shared/error-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -24,6 +24,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useSession } from "@/features/auth/hooks/use-session"
+import { getErrorMessage } from "@/lib/api-client"
 
 import { useCoachLearners } from "../hooks/use-coach-queries"
 
@@ -40,6 +42,7 @@ export function CoachStudentsTable({
 }: {
   onSelect?: (learnerId: string) => void
 }) {
+  const session = useSession()
   const [search, setSearch] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [kind, setKind] = useState("all")
@@ -62,7 +65,17 @@ export function CoachStudentsTable({
   if (debouncedSearch) params.search = debouncedSearch
   if (kind !== "all") params.kind = kind
 
-  const { data, isLoading } = useCoachLearners(params)
+  const { data, isLoading, isError, error, refetch } = useCoachLearners(params, { enabled: !!session?.user })
+
+  if (isError) {
+    return (
+      <ErrorState
+        title="Không thể tải danh sách học viên"
+        description={getErrorMessage(error)}
+        retry={refetch}
+      />
+    )
+  }
 
   const students = data?.data ?? []
   const pagination = data?.pagination
@@ -124,25 +137,25 @@ export function CoachStudentsTable({
             <CardContent className="p-4">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-start gap-4">
-                  <Avatar className="size-12">
+                    <Avatar className="size-12">
                     <AvatarImage
-                      src={student.avatarUrl}
-                      alt={student.name}
+                      src={student.avatarUrl ?? ""}
+                      alt={student.name ?? "Học viên"}
                     />
                     <AvatarFallback>
-                      {student.name.charAt(0)}
+                      {student?.name?.charAt(0) ?? "?"}
                     </AvatarFallback>
                   </Avatar>
 
                   <div className="space-y-1">
-                    <p className="font-semibold">{student.name}</p>
+                    <p className="font-semibold">{student.name ?? "Không có tên"}</p>
                     <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
                       <span>{student.classEnrollmentCount} lớp tham gia</span>
                       <span>{student.activeClassEnrollmentCount} lớp đang hoạt động</span>
                       <span>{student.privateBookingCount} lịch đặt riêng</span>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {student.email}
+                      {student.email ?? "—"}
                     </p>
                   </div>
                 </div>

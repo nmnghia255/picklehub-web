@@ -46,6 +46,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
 
 
+import { useSession } from "@/features/auth/hooks/use-session"
 import {
   useAddCertification,
   useDeleteCertification,
@@ -109,8 +110,9 @@ function getCertStatusIcon(status: string) {
 }
 
 export function CoachProfileForm() {
-  const { data: profile, isLoading: profileLoading } = useMyCoachProfile()
-  const { data: certs, isLoading: certsLoading } = useMyCertifications()
+  const session = useSession()
+  const { data: profile, isLoading: profileLoading } = useMyCoachProfile({ enabled: !!session?.user })
+  const { data: certs, isLoading: certsLoading } = useMyCertifications({ enabled: !!session?.user })
   const updateProfile = useUpdateMyCoachProfile()
   const publishProfile = usePublishMyProfile()
   const addCert = useAddCertification()

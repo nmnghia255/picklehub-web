@@ -5,6 +5,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import type * as CoachTypes from "@/features/coach/types/coach"
 import { coachQueryKeys, learnerQueryKeys } from "@/features/coach/api/query-keys"
 import { CoachClient } from "@/features/coach/api/coach-client"
+import { mapEnrollment } from "@/features/coach/utils/mappers/enrollment-mapper"
+import type { EnrollmentModel } from "@/features/coach/types/models/enrollment-model"
 
 // ===================== Learner Schedule =====================
 
@@ -18,19 +20,24 @@ export function useLearnerSchedule(params?: {
   page?: number
   limit?: number
   sort?: string
-}) {
+}, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: learnerQueryKeys.schedule(params),
     queryFn: () => CoachClient.getLearnerSchedule(params),
+    enabled: options?.enabled ?? true,
   })
 }
 
 // ===================== Learner Enrollments =====================
 
-export function useMyEnrollments() {
-  return useQuery({
+export function useMyEnrollments(options?: { enabled?: boolean }) {
+  return useQuery<EnrollmentModel[]>({
     queryKey: learnerQueryKeys.enrollments(),
-    queryFn: () => CoachClient.listMyEnrollments(),
+    queryFn: async () => {
+      const dtos = await CoachClient.listMyEnrollments()
+      return dtos.map(mapEnrollment)
+    },
+    enabled: options?.enabled ?? true,
   })
 }
 
@@ -64,16 +71,20 @@ export function useCancelEnrollment() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: learnerQueryKeys.enrollments() })
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.discoverClasses() })
+      queryClient.invalidateQueries({
+        queryKey: [...coachQueryKeys.all, "class-detail"],
+      })
     },
   })
 }
 
 // ===================== Learner Bookings =====================
 
-export function useMyBookings(params?: { status?: string; from?: string; to?: string; page?: number; limit?: number }) {
+export function useMyBookings(params?: { status?: string; from?: string; to?: string; page?: number; limit?: number }, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: learnerQueryKeys.bookings(params),
     queryFn: () => CoachClient.listMyBookings(params),
+    enabled: options?.enabled ?? true,
   })
 }
 

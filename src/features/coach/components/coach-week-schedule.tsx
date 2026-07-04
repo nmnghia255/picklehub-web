@@ -15,6 +15,7 @@ import {
 import { useEffect, useMemo, useState } from "react"
 
 import { CalendarNavigation } from "@/components/calendar-navigation"
+import { ErrorState } from "@/components/shared/error-state"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -36,6 +37,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useSession } from "@/features/auth/hooks/use-session"
+import { getErrorMessage } from "@/lib/api-client"
 
 import { useCoachSchedule } from "../hooks/use-coach-queries"
 import type { CoachScheduleItem } from "../types/coach"
@@ -115,6 +118,7 @@ function itemTypeLabel(type: CoachScheduleItem["type"]) {
 }
 
 export function CoachWeekSchedule() {
+  const session = useSession()
   const [viewMode, setViewMode] = useState<ViewMode>("calendar")
   const [currentDate, setCurrentDate] = useState(() => startOfMonth(new Date()))
   const [kind, setKind] = useState("all")
@@ -126,26 +130,18 @@ export function CoachWeekSchedule() {
   const [page, setPage] = useState(1)
   const [detailItem, setDetailItem] = useState<CoachScheduleItem | null>(null)
 
-  useEffect(() => {
-    if (viewMode === "list") {
+  const handleViewModeChange = (value: ViewMode) => {
+    setViewMode(value)
+    if (value === "list") {
       setCurrentDate(startOfMonth(new Date()))
-      setSearchTerm("")
-      setKind("all")
-      setState("all")
-      setSortOrder("desc")
-      setFromDate(undefined)
-      setToDate(undefined)
-      setPage(1)
-      return
     }
-
     setSearchTerm("")
     setKind("all")
     setState("all")
     setFromDate(undefined)
     setToDate(undefined)
     setPage(1)
-  }, [viewMode])
+  }
 
   const calendarQueryRange = useMemo(() => monthRange(currentDate), [currentDate])
 
@@ -172,7 +168,8 @@ export function CoachWeekSchedule() {
     return params
   }, [calendarQueryRange, fromDate, kind, page, state, toDate, viewMode])
 
-  const { data, isLoading } = useCoachSchedule(scheduleParams)
+  const { data, isLoading, isError, error, refetch } = useCoachSchedule(scheduleParams, { enabled: !!session?.user })
+
   const items = data?.data ?? []
   const totalPages = data?.pagination?.totalPages ?? 1
 
@@ -224,13 +221,69 @@ export function CoachWeekSchedule() {
     return filteredListItems.slice(startIndex, startIndex + DEFAULT_LIMIT)
   }, [filteredListItems, page])
 
-  useEffect(() => {
+  const groupedByDate = useMemo(() => {
+    const map = new Map<string, CoachScheduleItem[]>()
+    const sorted = [...items].sort(
+      (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+    )
+    for (const item of sorted) {
+      const key = format(new Date(item.startTime), "yyyy-MM-dd")
+      const existing = map.get(key) ?? []
+      existing.push(item)
+      map.set(key, existing)
+    }
+    return map
+  }, [items])
+
+  const sortedDates = useMemo(
+    () => Array.from(groupedByDate.keys()).sort(),
+    [groupedByDate]
+  )
+
+  const handleSearchTermChange = (value: string) => {
+    setSearchTerm(value)
     setPage(1)
-  }, [searchTerm, kind, state, fromDate, toDate])
+  }
+
+  const handleKindChange = (value: string) => {
+    setKind(value)
+    setPage(1)
+  }
+
+  const handleStateChange = (value: string) => {
+    setState(value)
+    setPage(1)
+  }
+
+  const handleSortOrderChange = (value: string) => {
+    setSortOrder(value)
+    setPage(1)
+  }
+
+  const handleFromDateChange = (value: string | undefined) => {
+    setFromDate(value)
+    setPage(1)
+  }
+
+  const handleToDateChange = (value: string | undefined) => {
+    setToDate(value)
+    setPage(1)
+  }
 
   useEffect(() => {
-    if (page > totalPages) setPage(totalPages)
-  }, [page, totalPages])
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPage((prev) => Math.min(prev, totalPages))
+  }, [totalPages])
+
+  if (isError) {
+    return (
+      <ErrorState
+        title="Không thể tải lịch"
+        description={getErrorMessage(error)}
+        retry={refetch}
+      />
+    )
+  }
 
   const handlePrevMonth = () => setCurrentDate((prev) => subMonths(prev, 1))
   const handleNextMonth = () => setCurrentDate((prev) => addMonths(prev, 1))
@@ -259,7 +312,8 @@ export function CoachWeekSchedule() {
     </div>
   )
 
-  const CalendarViewLayout = () => (
+  function renderCalendarView() {
+    return (
     <div className="space-y-4">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <CalendarNavigation
@@ -271,7 +325,7 @@ export function CoachWeekSchedule() {
           onToday={handleToday}
         />
 
-        <Select value={viewMode} onValueChange={(value) => setViewMode(value as ViewMode)}>
+        <Select value={viewMode} onValueChange={handleViewModeChange}>
           <SelectTrigger className="min-w-35 border-border bg-background text-foreground">
             <SelectValue />
           </SelectTrigger>
@@ -347,22 +401,24 @@ export function CoachWeekSchedule() {
         </CardContent>
       </Card>
     </div>
-  )
+    )
+  }
 
-  const ListViewLayout = () => (
+  function renderListView() {
+    return (
     <div className="space-y-4">
       <div className="flex flex-col gap-4 xl:flex-row xl:flex-wrap xl:items-center xl:justify-between">
         <div className="flex flex-1 flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center">
           <Input
             value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
+            onChange={(event) => handleSearchTermChange(event.target.value)}
             placeholder="Tìm theo tiêu đề, địa điểm, học viên..."
             className="w-full max-w-sm bg-background text-foreground"
           />
 
           <div className="flex flex-wrap items-center gap-2">
             <Label className="text-sm text-muted-foreground">Loại</Label>
-            <Select value={kind} onValueChange={setKind}>
+            <Select value={kind} onValueChange={handleKindChange}>
               <SelectTrigger className="min-w-40 border-border bg-background text-foreground">
                 <SelectValue />
               </SelectTrigger>
@@ -376,7 +432,7 @@ export function CoachWeekSchedule() {
 
           <div className="flex flex-wrap items-center gap-2">
             <Label className="text-sm text-muted-foreground">Trạng thái</Label>
-            <Select value={state} onValueChange={setState}>
+            <Select value={state} onValueChange={handleStateChange}>
               <SelectTrigger className="min-w-35 border-border bg-background text-foreground">
                 <SelectValue />
               </SelectTrigger>
@@ -392,7 +448,7 @@ export function CoachWeekSchedule() {
 
           <div className="flex flex-wrap items-center gap-2">
             <Label className="text-sm text-muted-foreground">Sắp xếp</Label>
-            <Select value={sortOrder} onValueChange={setSortOrder}>
+            <Select value={sortOrder} onValueChange={handleSortOrderChange}>
               <SelectTrigger className="min-w-30 border-border bg-background text-foreground">
                 <SelectValue />
               </SelectTrigger>
@@ -408,7 +464,7 @@ export function CoachWeekSchedule() {
             <Input
               type="date"
               value={fromDate ?? ""}
-              onChange={(event) => setFromDate(event.target.value || undefined)}
+              onChange={(event) => handleFromDateChange(event.target.value || undefined)}
               className="w-42.5 bg-background text-foreground"
             />
           </div>
@@ -418,13 +474,13 @@ export function CoachWeekSchedule() {
             <Input
               type="date"
               value={toDate ?? ""}
-              onChange={(event) => setToDate(event.target.value || undefined)}
+              onChange={(event) => handleToDateChange(event.target.value || undefined)}
               className="w-42.5 bg-background text-foreground"
             />
           </div>
         </div>
 
-        <Select value={viewMode} onValueChange={(value) => setViewMode(value as ViewMode)}>
+        <Select value={viewMode} onValueChange={handleViewModeChange}>
           <SelectTrigger className="min-w-35 border-border bg-background text-foreground">
             <SelectValue />
           </SelectTrigger>
@@ -485,28 +541,10 @@ export function CoachWeekSchedule() {
         </div>
       </div>
     </div>
-  )
-
-  const AgendaViewLayout = () => {
-    const groupedByDate = useMemo(() => {
-      const map = new Map<string, CoachScheduleItem[]>()
-      const sorted = [...items].sort(
-        (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
-      )
-      for (const item of sorted) {
-        const key = format(new Date(item.startTime), "yyyy-MM-dd")
-        const existing = map.get(key) ?? []
-        existing.push(item)
-        map.set(key, existing)
-      }
-      return map
-    }, [items])
-
-    const sortedDates = useMemo(
-      () => Array.from(groupedByDate.keys()).sort(),
-      [groupedByDate]
     )
+  }
 
+  function renderAgendaView() {
     return (
       <div className="space-y-4">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
@@ -519,7 +557,7 @@ export function CoachWeekSchedule() {
             onToday={handleToday}
           />
 
-          <Select value={viewMode} onValueChange={(value) => setViewMode(value as ViewMode)}>
+          <Select value={viewMode} onValueChange={handleViewModeChange}>
             <SelectTrigger className="min-w-35 border-border bg-background text-foreground">
               <SelectValue />
             </SelectTrigger>
@@ -604,7 +642,8 @@ export function CoachWeekSchedule() {
     )
   }
 
-  const DetailDialog = () => (
+  function renderDetailDialog() {
+    return (
     <Dialog open={Boolean(detailItem)} onOpenChange={(open) => !open && setDetailItem(null)}>
       <DialogContent className="sm:max-w-xl bg-background text-foreground">
         {detailItem ? (
@@ -678,7 +717,8 @@ export function CoachWeekSchedule() {
         ) : null}
       </DialogContent>
     </Dialog>
-  )
+    )
+  }
 
   if (isLoading) {
     return (
@@ -706,8 +746,8 @@ export function CoachWeekSchedule() {
 
   return (
     <>
-      {viewMode === "calendar" ? <CalendarViewLayout /> : viewMode === "agenda" ? <AgendaViewLayout /> : <ListViewLayout />}
-      <DetailDialog />
+      {viewMode === "calendar" ? renderCalendarView() : viewMode === "agenda" ? renderAgendaView() : renderListView()}
+      {renderDetailDialog()}
     </>
   )
 }

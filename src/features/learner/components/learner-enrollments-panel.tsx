@@ -24,6 +24,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
+import { ErrorState } from "@/components/shared/error-state"
+import { getErrorMessage } from "@/lib/api-client"
+import { useSession } from "@/features/auth/hooks/use-session"
 import { useMyEnrollments, useUploadEnrollmentPaymentProof, useCancelEnrollment } from "@/features/learner/hooks/use-learner-queries"
 
 const PAYMENT_STATUS_CONFIG: Record<
@@ -189,7 +192,18 @@ function CancelDialog({ enrollmentId }: { enrollmentId: string }) {
 }
 
 export function LearnerEnrollmentsPanel() {
-  const { data: enrollments, isLoading } = useMyEnrollments()
+  const session = useSession()
+  const { data: enrollments, isLoading, isError, error, refetch } = useMyEnrollments({ enabled: !!session?.user })
+
+  if (isError) {
+    return (
+      <ErrorState
+        title="Không thể tải danh sách đăng ký"
+        description={getErrorMessage(error)}
+        retry={refetch}
+      />
+    )
+  }
 
   if (isLoading) {
     return (
@@ -222,23 +236,21 @@ export function LearnerEnrollmentsPanel() {
 
   return (
     <div className="space-y-4">
-      {enrollments.map((enrollment) => {
-        const cls = enrollment.classDetail
+      {enrollments.map((enrollment, idx) => {
         const paymentCfg = PAYMENT_STATUS_CONFIG[enrollment.paymentStatus]
         const enrollmentCfg = ENROLLMENT_STATUS_CONFIG[enrollment.status]
-        const coach = cls?.coachProfile
 
         return (
-          <Card key={enrollment.id}>
+          <Card key={enrollment.id ?? `enrollment-${idx}`}>
             <CardHeader>
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1">
-                  <CardTitle className="text-lg">{cls?.title ?? "Lớp học"}</CardTitle>
+                  <CardTitle className="text-lg">{enrollment.className || "Lớp học"}</CardTitle>
                   <CardDescription>
-                    {cls?.level ? LEVEL_LABEL[cls.level] ?? cls.level : ""}
-                    {cls?.locationDescription ? ` • ${cls.locationDescription}` : ""}
-                    {cls?.schedules && cls.schedules.length > 0
-                      ? ` • ${new Date(cls.schedules[0].scheduledAt).toLocaleDateString("vi-VN")}`
+                    {enrollment.classLevel ? LEVEL_LABEL[enrollment.classLevel] ?? enrollment.classLevel : ""}
+                    {enrollment.locationDescription ? ` • ${enrollment.locationDescription}` : ""}
+                    {enrollment.scheduleDate
+                      ? ` • ${new Date(enrollment.scheduleDate).toLocaleDateString("vi-VN")}`
                       : ""}
                   </CardDescription>
                 </div>
@@ -250,16 +262,16 @@ export function LearnerEnrollmentsPanel() {
 
             <CardContent className="space-y-4">
               <div className="flex flex-wrap items-center gap-4">
-                {coach && (
+                {enrollment.coachName && (
                   <div className="flex items-center gap-2">
                     <Avatar size="sm">
-                      <AvatarImage src={coach.avatarUrl} />
+                      <AvatarImage src={enrollment.coachAvatar} />
                       <AvatarFallback>
-                        {(coach.displayName ?? "CT")[0]}
+                        {(enrollment.coachName ?? "CT")[0]}
                       </AvatarFallback>
                     </Avatar>
                     <span className="text-sm text-muted-foreground">
-                      {coach.displayName ?? "Huấn luyện viên"}
+                      {enrollment.coachName ?? "Huấn luyện viên"}
                     </span>
                   </div>
                 )}
@@ -277,7 +289,7 @@ export function LearnerEnrollmentsPanel() {
                 </div>
               </div>
 
-              {enrollment.coachPaymentInfo && (
+              {enrollment.paymentBankName && (
                 <div className="rounded-lg border bg-muted/50 p-3">
                   <div className="mb-1 flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
                     <Banknote className="size-4" />
@@ -287,19 +299,19 @@ export function LearnerEnrollmentsPanel() {
                     <p>
                       Ngân hàng:{" "}
                       <span className="font-medium">
-                        {enrollment.coachPaymentInfo.paymentBankName}
+                        {enrollment.paymentBankName}
                       </span>
                     </p>
                     <p>
                       Số tài khoản:{" "}
                       <span className="font-medium">
-                        {enrollment.coachPaymentInfo.paymentAccountNumber}
+                        {enrollment.paymentAccountNumber}
                       </span>
                     </p>
                     <p>
                       Chủ tài khoản:{" "}
                       <span className="font-medium">
-                        {enrollment.coachPaymentInfo.paymentAccountName}
+                        {enrollment.paymentAccountName}
                       </span>
                     </p>
                   </div>

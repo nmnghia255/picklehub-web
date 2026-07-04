@@ -1,6 +1,8 @@
 import type * as CoachTypes from "../types/coach"
-import { normalizeCoachScheduleResponse } from "../utils/coach-schedule-mapper"
+import type { DiscoverClassItemDTO } from "../types/dto/discover-class-dto"
+import type { EnrollmentCreateDTO,EnrollmentListItemDTO } from "../types/dto/enrollment-dto"
 import { normalizeLearner } from "../utils/coach-learner-mapper"
+import { normalizeCoachScheduleResponse } from "../utils/coach-schedule-mapper"
 
 const PROXY_BASE = "/api/proxy"
 
@@ -23,41 +25,53 @@ async function apiFetch<T>(
 ): Promise<T> {
   const search = params ? `?${toSearchParams(params).toString()}` : ""
   const url = `${PROXY_BASE}${path}${search}`
+  const startTime = performance.now()
+  console.log(`[API START] ${options.method ?? "GET"} ${url}`, params ?? "")
 
-  const response = await fetch(url, {
-    credentials: "same-origin",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-    ...options,
-  })
+  try {
+    const response = await fetch(url, {
+      credentials: "same-origin",
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+      ...options,
+    })
 
-  if (!response.ok) {
-    const payload = await response.json().catch(() => ({}))
-    const message =
-      (payload as { message?: string }).message ||
-      `Request failed with status ${response.status}`
-    throw new Error(message)
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}))
+      const message =
+        (payload as { message?: string }).message ||
+        `Request failed with status ${response.status}`
+      const elapsed = Math.round(performance.now() - startTime)
+      console.error(`[API ERROR] ${url}`, { status: response.status, message, payload, elapsed })
+      throw new Error(message)
+    }
+
+    const json = await response.json()
+    const elapsed = Math.round(performance.now() - startTime)
+    console.log(`[API SUCCESS] ${url}`, { elapsed, data: json })
+
+    // Auto-unwrap {success, data} envelope when data is the sole payload
+    // (e.g. {success: true, data: {...}}), but NOT when data coexists with
+    // pagination/summary/filters (e.g. {success, data: [...], pagination: {...}}).
+    if (
+      json &&
+      typeof json === "object" &&
+      "success" in json &&
+      "data" in json &&
+      Object.keys(json).length === 2
+    ) {
+      return json.data as T
+    }
+
+    return json as T
+  } catch (error) {
+    const elapsed = Math.round(performance.now() - startTime)
+    console.error(`[API ERROR] ${url}`, { error, elapsed })
+    throw error
   }
-
-  const json = await response.json()
-
-  // Auto-unwrap {success, data} envelope when data is the sole payload
-  // (e.g. {success: true, data: {...}}), but NOT when data coexists with
-  // pagination/summary/filters (e.g. {success, data: [...], pagination: {...}}).
-  if (
-    json &&
-    typeof json === "object" &&
-    "success" in json &&
-    "data" in json &&
-    Object.keys(json).length === 2
-  ) {
-    return json.data as T
-  }
-
-  return json as T
 }
 
 export const CoachClient = {
@@ -149,12 +163,12 @@ export const CoachClient = {
 
   // ===================== Classes =====================
   discoverOpenClasses: (params?: { city?: string; level?: string; from?: string; to?: string; page?: number; limit?: number }) =>
-    apiFetch<{ data: CoachTypes.DiscoverClassItem[]; meta: CoachTypes.PaginationMeta }>(
+    apiFetch<{ data: DiscoverClassItemDTO[]; meta: CoachTypes.PaginationMeta }>(
       "/classes", { method: "GET" }, params as QueryParams
     ),
 
   getClassPublicDetail: (classId: string) =>
-    apiFetch<CoachTypes.DiscoverClassItem>(`/classes/${classId}`),
+    apiFetch<DiscoverClassItemDTO>(`/classes/${classId}`),
 
   createClass: (dto: CoachTypes.CreateCoachClassDto) =>
     apiFetch<CoachTypes.CoachClass>("/coach/classes", {
@@ -188,15 +202,15 @@ export const CoachClient = {
 
   // ===================== Enrollments =====================
   enrollInClass: (classId: string) =>
-    apiFetch<CoachTypes.Enrollment>(`/classes/${classId}/enroll`, {
+    apiFetch<EnrollmentCreateDTO>(`/classes/${classId}/enroll`, {
       method: "POST",
     }),
 
   listMyEnrollments: () =>
-    apiFetch<CoachTypes.Enrollment[]>("/learner/class-enrollments"),
+    apiFetch<EnrollmentListItemDTO[]>("/learner/class-enrollments"),
 
   uploadEnrollmentPaymentProof: (enrollmentId: string, dto: { paymentProofUrl: string }) =>
-    apiFetch<CoachTypes.Enrollment>(
+    apiFetch<EnrollmentListItemDTO>(
       `/learner/class-enrollments/${enrollmentId}/payment-proof`,
       { method: "PATCH", body: JSON.stringify(dto) }
     ),
@@ -207,23 +221,23 @@ export const CoachClient = {
     }),
 
   viewClassEnrollments: (classId: string) =>
-    apiFetch<CoachTypes.Enrollment[]>(`/coach/classes/${classId}/enrollments`),
+    apiFetch<EnrollmentListItemDTO[]>(`/coach/classes/${classId}/enrollments`),
 
   settleEnrollmentPayment: (classId: string, enrollmentId: string) =>
-    apiFetch<CoachTypes.Enrollment>(
+    apiFetch<EnrollmentListItemDTO>(
       `/coach/classes/${classId}/enrollments/${enrollmentId}/settle`,
       { method: "PATCH" }
     ),
 
   rejectEnrollmentPayment: (classId: string, enrollmentId: string, dto?: { reason?: string }) =>
-    apiFetch<CoachTypes.Enrollment>(
+    apiFetch<EnrollmentListItemDTO>(
       `/coach/classes/${classId}/enrollments/${enrollmentId}/reject-payment`,
       { method: "PATCH", body: JSON.stringify(dto ?? {}) }
     ),
 
   // ===================== Learners =====================
   listLearners: async (params?: { search?: string; kind?: string; page?: number; limit?: number }) => {
-    const res = await apiFetch<{ data: any[]; pagination: CoachTypes.PaginationMeta }>(
+    const res = await apiFetch<{ data: Record<string, unknown>[]; pagination: CoachTypes.PaginationMeta }>(
       "/coach/learners", { method: "GET" }, params as QueryParams
     )
     return {
@@ -236,10 +250,10 @@ export const CoachClient = {
     apiFetch<CoachTypes.CoachLearnerDashboard>("/coach/learners/dashboard"),
 
   getLearnerDetail: async (learnerId: string) => {
-    const raw = await apiFetch<any>(`/coach/learners/${learnerId}`)
+    const raw = await apiFetch<Record<string, unknown>>(`/coach/learners/${learnerId}`)
     const detail =
-      raw && typeof raw === "object" && "success" in raw && "data" in raw
-        ? raw.data
+      raw && typeof raw === "object" && "data" in raw
+        ? (raw as { data: Record<string, unknown> }).data
         : raw
 
     return normalizeLearner(detail)
@@ -351,11 +365,5 @@ export const CoachClient = {
 
   // ===================== Learning Schedule =====================
   getLearnerSchedule: (params?: Record<string, unknown>) =>
-    apiFetch<{
-      success: boolean
-      data: CoachTypes.LearnerScheduleItem[]
-      pagination: CoachTypes.PaginationMeta
-      summary: { total: number; classCount: number; bookingCount: number; upcomingCount: number; liveCount: number; pastCount: number; pendingCount: number }
-      filters: { coachProfiles: { coachProfileId: string; name: string }[]; classes: { classId: string; title: string }[] }
-    }>("/learner/schedule", { method: "GET" }, params as QueryParams),
+    apiFetch<CoachTypes.LearnerScheduleResponse>("/learner/schedule", { method: "GET" }, params as QueryParams),
 }

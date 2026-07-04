@@ -17,10 +17,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
+import { useSession } from "@/features/auth/hooks/use-session"
 import { useMyCoachProfile, useRecommendCoach } from "../hooks/use-coach-queries"
 
 export function CoachRecommendation() {
-  const { data: profile } = useMyCoachProfile()
+  const session = useSession()
+  const { data: profile } = useMyCoachProfile({ enabled: !!session?.user })
   const recommendMutation = useRecommendCoach()
   const [recommendToId, setRecommendToId] = useState("")
   const [message, setMessage] = useState("")

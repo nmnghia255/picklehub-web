@@ -5,7 +5,10 @@ import { useForm } from "react-hook-form"
 import { useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
 import { toast } from "sonner"
+import { ErrorState } from "@/components/shared/error-state"
+import { getErrorMessage } from "@/lib/api-client"
 import { CoachMediaService } from "@/features/coach/api/media-service"
+import { useSession } from "@/features/auth/hooks/use-session"
 import {
   useMyClasses,
   useCreateClass,
@@ -185,9 +188,11 @@ export function CoachClassesPanel() {
   const [statusFilter, setStatusFilter] = useState<ClassStatus | "ALL">("ALL")
   const [dialogOpen, setDialogOpen] = useState(false)
 
+  const session = useSession()
   const queryClient = useQueryClient()
-  const { data: classes, isLoading } = useMyClasses(
-    statusFilter === "ALL" ? undefined : { status: statusFilter }
+  const { data: classes, isLoading, isError, error, refetch } = useMyClasses(
+    statusFilter === "ALL" ? undefined : { status: statusFilter },
+    { enabled: !!session?.user }
   )
   const createClass = useCreateClass()
   const publishClass = usePublishClass()
@@ -203,6 +208,7 @@ export function CoachClassesPanel() {
       coverImageUrl: "",
       startDate: "",
       endDate: "",
+      level: "Beginner",
     },
   })
 
@@ -248,6 +254,16 @@ export function CoachClassesPanel() {
       onSuccess: () => toast.success("Đã hủy lớp học"),
       onError: (err) => toast.error(err instanceof Error ? err.message : "Hủy lớp thất bại"),
     })
+  }
+
+  if (isError) {
+    return (
+      <ErrorState
+        title="Không thể tải danh sách lớp học"
+        description={getErrorMessage(error)}
+        retry={refetch}
+      />
+    )
   }
 
   return (
@@ -300,7 +316,7 @@ export function CoachClassesPanel() {
                       <FormItem>
                         <FormLabel>Cấp độ</FormLabel>
                         <FormControl>
-                          <Select value={field.value ?? ""} onValueChange={field.onChange}>
+                          <Select value={field.value ?? "Beginner"} onValueChange={field.onChange}>
                             <SelectTrigger className="w-full">
                               <SelectValue placeholder="Chọn cấp độ" />
                             </SelectTrigger>

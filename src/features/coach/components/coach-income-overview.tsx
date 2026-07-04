@@ -1,6 +1,8 @@
 "use client"
 
 import { format } from "date-fns"
+import { ErrorState } from "@/components/shared/error-state"
+import { getErrorMessage } from "@/lib/api-client"
 import {
   BookOpen,
   CalendarDays,
@@ -37,6 +39,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+import { useSession } from "@/features/auth/hooks/use-session"
 import {
   useBookingRevenue,
   useClassRevenue,
@@ -111,10 +114,21 @@ const statusBadgeVariant = (status?: string) => {
 }
 
 function OverviewTab() {
+  const session = useSession()
   const [period, setPeriod] = useState<string>("month")
   const [year, setYear] = useState<number>(currentYear)
 
-  const { data, isLoading } = useRevenueSummary({ period, year })
+  const { data, isLoading, isError, error, refetch } = useRevenueSummary({ period, year }, { enabled: !!session?.user })
+
+  if (isError) {
+    return (
+      <ErrorState
+        title="Không thể tải tổng quan thu nhập"
+        description={getErrorMessage(error)}
+        retry={refetch}
+      />
+    )
+  }
 
   if (isLoading) {
     return (
@@ -267,7 +281,7 @@ function ClassesTab() {
   const [to, setTo] = useState("")
   const limit = 10
 
-  const { data, isLoading } = useClassRevenue(
+  const { data, isLoading, isError, error, refetch } = useClassRevenue(
     {
       page,
       limit,
@@ -276,6 +290,16 @@ function ClassesTab() {
     },
     { enabled: true }
   )
+
+  if (isError) {
+    return (
+      <ErrorState
+        title="Không thể tải doanh thu lớp học"
+        description={getErrorMessage(error)}
+        retry={refetch}
+      />
+    )
+  }
 
   const items = data?.data ?? []
   const totals = data?.totals
@@ -492,7 +516,7 @@ function BookingsTab() {
   const [to, setTo] = useState("")
   const limit = 10
 
-  const { data, isLoading } = useBookingRevenue(
+  const { data, isLoading, isError, error, refetch } = useBookingRevenue(
     {
       page,
       limit,
@@ -501,6 +525,16 @@ function BookingsTab() {
     },
     { enabled: true }
   )
+
+  if (isError) {
+    return (
+      <ErrorState
+        title="Không thể tải doanh thu đặt lịch"
+        description={getErrorMessage(error)}
+        retry={refetch}
+      />
+    )
+  }
 
   const items = data?.data ?? []
   const totals = data?.totals

@@ -3,8 +3,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 import { CoachClient } from "../api/coach-client"
-import { coachQueryKeys } from "../api/query-keys"
+import { coachQueryKeys, learnerQueryKeys } from "../api/query-keys"
 import type * as CoachTypes from "../types/coach"
+import { mapDiscoverClass } from "../utils/mappers/discover-class-mapper"
 
 export function useCoachList(params?: {
   city?: string
@@ -26,6 +27,37 @@ export function useCoachPublicProfile(coachId: string) {
   })
 }
 
+export function useDiscoverClasses(params?: {
+  city?: string
+  level?: string
+  from?: string
+  to?: string
+  page?: number
+  limit?: number
+}) {
+  return useQuery({
+    queryKey: coachQueryKeys.discoverClasses(params as Record<string, unknown>),
+    queryFn: async () => {
+      const res = await CoachClient.discoverOpenClasses(params)
+      return {
+        data: res.data.map(mapDiscoverClass),
+        meta: res.meta,
+      }
+    },
+  })
+}
+
+export function useClassDetail(classId: string) {
+  return useQuery({
+    queryKey: coachQueryKeys.classDetail(classId),
+    queryFn: async () => {
+      const dto = await CoachClient.getClassPublicDetail(classId)
+      return mapDiscoverClass(dto)
+    },
+    enabled: !!classId,
+  })
+}
+
 export function useCoachOpenClasses(coachId: string) {
   return useQuery({
     queryKey: coachQueryKeys.classes(coachId),
@@ -34,10 +66,11 @@ export function useCoachOpenClasses(coachId: string) {
   })
 }
 
-export function useMyCoachProfile() {
+export function useMyCoachProfile(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: coachQueryKeys.myProfile(),
     queryFn: () => CoachClient.getMyCoachProfile(),
+    enabled: options?.enabled ?? true,
   })
 }
 
@@ -72,10 +105,11 @@ export function usePublishMyProfile() {
   })
 }
 
-export function useMyCertifications() {
+export function useMyCertifications(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: coachQueryKeys.certifications(),
     queryFn: () => CoachClient.listMyCertifications(),
+    enabled: options?.enabled ?? true,
   })
 }
 
@@ -110,17 +144,19 @@ export function useAdminCertifications(params?: {
   coachProfileId?: string
   page?: number
   limit?: number
-}) {
+}, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: [...coachQueryKeys.all, "admin-certifications", params],
     queryFn: () => CoachClient.adminListCertifications(params),
+    enabled: options?.enabled ?? true,
   })
 }
 
-export function useAdminPendingCertifications() {
+export function useAdminPendingCertifications(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: [...coachQueryKeys.all, "admin-pending-certifications"],
     queryFn: () => CoachClient.adminListPendingCertifications(),
+    enabled: options?.enabled ?? true,
   })
 }
 
@@ -145,10 +181,11 @@ export function useAdminReviewCertification() {
   })
 }
 
-export function useCoachSchedule(params?: Record<string, unknown>) {
+export function useCoachSchedule(params?: Record<string, unknown>, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: coachQueryKeys.schedule(params),
     queryFn: () => CoachClient.getCoachSchedule(params),
+    enabled: options?.enabled ?? true,
   })
 }
 
@@ -159,18 +196,19 @@ export function useMyClasses(params?: {
   to?: string
   page?: number
   limit?: number
-}) {
+}, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: coachQueryKeys.myClasses(params),
     queryFn: () => CoachClient.listMyClasses(params),
+    enabled: options?.enabled ?? true,
   })
 }
 
-export function useMyClassDetail(classId: string) {
+export function useMyClassDetail(classId: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: coachQueryKeys.myClass(classId),
     queryFn: () => CoachClient.getMyClassDetail(classId),
-    enabled: !!classId,
+    enabled: !!classId && (options?.enabled ?? true),
   })
 }
 
@@ -212,6 +250,12 @@ export function usePublishClass() {
       queryClient.invalidateQueries({
         queryKey: coachQueryKeys.myClass(classId),
       })
+      queryClient.invalidateQueries({
+        queryKey: coachQueryKeys.discoverClasses(),
+      })
+      queryClient.invalidateQueries({
+        queryKey: coachQueryKeys.classDetail(classId),
+      })
     },
   })
 }
@@ -225,18 +269,25 @@ export function useCancelClass() {
       queryClient.invalidateQueries({
         queryKey: coachQueryKeys.myClass(classId),
       })
+      queryClient.invalidateQueries({
+        queryKey: coachQueryKeys.discoverClasses(),
+      })
+      queryClient.invalidateQueries({
+        queryKey: coachQueryKeys.classDetail(classId),
+      })
     },
   })
 }
 
 export function useClassScheduleEntries(
   classId: string,
-  params?: { from?: string; to?: string }
+  params?: { from?: string; to?: string },
+  options?: { enabled?: boolean }
 ) {
   return useQuery({
     queryKey: [...coachQueryKeys.myClass(classId), "schedules", params],
     queryFn: () => CoachClient.listScheduleEntries(classId, params),
-    enabled: !!classId,
+    enabled: !!classId && (options?.enabled ?? true),
   })
 }
 
@@ -278,11 +329,11 @@ export function useRemoveScheduleSlot() {
   })
 }
 
-export function useClassEnrollments(classId: string) {
+export function useClassEnrollments(classId: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: coachQueryKeys.enrollments(classId),
     queryFn: () => CoachClient.viewClassEnrollments(classId),
-    enabled: !!classId,
+    enabled: !!classId && (options?.enabled ?? true),
   })
 }
 
@@ -296,9 +347,18 @@ export function useSettleEnrollmentPayment() {
       classId: string
       enrollmentId: string
     }) => CoachClient.settleEnrollmentPayment(classId, enrollmentId),
-    onSuccess: () => {
+    onSuccess: (_data, { classId }) => {
       queryClient.invalidateQueries({
         queryKey: [...coachQueryKeys.all, "enrollments"],
+      })
+      queryClient.invalidateQueries({
+        queryKey: learnerQueryKeys.enrollments(),
+      })
+      queryClient.invalidateQueries({
+        queryKey: learnerQueryKeys.schedule(),
+      })
+      queryClient.invalidateQueries({
+        queryKey: coachQueryKeys.classDetail(classId),
       })
     },
   })
@@ -317,9 +377,18 @@ export function useRejectEnrollmentPayment() {
       reason?: string
     }) =>
       CoachClient.rejectEnrollmentPayment(classId, enrollmentId, { reason }),
-    onSuccess: () => {
+    onSuccess: (_data, { classId }) => {
       queryClient.invalidateQueries({
         queryKey: [...coachQueryKeys.all, "enrollments"],
+      })
+      queryClient.invalidateQueries({
+        queryKey: learnerQueryKeys.enrollments(),
+      })
+      queryClient.invalidateQueries({
+        queryKey: learnerQueryKeys.schedule(),
+      })
+      queryClient.invalidateQueries({
+        queryKey: coachQueryKeys.classDetail(classId),
       })
     },
   })
@@ -330,25 +399,27 @@ export function useCoachLearners(params?: {
   kind?: string
   page?: number
   limit?: number
-}) {
+}, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: coachQueryKeys.learners(params),
     queryFn: () => CoachClient.listLearners(params),
+    enabled: options?.enabled ?? true,
   })
 }
 
-export function useCoachLearnerDashboard() {
+export function useCoachLearnerDashboard(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: coachQueryKeys.learnerDashboard(),
     queryFn: () => CoachClient.getLearnerDashboard(),
+    enabled: options?.enabled ?? true,
   })
 }
 
-export function useCoachLearnerDetail(learnerId: string) {
+export function useCoachLearnerDetail(learnerId: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: coachQueryKeys.learner(learnerId),
     queryFn: () => CoachClient.getLearnerDetail(learnerId),
-    enabled: !!learnerId,
+    enabled: !!learnerId && (options?.enabled ?? true),
   })
 }
 
@@ -417,6 +488,7 @@ export function useDeleteReview() {
 }
 
 export function useRecommendCoach() {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({
       coachId,
@@ -425,13 +497,17 @@ export function useRecommendCoach() {
       coachId: string
       dto: CoachTypes.CreateRecommendationDto
     }) => CoachClient.recommendCoach(coachId, dto),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [...coachQueryKeys.all, "reviews"] })
+    },
   })
 }
 
-export function useRevenueSummary(params?: { period?: string; year?: number }) {
+export function useRevenueSummary(params?: { period?: string; year?: number }, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: coachQueryKeys.revenueSummary(params),
     queryFn: () => CoachClient.getRevenueSummary(params),
+    enabled: options?.enabled ?? true,
   })
 }
 
@@ -463,10 +539,11 @@ export function useIncomingBookings(params?: {
   to?: string
   page?: number
   limit?: number
-}) {
+}, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: coachQueryKeys.bookings(params),
     queryFn: () => CoachClient.listIncomingBookings(params),
+    enabled: options?.enabled ?? true,
   })
 }
 
@@ -483,6 +560,8 @@ export function useConfirmBooking() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.bookings() })
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.schedule() })
+      queryClient.invalidateQueries({ queryKey: learnerQueryKeys.bookings() })
+      queryClient.invalidateQueries({ queryKey: learnerQueryKeys.schedule() })
     },
   })
 }
@@ -499,6 +578,8 @@ export function useRejectBooking() {
     }) => CoachClient.rejectBooking(bookingId, { cancelReason }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.bookings() })
+      queryClient.invalidateQueries({ queryKey: learnerQueryKeys.bookings() })
+      queryClient.invalidateQueries({ queryKey: learnerQueryKeys.schedule() })
     },
   })
 }
@@ -509,6 +590,8 @@ export function useSettleBookingPayment() {
     mutationFn: CoachClient.settleBookingPayment,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.bookings() })
+      queryClient.invalidateQueries({ queryKey: learnerQueryKeys.bookings() })
+      queryClient.invalidateQueries({ queryKey: learnerQueryKeys.schedule() })
     },
   })
 }
@@ -520,6 +603,8 @@ export function useCompleteBooking() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.bookings() })
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.schedule() })
+      queryClient.invalidateQueries({ queryKey: learnerQueryKeys.bookings() })
+      queryClient.invalidateQueries({ queryKey: learnerQueryKeys.schedule() })
     },
   })
 }
@@ -530,6 +615,8 @@ export function useRejectBookingPayment() {
     mutationFn: CoachClient.rejectBookingPayment,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.bookings() })
+      queryClient.invalidateQueries({ queryKey: learnerQueryKeys.bookings() })
+      queryClient.invalidateQueries({ queryKey: learnerQueryKeys.schedule() })
     },
   })
 }
@@ -547,6 +634,8 @@ export function useCancelBookingCoach() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.bookings() })
       queryClient.invalidateQueries({ queryKey: coachQueryKeys.schedule() })
+      queryClient.invalidateQueries({ queryKey: learnerQueryKeys.bookings() })
+      queryClient.invalidateQueries({ queryKey: learnerQueryKeys.schedule() })
     },
   })
 }
