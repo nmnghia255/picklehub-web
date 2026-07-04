@@ -1,14 +1,21 @@
 "use client"
 
 import { Search } from "lucide-react"
-import Link from "next/link"
-import { useMemo, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
+import { ErrorState } from "@/components/shared/error-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 import {
   Select,
   SelectContent,
@@ -16,45 +23,82 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useSession } from "@/features/auth/hooks/use-session"
+import { getErrorMessage } from "@/lib/api-client"
 
-type StudentLevel = "Beginner" | "Intermediate" | "Advanced"
+import { useCoachLearners } from "../hooks/use-coach-queries"
 
-interface StudentRecord {
-  id: string
-  name: string
-  phone: string
-  avatar: string
-  level: StudentLevel
-  sessionsCompleted: number
-  currentPlan: string
-  email: string
-  notes: string
+const kindLabels: Record<string, string> = {
+  all: "Tất cả",
+  class: "Lớp học",
+  booking: "Đặt lịch",
 }
 
-type CoachStudentsTableProps = {
-  students: StudentRecord[]
-}
+const DEFAULT_LIMIT = 12
 
-const levelLabels: Record<StudentLevel, string> = {
-  Beginner: "Mới bắt đầu",
-  Intermediate: "Trung cấp",
-  Advanced: "Nâng cao",
-}
+export function CoachStudentsTable({
+  onSelect,
+}: {
+  onSelect?: (learnerId: string) => void
+}) {
+  const session = useSession()
+  const [search, setSearch] = useState("")
+  const [debouncedSearch, setDebouncedSearch] = useState("")
+  const [kind, setKind] = useState("all")
+  const [page, setPage] = useState(1)
 
-export function CoachStudentsTable({ students }: CoachStudentsTableProps) {
-  const [query, setQuery] = useState("")
-  const [level, setLevel] = useState<StudentLevel | "all">("all")
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
-  const filteredStudents = useMemo(() => {
-    return students.filter((student) => {
-      const matchesQuery =
-        student.name.toLowerCase().includes(query.toLowerCase()) ||
-        student.phone.toLowerCase().includes(query.toLowerCase())
-      const matchesLevel = level === "all" || student.level === level
+  useEffect(() => {
+    debounceRef.current = setTimeout(() => {
+      setDebouncedSearch(search)
+      setPage(1)
+    }, 400)
+    return () => clearTimeout(debounceRef.current)
+  }, [search])
 
-      return matchesQuery && matchesLevel
-    })
-  }, [level, query, students])
+  const params: { search?: string; kind?: string; page?: number; limit?: number } = {
+    page,
+    limit: DEFAULT_LIMIT,
+  }
+  if (debouncedSearch) params.search = debouncedSearch
+  if (kind !== "all") params.kind = kind
+
+  const { data, isLoading, isError, error, refetch } = useCoachLearners(params, { enabled: !!session?.user })
+
+  if (isError) {
+    return (
+      <ErrorState
+        title="Không thể tải danh sách học viên"
+        description={getErrorMessage(error)}
+        retry={refetch}
+      />
+    )
+  }
+
+  const students = data?.data ?? []
+  const pagination = data?.pagination
+
+  if (isLoading) {
+    return (
+      <div className="grid gap-4 xl:grid-cols-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card key={i} className="rounded-2xl border shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-4">
+                <Skeleton className="size-12 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">
@@ -62,61 +106,67 @@ export function CoachStudentsTable({ students }: CoachStudentsTableProps) {
         <div className="relative">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Tìm theo tên hoặc SĐT"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Tìm theo tên, email hoặc ID"
             className="pl-9"
           />
         </div>
 
         <Select
-          value={level}
-          onValueChange={(value) => setLevel(value as StudentLevel | "all")}
+          value={kind}
+          onValueChange={(value) => {
+            setKind(value)
+            setPage(1)
+          }}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Filter level" />
+            <SelectValue placeholder="Loại học viên" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tất cả level</SelectItem>
-            <SelectItem value="Beginner">Beginner</SelectItem>
-            <SelectItem value="Intermediate">Intermediate</SelectItem>
-            <SelectItem value="Advanced">Advanced</SelectItem>
+            <SelectItem value="all">{kindLabels.all}</SelectItem>
+            <SelectItem value="class">{kindLabels.class}</SelectItem>
+            <SelectItem value="booking">{kindLabels.booking}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        {filteredStudents.map((student) => (
+        {students.map((student) => (
           <Card key={student.id} className="rounded-2xl border shadow-sm">
             <CardContent className="p-4">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-start gap-4">
-                  <Avatar size="lg" className="size-12">
-                    <AvatarImage src={student.avatar} alt={student.name} />
+                    <Avatar className="size-12">
+                    <AvatarImage
+                      src={student.avatarUrl ?? ""}
+                      alt={student.name ?? "Học viên"}
+                    />
                     <AvatarFallback>
-                      {student.name.slice(0, 2).toUpperCase()}
+                      {student?.name?.charAt(0) ?? "?"}
                     </AvatarFallback>
                   </Avatar>
 
                   <div className="space-y-1">
-                    <p className="font-semibold">{student.name}</p>
+                    <p className="font-semibold">{student.name ?? "Không có tên"}</p>
                     <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                      <Badge variant="secondary" className="rounded-full">
-                        {levelLabels[student.level]}
-                      </Badge>
-                      <span>{student.sessionsCompleted} buổi đã học</span>
+                      <span>{student.classEnrollmentCount} lớp tham gia</span>
+                      <span>{student.activeClassEnrollmentCount} lớp đang hoạt động</span>
+                      <span>{student.privateBookingCount} lịch đặt riêng</span>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {student.phone}
+                      {student.email ?? "—"}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <Button asChild variant="outline" className="rounded-full">
-                    <Link href={`/coach/students/${student.id}`}>
-                      Xem hồ sơ
-                    </Link>
+                  <Button
+                    variant="outline"
+                    className="rounded-full"
+                    onClick={() => onSelect?.(student.id)}
+                  >
+                    Xem hồ sơ
                   </Button>
                 </div>
               </div>
@@ -125,11 +175,56 @@ export function CoachStudentsTable({ students }: CoachStudentsTableProps) {
         ))}
       </div>
 
-      {filteredStudents.length === 0 ? (
+      {students.length === 0 ? (
         <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
           Không tìm thấy học viên phù hợp.
         </div>
       ) : null}
+
+      {pagination && pagination.totalPages > 1 && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  setPage((p) => Math.max(1, p - 1))
+                }}
+                className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+              />
+            </PaginationItem>
+            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => (
+              <PaginationItem key={p}>
+                <PaginationLink
+                  href="#"
+                  isActive={p === page}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setPage(p)
+                  }}
+                >
+                  {p}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  setPage((p) => Math.min(pagination.totalPages, p + 1))
+                }}
+                className={
+                  page >= pagination.totalPages
+                    ? "pointer-events-none opacity-50"
+                    : ""
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   )
 }

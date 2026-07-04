@@ -12,15 +12,16 @@ import {
   MapPin,
   Plus,
   Save,
+  Send,
   Star,
   Trash2,
-  Upload,
   Users,
 } from "lucide-react"
 import {
   type ChangeEvent,
   type ComponentType,
   type FormEvent,
+  useEffect,
   useMemo,
   useState,
 } from "react"
@@ -40,44 +41,20 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
 
-type CoachCertification = {
-  id: string
-  name: string
-  organization: string
-  level: 1 | 2 | 3
-  year: number
-  verified: boolean
-  fileUrl: string
-  fileName: string
-}
 
-type CoachProfile = {
-  id: string
-  name: string
-  avatar: string
-  bio: string
-  location: string
-  experienceYears: number
-  certifications: CoachCertification[]
-  skills: string[]
-  teachingMethod: string
-  stats: {
-    totalSessions: number
-    totalStudents: number
-    rating: number
-    totalReviews: number
-  }
-}
+import { useSession } from "@/features/auth/hooks/use-session"
+import {
+  useAddCertification,
+  useDeleteCertification,
+  useMyCertifications,
+  useMyCoachProfile,
+  usePublishMyProfile,
+  useUpdateMyCoachProfile,
+} from "../hooks/use-coach-queries"
 
 const skillOptions = [
   { value: "Beginner Coaching", label: "Dạy người mới" },
@@ -85,34 +62,6 @@ const skillOptions = [
   { value: "Kids Coaching", label: "Dạy trẻ em" },
   { value: "Tournament Coaching", label: "Huấn luyện thi đấu" },
 ] as const
-
-type BasicInfoDraft = {
-  avatar: string
-  bio: string
-  location: string
-  experienceYears: string
-  avatarFileName: string
-}
-
-type CertificationDraft = {
-  name: string
-  organization: string
-  level: "1" | "2" | "3"
-  year: string
-  verified: "verified" | "pending"
-  fileUrl: string
-  fileName: string
-}
-
-const emptyCertificationDraft: CertificationDraft = {
-  name: "",
-  organization: "",
-  level: "1",
-  year: String(new Date().getFullYear()),
-  verified: "pending",
-  fileUrl: "",
-  fileName: "",
-}
 
 function getInitials(name: string) {
   return name
@@ -123,186 +72,126 @@ function getInitials(name: string) {
     .join("")
 }
 
-function createCertificationDraft(
-  certification?: CoachCertification
-): CertificationDraft {
-  if (!certification) return emptyCertificationDraft
-
-  return {
-    name: certification.name,
-    organization: certification.organization,
-    level: String(certification.level) as CertificationDraft["level"],
-    year: String(certification.year),
-    verified: certification.verified ? "verified" : "pending",
-    fileUrl: certification.fileUrl,
-    fileName: certification.fileName,
+function getCertStatusColor(status: string) {
+  switch (status) {
+    case "VERIFIED":
+      return "default"
+    case "PENDING":
+      return "outline"
+    case "REJECTED":
+      return "destructive"
+    default:
+      return "outline"
   }
 }
 
-const emptyCoach: CoachProfile = {
-  id: "",
-  name: "",
-  avatar: "",
-  bio: "",
-  location: "",
-  experienceYears: 0,
-  certifications: [],
-  skills: [],
-  teachingMethod: "",
-  stats: {
-    totalSessions: 0,
-    totalStudents: 0,
-    rating: 0,
-    totalReviews: 0,
-  },
+function getCertStatusLabel(status: string) {
+  switch (status) {
+    case "VERIFIED":
+      return "Đã xác minh"
+    case "PENDING":
+      return "Chờ duyệt"
+    case "REJECTED":
+      return "Từ chối"
+    default:
+      return "Chưa xác minh"
+  }
+}
+
+function getCertStatusIcon(status: string) {
+  switch (status) {
+    case "VERIFIED":
+      return CheckCircle2
+    case "PENDING":
+      return Clock3
+    default:
+      return Clock3
+  }
 }
 
 export function CoachProfileForm() {
-  const [coach, setCoach] = useState<CoachProfile>(emptyCoach)
+  const session = useSession()
+  const { data: profile, isLoading: profileLoading } = useMyCoachProfile({ enabled: !!session?.user })
+  const { data: certs, isLoading: certsLoading } = useMyCertifications({ enabled: !!session?.user })
+  const updateProfile = useUpdateMyCoachProfile()
+  const publishProfile = usePublishMyProfile()
+  const addCert = useAddCertification()
+  const deleteCert = useDeleteCertification()
+
   const [isEditingBasicInfo, setIsEditingBasicInfo] = useState(false)
-  const [basicInfoDraft, setBasicInfoDraft] = useState<BasicInfoDraft>({
-    avatar: "",
-    bio: "",
-    location: "",
-    experienceYears: "0",
-    avatarFileName: "Chưa tải ảnh mới",
-  })
+
+  const [displayName, setDisplayName] = useState("")
+  const [bio, setBio] = useState("")
+  const [locationCity, setLocationCity] = useState("")
+  const [yearsExperience, setYearsExperience] = useState("0")
+  const [avatarUrl, setAvatarUrl] = useState("")
+  const [avatarFileName, setAvatarFileName] = useState("Chưa tải ảnh mới")
+
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
-  const [teachingMethodDraft, setTeachingMethodDraft] = useState("")
-  const [certifications, setCertifications] = useState<CoachCertification[]>([])
   const [certDialogOpen, setCertDialogOpen] = useState(false)
-  const [certDialogMode, setCertDialogMode] = useState<"create" | "edit">(
-    "create"
-  )
-  const [editingCertificationId, setEditingCertificationId] = useState<
-    string | null
-  >(null)
-  const [certificationDraft, setCertificationDraft] =
-    useState<CertificationDraft>(emptyCertificationDraft)
+  const [certName, setCertName] = useState("")
+  const [certOrg, setCertOrg] = useState("")
+  const [certIssuedAt, setCertIssuedAt] = useState("")
+  const [certFileUrl, setCertFileUrl] = useState("")
+  const [certFileName, setCertFileName] = useState("")
+
+  const certifications = certs ?? []
+
+  useEffect(() => {
+    if (profile) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDisplayName(profile.displayName)
+      setBio(profile.bio ?? "")
+      setLocationCity(profile.locationCity ?? "")
+      setYearsExperience(String(profile.yearsExperience ?? 0))
+      setAvatarUrl(profile.avatarUrl ?? "")
+      setSelectedSkills(profile.specialties ?? [])
+    }
+  }, [profile])
 
   const verifiedCount = useMemo(
-    () => certifications.filter((item) => item.verified).length,
+    () => certifications.filter((c) => c.verificationStatus === "VERIFIED").length,
+    [certifications]
+  )
+  const pendingCount = useMemo(
+    () => certifications.filter((c) => c.verificationStatus === "PENDING" || c.verificationStatus === "UNVERIFIED").length,
     [certifications]
   )
 
-  const pendingCount = certifications.length - verifiedCount
-
   const openBasicInfoEditor = () => {
-    setBasicInfoDraft({
-      avatar: coach.avatar,
-      bio: coach.bio,
-      location: coach.location,
-      experienceYears: String(coach.experienceYears),
-      avatarFileName: "Chưa tải ảnh mới",
-    })
+    setDisplayName(profile?.displayName ?? "")
+    setBio(profile?.bio ?? "")
+    setLocationCity(profile?.locationCity ?? "")
+    setYearsExperience(String(profile?.yearsExperience ?? 0))
+    setAvatarUrl(profile?.avatarUrl ?? "")
+    setAvatarFileName("Chưa tải ảnh mới")
     setIsEditingBasicInfo(true)
   }
 
   const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-
-    if (!file) {
-      return
-    }
-
-    setBasicInfoDraft((prev) => ({
-      ...prev,
-      avatar: URL.createObjectURL(file),
-      avatarFileName: file.name,
-    }))
+    if (!file) return
+    setAvatarUrl(URL.createObjectURL(file))
+    setAvatarFileName(file.name)
   }
 
   const handleBasicInfoSave = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    const expYears = Number(yearsExperience)
+    if (Number.isNaN(expYears) || expYears < 0) return
 
-    const nextExperienceYears = Number(basicInfoDraft.experienceYears)
-    if (Number.isNaN(nextExperienceYears) || nextExperienceYears < 0) {
-      return
-    }
-
-    setCoach((prev) => ({
-      ...prev,
-      avatar: basicInfoDraft.avatar,
-      bio: basicInfoDraft.bio.trim(),
-      location: basicInfoDraft.location.trim(),
-      experienceYears: nextExperienceYears,
-    }))
+    updateProfile.mutate({
+      displayName: displayName.trim() || undefined,
+      bio: bio.trim() || undefined,
+      locationCity: locationCity.trim() || undefined,
+      yearsExperience: expYears || undefined,
+      avatarUrl: avatarUrl || undefined,
+    })
     setIsEditingBasicInfo(false)
   }
 
   const handleBasicInfoCancel = () => {
     setIsEditingBasicInfo(false)
-  }
-
-  const openCreateCertificationDialog = () => {
-    setCertDialogMode("create")
-    setEditingCertificationId(null)
-    setCertificationDraft(emptyCertificationDraft)
-    setCertDialogOpen(true)
-  }
-
-  const openEditCertificationDialog = (certification: CoachCertification) => {
-    setCertDialogMode("edit")
-    setEditingCertificationId(certification.id)
-    setCertificationDraft(createCertificationDraft(certification))
-    setCertDialogOpen(true)
-  }
-
-  const handleCertificationFileChange = (
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0]
-
-    if (!file) {
-      return
-    }
-
-    setCertificationDraft((prev) => ({
-      ...prev,
-      fileUrl: URL.createObjectURL(file),
-      fileName: file.name,
-    }))
-  }
-
-  const handleCertificationSave = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-
-    const name = certificationDraft.name.trim()
-    const organization = certificationDraft.organization.trim()
-    const year = Number(certificationDraft.year)
-
-    if (!name || !organization || Number.isNaN(year)) {
-      return
-    }
-
-    const nextCertification: CoachCertification = {
-      id: editingCertificationId ?? `cert-${Date.now()}`,
-      name,
-      organization,
-      level: Number(certificationDraft.level) as CoachCertification["level"],
-      year,
-      verified: certificationDraft.verified === "verified",
-      fileUrl: certificationDraft.fileUrl || "",
-      fileName: certificationDraft.fileName || "",
-    }
-
-    setCertifications((prev) =>
-      certDialogMode === "edit"
-        ? prev.map((item) =>
-            item.id === nextCertification.id ? nextCertification : item
-          )
-        : [nextCertification, ...prev]
-    )
-
-    setCertDialogOpen(false)
-    setEditingCertificationId(null)
-    setCertificationDraft(emptyCertificationDraft)
-  }
-
-  const handleCertificationDelete = (certificationId: string) => {
-    setCertifications((prev) =>
-      prev.filter((item) => item.id !== certificationId)
-    )
   }
 
   const handleSkillToggle = (value: string) => {
@@ -313,12 +202,57 @@ export function CoachProfileForm() {
     )
   }
 
-  const handleTeachingMethodSave = () => {
-    setCoach((prev) => ({
-      ...prev,
-      skills: selectedSkills,
-      teachingMethod: teachingMethodDraft.trim(),
-    }))
+  const handleSkillsSave = () => {
+    updateProfile.mutate({
+      specialties: selectedSkills,
+    })
+  }
+
+  const openCreateCertificationDialog = () => {
+    setCertName("")
+    setCertOrg("")
+    setCertIssuedAt(new Date().toISOString().slice(0, 10))
+    setCertFileUrl("")
+    setCertFileName("")
+    setCertDialogOpen(true)
+  }
+
+  const handleCertificationFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    setCertFileUrl(URL.createObjectURL(file))
+    setCertFileName(file.name)
+  }
+
+  const handleCertificationSave = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const name = certName.trim()
+    const org = certOrg.trim()
+    if (!name) return
+
+    addCert.mutate({
+      name,
+      issuingOrganization: org || undefined,
+      issuedAt: certIssuedAt || undefined,
+      documentUrl: certFileUrl || undefined,
+    })
+    setCertDialogOpen(false)
+  }
+
+  const handleCertificationDelete = (certId: string) => {
+    deleteCert.mutate(certId)
+  }
+
+  if (profileLoading || certsLoading) {
+    return (
+      <div className="space-y-8">
+        <Skeleton className="h-48 rounded-3xl" />
+        <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+          <Skeleton className="h-96 rounded-2xl" />
+          <Skeleton className="h-96 rounded-2xl" />
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -350,6 +284,17 @@ export function CoachProfileForm() {
               </p>
               <p className="mt-1 text-2xl font-semibold">{pendingCount}</p>
             </div>
+            {profile?.status === "DRAFT" && (
+              <Button
+                type="button"
+                className="rounded-full col-span-full"
+                onClick={() => publishProfile.mutate()}
+                disabled={publishProfile.isPending}
+              >
+                <Send className="size-4" />
+                {publishProfile.isPending ? "Đang công khai..." : "Công khai hồ sơ"}
+              </Button>
+            )}
           </div>
         </div>
       </section>
@@ -372,6 +317,7 @@ export function CoachProfileForm() {
                     variant="outline"
                     className="rounded-full"
                     onClick={openBasicInfoEditor}
+                    disabled={updateProfile.isPending}
                   >
                     <Edit3 className="size-4" />
                     Chỉnh sửa
@@ -393,16 +339,18 @@ export function CoachProfileForm() {
               {!isEditingBasicInfo ? (
                 <div className="grid gap-6 md:grid-cols-[auto_1fr] md:items-start">
                   <Avatar size="lg" className="size-20 rounded-3xl">
-                    <AvatarImage src={coach.avatar} alt={coach.name} />
+                    <AvatarImage src={profile?.avatarUrl ?? ""} alt={profile?.displayName} />
                     <AvatarFallback className="rounded-3xl text-lg font-semibold">
-                      {getInitials(coach.name)}
+                      {profile ? getInitials(profile.displayName) : "?"}
                     </AvatarFallback>
                   </Avatar>
 
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-xl font-semibold">{coach.name}</h3>
+                        <h3 className="text-xl font-semibold">
+                          {profile?.displayName ?? "Chưa có tên"}
+                        </h3>
                         <Badge variant="secondary" className="rounded-full">
                           HLV Pickleball
                         </Badge>
@@ -410,17 +358,17 @@ export function CoachProfileForm() {
                       <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
                         <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1">
                           <MapPin className="size-4" />
-                          {coach.location}
+                          {profile?.locationCity ?? "Chưa cập nhật"}
                         </span>
                         <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1">
                           <CalendarDays className="size-4" />
-                          {coach.experienceYears} năm kinh nghiệm
+                          {profile?.yearsExperience ?? 0} năm kinh nghiệm
                         </span>
                       </div>
                     </div>
 
                     <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-                      {coach.bio}
+                      {profile?.bio ?? "Chưa có mô tả."}
                     </p>
                   </div>
                 </div>
@@ -429,12 +377,9 @@ export function CoachProfileForm() {
                   <div className="grid gap-5 lg:grid-cols-[auto_1fr] lg:items-start">
                     <div className="space-y-3">
                       <Avatar size="lg" className="size-24 rounded-3xl border">
-                        <AvatarImage
-                          src={basicInfoDraft.avatar}
-                          alt={coach.name}
-                        />
+                        <AvatarImage src={avatarUrl} alt={displayName} />
                         <AvatarFallback className="rounded-3xl text-lg font-semibold">
-                          {getInitials(coach.name)}
+                          {getInitials(displayName || "?")}
                         </AvatarFallback>
                       </Avatar>
 
@@ -447,72 +392,62 @@ export function CoachProfileForm() {
                           onChange={handleAvatarChange}
                         />
                         <p className="text-xs text-muted-foreground">
-                          {basicInfoDraft.avatarFileName}
+                          {avatarFileName}
                         </p>
                       </div>
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="space-y-2 sm:col-span-2">
-                        <Label>Họ tên</Label>
-                        <Input value={coach.name || ""} disabled />
+                        <Label htmlFor="displayName">Tên hiển thị</Label>
+                        <Input
+                          id="displayName"
+                          value={displayName}
+                          onChange={(e) => setDisplayName(e.target.value)}
+                          placeholder="Nguyễn Văn A"
+                        />
                       </div>
 
                       <div className="space-y-2 sm:col-span-2">
                         <Label htmlFor="bio">Bio</Label>
                         <Textarea
                           id="bio"
-                          value={basicInfoDraft.bio}
-                          onChange={(event) =>
-                            setBasicInfoDraft((prev) => ({
-                              ...prev,
-                              bio: event.target.value,
-                            }))
-                          }
+                          value={bio}
+                          onChange={(e) => setBio(e.target.value)}
                           rows={4}
                           placeholder="Mô tả ngắn về chuyên môn và phong cách huấn luyện"
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="location">Khu vực giảng dạy</Label>
+                        <Label htmlFor="locationCity">Khu vực giảng dạy</Label>
                         <Input
-                          id="location"
-                          value={basicInfoDraft.location}
-                          onChange={(event) =>
-                            setBasicInfoDraft((prev) => ({
-                              ...prev,
-                              location: event.target.value,
-                            }))
-                          }
+                          id="locationCity"
+                          value={locationCity}
+                          onChange={(e) => setLocationCity(e.target.value)}
                           placeholder="TP.HCM"
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="experienceYears">
+                        <Label htmlFor="yearsExperience">
                           Số năm kinh nghiệm
                         </Label>
                         <Input
-                          id="experienceYears"
+                          id="yearsExperience"
                           type="number"
                           min={0}
-                          value={basicInfoDraft.experienceYears}
-                          onChange={(event) =>
-                            setBasicInfoDraft((prev) => ({
-                              ...prev,
-                              experienceYears: event.target.value,
-                            }))
-                          }
+                          value={yearsExperience}
+                          onChange={(e) => setYearsExperience(e.target.value)}
                         />
                       </div>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap gap-2">
-                    <Button type="submit" className="rounded-full">
+                    <Button type="submit" className="rounded-full" disabled={updateProfile.isPending}>
                       <Save className="size-4" />
-                      Lưu thay đổi
+                      {updateProfile.isPending ? "Đang lưu..." : "Lưu thay đổi"}
                     </Button>
                     <Button
                       type="button"
@@ -542,6 +477,7 @@ export function CoachProfileForm() {
                   type="button"
                   className="rounded-full"
                   onClick={openCreateCertificationDialog}
+                  disabled={addCert.isPending}
                 >
                   <Plus className="size-4" />
                   Thêm chứng chỉ
@@ -550,89 +486,77 @@ export function CoachProfileForm() {
             </CardHeader>
 
             <CardContent className="space-y-4">
-              {certifications.map((certification) => (
-                <div
-                  key={certification.id}
-                  className="rounded-2xl border p-4 transition-colors hover:bg-muted/30"
-                >
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="space-y-3">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-base font-semibold">
-                          {certification.name}
-                        </h3>
-                        <Badge
-                          variant={
-                            certification.verified ? "default" : "outline"
-                          }
-                          className="rounded-full"
+              {certifications.map((certification, index) => {
+                const StatusIcon = getCertStatusIcon(certification.verificationStatus)
+
+                return (
+                  <div
+                    key={certification.id ?? index}
+                    className="rounded-2xl border p-4 transition-colors hover:bg-muted/30"
+                  >
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                      <div className="space-y-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-base font-semibold">
+                            {certification.name}
+                          </h3>
+                          <Badge
+                            variant={getCertStatusColor(certification.verificationStatus) as "default" | "outline" | "destructive"}
+                            className="rounded-full"
+                          >
+                            <StatusIcon className="size-3.5" />
+                            {getCertStatusLabel(certification.verificationStatus)}
+                          </Badge>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+                          <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1">
+                            <Award className="size-4" />
+                            {certification.issuingOrganization ?? "Không có tổ chức"}
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1">
+                            <CalendarDays className="size-4" />
+                            {certification.issuedAt
+                              ? new Date(certification.issuedAt).toLocaleDateString("vi-VN")
+                              : "Không có ngày"}
+                          </span>
+                        </div>
+
+                        {certification.documentUrl && (
+                          <a
+                            href={certification.documentUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline"
+                          >
+                            <FileText className="size-4" />
+                            Xem tài liệu
+                          </a>
+                        )}
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="rounded-full text-destructive hover:text-destructive"
+                          onClick={() => handleCertificationDelete(certification.id)}
+                          disabled={deleteCert.isPending}
                         >
-                          {certification.verified ? (
-                            <>
-                              <CheckCircle2 className="size-3.5" />
-                              Verified
-                            </>
-                          ) : (
-                            <>
-                              <Clock3 className="size-3.5" />
-                              Pending
-                            </>
-                          )}
-                        </Badge>
+                          <Trash2 className="size-4" />
+                          Xóa
+                        </Button>
                       </div>
-
-                      <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                        <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1">
-                          <Award className="size-4" />
-                          {certification.organization}
-                        </span>
-                        <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1">
-                          Level {certification.level}
-                        </span>
-                        <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1">
-                          <CalendarDays className="size-4" />
-                          {certification.year}
-                        </span>
-                      </div>
-
-                      <a
-                        href={certification.fileUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline"
-                      >
-                        <FileText className="size-4" />
-                        {certification.fileName}
-                      </a>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="rounded-full"
-                        onClick={() =>
-                          openEditCertificationDialog(certification)
-                        }
-                      >
-                        <Edit3 className="size-4" />
-                        Sửa
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="rounded-full text-destructive hover:text-destructive"
-                        onClick={() =>
-                          handleCertificationDelete(certification.id)
-                        }
-                      >
-                        <Trash2 className="size-4" />
-                        Xóa
-                      </Button>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
+
+              {certifications.length === 0 && (
+                <p className="py-4 text-center text-sm text-muted-foreground">
+                  Chưa có chứng chỉ nào. Nhấn \u201CThêm chứng chỉ\u201D để bắt đầu.
+                </p>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -644,13 +568,9 @@ export function CoachProfileForm() {
                 <div>
                   <CardTitle>Kinh nghiệm &amp; chuyên môn</CardTitle>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Chọn chuyên môn bằng checkbox và lưu mô tả phương pháp giảng
-                    dạy.
+                    Chọn chuyên môn bằng checkbox và lưu thay đổi.
                   </p>
                 </div>
-                <Badge variant="secondary" className="rounded-full">
-                  Dữ liệu cục bộ
-                </Badge>
               </div>
             </CardHeader>
 
@@ -672,37 +592,15 @@ export function CoachProfileForm() {
                 ))}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="teachingMethod">
-                  Mô tả phương pháp giảng dạy
-                </Label>
-                <Textarea
-                  id="teachingMethod"
-                  rows={5}
-                  value={teachingMethodDraft}
-                  onChange={(event) =>
-                    setTeachingMethodDraft(event.target.value)
-                  }
-                  placeholder="Mô tả phong cách huấn luyện, giáo án và cách tương tác với học viên"
-                />
-              </div>
-
               <div className="flex flex-wrap gap-2">
                 <Button
                   type="button"
                   className="rounded-full"
-                  onClick={handleTeachingMethodSave}
+                  onClick={handleSkillsSave}
+                  disabled={updateProfile.isPending}
                 >
                   <Save className="size-4" />
-                  Lưu thay đổi
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="rounded-full"
-                >
-                  <Upload className="size-4" />
-                  Tải lên
+                  {updateProfile.isPending ? "Đang lưu..." : "Lưu thay đổi"}
                 </Button>
               </div>
 
@@ -732,11 +630,8 @@ export function CoachProfileForm() {
               <div className="rounded-2xl border bg-muted/20 p-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2 font-medium text-foreground">
                   <Globe2 className="size-4" />
-                  {coach.teachingMethod}
+                  {profile?.bio ?? "Chưa có bio"}
                 </div>
-                <p className="mt-2">
-                  Phần này sẽ được kết nối với dữ liệu thực khi có API.
-                </p>
               </div>
             </CardContent>
           </Card>
@@ -761,23 +656,23 @@ export function CoachProfileForm() {
               <StatCard
                 icon={CalendarDays}
                 label="Tổng số buổi đã dạy"
-                value={coach.stats.totalSessions.toString()}
+                value={profile ? String(profile.yearsExperience ?? 0) : "0"}
               />
               <StatCard
                 icon={Users}
                 label="Số học viên đã dạy"
-                value={coach.stats.totalStudents.toString()}
+                value={String(profile?.reviewCount ?? 0)}
               />
               <StatCard
                 icon={Star}
                 label="Rating trung bình"
-                value={coach.stats.rating.toFixed(1)}
+                value={(profile?.averageRating ?? 0).toFixed(1)}
                 suffix="/ 5"
               />
               <StatCard
                 icon={CheckCircle2}
                 label="Số lượt đánh giá"
-                value={coach.stats.totalReviews.toString()}
+                value={String(profile?.reviewCount ?? 0)}
               />
             </CardContent>
           </Card>
@@ -789,18 +684,19 @@ export function CoachProfileForm() {
         onOpenChange={(open) => {
           setCertDialogOpen(open)
           if (!open) {
-            setEditingCertificationId(null)
-            setCertificationDraft(emptyCertificationDraft)
+            setCertName("")
+            setCertOrg("")
+            setCertIssuedAt("")
+            setCertFileUrl("")
+            setCertFileName("")
           }
         }}
       >
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>
-              {certDialogMode === "create" ? "Thêm chứng chỉ" : "Sửa chứng chỉ"}
-            </DialogTitle>
+            <DialogTitle>Thêm chứng chỉ</DialogTitle>
             <DialogDescription>
-              Tải file và cập nhật các trường chứng chỉ ngay trong dialog.
+              Nhập thông tin chứng chỉ để gửi lên hệ thống xác minh.
             </DialogDescription>
           </DialogHeader>
 
@@ -810,13 +706,8 @@ export function CoachProfileForm() {
                 <Label htmlFor="certName">Tên chứng chỉ</Label>
                 <Input
                   id="certName"
-                  value={certificationDraft.name}
-                  onChange={(event) =>
-                    setCertificationDraft((prev) => ({
-                      ...prev,
-                      name: event.target.value,
-                    }))
-                  }
+                  value={certName}
+                  onChange={(e) => setCertName(e.target.value)}
                   placeholder="IPTPA Level 1"
                   required
                 />
@@ -826,81 +717,24 @@ export function CoachProfileForm() {
                 <Label htmlFor="certOrg">Tổ chức cấp</Label>
                 <Input
                   id="certOrg"
-                  value={certificationDraft.organization}
-                  onChange={(event) =>
-                    setCertificationDraft((prev) => ({
-                      ...prev,
-                      organization: event.target.value,
-                    }))
-                  }
+                  value={certOrg}
+                  onChange={(e) => setCertOrg(e.target.value)}
                   placeholder="IPTPA"
-                  required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>Cấp độ</Label>
-                <Select
-                  value={certificationDraft.level}
-                  onValueChange={(value) =>
-                    setCertificationDraft((prev) => ({
-                      ...prev,
-                      level: value as CertificationDraft["level"],
-                    }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn cấp độ" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">Level 1</SelectItem>
-                    <SelectItem value="2">Level 2</SelectItem>
-                    <SelectItem value="3">Level 3</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="certYear">Năm cấp</Label>
+                <Label htmlFor="certIssuedAt">Ngày cấp</Label>
                 <Input
-                  id="certYear"
-                  type="number"
-                  min={2000}
-                  max={2100}
-                  value={certificationDraft.year}
-                  onChange={(event) =>
-                    setCertificationDraft((prev) => ({
-                      ...prev,
-                      year: event.target.value,
-                    }))
-                  }
-                  required
+                  id="certIssuedAt"
+                  type="date"
+                  value={certIssuedAt}
+                  onChange={(e) => setCertIssuedAt(e.target.value)}
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Trạng thái xác minh</Label>
-                <Select
-                  value={certificationDraft.verified}
-                  onValueChange={(value) =>
-                    setCertificationDraft((prev) => ({
-                      ...prev,
-                      verified: value as CertificationDraft["verified"],
-                    }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn trạng thái" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="verified">Verified</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
 
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="certFile">File chứng chỉ</Label>
+                <Label htmlFor="certFile">File chứng chỉ (URL)</Label>
                 <Input
                   id="certFile"
                   type="file"
@@ -909,7 +743,7 @@ export function CoachProfileForm() {
                 />
                 <div className="flex items-center gap-2 rounded-2xl border border-dashed px-3 py-2 text-sm text-muted-foreground">
                   <ImageIcon className="size-4" />
-                  <span>{certificationDraft.fileName || "Chưa chọn file"}</span>
+                  <span>{certFileName || "Chưa chọn file"}</span>
                 </div>
               </div>
             </div>
@@ -922,14 +756,38 @@ export function CoachProfileForm() {
               >
                 Hủy
               </Button>
-              <Button type="submit">
+              <Button type="submit" disabled={addCert.isPending || !certName.trim()}>
                 <Save className="size-4" />
-                Lưu chứng chỉ
+                {addCert.isPending ? "Đang lưu..." : "Lưu chứng chỉ"}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
+
+      {updateProfile.isSuccess && (
+        <p className="text-sm font-medium text-green-600">
+          Đã cập nhật hồ sơ thành công!
+        </p>
+      )}
+
+      {publishProfile.isSuccess && (
+        <p className="text-sm font-medium text-green-600">
+          Hồ sơ đã được công khai!
+        </p>
+      )}
+
+      {addCert.isSuccess && (
+        <p className="text-sm font-medium text-green-600">
+          Đã thêm chứng chỉ thành công!
+        </p>
+      )}
+
+      {deleteCert.isSuccess && (
+        <p className="text-sm font-medium text-green-600">
+          Đã xóa chứng chỉ!
+        </p>
+      )}
     </div>
   )
 }

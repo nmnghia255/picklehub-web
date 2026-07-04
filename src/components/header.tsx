@@ -30,6 +30,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useQueryClient } from "@tanstack/react-query"
 import { notificationFeedAtom } from "@/features/feed/store/feed-store"
 import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import type { SessionUser } from "@/lib/session"
@@ -40,13 +41,13 @@ export interface HeaderProps {
 
 export function Header({ user }: HeaderProps) {
   const { t } = useTranslation("common")
+  const queryClient = useQueryClient()
   const { theme, setTheme } = useTheme()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [notifications, setNotifications] = useAtom(notificationFeedAtom)
 
-  // Call the hook to trigger fetching & caching subscriptions on app mount for authenticated user
   const { data: subscriptions } = useMySubscriptions()
 
   useLayoutEffect(() => {
@@ -61,6 +62,7 @@ export function Header({ user }: HeaderProps) {
         method: "POST",
       })
       if (response.ok) {
+        queryClient.invalidateQueries({ queryKey: ["session"] })
         router.push("/login")
       }
     } catch (error) {

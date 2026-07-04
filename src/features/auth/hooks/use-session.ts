@@ -1,33 +1,31 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 
 import type { SessionData } from "@/lib/session"
 
 export type Session = SessionData | null
 
-export function useSession() {
-  const [session, setSession] = useState<Session>(null)
+async function fetchSession(): Promise<Session> {
+  try {
+    const response = await fetch("/api/auth/session")
 
-  useEffect(() => {
-    const fetchSession = async () => {
-      try {
-        const response = await fetch("/api/auth/session")
-
-        if (!response.ok) {
-          setSession(null)
-          return
-        }
-
-        const data = (await response.json()) as SessionData
-        setSession(data)
-      } catch {
-        setSession(null)
-      }
+    if (!response.ok) {
+      return null
     }
 
-    fetchSession()
-  }, [])
+    return (await response.json()) as SessionData
+  } catch {
+    return null
+  }
+}
 
-  return session
+export function useSession() {
+  const { data: session } = useQuery({
+    queryKey: ["session"],
+    queryFn: fetchSession,
+    staleTime: Infinity,
+  })
+
+  return session ?? null
 }

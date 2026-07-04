@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { CoachPageHeader } from "@/features/coach/components/coach-page-header"
 
-export default async function StudentDetailPage() {
+export default function StudentDetailPage() {
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8 md:px-8">
       <div className="space-y-6">
         <div className="flex items-center gap-2">
           <Button asChild variant="ghost" size="icon" className="rounded-full">
-            <Link href="/coach/students">
+            <Link href="/coach?tab=students">
               <ChevronLeft className="size-4" />
             </Link>
           </Button>

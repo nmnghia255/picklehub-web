@@ -1,3 +1,5 @@
+import { CalendarX } from "lucide-react"
+
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,14 +24,31 @@ const statusVariantMap = {
 } as const
 
 export function CoachQuickSchedule({ schedules }: CoachQuickScheduleProps) {
+  if (schedules.length === 0) {
+    return (
+      <Card className="rounded-2xl border shadow-sm">
+        <CardHeader>
+          <CardTitle>Lịch hôm nay</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <CalendarX className="mb-3 size-10 text-muted-foreground" />
+            <p className="text-sm font-medium text-muted-foreground">Chưa có lịch</p>
+            <p className="text-xs text-muted-foreground">Hôm nay bạn không có lịch dạy nào.</p>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card className="rounded-2xl border shadow-sm">
       <CardHeader>
         <CardTitle>Lịch hôm nay</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {schedules.map((schedule) => (
-          <div key={schedule.id} className="rounded-2xl border p-4">
+        {schedules.map((schedule, index) => (
+          <div key={schedule.id ?? index} className="rounded-2xl border p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
