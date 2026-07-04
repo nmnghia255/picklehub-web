@@ -7,7 +7,6 @@ import {
   CalendarClock,
   CreditCard,
   DollarSign,
-  GitBranch,
   Grid,
   Heart,
   LayoutDashboard,
@@ -27,6 +26,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BookingManagement } from "@/features/tournaments/components/booking-tab/booking-management"
 import { BracketManagement } from "@/features/tournaments/components/bracket-tab/bracket-management"
@@ -70,10 +76,9 @@ const tabMetadata: Record<
   registrations: { labelKey: "manager.tabs.registrations", icon: Users },
   groups: {
     labelKey: "manager.tabs.groups",
-    defaultValue: "Group Stage",
+    defaultValue: "Group & Bracket",
     icon: Grid,
   },
-  brackets: { labelKey: "manager.tabs.brackets", icon: GitBranch },
   schedule: { labelKey: "manager.tabs.schedule", icon: CalendarClock },
   live: { labelKey: "manager.tabs.live", icon: Activity },
   financials: { labelKey: "manager.tabs.financials", icon: DollarSign },
@@ -103,13 +108,24 @@ export function TournamentManager({
   const { t } = useTournamentTranslation()
   const searchParams = useSearchParams()
   const tabParam = searchParams?.get("tab")
-  const [activeTab, setActiveTab] = useState(tabParam || "dashboard")
+  const resolvedTabParam =
+    tabParam === "brackets" ? "groups" : tabParam || "dashboard"
+  const [activeTab, setActiveTab] = useState(resolvedTabParam)
   const [prevTabParam, setPrevTabParam] = useState(tabParam)
 
   if (tabParam !== prevTabParam) {
     setPrevTabParam(tabParam)
-    setActiveTab(tabParam || "dashboard")
+    setActiveTab(resolvedTabParam)
   }
+
+  // Active stage (group stage or knockout stage) inside the merged 'Group & Bracket' tab
+  const [activeStage, setActiveStage] = useState<"group" | "knockout">(
+    tabParam === "brackets" ? "knockout" : "group"
+  )
+  // Shared event selection for both group and knockout stages
+  const [selectedEventId, setSelectedEventId] = useState<number | null>(
+    events[0]?.id || null
+  )
 
   const isSm = useMediaQuery("(min-width: 640px)")
   const isMd = useMediaQuery("(min-width: 768px)")
@@ -123,8 +139,6 @@ export function TournamentManager({
         return true
       case "registrations":
         return isSm
-      case "brackets":
-        return isMd
       case "schedule":
         return isLg
       case "bookings":
@@ -132,7 +146,7 @@ export function TournamentManager({
       case "seeding":
         return isXl
       case "groups":
-        return isXl
+        return isMd
       default:
         return false
     }
@@ -146,7 +160,6 @@ export function TournamentManager({
     "seeding",
     "bookings",
     "groups",
-    "brackets",
     "schedule",
   ]
 
@@ -170,7 +183,6 @@ export function TournamentManager({
     "seeding",
     "bookings",
     "groups",
-    "brackets",
     "schedule",
     "live",
     "financials",
@@ -188,7 +200,7 @@ export function TournamentManager({
     <div
       className={cn(
         "flex flex-1 flex-col bg-background",
-        activeTab === "brackets" || activeTab === "schedule"
+        activeTab === "groups" || activeTab === "schedule"
           ? "h-[calc(100vh-3.5rem)] max-h-[calc(100vh-3.5rem)] overflow-hidden"
           : ""
       )}
@@ -280,7 +292,7 @@ export function TournamentManager({
         <div
           className={cn(
             "min-h-0 w-full flex-1",
-            activeTab === "brackets" || activeTab === "schedule"
+            activeTab === "groups" || activeTab === "schedule"
               ? "flex flex-col overflow-hidden"
               : "mx-auto max-w-7xl overflow-y-auto p-0"
           )}
@@ -330,15 +342,108 @@ export function TournamentManager({
             />
           </TabsContent>
           <TabsContent
-            value="brackets"
+            value="groups"
             className="m-0 flex flex-1 flex-col overflow-hidden border-none p-0 outline-none"
           >
-            <BracketManagement
-              tournamentId={tournament.id}
-              events={events}
-              isHost={isHost}
-              tournamentStatus={tournament.status}
-            />
+            <div className="flex h-full w-full flex-col overflow-hidden">
+              {/* Sub-navigation Switcher Header */}
+              <div className="flex shrink-0 flex-col gap-4 border-b border-gray-200 bg-white p-6 sm:flex-row sm:items-center sm:justify-between dark:border-zinc-800 dark:bg-zinc-950">
+                {/* Stage switcher pills */}
+                <div className="flex items-center gap-1 rounded-xl bg-gray-100 p-1 dark:bg-zinc-800">
+                  <button
+                    onClick={() => setActiveStage("group")}
+                    className={cn(
+                      "rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200",
+                      activeStage === "group"
+                        ? "bg-white text-emerald-700 shadow-xs dark:bg-zinc-700 dark:text-emerald-400"
+                        : "text-gray-600 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-200"
+                    )}
+                  >
+                    {t("groupStage.stageSwitcher.group", {
+                      defaultValue: "Group Stage",
+                    })}
+                  </button>
+                  <button
+                    onClick={() => setActiveStage("knockout")}
+                    className={cn(
+                      "rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200",
+                      activeStage === "knockout"
+                        ? "bg-white text-emerald-700 shadow-xs dark:bg-zinc-700 dark:text-emerald-400"
+                        : "text-gray-600 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-200"
+                    )}
+                  >
+                    {t("groupStage.stageSwitcher.knockout", {
+                      defaultValue: "Knockout Stage",
+                    })}
+                  </button>
+                </div>
+
+                {/* Event Dropdown Selector */}
+                {events.length > 0 && (
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold text-gray-500 dark:text-zinc-400">
+                      {t("seeding.selectEvent", {
+                        defaultValue: "Select Event",
+                      })}
+                      :
+                    </span>
+                    <div className="w-full sm:w-[240px]">
+                      <Select
+                        value={selectedEventId?.toString()}
+                        onValueChange={(val) => setSelectedEventId(Number(val))}
+                      >
+                        <SelectTrigger className="w-full bg-white dark:bg-zinc-900">
+                          <SelectValue
+                            placeholder={t("seeding.chooseEvent", {
+                              defaultValue: "Choose an event",
+                            })}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {events.map((event) => (
+                            <SelectItem
+                              key={event.id}
+                              value={event.id.toString()}
+                            >
+                              {event.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Responsive container depending on group vs knockout canvas needs */}
+              <div
+                className={cn(
+                  "min-h-0 w-full flex-1",
+                  activeStage === "group"
+                    ? "overflow-y-auto"
+                    : "overflow-hidden"
+                )}
+              >
+                {activeStage === "group" ? (
+                  <GroupManagement
+                    tournamentId={tournament.id}
+                    events={events}
+                    isHost={isHost}
+                    eventId={selectedEventId || undefined}
+                    hideEventSelect={true}
+                  />
+                ) : (
+                  <BracketManagement
+                    tournamentId={tournament.id}
+                    events={events}
+                    isHost={isHost}
+                    tournamentStatus={tournament.status}
+                    eventId={selectedEventId || undefined}
+                    hideEventSelect={true}
+                  />
+                )}
+              </div>
+            </div>
           </TabsContent>
           <TabsContent
             value="schedule"
@@ -358,16 +463,6 @@ export function TournamentManager({
               tournamentId={tournament.id}
               tournamentStartDate={tournament.startDate}
               tournamentEndDate={tournament.endDate}
-            />
-          </TabsContent>
-          <TabsContent
-            value="groups"
-            className="m-0 border-none p-0 outline-none"
-          >
-            <GroupManagement
-              tournamentId={tournament.id}
-              events={events}
-              isHost={isHost}
             />
           </TabsContent>
           <TabsContent

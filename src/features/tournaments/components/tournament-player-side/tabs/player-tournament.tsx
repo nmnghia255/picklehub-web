@@ -1,20 +1,20 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
+import { useCallback, useEffect, useState } from "react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { User } from "@/features/profile/types"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 import { cn } from "@/lib/utils"
 
-import { listMatchesWithRefereesAction } from "../../actions/referee-actions"
-import { getMyProfileAction } from "../../actions/tournament-registration-actions"
-import type { Match } from "../../types/match"
-import type { Player } from "../../types/player"
-import type { AssignedReferee } from "../../types/referee"
-import type { Sponsor as TournamentSponsor } from "../../types/sponsor"
-import type { Tournament } from "../../types/tournament"
-import type { TournamentEvent } from "../../types/tournament-event"
+import { listMyAssignmentsAction } from "../../../actions/referee-actions"
+import { getMyProfileAction } from "../../../actions/tournament-registration-actions"
+import type { Player } from "../../../types/player"
+import type { AssignedReferee } from "../../../types/referee"
+import type { Sponsor as TournamentSponsor } from "../../../types/sponsor"
+import type { Tournament } from "../../../types/tournament"
+import type { TournamentEvent } from "../../../types/tournament-event"
 import { EventsTab } from "./events-tab"
 import { TournamentHero } from "./hero-section"
 import { TournamentOverview } from "./overview-tab"
@@ -27,7 +27,6 @@ interface PlayerTournamentProps {
   events?: TournamentEvent[]
   sponsors?: TournamentSponsor[]
   participants?: Player[]
-  matches?: Match[]
   totalPrizes?: number
 }
 
@@ -36,10 +35,21 @@ export function PlayerTournament({
   events = [],
   sponsors = [],
   participants = [],
-  matches = [],
   totalPrizes = 0,
 }: PlayerTournamentProps) {
   const { t } = useTournamentTranslation()
+  const searchParams = useSearchParams()
+  const tabParam = searchParams.get("tab") || "overview"
+  const [activeTab, setActiveTab] = useState(tabParam)
+
+  useEffect(() => {
+    if (tabParam) {
+      const timerId = setTimeout(() => {
+        setActiveTab(tabParam)
+      }, 0)
+      return () => clearTimeout(timerId)
+    }
+  }, [tabParam])
 
   const [currentUserProfile, setCurrentUserProfile] = useState<User | null>(
     null
@@ -54,19 +64,19 @@ export function PlayerTournament({
     })
   }, [])
 
-  const fetchRefereeAssignments = () => {
+  const fetchRefereeAssignments = useCallback(() => {
     if (tournament?.id) {
-      listMatchesWithRefereesAction(String(tournament.id)).then((res) => {
+      listMyAssignmentsAction(String(tournament.id)).then((res) => {
         if (res.success && res.data) {
           setRefereeMatches(res.data)
         }
       })
     }
-  }
+  }, [tournament])
 
   useEffect(() => {
     fetchRefereeAssignments()
-  }, [tournament?.id])
+  }, [fetchRefereeAssignments])
 
   const isParticipant = Boolean(
     currentUserProfile &&
@@ -79,18 +89,9 @@ export function PlayerTournament({
   const displaySponsors: TournamentSponsor[] = sponsors
   const displayParticipants = participants
 
-  const hasRefereeAssignments =
-    refereeMatches.some(
-      (m) =>
-        currentUserProfile &&
-        String(m.refereeId) === String(currentUserProfile.id)
-    ) || true
+  const hasRefereeAssignments = refereeMatches.length > 0
 
-  const myAssignments = refereeMatches.filter(
-    (m) =>
-      currentUserProfile &&
-      String(m.refereeId) === String(currentUserProfile.id)
-  )
+  const myAssignments = refereeMatches
 
   // Calculate dynamic grid cols class
   let colsClass = "grid-cols-3"
@@ -113,7 +114,6 @@ export function PlayerTournament({
     return acc + (event.participants ?? 0) * multiplier
   }, 0)
   const eventsCount = events.length
-  const totalMatchesCount = 0
 
   return (
     <div className="min-h-screen bg-background">
@@ -123,7 +123,7 @@ export function PlayerTournament({
       {/* Content Container */}
       <div className="mx-auto mt-8 max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
         {/* Tab Controls */}
-        <Tabs defaultValue="overview" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList
             className={cn(
               "border-gray-150 mb-8 grid h-12 w-full rounded-xl border bg-white p-0.5 shadow-sm",

@@ -1,32 +1,57 @@
-"use client"
-
-import { Clock, MapPin, Play, Trophy } from "lucide-react"
-import { useState } from "react"
+import { Clock, MapPin, Play } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { getTeamEventsAction } from "@/features/tournaments/actions/team-actions"
+import type { Team } from "@/features/tournaments/types/player"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
-import type { AssignedReferee } from "../../types/referee"
-import { RefereeScoring } from "../referee-scoring"
+import type { AssignedReferee } from "../../../types/referee"
 
 interface RefereeTabProps {
   assignments: AssignedReferee[]
   onRefresh?: () => void
 }
 
-export function RefereeTab({ assignments, onRefresh }: RefereeTabProps) {
+export function RefereeTab({ assignments }: RefereeTabProps) {
   const { t } = useTournamentTranslation()
-  const [selectedMatch, setSelectedMatch] = useState<AssignedReferee | null>(
-    null
-  )
+  const router = useRouter()
+  const [teamMap, setTeamMap] = useState<Record<string, Team>>({})
 
-  const handleCloseScoring = () => {
-    setSelectedMatch(null)
-    onRefresh?.()
-  }
+  useEffect(() => {
+    if (!assignments || assignments.length === 0) return
+
+    // Get unique combinations of tournamentId and eventId
+    const uniqueEvents = Array.from(
+      new Set(assignments.map((a) => `${a.tournamentId}_${a.eventId}`))
+    )
+
+    const fetchAllTeams = async () => {
+      const newTeamMap: Record<string, Team> = {}
+      await Promise.all(
+        uniqueEvents.map(async (key) => {
+          const [tournamentId, eventId] = key.split("_")
+          if (!tournamentId || !eventId) return
+          try {
+            const res = await getTeamEventsAction(eventId, tournamentId)
+            if (res.success && res.data) {
+              res.data.forEach((team: Team) => {
+                newTeamMap[String(team.id)] = team
+              })
+            }
+          } catch (err) {
+            console.error("Failed to load teams for event:", eventId, err)
+          }
+        })
+      )
+      setTeamMap((prev) => ({ ...prev, ...newTeamMap }))
+    }
+
+    fetchAllTeams()
+  }, [assignments])
 
   return (
     <Card className="border-gray-200 shadow-sm">
@@ -44,6 +69,21 @@ export function RefereeTab({ assignments, onRefresh }: RefereeTabProps) {
               const timeStr = match.time || "TBD"
               const eventName = match.event?.name || "Event"
               const isCompleted = match.status === "completed"
+
+              const team1Obj = teamMap[String(match.team1Id)]
+              const team2Obj = teamMap[String(match.team2Id)]
+
+              const team1Name = team1Obj
+                ? team1Obj.player2
+                  ? `${team1Obj.player1.name} / ${team1Obj.player2.name}`
+                  : team1Obj.player1.name
+                : match.team1Id || "TBD Team 1"
+
+              const team2Name = team2Obj
+                ? team2Obj.player2
+                  ? `${team2Obj.player1.name} / ${team2Obj.player2.name}`
+                  : team2Obj.player1.name
+                : match.team2Id || "TBD Team 2"
 
               return (
                 <div
@@ -86,11 +126,11 @@ export function RefereeTab({ assignments, onRefresh }: RefereeTabProps) {
                       </Badge>
                     </div>
                     <h4 className="flex items-center gap-2 text-lg font-bold text-gray-900">
-                      <span>{match.team1Id || "TBD Team 1"}</span>
+                      <span>{team1Name}</span>
                       <span className="text-xs font-normal text-gray-400 uppercase">
                         vs
                       </span>
-                      <span>{match.team2Id || "TBD Team 2"}</span>
+                      <span>{team2Name}</span>
                     </h4>
                     <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                       <span className="flex items-center gap-1">
@@ -116,12 +156,20 @@ export function RefereeTab({ assignments, onRefresh }: RefereeTabProps) {
                       </div>
                     ) : (
                       <Button
-                        onClick={() => setSelectedMatch(match)}
+                        onClick={() => {
+                          const targetMatchId =
+                            match.externalMatchId || match.id
+                          router.push(
+                            `/score?matchId=${targetMatchId}&tournamentId=${match.tournamentId}&team1=${encodeURIComponent(
+                              team1Name
+                            )}&team2=${encodeURIComponent(team2Name)}`
+                          )
+                        }}
                         className="bg-emerald-600 font-bold text-white hover:bg-emerald-700"
                       >
                         <Play className="mr-1.5 h-4 w-4 fill-white" />
-                        {t("referee.actions.startScoring", {
-                          defaultValue: "Enter Score",
+                        {t("referee.actions.startGame", {
+                          defaultValue: "Start game",
                         })}
                       </Button>
                     )}
@@ -139,21 +187,6 @@ export function RefereeTab({ assignments, onRefresh }: RefereeTabProps) {
           )}
         </div>
       </CardContent>
-
-      {/* Scorekeeping Dialog */}
-      {selectedMatch && (
-        <Dialog
-          open={!!selectedMatch}
-          onOpenChange={(open) => !open && handleCloseScoring()}
-        >
-          <DialogContent className="max-w-4xl overflow-hidden border-none bg-gray-50 p-0">
-            <RefereeScoring
-              match={selectedMatch}
-              onClose={handleCloseScoring}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
     </Card>
   )
 }

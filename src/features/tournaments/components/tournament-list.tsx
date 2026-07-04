@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
+import { cn } from "@/lib/utils"
 
 import {
   getMyTournamentsAction,
@@ -150,7 +151,12 @@ export function TournamentList({
   }
 
   return (
-    <div className="mx-auto max-w-7xl p-8">
+    <div
+      className={cn(
+        "mx-auto w-full p-8",
+        tournaments.length === 0 ? "" : "max-w-7xl"
+      )}
+    >
       {/* Header */}
       <div className="mb-8">
         <div className="mb-6 flex items-center justify-between">

@@ -90,7 +90,7 @@ function extractBrackets(data: unknown): Bracket[] | null {
   return null
 }
 
-export const useBracketStore = create<BracketState>((set) => ({
+export const useBracketStore = create<BracketState>((set, get) => ({
   selectedEventId: null,
   selectedFormat: "single-elimination",
   viewMode: "standard",
@@ -204,7 +204,13 @@ export const useBracketStore = create<BracketState>((set) => ({
       const res = await editEventBracketAction(tournamentId, eventId, payload)
       const extracted = extractBrackets(res.data)
       if (res.success && extracted !== null) {
-        set({ brackets: extracted })
+        const selectedMatch = get().selectedMatch
+        let updatedMatch = selectedMatch
+        if (selectedMatch) {
+          updatedMatch =
+            extracted.find((b) => b.id === selectedMatch.id) || selectedMatch
+        }
+        set({ brackets: extracted, selectedMatch: updatedMatch })
         toast.success(successMessage)
       } else {
         toast.error(res.error || errorMessage)
@@ -224,6 +230,13 @@ export const useBracketStore = create<BracketState>((set) => ({
       if (res.success) {
         set({ isLocked: true })
         toast.success(successMessage)
+
+        // Refresh brackets to fetch updated statuses and matchups
+        const refreshRes = await getEventBracketsAction(tournamentId, eventId)
+        const extracted = extractBrackets(refreshRes.data)
+        if (refreshRes.success && extracted !== null) {
+          set({ brackets: extracted })
+        }
       } else {
         toast.error(res.error || errorMessage)
       }

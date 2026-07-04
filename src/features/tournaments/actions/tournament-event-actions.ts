@@ -163,3 +163,49 @@ export async function saveEventPrizesAction(
     }
   }
 }
+
+export async function awardPrizeToTeamAction(
+  tournamentId: string,
+  prizeId: string,
+  teamId: string | null
+) {
+  try {
+    const data = await TournamentPrizeService.awardPrizeToTeam(
+      tournamentId,
+      prizeId,
+      teamId
+    )
+    return { success: true, data }
+  } catch (error: unknown) {
+    console.error("Failed to award prize to team:", error)
+    let errorMessage = "An unknown error occurred"
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.message || error.message
+    } else if (error instanceof Error) {
+      errorMessage = error.message
+    }
+    return { success: false, error: errorMessage }
+  }
+}
+
+export async function getEventStandingsAction(
+  tournamentId: string,
+  eventId: string
+) {
+  try {
+    const data = await TournamentEventService.getEventStandings(
+      tournamentId,
+      eventId
+    )
+    return { success: true, data }
+  } catch (error: unknown) {
+    console.error("Failed to fetch event standings:", error)
+    let errorMessage = "An unknown error occurred"
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.message || error.message
+    } else if (error instanceof Error) {
+      errorMessage = error.message
+    }
+    return { success: false, error: errorMessage }
+  }
+}

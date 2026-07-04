@@ -77,7 +77,7 @@ export function GroupManagement({
 
   if (events.length === 0) {
     return (
-      <div className={hideEventSelect ? "" : "p-8"}>
+      <div className={hideEventSelect ? "p-6 md:p-8" : "p-8"}>
         <div className="mx-auto max-w-7xl">
           {!hideEventSelect && (
             <div className="mb-8">
@@ -109,7 +109,7 @@ export function GroupManagement({
   }
 
   return (
-    <div className={hideEventSelect ? "" : "p-8"}>
+    <div className={hideEventSelect ? "p-6 md:p-8" : "p-8"}>
       <div className="mx-auto max-w-7xl space-y-8">
         {!hideEventSelect && (
           <>

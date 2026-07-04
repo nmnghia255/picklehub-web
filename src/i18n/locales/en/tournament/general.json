@@ -9,7 +9,7 @@
       "registrations": "Registrations",
       "teamMatching": "Team Matching",
       "seeding": "Seeding",
-      "groups": "Group Stage",
+      "groups": "Group & Bracket",
       "brackets": "Brackets",
       "schedule": "Schedule",
       "booking": "Venues & Bookings",
@@ -70,7 +70,8 @@
       "liveScores": "Live Scores",
       "results": "Results",
       "payment": "Payment",
-      "referee": "Referee"
+      "referee": "Referee",
+      "standing": "Standing"
     },
     "overview": {
       "title": "Tournament Overview",
@@ -88,7 +89,8 @@
       "parking": "Parking"
     },
     "participantsList": {
-      "rating": "Rating:"
+      "rating": "Rating:",
+      "emptyHint": "Be the first to register and join the action!"
     },
     "upcomingMatches": "Upcoming Matches",
     "finishedMatches": "Finished Matches",

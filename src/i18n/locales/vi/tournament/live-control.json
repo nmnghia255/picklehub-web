@@ -31,7 +31,11 @@
       "regDetail": "Mã đăng ký: {{id}} • Nội dung: {{event}}",
       "checkedInAt": "Đã điểm danh: {{time}}",
       "btnCheckin": "Điểm danh",
-      "noRegSelected": "Vui lòng chọn thông tin đăng ký vận động viên ở trên để quản lý điểm danh."
+      "noRegSelected": "Vui lòng chọn thông tin đăng ký vận động viên ở trên để quản lý điểm danh.",
+      "listTitle": "Đội & Vận động viên đã điểm danh",
+      "checkedInCountLabel": "Đã điểm danh",
+      "noCheckinsYet": "Chưa có lượt điểm danh nào được ghi nhận.",
+      "pending": "Chờ điểm danh"
     },
     "liveMatches": {
       "title": "Trận đấu trực tiếp",

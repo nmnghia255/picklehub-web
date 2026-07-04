@@ -6,7 +6,7 @@ import { BackButton } from "@/components/common/back-button"
 import { Badge } from "@/components/ui/badge"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
-import type { Tournament } from "../../types/tournament"
+import type { Tournament } from "../../../types/tournament"
 
 function formatDateRange(startDateStr?: string, endDateStr?: string) {
   if (!startDateStr) return ""

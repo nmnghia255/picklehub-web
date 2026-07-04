@@ -1,23 +1,24 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useState } from "react"
 import { toast } from "sonner"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { User } from "@/features/profile/types"
-import { registerTournamentEventAction } from "@/features/tournaments/actions/tournament-registration-actions"
 import { BracketManagement } from "@/features/tournaments/components/bracket-tab/bracket-management"
 import { GroupManagement } from "@/features/tournaments/components/group-tab/group-management"
 import { EventHero } from "@/features/tournaments/components/tournament-player-side/event-page/event-hero"
 import { EventInfoCard } from "@/features/tournaments/components/tournament-player-side/event-page/event-info-card"
 import { EventPrizesCard } from "@/features/tournaments/components/tournament-player-side/event-page/event-prizes-card"
 import { EventRegistrationCard } from "@/features/tournaments/components/tournament-player-side/event-page/event-registration-card"
+import { EventStandingTab } from "@/features/tournaments/components/tournament-player-side/event-page/event-standing-tab"
 import { EventTeamsTab } from "@/features/tournaments/components/tournament-player-side/event-page/event-teams-tab"
 import { PaymentProofDialog } from "@/features/tournaments/components/tournament-player-side/event-page/payment-proof-dialog"
 import { RegisterConfirmDialog } from "@/features/tournaments/components/tournament-player-side/event-page/register-confirm-dialog"
-import { MatchListTab } from "@/features/tournaments/components/tournament-player-side/match-list-tab"
+import { MatchListTab } from "@/features/tournaments/components/tournament-player-side/tabs/match-list-tab"
+import { useEventStore } from "@/features/tournaments/stores/use-event-store"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
+import { cn } from "@/lib/utils"
 
 import type { Match } from "../../../types/match"
 import type { Player, Team } from "../../../types/player"
@@ -50,9 +51,16 @@ export function EventDetailClient({
 }: EventDetailClientProps) {
   const router = useRouter()
   const { t } = useTournamentTranslation()
-  const [isRegistering, setIsRegistering] = useState(false)
-  const [isRegisterConfirmOpen, setIsRegisterConfirmOpen] = useState(false)
-  const [isPaymentProofOpen, setIsPaymentProofOpen] = useState(false)
+  const {
+    isRegistering,
+    isRegisterConfirmOpen,
+    isPaymentProofOpen,
+    activeStage,
+    setActiveStage,
+    setRegisterConfirmOpen,
+    setPaymentProofOpen,
+    registerForEvent,
+  } = useEventStore()
 
   // Check if current user is registered
   const userRegistration = registrations.find(
@@ -126,8 +134,6 @@ export function EventDetailClient({
     .filter((m) => m.eventId === event.id || m.event === event.name)
 
   const handleRegister = async (partner?: User) => {
-    setIsRegistering(true)
-
     let ratingVal = currentUser.selfRating || 3.0
     if (currentUser.dupr) {
       if (event.type === "Singles") {
@@ -176,7 +182,7 @@ export function EventDetailClient({
     }
 
     try {
-      const res = await registerTournamentEventAction(
+      const res = await registerForEvent(
         String(tournament.id),
         String(event.id),
         payload
@@ -204,8 +210,6 @@ export function EventDetailClient({
           defaultValue: "An unexpected error occurred during registration",
         })
       )
-    } finally {
-      setIsRegistering(false)
     }
   }
 
@@ -217,18 +221,33 @@ export function EventDetailClient({
         {/* Tab Controls */}
         <div className="mt-8">
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="border-gray-150 mb-8 grid h-12 w-full grid-cols-5 rounded-xl border bg-white p-0.5 shadow-sm">
+            <TabsList
+              className={cn(
+                "border-gray-150 mb-8 grid h-12 w-full rounded-xl border bg-white p-0.5 shadow-sm",
+                tournament.status === "completed"
+                  ? "grid-cols-5"
+                  : "grid-cols-4"
+              )}
+            >
               <TabsTrigger
                 value="overview"
                 className="rounded-lg text-xs font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white md:text-sm"
               >
                 {t("public.tabs.overview")}
               </TabsTrigger>
+              {tournament.status === "completed" && (
+                <TabsTrigger
+                  value="standing"
+                  className="rounded-lg text-xs font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white md:text-sm"
+                >
+                  {t("public.tabs.standing", { defaultValue: "Standing" })}
+                </TabsTrigger>
+              )}
               <TabsTrigger
                 value="groups"
                 className="rounded-lg text-xs font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white md:text-sm"
               >
-                {t("manager.tabs.groups", { defaultValue: "Group Stage" })}
+                {t("manager.tabs.groups", { defaultValue: "Group & Bracket" })}
               </TabsTrigger>
               <TabsTrigger
                 value="matches"
@@ -241,12 +260,6 @@ export function EventDetailClient({
                 className="rounded-lg text-xs font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white md:text-sm"
               >
                 {t("public.tabs.participants")}
-              </TabsTrigger>
-              <TabsTrigger
-                value="brackets"
-                className="rounded-lg text-xs font-medium text-gray-600 transition-all duration-200 data-[state=active]:bg-emerald-600 data-[state=active]:text-white md:text-sm"
-              >
-                {t("manager.tabs.brackets", { defaultValue: "Bracket" })}
               </TabsTrigger>
             </TabsList>
 
@@ -267,8 +280,8 @@ export function EventDetailClient({
                   <EventRegistrationCard
                     event={event}
                     userRegistration={userRegistration}
-                    onRegisterClick={() => setIsRegisterConfirmOpen(true)}
-                    onUploadProofClick={() => setIsPaymentProofOpen(true)}
+                    onRegisterClick={() => setRegisterConfirmOpen(true)}
+                    onUploadProofClick={() => setPaymentProofOpen(true)}
                     isRegistering={isRegistering}
                   />
                 </div>
@@ -280,14 +293,78 @@ export function EventDetailClient({
               value="groups"
               className="mt-0 focus-visible:outline-none"
             >
-              <GroupManagement
-                tournamentId={Number(tournament.id)}
-                events={[event]}
-                isHost={false}
-                eventId={Number(event.id)}
-                hideEventSelect={true}
-              />
+              <div className="border-gray-150 flex w-full flex-col overflow-hidden rounded-xl border bg-white shadow-sm">
+                {/* Stage switcher pills */}
+                <div className="border-gray-150 flex shrink-0 items-center gap-1 border-b bg-gray-50/50 p-4 dark:bg-zinc-800">
+                  <div className="flex items-center gap-1 rounded-xl bg-gray-100 p-1 dark:bg-zinc-800">
+                    <button
+                      onClick={() => setActiveStage("group")}
+                      className={cn(
+                        "rounded-lg px-4 py-1.5 text-xs font-semibold transition-all duration-200 md:text-sm",
+                        activeStage === "group"
+                          ? "bg-white text-emerald-700 shadow-xs dark:bg-zinc-700 dark:text-emerald-400"
+                          : "text-gray-600 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-200"
+                      )}
+                    >
+                      {t("groupStage.stageSwitcher.group", {
+                        defaultValue: "Group Stage",
+                      })}
+                    </button>
+                    <button
+                      onClick={() => setActiveStage("knockout")}
+                      className={cn(
+                        "rounded-lg px-4 py-1.5 text-xs font-semibold transition-all duration-200 md:text-sm",
+                        activeStage === "knockout"
+                          ? "bg-white text-emerald-700 shadow-xs dark:bg-zinc-700 dark:text-emerald-400"
+                          : "text-gray-600 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-200"
+                      )}
+                    >
+                      {t("groupStage.stageSwitcher.knockout", {
+                        defaultValue: "Knockout Stage",
+                      })}
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  className={cn(
+                    "w-full",
+                    activeStage === "group" ? "" : "h-[600px] overflow-hidden"
+                  )}
+                >
+                  {activeStage === "group" ? (
+                    <GroupManagement
+                      tournamentId={Number(tournament.id)}
+                      events={[event]}
+                      isHost={false}
+                      eventId={Number(event.id)}
+                      hideEventSelect={true}
+                    />
+                  ) : (
+                    <BracketManagement
+                      tournamentId={Number(tournament.id)}
+                      events={[event]}
+                      isHost={false}
+                      eventId={Number(event.id)}
+                      hideEventSelect={true}
+                    />
+                  )}
+                </div>
+              </div>
             </TabsContent>
+
+            {/* Standing Tab Content */}
+            {tournament.status === "completed" && (
+              <TabsContent
+                value="standing"
+                className="mt-0 focus-visible:outline-none"
+              >
+                <EventStandingTab
+                  tournamentId={String(tournament.id)}
+                  eventId={String(event.id)}
+                />
+              </TabsContent>
+            )}
 
             {/* Matches Tab Content */}
             <TabsContent
@@ -307,20 +384,6 @@ export function EventDetailClient({
                 isSingles={event.type === "Singles"}
               />
             </TabsContent>
-
-            {/* Brackets Tab Content */}
-            <TabsContent
-              value="brackets"
-              className="mt-0 focus-visible:outline-none"
-            >
-              <BracketManagement
-                tournamentId={Number(tournament.id)}
-                events={[event]}
-                isHost={false}
-                eventId={Number(event.id)}
-                hideEventSelect={true}
-              />
-            </TabsContent>
           </Tabs>
         </div>
       </div>
@@ -328,11 +391,11 @@ export function EventDetailClient({
       {/* Registration Confirmation Dialog */}
       <RegisterConfirmDialog
         isOpen={isRegisterConfirmOpen}
-        onOpenChange={setIsRegisterConfirmOpen}
+        onOpenChange={setRegisterConfirmOpen}
         currentUser={currentUser}
         event={event}
         onConfirm={async (partner) => {
-          setIsRegisterConfirmOpen(false)
+          setRegisterConfirmOpen(false)
           await handleRegister(partner)
         }}
         isRegistering={isRegistering}
@@ -344,7 +407,7 @@ export function EventDetailClient({
           tournamentId={String(tournament.id)}
           registrationId={String(userRegistration.id)}
           isOpen={isPaymentProofOpen}
-          onOpenChange={setIsPaymentProofOpen}
+          onOpenChange={setPaymentProofOpen}
           onSuccess={handleRegistrationSuccess}
         />
       )}

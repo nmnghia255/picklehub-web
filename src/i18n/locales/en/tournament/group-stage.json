@@ -32,6 +32,10 @@
     "matchesSuccess": "Group matches generated successfully",
     "matchesFailed": "Failed to generate matches",
     "advanceSuccess": "Successfully advanced {{count}} teams to knockout stage",
-    "advanceFailed": "Failed to advance teams"
+    "advanceFailed": "Failed to advance teams",
+    "stageSwitcher": {
+      "group": "Group Stage",
+      "knockout": "Knockout Stage"
+    }
   }
 }

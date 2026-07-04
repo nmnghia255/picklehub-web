@@ -82,9 +82,26 @@
       "notStarted": "Not Started"
     },
     "actions": {
-      "startScoring": "Enter Score",
+      "startGame": "Start game",
       "undo": "Undo",
       "confirm": "Confirm"
+    },
+    "tracker": {
+      "servingTurn": "Serving Turn",
+      "serverBadge": "Server {{number}}",
+      "scoreCallFormat": "Score Call: ",
+      "scoreCallFormatHelp": " (serving team score, receiving team score, server number {{number}})",
+      "swapEnds": "Swap Ends",
+      "swapPositions": "Swap {{team}} Positions",
+      "rallyWon": "{{team}} won rally",
+      "resetMatch": "Reset Match",
+      "resetConfirmTitle": "Reset Match?",
+      "resetConfirmDesc": "Score will be reset to 0-0, server 2, default court positions. Previous steps will be removed from history.",
+      "cancel": "Cancel",
+      "reset": "Reset",
+      "undo": "Undo",
+      "savingResult": "Saving result...",
+      "confirmResult": "Confirm & Save Result"
     }
   }
 }

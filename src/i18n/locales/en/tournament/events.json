@@ -80,6 +80,15 @@
       "trophyLabel": "Cup / Medal Included",
       "saveSuccess": "Placement prizes saved successfully",
       "saveError": "Failed to save placement prizes"
+    },
+    "award": {
+      "title": "Award Prizes to Winners",
+      "subtitle": "Select the winning team for each configured reward.",
+      "loadingTeams": "Loading event teams...",
+      "noTeams": "No teams registered in this event yet.",
+      "selectTeam": "Select Winner Team",
+      "success": "Prize awarded successfully!",
+      "error": "Failed to award prize"
     }
   },
   "eventDetail": {
@@ -140,6 +149,17 @@
     "selectPartnerPlaceholder": "Select your partner",
     "partnerRequiredNotice": "Please select a partner to complete registration.",
     "confirmAndRegister": "Confirm & Register",
-    "selectPartnerError": "Please select a partner"
+    "selectPartnerError": "Please select a partner",
+    "standing": {
+      "loading": "Loading standings...",
+      "noData": "No standing data available yet.",
+      "championLabel": "Event Champion",
+      "rank": "Rank",
+      "team": "Team",
+      "seed": "Seed",
+      "wins": "Wins",
+      "losses": "Losses",
+      "result": "Result"
+    }
   }
 }

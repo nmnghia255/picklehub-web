@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
-import type { Match } from "../../types/match"
+import type { Match } from "../../../types/match"
 
 interface MatchListTabProps {
   matches: Match[]

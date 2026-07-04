@@ -176,3 +176,24 @@ export async function changeTournamentStatusAction(
     }
   }
 }
+
+export async function getTournamentPosterImageAction(tournamentId: number) {
+  try {
+    const arrayBuffer =
+      await TournamentService.getTournamentPosterImage(tournamentId)
+    const base64 = Buffer.from(arrayBuffer).toString("base64")
+    return { success: true as const, base64 }
+  } catch (error: unknown) {
+    console.error("Failed to get tournament poster image:", error)
+    let errorMessage = "An unknown error occurred"
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.message || error.message
+    } else if (error instanceof Error) {
+      errorMessage = error.message
+    }
+    return {
+      success: false as const,
+      error: errorMessage,
+    }
+  }
+}

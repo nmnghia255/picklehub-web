@@ -32,6 +32,10 @@
     "matchesSuccess": "Tạo lịch thi đấu vòng bảng thành công",
     "matchesFailed": "Tạo lịch thi đấu vòng bảng thất bại",
     "advanceSuccess": "Đã đưa {{count}} đội đi tiếp vào vòng loại trực tiếp thành công",
-    "advanceFailed": "Đưa các đội đi tiếp thất bại"
+    "advanceFailed": "Đưa các đội đi tiếp thất bại",
+    "stageSwitcher": {
+      "group": "Vòng bảng",
+      "knockout": "Vòng loại trực tiếp"
+    }
   }
 }

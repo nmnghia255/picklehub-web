@@ -151,3 +151,19 @@ export async function unassignRefereeFromMatchAction(
     return { success: false, error: errorMessage }
   }
 }
+
+export async function listMyAssignmentsAction(tournamentId: string) {
+  try {
+    const data = await TournamentRefereeService.listMyMatches(tournamentId)
+    return { success: true, data }
+  } catch (error: unknown) {
+    console.error("Failed to list my assignments:", error)
+    let errorMessage = "Failed to list my assignments"
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.message || error.message
+    } else if (error instanceof Error) {
+      errorMessage = error.message
+    }
+    return { success: false, error: errorMessage }
+  }
+}

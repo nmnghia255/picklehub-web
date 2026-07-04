@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
-import type { TournamentEvent } from "../../types/tournament-event"
+import type { TournamentEvent } from "../../../types/tournament-event"
 
 interface EventsTabProps {
   tournamentId: string

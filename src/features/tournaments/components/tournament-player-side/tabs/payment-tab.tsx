@@ -1,7 +1,7 @@
 "use client"
 
-import type { Tournament } from "../../types/tournament"
-import { PaymentTab as BasePaymentTab } from "../payment-tab/payment"
+import type { Tournament } from "../../../types/tournament"
+import { PaymentTab as BasePaymentTab } from "../../payment-tab/payment"
 
 interface PaymentTabProps {
   tournament?: Tournament

@@ -53,3 +53,64 @@ export interface Tournament {
 export interface TournamentDetail extends Tournament {
   events: TournamentEvent[]
 }
+
+export type TournamentAuditAction =
+  | "SEED_GENERATE"
+  | "SEED_LOCK"
+  | "BRACKET_GENERATE"
+  | "BRACKET_LOCK"
+  | "BRACKET_DELETE"
+
+export interface TournamentAuditLog {
+  id: number
+  action: TournamentAuditAction
+  oldValue: AuditLogValue | null
+  newValue: AuditLogValue | null
+  createdAt: string
+  tournamentId: number
+}
+
+export type AuditLogValue =
+  | SeedGenerateValue
+  | SeedLockValue
+  | BracketGenerateValue
+  | BracketLockValue
+  | BracketDeleteValue
+
+export interface SeedGenerateValue {
+  eventId: number
+  seeds: TournamentSeed[]
+}
+
+export interface SeedLockValue {
+  eventId: number
+  status: "locked" | "unlocked"
+}
+
+export interface BracketGenerateValue {
+  eventId: number
+  format: "single_elimination" | "round_robin"
+  matchesCount: number
+}
+
+export interface BracketLockValue {
+  eventId: number
+  status: "locked" | "unlocked"
+}
+
+export interface BracketDeleteValue {
+  eventId: number
+  deletedMatchesCount: number
+}
+
+export interface TournamentSeed {
+  seed: number
+  wins: number
+  losses: number
+  rating: number
+  status: "locked" | "unlocked"
+  teamId: number
+  eventId: number
+  teamName: string
+  tournamentId: number
+}

@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
 import { TournamentEventService } from "@/features/tournaments/api/events-service"
 import { TournamentPrizeService } from "@/features/tournaments/api/prizes-service"
 import { TournamentRegistrationService } from "@/features/tournaments/api/registration-service"
 import { TournamentSponsorService } from "@/features/tournaments/api/sponsor-service"
 import { TournamentService } from "@/features/tournaments/api/tournaments-service"
-import { PlayerTournament } from "@/features/tournaments/components/tournament-player-side/player-tournament"
+import { PlayerTournament } from "@/features/tournaments/components/tournament-player-side/tabs/player-tournament"
 import type { Player } from "@/features/tournaments/types/player"
 import type { Sponsor } from "@/features/tournaments/types/sponsor"
 import type { Tournament } from "@/features/tournaments/types/tournament"
@@ -85,13 +86,21 @@ export default async function TournamentDetailPage(props: {
 
   return (
     <div className="tournament-player-root flex flex-1 flex-col">
-      <PlayerTournament
-        tournament={tournament}
-        events={events}
-        sponsors={sponsors}
-        participants={participants}
-        totalPrizes={totalPrizes}
-      />
+      <Suspense
+        fallback={
+          <div className="p-8 text-center text-gray-500">
+            Đang tải thông tin giải đấu...
+          </div>
+        }
+      >
+        <PlayerTournament
+          tournament={tournament}
+          events={events}
+          sponsors={sponsors}
+          participants={participants}
+          totalPrizes={totalPrizes}
+        />
+      </Suspense>
     </div>
   )
 }

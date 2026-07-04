@@ -2,6 +2,7 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type {
   Tournament,
+  TournamentAuditLog,
   TournamentDetail,
   TournamentRequest,
   TournamentStatus,
@@ -195,5 +196,35 @@ export const TournamentService = {
       "/api/tournaments/discover"
     )
     return unwrapApiResponse(response.data)
+  },
+
+  // Returns a list of audit logs for a specific tournament.
+  getTournamentAuditLog: async (id: string) => {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.get<ApiResponse<TournamentAuditLog[]>>(
+      `/api/tournaments/${id}/audit-logs`
+    )
+    return unwrapApiResponse(response.data)
+  },
+
+  // Returns the standardized registration share link with UTM tracking parameters.
+  getTournamentShareLink: async (id: string) => {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.get<ApiResponse<string>>(
+      `/api/tournaments/${id}/share-link`
+    )
+    return unwrapApiResponse(response.data)
+  },
+
+  // Returns the dynamically generated poster image buffer or redirects to Cloudinary if cached.
+  getTournamentPosterImage: async (
+    tournamentId: number
+  ): Promise<ArrayBuffer> => {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.get<ArrayBuffer>(
+      `/api/tournaments/${tournamentId}/poster`,
+      { responseType: "arraybuffer" }
+    )
+    return response.data
   },
 }

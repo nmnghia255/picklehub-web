@@ -29,6 +29,7 @@ export interface AssignedReferee {
   priority: string
   refereeId: string
   refereeName: string
+  externalMatchId?: string | null
   event: {
     name: string
     type: string

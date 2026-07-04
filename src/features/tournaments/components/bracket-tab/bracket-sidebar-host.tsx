@@ -84,6 +84,7 @@ export function HostBracketSidebar({
 }: HostBracketSidebarProps) {
   const { t } = useTournamentTranslation()
   const [isAlertOpen, setIsAlertOpen] = useState(false)
+  const [isLockAlertOpen, setIsLockAlertOpen] = useState(false)
 
   return (
     <div className="flex h-full min-h-0 w-80 shrink-0 flex-col border-r border-gray-200 bg-white">
@@ -181,16 +182,56 @@ export function HostBracketSidebar({
                       </span>
                     </div>
                   ) : (
-                    <Button
-                      onClick={handleLockBracket}
-                      disabled={isLoading || isPending}
-                      className="w-full justify-start bg-emerald-600 font-medium text-white hover:bg-emerald-700"
+                    <AlertDialog
+                      open={isLockAlertOpen}
+                      onOpenChange={setIsLockAlertOpen}
                     >
-                      <Lock className="mr-2 h-4 w-4" />
-                      {t("brackets.sidebar.lockBracket", {
-                        defaultValue: "Lock Matchups",
-                      })}
-                    </Button>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          disabled={isLoading || isPending}
+                          className="w-full justify-start bg-emerald-600 font-medium text-white hover:bg-emerald-700"
+                        >
+                          <Lock className="mr-2 h-4 w-4" />
+                          {t("brackets.sidebar.lockBracket", {
+                            defaultValue: "Lock Matchups",
+                          })}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            {t("brackets.lockConfirmTitle", {
+                              defaultValue: "Lock Matchups",
+                            })}
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {t("brackets.lockConfirmDesc", {
+                              defaultValue:
+                                "Are you sure you want to lock the bracket matchups? Once locked, matches will be official and you will not be able to edit team positions anymore.",
+                            })}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel disabled={isLoading || isPending}>
+                            {t("brackets.dialog.cancel", {
+                              defaultValue: "Cancel",
+                            })}
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            disabled={isLoading || isPending}
+                            onClick={async (e) => {
+                              e.preventDefault()
+                              await handleLockBracket()
+                              setIsLockAlertOpen(false)
+                            }}
+                          >
+                            {t("brackets.dialog.lock", {
+                              defaultValue: "Lock",
+                            })}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   )}
 
                   <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>

@@ -3,6 +3,7 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 import type {
   TournamentEvent,
   TournamentEventRequest,
+  TournamentEventStanding,
 } from "../types/tournament-event"
 
 interface ApiResponse<T> {
@@ -69,6 +70,18 @@ export const TournamentEventService = {
     const axios = await getAuthenticatedAxios()
     const response = await axios.delete<ApiResponse<null>>(
       `/api/tournaments/${tournamentId}/events/${eventId}`
+    )
+    return unwrapApiResponse(response.data)
+  },
+
+  // Final placement table for an event, derived from the bracket results (champion, runner-up, round eliminated, win/loss).
+  getEventStandings: async (
+    tournamentId: string,
+    eventId: string
+  ): Promise<TournamentEventStanding> => {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.get<ApiResponse<TournamentEventStanding>>(
+      `/api/tournaments/${tournamentId}/events/${eventId}/standings`
     )
     return unwrapApiResponse(response.data)
   },

@@ -1,8 +1,8 @@
 "use client"
 
-import { Plus } from "lucide-react"
+import { Plus, Trophy } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
-import { useState, useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -15,11 +15,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
+import { getTeamEventsAction } from "../../actions/team-actions"
 import {
+  awardPrizeToTeamAction,
   deleteTournamentEventAction,
   saveEventPrizesAction,
 } from "../../actions/tournament-event-actions"
+import type { Team } from "../../types/player"
 import type { TournamentPrize, TournamentPrizeRequest } from "../../types/prize"
 import type { Tournament } from "../../types/tournament"
 import type { TournamentEvent } from "../../types/tournament-event"
@@ -51,10 +55,84 @@ export function EventManagement({
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null)
   const [isPrizeDialogOpen, setIsPrizeDialogOpen] = useState(false)
 
+  const [eventTeams, setEventTeams] = useState<Team[]>([])
+  const [isLoadingTeams, setIsLoadingTeams] = useState(false)
+  const [isAwardingPrize, setIsAwardingPrize] = useState<number | null>(null)
+
   const selectedEvent = events.find((e) => e.id === selectedEventId) || null
   const selectedEventPrizes = selectedEventId
     ? prizes.filter((p) => Number(p.eventId) === selectedEventId)
     : []
+
+  useEffect(() => {
+    let active = true
+
+    Promise.resolve().then(async () => {
+      if (!selectedEventId) {
+        if (active) setEventTeams([])
+        return
+      }
+
+      if (active) setIsLoadingTeams(true)
+      try {
+        const res = await getTeamEventsAction(
+          String(selectedEventId),
+          tournamentId
+        )
+        if (active) {
+          if (res.success && res.data) {
+            setEventTeams(res.data)
+          } else {
+            setEventTeams([])
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching teams:", error)
+        if (active) setEventTeams([])
+      } finally {
+        if (active) setIsLoadingTeams(false)
+      }
+    })
+
+    return () => {
+      active = false
+    }
+  }, [selectedEventId, tournamentId])
+
+  const handleAwardPrize = async (prizeId: number, teamIdStr: string) => {
+    setIsAwardingPrize(prizeId)
+    const teamId = teamIdStr === "" ? null : teamIdStr
+
+    try {
+      const res = await awardPrizeToTeamAction(
+        tournamentId,
+        String(prizeId),
+        teamId
+      )
+      if (res.success) {
+        toast.success(
+          t("events.award.success", {
+            defaultValue: "Prize awarded successfully!",
+          })
+        )
+        startTransition(() => {
+          router.refresh()
+        })
+      } else {
+        toast.error(
+          res.error ||
+            t("events.award.error", { defaultValue: "Failed to award prize" })
+        )
+      }
+    } catch (error) {
+      console.error("Error awarding prize:", error)
+      toast.error(
+        t("events.award.error", { defaultValue: "Failed to award prize" })
+      )
+    } finally {
+      setIsAwardingPrize(null)
+    }
+  }
 
   const handleDelete = async (eventId: string) => {
     if (
@@ -195,6 +273,93 @@ export function EventManagement({
           canManageEvents={canManageEvents}
           onConfigurePrizesClick={() => setIsPrizeDialogOpen(true)}
         />
+
+        {/* Award Prizes Section (Host only) */}
+        {isHost && selectedEvent && selectedEventPrizes.length > 0 && (
+          <Card className="border border-amber-200 bg-amber-50/10 dark:bg-zinc-800/10">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-xl font-bold">
+                <Trophy className="h-5 w-5 text-amber-500" />
+                {t("events.award.title", {
+                  defaultValue: "Award Prizes to Winners",
+                })}
+              </CardTitle>
+              <p className="mt-1 text-sm text-gray-500">
+                {t("events.award.subtitle", {
+                  defaultValue:
+                    "Select the winning team for each configured reward.",
+                })}
+              </p>
+            </CardHeader>
+            <CardContent>
+              {isLoadingTeams ? (
+                <div className="py-6 text-center text-sm text-gray-500">
+                  {t("events.award.loadingTeams", {
+                    defaultValue: "Loading event teams...",
+                  })}
+                </div>
+              ) : eventTeams.length === 0 ? (
+                <div className="rounded-lg border border-dashed bg-white py-6 text-center text-sm text-gray-400 dark:bg-zinc-900">
+                  {t("events.award.noTeams", {
+                    defaultValue: "No teams registered in this event yet.",
+                  })}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {selectedEventPrizes.map((prize) => {
+                    return (
+                      <div
+                        key={prize.id}
+                        className="flex flex-col justify-between gap-4 rounded-lg border bg-white p-4 shadow-xs md:flex-row md:items-center dark:bg-zinc-900"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <span className="block truncate font-semibold text-gray-900 dark:text-zinc-100">
+                            {prize.name}
+                          </span>
+                          <span className="block text-xs text-gray-500">
+                            {prize.rewardType === "cash"
+                              ? `${t("events.dialog.rewardTypes.cash", { defaultValue: "Cash" })}: ${formatCurrencyVnd(prize.value)}`
+                              : `${t("events.dialog.rewardTypes.physical", { defaultValue: "Trophy / Physical" })}`}
+                          </span>
+                          {prize.description && (
+                            <span className="block truncate text-xs text-gray-400 italic">
+                              {prize.description}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="w-full shrink-0 md:w-64">
+                          <select
+                            value={prize.winnerTeamId || ""}
+                            onChange={(e) =>
+                              handleAwardPrize(prize.id, e.target.value)
+                            }
+                            disabled={isAwardingPrize === prize.id}
+                            className="w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm shadow-xs focus:border-emerald-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800"
+                          >
+                            <option value="">
+                              --{" "}
+                              {t("events.award.selectTeam", {
+                                defaultValue: "Select Winner Team",
+                              })}{" "}
+                              --
+                            </option>
+                            {eventTeams.map((team) => (
+                              <option key={team.id} value={team.id}>
+                                {team.player1.name}
+                                {team.player2 ? ` & ${team.player2.name}` : ""}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Dialog for Create/Edit Event */}
         <Dialog

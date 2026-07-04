@@ -9,10 +9,10 @@ import type { SportCenter } from "@/features/sport-center/types/sport-center"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 import { getDateOnly } from "@/utils/time-helper"
 
-import { getTournamentCentersAction } from "../../actions/booking-actions"
-import type { Sponsor as TournamentSponsor } from "../../types/sponsor"
-import type { Tournament } from "../../types/tournament"
-import type { TournamentCenter } from "../../types/tournament-center"
+import { getTournamentCentersAction } from "../../../actions/booking-actions"
+import type { Sponsor as TournamentSponsor } from "../../../types/sponsor"
+import type { Tournament } from "../../../types/tournament"
+import type { TournamentCenter } from "../../../types/tournament-center"
 import { SponsorsSection } from "./sponsors-section"
 
 interface TournamentOverviewProps {

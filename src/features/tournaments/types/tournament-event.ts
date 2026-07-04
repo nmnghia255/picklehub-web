@@ -36,3 +36,24 @@ export interface TournamentEvent {
   totalAdvance?: number
   currentStage?: string
 }
+
+export interface TeamStanding {
+  position: number
+  teamId: number
+  name: string
+  seed: number
+  wins: number
+  losses: number
+  result: string
+}
+
+export interface TeamStandingMeta {
+  total: number
+  championTeamId: number | null
+  championTeamName: string | null
+}
+
+export interface TournamentEventStanding {
+  data: TeamStanding[]
+  meta: TeamStandingMeta
+}

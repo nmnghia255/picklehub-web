@@ -31,7 +31,11 @@
       "regDetail": "Registration ID: {{id}} • Event: {{event}}",
       "checkedInAt": "Checked in: {{time}}",
       "btnCheckin": "Check In",
-      "noRegSelected": "Select a player registration above to manage check-in."
+      "noRegSelected": "Select a player registration above to manage check-in.",
+      "listTitle": "Checked-in Teams & Players",
+      "checkedInCountLabel": "Checked In",
+      "noCheckinsYet": "No check-ins recorded yet.",
+      "pending": "Pending"
     },
     "liveMatches": {
       "title": "Live Matches",

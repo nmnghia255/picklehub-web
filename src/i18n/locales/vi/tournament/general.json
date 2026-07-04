@@ -9,7 +9,7 @@
       "registrations": "Đăng ký",
       "teamMatching": "Ghép đội",
       "seeding": "Hạt giống",
-      "groups": "Bảng đấu",
+      "groups": "Bảng & Nhánh đấu",
       "brackets": "Nhánh đấu",
       "schedule": "Lịch thi đấu",
       "booking": "Địa điểm & Đặt sân",
@@ -71,7 +71,8 @@
       "liveScores": "Tỉ số trực tiếp",
       "results": "Kết quả",
       "payment": "Thanh toán",
-      "referee": "Trọng tài"
+      "referee": "Trọng tài",
+      "standing": "Bảng xếp hạng"
     },
     "overview": {
       "title": "Tổng quan giải đấu",
@@ -89,7 +90,8 @@
       "parking": "Đỗ xe"
     },
     "participantsList": {
-      "rating": "Trình độ:"
+      "rating": "Trình độ:",
+      "emptyHint": "Hãy là người đầu tiên đăng ký tham gia thi đấu!"
     },
     "upcomingMatches": "Trận đấu sắp tới",
     "finishedMatches": "Trận đấu đã kết thúc",
