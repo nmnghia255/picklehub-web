@@ -30,10 +30,8 @@ import {
   listTransactionsClient,
 } from "../api/finance-client"
 import { getGroupMembersClient, groupQueryKeys } from "../api/groups-client"
-import { guestQueryKeys, listGuestsClient } from "../api/guests-client"
 import { useGroupDebts } from "../hooks/use-group-debts"
 import type { Member } from "../types"
-import type { Guest } from "../types/guest-member"
 import { isArchivedGroup } from "../utils/group-status"
 import {
   CreateExpenseButton,
@@ -151,7 +149,7 @@ function getQueryErrorMessage(error: unknown, fallback: string) {
 export function GroupFinanceSection({
   groupId,
   members,
-  currentUserId: _currentUserId,
+
   currentUserRole,
   groupStatus,
 }: {
@@ -204,14 +202,6 @@ export function GroupFinanceSection({
     enabled: isFinanceActive,
     initialData: members.length > 0 ? members : undefined,
   })
-
-  const activeGuestsQuery = useQuery({
-    queryKey: guestQueryKeys.list(groupId, { status: "ACTIVE", limit: 100 }),
-    queryFn: () => listGuestsClient(groupId, { status: "ACTIVE", limit: 100 }),
-    enabled: isFinanceActive && canManage,
-  })
-
-  const activeGuests: Guest[] = activeGuestsQuery.data ?? []
 
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
@@ -286,7 +276,6 @@ export function GroupFinanceSection({
                   <CreateExpenseButton
                     groupId={groupId}
                     members={resolvedMembers}
-                    activeGuests={activeGuests}
                   />
                   <RemindDebtButton
                     groupId={groupId}
@@ -899,7 +888,6 @@ export function GroupFinanceSection({
                           groupId={groupId}
                           expense={exp}
                           members={resolvedMembers}
-                          activeGuests={activeGuests}
                           canManage={canManage}
                         />
                       </TableCell>

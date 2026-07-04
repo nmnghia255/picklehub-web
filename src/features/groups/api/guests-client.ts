@@ -1,4 +1,8 @@
-import type { Guest, GuestListResponse } from "../types/guest-member"
+import type {
+  CreateGuestInput,
+  Guest,
+  GuestListResponse,
+} from "../types/guest-member"
 
 type QueryParams = Record<string, string | number | boolean | null | undefined>
 
@@ -39,52 +43,147 @@ export async function listGuestsClient(
     )
   }
   const json: GuestListResponse = await res.json()
-  return json.data ?? []
+  const list = json.data ?? []
+
+  return list.map((item) => {
+    // Map new/old status fields
+    let mappedStatus = item.status
+    if (mappedStatus === "PENDING_APPROVAL") mappedStatus = "PENDING"
+    if (mappedStatus === "ACTIVE") mappedStatus = "APPROVED"
+    if (mappedStatus === "INACTIVE") mappedStatus = "EXPIRED"
+
+    const guestsCount = item.guestsCount ?? item.guestCount ?? 0
+    const sessionsCount = item.sessionsCount ?? item.sessionCount ?? 0
+    const remainingSessions = item.remainingSessions ?? 0
+    const memberId = item.memberId ?? item.invitedById
+    const member = item.member ?? item.invitedBy
+
+    return {
+      ...item,
+      // Backend properties
+      guestsCount,
+      sessionsCount,
+      remainingSessions,
+      memberId,
+      member,
+      status: mappedStatus,
+
+      // Legacy fallback properties
+      guestCount: guestsCount,
+      sessionCount: sessionsCount,
+      invitedById: memberId,
+      invitedBy: member,
+    } as Guest
+  })
 }
 
 export async function createGuestClient(
   groupId: string,
-  data: {
-    name: string
-    email: string
-    skillLevel: string
-    phone?: string
-    gender?: "MALE" | "FEMALE"
-  }
+  data: CreateGuestInput
 ): Promise<Guest> {
+  const payload = {
+    guestsCount: data.guestsCount ?? data.guestCount,
+    sessionsCount: data.sessionsCount ?? data.sessionCount,
+  }
+
   const res = await fetch(`/api/groups/${groupId}/guests`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   })
   if (!res.ok) {
     const payload = await res.json().catch(() => ({}))
-    throw new Error(payload.message || "Không thể tạo khách vãng lai.")
+    console.error("createGuestClient Error Details:", payload)
+    const detailMsg = payload.details
+      ? typeof payload.details === "object"
+        ? JSON.stringify(payload.details)
+        : String(payload.details)
+      : ""
+    throw new Error(
+      (payload.message || "Không thể tạo khách vãng lai.") +
+        (detailMsg ? ` (${detailMsg})` : "")
+    )
   }
   const json = await res.json()
-  return json.data ?? json
+  const item = json.data ?? json
+
+  // Map returned items for compatibility
+  let mappedStatus = item.status
+  if (mappedStatus === "PENDING_APPROVAL") mappedStatus = "PENDING"
+  if (mappedStatus === "ACTIVE") mappedStatus = "APPROVED"
+  if (mappedStatus === "INACTIVE") mappedStatus = "EXPIRED"
+
+  const guestsCount = item.guestsCount ?? item.guestCount ?? 0
+  const sessionsCount = item.sessionsCount ?? item.sessionCount ?? 0
+  const memberId = item.memberId ?? item.invitedById
+  const member = item.member ?? item.invitedBy
+
+  return {
+    ...item,
+    guestsCount,
+    sessionsCount,
+    remainingSessions: item.remainingSessions ?? 0,
+    memberId,
+    member,
+    status: mappedStatus,
+    guestCount: guestsCount,
+    sessionCount: sessionsCount,
+    invitedById: memberId,
+    invitedBy: member,
+  } as Guest
 }
 
 export async function approveGuestsClient(
   groupId: string,
-  data: { guestIds: string[]; status: "ACTIVE" | "REJECTED" }
+  data: { guestIds: string[]; status: "APPROVED" | "REJECTED" | "ACTIVE" }
 ): Promise<{ id: string; status: string }[]> {
-  const res = await fetch(`/api/groups/${groupId}/guests`, {
+  const mappedStatus = data.status === "ACTIVE" ? "APPROVED" : data.status
+
+  const results = await Promise.all(
+    data.guestIds.map(async (guestId) => {
+      const res = await fetch(
+        `/api/groups/${groupId}/guests/${guestId}/status`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: mappedStatus }),
+        }
+      )
+      if (!res.ok) {
+        const payload = await res.json().catch(() => ({}))
+        throw new Error(
+          payload.message || `Không thể cập nhật trạng thái khách ${guestId}.`
+        )
+      }
+      return { id: guestId, status: mappedStatus }
+    })
+  )
+  return results
+}
+
+export async function ownerCancelGuestClient(
+  groupId: string,
+  guestId: string
+): Promise<void> {
+  const res = await fetch(`/api/groups/${groupId}/guests/${guestId}/cancel`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
   })
   if (!res.ok) {
     const payload = await res.json().catch(() => ({}))
+    console.error("ownerCancelGuestClient Error Details:", payload)
+    const detailMsg = payload.details
+      ? typeof payload.details === "object"
+        ? JSON.stringify(payload.details)
+        : String(payload.details)
+      : ""
     throw new Error(
-      payload.message || "Không thể cập nhật trạng thái khách vãng lai."
+      (payload.message || "Không thể hủy yêu cầu khách vãng lai.") +
+        (detailMsg ? ` (${detailMsg})` : "")
     )
   }
-  const json = await res.json()
-  return json.data ?? []
 }
 
-export async function deactivateGuestClient(
+export async function deleteGuestClient(
   groupId: string,
   guestId: string
 ): Promise<void> {
@@ -93,8 +192,6 @@ export async function deactivateGuestClient(
   })
   if (!res.ok) {
     const payload = await res.json().catch(() => ({}))
-    throw new Error(
-      payload.message || "Không thể hủy kích hoạt khách vãng lai."
-    )
+    throw new Error(payload.message || "Không thể xóa khách vãng lai.")
   }
 }

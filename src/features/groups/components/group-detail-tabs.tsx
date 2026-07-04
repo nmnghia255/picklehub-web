@@ -66,7 +66,7 @@ export function GroupDetailTabs({
             Vật dụng
           </TabsTrigger>
           <TabsTrigger value="guest-members" className="sm:flex-none">
-            Người vãng lai
+            Khách vãng lai
           </TabsTrigger>
         </TabsList>
 

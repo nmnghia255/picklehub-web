@@ -1,8 +1,10 @@
 import type {
   CreateEquipmentInput,
   Equipment,
+  EquipmentFavorite,
   EquipmentUsage,
   PaginatedResponse,
+  UpdateEquipmentFavoriteInput,
   UpdateEquipmentInput,
 } from "../types"
 
@@ -46,6 +48,8 @@ export const equipmentQueryKeys = {
     ["group-equipment", groupId, equipmentId] as const,
   usages: (groupId: string, equipmentId: string, params?: QueryParams) =>
     ["group-equipment", groupId, equipmentId, "usages", params] as const,
+  favorites: (groupId: string) =>
+    ["group-equipment", groupId, "favorites"] as const,
 }
 
 export async function listEquipmentClient(
@@ -142,5 +146,53 @@ export async function listEquipmentUsagesClient(
   const suffix = searchParams.toString() ? `?${searchParams.toString()}` : ""
   return fetchJson<PaginatedResponse<EquipmentUsage>>(
     `/api/groups/${groupId}/equipment/${equipmentId}/usages${suffix}`
+  )
+}
+
+export async function listEquipmentFavoritesClient(
+  groupId: string
+): Promise<{ data: EquipmentFavorite[] }> {
+  return fetchJson<{ data: EquipmentFavorite[] }>(
+    `/api/groups/${groupId}/equipment-favorites`
+  )
+}
+
+export async function updateEquipmentFavoriteClient(
+  groupId: string,
+  id: string,
+  data: UpdateEquipmentFavoriteInput
+): Promise<{ message: string; data: EquipmentFavorite }> {
+  return fetchJson<{ message: string; data: EquipmentFavorite }>(
+    `/api/groups/${groupId}/equipment-favorites/${id}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }
+  )
+}
+
+export async function deleteEquipmentFavoriteClient(
+  groupId: string,
+  id: string
+): Promise<{ message: string }> {
+  return fetchJson<{ message: string }>(
+    `/api/groups/${groupId}/equipment-favorites/${id}`,
+    {
+      method: "DELETE",
+    }
+  )
+}
+
+export async function toggleEquipmentFavoriteClient(
+  groupId: string,
+  equipmentId: string,
+  isFavorite: boolean
+): Promise<{ message: string; data: Equipment }> {
+  return fetchJson<{ message: string; data: Equipment }>(
+    `/api/groups/${groupId}/equipment/${equipmentId}/favorite`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ isFavorite }),
+    }
   )
 }

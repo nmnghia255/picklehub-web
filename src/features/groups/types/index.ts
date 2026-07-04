@@ -49,6 +49,7 @@ export interface Equipment {
   purchaseCost: number
   purchasedAt: string
   groupId?: string
+  isFavorite?: boolean
   deletedAt?: string | null
   createdById?: string
   createdAt: string
@@ -84,6 +85,29 @@ export interface UpdateEquipmentInput {
   description?: string
   quantity?: number
   condition?: "NEW" | "GOOD" | "WORN" | "RETIRED"
+}
+
+export interface EquipmentFavorite {
+  id: string
+  groupId: string
+  name: string
+  defaultQuantity?: number | null
+  defaultQuantityType?: "ALL" | "NUMBER" | null
+  defaultCondition?: "NEW" | "GOOD" | "WORN" | "RETIRED" | null
+  defaultCost?: number | null
+  usageCount?: number
+  isActive?: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface UpdateEquipmentFavoriteInput {
+  name: string
+  defaultQuantity?: number
+  defaultQuantityType?: "ALL" | "NUMBER"
+  defaultCondition?: "NEW" | "GOOD" | "WORN" | "RETIRED"
+  defaultCost?: number
+  isActive?: boolean
 }
 
 export interface EquipmentUsage {

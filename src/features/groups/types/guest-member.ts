@@ -1,39 +1,49 @@
 export type GuestStatus =
-  | "PENDING_APPROVAL"
-  | "ACTIVE"
-  | "INACTIVE"
+  | "PENDING"
+  | "APPROVED"
   | "REJECTED"
+  | "EXPIRED"
+  | "CANCELLED"
+  | "PENDING_APPROVAL" // legacy fallback
+  | "ACTIVE" // legacy fallback
+  | "INACTIVE" // legacy fallback
 
 export interface Guest {
   id: string
   groupId: string
-  name: string
-  email: string
-  skillLevel: string
-  phone: string | null
-  gender: "MALE" | "FEMALE" | null
-  invitedById: string
+  memberId: string
+  invitedById?: string // legacy fallback
   status: GuestStatus
   createdAt: string
   updatedAt: string
-  invitedBy?: {
+  member?: {
     id: string
     name: string
     avatarUrl?: string | null
   } | null
+  invitedBy?: {
+    id: string
+    name: string
+    avatarUrl?: string | null
+  } | null // legacy fallback
+  guestsCount: number
+  guestCount?: number // legacy fallback
+  sessionsCount: number
+  sessionCount?: number // legacy fallback
+  remainingSessions?: number
+  note?: string | null
 }
 
 export interface CreateGuestInput {
-  name: string
-  email: string
-  skillLevel: string
-  phone?: string
-  gender?: "MALE" | "FEMALE"
+  guestCount?: number
+  sessionCount?: number
+  guestsCount?: number
+  sessionsCount?: number
 }
 
 export interface ApproveGuestsInput {
   guestIds: string[]
-  status: "ACTIVE" | "REJECTED"
+  status: "APPROVED" | "REJECTED" | "ACTIVE" // supporting legacy active/approved
 }
 
 export interface GuestListResponse {

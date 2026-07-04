@@ -10,12 +10,23 @@ import {
   Package,
   Plus,
   Search,
+  Star,
   Trash2,
 } from "lucide-react"
 import { useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
-import { Badge } from "@/components/ui/badge"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -25,7 +36,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import {
   Empty,
@@ -42,22 +52,31 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import {
   createEquipmentClient,
   deleteEquipmentClient,
+  deleteEquipmentFavoriteClient,
   equipmentQueryKeys,
   listEquipmentClient,
+  listEquipmentFavoritesClient,
   listEquipmentUsagesClient,
   logEquipmentUsageClient,
+  toggleEquipmentFavoriteClient,
   updateEquipmentClient,
+  updateEquipmentFavoriteClient,
 } from "../api/equipment-client"
 import type {
   CreateEquipmentInput,
   Equipment,
+  EquipmentFavorite,
+  PaginatedResponse,
+  UpdateEquipmentFavoriteInput,
   UpdateEquipmentInput,
 } from "../types"
+import { FavoriteTemplatesSelector } from "./favorite-templates-selector"
 
 const CONDITION_LABELS: Record<string, string> = {
   NEW: "Mới",
@@ -66,14 +85,52 @@ const CONDITION_LABELS: Record<string, string> = {
   RETIRED: "Đã loại bỏ",
 }
 
-const CONDITION_VARIANTS: Record<
-  string,
-  "default" | "secondary" | "outline" | "destructive"
-> = {
-  NEW: "default",
-  GOOD: "secondary",
-  WORN: "outline",
-  RETIRED: "destructive",
+function EquipmentConditionBadge({ condition }: { condition: string }) {
+  const label = CONDITION_LABELS[condition] ?? condition
+  const baseStyles =
+    "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+  switch (condition) {
+    case "NEW":
+      return (
+        <span
+          className={`${baseStyles} border-emerald-500/20 bg-emerald-500/10 text-emerald-500`}
+        >
+          {label}
+        </span>
+      )
+    case "GOOD":
+      return (
+        <span
+          className={`${baseStyles} border-blue-500/20 bg-blue-500/10 text-blue-500`}
+        >
+          {label}
+        </span>
+      )
+    case "WORN":
+      return (
+        <span
+          className={`${baseStyles} border-amber-500/20 bg-amber-500/10 text-amber-500`}
+        >
+          {label}
+        </span>
+      )
+    case "RETIRED":
+      return (
+        <span
+          className={`${baseStyles} border-rose-500/20 bg-rose-500/10 text-rose-500`}
+        >
+          {label}
+        </span>
+      )
+    default:
+      return (
+        <span
+          className={`${baseStyles} border-zinc-500/20 bg-zinc-500/10 text-zinc-400`}
+        >
+          {label}
+        </span>
+      )
+  }
 }
 
 function formatCurrency(value?: number | null) {
@@ -105,6 +162,16 @@ function formatDateTime(value?: string | null) {
   })
 }
 
+function getLocalDateString(value?: string | Date | null) {
+  if (!value) return ""
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ""
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
+
 // ─── Add/Edit Equipment Dialog ───────────────────────────────────────────────
 
 interface EquipmentFormDialogProps {
@@ -130,9 +197,7 @@ function EquipmentFormDialog({
     String(editingItem?.purchaseCost ?? "")
   )
   const [purchasedAt, setPurchasedAt] = useState(
-    editingItem?.purchasedAt
-      ? new Date(editingItem.purchasedAt).toISOString().split("T")[0]
-      : ""
+    getLocalDateString(editingItem?.purchasedAt)
   )
   const [condition, setCondition] = useState<string>(
     editingItem?.condition ?? "NEW"
@@ -140,6 +205,23 @@ function EquipmentFormDialog({
   const [createExpense, setCreateExpense] = useState(false)
   const [splitAmongAllMembers, setSplitAmongAllMembers] = useState(true)
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  function resetForm() {
+    setName("")
+    setDescription("")
+    setQuantity("")
+    setPurchaseCost("")
+    setPurchasedAt("")
+    setCondition("NEW")
+    setCreateExpense(false)
+    setSplitAmongAllMembers(true)
+    setErrors({})
+  }
+
+  function handleClose() {
+    resetForm()
+    onOpenChange(false)
+  }
 
   const createMutation = useMutation({
     mutationFn: (data: CreateEquipmentInput) =>
@@ -172,23 +254,6 @@ function EquipmentFormDialog({
   })
 
   const isPending = createMutation.isPending || updateMutation.isPending
-
-  function handleClose() {
-    resetForm()
-    onOpenChange(false)
-  }
-
-  function resetForm() {
-    setName("")
-    setDescription("")
-    setQuantity("")
-    setPurchaseCost("")
-    setPurchasedAt("")
-    setCondition("NEW")
-    setCreateExpense(false)
-    setSplitAmongAllMembers(true)
-    setErrors({})
-  }
 
   function validate(): boolean {
     const newErrors: Record<string, string> = {}
@@ -268,6 +333,25 @@ function EquipmentFormDialog({
           </DialogHeader>
 
           <div className="space-y-4 py-4">
+            {!isEditing && (
+              <FavoriteTemplatesSelector
+                groupId={groupId}
+                onSelect={(template) => {
+                  setName(template.name)
+                  if (template.defaultQuantity) {
+                    setQuantity(String(template.defaultQuantity))
+                  }
+                  if (template.defaultCost) {
+                    setPurchaseCost(String(template.defaultCost))
+                  }
+                  if (template.defaultCondition) {
+                    setCondition(template.defaultCondition)
+                  }
+                  setPurchasedAt(getLocalDateString(new Date()))
+                }}
+              />
+            )}
+
             <div className="space-y-2">
               <label className="text-sm font-medium">
                 Tên vật dụng <span className="text-destructive">*</span>
@@ -804,6 +888,9 @@ export function GroupEquipmentSection({
   groupId: string
   canManage: boolean
 }) {
+  const { t } = useTranslation("common")
+  const queryClient = useQueryClient()
+
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState("")
   const [conditionFilter, setConditionFilter] = useState("")
@@ -814,6 +901,11 @@ export function GroupEquipmentSection({
   const [deleteItem, setDeleteItem] = useState<Equipment | null>(null)
   const [logUsageItem, setLogUsageItem] = useState<Equipment | null>(null)
   const [historyItem, setHistoryItem] = useState<Equipment | null>(null)
+
+  const [editingFavorite, setEditingFavorite] =
+    useState<EquipmentFavorite | null>(null)
+  const [deleteFavorite, setDeleteFavorite] =
+    useState<EquipmentFavorite | null>(null)
 
   const queryParams = useMemo(
     () => ({
@@ -830,8 +922,70 @@ export function GroupEquipmentSection({
     queryFn: () => listEquipmentClient(groupId, queryParams),
   })
 
+  const favoritesQuery = useQuery({
+    queryKey: equipmentQueryKeys.favorites(groupId),
+    queryFn: () => listEquipmentFavoritesClient(groupId),
+  })
+
   const equipment = data?.data ?? []
   const meta = data?.meta
+  const favorites = favoritesQuery.data?.data ?? []
+
+  const toggleFavoriteMutation = useMutation({
+    mutationFn: ({ id, isFavorite }: { id: string; isFavorite: boolean }) =>
+      toggleEquipmentFavoriteClient(groupId, id, isFavorite),
+    onMutate: async ({ id, isFavorite }) => {
+      await queryClient.cancelQueries({
+        queryKey: equipmentQueryKeys.list(groupId, queryParams),
+      })
+
+      const previousEquipmentData = queryClient.getQueryData<
+        PaginatedResponse<Equipment>
+      >(equipmentQueryKeys.list(groupId, queryParams))
+
+      if (previousEquipmentData) {
+        queryClient.setQueryData<PaginatedResponse<Equipment>>(
+          equipmentQueryKeys.list(groupId, queryParams),
+          {
+            ...previousEquipmentData,
+            data: previousEquipmentData.data.map((item) =>
+              item.id === id ? { ...item, isFavorite } : item
+            ),
+          }
+        )
+      }
+
+      return { previousEquipmentData }
+    },
+    onError: (err, _variables, context) => {
+      if (context?.previousEquipmentData) {
+        queryClient.setQueryData(
+          equipmentQueryKeys.list(groupId, queryParams),
+          context.previousEquipmentData
+        )
+      }
+      toast.error(
+        err.message ||
+          t(
+            "equipment.toggleFavoriteError",
+            "Không thể cập nhật trạng thái yêu thích."
+          )
+      )
+    },
+    onSuccess: (resData) => {
+      toast.success(
+        resData.data.isFavorite
+          ? t("equipment.addFavoriteSuccess", "Đã lưu vào danh sách yêu thích")
+          : t(
+              "equipment.removeFavoriteSuccess",
+              "Đã xóa khỏi danh sách yêu thích"
+            )
+      )
+      queryClient.invalidateQueries({
+        queryKey: equipmentQueryKeys.favorites(groupId),
+      })
+    },
+  })
 
   function handleAdd() {
     setEditingItem(null)
@@ -853,6 +1007,14 @@ export function GroupEquipmentSection({
 
   function handleViewHistory(item: Equipment) {
     setHistoryItem(item)
+  }
+
+  function handleEditFavorite(item: EquipmentFavorite) {
+    setEditingFavorite(item)
+  }
+
+  function handleDeleteFavorite(item: EquipmentFavorite) {
+    setDeleteFavorite(item)
   }
 
   const errorMessage =
@@ -884,178 +1046,311 @@ export function GroupEquipmentSection({
         </CardHeader>
 
         <CardContent className="pt-6">
-          {/* Search & Filter */}
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="relative flex-1">
-              <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Tìm kiếm vật dụng..."
-                className="w-full rounded-md border bg-background py-2 pr-4 pl-9 text-sm outline-none focus:ring-1 focus:ring-primary"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value)
-                  setPage(1)
-                }}
-              />
-            </div>
-            <select
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary sm:w-auto"
-              value={conditionFilter}
-              onChange={(e) => {
-                setConditionFilter(e.target.value)
-                setPage(1)
-              }}
-            >
-              <option value="">Tất cả tình trạng</option>
-              <option value="NEW">Mới</option>
-              <option value="GOOD">Tốt</option>
-              <option value="WORN">Đã mòn</option>
-              <option value="RETIRED">Đã loại bỏ</option>
-            </select>
-          </div>
+          <Tabs defaultValue="all" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="all">
+                {t("equipment.allEquipment", "Tất cả vật dụng")}
+              </TabsTrigger>
+              <TabsTrigger value="favorites">
+                {t("equipment.favorite", "Yêu thích")}
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Content */}
-          {isLoading ? (
-            <div className="flex items-center justify-center gap-2 py-10 text-muted-foreground">
-              <Loader2 className="size-5 animate-spin" />
-              Đang tải...
-            </div>
-          ) : isError ? (
-            <div className="rounded-md border bg-destructive/5 py-10 text-center text-sm text-destructive">
-              {errorMessage}
-            </div>
-          ) : equipment.length === 0 ? (
-            <Empty className="py-12">
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <Package className="size-6 text-muted-foreground" />
-                </EmptyMedia>
-                <EmptyTitle>Chưa có vật dụng nào</EmptyTitle>
-                <EmptyDescription>
-                  {search || conditionFilter
-                    ? "Không tìm thấy vật dụng phù hợp."
-                    : "Nhóm chưa có vật dụng nào được quản lý."}
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
-          ) : (
-            <>
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Tên vật dụng</TableHead>
-                      <TableHead>Số lượng</TableHead>
-                      <TableHead>Tình trạng</TableHead>
-                      <TableHead>Chi phí mua</TableHead>
-                      <TableHead>Ngày mua</TableHead>
-                      <TableHead className="text-right">Thao tác</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {equipment.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell className="font-medium">
-                          {item.name}
-                        </TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              CONDITION_VARIANTS[item.condition] ?? "outline"
-                            }
-                          >
-                            {CONDITION_LABELS[item.condition] ?? item.condition}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {formatCurrency(item.purchaseCost)}
-                        </TableCell>
-                        <TableCell>{formatDate(item.purchasedAt)}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              title="Lịch sử sử dụng"
-                              onClick={() => handleViewHistory(item)}
+            <TabsContent value="all" className="space-y-4">
+              {/* Search & Filter */}
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div className="relative flex-1">
+                  <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Tìm kiếm vật dụng..."
+                    className="w-full rounded-md border bg-background py-2 pr-4 pl-9 text-sm outline-none focus:ring-1 focus:ring-primary"
+                    value={search}
+                    onChange={(e) => {
+                      setSearch(e.target.value)
+                      setPage(1)
+                    }}
+                  />
+                </div>
+                <select
+                  className="w-full rounded-md bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary sm:w-auto"
+                  value={conditionFilter}
+                  onChange={(e) => {
+                    setConditionFilter(e.target.value)
+                    setPage(1)
+                  }}
+                >
+                  <option value="">Tất cả tình trạng</option>
+                  <option value="NEW">Mới</option>
+                  <option value="GOOD">Tốt</option>
+                  <option value="WORN">Đã mòn</option>
+                  <option value="RETIRED">Đã loại bỏ</option>
+                </select>
+              </div>
+
+              {/* Content */}
+              {isLoading ? (
+                <div className="flex items-center justify-center gap-2 py-10 text-muted-foreground">
+                  <Loader2 className="size-5 animate-spin" />
+                  Đang tải...
+                </div>
+              ) : isError ? (
+                <div className="rounded-md border bg-destructive/5 py-10 text-center text-sm text-destructive">
+                  {errorMessage}
+                </div>
+              ) : equipment.length === 0 ? (
+                <Empty className="py-12">
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                      <Package className="size-6 text-muted-foreground" />
+                    </EmptyMedia>
+                    <EmptyTitle>Chưa có vật dụng nào</EmptyTitle>
+                    <EmptyDescription>
+                      {search || conditionFilter
+                        ? "Không tìm thấy vật dụng phù hợp."
+                        : "Nhóm chưa có vật dụng nào được quản lý."}
+                    </EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
+              ) : (
+                <>
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Tên vật dụng</TableHead>
+                          <TableHead>Số lượng</TableHead>
+                          <TableHead>Tình trạng</TableHead>
+                          <TableHead>Chi phí mua</TableHead>
+                          <TableHead>Ngày mua</TableHead>
+                          <TableHead className="text-right">Thao tác</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {equipment.map((item) => (
+                          <TableRow key={item.id}>
+                            <TableCell
+                              className="max-w-[200px] truncate font-medium"
+                              title={item.name}
                             >
-                              <ListIcon className="size-4" />
-                            </Button>
-                            {canManage && (
-                              <>
+                              {item.name}
+                            </TableCell>
+                            <TableCell>{item.quantity}</TableCell>
+                            <TableCell>
+                              <EquipmentConditionBadge
+                                condition={item.condition}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              {formatCurrency(item.purchaseCost)}
+                            </TableCell>
+                            <TableCell>
+                              {formatDate(item.purchasedAt)}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-1">
+                                {canManage && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    title={
+                                      item.isFavorite
+                                        ? "Bỏ yêu thích"
+                                        : "Yêu thích"
+                                    }
+                                    disabled={toggleFavoriteMutation.isPending}
+                                    onClick={() =>
+                                      toggleFavoriteMutation.mutate({
+                                        id: item.id,
+                                        isFavorite: !item.isFavorite,
+                                      })
+                                    }
+                                  >
+                                    <Star
+                                      className={`size-4 transition-colors ${
+                                        item.isFavorite
+                                          ? "fill-amber-400 text-amber-400"
+                                          : "text-muted-foreground hover:text-amber-400"
+                                      }`}
+                                    />
+                                  </Button>
+                                )}
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-8 w-8 text-primary"
-                                  title="Ghi nhận sử dụng"
-                                  onClick={() => handleLogUsage(item)}
+                                  className="h-8 w-8"
+                                  title="Lịch sử sử dụng"
+                                  onClick={() => handleViewHistory(item)}
                                 >
-                                  <Eye className="size-4" />
+                                  <ListIcon className="size-4" />
                                 </Button>
+                                {canManage && (
+                                  <>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 text-primary"
+                                      title="Ghi nhận sử dụng"
+                                      onClick={() => handleLogUsage(item)}
+                                    >
+                                      <Eye className="size-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8"
+                                      title="Chỉnh sửa"
+                                      onClick={() => handleEdit(item)}
+                                    >
+                                      <Edit className="size-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                      title="Xóa"
+                                      onClick={() => handleDelete(item)}
+                                    >
+                                      <Trash2 className="size-4" />
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {/* Pagination */}
+                  {meta && meta.totalPages > 1 && (
+                    <div className="mt-4 flex items-center justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={page === 1}
+                      >
+                        Trang trước
+                      </Button>
+                      <span className="text-xs text-muted-foreground">
+                        Trang {page} / {meta.totalPages}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setPage((p) => Math.min(meta.totalPages, p + 1))
+                        }
+                        disabled={page === meta.totalPages}
+                      >
+                        Trang sau
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </TabsContent>
+
+            <TabsContent value="favorites" className="space-y-4">
+              {favoritesQuery.isLoading ? (
+                <div className="flex items-center justify-center gap-2 py-10 text-muted-foreground">
+                  <Loader2 className="size-5 animate-spin" />
+                  Đang tải...
+                </div>
+              ) : favoritesQuery.isError ? (
+                <div className="rounded-md border bg-destructive/5 py-10 text-center text-sm text-destructive">
+                  {favoritesQuery.error instanceof Error
+                    ? favoritesQuery.error.message
+                    : "Đã xảy ra lỗi khi tải danh sách mẫu yêu thích."}
+                </div>
+              ) : favorites.length === 0 ? (
+                <Empty className="py-12">
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                      <Package className="size-6 text-muted-foreground" />
+                    </EmptyMedia>
+                    <EmptyTitle>Chưa có mẫu yêu thích nào</EmptyTitle>
+                    <EmptyDescription>
+                      Lưu mẫu vật dụng thường dùng để tạo nhanh hơn.
+                    </EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
+              ) : (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Tên mẫu vật dụng</TableHead>
+                        <TableHead>Số lượng mặc định</TableHead>
+                        <TableHead>Tình trạng mặc định</TableHead>
+                        <TableHead>Chi phí mặc định</TableHead>
+                        {canManage && (
+                          <TableHead className="text-right">Thao tác</TableHead>
+                        )}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {favorites.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-medium">
+                            {item.name}
+                          </TableCell>
+                          <TableCell>{item.defaultQuantity ?? "-"}</TableCell>
+                          <TableCell>
+                            {item.defaultCondition ? (
+                              <EquipmentConditionBadge
+                                condition={item.defaultCondition}
+                              />
+                            ) : (
+                              "-"
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {formatCurrency(item.defaultCost)}
+                          </TableCell>
+                          {canManage && (
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-1">
                                 <Button
                                   variant="ghost"
                                   size="icon"
                                   className="h-8 w-8"
                                   title="Chỉnh sửa"
-                                  onClick={() => handleEdit(item)}
+                                  onClick={() => handleEditFavorite(item)}
                                 >
                                   <Edit className="size-4" />
                                 </Button>
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                  title="Xóa"
-                                  onClick={() => handleDelete(item)}
+                                  className="h-8 w-8 text-yellow-500 hover:bg-yellow-500/10"
+                                  title="Bỏ yêu thích"
+                                  onClick={() => handleDeleteFavorite(item)}
                                 >
-                                  <Trash2 className="size-4" />
+                                  <Star className="size-4 fill-yellow-400 text-yellow-400" />
                                 </Button>
-                              </>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-
-              {/* Pagination */}
-              {meta && meta.totalPages > 1 && (
-                <div className="mt-4 flex items-center justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                  >
-                    Trang trước
-                  </Button>
-                  <span className="text-xs text-muted-foreground">
-                    Trang {page} / {meta.totalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      setPage((p) => Math.min(meta.totalPages, p + 1))
-                    }
-                    disabled={page === meta.totalPages}
-                  >
-                    Trang sau
-                  </Button>
+                              </div>
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               )}
-            </>
-          )}
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
       {/* Dialogs */}
       <EquipmentFormDialog
+        key={
+          formOpen ? (editingItem ? `edit-${editingItem.id}` : "new") : "closed"
+        }
         open={formOpen}
         onOpenChange={setFormOpen}
         groupId={groupId}
@@ -1088,6 +1383,332 @@ export function GroupEquipmentSection({
         groupId={groupId}
         item={historyItem}
       />
+
+      <FavoriteFormDialog
+        key={
+          editingFavorite ? `edit-${editingFavorite.id}` : "new-favorite-form"
+        }
+        open={!!editingFavorite}
+        onOpenChange={(open) => {
+          if (!open) setEditingFavorite(null)
+        }}
+        groupId={groupId}
+        editingItem={editingFavorite}
+      />
+
+      <DeleteFavoriteConfirm
+        open={!!deleteFavorite}
+        onOpenChange={(open) => {
+          if (!open) setDeleteFavorite(null)
+        }}
+        groupId={groupId}
+        item={deleteFavorite}
+      />
     </>
+  )
+}
+
+// ─── Edit Favorite Template Dialog ──────────────────────────────────────────
+
+interface FavoriteFormDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  groupId: string
+  editingItem?: EquipmentFavorite | null
+}
+
+function FavoriteFormDialog({
+  open,
+  onOpenChange,
+  groupId,
+  editingItem,
+}: FavoriteFormDialogProps) {
+  const queryClient = useQueryClient()
+  const { t } = useTranslation("common")
+
+  const [name, setName] = useState(editingItem?.name || "")
+  const [quantity, setQuantity] = useState(
+    editingItem?.defaultQuantity !== undefined &&
+      editingItem?.defaultQuantity !== null
+      ? String(editingItem.defaultQuantity)
+      : ""
+  )
+  const [purchaseCost, setPurchaseCost] = useState(
+    editingItem?.defaultCost !== undefined && editingItem?.defaultCost !== null
+      ? String(editingItem.defaultCost)
+      : ""
+  )
+  const [condition, setCondition] = useState<
+    "NEW" | "GOOD" | "WORN" | "RETIRED"
+  >(
+    (editingItem?.defaultCondition as "NEW" | "GOOD" | "WORN" | "RETIRED") ||
+      "NEW"
+  )
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const updateMutation = useMutation({
+    mutationFn: (data: UpdateEquipmentFavoriteInput) =>
+      updateEquipmentFavoriteClient(groupId, editingItem!.id, data),
+    onSuccess: () => {
+      toast.success(
+        t("equipment.updateFavoriteSuccess", "Cập nhật mẫu thành công")
+      )
+      queryClient.invalidateQueries({
+        queryKey: equipmentQueryKeys.favorites(groupId),
+      })
+      onOpenChange(false)
+    },
+    onError: (error: Error) => {
+      if (
+        error.message.includes("409") ||
+        error.message.toLowerCase().includes("trùng") ||
+        error.message.toLowerCase().includes("already exists")
+      ) {
+        setErrors({
+          name: t(
+            "equipment.duplicateNameError",
+            "Tên vật dụng yêu thích này đã tồn tại trong nhóm. Vui lòng chọn tên khác."
+          ),
+        })
+      } else {
+        toast.error(
+          error.message ||
+            t(
+              "equipment.updateFavoriteError",
+              "Không thể cập nhật mẫu yêu thích."
+            )
+        )
+      }
+    },
+  })
+
+  function validate(): boolean {
+    const newErrors: Record<string, string> = {}
+    if (!name.trim()) {
+      newErrors.name = "Tên vật dụng không được để trống"
+    } else if (name.length > 200) {
+      newErrors.name = "Tên vật dụng tối đa 200 ký tự"
+    }
+
+    if (quantity) {
+      const qty = Number(quantity)
+      if (Number.isNaN(qty) || qty < 1) {
+        newErrors.quantity = "Số lượng phải lớn hơn hoặc bằng 1"
+      }
+    }
+
+    if (purchaseCost) {
+      const cost = Number(purchaseCost)
+      if (Number.isNaN(cost) || cost < 0) {
+        newErrors.purchaseCost = "Chi phí không hợp lệ"
+      }
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!validate()) return
+
+    updateMutation.mutate({
+      name: name.trim(),
+      defaultQuantity: quantity ? Number(quantity) : undefined,
+      defaultCost: purchaseCost ? Number(purchaseCost) : undefined,
+      defaultCondition:
+        condition as UpdateEquipmentFavoriteInput["defaultCondition"],
+    })
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[450px]">
+        <form onSubmit={handleSubmit}>
+          <DialogHeader>
+            <DialogTitle>
+              {t("equipment.editTemplateTitle", "Sửa mẫu yêu thích")}
+            </DialogTitle>
+            <DialogDescription>
+              {t(
+                "equipment.editTemplateDesc",
+                "Chỉnh sửa thông tin mặc định của mẫu yêu thích."
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                {t("equipment.templateName", "Tên mẫu vật dụng")}{" "}
+                <span className="text-destructive">*</span>
+              </label>
+              <input
+                type="text"
+                className={`w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary ${
+                  errors.name
+                    ? "border-destructive ring-destructive/20 focus:ring-destructive"
+                    : ""
+                }`}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                maxLength={200}
+              />
+              {errors.name && (
+                <p className="text-xs text-destructive">{errors.name}</p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  {t("equipment.defaultQuantity", "Số lượng mặc định")}
+                </label>
+                <input
+                  type="number"
+                  className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  min={1}
+                />
+                {errors.quantity && (
+                  <p className="text-xs text-destructive">{errors.quantity}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  {t("equipment.defaultCost", "Chi phí mặc định")}
+                </label>
+                <input
+                  type="number"
+                  className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
+                  value={purchaseCost}
+                  onChange={(e) => setPurchaseCost(e.target.value)}
+                  min={0}
+                />
+                {errors.purchaseCost && (
+                  <p className="text-xs text-destructive">
+                    {errors.purchaseCost}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                {t("equipment.defaultCondition", "Tình trạng mặc định")}
+              </label>
+              <select
+                className="w-full rounded-md border bg-background py-2 pl-3 text-sm outline-none focus:ring-1 focus:ring-primary"
+                value={condition}
+                onChange={(e) =>
+                  setCondition(
+                    e.target.value as "NEW" | "GOOD" | "WORN" | "RETIRED"
+                  )
+                }
+              >
+                <option value="NEW">Mới</option>
+                <option value="GOOD">Tốt</option>
+                <option value="WORN">Đã mòn</option>
+                <option value="RETIRED">Đã loại bỏ</option>
+              </select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={updateMutation.isPending}
+            >
+              {t("equipment.cancel", "Hủy")}
+            </Button>
+            <Button type="submit" disabled={updateMutation.isPending}>
+              {updateMutation.isPending && (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              )}
+              {t("equipment.save", "Lưu")}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ─── Delete Favorite Template Confirm Dialog ──────────────────────────────────
+
+interface DeleteFavoriteConfirmProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  groupId: string
+  item: EquipmentFavorite | null
+}
+
+function DeleteFavoriteConfirm({
+  open,
+  onOpenChange,
+  groupId,
+  item,
+}: DeleteFavoriteConfirmProps) {
+  const queryClient = useQueryClient()
+  const { t } = useTranslation("common")
+
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteEquipmentFavoriteClient(groupId, item!.id),
+    onSuccess: () => {
+      toast.success(t("equipment.deleteFavoriteSuccess", "Xóa mẫu thành công"))
+      queryClient.invalidateQueries({
+        queryKey: equipmentQueryKeys.favorites(groupId),
+      })
+      queryClient.invalidateQueries({
+        queryKey: equipmentQueryKeys.all(groupId),
+      })
+      onOpenChange(false)
+    },
+    onError: (error: Error) => {
+      toast.error(
+        error.message ||
+          t("equipment.deleteFavoriteError", "Không thể xóa mẫu yêu thích.")
+      )
+    },
+  })
+
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="text-destructive">
+            {t("equipment.confirmDeleteTitle", "Bỏ yêu thích mẫu này?")}
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            {t(
+              "equipment.confirmDeleteDesc",
+              "Thao tác này sẽ loại bỏ mẫu vật dụng khỏi danh sách gợi ý. Các vật dụng đã mua trước đây sẽ không bị ảnh hưởng."
+            )}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={deleteMutation.isPending}>
+            {t("equipment.cancel", "Hủy")}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            onClick={(e) => {
+              e.preventDefault()
+              deleteMutation.mutate()
+            }}
+            disabled={deleteMutation.isPending}
+          >
+            {deleteMutation.isPending && (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            )}
+            {t("equipment.agree", "Đồng ý")}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }

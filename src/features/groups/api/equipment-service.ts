@@ -3,8 +3,10 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 import type {
   CreateEquipmentInput,
   Equipment,
+  EquipmentFavorite,
   EquipmentUsage,
   PaginatedResponse,
+  UpdateEquipmentFavoriteInput,
   UpdateEquipmentInput,
 } from "../types"
 
@@ -101,6 +103,53 @@ export async function listEquipmentUsages(
   const response = await axios.get<PaginatedResponse<EquipmentUsage>>(
     `/api/groups/${groupId}/equipment/${equipmentId}/usages`,
     { params }
+  )
+  return response.data
+}
+
+export async function listEquipmentFavorites(
+  groupId: string
+): Promise<{ data: EquipmentFavorite[] }> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.get<{ data: EquipmentFavorite[] }>(
+    `/api/groups/${groupId}/equipment-favorites`
+  )
+  return response.data
+}
+
+export async function updateEquipmentFavorite(
+  groupId: string,
+  id: string,
+  data: UpdateEquipmentFavoriteInput
+): Promise<{ message: string; data: EquipmentFavorite }> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.put<{
+    message: string
+    data: EquipmentFavorite
+  }>(`/api/groups/${groupId}/equipment-favorites/${id}`, data)
+  return response.data
+}
+
+export async function deleteEquipmentFavorite(
+  groupId: string,
+  id: string
+): Promise<{ message: string }> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.delete<{ message: string }>(
+    `/api/groups/${groupId}/equipment-favorites/${id}`
+  )
+  return response.data
+}
+
+export async function toggleEquipmentFavorite(
+  groupId: string,
+  equipmentId: string,
+  isFavorite: boolean
+): Promise<{ message: string; data: Equipment }> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.patch<{ message: string; data: Equipment }>(
+    `/api/groups/${groupId}/equipment/${equipmentId}/favorite`,
+    { isFavorite }
   )
   return response.data
 }
