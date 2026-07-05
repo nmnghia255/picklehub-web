@@ -37,20 +37,22 @@ export function BankTransferProof({
             </p>
           </div>
 
-          <label className="flex cursor-pointer flex-col gap-1 rounded-xl border border-dashed px-4 py-3 text-sm transition-colors hover:border-primary hover:bg-muted/40">
-            <span className="font-medium">
-              {t("booking.payment.chooseImage")}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              PNG, JPG, JPEG, WEBP
-            </span>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={onFileChange}
-              className="sr-only"
-            />
-          </label>
+          {!paymentProofFile && (
+            <label className="flex cursor-pointer flex-col gap-1 rounded-xl border border-dashed px-4 py-3 text-sm transition-colors hover:border-primary hover:bg-muted/40">
+              <span className="font-medium">
+                {t("booking.payment.chooseImage")}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                PNG, JPG, JPEG, WEBP
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={onFileChange}
+                className="sr-only"
+              />
+            </label>
+          )}
 
           {paymentProofFile ? (
             <div className="flex items-center justify-between gap-3 rounded-xl bg-muted/50 p-3 text-sm">

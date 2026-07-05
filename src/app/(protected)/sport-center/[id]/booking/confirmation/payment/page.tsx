@@ -273,6 +273,9 @@ export default function PaymentPage() {
       if (!requiresProof) {
         setSubmitMessage("Đã hoàn tất booking bằng credit.")
         setHasCompleted(true)
+        setTimeout(() => {
+          router.push("/sport-center/booking-history")
+        }, 1500)
         return
       }
 
@@ -283,6 +286,9 @@ export default function PaymentPage() {
 
       setSubmitMessage("Đã tải lên minh chứng thanh toán thành công.")
       setHasCompleted(true)
+      setTimeout(() => {
+        router.push("/sport-center/booking-history")
+      }, 1500)
     } catch (error) {
       const message =
         error instanceof Error

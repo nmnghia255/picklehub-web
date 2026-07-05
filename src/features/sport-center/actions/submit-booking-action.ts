@@ -31,7 +31,7 @@ export type SubmitBookingState = {
   success: boolean
   message?: string
   error?: string
-  booking?: BookingResponse
+  booking?: BookingResponse | BookingResponse[]
 }
 
 async function buildBookingRequest(

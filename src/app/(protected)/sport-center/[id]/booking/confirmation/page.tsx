@@ -184,13 +184,16 @@ export default function BookingConfirmationPage() {
         return
       }
 
-      const bookingId = submitted.booking?.id ?? ""
+      const bookingData = submitted.booking
+      const bookingId =
+        (Array.isArray(bookingData) ? bookingData[0]?.id : bookingData?.id) ??
+        ""
       useBookingStore.setState({
         lastBookingId: bookingId || null,
         submitMessage:
           submitted.message ?? t("booking.confirmation.successSubmit"),
       })
-      const paymentPath = `/sport-center/${centerId}/booking/confirmation/payment`
+      const paymentPath = `/sport-center/${centerId}/booking/confirmation/payment?bookingId=${bookingId}`
 
       router.push(paymentPath)
     } catch (error) {
