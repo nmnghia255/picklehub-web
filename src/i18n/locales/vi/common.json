@@ -62,6 +62,56 @@
     "loggingOut": "Đang đăng xuất...",
     "defaultUser": "Người dùng"
   },
+  "friends": {
+    "pageTitle": "Bạn bè",
+    "pageDescription": "Quản lý lời mời, kết nối mới và danh sách bạn bè của bạn tại một nơi.",
+    "tabs": {
+      "find": "Tìm bạn",
+      "sent": "Đã gửi",
+      "received": "Đã nhận",
+      "friends": "Bạn bè"
+    },
+    "sort": {
+      "placeholder": "Sắp xếp",
+      "alphabet": "Theo chữ cái (A-Z)",
+      "friendTime": "Theo thời gian kết bạn",
+      "inviteTime": "Theo thời gian gửi lời mời"
+    },
+    "searchPlaceholder": "Tìm kiếm theo tên, username hoặc email...",
+    "subtitle": {
+      "findLoading": "Đang tải danh sách người dùng...",
+      "count": "Tổng cộng {{count}} người dùng"
+    },
+    "empty": "Không có dữ liệu phù hợp với bộ lọc hiện tại.",
+    "status": {
+      "friend": "Đã là bạn bè",
+      "requestSent": "Đã gửi lời mời",
+      "requestReceived": "Đã nhận lời mời",
+      "addFriend": "Kết bạn"
+    },
+    "actions": {
+      "cancelRequest": "Hủy lời mời",
+      "accept": "Chấp nhận",
+      "reject": "Từ chối",
+      "unfriend": "Hủy kết bạn"
+    },
+    "aria": {
+      "viewProfile": "Xem hồ sơ {{username}}"
+    },
+    "badge": {
+      "mutualFriends": "{{count}} bạn chung"
+    },
+    "dialog": {
+      "title": "Hồ sơ người dùng",
+      "description": "Thông tin để xem trước giao diện profile trên modal."
+    },
+    "headings": {
+      "find": "Tìm bạn",
+      "sent": "Lời mời bạn đã gửi",
+      "received": "Lời mời gửi đến bạn",
+      "friends": "Danh sách bạn bè"
+    }
+  },
   "equipment": {
     "allEquipment": "Tất cả vật dụng",
     "favorite": "Yêu thích",

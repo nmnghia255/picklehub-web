@@ -49,6 +49,56 @@
     "loggingOut": "Logging out...",
     "defaultUser": "User"
   },
+  "friends": {
+    "pageTitle": "Friends",
+    "pageDescription": "Manage invitations, find new connections, and view your friends list in one place.",
+    "tabs": {
+      "find": "Find People",
+      "sent": "Sent",
+      "received": "Received",
+      "friends": "Friends"
+    },
+    "sort": {
+      "placeholder": "Sort by",
+      "alphabet": "Alphabetical (A-Z)",
+      "friendTime": "Friendship time",
+      "inviteTime": "Invitation time"
+    },
+    "searchPlaceholder": "Search by name, username or email...",
+    "subtitle": {
+      "findLoading": "Loading user list...",
+      "count": "Total {{count}} users"
+    },
+    "empty": "No data matches the current filters.",
+    "status": {
+      "friend": "Friends",
+      "requestSent": "Sent",
+      "requestReceived": "Received",
+      "addFriend": "Add Friend"
+    },
+    "actions": {
+      "cancelRequest": "Cancel Request",
+      "accept": "Accept",
+      "reject": "Reject",
+      "unfriend": "Unfriend"
+    },
+    "aria": {
+      "viewProfile": "View {{username}}'s profile"
+    },
+    "badge": {
+      "mutualFriends": "{{count}} mutual friends"
+    },
+    "dialog": {
+      "title": "User Profile",
+      "description": "Preview profile information."
+    },
+    "headings": {
+      "find": "Find People",
+      "sent": "Sent Requests",
+      "received": "Received Requests",
+      "friends": "Friends List"
+    }
+  },
   "equipment": {
     "allEquipment": "All Equipment",
     "favorite": "Favorite",
