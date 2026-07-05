@@ -107,16 +107,16 @@ export function BookingSummaryFooter() {
   }
 
   return (
-    <div className="sticky bottom-0 z-40 mt-6 -mb-6 rounded-t-xl border-x border-t border-gray-200 bg-white/95 px-6 py-4 shadow-[0_-8px_30px_rgb(0,0,0,0.08)] backdrop-blur-xs">
+    <div className="sticky bottom-0 z-40 mt-6 -mb-6 rounded-t-xl border-x border-t border-gray-200 bg-white/95 px-6 py-4 shadow-[0_-8px_30px_rgb(0,0,0,0.08)] backdrop-blur-xs dark:border-zinc-800 dark:bg-zinc-950/95 dark:shadow-[0_-8px_30px_rgba(0,0,0,0.5)]">
       <div className="mx-auto flex w-full flex-row items-center justify-between">
         {/* Left Side: Selected Slots Summary & Popover for breakdown */}
-        <div className="flex shrink-0 items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-2">
+        <div className="flex shrink-0 items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-2 dark:border-zinc-800 dark:bg-zinc-900">
           <div className="text-xs sm:text-sm">
-            <span className="font-semibold text-gray-700">
+            <span className="font-semibold text-gray-700 dark:text-zinc-300">
               {selectedDateText}
             </span>
-            <span className="mx-2 text-gray-300">|</span>
-            <span className="font-bold text-emerald-600">
+            <span className="mx-2 text-gray-300 dark:text-zinc-700">|</span>
+            <span className="font-bold text-emerald-600 dark:text-emerald-400">
               {totalSlots > 0
                 ? t("booking.summary.hoursCount", { count: totalSlots })
                 : t("booking.summary.unselected")}
@@ -128,19 +128,19 @@ export function BookingSummaryFooter() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-7 px-2 text-xs font-bold text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 sm:text-sm"
+                className="h-7 px-2 text-xs font-bold text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 sm:text-sm dark:text-emerald-400 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-300"
                 disabled={totalSlots === 0}
               >
                 {t("booking.summary.totalCostTitle")}
               </Button>
             </PopoverTrigger>
             <PopoverContent
-              className="w-80 rounded-lg border border-gray-200 bg-white p-4 shadow-lg"
+              className="w-80 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
               align="center"
               side="top"
               sideOffset={8}
             >
-              <h4 className="mb-2 border-b pb-1.5 text-sm font-bold text-gray-800">
+              <h4 className="dark:border-zinc-850 dark:text-zinc-150 mb-2 border-b pb-1.5 text-sm font-bold text-gray-800">
                 {t("booking.summary.totalCostTitle")}
               </h4>
 
@@ -150,16 +150,16 @@ export function BookingSummaryFooter() {
                   ([courtIdStr, slots], index) => (
                     <div
                       key={courtIdStr}
-                      className={`space-y-0.5 ${index !== 0 ? "border-t border-gray-100 pt-1.5" : ""}`}
+                      className={`space-y-0.5 ${index !== 0 ? "border-t border-gray-100 pt-1.5 dark:border-zinc-800" : ""}`}
                     >
-                      <p className="font-semibold text-gray-700">
+                      <p className="font-semibold text-gray-700 dark:text-zinc-300">
                         {courtAvailability?.courts.find(
                           (court) => court.courtId === courtIdStr
                         )?.courtName ??
                           t("booking.summary.courtId", { id: courtIdStr })}
                         :
                       </p>
-                      <p className="text-gray-500">
+                      <p className="text-gray-500 dark:text-zinc-400">
                         {Array.from(slots).join(", ")}
                       </p>
                     </div>
@@ -170,22 +170,22 @@ export function BookingSummaryFooter() {
               <Separator className="my-2" />
 
               {/* Fees Breakdown */}
-              <div className="space-y-1.5 text-xs text-gray-600">
+              <div className="space-y-1.5 text-xs text-gray-600 dark:text-zinc-400">
                 <div className="flex items-center justify-between">
                   <span>{t("booking.summary.courtFee")}</span>
-                  <span className="font-medium text-gray-800">
+                  <span className="font-medium text-gray-800 dark:text-zinc-200">
                     {formatCurrencyVnd(courtTotal)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>{t("booking.summary.serviceFee")}</span>
-                  <span className="font-medium text-gray-800">
+                  <span className="font-medium text-gray-800 dark:text-zinc-200">
                     {formatCurrencyVnd(serviceTotal)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>{t("booking.summary.productFee")}</span>
-                  <span className="font-medium text-gray-800">
+                  <span className="font-medium text-gray-800 dark:text-zinc-200">
                     {formatCurrencyVnd(productTotal)}
                   </span>
                 </div>
@@ -197,14 +197,16 @@ export function BookingSummaryFooter() {
         {/* Right Side: Total Price & CTA Button */}
         <div className="flex shrink-0 items-center gap-4 sm:gap-6">
           <div className="text-right">
-            <p className="text-[10px] font-medium text-gray-500 sm:text-xs">
+            <p className="text-[10px] font-medium text-gray-500 sm:text-xs dark:text-zinc-400">
               {t("booking.summary.totalAmount")}
             </p>
-            <p className="text-sm font-extrabold text-emerald-700 sm:text-base">
+            <p className="text-sm font-extrabold text-emerald-700 sm:text-base dark:text-emerald-400">
               {formatCurrencyVnd(total)}
             </p>
             {statusMessage && (
-              <p className="text-[10px] text-emerald-600">{statusMessage}</p>
+              <p className="text-[10px] text-emerald-600 dark:text-emerald-400">
+                {statusMessage}
+              </p>
             )}
             {errorMessage && (
               <p className="text-[10px] text-destructive">{errorMessage}</p>

@@ -28,7 +28,13 @@ export async function createSportCenterBookingsAction(
     }
   }
 
-  if (!payload.bookingRequest.items.length) {
+  const totalItems =
+    payload.bookingRequest.bookings?.reduce(
+      (acc, b) => acc + (b.items?.length ?? 0),
+      0
+    ) ?? 0
+
+  if (totalItems === 0) {
     return {
       success: false,
       error: "Vui lòng chọn ít nhất một sân và khung giờ để đặt.",

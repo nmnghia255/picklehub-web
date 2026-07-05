@@ -34,15 +34,17 @@ export interface BookingCourtItem {
 }
 
 export interface CreateBookingRequest {
-  date: string
-  note: string
+  bookings: Array<{
+    date: string
+    note: string
+    serviceItems: ServiceItem[]
+    productItems: ProductItem[]
+    items: BookingCourtItem[]
+  }>
   playerName: string
   phoneNumber: string
   useCredit: boolean
   paymentProof?: string
-  serviceItems: ServiceItem[]
-  productItems: ProductItem[]
-  items: BookingCourtItem[]
 }
 
 export interface PreviewBookingRequest {
