@@ -1,5 +1,4 @@
 import { PageContainer } from "@/components/page-container"
-import { BecomeCoachBanner } from "@/features/coach/components/become-coach-banner"
 import { LearnerDetailTabs } from "@/features/learner/components/learner-detail-tabs"
 
 export default function LearnerPage() {
@@ -11,8 +10,6 @@ export default function LearnerPage() {
           Quản lý hồ sơ, lịch tập, thanh toán và khám phá huấn luyện viên.
         </p>
       </div>
-
-      <BecomeCoachBanner />
 
       <LearnerDetailTabs />
     </PageContainer>

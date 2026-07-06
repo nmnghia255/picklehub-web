@@ -75,18 +75,24 @@ export function useMyCoachProfile(options?: { enabled?: boolean }) {
 }
 
 interface CoachProfileState {
-  profile: CoachTypes.CoachProfile | null | undefined
+  profile: CoachTypes.CoachProfile | null
   isLoading: boolean
-  isCoach: boolean
-  isNotRegistered: boolean
+  exists: boolean
   isError: boolean
   error: Error | null
+  refetch: () => void
 }
 
 export function useCoachProfile(options?: {
   enabled?: boolean
 }): CoachProfileState {
-  const { data, isLoading, isError, error } = useQuery({
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch: queryRefetch,
+  } = useQuery({
     queryKey: coachQueryKeys.myProfile(),
     queryFn: () => CoachClient.getMyCoachProfile(),
     enabled: options?.enabled ?? true,
@@ -104,16 +110,17 @@ export function useCoachProfile(options?: {
     refetchOnMount: false,
   })
 
-  const profile = data ?? undefined
-  const notRegistered = !isLoading && !isError && data === null
+  const exists = data !== null && data !== undefined
 
   return {
-    profile,
+    profile: data ?? null,
     isLoading,
-    isCoach: !!data,
-    isNotRegistered: notRegistered,
+    exists,
     isError,
     error: error instanceof Error ? error : null,
+    refetch: () => {
+      queryRefetch()
+    },
   }
 }
 
