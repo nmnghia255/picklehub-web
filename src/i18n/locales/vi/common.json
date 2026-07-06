@@ -41,8 +41,7 @@
     "customerManagement": "Quản lý khách hàng",
     "bookingList": "Danh sách đặt sân",
     "servicesProducts": "Dịch vụ & Sản phẩm",
-    "revenueReport": "Báo cáo doanh thu",
-    "admin": "Quản trị viên"
+    "revenueReport": "Báo cáo doanh thu"
   },
   "header": {
     "notifications": "Thông báo",
@@ -61,6 +60,14 @@
     "logout": "Đăng xuất",
     "loggingOut": "Đang đăng xuất...",
     "defaultUser": "Người dùng"
+  },
+  "coach": {
+    "registration": {
+      "createSuccess": "Tạo hồ sơ HLV thành công"
+    },
+    "publish": {
+      "success": "Đã công khai hồ sơ HLV"
+    }
   },
   "equipment": {
     "allEquipment": "Tất cả vật dụng",

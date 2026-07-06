@@ -28,8 +28,7 @@
     "customerManagement": "Customer Management",
     "bookingList": "Booking List",
     "servicesProducts": "Services & Products",
-    "revenueReport": "Revenue Report",
-    "admin": "Admin"
+    "revenueReport": "Revenue Report"
   },
   "header": {
     "notifications": "Notifications",
@@ -48,6 +47,14 @@
     "logout": "Log out",
     "loggingOut": "Logging out...",
     "defaultUser": "User"
+  },
+  "coach": {
+    "registration": {
+      "createSuccess": "Coach profile created successfully"
+    },
+    "publish": {
+      "success": "Coach profile published successfully"
+    }
   },
   "equipment": {
     "allEquipment": "All Equipment",
