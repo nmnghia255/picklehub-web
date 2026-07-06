@@ -1,8 +1,20 @@
 "use client"
 
+import {
+  Calendar,
+  CheckCircle2,
+  Clock,
+  Filter,
+  List,
+  MapPin,
+  Search,
+  User,
+} from "lucide-react"
 import Link from "next/link"
 import { useMemo, useState } from "react"
 
+import { CalendarNavigation } from "@/components/calendar-navigation"
+import { ErrorState } from "@/components/shared/error-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -21,25 +33,6 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import { Skeleton } from "@/components/ui/skeleton"
-import { CalendarNavigation } from "@/components/calendar-navigation"
-import { ErrorState } from "@/components/shared/error-state"
-import { getErrorMessage } from "@/lib/api-client"
-import { cn } from "@/lib/utils"
-import { useSession } from "@/features/auth/hooks/use-session"
-import { useLearnerSchedule } from "@/features/learner/hooks/use-learner-queries"
-import type { LearnerScheduleItem } from "@/features/coach/types/coach"
-import {
-  Calendar,
-  CheckCircle2,
-  Clock,
-  Filter,
-  List,
-  MapPin,
-  Search,
-  User,
-} from "lucide-react"
-
 import {
   Select,
   SelectContent,
@@ -47,6 +40,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useSession } from "@/features/auth/hooks/use-session"
+import type { LearnerScheduleItem } from "@/features/coach/types/coach"
+import { useLearnerSchedule } from "@/features/learner/hooks/use-learner-queries"
+import { getErrorMessage } from "@/lib/api-client"
+import { cn } from "@/lib/utils"
 
 type ViewMode = "calendar" | "agenda" | "list"
 
@@ -76,37 +75,56 @@ const STATUS_LABELS: Record<string, string> = {
   pending: "Chờ xác nhận",
 }
 
-const STATUS_VARIANTS: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
+const STATUS_VARIANTS: Record<
+  string,
+  "default" | "secondary" | "outline" | "destructive"
+> = {
   upcoming: "secondary",
   live: "default",
   past: "outline",
   pending: "outline",
 }
 
-const weekDays = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"]
+const weekDays = [
+  "Thứ 2",
+  "Thứ 3",
+  "Thứ 4",
+  "Thứ 5",
+  "Thứ 6",
+  "Thứ 7",
+  "Chủ nhật",
+]
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString("vi-VN", {
-    weekday: "long", year: "numeric", month: "long", day: "numeric",
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   })
 }
 
 function formatShortDate(value: string) {
   return new Date(value).toLocaleDateString("vi-VN", {
-    day: "numeric", month: "numeric", year: "numeric",
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
   })
 }
 
 function formatTime(value: string) {
   return new Date(value).toLocaleTimeString("vi-VN", {
-    hour: "2-digit", minute: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
   })
 }
 
 function isSameDay(a: Date, b: Date) {
-  return a.getFullYear() === b.getFullYear()
-    && a.getMonth() === b.getMonth()
-    && a.getDate() === b.getDate()
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  )
 }
 
 function eachDayOfInterval(start: Date, end: Date) {
@@ -149,7 +167,13 @@ function getToday() {
 
 /* ─── Sub-components ─── */
 
-function CoachAvatar({ avatarUrl, displayName }: { avatarUrl: string | null; displayName: string | null }) {
+function CoachAvatar({
+  avatarUrl,
+  displayName,
+}: {
+  avatarUrl: string | null
+  displayName: string | null
+}) {
   const initials = (displayName ?? "?").charAt(0).toUpperCase()
   return (
     <Avatar className="size-9">
@@ -176,7 +200,7 @@ function CalendarEventCard({
         item.kind === "class"
           ? "border-l-blue-500 bg-blue-50 dark:bg-blue-950"
           : "border-l-emerald-500 bg-emerald-50 dark:bg-emerald-950",
-        isPast && "opacity-55",
+        isPast && "opacity-55"
       )}
     >
       <p className="truncate font-medium">{item.title}</p>
@@ -184,7 +208,9 @@ function CalendarEventCard({
         {formatTime(item.startsAt)} - {formatTime(item.endsAt)}
       </p>
       {item.coachProfile?.displayName && (
-        <p className="truncate text-muted-foreground">{item.coachProfile.displayName}</p>
+        <p className="truncate text-muted-foreground">
+          {item.coachProfile.displayName}
+        </p>
       )}
     </button>
   )
@@ -226,14 +252,19 @@ function DetailDialog({
           </div>
 
           <div className="flex items-center gap-3">
-            <CoachAvatar avatarUrl={item.coachProfile?.avatarUrl ?? null} displayName={coachName} />
+            <CoachAvatar
+              avatarUrl={item.coachProfile?.avatarUrl ?? null}
+              displayName={coachName}
+            />
             <div>
               <div className="flex items-center gap-1.5 text-sm font-medium">
                 {coachName}
                 {isVerified && <CheckCircle2 className="size-4 text-primary" />}
               </div>
               {item.coachProfile?.locationCity && (
-                <p className="text-xs text-muted-foreground">{item.coachProfile.locationCity}</p>
+                <p className="text-xs text-muted-foreground">
+                  {item.coachProfile.locationCity}
+                </p>
               )}
             </div>
           </div>
@@ -245,7 +276,8 @@ function DetailDialog({
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Clock className="size-4" />
-              {formatTime(item.startsAt)} - {formatTime(item.endsAt)} ({item.durationMinutes} phút)
+              {formatTime(item.startsAt)} - {formatTime(item.endsAt)} (
+              {item.durationMinutes} phút)
             </div>
           </div>
 
@@ -258,14 +290,18 @@ function DetailDialog({
 
           {item.topic && (
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Chủ đề</p>
+              <p className="text-xs font-medium text-muted-foreground">
+                Chủ đề
+              </p>
               <p className="text-sm">{item.topic}</p>
             </div>
           )}
 
           {item.note && (
             <div>
-              <p className="text-xs font-medium text-muted-foreground">Ghi chú</p>
+              <p className="text-xs font-medium text-muted-foreground">
+                Ghi chú
+              </p>
               <p className="text-sm whitespace-pre-wrap">{item.note}</p>
             </div>
           )}
@@ -346,7 +382,9 @@ export function LearnerSchedule() {
   if (fromDate) params.from = fromDate
   if (toDate) params.to = toDate
 
-  const { data, isLoading, error, refetch } = useLearnerSchedule(params, { enabled: !!session?.user })
+  const { data, isLoading, error, refetch } = useLearnerSchedule(params, {
+    enabled: !!session?.user,
+  })
 
   const items = data?.data ?? []
   const pagination = data?.pagination
@@ -355,7 +393,10 @@ export function LearnerSchedule() {
   const monthEnd = useMemo(() => endOfMonth(currentDate), [currentDate])
   const calendarStart = useMemo(() => startOfWeek(monthStart), [monthStart])
   const calendarEnd = useMemo(() => endOfWeek(monthEnd), [monthEnd])
-  const allDays = useMemo(() => eachDayOfInterval(calendarStart, calendarEnd), [calendarStart, calendarEnd])
+  const allDays = useMemo(
+    () => eachDayOfInterval(calendarStart, calendarEnd),
+    [calendarStart, calendarEnd]
+  )
 
   const scheduleMap = useMemo(() => {
     const map = new Map<string, LearnerScheduleItem[]>()
@@ -404,7 +445,7 @@ export function LearnerSchedule() {
         (it) =>
           it.title.toLowerCase().includes(q) ||
           it.coachProfile?.displayName?.toLowerCase().includes(q) ||
-          it.topic?.toLowerCase().includes(q),
+          it.topic?.toLowerCase().includes(q)
       )
     }
     return result
@@ -451,32 +492,36 @@ export function LearnerSchedule() {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <CalendarNavigation
-            currentDate={currentDate}
-            onMonthChange={monthChange}
-            onYearChange={yearChange}
-            onPrevMonth={prevMonth}
-            onNextMonth={nextMonth}
-            onToday={goToday}
-          />
-          <Select value={viewMode} onValueChange={handleViewModeChange}>
-            <SelectTrigger className="h-10 w-36 rounded-full bg-background shadow-sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {viewModeOptions.map((opt) => {
-                const Icon = opt.icon
-                return (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    <span className="flex items-center gap-2">
-                      <Icon className="size-4" />
-                      {opt.label}
-                    </span>
-                  </SelectItem>
-                )
-              })}
-            </SelectContent>
-          </Select>
+          {viewMode !== "list" && (
+            <CalendarNavigation
+              currentDate={currentDate}
+              onMonthChange={monthChange}
+              onYearChange={yearChange}
+              onPrevMonth={prevMonth}
+              onNextMonth={nextMonth}
+              onToday={goToday}
+            />
+          )}
+          {viewMode !== "list" && (
+            <Select value={viewMode} onValueChange={handleViewModeChange}>
+              <SelectTrigger className="h-10 w-36 rounded-full bg-background shadow-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {viewModeOptions.map((opt) => {
+                  const Icon = opt.icon
+                  return (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      <span className="flex items-center gap-2">
+                        <Icon className="size-4" />
+                        {opt.label}
+                      </span>
+                    </SelectItem>
+                  )
+                })}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         {/* Content per view mode */}
@@ -505,14 +550,49 @@ export function LearnerSchedule() {
             search={search}
             fromDate={fromDate}
             toDate={toDate}
-            onStateChange={(v) => { setState(v); setPage(1) }}
-            onKindChange={(v) => { setKind(v); setPage(1) }}
-            onSortChange={(v) => { setSort(v); setPage(1) }}
+            onStateChange={(v) => {
+              setState(v)
+              setPage(1)
+            }}
+            onKindChange={(v) => {
+              setKind(v)
+              setPage(1)
+            }}
+            onSortChange={(v) => {
+              setSort(v)
+              setPage(1)
+            }}
             onSearchChange={(v) => setSearch(v)}
-            onFromDateChange={(v) => { setFromDate(v); setPage(1) }}
-            onToDateChange={(v) => { setToDate(v); setPage(1) }}
+            onFromDateChange={(v) => {
+              setFromDate(v)
+              setPage(1)
+            }}
+            onToDateChange={(v) => {
+              setToDate(v)
+              setPage(1)
+            }}
             onPageChange={setPage}
             onItemClick={setDetailItem}
+            viewModeSelector={
+              <Select value={viewMode} onValueChange={handleViewModeChange}>
+                <SelectTrigger className="h-9 w-36 rounded-full bg-background shadow-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {viewModeOptions.map((opt) => {
+                    const Icon = opt.icon
+                    return (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        <span className="flex items-center gap-2">
+                          <Icon className="size-4" />
+                          {opt.label}
+                        </span>
+                      </SelectItem>
+                    )
+                  })}
+                </SelectContent>
+              </Select>
+            }
           />
         )}
       </div>
@@ -520,7 +600,9 @@ export function LearnerSchedule() {
       <DetailDialog
         item={detailItem}
         open={!!detailItem}
-        onOpenChange={(open) => { if (!open) setDetailItem(null) }}
+        onOpenChange={(open) => {
+          if (!open) setDetailItem(null)
+        }}
       />
     </>
   )
@@ -550,7 +632,10 @@ function CalendarView({
     <div className="rounded-xl border bg-background shadow-sm">
       <div className="grid grid-cols-7 border-b">
         {weekDays.map((day) => (
-          <div key={day} className="p-3 text-center text-xs font-semibold text-muted-foreground">
+          <div
+            key={day}
+            className="p-3 text-center text-xs font-semibold text-muted-foreground"
+          >
             {day}
           </div>
         ))}
@@ -567,16 +652,17 @@ function CalendarView({
               <div
                 key={dateKey}
                 className={cn(
-                  "min-h-28 border-r border-t p-1.5 transition-colors last:border-r-0",
-                  !isCurrentMonth && "bg-muted/30",
+                  "min-h-28 border-t border-r p-1.5 transition-colors last:border-r-0",
+                  !isCurrentMonth && "bg-muted/30"
                 )}
               >
                 <div className="mb-1 flex justify-center">
                   <span
                     className={cn(
                       "inline-flex size-7 items-center justify-center rounded-full text-sm",
-                      isToday && "bg-primary text-primary-foreground font-semibold",
-                      !isToday && !isCurrentMonth && "text-muted-foreground",
+                      isToday &&
+                        "bg-primary font-semibold text-primary-foreground",
+                      !isToday && !isCurrentMonth && "text-muted-foreground"
                     )}
                   >
                     {day.getDate()}
@@ -584,7 +670,11 @@ function CalendarView({
                 </div>
                 <div className="space-y-1">
                   {dayItems.slice(0, 3).map((item) => (
-                    <CalendarEventCard key={item.id} item={item} onClick={onItemClick} />
+                    <CalendarEventCard
+                      key={item.id}
+                      item={item}
+                      onClick={onItemClick}
+                    />
                   ))}
                   {dayItems.length > 3 && (
                     <p className="text-center text-[10px] text-muted-foreground">
@@ -624,7 +714,9 @@ function AgendaView({
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <Calendar className="mb-2 size-10 text-muted-foreground" />
-        <p className="text-muted-foreground">Không có lịch tập trong khoảng này</p>
+        <p className="text-muted-foreground">
+          Không có lịch tập trong khoảng này
+        </p>
       </div>
     )
   }
@@ -634,7 +726,11 @@ function AgendaView({
       {grouped.map(([dateKey, dayItems]) => {
         const d = new Date(dateKey + "T00:00:00")
         const dayNum = d.getDate()
-        const dateStr = d.toLocaleDateString("vi-VN", { weekday: "long", month: "long", year: "numeric" })
+        const dateStr = d.toLocaleDateString("vi-VN", {
+          weekday: "long",
+          month: "long",
+          year: "numeric",
+        })
         return (
           <div key={dateKey}>
             <div className="mb-3 flex items-center gap-3">
@@ -643,12 +739,18 @@ function AgendaView({
               </div>
               <div>
                 <p className="text-sm font-medium">{dateStr}</p>
-                <p className="text-xs text-muted-foreground">{dayItems.length} buổi</p>
+                <p className="text-xs text-muted-foreground">
+                  {dayItems.length} buổi
+                </p>
               </div>
             </div>
             <div className="relative ml-5 space-y-3 border-l-2 border-muted pl-5">
               {dayItems.map((item) => (
-                <AgendaItemCard key={item.id} item={item} onClick={() => onItemClick(item)} />
+                <AgendaItemCard
+                  key={item.id}
+                  item={item}
+                  onClick={() => onItemClick(item)}
+                />
               ))}
             </div>
           </div>
@@ -658,7 +760,13 @@ function AgendaView({
   )
 }
 
-function AgendaItemCard({ item, onClick }: { item: LearnerScheduleItem; onClick: () => void }) {
+function AgendaItemCard({
+  item,
+  onClick,
+}: {
+  item: LearnerScheduleItem
+  onClick: () => void
+}) {
   const statusLabel = STATUS_LABELS[item.status] ?? item.status
   const statusVariant = STATUS_VARIANTS[item.status] ?? "outline"
   const coachName = item.coachProfile?.displayName ?? "Không xác định"
@@ -694,7 +802,10 @@ function AgendaItemCard({ item, onClick }: { item: LearnerScheduleItem; onClick:
             )}
           </div>
         </div>
-        <Badge variant={statusVariant} className="shrink-0 rounded-full text-[10px]">
+        <Badge
+          variant={statusVariant}
+          className="shrink-0 rounded-full text-[10px]"
+        >
           {statusLabel}
         </Badge>
       </div>
@@ -722,9 +833,12 @@ function ListView({
   onToDateChange,
   onPageChange,
   onItemClick,
+  viewModeSelector,
 }: {
   items: LearnerScheduleItem[]
-  pagination: { page: number; limit: number; total: number; totalPages: number } | undefined
+  pagination:
+    | { page: number; limit: number; total: number; totalPages: number }
+    | undefined
   page: number
   state: string
   kind: string
@@ -740,68 +854,78 @@ function ListView({
   onToDateChange: (v: string) => void
   onPageChange: (v: number) => void
   onItemClick: (item: LearnerScheduleItem) => void
+  viewModeSelector?: React.ReactNode
 }) {
   return (
     <div className="space-y-4">
       {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Tìm kiếm..."
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="h-9 w-56 pl-9"
-          />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative">
+            <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Tìm kiếm..."
+              value={search}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="h-9 w-56 pl-9"
+            />
+          </div>
+          <Select value={kind} onValueChange={onKindChange}>
+            <SelectTrigger className="h-9 w-36">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {KIND_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={state} onValueChange={onStateChange}>
+            <SelectTrigger className="h-9 w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {STATE_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={sort} onValueChange={onSortChange}>
+            <SelectTrigger className="h-9 w-28">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {SORT_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Từ:</span>
+            <Input
+              type="date"
+              value={fromDate}
+              onChange={(e) => onFromDateChange(e.target.value)}
+              className="h-9 w-36"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Đến:</span>
+            <Input
+              type="date"
+              value={toDate}
+              onChange={(e) => onToDateChange(e.target.value)}
+              className="h-9 w-36"
+            />
+          </div>
         </div>
-        <Select value={kind} onValueChange={onKindChange}>
-          <SelectTrigger className="h-9 w-36">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {KIND_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={state} onValueChange={onStateChange}>
-          <SelectTrigger className="h-9 w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {STATE_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={sort} onValueChange={onSortChange}>
-          <SelectTrigger className="h-9 w-28">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {SORT_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Từ:</span>
-          <Input
-            type="date"
-            value={fromDate}
-            onChange={(e) => onFromDateChange(e.target.value)}
-            className="h-9 w-36"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Đến:</span>
-          <Input
-            type="date"
-            value={toDate}
-            onChange={(e) => onToDateChange(e.target.value)}
-            className="h-9 w-36"
-          />
-        </div>
+        {viewModeSelector}
       </div>
 
       {/* Items */}
@@ -814,7 +938,11 @@ function ListView({
         <>
           <div className="space-y-3">
             {items.map((item) => (
-              <ListCard key={item.id} item={item} onClick={() => onItemClick(item)} />
+              <ListCard
+                key={item.id}
+                item={item}
+                onClick={() => onItemClick(item)}
+              />
             ))}
           </div>
 
@@ -824,7 +952,11 @@ function ListView({
                 <PaginationItem>
                   <PaginationPrevious
                     onClick={() => onPageChange(Math.max(1, page - 1))}
-                    className={page <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    className={
+                      page <= 1
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
                   />
                 </PaginationItem>
                 {Array.from({ length: pagination.totalPages }).map((_, i) => {
@@ -843,8 +975,14 @@ function ListView({
                 })}
                 <PaginationItem>
                   <PaginationNext
-                    onClick={() => onPageChange(Math.min(pagination.totalPages, page + 1))}
-                    className={page >= pagination.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    onClick={() =>
+                      onPageChange(Math.min(pagination.totalPages, page + 1))
+                    }
+                    className={
+                      page >= pagination.totalPages
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
                   />
                 </PaginationItem>
               </PaginationContent>
@@ -856,7 +994,13 @@ function ListView({
   )
 }
 
-function ListCard({ item, onClick }: { item: LearnerScheduleItem; onClick: () => void }) {
+function ListCard({
+  item,
+  onClick,
+}: {
+  item: LearnerScheduleItem
+  onClick: () => void
+}) {
   const coachName = item.coachProfile?.displayName ?? "Không xác định"
   const isVerified = item.coachProfile?.verificationStatus === "VERIFIED"
   const statusLabel = STATUS_LABELS[item.status] ?? item.status
@@ -870,20 +1014,29 @@ function ListCard({ item, onClick }: { item: LearnerScheduleItem; onClick: () =>
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <CoachAvatar avatarUrl={item.coachProfile?.avatarUrl ?? null} displayName={coachName} />
+          <CoachAvatar
+            avatarUrl={item.coachProfile?.avatarUrl ?? null}
+            displayName={coachName}
+          />
           <div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">{coachName}</span>
               {isVerified && <CheckCircle2 className="size-4 text-primary" />}
             </div>
-            <div className="flex items-center gap-2 mt-0.5">
-              <Badge variant="secondary" className="rounded-full text-[10px] px-2 py-0">
+            <div className="mt-0.5 flex items-center gap-2">
+              <Badge
+                variant="secondary"
+                className="rounded-full px-2 py-0 text-[10px]"
+              >
                 {item.kind === "class" ? "Lớp học" : "Đặt lịch"}
               </Badge>
             </div>
           </div>
         </div>
-        <Badge variant={statusVariant} className="rounded-full text-[10px] shrink-0">
+        <Badge
+          variant={statusVariant}
+          className="shrink-0 rounded-full text-[10px]"
+        >
           {statusLabel}
         </Badge>
       </div>
@@ -913,7 +1066,9 @@ function ListCard({ item, onClick }: { item: LearnerScheduleItem; onClick: () =>
           <p className="text-muted-foreground">Chủ đề: {item.topic}</p>
         )}
         {item.note && (
-          <p className="text-muted-foreground line-clamp-2">Ghi chú: {item.note}</p>
+          <p className="line-clamp-2 text-muted-foreground">
+            Ghi chú: {item.note}
+          </p>
         )}
         {item.sourceStatus && (
           <Badge variant="outline" className="rounded-full text-[10px]">
