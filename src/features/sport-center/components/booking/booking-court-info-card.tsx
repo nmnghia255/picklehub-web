@@ -83,28 +83,28 @@ export function BookingCourtInfoCard({
 
         {/* Right Side: Calendar Selector (like tournament booking) */}
         <div className="flex shrink-0 items-center gap-2 border-t pt-4 select-none md:border-t-0 md:pt-0">
-          <span className="text-xs font-bold text-gray-600">
+          <span className="text-xs font-bold text-gray-600 dark:text-zinc-400">
             {t("booking.dateSelection.title")}:
           </span>
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="h-9 border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                className="h-9 border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-900"
               >
-                <CalendarIcon className="mr-2 h-3.5 w-3.5 text-emerald-600" />
+                <CalendarIcon className="mr-2 h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>{selectedDateText}</span>
               </Button>
             </PopoverTrigger>
             <PopoverContent
-              className="border-gray-150 w-auto animate-in rounded-md border bg-white p-0 shadow-md"
+              className="border-gray-150 w-auto animate-in rounded-md border bg-white p-0 shadow-md dark:border-zinc-800 dark:bg-zinc-950"
               align="end"
             >
               <Calendar
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
-                className="rounded-md bg-white"
+                className="rounded-md bg-white dark:bg-zinc-950"
               />
             </PopoverContent>
           </Popover>

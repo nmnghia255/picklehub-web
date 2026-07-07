@@ -63,7 +63,6 @@ const sidebarItems: SidebarItem[] = [
   { titleKey: "notifications", href: "/feed", icon: BellRing },
   { titleKey: "learner", href: "/learner", icon: BookOpen },
   { titleKey: "coach", href: "/coach", icon: Shield },
-  { titleKey: "admin", href: "/admin", icon: Shield },
 ]
 const socialMenuItems = [
   { titleKey: "sessions", href: "/socials" },
@@ -269,7 +268,6 @@ export function AppSidebar() {
         )
       }
     }
-
   }
 
   return (

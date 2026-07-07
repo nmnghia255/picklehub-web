@@ -1,5 +1,7 @@
 "use server"
 
+import axios from "axios"
+
 import { BookingService } from "@/features/sport-center/api/booking-service"
 import type {
   BookingResponse,
@@ -15,7 +17,7 @@ type ProductSelectionState = Record<string, number>
 
 export type SubmitBookingPayload = {
   centerId: string
-  selectedDate: Date | undefined
+  selectedDate: Date | string | undefined
   selectedCourts: SelectedCourts
   selectedServices: ServiceSelectionState
   selectedProducts: ProductSelectionState
@@ -29,7 +31,7 @@ export type SubmitBookingState = {
   success: boolean
   message?: string
   error?: string
-  booking?: BookingResponse
+  booking?: BookingResponse | BookingResponse[]
 }
 
 async function buildBookingRequest(
@@ -51,9 +53,18 @@ async function buildBookingRequest(
   const playerName = sessionUser?.name ?? "Khách vãng lai"
   const phoneNumber = sessionUser?.phoneNumber ?? "0123456789"
   const selectedDate = payload.selectedDate
-  const formattedDate = selectedDate
-    ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`
-    : ""
+  let formattedDate = ""
+  if (selectedDate) {
+    const d =
+      typeof selectedDate === "string" ? new Date(selectedDate) : selectedDate
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+    formattedDate = formatter.format(d)
+  }
 
   const courtItems = Object.entries(payload.selectedCourts).flatMap(
     ([courtId, slots]) =>
@@ -69,14 +80,18 @@ async function buildBookingRequest(
   )
 
   return {
-    date: formattedDate,
-    note: payload.note.trim(),
+    bookings: [
+      {
+        date: formattedDate,
+        note: payload.note.trim(),
+        serviceItems,
+        productItems,
+        items: courtItems,
+      },
+    ],
     playerName: playerName,
     phoneNumber: phoneNumber,
     useCredit: payload.useCredit,
-    serviceItems,
-    productItems,
-    items: courtItems,
   }
 }
 
@@ -99,7 +114,7 @@ export async function submitBookingsAction(
 
   const bookingRequest = await buildBookingRequest(payload)
 
-  if (bookingRequest.items.length === 0) {
+  if (bookingRequest.bookings[0].items.length === 0) {
     return {
       success: false,
       error: "Vui lòng chọn ít nhất một sân và khung giờ.",
@@ -118,6 +133,18 @@ export async function submitBookingsAction(
       booking,
     }
   } catch (error) {
+    console.error("Error in submitBookingsAction:", error)
+    if (axios.isAxiosError(error)) {
+      console.error("Axios error details:", error.response?.data)
+      return {
+        success: false,
+        error:
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          error.message ||
+          "Không thể gửi yêu cầu đặt sân.",
+      }
+    }
     return {
       success: false,
       error:
