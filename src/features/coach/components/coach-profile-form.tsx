@@ -17,14 +17,9 @@ import {
   Trash2,
   Users,
 } from "lucide-react"
-import {
-  type ChangeEvent,
-  type ComponentType,
-  type FormEvent,
-  useEffect,
-  useMemo,
-  useState,
-} from "react"
+import type { ChangeEvent, ComponentType, FormEvent } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -109,6 +104,7 @@ function getCertStatusIcon(status: string) {
 }
 
 export function CoachProfileForm() {
+  const { t } = useTranslation("common")
   const session = useSession()
   const { data: profile, isLoading: profileLoading } = useMyCoachProfile({
     enabled: !!session?.user,
@@ -273,11 +269,15 @@ export function CoachProfileForm() {
           <div className="max-w-3xl space-y-3">
             <div className="space-y-2">
               <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
-                Hồ sơ chuyên môn huấn luyện viên
+                {t("coach.profile.pageTitle", {
+                  defaultValue: "Coach Profile",
+                })}
               </h2>
               <p className="text-sm text-muted-foreground md:text-base">
-                Cập nhật thông tin cơ bản, chứng chỉ, chuyên môn và mô tả phương
-                pháp giảng dạy trong một màn hình duy nhất.
+                {t("coach.profile.description", {
+                  defaultValue:
+                    "Update basic information, certifications, specialties and teaching descriptions in one screen.",
+                })}
               </p>
             </div>
           </div>
@@ -285,13 +285,17 @@ export function CoachProfileForm() {
           <div className="grid gap-3 sm:grid-cols-2 lg:min-w-90 lg:grid-cols-2">
             <div className="rounded-2xl border bg-background/80 p-4 backdrop-blur-sm">
               <p className="text-xs tracking-wide text-muted-foreground uppercase">
-                Chứng chỉ đã xác minh
+                {t("coach.profile.verifiedCertsLabel", {
+                  defaultValue: "Verified Certificates",
+                })}
               </p>
               <p className="mt-1 text-2xl font-semibold">{verifiedCount}</p>
             </div>
             <div className="rounded-2xl border bg-background/80 p-4 backdrop-blur-sm">
               <p className="text-xs tracking-wide text-muted-foreground uppercase">
-                Chứng chỉ chờ duyệt
+                {t("coach.profile.pendingCertsLabel", {
+                  defaultValue: "Pending Certificates",
+                })}
               </p>
               <p className="mt-1 text-2xl font-semibold">{pendingCount}</p>
             </div>
@@ -318,9 +322,15 @@ export function CoachProfileForm() {
             <CardHeader className="space-y-2">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <CardTitle>Thông tin cơ bản</CardTitle>
+                  <CardTitle t>
+                    {" "}
+                    {/* placeholder to maintain patch structure */ null}{" "}
+                  </CardTitle>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Hiển thị avatar, tên, khu vực giảng dạy và kinh nghiệm.
+                    {t("coach.profile.basicInfoDescription", {
+                      defaultValue:
+                        "Hiển thị avatar, tên, khu vực giảng dạy và kinh nghiệm.",
+                    })}
                   </p>
                 </div>
 
@@ -333,7 +343,7 @@ export function CoachProfileForm() {
                     disabled={updateProfile.isPending}
                   >
                     <Edit3 className="size-4" />
-                    Chỉnh sửa
+                    {t("coach.profile.editButton", { defaultValue: "Edit" })}
                   </Button>
                 ) : (
                   <Button
@@ -342,7 +352,9 @@ export function CoachProfileForm() {
                     className="rounded-full"
                     onClick={handleBasicInfoCancel}
                   >
-                    Hủy
+                    {t("coach.profile.cancelButton", {
+                      defaultValue: "Cancel",
+                    })}
                   </Button>
                 )}
               </div>
@@ -467,7 +479,13 @@ export function CoachProfileForm() {
                       disabled={updateProfile.isPending}
                     >
                       <Save className="size-4" />
-                      {updateProfile.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+                      {updateProfile.isPending
+                        ? t("coach.profile.saving", {
+                            defaultValue: "Saving...",
+                          })
+                        : t("coach.profile.saveChanges", {
+                            defaultValue: "Save changes",
+                          })}
                     </Button>
                     <Button
                       type="button"
