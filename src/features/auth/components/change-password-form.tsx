@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { startTransition, useActionState } from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
@@ -13,6 +14,7 @@ import { cn } from "@/lib/utils"
 import { type ChangePasswordFormData, changePasswordSchema } from "../schemas"
 
 export function ChangePasswordForm({ className }: { className?: string }) {
+  const { t } = useTranslation("common")
   const [state, formAction, isPending] = useActionState(
     changePasswordAction,
     {}
@@ -39,18 +41,22 @@ export function ChangePasswordForm({ className }: { className?: string }) {
     <form className={cn("flex flex-col gap-6", className)} onSubmit={onSubmit}>
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-2xl font-bold">Đổi mật khẩu</h1>
+          <h1 className="text-2xl font-bold">
+            {t("auth.changePassword.title")}
+          </h1>
           <p className="text-sm text-balance text-muted-foreground">
-            Cập nhật mật khẩu để bảo vệ tài khoản của bạn.
+            {t("auth.changePassword.subtitle")}
           </p>
         </div>
 
         <Field>
-          <FieldLabel htmlFor="currentPassword">Mật khẩu hiện tại</FieldLabel>
+          <FieldLabel htmlFor="currentPassword">
+            {t("auth.changePassword.currentPasswordLabel")}
+          </FieldLabel>
           <Input
             id="currentPassword"
             type="password"
-            placeholder="Nhập mật khẩu hiện tại"
+            placeholder={t("auth.changePassword.currentPasswordPlaceholder")}
             {...form.register("currentPassword")}
             aria-invalid={!!form.formState.errors.currentPassword}
           />
@@ -62,11 +68,13 @@ export function ChangePasswordForm({ className }: { className?: string }) {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="newPassword">Mật khẩu mới</FieldLabel>
+          <FieldLabel htmlFor="newPassword">
+            {t("auth.changePassword.newPasswordLabel")}
+          </FieldLabel>
           <Input
             id="newPassword"
             type="password"
-            placeholder="Nhập mật khẩu mới"
+            placeholder={t("auth.changePassword.newPasswordPlaceholder")}
             {...form.register("newPassword")}
             aria-invalid={!!form.formState.errors.newPassword}
           />
@@ -79,12 +87,12 @@ export function ChangePasswordForm({ className }: { className?: string }) {
 
         <Field>
           <FieldLabel htmlFor="confirmNewPassword">
-            Nhập lại mật khẩu mới
+            {t("auth.changePassword.confirmNewPasswordLabel")}
           </FieldLabel>
           <Input
             id="confirmNewPassword"
             type="password"
-            placeholder="Nhập lại mật khẩu mới"
+            placeholder={t("auth.changePassword.confirmNewPasswordPlaceholder")}
             {...form.register("confirmNewPassword")}
             aria-invalid={!!form.formState.errors.confirmNewPassword}
           />
@@ -109,7 +117,9 @@ export function ChangePasswordForm({ className }: { className?: string }) {
 
         <Field>
           <Button type="submit" disabled={isPending}>
-            {isPending ? "Đang cập nhật..." : "Đổi mật khẩu"}
+            {isPending
+              ? t("auth.changePassword.submitting")
+              : t("auth.changePassword.submit")}
           </Button>
         </Field>
       </FieldGroup>

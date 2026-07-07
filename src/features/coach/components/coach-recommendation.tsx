@@ -16,9 +16,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-
 import { useSession } from "@/features/auth/hooks/use-session"
-import { useMyCoachProfile, useRecommendCoach } from "../hooks/use-coach-queries"
+
+import {
+  useMyCoachProfile,
+  useRecommendCoach,
+} from "../hooks/use-coach-queries"
 
 export function CoachRecommendation() {
   const session = useSession()

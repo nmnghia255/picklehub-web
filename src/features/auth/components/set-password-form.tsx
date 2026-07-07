@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { startTransition, useActionState } from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
@@ -19,6 +20,7 @@ export function SetPasswordForm({
   groupId?: string
   className?: string
 }) {
+  const { t } = useTranslation("common")
   const [state, formAction, isPending] = useActionState(setPasswordAction, {})
 
   const form = useForm<SetPasswordFormData>({
@@ -42,19 +44,20 @@ export function SetPasswordForm({
     <form className={cn("flex flex-col gap-6", className)} onSubmit={onSubmit}>
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-2xl font-bold">Tạo mật khẩu</h1>
+          <h1 className="text-2xl font-bold">{t("auth.setPassword.title")}</h1>
           <p className="text-sm text-balance text-muted-foreground">
-            Tài khoản của bạn đã được tạo. Hãy đặt mật khẩu để đăng nhập sau
-            này.
+            {t("auth.setPassword.subtitle")}
           </p>
         </div>
 
         <Field>
-          <FieldLabel htmlFor="password">Mật khẩu</FieldLabel>
+          <FieldLabel htmlFor="password">
+            {t("auth.setPassword.passwordLabel")}
+          </FieldLabel>
           <Input
             id="password"
             type="password"
-            placeholder="Nhập mật khẩu"
+            placeholder={t("auth.setPassword.passwordPlaceholder")}
             {...form.register("password")}
             aria-invalid={!!form.formState.errors.password}
           />
@@ -66,11 +69,13 @@ export function SetPasswordForm({
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="confirmPassword">Nhập lại mật khẩu</FieldLabel>
+          <FieldLabel htmlFor="confirmPassword">
+            {t("auth.setPassword.confirmPasswordLabel")}
+          </FieldLabel>
           <Input
             id="confirmPassword"
             type="password"
-            placeholder="Nhập lại mật khẩu"
+            placeholder={t("auth.setPassword.confirmPasswordPlaceholder")}
             {...form.register("confirmPassword")}
             aria-invalid={!!form.formState.errors.confirmPassword}
           />
@@ -89,7 +94,9 @@ export function SetPasswordForm({
 
         <Field>
           <Button type="submit" disabled={isPending || !form.formState.isValid}>
-            {isPending ? "Đang lưu..." : "Lưu mật khẩu"}
+            {isPending
+              ? t("auth.setPassword.submitting")
+              : t("auth.setPassword.submit")}
           </Button>
         </Field>
       </FieldGroup>

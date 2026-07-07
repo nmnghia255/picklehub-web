@@ -63,11 +63,10 @@ export async function loginAction(
     if (axios.isAxiosError(error)) {
       return {
         error:
-          error.response?.data?.message ||
-          "Đăng nhập thất bại. Vui lòng thử lại.",
+          error.response?.data?.message || "Login failed. Please try again.",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "Something went wrong. Please try again." }
   }
 
   redirect("/")
@@ -98,10 +97,10 @@ export async function registerAction(
       return {
         error:
           error.response?.data?.message ||
-          "Đăng ký thất bại. Vui lòng thử lại.",
+          "Registration failed. Please try again.",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "Something went wrong. Please try again." }
   }
 
   redirect(
@@ -122,7 +121,7 @@ export async function verifyEmailAction(
   })
 
   if (!parsed.success) {
-    return { error: "Token không hợp lệ." }
+    return { error: "Invalid token." }
   }
 
   try {
@@ -132,10 +131,10 @@ export async function verifyEmailAction(
       return {
         error:
           error.response?.data?.message ||
-          "Xác thực thất bại. Link có thể đã hết hạn.",
+          "Verification failed. The link may have expired.",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "Something went wrong. Please try again." }
   }
 
   redirect("/login")
@@ -154,7 +153,7 @@ export async function resendVerificationAction(
   })
 
   if (!parsed.success) {
-    return { error: "Email không hợp lệ." }
+    return { error: "Invalid email." }
   }
 
   try {
@@ -162,14 +161,14 @@ export async function resendVerificationAction(
       `${API_BASE_URL}/api/auth/resend-verification`,
       parsed.data
     )
-    return { success: true, message: "Email xác thực đã được gửi lại!" }
+    return { success: true, message: "Verification email has been resent!" }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error: error.response?.data?.message || "Gửi lại thất bại.",
+        error: error.response?.data?.message || "Resend failed.",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "Something went wrong. Please try again." }
   }
 }
 
@@ -202,10 +201,10 @@ export async function setPasswordAction(
       return {
         error:
           error.response?.data?.message ||
-          "Đặt mật khẩu thất bại. Vui lòng thử lại.",
+          "Failed to set password. Please try again.",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "Something went wrong. Please try again." }
   }
 
   redirect(groupId ? `/groups/${groupId}` : "/groups")
@@ -235,16 +234,16 @@ export async function changePasswordAction(
       currentPassword: parsed.data.currentPassword,
       newPassword: parsed.data.newPassword,
     })
-    return { success: true, message: "Đổi mật khẩu thành công." }
+    return { success: true, message: "Password changed successfully." }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
         error:
           error.response?.data?.message ||
-          "Đổi mật khẩu thất bại. Vui lòng thử lại.",
+          "Failed to change password. Please try again.",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "Something went wrong. Please try again." }
   }
 }
 
@@ -279,17 +278,17 @@ export async function sendMagicLinkAction(
     return {
       success: true,
       message:
-        "Nếu tài khoản tồn tại, một link đăng nhập đã được gửi đến email của bạn.",
+        "If the account exists, a login link has been sent to your email.",
     }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
         error:
           error.response?.data?.message ||
-          "Gửi link thất bại. Vui lòng thử lại.",
+          "Failed to send link. Please try again.",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "Something went wrong. Please try again." }
   }
 }
 
@@ -301,7 +300,7 @@ export async function verifyMagicLinkAction(magic: string): Promise<{
   error?: string
 }> {
   if (!magic) {
-    return { error: "Link đăng nhập không hợp lệ." }
+    return { error: "Invalid login link." }
   }
 
   try {
@@ -324,9 +323,9 @@ export async function verifyMagicLinkAction(magic: string): Promise<{
       return {
         error:
           error.response?.data?.message ||
-          "Xác thực thất bại. Link có thể đã hết hạn hoặc không hợp lệ.",
+          "Verification failed. The link may have expired or is invalid.",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "Something went wrong. Please try again." }
   }
 }

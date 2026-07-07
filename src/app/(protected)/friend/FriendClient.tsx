@@ -159,7 +159,7 @@ export default function FriendClient({
             counterpartId: user.id,
             invitedAt: new Date().toISOString(),
             inviteSource: "Web",
-            bio: "Lời mời kết bạn đã gửi",
+            bio: t("friends.optimistic.requestSent"),
           },
           ...prev.sent,
         ],
@@ -206,9 +206,9 @@ export default function FriendClient({
       const friendUser: FriendUser = {
         ...request,
         id: request.counterpartId ?? request.id,
-        bio: "Đã là bạn bè",
+        bio: t("friends.status.friend"),
         becameFriendAt: new Date().toISOString(),
-        friendshipSinceLabel: "Vừa kết bạn",
+        friendshipSinceLabel: t("friends.optimistic.justFriended"),
       }
 
       setUsersByTab((prev) => ({

@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
 import { startTransition, useActionState } from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -22,6 +23,7 @@ import { FacebookAuthButton } from "./facebook-auth-button"
 import { GoogleAuthButton } from "./google-auth-button"
 
 export function LoginForm({ className }: { className?: string }) {
+  const { t } = useTranslation("common")
   const [state, formAction, isPending] = useActionState(loginAction, {})
 
   const form = useForm<LoginFormData>({
@@ -43,18 +45,18 @@ export function LoginForm({ className }: { className?: string }) {
     <form className={cn("flex flex-col gap-6", className)} onSubmit={onSubmit}>
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-2xl font-bold">Đăng nhập PickleHub</h1>
+          <h1 className="text-2xl font-bold">{t("auth.login.title")}</h1>
           <p className="text-sm text-balance text-muted-foreground">
-            Nhập Email của bạn bên dưới để đăng nhập.
+            {t("auth.login.subtitle")}
           </p>
         </div>
 
         <Field>
-          <FieldLabel htmlFor="email">Email</FieldLabel>
+          <FieldLabel htmlFor="email">{t("auth.login.emailLabel")}</FieldLabel>
           <Input
             id="email"
             type="email"
-            placeholder="hoten@example.com"
+            placeholder={t("auth.login.emailPlaceholder")}
             {...form.register("email")}
             aria-invalid={!!form.formState.errors.email}
           />
@@ -67,19 +69,21 @@ export function LoginForm({ className }: { className?: string }) {
 
         <Field>
           <div className="flex items-center">
-            <FieldLabel htmlFor="password">Mật khẩu</FieldLabel>
+            <FieldLabel htmlFor="password">
+              {t("auth.login.passwordLabel")}
+            </FieldLabel>
             <button
               type="button"
               className="ml-auto text-sm underline-offset-4 hover:underline"
               tabIndex={-1}
             >
-              Quên mật khẩu?
+              {t("auth.login.forgotPassword")}
             </button>
           </div>
           <Input
             id="password"
             type="password"
-            placeholder="Nhập mật khẩu"
+            placeholder={t("auth.login.passwordPlaceholder")}
             {...form.register("password")}
             aria-invalid={!!form.formState.errors.password}
           />
@@ -98,19 +102,19 @@ export function LoginForm({ className }: { className?: string }) {
 
         <Field>
           <Button type="submit" disabled={isPending}>
-            {isPending ? "Đang đăng nhập..." : "Đăng nhập"}
+            {isPending ? t("auth.login.submitting") : t("auth.login.submit")}
           </Button>
         </Field>
 
-        <FieldSeparator>hoặc tiếp tục với</FieldSeparator>
+        <FieldSeparator>{t("auth.login.separator")}</FieldSeparator>
 
         <Field>
           <GoogleAuthButton text="signin_with" />
-          <FacebookAuthButton title="Đăng nhập với Facebook" />
+          <FacebookAuthButton title={t("auth.login.facebookButton")} />
           <FieldDescription className="text-center">
-            Bạn chưa có tài khoản?{" "}
+            {t("auth.login.noAccount")}{" "}
             <Link href="/register" className="underline underline-offset-4">
-              Đăng ký
+              {t("auth.login.registerLink")}
             </Link>
           </FieldDescription>
         </Field>

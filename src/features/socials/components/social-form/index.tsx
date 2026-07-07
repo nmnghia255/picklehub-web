@@ -6,7 +6,6 @@ import { startTransition, useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
-
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import {

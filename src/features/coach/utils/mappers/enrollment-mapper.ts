@@ -1,23 +1,29 @@
-import type { EnrollmentListItemDTO, EnrollmentCreateDTO } from '../../types/dto/enrollment-dto'
-import type { EnrollmentModel } from '../../types/models/enrollment-model'
+import type {
+  EnrollmentCreateDTO,
+  EnrollmentListItemDTO,
+} from "../../types/dto/enrollment-dto"
+import type { EnrollmentModel } from "../../types/models/enrollment-model"
 
-function getPaymentInfo(
-  dto: EnrollmentListItemDTO | EnrollmentCreateDTO
-): { paymentAccountName: string; paymentAccountNumber: string; paymentBankName: string; paymentQrUrl: string } {
-  if ('coachClass' in dto) {
+function getPaymentInfo(dto: EnrollmentListItemDTO | EnrollmentCreateDTO): {
+  paymentAccountName: string
+  paymentAccountNumber: string
+  paymentBankName: string
+  paymentQrUrl: string
+} {
+  if ("coachClass" in dto) {
     const p = dto.coachClass.coachProfile
     return {
-      paymentAccountName: p.paymentAccountName ?? '',
-      paymentAccountNumber: p.paymentAccountNumber ?? '',
-      paymentBankName: p.paymentBankName ?? '',
-      paymentQrUrl: p.paymentQrUrl ?? '',
+      paymentAccountName: p.paymentAccountName ?? "",
+      paymentAccountNumber: p.paymentAccountNumber ?? "",
+      paymentBankName: p.paymentBankName ?? "",
+      paymentQrUrl: p.paymentQrUrl ?? "",
     }
   }
   return {
-    paymentAccountName: dto.coachPaymentInfo?.paymentAccountName ?? '',
-    paymentAccountNumber: dto.coachPaymentInfo?.paymentAccountNumber ?? '',
-    paymentBankName: dto.coachPaymentInfo?.paymentBankName ?? '',
-    paymentQrUrl: dto.coachPaymentInfo?.paymentQrUrl ?? '',
+    paymentAccountName: dto.coachPaymentInfo?.paymentAccountName ?? "",
+    paymentAccountNumber: dto.coachPaymentInfo?.paymentAccountNumber ?? "",
+    paymentBankName: dto.coachPaymentInfo?.paymentBankName ?? "",
+    paymentQrUrl: dto.coachPaymentInfo?.paymentQrUrl ?? "",
   }
 }
 
@@ -50,11 +56,11 @@ export function mapCreateEnrollment(dto: EnrollmentCreateDTO): EnrollmentModel {
     status: dto.status,
     paymentStatus: dto.paymentStatus,
     amountVnd: dto.amountVnd,
-    className: '',
-    classLevel: '',
-    locationDescription: '',
-    coachName: dto.learnerProfile?.name ?? '',
-    coachAvatar: dto.learnerProfile?.avatarUrl ?? '',
+    className: "",
+    classLevel: "",
+    locationDescription: "",
+    coachName: dto.learnerProfile?.name ?? "",
+    coachAvatar: dto.learnerProfile?.avatarUrl ?? "",
     paymentAccountName: payment.paymentAccountName,
     paymentAccountNumber: payment.paymentAccountNumber,
     paymentBankName: payment.paymentBankName,

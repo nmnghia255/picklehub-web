@@ -2,14 +2,15 @@
 
 import { format } from "date-fns"
 import { BookOpen, Calendar, ChevronLeft, Clock } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-
 import { useSession } from "@/features/auth/hooks/use-session"
+
 import { useCoachLearnerDetail } from "../hooks/use-coach-queries"
 
 function safeFormatDateTime(value?: string) {
@@ -26,8 +27,11 @@ export function CoachLearnerDetailPanel({
   learnerId: string
   onBack: () => void
 }) {
+  const { t } = useTranslation("common")
   const session = useSession()
-  const { data, isLoading } = useCoachLearnerDetail(learnerId, { enabled: !!session?.user })
+  const { data, isLoading } = useCoachLearnerDetail(learnerId, {
+    enabled: !!session?.user,
+  })
 
   if (isLoading) {
     return (
@@ -43,7 +47,7 @@ export function CoachLearnerDetailPanel({
     return (
       <Card className="rounded-2xl border shadow-sm">
         <CardContent className="p-8 text-center text-sm text-muted-foreground">
-          Không tìm thấy thông tin học viên.
+          {t("coach.students.learnerDetail.notFound")}
         </CardContent>
       </Card>
     )
@@ -57,7 +61,7 @@ export function CoachLearnerDetailPanel({
     <div className="space-y-6">
       <Button variant="ghost" className="gap-2 rounded-full" onClick={onBack}>
         <ChevronLeft className="size-4" />
-        Quay lại
+        {t("coach.students.learnerDetail.back")}
       </Button>
 
       <Card className="rounded-2xl border shadow-sm">
@@ -73,15 +77,19 @@ export function CoachLearnerDetailPanel({
           </Avatar>
           <div className="space-y-1 text-center sm:text-left">
             <p className="text-xl font-semibold">
-              {data.name || "Không có tên"}
+              {data.name || t("coach.students.learnerDetail.noName")}
             </p>
             <p className="text-sm text-muted-foreground">{data.email || "-"}</p>
             <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
               <Badge variant="secondary" className="rounded-full">
-                {data.totalSessions} tổng buổi
+                {t("coach.students.learnerDetail.totalSessions", {
+                  count: data.totalSessions,
+                })}
               </Badge>
               <Badge variant="secondary" className="rounded-full">
-                {data.completedSessions} đã hoàn thành
+                {t("coach.students.learnerDetail.completedSessions", {
+                  count: data.completedSessions,
+                })}
               </Badge>
             </div>
           </div>
@@ -93,7 +101,7 @@ export function CoachLearnerDetailPanel({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Calendar className="size-4" />
-              Buổi sắp tới
+              {t("coach.students.learnerDetail.upcomingSessions")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -135,13 +143,13 @@ export function CoachLearnerDetailPanel({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <BookOpen className="size-4" />
-              Lớp đã tham gia
+              {t("coach.students.learnerDetail.enrolledClasses")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {enrollments.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Chưa tham gia lớp nào.
+                {t("coach.students.learnerDetail.noEnrollments")}
               </p>
             ) : (
               <div className="space-y-3">
@@ -161,10 +169,14 @@ export function CoachLearnerDetailPanel({
                         className="rounded-full text-[11px]"
                       >
                         {enr.status === "active"
-                          ? "Đang học"
+                          ? t("coach.students.learnerDetail.enrollmentActive")
                           : enr.status === "completed"
-                            ? "Đã hoàn thành"
-                            : "Đã hủy"}
+                            ? t(
+                                "coach.students.learnerDetail.enrollmentCompleted"
+                              )
+                            : t(
+                                "coach.students.learnerDetail.enrollmentCancelled"
+                              )}
                       </Badge>
                     </div>
                   )
@@ -178,13 +190,13 @@ export function CoachLearnerDetailPanel({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Calendar className="size-4" />
-              Lịch đặt riêng
+              {t("coach.students.learnerDetail.privateBookings")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {bookings.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Chưa có lịch đặt riêng.
+                {t("coach.students.learnerDetail.noBookings")}
               </p>
             ) : (
               <div className="space-y-3">

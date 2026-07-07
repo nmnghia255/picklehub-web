@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -9,6 +10,7 @@ import { loginWithFacebookAction } from "../actions/facebook"
 import { useFacebookLogin } from "../hooks/use-facebook-login"
 
 export function FacebookAuthButton({ title }: { title: string }) {
+  const { t } = useTranslation("common")
   const { getFacebookAccessToken } = useFacebookLogin()
   const [loading, setLoading] = useState(false)
 
@@ -16,21 +18,19 @@ export function FacebookAuthButton({ title }: { title: string }) {
     try {
       setLoading(true)
 
-      // 1. Get Facebook access token
       const accessToken = await getFacebookAccessToken()
       if (!accessToken) {
-        toast.error("Không nhận được thông tin xác thực từ Facebook.")
+        toast.error(t("auth.oauth.facebookError"))
         return
       }
 
-      // 2. Send access token to backend for authentication
       const result = await loginWithFacebookAction(accessToken)
       if (result?.error) {
         toast.error(result.error)
       }
     } catch (err) {
       console.error(err)
-      toast.error("Không thể xác thực với Facebook. Vui lòng thử lại.")
+      toast.error(t("auth.oauth.facebookErrorGeneric"))
     } finally {
       setLoading(false)
     }
@@ -43,7 +43,7 @@ export function FacebookAuthButton({ title }: { title: string }) {
       disabled={loading}
       onClick={handleFacebookLogin}
     >
-      {loading ? "Đang xử lý..." : title}
+      {loading ? t("auth.oauth.loading") : title}
     </Button>
   )
 }

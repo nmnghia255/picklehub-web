@@ -1,38 +1,29 @@
 import { z } from "zod"
 
 export const loginSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email không được để trống")
-    .email("Email không hợp lệ"),
-  password: z.string().min(1, "Mật khẩu không được để trống"),
+  email: z.string().min(1, "Email is required").email("Invalid email"),
+  password: z.string().min(1, "Password is required"),
 })
 
 export type LoginFormData = z.infer<typeof loginSchema>
 
 export const registerSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email không được để trống")
-    .email("Email không hợp lệ"),
+  email: z.string().min(1, "Email is required").email("Invalid email"),
   password: z
     .string()
-    .min(1, "Mật khẩu không được để trống")
-    .min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
-  name: z.string().min(1, "Họ và tên không được để trống"),
+    .min(1, "Password is required")
+    .min(6, "Password must be at least 6 characters"),
+  name: z.string().min(1, "Full name is required"),
 })
 
 export type RegisterFormData = z.infer<typeof registerSchema>
 
 export const verifyEmailSchema = z.object({
-  token: z.string().min(1, "Token không được để trống"),
+  token: z.string().min(1, "Token is required"),
 })
 
 export const resendVerificationSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email không được để trống")
-    .email("Email không hợp lệ"),
+  email: z.string().min(1, "Email is required").email("Invalid email"),
 })
 
 export type ResendVerificationFormData = z.infer<
@@ -43,12 +34,12 @@ export const setPasswordSchema = z
   .object({
     password: z
       .string()
-      .min(1, "Mật khẩu không được để trống")
-      .min(8, "Mật khẩu phải có ít nhất 8 ký tự"),
-    confirmPassword: z.string().min(1, "Vui lòng nhập lại mật khẩu"),
+      .min(1, "Password is required")
+      .min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Mật khẩu không khớp",
+    message: "Passwords do not match",
     path: ["confirmPassword"],
   })
 
@@ -56,25 +47,22 @@ export type SetPasswordFormData = z.infer<typeof setPasswordSchema>
 
 export const changePasswordSchema = z
   .object({
-    currentPassword: z.string().min(1, "Mật khẩu hiện tại không được để trống"),
+    currentPassword: z.string().min(1, "Current password is required"),
     newPassword: z
       .string()
-      .min(1, "Mật khẩu mới không được để trống")
-      .min(8, "Mật khẩu mới phải có ít nhất 8 ký tự"),
-    confirmNewPassword: z.string().min(1, "Vui lòng nhập lại mật khẩu mới"),
+      .min(1, "New password is required")
+      .min(8, "New password must be at least 8 characters"),
+    confirmNewPassword: z.string().min(1, "Please confirm your new password"),
   })
   .refine((data) => data.newPassword === data.confirmNewPassword, {
-    message: "Mật khẩu mới không khớp",
+    message: "New passwords do not match",
     path: ["confirmNewPassword"],
   })
 
 export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>
 
 export const magicLinkSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email không được để trống")
-    .email("Email không hợp lệ"),
+  email: z.string().min(1, "Email is required").email("Invalid email"),
 })
 
 export type MagicLinkFormData = z.infer<typeof magicLinkSchema>

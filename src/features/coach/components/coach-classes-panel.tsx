@@ -1,27 +1,32 @@
 "use client"
 
+import { useQueryClient } from "@tanstack/react-query"
+import {
+  CalendarDays,
+  DollarSign,
+  Edit3,
+  Eye,
+  Plus,
+  Send,
+  Users,
+  XCircle,
+} from "lucide-react"
+import Link from "next/link"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { useQueryClient } from "@tanstack/react-query"
-import Link from "next/link"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
+
 import { ErrorState } from "@/components/shared/error-state"
-import { getErrorMessage } from "@/lib/api-client"
-import { CoachMediaService } from "@/features/coach/api/media-service"
-import { useSession } from "@/features/auth/hooks/use-session"
-import {
-  useMyClasses,
-  useCreateClass,
-  usePublishClass,
-  useCancelClass,
-} from "@/features/coach/hooks/use-coach-queries"
-import { coachQueryKeys } from "@/features/coach/api/query-keys"
-import type { CreateCoachClassDto, CoachClass, ClassStatus } from "@/features/coach/types/coach"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Progress } from "@/components/ui/progress"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -38,7 +43,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import { Progress } from "@/components/ui/progress"
 import {
   Select,
   SelectContent,
@@ -46,51 +51,77 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Eye, Edit3, XCircle, Send, CalendarDays, Users, DollarSign } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { useSession } from "@/features/auth/hooks/use-session"
+import { CoachMediaService } from "@/features/coach/api/media-service"
+import { coachQueryKeys } from "@/features/coach/api/query-keys"
+import {
+  useCancelClass,
+  useCreateClass,
+  useMyClasses,
+  usePublishClass,
+} from "@/features/coach/hooks/use-coach-queries"
+import type {
+  ClassStatus,
+  CoachClass,
+  CreateCoachClassDto,
+} from "@/features/coach/types/coach"
+import { getErrorMessage } from "@/lib/api-client"
 
-const STATUS_TABS: { label: string; value: ClassStatus | "ALL" }[] = [
-  { label: "Tất cả", value: "ALL" },
-  { label: "Bản nháp", value: "DRAFT" },
-  { label: "Đang mở", value: "OPEN" },
-  { label: "Đã đầy", value: "FULL" },
-  { label: "Đang diễn ra", value: "ONGOING" },
-  { label: "Đã kết thúc", value: "COMPLETED" },
-  { label: "Đã hủy", value: "CANCELLED" },
+const STATUS_TABS: { value: ClassStatus | "ALL" }[] = [
+  { value: "ALL" },
+  { value: "DRAFT" },
+  { value: "OPEN" },
+  { value: "FULL" },
+  { value: "ONGOING" },
+  { value: "COMPLETED" },
+  { value: "CANCELLED" },
 ]
 
-const STATUS_BADGE: Record<ClassStatus, { variant: "default" | "secondary" | "destructive" | "outline"; className?: string }> = {
+const STATUS_BADGE: Record<
+  ClassStatus,
+  {
+    variant: "default" | "secondary" | "destructive" | "outline"
+    className?: string
+  }
+> = {
   DRAFT: { variant: "secondary" },
   OPEN: { variant: "default", className: "bg-blue-600 hover:bg-blue-600/80" },
-  FULL: { variant: "secondary", className: "bg-amber-500/20 text-amber-700 hover:bg-amber-500/30" },
+  FULL: {
+    variant: "secondary",
+    className: "bg-amber-500/20 text-amber-700 hover:bg-amber-500/30",
+  },
   ONGOING: { variant: "default", className: "bg-sky-600 hover:bg-sky-600/80" },
-  COMPLETED: { variant: "secondary", className: "bg-emerald-500/20 text-emerald-700 hover:bg-emerald-500/30" },
+  COMPLETED: {
+    variant: "secondary",
+    className: "bg-emerald-500/20 text-emerald-700 hover:bg-emerald-500/30",
+  },
   CANCELLED: { variant: "outline" },
 }
 
-const STATUS_LABEL: Record<ClassStatus, string> = {
-  DRAFT: "Bản nháp",
-  OPEN: "Đang mở",
-  FULL: "Đã đầy",
-  ONGOING: "Đang diễn ra",
-  COMPLETED: "Đã kết thúc",
-  CANCELLED: "Đã hủy",
-}
-
 const LEVEL_OPTIONS = [
-  { label: "Beginner", value: "Beginner" },
-  { label: "Intermediate", value: "Intermediate" },
-  { label: "Advanced", value: "Advanced" },
-  { label: "Pro", value: "Pro" },
+  { value: "Beginner" },
+  { value: "Intermediate" },
+  { value: "Advanced" },
+  { value: "Pro" },
 ]
 
 function formatPrice(vnd: number) {
-  return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(vnd)
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(vnd)
 }
 
 function formatDate(dateStr: string | null | undefined) {
   if (!dateStr) return "—"
-  return new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(dateStr))
+  return new Intl.DateTimeFormat("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(dateStr))
 }
 
 function ClassCard({
@@ -102,6 +133,7 @@ function ClassCard({
   onPublish: (id: string) => void
   onCancel: (id: string) => void
 }) {
+  const { t } = useTranslation("common")
   const badgeConfig = STATUS_BADGE[cls.status]
   const scheduleCount = cls.schedules?.length ?? 0
 
@@ -110,13 +142,26 @@ function ClassCard({
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="line-clamp-1 text-base">{cls.title}</CardTitle>
-          <Badge variant={badgeConfig.variant} className={badgeConfig.className}>
-            {STATUS_LABEL[cls.status]}
+          <Badge
+            variant={badgeConfig.variant}
+            className={badgeConfig.className}
+          >
+            {cls.status === "DRAFT"
+              ? t("coach.classes.status.draft")
+              : cls.status === "OPEN"
+                ? t("coach.classes.status.open")
+                : cls.status === "FULL"
+                  ? t("coach.classes.status.full")
+                  : cls.status === "ONGOING"
+                    ? t("coach.classes.status.ongoing")
+                    : cls.status === "COMPLETED"
+                      ? t("coach.classes.status.completed")
+                      : t("coach.classes.status.cancelled")}
           </Badge>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="text-xs">
-            {cls.level || "N/A"}
+            {cls.level || t("coach.classes.level.beginner")}
           </Badge>
         </div>
       </CardHeader>
@@ -127,7 +172,13 @@ function ClassCard({
             {cls.enrolledCount ?? cls._count?.enrollments ?? 0} / {cls.capacity}
           </span>
         </div>
-        <Progress value={((cls.enrolledCount ?? cls._count?.enrollments ?? 0) / cls.capacity) * 100} />
+        <Progress
+          value={
+            ((cls.enrolledCount ?? cls._count?.enrollments ?? 0) /
+              cls.capacity) *
+            100
+          }
+        />
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <DollarSign className="size-4" />
           <span>{formatPrice(cls.priceVnd)}</span>
@@ -135,23 +186,32 @@ function ClassCard({
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <CalendarDays className="size-4" />
           <span>
-            {scheduleCount} buổi · {formatDate(cls.startDate)} – {formatDate(cls.endDate)}
+            {t("coach.classes.sessionsCount", { count: scheduleCount })} ·{" "}
+            {formatDate(cls.startDate)} – {formatDate(cls.endDate)}
           </span>
         </div>
       </CardContent>
       <CardFooter className="flex flex-wrap gap-2 border-t pt-4">
         {cls.status === "DRAFT" && (
           <>
-            <Button size="sm" variant="default" onClick={() => onPublish(cls.id)}>
-              <Send /> Xuất bản
+            <Button
+              size="sm"
+              variant="default"
+              onClick={() => onPublish(cls.id)}
+            >
+              <Send /> {t("coach.classes.publishButton")}
             </Button>
             <Button size="sm" variant="outline" asChild>
               <Link href={`/coach/classes/${cls.id}`}>
-                <Edit3 /> Chỉnh sửa
+                <Edit3 /> {t("coach.classes.editButton")}
               </Link>
             </Button>
-            <Button size="sm" variant="destructive" onClick={() => onCancel(cls.id)}>
-              <XCircle /> Hủy
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => onCancel(cls.id)}
+            >
+              <XCircle /> {t("coach.classes.cancelButton")}
             </Button>
           </>
         )}
@@ -159,24 +219,28 @@ function ClassCard({
           <>
             <Button size="sm" variant="outline" asChild>
               <Link href={`/coach/classes/${cls.id}`}>
-                <Edit3 /> Chỉnh sửa
+                <Edit3 /> {t("coach.classes.editButton")}
               </Link>
             </Button>
-            <Button size="sm" variant="destructive" onClick={() => onCancel(cls.id)}>
-              <XCircle /> Hủy lớp
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => onCancel(cls.id)}
+            >
+              <XCircle /> {t("coach.classes.cancelClassButton")}
             </Button>
           </>
         )}
         {cls.status === "ONGOING" && (
           <Button size="sm" variant="outline" asChild>
             <Link href={`/coach/classes/${cls.id}`}>
-              <Eye /> Xem chi tiết
+              <Eye /> {t("coach.classes.viewDetailButton")}
             </Link>
           </Button>
         )}
         {(cls.status === "COMPLETED" || cls.status === "CANCELLED") && (
           <Button size="sm" variant="outline" disabled>
-            <Eye /> Xem chi tiết
+            <Eye /> {t("coach.classes.viewDetailButton")}
           </Button>
         )}
       </CardFooter>
@@ -188,9 +252,16 @@ export function CoachClassesPanel() {
   const [statusFilter, setStatusFilter] = useState<ClassStatus | "ALL">("ALL")
   const [dialogOpen, setDialogOpen] = useState(false)
 
+  const { t } = useTranslation("common")
   const session = useSession()
   const queryClient = useQueryClient()
-  const { data: classes, isLoading, isError, error, refetch } = useMyClasses(
+  const {
+    data: classes,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useMyClasses(
     statusFilter === "ALL" ? undefined : { status: statusFilter },
     { enabled: !!session?.user }
   )
@@ -231,35 +302,43 @@ export function CoachClassesPanel() {
 
     createClass.mutate(payload, {
       onSuccess: () => {
-        toast.success("Tạo lớp học thành công")
+        toast.success(t("coach.classes.createSuccess"))
         setDialogOpen(false)
         form.reset()
         queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClasses() })
       },
       onError: (err) => {
-        toast.error(err instanceof Error ? err.message : "Tạo lớp thất bại")
+        toast.error(
+          err instanceof Error ? err.message : t("coach.classes.createError")
+        )
       },
     })
   }
 
   const handlePublish = (classId: string) => {
     publishClass.mutate(classId, {
-      onSuccess: () => toast.success("Đã xuất bản lớp học"),
-      onError: (err) => toast.error(err instanceof Error ? err.message : "Xuất bản thất bại"),
+      onSuccess: () => toast.success(t("coach.classes.publishSuccess")),
+      onError: (err) =>
+        toast.error(
+          err instanceof Error ? err.message : t("coach.classes.publishError")
+        ),
     })
   }
 
   const handleCancel = (classId: string) => {
     cancelClass.mutate(classId, {
-      onSuccess: () => toast.success("Đã hủy lớp học"),
-      onError: (err) => toast.error(err instanceof Error ? err.message : "Hủy lớp thất bại"),
+      onSuccess: () => toast.success(t("coach.classes.cancelSuccess")),
+      onError: (err) =>
+        toast.error(
+          err instanceof Error ? err.message : t("coach.classes.cancelError")
+        ),
     })
   }
 
   if (isError) {
     return (
       <ErrorState
-        title="Không thể tải danh sách lớp học"
+        title={t("coach.classes.errorTitle")}
         description={getErrorMessage(error)}
         retry={refetch}
       />
@@ -272,24 +351,30 @@ export function CoachClassesPanel() {
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button>
-              <Plus /> Tạo lớp học mới
+              <Plus /> {t("coach.classes.createButton")}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
-              <DialogTitle>Tạo lớp học mới</DialogTitle>
+              <DialogTitle>{t("coach.classes.createDialogTitle")}</DialogTitle>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onCreateSubmit)} className="space-y-4">
+              <form
+                onSubmit={form.handleSubmit(onCreateSubmit)}
+                className="space-y-4"
+              >
                 <FormField
                   control={form.control}
                   name="title"
-                  rules={{ required: "Tiêu đề không được để trống" }}
+                  rules={{ required: t("coach.classes.titleRequired") }}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tiêu đề *</FormLabel>
+                      <FormLabel>{t("coach.classes.titleLabel")} *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Ví dụ: Pickleball cơ bản" {...field} />
+                        <Input
+                          placeholder={t("coach.classes.titlePlaceholder")}
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -300,9 +385,16 @@ export function CoachClassesPanel() {
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Mô tả</FormLabel>
+                      <FormLabel>
+                        {t("coach.classes.descriptionLabel")}
+                      </FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Mô tả về lớp học..." {...field} />
+                        <Textarea
+                          placeholder={t(
+                            "coach.classes.descriptionPlaceholder"
+                          )}
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -314,16 +406,29 @@ export function CoachClassesPanel() {
                     name="level"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Cấp độ</FormLabel>
+                        <FormLabel>{t("coach.classes.levelLabel")}</FormLabel>
                         <FormControl>
-                          <Select value={field.value ?? "Beginner"} onValueChange={field.onChange}>
+                          <Select
+                            value={field.value ?? "Beginner"}
+                            onValueChange={field.onChange}
+                          >
                             <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Chọn cấp độ" />
+                              <SelectValue
+                                placeholder={t(
+                                  "coach.classes.levelPlaceholder"
+                                )}
+                              />
                             </SelectTrigger>
                             <SelectContent>
                               {LEVEL_OPTIONS.map((opt) => (
                                 <SelectItem key={opt.value} value={opt.value}>
-                                  {opt.label}
+                                  {opt.value === "Beginner"
+                                    ? t("coach.classes.level.beginner")
+                                    : opt.value === "Intermediate"
+                                      ? t("coach.classes.level.intermediate")
+                                      : opt.value === "Advanced"
+                                        ? t("coach.classes.level.advanced")
+                                        : t("coach.classes.level.pro")}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -336,14 +441,22 @@ export function CoachClassesPanel() {
                   <FormField
                     control={form.control}
                     name="capacity"
-                    rules={{ required: "Số lượng không được để trống", min: { value: 1, message: "Tối thiểu 1 học viên" } }}
+                    rules={{
+                      required: t("coach.classes.capacityRequired"),
+                      min: {
+                        value: 1,
+                        message: t("coach.classes.capacityMin"),
+                      },
+                    }}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Số lượng *</FormLabel>
+                        <FormLabel>
+                          {t("coach.classes.capacityLabel")} *
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="number"
-                            placeholder="Ví dụ: 10"
+                            placeholder={t("coach.classes.capacityPlaceholder")}
                             {...field}
                             value={field.value ?? 0}
                             onChange={(e) => {
@@ -360,14 +473,17 @@ export function CoachClassesPanel() {
                 <FormField
                   control={form.control}
                   name="priceVnd"
-                  rules={{ required: "Giá không được để trống", min: { value: 0, message: "Giá không hợp lệ" } }}
+                  rules={{
+                    required: t("coach.classes.priceRequired"),
+                    min: { value: 0, message: t("coach.classes.priceInvalid") },
+                  }}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Giá (VNĐ) *</FormLabel>
+                      <FormLabel>{t("coach.classes.priceLabel")} *</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="Ví dụ: 500000"
+                          placeholder={t("coach.classes.pricePlaceholder")}
                           {...field}
                           value={field.value ?? 0}
                           onChange={(e) => {
@@ -385,9 +501,12 @@ export function CoachClassesPanel() {
                   name="locationDescription"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Địa điểm</FormLabel>
+                      <FormLabel>{t("coach.classes.locationLabel")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Ví dụ: Sân PickleHub Quận 1" {...field} />
+                        <Input
+                          placeholder={t("coach.classes.locationPlaceholder")}
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -398,7 +517,9 @@ export function CoachClassesPanel() {
                   name="coverImageUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Ảnh bìa</FormLabel>
+                      <FormLabel>
+                        {t("coach.classes.coverImageLabel")}
+                      </FormLabel>
                       <FormControl>
                         <div className="space-y-3">
                           {field.value && (
@@ -417,11 +538,12 @@ export function CoachClassesPanel() {
                               const file = e.target.files?.[0]
                               if (!file) return
                               try {
-                                const url = await CoachMediaService.uploadImage(file)
+                                const url =
+                                  await CoachMediaService.uploadImage(file)
                                 field.onChange(url)
-                                toast.success("Tải ảnh lên thành công")
+                                toast.success(t("coach.classes.uploadSuccess"))
                               } catch {
-                                toast.error("Tải ảnh lên thất bại")
+                                toast.error(t("coach.classes.uploadError"))
                               }
                             }}
                           />
@@ -437,7 +559,9 @@ export function CoachClassesPanel() {
                     name="startDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Ngày bắt đầu</FormLabel>
+                        <FormLabel>
+                          {t("coach.classes.startDateLabel")}
+                        </FormLabel>
                         <FormControl>
                           <Input type="date" {...field} />
                         </FormControl>
@@ -450,7 +574,7 @@ export function CoachClassesPanel() {
                     name="endDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Ngày kết thúc</FormLabel>
+                        <FormLabel>{t("coach.classes.endDateLabel")}</FormLabel>
                         <FormControl>
                           <Input type="date" {...field} />
                         </FormControl>
@@ -460,11 +584,17 @@ export function CoachClassesPanel() {
                   />
                 </div>
                 <div className="flex justify-end gap-3 pt-2">
-                  <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                    Hủy
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setDialogOpen(false)}
+                  >
+                    {t("coach.classes.cancelButton")}
                   </Button>
                   <Button type="submit" disabled={createClass.isPending}>
-                    {createClass.isPending ? "Đang tạo..." : "Tạo lớp"}
+                    {createClass.isPending
+                      ? t("coach.classes.creating")
+                      : t("coach.classes.createButton")}
                   </Button>
                 </div>
               </form>
@@ -478,10 +608,29 @@ export function CoachClassesPanel() {
         onValueChange={(v) => setStatusFilter(v as ClassStatus | "ALL")}
         className="w-full gap-6"
       >
-        <TabsList variant="line" className="w-full min-w-0 flex-wrap justify-start gap-1 overflow-x-auto pb-1">
-          {STATUS_TABS.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value} className="sm:flex-none">
-              {tab.label}
+        <TabsList
+          variant="line"
+          className="w-full min-w-0 flex-wrap justify-start gap-1 overflow-x-auto pb-1"
+        >
+          {STATUS_TABS.map((tabItem) => (
+            <TabsTrigger
+              key={tabItem.value}
+              value={tabItem.value}
+              className="sm:flex-none"
+            >
+              {tabItem.value === "DRAFT"
+                ? t("coach.classes.status.draft")
+                : tabItem.value === "OPEN"
+                  ? t("coach.classes.status.open")
+                  : tabItem.value === "FULL"
+                    ? t("coach.classes.status.full")
+                    : tabItem.value === "ONGOING"
+                      ? t("coach.classes.status.ongoing")
+                      : tabItem.value === "COMPLETED"
+                        ? t("coach.classes.status.completed")
+                        : tabItem.value === "CANCELLED"
+                          ? t("coach.classes.status.cancelled")
+                          : t("coach.classes.status.all")}
             </TabsTrigger>
           ))}
         </TabsList>
@@ -522,10 +671,14 @@ export function CoachClassesPanel() {
           <div className="rounded-full bg-muted p-4">
             <CalendarDays className="size-10 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-semibold">Chưa có lớp học nào</h3>
-          <p className="text-sm text-muted-foreground">Tạo lớp học đầu tiên!</p>
+          <h3 className="text-lg font-semibold">
+            {t("coach.classes.noClasses")}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {t("coach.classes.noClassesDescription")}
+          </p>
           <Button onClick={() => setDialogOpen(true)}>
-            <Plus /> Tạo lớp học mới
+            <Plus /> {t("coach.classes.createFirstClass")}
           </Button>
         </div>
       )}

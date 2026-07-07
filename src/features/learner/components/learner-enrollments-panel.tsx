@@ -1,17 +1,19 @@
 "use client"
 
-import { useState } from "react"
+import {
+  AlertTriangle,
+  Banknote,
+  CheckCircle2,
+  Clock,
+  CreditCard,
+  Upload,
+  XCircle,
+} from "lucide-react"
 import Link from "next/link"
+import { useState } from "react"
 import { toast } from "sonner"
-import { CreditCard, Upload, XCircle, CheckCircle2, Clock, AlertTriangle, Banknote } from "lucide-react"
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
+import { ErrorState } from "@/components/shared/error-state"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,11 +25,35 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-
-import { ErrorState } from "@/components/shared/error-state"
-import { getErrorMessage } from "@/lib/api-client"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useSession } from "@/features/auth/hooks/use-session"
-import { useMyEnrollments, useUploadEnrollmentPaymentProof, useCancelEnrollment } from "@/features/learner/hooks/use-learner-queries"
+import {
+  useCancelEnrollment,
+  useMyEnrollments,
+  useUploadEnrollmentPaymentProof,
+} from "@/features/learner/hooks/use-learner-queries"
+import { getErrorMessage } from "@/lib/api-client"
 
 const PAYMENT_STATUS_CONFIG: Record<
   string,
@@ -55,7 +81,10 @@ const PAYMENT_STATUS_CONFIG: Record<
   },
 }
 
-const ENROLLMENT_STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+const ENROLLMENT_STATUS_CONFIG: Record<
+  string,
+  { label: string; className: string }
+> = {
   ACTIVE: { label: "Đang hoạt động", className: "bg-green-100 text-green-800" },
   CANCELLED: { label: "Đã hủy", className: "bg-gray-100 text-gray-800" },
   COMPLETED: { label: "Đã hoàn thành", className: "bg-blue-100 text-blue-800" },
@@ -108,7 +137,10 @@ function UploadDialog({
       return
     }
     try {
-      await uploadMutation.mutateAsync({ enrollmentId, paymentProofUrl: url.trim() })
+      await uploadMutation.mutateAsync({
+        enrollmentId,
+        paymentProofUrl: url.trim(),
+      })
       toast.success("Tải lên bằng chứng thanh toán thành công")
       setOpen(false)
       setUrl("")
@@ -129,11 +161,14 @@ function UploadDialog({
         <DialogHeader>
           <DialogTitle>Tải lên bằng chứng thanh toán</DialogTitle>
           <DialogDescription>
-            Vui lòng cung cấp đường dẫn đến hình ảnh bằng chứng chuyển khoản của bạn.
+            Vui lòng cung cấp đường dẫn đến hình ảnh bằng chứng chuyển khoản của
+            bạn.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-2">
-          <label className="text-sm font-medium">URL bằng chứng thanh toán</label>
+          <label className="text-sm font-medium">
+            URL bằng chứng thanh toán
+          </label>
           <Input
             placeholder="https://example.com/chung-tu.png"
             value={url}
@@ -177,12 +212,16 @@ function CancelDialog({ enrollmentId }: { enrollmentId: string }) {
         <AlertDialogHeader>
           <AlertDialogTitle>Xác nhận hủy đăng ký</AlertDialogTitle>
           <AlertDialogDescription>
-            Bạn có chắc chắn muốn hủy đăng ký lớp học này? Hành động này không thể hoàn tác.
+            Bạn có chắc chắn muốn hủy đăng ký lớp học này? Hành động này không
+            thể hoàn tác.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Quay lại</AlertDialogCancel>
-          <AlertDialogAction onClick={handleCancel} disabled={cancelMutation.isPending}>
+          <AlertDialogAction
+            onClick={handleCancel}
+            disabled={cancelMutation.isPending}
+          >
             {cancelMutation.isPending ? "Đang hủy..." : "Xác nhận hủy"}
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -193,7 +232,13 @@ function CancelDialog({ enrollmentId }: { enrollmentId: string }) {
 
 export function LearnerEnrollmentsPanel() {
   const session = useSession()
-  const { data: enrollments, isLoading, isError, error, refetch } = useMyEnrollments({ enabled: !!session?.user })
+  const {
+    data: enrollments,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useMyEnrollments({ enabled: !!session?.user })
 
   if (isError) {
     return (
@@ -245,17 +290,26 @@ export function LearnerEnrollmentsPanel() {
             <CardHeader>
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1">
-                  <CardTitle className="text-lg">{enrollment.className || "Lớp học"}</CardTitle>
+                  <CardTitle className="text-lg">
+                    {enrollment.className || "Lớp học"}
+                  </CardTitle>
                   <CardDescription>
-                    {enrollment.classLevel ? LEVEL_LABEL[enrollment.classLevel] ?? enrollment.classLevel : ""}
-                    {enrollment.locationDescription ? ` • ${enrollment.locationDescription}` : ""}
+                    {enrollment.classLevel
+                      ? (LEVEL_LABEL[enrollment.classLevel] ??
+                        enrollment.classLevel)
+                      : ""}
+                    {enrollment.locationDescription
+                      ? ` • ${enrollment.locationDescription}`
+                      : ""}
                     {enrollment.scheduleDate
                       ? ` • ${new Date(enrollment.scheduleDate).toLocaleDateString("vi-VN")}`
                       : ""}
                   </CardDescription>
                 </div>
                 {enrollmentCfg && (
-                  <Badge className={enrollmentCfg.className}>{enrollmentCfg.label}</Badge>
+                  <Badge className={enrollmentCfg.className}>
+                    {enrollmentCfg.label}
+                  </Badge>
                 )}
               </div>
             </CardHeader>
