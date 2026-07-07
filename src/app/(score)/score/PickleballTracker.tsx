@@ -1,10 +1,11 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { io } from "socket.io-client"
 import { toast } from "sonner"
 
+import { Button } from "@/components/ui/button"
 import { CourtControls } from "@/features/score/components/CourtControls"
 import { PickleballCourt } from "@/features/score/components/PickleballCourt"
 import { ScoreBoard } from "@/features/score/components/ScoreBoard"
@@ -51,6 +52,7 @@ function PickleballTracker() {
     teamBName,
     teamAScore,
     teamBScore,
+    gameTarget,
     initialize,
     setTeamNames,
     setPlayerNames,
@@ -63,7 +65,10 @@ function PickleballTracker() {
     setIsConnected,
     setIsSyncing,
     setIsSaving,
+    isSaving,
     setSocket,
+    handleUndo,
+    applyReset,
   } = useScoreStore()
 
   const [accessToken, setAccessToken] = useState<string | null>(null)
@@ -307,22 +312,132 @@ function PickleballTracker() {
     }
   }
 
+  // Calculate if the game is completed (e.g. reaches target score, wins by 2)
+  const isGameOver = useMemo(() => {
+    const maxScore = Math.max(teamAScore, teamBScore)
+    const minScore = Math.min(teamAScore, teamBScore)
+    return maxScore >= gameTarget && maxScore - minScore >= 2
+  }, [teamAScore, teamBScore, gameTarget])
+
+  const winnerName = useMemo(() => {
+    if (!isGameOver) return ""
+    return teamAScore > teamBScore ? teamAName : teamBName
+  }, [isGameOver, teamAScore, teamBScore, teamAName, teamBName])
+
+  const mode = searchParams.get("mode")
+  const isViewOnly = mode === "view"
+
   return (
     <div className="flex min-h-screen flex-col gap-6 bg-background p-4 font-sans text-foreground">
       <ScoreBoard />
       <PickleballCourt />
-      <CourtControls />
-      <ScoreControls
-        isMatchServiceMatch={isMatchServiceMatch}
-        matchId={matchId}
-      />
-      <ScoreFooter
-        isMatchServiceMatch={isMatchServiceMatch}
-        matchId={matchId}
-        tournamentId={tournamentId}
-        handleConfirmScore={handleConfirmScore}
-      />
+
+      {isViewOnly ? (
+        isGameOver && (
+          <div className="animate-fade-in flex flex-col items-center justify-center space-y-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50/50 p-6 text-center shadow-sm dark:bg-emerald-950/20">
+            <div className="text-5xl">🏆</div>
+            <h3 className="text-xl font-black tracking-widest text-emerald-800 uppercase dark:text-emerald-300">
+              {t("referee.tracker.gameOverTitle", {
+                defaultValue: "Trận đấu kết thúc",
+              })}
+            </h3>
+            <p className="text-2xl font-black text-gray-900 dark:text-white">
+              {t("referee.tracker.winnerIs", {
+                defaultValue: `Chiến thắng: ${winnerName}`,
+                name: winnerName,
+              })}
+            </p>
+            <div className="font-mono text-4xl font-extrabold text-neutral-800 dark:text-neutral-100">
+              {teamAScore} - {teamBScore}
+            </div>
+          </div>
+        )
+      ) : isGameOver ? (
+        /* Render Winner banner instead of match control pads */
+        <div className="animate-fade-in flex flex-col items-center justify-center space-y-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50/50 p-6 text-center shadow-sm dark:bg-emerald-950/20">
+          <div className="text-5xl">🏆</div>
+          <h3 className="text-xl font-black tracking-widest text-emerald-800 uppercase dark:text-emerald-300">
+            {t("referee.tracker.gameOverTitle", {
+              defaultValue: "Trận đấu kết thúc",
+            })}
+          </h3>
+          <p className="text-2xl font-black text-gray-900 dark:text-white">
+            {t("referee.tracker.winnerIs", {
+              defaultValue: `Chiến thắng: ${winnerName}`,
+              name: winnerName,
+            })}
+          </p>
+          <div className="font-mono text-4xl font-extrabold text-neutral-800 dark:text-neutral-100">
+            {teamAScore} - {teamBScore}
+          </div>
+
+          <div className="mt-4 flex w-full gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              className="h-12 flex-1 font-bold"
+              onClick={() => handleUndo(isMatchServiceMatch, matchId)}
+            >
+              🔄{" "}
+              {t("referee.tracker.undo", { defaultValue: "Hoàn tác (Undo)" })}
+            </Button>
+
+            <Button
+              type="button"
+              className="h-12 flex-1 rounded-xl bg-emerald-600 font-extrabold text-white hover:bg-emerald-700"
+              onClick={handleConfirmScore}
+              disabled={isSaving}
+            >
+              {isSaving
+                ? t("referee.tracker.savingResult", {
+                    defaultValue: "Đang lưu...",
+                  })
+                : t("referee.tracker.confirmResult", {
+                    defaultValue: "Xác nhận & Lưu kết quả",
+                  })}
+            </Button>
+          </div>
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="mt-2 text-xs font-medium text-gray-500 hover:text-red-600"
+            onClick={applyReset}
+          >
+            🔄{" "}
+            {t("referee.tracker.resetMatch", {
+              defaultValue: "Đặt lại trận đấu (Reset)",
+            })}
+          </Button>
+        </div>
+      ) : (
+        /* Render normal match flow controls */
+        <>
+          <CourtControls />
+          <ScoreControls
+            isMatchServiceMatch={isMatchServiceMatch}
+            matchId={matchId}
+          />
+          <ScoreFooter
+            isMatchServiceMatch={isMatchServiceMatch}
+            matchId={matchId}
+            tournamentId={tournamentId}
+            handleConfirmScore={handleConfirmScore}
+          />
+        </>
+      )}
+
       <SyncOverlay isMatchServiceMatch={isMatchServiceMatch} />
+    </div>
+  )
+}
+
+export function ScoreboardFallback() {
+  const { t } = useTournamentTranslation()
+  return (
+    <div className="p-8 text-center text-gray-500">
+      {t("loadingScoreboard") || "Loading scoreboard..."}
     </div>
   )
 }

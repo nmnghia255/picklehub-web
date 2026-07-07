@@ -320,7 +320,7 @@ export default function SocialFeedbackTab({
       {/* Other Participant Reviews */}
       <div className="w-full">
         <Card className="w-full gap-0 shadow-sm backdrop-blur">
-          <CardHeader className="border border-border/40 pb-0">
+          <CardHeader className="pb-0">
             <div>
               <CardTitle className="text-2xl font-semibold tracking-tight">
                 {t("feedback.othersTitle", {
@@ -352,7 +352,7 @@ export default function SocialFeedbackTab({
                         <Star className="size-4 fill-amber-400 text-amber-400" />
                       </div>
                     </div>
-                    <div className="flex flex-col items-center justify-center border-t border-border/40 p-2 text-center sm:border-x sm:border-t-0">
+                    <div className="flex flex-col items-center justify-center border-border/40 p-2 text-center sm:border-x sm:border-t-0">
                       <span className="text-xs text-muted-foreground">
                         {t("feedback.hostOrganization", {
                           defaultValue: "Host Organization",

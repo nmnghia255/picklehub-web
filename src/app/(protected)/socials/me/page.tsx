@@ -12,7 +12,7 @@ export default async function Page(props: {
     : 1
   const limit = searchParams?.limit
     ? parseInt(searchParams.limit as string, 10)
-    : 10
+    : 9
   const tab = searchParams?.tab ? (searchParams.tab as string) : null
   const role = searchParams?.role ? (searchParams.role as string) : null
   const status = searchParams?.status ? (searchParams.status as string) : null

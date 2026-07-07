@@ -111,7 +111,7 @@ export function ParticipantPaymentTrackingCard({
 
   return (
     <>
-      <Card className="overflow-hidden">
+      <Card className="gap-0 overflow-hidden">
         <CardHeader className="border-b border-border/60 bg-muted/20">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -223,11 +223,6 @@ export function ParticipantPaymentTrackingCard({
                     >
                       <TableCell className="px-6 py-4 font-medium">
                         {row.user.name || "Unknown"}
-                        {row.isHost && (
-                          <Badge variant="outline" className="ml-2 text-[10px]">
-                            Host
-                          </Badge>
-                        )}
                       </TableCell>
                       <TableCell className="px-6 py-4 text-muted-foreground">
                         {formatCurrencyVnd(row.totalFee)}
@@ -282,7 +277,11 @@ export function ParticipantPaymentTrackingCard({
                               className="size-8 p-0"
                               disabled={isCompleted}
                             >
-                              <span className="sr-only">Open menu</span>
+                              <span className="sr-only">
+                                {t("expenses.tracking.actions.openMenu", {
+                                  defaultValue: "Open menu",
+                                })}
+                              </span>
                               <MoreHorizontal className="size-4" />
                             </Button>
                           </DropdownMenuTrigger>

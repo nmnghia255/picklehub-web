@@ -13,6 +13,7 @@ import type {
   SocialDetail,
   SocialParticipant,
 } from "@/features/socials/types/social"
+import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import SocialExpenseTab from "./expense-tab/social-expense-tab"
@@ -52,8 +53,16 @@ export default function SocialDetail({
   const tabValue = useSocialDetailStore((s) => s.tabValue)
   const setTabValue = useSocialDetailStore((s) => s.setTabValue)
 
+  const { data: subscriptions } = useMySubscriptions()
+  const hasSocialHostPlan = Boolean(
+    subscriptions?.some(
+      (sub) => sub.status === "ACTIVE" && sub.plan.type === "SOCIAL_HOST"
+    )
+  )
+
   const social = initialSocial
-  const isEditable = true || social?.isHost
+  const isEditable =
+    Boolean(social?.isHost) && hasSocialHostPlan && social?.status === "DRAFT"
 
   if (!social) {
     return (

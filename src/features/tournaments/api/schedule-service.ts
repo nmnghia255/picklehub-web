@@ -52,10 +52,19 @@ export const TournamentScheduleService = {
 
   // Returns the tournament fixtures enriched to the FE Match shape (teams, court name + status, event, winner as 1/2),
   // plus a count of fixtures that still need a booking.
-  getTournamentFixtures: async (tournamentId: number) => {
+  getTournamentFixtures: async (
+    tournamentId: number,
+    params?: {
+      eventId?: number
+      courtId?: number
+      date?: string
+      status?: string
+    }
+  ) => {
     const axios = await getAuthenticatedAxios()
     const response = await axios.get<ApiResponse<TournamentSchedule[]>>(
-      `/api/tournaments/${tournamentId}/schedule`
+      `/api/tournaments/${tournamentId}/schedule`,
+      { params }
     )
     return unwrapApiResponse(response.data)
   },

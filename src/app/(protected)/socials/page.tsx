@@ -37,7 +37,7 @@ export default async function Page(props: {
   }
 
   params.page = params.page || 1
-  params.limit = params.limit || 10
+  params.limit = params.limit || 9
 
   let socials = [] as ListSocial[]
   let pagination = {

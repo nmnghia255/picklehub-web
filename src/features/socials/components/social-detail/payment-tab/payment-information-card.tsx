@@ -32,7 +32,7 @@ export function PaymentInformationCard({
   const qrUrl = social?.paymentQrUrl
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden pb-0">
       <CardHeader className="border-b border-border/60 bg-muted/20">
         <CardTitle className="text-xl">
           {t("expenses.paymentInfo.title")}

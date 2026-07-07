@@ -35,7 +35,8 @@
       "favorited": "Đã yêu thích",
       "favorite": "Yêu thích",
       "back": "Quay lại",
-      "operatingHours": "Giờ hoạt động: {{openTime}} - {{closeTime}}"
+      "operatingHours": "Giờ hoạt động: {{openTime}} - {{closeTime}}",
+      "notUpdated": "Not updated"
     },
     "introduction": {
       "title": "Giới thiệu",
@@ -44,7 +45,8 @@
       "courtsCount_other": "{{count}} sân",
       "indoor": "Trong nhà",
       "outdoor": "Ngoài trời",
-      "noCourts": "Chưa có thông tin sân."
+      "noCourts": "Chưa có thông tin sân.",
+      "noDescription": "No description available."
     },
     "images": {
       "imageAlt": "Hình ảnh sân thể thao {{index}}"

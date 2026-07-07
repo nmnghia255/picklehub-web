@@ -7,11 +7,18 @@ import { formatCurrency } from "../booking-list.utils"
 
 interface Props {
   booking: Booking
+  variant?: "card" | "ghost"
 }
 
-export function BookingScheduleServices({ booking }: Props) {
+export function BookingScheduleServices({ booking, variant = "card" }: Props) {
   return (
-    <section className="space-y-4 rounded-3xl border bg-card p-4 shadow-sm">
+    <section
+      className={
+        variant === "ghost"
+          ? "space-y-4"
+          : "space-y-4 rounded-3xl border bg-card p-4 shadow-sm"
+      }
+    >
       <div className="text-md flex items-center gap-2 font-semibold">
         <ReceiptText className="size-5 text-slate-500" />
         Chi tiết lịch và dịch vụ

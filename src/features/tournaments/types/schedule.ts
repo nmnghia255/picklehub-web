@@ -15,6 +15,9 @@ export interface TournamentSchedule {
   bookingItemId: string
   refereeId: string
   refereeName: string
+  date: string
+  startTime?: string | null
+  endTime?: string | null
 }
 
 interface Team {

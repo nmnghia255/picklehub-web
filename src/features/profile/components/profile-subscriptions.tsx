@@ -4,6 +4,7 @@ import {
   ArrowRight,
   Building2,
   Crown,
+  Plus,
   Sparkles,
   Trophy,
   Users,
@@ -51,9 +52,18 @@ export function ProfileSubscriptions({
     <div className="space-y-4">
       {hasSubscriptions ? (
         <div className="animate-in rounded-2xl border bg-card p-6 text-card-foreground shadow duration-300 fade-in">
-          <h3 className="mb-4 font-semibold text-foreground">
-            {t("registeredSubscriptions")}
-          </h3>
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h3 className="font-semibold text-foreground">
+              {t("registeredSubscriptions")}
+            </h3>
+            <button
+              onClick={() => router.push("/subscriptions")}
+              className="flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm shadow-primary/10 transition-all hover:bg-primary/90"
+            >
+              <Plus className="size-3.5" />
+              {t("registerMore")}
+            </button>
+          </div>
           <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
             {subscriptions.map((sub) => {
               const isActive = sub.status === "ACTIVE"

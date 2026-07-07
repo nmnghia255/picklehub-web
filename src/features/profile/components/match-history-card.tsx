@@ -17,17 +17,17 @@ interface MatchHistoryProps {
   currentUserId: string
 }
 
-function formatDate(value: string, locale: string = "en"): string {
+function formatDate(value: string): string {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) {
     return "-"
   }
 
-  const formatLocale = locale === "vi" ? "vi-VN" : "en-US"
-  return new Intl.DateTimeFormat(formatLocale, {
-    month: "short",
-    day: "2-digit",
-  }).format(date)
+  const day = String(date.getDate()).padStart(2, "0")
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const year = date.getFullYear()
+
+  return `${day}/${month}/${year}`
 }
 
 function formatScore(match: Match): string {
@@ -147,7 +147,7 @@ function getResultClassName(result: MatchResultType): string {
 }
 
 export function MatchHistory({ matches, currentUserId }: MatchHistoryProps) {
-  const { t, i18n } = useProfileTranslation()
+  const { t } = useProfileTranslation()
 
   return (
     <div className="rounded-2xl border bg-card p-6 text-card-foreground shadow">
@@ -155,10 +155,10 @@ export function MatchHistory({ matches, currentUserId }: MatchHistoryProps) {
       <Table className="text-left">
         <TableHeader>
           <TableRow className="text-sm text-muted-foreground hover:bg-transparent">
-            <TableHead>{t("date")}</TableHead>
+            <TableHead className="w-[120px]">{t("date")}</TableHead>
             <TableHead>{t("opponent")}</TableHead>
-            <TableHead>{t("result")}</TableHead>
-            <TableHead>{t("score")}</TableHead>
+            <TableHead className="w-[180px]">{t("result")}</TableHead>
+            <TableHead className="w-[120px]">{t("score")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -176,10 +176,8 @@ export function MatchHistory({ matches, currentUserId }: MatchHistoryProps) {
               const resultKey = getResult(match, currentUserId)
               return (
                 <TableRow key={match.id}>
-                  <TableCell>
-                    {formatDate(match.scheduledAt, i18n.language)}
-                  </TableCell>
-                  <TableCell>
+                  <TableCell>{formatDate(match.scheduledAt)}</TableCell>
+                  <TableCell className="overflow-hidden">
                     {getOpponentLabel(match, currentUserId, t)}
                   </TableCell>
                   <TableCell>

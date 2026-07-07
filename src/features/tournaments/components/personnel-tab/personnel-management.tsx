@@ -1,6 +1,6 @@
 "use client"
 
-import { Shield, Users } from "lucide-react"
+import { Mail, Shield, Users } from "lucide-react"
 import { useEffect } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -9,6 +9,7 @@ import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 import { usePersonnelStore } from "../../stores/use-personnel-store"
 import type { TournamentEvent } from "../../types/tournament-event"
 import { MatchAssignments } from "./match-assignments"
+import { RefereeInvitationsList } from "./referee-invitations-list"
 import { RefereesRoster } from "./referees-roster"
 
 interface PersonnelManagementProps {
@@ -28,6 +29,7 @@ export function PersonnelManagement({
   const setActiveSubTab = usePersonnelStore((s) => s.setActiveSubTab)
   const fetchRoster = usePersonnelStore((s) => s.fetchRoster)
   const fetchMatches = usePersonnelStore((s) => s.fetchMatches)
+  const fetchInvitations = usePersonnelStore((s) => s.fetchInvitations)
   const reset = usePersonnelStore((s) => s.reset)
 
   // Initialize and synchronize tournament store data
@@ -35,11 +37,19 @@ export function PersonnelManagement({
     setTournamentId(tournamentId)
     fetchRoster()
     fetchMatches()
+    fetchInvitations()
 
     return () => {
       reset()
     }
-  }, [tournamentId, setTournamentId, fetchRoster, fetchMatches, reset])
+  }, [
+    tournamentId,
+    setTournamentId,
+    fetchRoster,
+    fetchMatches,
+    fetchInvitations,
+    reset,
+  ])
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -77,14 +87,24 @@ export function PersonnelManagement({
             <Shield className="mr-2 h-4 w-4" />
             {t("personnel.tabs.assignments")}
           </Button>
+          <Button
+            variant={activeSubTab === "invitations" ? "secondary" : "ghost"}
+            className={`px-4 py-2 text-sm font-medium transition-all ${
+              activeSubTab === "invitations"
+                ? "bg-white text-emerald-700 shadow-sm"
+                : "text-gray-600 hover:text-emerald-600"
+            }`}
+            onClick={() => setActiveSubTab("invitations")}
+          >
+            <Mail className="mr-2 h-4 w-4" />
+            {t("personnel.tabs.invitations", { defaultValue: "Invitations" })}
+          </Button>
         </div>
       </div>
 
-      {activeSubTab === "roster" ? (
-        <RefereesRoster />
-      ) : (
-        <MatchAssignments events={events} />
-      )}
+      {activeSubTab === "roster" && <RefereesRoster />}
+      {activeSubTab === "assignments" && <MatchAssignments events={events} />}
+      {activeSubTab === "invitations" && <RefereeInvitationsList />}
     </div>
   )
 }

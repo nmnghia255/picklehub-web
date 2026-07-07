@@ -8,6 +8,7 @@ import { FilterSidebar } from "@/features/sport-center/components/sport-center-l
 import { SportCenterCard } from "@/features/sport-center/components/sport-center-listing/sport-center-card"
 import type { SportCenterPaginationState } from "@/features/sport-center/stores/sport-center-store"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
+import { TOURNAMENT_THEME } from "@/features/tournaments/styles/theme"
 import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 interface SportCenterTabContentProps {
@@ -58,7 +59,7 @@ export function SportCenterTabContent({
         </div>
 
         {filteredSportCenters.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className={TOURNAMENT_THEME.layout.grid}>
             {filteredSportCenters.map((sportCenter) => (
               <SportCenterCard key={sportCenter.id} sportCenter={sportCenter} />
             ))}

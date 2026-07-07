@@ -4,22 +4,12 @@ import { Camera } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { startTransition, useActionState, useEffect, useState } from "react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Textarea } from "@/components/ui/textarea"
-import { updateProfileDetailsAction } from "@/features/profile/actions"
+import { updateProfileInformationAction } from "@/features/profile/actions"
 import { useProfileEditStore } from "@/features/profile/store/profile-edit-store"
 import { useProfileTranslation } from "@/i18n/use-profile-translation"
 
@@ -108,20 +98,10 @@ export function EditPlayerInfoForm({
 }) {
   const { t } = useProfileTranslation()
   const router = useRouter()
-  const [avatarDialogOpen, setAvatarDialogOpen] = useState(false)
-  const [avatarMethod, setAvatarMethod] = useState<"file" | "url">("file")
   const setUser = useProfileEditStore((state) => state.setUser)
 
-  const displayName = initialValues?.name?.trim() || t("unnamedPlayer")
-  const initials = displayName
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("")
-
   const [state, formAction, isPending] = useActionState(
-    updateProfileDetailsAction,
+    updateProfileInformationAction,
     {}
   )
 
@@ -154,128 +134,6 @@ export function EditPlayerInfoForm({
       className="space-y-4"
     >
       <FieldGroup>
-        <div
-          className="cursor-pointer rounded-xl border bg-muted/20 p-4 transition-colors hover:bg-muted/35"
-          role="button"
-          tabIndex={0}
-          onClick={() => setAvatarDialogOpen(true)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault()
-              setAvatarDialogOpen(true)
-            }
-          }}
-        >
-          <div className="flex items-center gap-4">
-            <Avatar className="size-16">
-              <AvatarImage
-                src={initialValues?.avatarUrl || undefined}
-                alt={displayName}
-              />
-              <AvatarFallback>{initials || "U"}</AvatarFallback>
-            </Avatar>
-
-            <div className="space-y-1">
-              <p className="text-sm font-medium">{t("edit.avatar.current")}</p>
-              <p className="text-sm text-muted-foreground">
-                {t("edit.avatar.clickToChange")}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {t("edit.avatar.method", {
-                  method:
-                    avatarMethod === "file"
-                      ? t("edit.avatar.file")
-                      : t("edit.avatar.url"),
-                })}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <Dialog open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen}>
-          <DialogContent className="sm:max-w-xl">
-            <DialogHeader>
-              <DialogTitle>{t("edit.avatar.dialogTitle")}</DialogTitle>
-              <DialogDescription>
-                {t("edit.avatar.dialogDesc")}
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="grid gap-3 py-2 md:grid-cols-2">
-              <Button
-                type="button"
-                variant={avatarMethod === "file" ? "default" : "outline"}
-                className="h-auto w-full justify-start p-4 text-left"
-                onClick={() => {
-                  setAvatarMethod("file")
-                }}
-              >
-                <span className="flex w-full flex-col items-start gap-1">
-                  <span className="text-sm leading-tight font-medium">
-                    {t("edit.avatar.file")}
-                  </span>
-                  <span className="text-xs leading-snug opacity-80">
-                    {t("edit.avatar.fileDesc")}
-                  </span>
-                </span>
-              </Button>
-
-              <Button
-                type="button"
-                variant={avatarMethod === "url" ? "default" : "outline"}
-                className="h-auto w-full justify-start p-4 text-left"
-                onClick={() => {
-                  setAvatarMethod("url")
-                }}
-              >
-                <span className="flex w-full flex-col items-start gap-1">
-                  <span className="text-sm leading-tight font-medium">
-                    {t("edit.avatar.url")}
-                  </span>
-                  <span className="text-xs leading-snug opacity-80">
-                    {t("edit.avatar.urlDesc")}
-                  </span>
-                </span>
-              </Button>
-            </div>
-
-            <div className="py-2">
-              {avatarMethod === "file" ? (
-                <Field>
-                  <FieldLabel htmlFor="avatarFile">
-                    {t("edit.avatar.file")}
-                  </FieldLabel>
-                  <Input
-                    id="avatarFile"
-                    name="avatarFile"
-                    type="file"
-                    accept="image/*"
-                  />
-                </Field>
-              ) : (
-                <Field>
-                  <FieldLabel htmlFor="avatarUrl">Avatar URL</FieldLabel>
-                  <Input
-                    id="avatarUrl"
-                    name="avatarUrl"
-                    type="url"
-                    placeholder="https://example.com/avatar.jpg"
-                    defaultValue={initialValues?.avatarUrl ?? ""}
-                  />
-                </Field>
-              )}
-            </div>
-
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button type="button" variant="outline">
-                  {t("edit.avatar.done")}
-                </Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
         <div className="grid gap-4 sm:grid-cols-2">
           <Field>
             <FieldLabel htmlFor="name">{t("edit.displayName")}</FieldLabel>

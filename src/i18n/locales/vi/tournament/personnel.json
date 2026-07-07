@@ -4,7 +4,8 @@
     "subtitle": "Quản lý danh sách trọng tài và phân công trận đấu của giải đấu.",
     "tabs": {
       "roster": "Danh sách Trọng tài",
-      "assignments": "Phân công Trận đấu"
+      "assignments": "Phân công Trận đấu",
+      "invitations": "Lời mời"
     },
     "stats": {
       "totalReferees": "Tổng số Trọng tài",
@@ -14,11 +15,11 @@
     "roster": {
       "searchPlaceholder": "Tìm kiếm trọng tài theo tên, email, hoặc ID...",
       "reload": "Tải lại Danh sách",
-      "enrollBtn": "Thêm Trọng tài",
+      "enrollBtn": "Mời Trọng tài",
       "emptyTitle": "Không tìm thấy Trọng tài",
-      "emptyDesc": "Bắt đầu thêm trọng tài để phân công họ vào các trận đấu trong giải đấu này.",
+      "emptyDesc": "Bắt đầu gửi lời mời tới trọng tài để phân công họ vào các trận đấu trong giải đấu này.",
       "emptySearch": "Hãy thử kiểm tra lại chính tả hoặc thay đổi từ khóa tìm kiếm.",
-      "enrollFirst": "Thêm Trọng tài",
+      "enrollFirst": "Mời Trọng tài Đầu tiên",
       "idLabel": "ID",
       "enrolledDate": "Đã thêm: {{date}}",
       "workload": "Khối lượng công việc",
@@ -26,22 +27,57 @@
       "unenrollTitle": "Xóa Trọng tài?",
       "unenrollDesc": "Bạn có chắc chắn muốn xóa {{name}} khỏi danh sách? Hành động này không thể hoàn tác và sẽ thất bại nếu trọng tài này đang được phân công cho bất kỳ trận đấu nào.",
       "unenrollConfirm": "Xóa Trọng tài",
-      "cancel": "Hủy"
+      "unenrollSuccess": "Đã xóa trọng tài khỏi giải đấu",
+      "unenrollFailed": "Xóa trọng tài thất bại. Đảm bảo họ không còn trận đấu nào được phân công.",
+      "cancel": "Hủy",
+      "loading": "Đang tải danh sách trọng tài..."
     },
     "enrollDialog": {
-      "title": "Thêm Trọng tài Mới",
-      "description": "Đăng ký trọng tài mới vào danh sách giải đấu để phân công cho các trận đấu.",
+      "title": "Mời Trọng tài",
+      "description": "Nhập email của trọng tài để gửi lời mời tham gia giải đấu.",
       "avatarLabel": "Ảnh đại diện",
       "avatarPlaceholder": "URL ảnh đại diện...",
       "idLabel": "Mã trọng tài (UUID) *",
       "idPlaceholder": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
       "nameLabel": "Họ và Tên *",
       "namePlaceholder": "Nguyễn Văn An",
-      "emailLabel": "Địa chỉ Email *",
-      "emailPlaceholder": "nguyenvanan@email.com",
+      "emailLabel": "Email Trọng tài",
+      "emailPlaceholder": "Ví dụ: referee@example.com",
       "phoneLabel": "Số Điện thoại",
       "phonePlaceholder": "+84987654321",
-      "submitBtn": "Thêm Trọng tài"
+      "submitBtn": "Thêm Trọng tài",
+      "verifyBtn": "Tìm kiếm",
+      "verifiedStatus": "Đã tìm thấy tài khoản người dùng! Sẵn sàng gửi lời mời.",
+      "noAccountTitle": "Email chưa đăng ký tài khoản",
+      "noAccountDesc": "Email này chưa được đăng ký trong hệ thống. Lời mời sẽ được gửi tới địa chỉ trên.",
+      "inviteBtn": "Gửi Lời mời",
+      "successToast": "Đã thêm trọng tài thành công!",
+      "inviteSuccessToast": "Đã gửi lời mời thành công!",
+      "verifyFirst": "Vui lòng xác thực email của trọng tài trước",
+      "invalidEmail": "Vui lòng nhập địa chỉ email hợp lệ."
+    },
+    "invitations": {
+      "revokeConfirm": "Bạn có chắc chắn muốn thu hồi lời mời gửi đến {{email}} không?",
+      "revokeSuccess": "Đã thu hồi lời mời thành công",
+      "status": {
+        "pending": "Đang chờ",
+        "accepted": "Đã chấp nhận",
+        "revoked": "Đã thu hồi"
+      },
+      "cardTitle": "Lời mời Trọng tài",
+      "cardDescription": "Quản lý các lời mời qua email gửi tới các trọng tài tiềm năng.",
+      "refresh": "Làm mới",
+      "loading": "Đang tải danh sách lời mời...",
+      "emptyTitle": "Không tìm thấy lời mời nào",
+      "emptyDesc": "Bạn chưa gửi lời mời nào tới trọng tài. Nhấp vào 'Thêm Trọng tài' ở tab danh sách để gửi.",
+      "table": {
+        "email": "Email",
+        "status": "Trạng thái",
+        "sentAt": "Thời gian gửi",
+        "expiresAt": "Thời gian hết hạn",
+        "actions": "Hành động"
+      },
+      "revokeBtn": "Thu hồi"
     },
     "assignments": {
       "searchPlaceholder": "Tìm trận đấu, vòng đấu, đội hoặc trọng tài...",
@@ -56,12 +92,31 @@
       "refereeLabel": "Trọng tài phân công",
       "unassigned": "Chưa phân công",
       "reassignPlaceholder": "Đổi trọng tài",
-      "assignPlaceholder": "Phân công Trọng tài"
+      "assignPlaceholder": "Phân công Trọng tài",
+      "refereesListTitle": "Danh sách Trọng tài",
+      "selectRefereeTitle": "Chưa chọn Trọng tài",
+      "selectRefereePrompt": "Chọn một trọng tài từ danh sách bên trái để bắt đầu quản lý phân công trận đấu.",
+      "assignMatches": "Phân công Trận đấu",
+      "currentAssignments": "Trận đấu đã phân công ({{count}})",
+      "noUnassignedMatches": "Không tìm thấy trận đấu chưa phân công nào",
+      "selectAll": "Chọn Tất cả",
+      "assignBulkBtn": "Phân công Trận đã chọn ({{count}})",
+      "assigning": "Đang phân công...",
+      "unassignConfirmBtn": "Gỡ bỏ",
+      "noAssignments": "Trọng tài này chưa được phân công trận đấu nào.",
+      "bulkAssignSuccess": "Đã phân công thành công {{count}} trận đấu cho {{name}}!",
+      "bulkAssignPartial": "Đã phân công {{success}} trận đấu. Thất bại {{fail}} trận.",
+      "assignSuccess": "Đã phân công trọng tài thành công!",
+      "assignFailed": "Phân công trọng tài thất bại",
+      "unassignSuccess": "Đã hủy phân công trọng tài khỏi trận đấu",
+      "unassignFailed": "Hủy phân công trọng tài thất bại",
+      "loading": "Đang tải danh sách trận đấu..."
     }
   },
   "referee": {
     "title": "Phân công Trọng tài",
     "noAssignments": "Bạn không có trận đấu nào được phân công trong giải đấu này.",
+    "notUpdate": "Chưa cập nhật",
     "vs": "vs",
     "score": "Tỷ số",
     "matchInfo": {

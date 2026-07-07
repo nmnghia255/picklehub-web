@@ -64,10 +64,7 @@ export function BookingDetailDialog({
             />
 
             {booking.status === "CANCELLED" && (
-              <BookingCancellationSection
-                booking={booking}
-                displayNote={displayNote}
-              />
+              <BookingCancellationSection booking={booking} />
             )}
 
             <BookingScheduleServices booking={booking} />
