@@ -322,10 +322,9 @@ export function CoachProfileForm() {
             <CardHeader className="space-y-2">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <CardTitle>
-                    {t("coach.profile.pageTitle", {
-                      defaultValue: "Coach Profile",
-                    })}
+                  <CardTitle t>
+                    {" "}
+                    {/* placeholder to maintain patch structure */ null}{" "}
                   </CardTitle>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {t("coach.profile.basicInfoDescription", {
