@@ -31,6 +31,7 @@ export function ScoreBoard() {
     setGameTarget,
     activeServer,
     playerNames,
+    scoreCall,
   } = useScoreStore()
 
   const servingScore = servingTeam === "A" ? teamAScore : teamBScore
@@ -144,16 +145,18 @@ export function ScoreBoard() {
 
         {/* Scoreboard Metadata & Call Announcement Helper */}
         <div className="mt-2 flex w-full flex-col items-center gap-2 text-center">
-          <div className="text-xs font-black tracking-widest text-gray-500 uppercase">
-            {t("referee.tracker.scoreCallFormat", {
-              defaultValue: "Cách gọi tỷ số (Announce)",
-            })}
-          </div>
-
-          <div className="font-mono text-2xl font-black tracking-wider text-neutral-800">
-            {isDoubles
-              ? `${servingScore} - ${receivingScore} - ${serverNumber}`
-              : `${servingScore} - ${receivingScore}`}
+          <div className="w-full rounded-2xl border border-amber-200 bg-amber-50/50 p-4 shadow-xs transition-all dark:border-amber-900/40 dark:bg-amber-950/10">
+            <div className="text-xs font-black tracking-widest text-amber-800 uppercase dark:text-amber-400">
+              {t("referee.tracker.scoreCallFormat", {
+                defaultValue: "Đọc Điểm (Score Call)",
+              })}
+            </div>
+            <div className="mt-1 font-mono text-4xl font-extrabold tracking-wider text-amber-950 dark:text-amber-200">
+              {scoreCall ||
+                (isDoubles
+                  ? `${servingScore} - ${receivingScore} - ${serverNumber}`
+                  : `${servingScore} - ${receivingScore}`)}
+            </div>
           </div>
 
           <p className="mt-1 max-w-md text-xs text-gray-500">

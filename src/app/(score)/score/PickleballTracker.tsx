@@ -1,34 +1,24 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
-import { io } from "socket.io-client"
+import { useEffect, useMemo } from "react"
 import { toast } from "sonner"
 
-import { Button } from "@/components/ui/button"
 import { CourtControls } from "@/features/score/components/CourtControls"
 import { PickleballCourt } from "@/features/score/components/PickleballCourt"
 import { ScoreBoard } from "@/features/score/components/ScoreBoard"
 import { ScoreControls } from "@/features/score/components/ScoreControls"
 import { ScoreFooter } from "@/features/score/components/ScoreFooter"
+import { SpectatorWaiting } from "@/features/score/components/SpectatorWaiting"
+import { StartMatchControls } from "@/features/score/components/StartMatchControls"
 import { SyncOverlay } from "@/features/score/components/SyncOverlay"
+import { WinnerBanner } from "@/features/score/components/WinnerBanner"
+import { useMatchSync } from "@/features/score/hooks/use-match-sync"
 import { useScoreStore } from "@/features/score/stores/use-score-store"
 import { listMyAssignmentsAction } from "@/features/tournaments/actions/referee-actions"
 import { updateFixtureResultAction } from "@/features/tournaments/actions/schedule-actions"
 import { getTeamEventsAction } from "@/features/tournaments/actions/team-actions"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
-
-interface MatchEventData {
-  matchId: string
-  score?: {
-    scoreA: number
-    scoreB: number
-    sets?: number[][]
-    currentSetId?: number
-    server?: string | null
-  }
-  status?: string
-}
 
 function PickleballTracker() {
   const { t } = useTournamentTranslation()
@@ -56,22 +46,13 @@ function PickleballTracker() {
     initialize,
     setTeamNames,
     setPlayerNames,
-    setTeamAScore,
-    setTeamBScore,
-    setServingTeam,
-    setSets,
-    setCurrentSetId,
-    setMatchStatus,
-    setIsConnected,
-    setIsSyncing,
+    setPlayerIds,
+    matchStatus,
     setIsSaving,
     isSaving,
-    setSocket,
-    handleUndo,
-    applyReset,
   } = useScoreStore()
 
-  const [accessToken, setAccessToken] = useState<string | null>(null)
+  useMatchSync(matchId, isMatchServiceMatch)
 
   // Initialize store state
   useEffect(() => {
@@ -81,24 +62,6 @@ function PickleballTracker() {
       isMatchServiceMatch,
     })
   }, [team1Param, team2Param, isMatchServiceMatch, initialize])
-
-  // Load session token
-  useEffect(() => {
-    const fetchSession = async () => {
-      try {
-        const res = await fetch("/api/auth/session")
-        if (res.ok) {
-          const session = await res.json()
-          if (session?.accessToken) {
-            setAccessToken(session.accessToken)
-          }
-        }
-      } catch (err) {
-        console.error("Failed to load session accessToken:", err)
-      }
-    }
-    fetchSession()
-  }, [])
 
   // Load match assignment and team details
   useEffect(() => {
@@ -141,6 +104,12 @@ function PickleballTracker() {
                   B1: team2Obj.player1.name || "B1",
                   B2: team2Obj.player2?.name || "",
                 })
+                setPlayerIds({
+                  A1: team1Obj.player1.id ? String(team1Obj.player1.id) : "",
+                  A2: team1Obj.player2?.id ? String(team1Obj.player2.id) : "",
+                  B1: team2Obj.player1.id ? String(team2Obj.player1.id) : "",
+                  B2: team2Obj.player2?.id ? String(team2Obj.player2.id) : "",
+                })
               } else {
                 if (team1Obj) {
                   const t1Name = team1Obj.player2
@@ -151,6 +120,12 @@ function PickleballTracker() {
                     A1: team1Obj.player1.name || "A1",
                     A2: team1Obj.player2?.name || "",
                   })
+                  setPlayerIds({
+                    A1: team1Obj.player1.id ? String(team1Obj.player1.id) : "",
+                    A2: team1Obj.player2?.id ? String(team1Obj.player2.id) : "",
+                    B1: "",
+                    B2: "",
+                  })
                 }
                 if (team2Obj) {
                   const t2Name = team2Obj.player2
@@ -160,6 +135,12 @@ function PickleballTracker() {
                   setPlayerNames({
                     B1: team2Obj.player1.name || "B1",
                     B2: team2Obj.player2?.name || "",
+                  })
+                  setPlayerIds({
+                    A1: "",
+                    A2: "",
+                    B1: team2Obj.player1.id ? String(team2Obj.player1.id) : "",
+                    B2: team2Obj.player2?.id ? String(team2Obj.player2.id) : "",
                   })
                 }
               }
@@ -177,103 +158,9 @@ function PickleballTracker() {
     tournamentId,
     setTeamNames,
     setPlayerNames,
+    setPlayerIds,
     teamAName,
     teamBName,
-  ])
-
-  // Setup Socket connection and live sync
-  useEffect(() => {
-    if (!isMatchServiceMatch || !accessToken) return
-
-    const gatewayUrl = process.env.NEXT_PUBLIC_API_GATEWAY_URL || ""
-    const socketUrl = gatewayUrl.endsWith("/")
-      ? gatewayUrl.slice(0, -1)
-      : gatewayUrl
-
-    const newSocket = io(`${socketUrl}/matches`, {
-      auth: {
-        token: accessToken,
-      },
-      transports: ["websocket"],
-      reconnection: true,
-    })
-
-    const timerId = setTimeout(() => {
-      setSocket(newSocket)
-    }, 0)
-
-    const syncMatchDetails = async () => {
-      try {
-        setIsSyncing(true)
-        const res = await fetch(`${socketUrl}/api/matches/${matchId}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        })
-        if (res.ok) {
-          const matchData = await res.json()
-          const data = matchData.data || matchData
-          if (data) {
-            setTeamAScore(data.scoreA || 0)
-            setTeamBScore(data.scoreB || 0)
-            setSets(data.sets || [])
-            setCurrentSetId((data.sets?.length || 0) + 1)
-            setMatchStatus(data.status || "LIVE")
-          }
-        }
-      } catch (err) {
-        console.error("Failed to sync match details:", err)
-      } finally {
-        setIsSyncing(false)
-      }
-    }
-
-    newSocket.on("connect", () => {
-      setIsConnected(true)
-      newSocket.emit("join-match", { matchId })
-      syncMatchDetails()
-    })
-
-    newSocket.on("disconnect", () => {
-      setIsConnected(false)
-    })
-
-    newSocket.on("match-event", (data: MatchEventData) => {
-      if (data && data.matchId === matchId && data.score) {
-        setTeamAScore(data.score.scoreA)
-        setTeamBScore(data.score.scoreB)
-        setSets(data.score.sets || [])
-        setCurrentSetId(data.score.currentSetId || 1)
-        if (data.score.server === "TEAM_A") {
-          setServingTeam("A")
-        } else if (data.score.server === "TEAM_B") {
-          setServingTeam("B")
-        }
-        if (data.status) {
-          setMatchStatus(data.status)
-        }
-      }
-    })
-
-    return () => {
-      clearTimeout(timerId)
-      newSocket.emit("leave-match", { matchId })
-      newSocket.close()
-      setSocket(null)
-    }
-  }, [
-    isMatchServiceMatch,
-    accessToken,
-    matchId,
-    setTeamAScore,
-    setTeamBScore,
-    setSets,
-    setCurrentSetId,
-    setMatchStatus,
-    setIsConnected,
-    setIsSyncing,
-    setServingTeam,
-    setSocket,
   ])
 
   const handleConfirmScore = async () => {
@@ -327,90 +214,51 @@ function PickleballTracker() {
   const mode = searchParams.get("mode")
   const isViewOnly = mode === "view"
 
+  const isNotStarted =
+    matchStatus.toUpperCase() === "READY" ||
+    matchStatus.toUpperCase() === "SCHEDULED"
+
   return (
     <div className="flex min-h-screen flex-col gap-6 bg-background p-4 font-sans text-foreground">
       <ScoreBoard />
       <PickleballCourt />
 
       {isViewOnly ? (
-        isGameOver && (
-          <div className="animate-fade-in flex flex-col items-center justify-center space-y-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50/50 p-6 text-center shadow-sm dark:bg-emerald-950/20">
-            <div className="text-5xl">🏆</div>
-            <h3 className="text-xl font-black tracking-widest text-emerald-800 uppercase dark:text-emerald-300">
-              {t("referee.tracker.gameOverTitle", {
-                defaultValue: "Trận đấu kết thúc",
-              })}
-            </h3>
-            <p className="text-2xl font-black text-gray-900 dark:text-white">
-              {t("referee.tracker.winnerIs", {
-                defaultValue: `Chiến thắng: ${winnerName}`,
-                name: winnerName,
-              })}
-            </p>
-            <div className="font-mono text-4xl font-extrabold text-neutral-800 dark:text-neutral-100">
-              {teamAScore} - {teamBScore}
+        isNotStarted ? (
+          <SpectatorWaiting />
+        ) : (
+          isGameOver && (
+            <div className="animate-fade-in flex flex-col items-center justify-center space-y-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50/50 p-6 text-center shadow-sm dark:bg-emerald-950/20">
+              <div className="text-5xl">🏆</div>
+              <h3 className="text-xl font-black tracking-widest text-emerald-800 uppercase dark:text-emerald-300">
+                {t("referee.tracker.gameOverTitle", {
+                  defaultValue: "Trận đấu kết thúc",
+                })}
+              </h3>
+              <p className="text-2xl font-black text-gray-900 dark:text-white">
+                {t("referee.tracker.winnerIs", {
+                  defaultValue: `Chiến thắng: ${winnerName}`,
+                  name: winnerName,
+                })}
+              </p>
+              <div className="font-mono text-4xl font-extrabold text-neutral-800 dark:text-neutral-100">
+                {teamAScore} - {teamBScore}
+              </div>
             </div>
-          </div>
+          )
         )
+      ) : isNotStarted ? (
+        <StartMatchControls matchId={matchId} />
       ) : isGameOver ? (
-        /* Render Winner banner instead of match control pads */
-        <div className="animate-fade-in flex flex-col items-center justify-center space-y-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50/50 p-6 text-center shadow-sm dark:bg-emerald-950/20">
-          <div className="text-5xl">🏆</div>
-          <h3 className="text-xl font-black tracking-widest text-emerald-800 uppercase dark:text-emerald-300">
-            {t("referee.tracker.gameOverTitle", {
-              defaultValue: "Trận đấu kết thúc",
-            })}
-          </h3>
-          <p className="text-2xl font-black text-gray-900 dark:text-white">
-            {t("referee.tracker.winnerIs", {
-              defaultValue: `Chiến thắng: ${winnerName}`,
-              name: winnerName,
-            })}
-          </p>
-          <div className="font-mono text-4xl font-extrabold text-neutral-800 dark:text-neutral-100">
-            {teamAScore} - {teamBScore}
-          </div>
-
-          <div className="mt-4 flex w-full gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              className="h-12 flex-1 font-bold"
-              onClick={() => handleUndo(isMatchServiceMatch, matchId)}
-            >
-              🔄{" "}
-              {t("referee.tracker.undo", { defaultValue: "Hoàn tác (Undo)" })}
-            </Button>
-
-            <Button
-              type="button"
-              className="h-12 flex-1 rounded-xl bg-emerald-600 font-extrabold text-white hover:bg-emerald-700"
-              onClick={handleConfirmScore}
-              disabled={isSaving}
-            >
-              {isSaving
-                ? t("referee.tracker.savingResult", {
-                    defaultValue: "Đang lưu...",
-                  })
-                : t("referee.tracker.confirmResult", {
-                    defaultValue: "Xác nhận & Lưu kết quả",
-                  })}
-            </Button>
-          </div>
-
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="mt-2 text-xs font-medium text-gray-500 hover:text-red-600"
-            onClick={applyReset}
-          >
-            🔄{" "}
-            {t("referee.tracker.resetMatch", {
-              defaultValue: "Đặt lại trận đấu (Reset)",
-            })}
-          </Button>
-        </div>
+        <WinnerBanner
+          winnerName={winnerName}
+          teamAScore={teamAScore}
+          teamBScore={teamBScore}
+          isMatchServiceMatch={isMatchServiceMatch}
+          matchId={matchId}
+          handleConfirmScore={handleConfirmScore}
+          isSaving={isSaving}
+        />
       ) : (
         /* Render normal match flow controls */
         <>

@@ -5,8 +5,13 @@ import axios from "axios"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 import { getSession } from "@/lib/session"
 
+import { TournamentMatchService } from "../api/match-service"
 import { TournamentRefereeService } from "../api/referee-service"
-import type { InviteRefereeDto, RefereeRequest } from "../types/referee"
+import type {
+  AcceptInvitationResponseDto,
+  InviteRefereeDto,
+  RefereeRequest,
+} from "../types/referee"
 
 export async function enrollRefereeAction(
   tournamentId: string,
@@ -316,21 +321,22 @@ export async function acceptRefereeInvitationAction(
     )
 
     const rawData = response.data
-    const data =
+    const data = (
       rawData &&
       typeof rawData === "object" &&
       "success" in rawData &&
       "data" in rawData
         ? (rawData as Record<string, unknown>).data
         : rawData
+    ) as AcceptInvitationResponseDto
 
     console.log("acceptRefereeInvitationAction response data:", data)
 
-    const userId = data?.user?.id || data?.userId || ""
-    const email = data?.user?.email || data?.email || ""
+    const userId = data?.userId?.id || ""
+    const email = data?.userId?.email || ""
     const accessToken = data?.accessToken || ""
     const refreshToken = data?.refreshToken
-    const tournamentId = data?.tournamentId
+    const tournamentId = data?.tournament?.id
     const expiresIn = data?.expiresIn
 
     if (accessToken) {
@@ -354,5 +360,24 @@ export async function acceptRefereeInvitationAction(
       }
     }
     return { error: "An unexpected error occurred. Please try again." }
+  }
+}
+
+export async function startMatchAction(
+  matchId: string,
+  payload?: { firstServingPlayerId?: string }
+) {
+  try {
+    const data = await TournamentMatchService.startMatch(matchId, payload)
+    return { success: true, data }
+  } catch (error: unknown) {
+    console.error("Failed to start match:", error)
+    let errorMessage = "Failed to start match"
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.message || error.message
+    } else if (error instanceof Error) {
+      errorMessage = error.message
+    }
+    return { success: false, error: errorMessage }
   }
 }

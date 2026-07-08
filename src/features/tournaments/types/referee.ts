@@ -66,26 +66,42 @@ export interface RevokeInvitationResponseDto {
   id: number
   status: "REVOKED"
   revokedAt: string
+  success: boolean
 }
 
 export interface RefereeInvitationMetadataDto {
   id?: number
   email: string
-  tournamentId: number
-  tournamentName?: string
   status: string
   expiresAt?: string
+  tournament: {
+    id: number
+    name: string
+  }
 }
 
 export interface AcceptInvitationResponseDto {
   accessToken?: string
-  userId?: string
-  email?: string
-  tournamentId?: number
-  status?: string
+  refreshToken?: string
+  expiresIn?: number
+  isNewUser?: boolean
+  tournamentJoined: boolean
+  userId?: {
+    id: string
+    email: string
+    displayName: string
+  }
+  tournament: {
+    id: number
+    name: string
+  }
 }
 
 export interface JoinTournamentResponseDto {
-  referee?: Referee
-  success?: boolean
+  message?: string
+  tournamentJoined?: boolean
+  tournament?: {
+    id: number
+    name: string
+  }
 }

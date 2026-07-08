@@ -79,6 +79,16 @@
       },
       "revokeBtn": "Thu hồi"
     },
+    "accept": {
+      "loadingTitle": "Đang xử lý lời mời làm trọng tài...",
+      "loadingDesc": "Vui lòng chờ trong giây lát.",
+      "successTitle": "Chấp nhận lời mời thành công!",
+      "successDesc": "Bạn đã tham gia giải đấu với vai trò Trọng tài. Đang chuyển hướng đến trang giải đấu...",
+      "errorTitle": "Chấp nhận lời mời thất bại",
+      "loginOther": "Đăng nhập tài khoản khác",
+      "backHome": "Về trang chủ",
+      "invalidToken": "Link mời không hợp lệ. Vui lòng kiểm tra lại email."
+    },
     "assignments": {
       "searchPlaceholder": "Tìm trận đấu, vòng đấu, đội hoặc trọng tài...",
       "allEvents": "Tất cả Sự kiện",

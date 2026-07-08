@@ -21,6 +21,7 @@ interface ScoreState {
   teamAName: string
   teamBName: string
   playerNames: Record<ServerId, string>
+  playerIds: Record<ServerId, string>
   teamAScore: number
   teamBScore: number
   servingTeam: Team
@@ -45,6 +46,7 @@ interface ScoreState {
   isTimeoutActive: boolean
   timeoutTeam: Team | "TECHNICAL" | null
   timeoutSecondsLeft: number
+  scoreCall: string | null
 }
 
 interface ScoreActions {
@@ -59,6 +61,7 @@ interface ScoreActions {
       | Partial<Record<ServerId, string>>
       | ((prev: Record<ServerId, string>) => Record<ServerId, string>)
   ) => void
+  setPlayerIds: (ids: Record<ServerId, string>) => void
   setTeamAScore: (score: number | ((s: number) => number)) => void
   setTeamBScore: (score: number | ((s: number) => number)) => void
   setServingTeam: (team: Team) => void
@@ -82,6 +85,7 @@ interface ScoreActions {
   ) => void
   handleUndo: (isMatchServiceMatch: boolean, matchId: string | null) => void
   applyReset: () => void
+  setScoreCall: (call: string | null) => void
 
   // New Actions
   setGameTarget: (target: number) => void
@@ -112,6 +116,12 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
     B1: "B1",
     B2: "B2",
   },
+  playerIds: {
+    A1: "",
+    A2: "",
+    B1: "",
+    B2: "",
+  },
   teamAScore: 0,
   teamBScore: 0,
   servingTeam: "A",
@@ -135,6 +145,7 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
   isTimeoutActive: false,
   timeoutTeam: null,
   timeoutSecondsLeft: 0,
+  scoreCall: null,
 
   // Actions
   initialize: ({ team1, team2, isMatchServiceMatch }) => {
@@ -151,6 +162,12 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
         A2: initialA2,
         B1: initialB1,
         B2: initialB2,
+      },
+      playerIds: {
+        A1: "",
+        A2: "",
+        B1: "",
+        B2: "",
       },
       isDoubles,
       teamAScore: 0,
@@ -174,6 +191,7 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
       isTimeoutActive: false,
       timeoutTeam: null,
       timeoutSecondsLeft: 0,
+      scoreCall: null,
     })
   },
 
@@ -191,6 +209,8 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
         isDoubles,
       }
     }),
+
+  setPlayerIds: (ids) => set({ playerIds: ids }),
 
   setTeamAScore: (score) =>
     set((state) => ({
@@ -448,6 +468,9 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
       activeServer: "A1",
       history: [],
       isAutoSwapped: false,
+      scoreCall: null,
     })
   },
+
+  setScoreCall: (call) => set({ scoreCall: call }),
 }))

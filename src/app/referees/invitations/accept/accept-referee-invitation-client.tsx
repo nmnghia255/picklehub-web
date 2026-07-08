@@ -13,19 +13,23 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { FieldGroup } from "@/components/ui/field"
 import { acceptRefereeInvitationAction } from "@/features/tournaments/actions/referee-actions"
+import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
 type State = "loading" | "success" | "error"
 
-const MISSING_TOKEN_MESSAGE =
-  "Link mời không hợp lệ. Vui lòng kiểm tra lại email."
-
 export function AcceptRefereeInvitationClient({ token }: { token?: string }) {
+  const { t } = useTournamentTranslation()
   const router = useRouter()
   const [state, setState] = useState<State>(() =>
     !token ? "error" : "loading"
   )
   const [errorMessage, setErrorMessage] = useState(() =>
-    !token ? MISSING_TOKEN_MESSAGE : ""
+    !token
+      ? t(
+          "personnel.accept.invalidToken",
+          "Link mời không hợp lệ. Vui lòng kiểm tra lại email."
+        )
+      : ""
   )
 
   useEffect(() => {
@@ -41,7 +45,7 @@ export function AcceptRefereeInvitationClient({ token }: { token?: string }) {
       setState("success")
       setTimeout(() => {
         if (result.tournamentId) {
-          router.push(`/tournaments/${result.tournamentId}?tab=referee`)
+          router.push(`/tournaments/${result.tournamentId}`)
         } else {
           router.push("/")
         }
@@ -58,10 +62,16 @@ export function AcceptRefereeInvitationClient({ token }: { token?: string }) {
           </div>
           <div className="space-y-2">
             <h1 className="text-2xl font-bold">
-              Đang xử lý lời mời làm trọng tài...
+              {t(
+                "personnel.accept.loadingTitle",
+                "Đang xử lý lời mời làm trọng tài..."
+              )}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Vui lòng chờ trong giây lát.
+              {t(
+                "personnel.accept.loadingDesc",
+                "Vui lòng chờ trong giây lát."
+              )}
             </p>
           </div>
         </div>
@@ -74,11 +84,16 @@ export function AcceptRefereeInvitationClient({ token }: { token?: string }) {
           </div>
           <div className="space-y-2">
             <h1 className="text-2xl font-bold">
-              Chấp nhận lời mời thành công!
+              {t(
+                "personnel.accept.successTitle",
+                "Chấp nhận lời mời thành công!"
+              )}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Bạn đã tham gia giải đấu với vai trò Trọng tài. Đang chuyển hướng
-              đến trang giải đấu...
+              {t(
+                "personnel.accept.successDesc",
+                "Bạn đã tham gia giải đấu với vai trò Trọng tài. Đang chuyển hướng đến trang giải đấu..."
+              )}
             </p>
           </div>
         </div>
@@ -90,7 +105,9 @@ export function AcceptRefereeInvitationClient({ token }: { token?: string }) {
             <XCircleIcon className="size-8 text-red-500" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold">Chấp nhận lời mời thất bại</h1>
+            <h1 className="text-2xl font-bold">
+              {t("personnel.accept.errorTitle", "Chấp nhận lời mời thất bại")}
+            </h1>
             <p className="text-sm text-muted-foreground">{errorMessage}</p>
           </div>
           <div className="mt-4 flex w-full flex-col gap-2">
@@ -99,12 +116,14 @@ export function AcceptRefereeInvitationClient({ token }: { token?: string }) {
             errorMessage.toLowerCase().includes("jwt") ||
             errorMessage.toLowerCase().includes("access") ? (
               <Link href="/login" className="w-full">
-                <Button className="w-full">Đăng nhập tài khoản khác</Button>
+                <Button className="w-full">
+                  {t("personnel.accept.loginOther", "Đăng nhập tài khoản khác")}
+                </Button>
               </Link>
             ) : (
               <Link href="/" className="w-full">
                 <Button className="w-full" variant="outline">
-                  Về trang chủ
+                  {t("personnel.accept.backHome", "Về trang chủ")}
                 </Button>
               </Link>
             )}

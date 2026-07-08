@@ -1,0 +1,214 @@
+# Tài liệu Đặc tả Phân hệ Livescore (Scoreboard) & Đồng bộ Kết quả Giải đấu Picklehub
+
+Đặc tả này làm rõ toàn bộ luồng nghiệp vụ và thiết kế kỹ thuật của phân hệ Livescore (Bảng điểm) và cách đồng bộ hóa kết quả, giải đáp chi tiết các khía cạnh vận hành thực tế của trọng tài và Ban tổ chức (BTC).
+
+---
+
+## 1. Khởi tạo & Điều kiện Bắt đầu Trận đấu (Match Initialization)
+
+### A. Điều kiện chuẩn bị
+1. **Trạng thái Dispatch**: Khi BTC click **"Dispatch"** trận đấu trên Dashboard, hệ thống sẽ:
+   - Tạo bản ghi trận đấu thực tế trong `match-service`.
+   - Chuyển trạng thái trận đấu từ `scheduled` sang `ready` trong `tournament-service`.
+2. **Xác nhận bắt đầu thực tế**: Mặc dù trận đấu đã ở trạng thái `ready` (sẵn sàng thi đấu tại sân), trận đấu **chưa thực sự bắt đầu** cho đến khi trọng tài và VĐV có mặt tại sân và trọng tài bấm nút **"Bắt đầu trận đấu (Start Match)"** trên máy tính bảng (gửi `PATCH /api/matches/:id/start` để đưa trạng thái sang `LIVE`).
+
+### B. Cơ chế tung đồng xu chọn Đội Giao Bóng (Toss Mechanism)
+Trước khi ghi điểm, trọng tài thực hiện chọn đội giao bóng đầu tiên bằng một trong hai cách trên giao diện:
+1. **Tung đồng xu ngẫu nhiên (Randomized Toss)**: Trọng tài bấm nút **"Tung đồng xu ngẫu nhiên"**, giao diện FE tự động chọn ngẫu nhiên Đội A hoặc Đội B thắng cuộc tung đồng xu.
+2. **Chọn thủ công (Manual Selection)**: Trọng tài tung đồng xu vật lý trên sân và chọn đội giao bóng trước theo ý muốn của đội thắng cuộc.
+Sau khi xác định đội giao bóng trước, Frontend lấy UUID của VĐV giao bóng đầu tiên (VĐV đứng bên Phải của đội giao bóng - index `0` trong mảng của đội đó) và gửi lên cùng API khởi động trận đấu thông qua thuộc tính `firstServingPlayerId` (ví dụ: `PATCH /api/matches/:id/start` kèm body `{ "firstServingPlayerId": "uuid-cua-vdv" }`). Nếu bỏ trống, mặc định Đội A giao bóng trước.
+
+---
+
+## 2. Giao diện Ghi điểm & Logic Điểm số Chuyên nghiệp (Livescore Logic)
+
+### A. Giải thích Đơn giản về Luật Gọi điểm (Đơn & Đôi)
+Để lập trình viên Frontend và người dùng dễ hình dung, luật gọi điểm Pickleball được đơn giản hóa như sau:
+
+#### 1. Đánh Đôi (Doubles) — Gọi 3 Số: `[Điểm Đội Giao] - [Điểm Đội Nhận] - [Lượt Giao]`
+* **Đội giao bóng có 2 lượt cơ hội** (gọi là Server 1 và Server 2):
+  * **Lượt 1 (Server 1)**: Đội giao bóng thua loạt bóng ➔ chưa mất quyền giao, chỉ chuyển sang lượt 2 cho đồng đội. Điểm giữ nguyên.
+  * **Lượt 2 (Server 2)**: Đội giao bóng tiếp tục thua loạt bóng ➔ mất quyền giao bóng sang cho đối phương (Side-out). Điểm giữ nguyên.
+  * **Đặc biệt (Bắt đầu trận)**: Lượt đầu tiên của trận đấu chỉ được tính là Server 2 (gọi là `0 - 0 - 2`) để công bằng lợi thế.
+* **Cách tăng điểm**: Chỉ khi đội đang giao bóng thắng loạt bóng thì điểm của họ mới được cộng 1. Khi thắng điểm, 2 VĐV đội giao bóng đổi vị trí đứng cho nhau (Phải <-> Trái) để người giao bóng đổi hướng giao chéo. Đội nhận giữ nguyên vị trí.
+
+#### 2. Đánh Đơn (Singles) — Gọi 2 Số: `[Điểm Người Giao] - [Điểm Người Nhận]`
+* **Mỗi người chỉ có 1 lượt cơ hội**: Người giao bóng thua loạt bóng ➔ lập tức mất quyền giao bóng sang đối phương (Side-out). Điểm giữ nguyên.
+* **Vị trí đứng giao bóng**: Xác định hoàn toàn bằng điểm của người giao bóng:
+  * Điểm chẵn (`0, 2, 4, 6...`) ➔ Đứng giao bên **Phải** sân.
+  * Điểm lẻ (`1, 3, 5, 7...`) ➔ Đứng giao bên **Trái** sân.
+
+---
+
+### B. Cải tiến UX: Ghi điểm theo "Đội thắng loạt bóng" thay vì nút "Fault"
+Để tránh nhầm lẫn cho trọng tài, giao diện ghi điểm của trọng tài **không sử dụng** nút bấm ghi chữ "Fault" (Lỗi). Thay vào đó, giao diện chỉ gồm 2 nút bấm to và trực quan nhất:
+- 🟢 **"ĐỘI A THẦNG LOẠT BÓNG"** (Team A Wins Rally)
+- 🔵 **"ĐỘI B THẦNG LOẠT BÓNG"** (Team B Wins Rally)
+
+Hệ thống State Machine ở Backend sẽ tự động tính toán kết quả của loạt bóng dựa vào đội đang giữ quyền giao bóng:
+
+```text
+                  QUY TẮC PHÂN GIẢI LOẠT BÓNG (DOUBLES)
+                  
+               Trọng tài click "ĐỘI A THẮNG LOẠT BÓNG"
+                                 │
+             ┌──────────────────┴──────────────────┐
+     Đội A đang GIAO BÓNG                 Đội A đang NHẬN BÓNG
+             │                                     │
+             ▼                                     ▼
+       Đội A được +1 Điểm                      Xảy ra FAULT:
+   Đội A hoán đổi bên đứng (L <-> R)    - Nếu là Server 1: Đổi lượt sang Server 2
+                                        - Nếu là Server 2: Đổi quyền giao (SIDE-OUT)
+```
+
+#### Ví dụ minh họa (Đánh đôi):
+1. **Trạng thái ban đầu**: Tỷ số `0 - 0 - 2`, Đội A giao bóng. VĐV A1 (đứng Phải) cầm giao bóng `[⚡2]`.
+2. **Trường hợp 1**: Trọng tài click **"Đội A thắng loạt bóng"**:
+   - Đội A ghi điểm ➔ Điểm số cập nhật thành `1 - 0 - 2`.
+   - VĐV A1 và A2 đổi vị trí đứng trên sơ đồ. A1 (giao bóng) chuyển sang đứng bên Trái, A2 đứng bên Phải.
+3. **Trường hợp 2**: Trọng tài click **"Đội B thắng loạt bóng"**:
+   - Đội A thua loạt bóng ➔ Phạm lỗi (**Fault** theo định nghĩa USA Pickleball là vi phạm luật/mất bóng).
+   - Vì Đội A đang là Server 2, lỗi này dẫn đến **Side-out** (Đổi quyền giao bóng sang Đội B).
+   - Điểm số giữ nguyên `0 - 0`. Quyền giao bóng thuộc về Đội B, reset về Server 1 (`0 - 0 - 1`).
+   - Người giao bóng mới là VĐV Đội B đang đứng ở bên Phải (Right court) tại thời điểm đó. Không ai đổi vị trí đứng.
+
+---
+
+### C. Các cơ chế hỗ trợ Trọng tài gọi điểm trên Scoreboard (Referee Score Call Support)
+Để giải phóng áp lực tính toán và gọi điểm cho trọng tài trên sân đấu, giao diện Scoreboard được thiết kế với các hỗ trợ thông minh sau:
+1. **Gợi ý gọi điểm trực quan (Visual Score Call Prompter)**:
+   - Ngay sau khi một loạt bóng kết thúc, hệ thống Backend tính toán và gửi về chuỗi gợi ý gọi điểm chính xác qua trường `scoreCall` (Ví dụ: `"6 - 4 - 1"` hoặc `"5 - 3"`).
+   - FE hiển thị dòng chữ này ở cỡ chữ cực lớn tại trung tâm thiết bị của trọng tài (ví dụ: **"Đọc Điểm: 6 - 4 - 1"**). Trọng tài chỉ cần nhìn lên màn hình và đọc to theo gợi ý mà không cần nhẩm tính tỉ số hay nhớ lượt giao.
+2. **Định vị VĐV & Ký hiệu Giao bóng động**:
+   - Sơ đồ sân trên thiết bị hiển thị VĐV kèm biểu tượng giao bóng nhấp nháy `⚡` bên cạnh VĐV giao bóng (ví dụ: `Nguyễn A1 [⚡1]`).
+   - Sơ đồ tự động đảo vị trí hiển thị 2 VĐV của đội giao khi có điểm mới để phản ánh đúng thực tế di chuyển chéo sân của người chơi. Trọng tài có thể dùng sơ đồ này để kiểm tra và nhắc nhở VĐV nếu họ đứng sai vị trí.
+
+---
+
+## 3. Xác nhận Kết thúc & Cơ chế Kỹ thuật
+
+### A. Xác nhận Kết quả (Confirm Match)
+- Khi trận đấu đạt điều kiện kết thúc (một đội thắng đủ 2 set), nút **"Xác nhận tỷ số"** sáng lên.
+- **Lưu ý về "chữ ký/xác thực"**: Trong hệ thống hiện tại, điều này không yêu cầu ký tay vật lý hay mã PIN đặc biệt. "Xác thực" ở đây chính là **JWT Token của trọng tài** được gửi kèm trong Header Authorization khi FE gọi API `PATCH /api/matches/:id/confirm`. Backend sẽ kiểm tra xem `userId` trong token có trùng khớp với `refereeId` được phân công cho trận đấu này hay không để phê duyệt kết quả.
+
+---
+
+## 4. Tích hợp APIs dành cho Frontend
+
+### A. Hiển thị danh sách trận đấu vòng bảng
+- **Câu hỏi**: *Sau khi tạo trận đấu vòng bảng xong thì lấy danh sách ở đâu để hiển thị?*
+- **API sử dụng**:
+  `GET /:tournamentId/schedule?eventId=:eventId`
+  - Endpoint này trả về toàn bộ lịch thi đấu (fixtures) của sự kiện dưới định dạng DTO chi tiết (bao gồm tên đội, sân đấu, giờ thi đấu, tỉ số các set, trạng thái trận đấu như `scheduled`, `ready`, `in_progress`, `completed`).
+
+### B. Cập nhật Điểm xếp hạng & Hiệu số (Standings) liên tục
+- **Câu hỏi**: *Có API nào để FE lấy hiệu số mới ngay khi trận đấu ghi nhận kết quả không?*
+- **API sử dụng**:
+  `GET /:tournamentId/events/:eventId/group-stage/standings` (hoặc `/groups`)
+  - Ngay sau khi trọng tài bấm Xác nhận kết thúc trận đấu, kết quả đồng bộ về `tournament-service`. FE gọi API này sẽ nhận ngay bảng xếp hạng cập nhật thời gian thực, chứa đầy đủ các thông số:
+    - **Wins / Losses** (Số trận thắng / thua).
+    - **Point Difference** (Hiệu số điểm thắng - điểm thua).
+    - **Rank** (Thứ hạng xếp theo luật Wins ➔ Point Difference ➔ Head-to-head).
+
+### C. Cơ chế tự động Hội tụ nhánh đấu Vòng loại (Knockout Propagation)
+Hệ thống xử lý việc gán sân và cập nhật trạng thái vòng Knockout theo các bước thực tế trong code (`advancement.service.ts` và `bracket.service.ts`) như sau:
+
+1. **Khởi tạo vòng loại**: BTC thực hiện lập lịch tự động (auto-schedule) lần thứ 2 dành riêng cho các trận vòng Knockout. Lịch đấu ở trạng thái chờ có trạng thái là `pending` với `team1Id: null` and `team2Id: null`.
+2. **Hội tụ hai đội**: Khi các trận đấu vòng dưới kết thúc:
+   - Hệ thống tự động chuyển tiếp đội thắng vào nhánh trên (`nextMatchId`).
+   - Ngay khi trận đấu có đủ cả 2 đội hội tụ (cả `team1Id` và `team2Id` đều khác null), mã nguồn Backend tự động chuyển đổi trạng thái trận đấu đó từ `pending` sang `scheduled`.
+3. **Gán sân và Trọng tài**: 
+   - Lúc này, trận đấu có status `scheduled` đã có đủ 2 đội và sẵn sàng để BTC thực hiện gán sân và gán trọng tài (thủ công hoặc chạy lập lịch auto-schedule preview/confirm cho vòng KO).
+   - Sau khi gán xong, BTC bấm "Dispatch" để chuyển trận sang `ready`, sẵn sàng cho trọng tài vào điều khiển trận đấu.
+
+---
+
+## 5. Đặc tả Kỹ thuật WebSocket Payloads (WebSocket Contract)
+
+Khi trọng tài thao tác trên thiết bị, Backend phát đi sự kiện `match-event` qua WebSocket đến phòng `match_<matchId>` với cấu trúc gói tin (Payload) như sau:
+
+```json
+{
+  "event": "point-scored" | "point-undone" | "match-completed",
+  "matchId": "uuid-match",
+  "score": {
+    "scoreA": 1,
+    "scoreB": 0,
+    "sets": [[11, 9], [1, 0]],
+    "currentSetId": 2,
+    "server": "TEAM_A",
+    "servingTeam": "TEAM_A" | "TEAM_B",
+    "servingPlayerId": "uuid-serving-player",
+    "serverNumber": 1 | 2,
+    "scoreCall": "1 - 0 - 2",
+    "positions": {
+      "teamA": {
+        "right": { "id": "uuid-player-a1", "name": "Nguyễn A1", "avatarUrl": "https://..." },
+        "left": { "id": "uuid-player-a2", "name": "Nguyễn A2", "avatarUrl": "https://..." } | null
+      },
+      "teamB": {
+        "right": { "id": "uuid-player-b1", "name": "Nguyễn B1", "avatarUrl": "https://..." },
+        "left": { "id": "uuid-player-b2", "name": "Nguyễn B2", "avatarUrl": "https://..." } | null
+      }
+    }
+  },
+  "lastAction": {
+    "type": "point" | "undo",
+    "team": "TEAM_A" | "TEAM_B" | null,
+    "timestamp": "2026-07-07T07:54:15.123Z"
+  },
+  "status": "LIVE" | "CONFIRMED"
+}
+```
+
+> **Singles vs Doubles — `positions`**: Trong đánh đôi, `positions.teamA.left` và `positions.teamB.left` chứa VĐV thứ hai. Trong đánh đơn, `left` luôn là `null` (chỉ có 1 người/đội). Vị trí giao bóng bên Trái/Phải trong đánh đơn do **Frontend tự tính** dựa vào điểm số (chẵn → Phải, lẻ → Trái). Backend chỉ xác nhận ai đang giao bóng qua `servingPlayerId` và `servingTeam`.
+
+> **Ràng buộc `setId`**: Giá trị `setId` trong sự kiện `score-point` phải là số nguyên trong khoảng **1 đến 3** (tương ứng với Set 1, 2, 3). Gửi giá trị ngoài khoảng này sẽ nhận lỗi `BadRequestException` từ server.
+
+---
+
+## 6. Cơ chế Phòng thủ & Ổn định Hệ thống (Defensive Mechanisms)
+
+* **Giới hạn thời gian kết nối (Axios Timeouts)**: Nhằm ngăn chặn tình trạng một microservice bị sập hoặc nghẽn mạng làm treo toàn bộ giao dịch Prisma Database (Prisma Transaction) ở các dịch vụ khác, toàn bộ các API Client gọi liên dịch vụ (ví dụ: `NotificationClient` trong `tournament-service` gọi `notification-service`) đều được cấu hình giới hạn thời gian phản hồi nghiêm ngặt (`timeout: 1500` ms). Nếu quá thời gian này, kết nối tự động hủy và tiếp tục tiến trình nghiệp vụ chính của trận đấu.
+
+---
+
+## 7. Hướng dẫn Tích hợp dành cho Frontend (Frontend Integration Guide)
+
+Để tích hợp thành công giao diện trọng tài (referee console) và bảng điểm (scoreboard), đội ngũ Frontend cần lưu ý các cơ chế phối hợp sau với Backend:
+
+### A. Xác thực và kết nối WebSocket
+Thiết bị của trọng tài khi kết nối vào Gateway cần đính kèm JWT Token để xác thực quyền ghi điểm:
+```javascript
+const socket = io("https://api.picklehub.vn/matches", {
+  auth: {
+    token: `Bearer ${referee_jwt_token}`,
+  },
+  transports: ['websocket'],
+});
+```
+Sau khi kết nối thành công, gửi sự kiện `join-match` để nhận cập nhật điểm số cho trận đấu cụ thể:
+```javascript
+socket.emit('join-match', { matchId: "uuid-match" });
+```
+
+### B. Ánh xạ Đội giao bóng và Cơ chế tung đồng xu (Coin Toss)
+*   **Quy tắc Backend**: `PickleballScoringEngine` mặc định Set 1 và Set 3 thì `TEAM_A` sẽ là đội giao bóng trước, Set 2 thì `TEAM_B` giao bóng trước. Tuy nhiên, trọng tài có thể chỉ định VĐV giao bóng đầu tiên qua thuộc tính `firstServingPlayerId` khi gọi `PATCH /api/matches/:id/start`. Nếu `firstServingPlayerId` thuộc Đội B, Backend tự động cấu hình Set 1 & Set 3 Đội B giao trước, Set 2 Đội A giao trước.
+*   **Mô tả luồng ánh xạ Trái/Phải và Đội A/B (Swap UI)**:
+    *   **Dữ liệu từ API**: Backend trả về `teamA` (chứa danh sách VĐV Đội A) và `teamB` (chứa danh sách VĐV Đội B).
+    *   **Hiển thị mặc định**: Frontend vẽ Đội A (`teamA`) ở bên Trái màn hình và Đội B (`teamB`) ở bên Phải màn hình.
+    *   **Đổi bên (Swap UI)**: Trọng tài có thể tự do bấm nút đổi bên hiển thị trên màn hình (để hiển thị giống vị trí đứng thực tế trên sân). Giao diện hiển thị sẽ vẽ Đội B ở bên Trái màn hình và Đội A ở bên Phải màn hình.
+    *   **Quy tắc gửi dữ liệu**: Bất kể vị trí hiển thị (Trái hay Phải) và bất kể trạng thái swap, Frontend luôn xác định `scoringTeam` gửi lên dựa theo cấu trúc dữ liệu gốc của trận đấu:
+        *   Nếu VĐV ghi điểm thuộc mảng `teamA[]` gốc từ Backend, Frontend **bắt buộc** gửi `scoringTeam: 'TEAM_A'`.
+        *   Nếu VĐV ghi điểm thuộc mảng `teamB[]` gốc từ Backend, Frontend **bắt buộc** gửi `scoringTeam: 'TEAM_B'`.
+    *   Sự tráo đổi bên hiển thị (Swap UI) hoàn toàn là logic trình diễn ở phía Frontend và không làm đảo lộn quy tắc gọi tên Đội A/B gửi lên Backend. Điều này giúp giảm tối đa lỗi đồng bộ khi trọng tài đổi thiết bị hoặc tải lại trang.
+
+### C. Quản lý trạng thái Set đấu và Chuyển tiếp (Set Transitions)
+*   Khi ghi điểm, Frontend gửi mã số set hiện tại qua thuộc tính `setId` (1-indexed):
+    ```javascript
+    socket.emit('score-point', { matchId, setId: 1, scoringTeam: 'TEAM_A' });
+    ```
+*   Khi một set kết thúc (hệ thống tự động phát hiện khi có đội đạt 11 điểm và dẫn 2 điểm cách biệt, phản ánh qua mảng tỷ số set gửi về trong WebSocket, ví dụ: `sets: [[11, 9]]`), Frontend cần hiển thị màn hình chuyển tiếp set đấu (Set Break/Next Set screen).
+*   Khi loạt giao bóng của set tiếp theo bắt đầu, Frontend cần tự động tăng tham số `setId` lên `2` khi gửi sự kiện `score-point`.
+*   `setId` hợp lệ phải là `1`, `2` hoặc `3`. Gửi `setId` ngoài khoảng này sẽ được server từ chối với lỗi tương ứng.
+

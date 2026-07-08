@@ -79,6 +79,16 @@
       },
       "revokeBtn": "Revoke"
     },
+    "accept": {
+      "loadingTitle": "Processing referee invitation...",
+      "loadingDesc": "Please wait a moment.",
+      "successTitle": "Invitation accepted successfully!",
+      "successDesc": "You have joined the tournament as a Referee. Redirecting to tournament page...",
+      "errorTitle": "Failed to accept invitation",
+      "loginOther": "Log in with another account",
+      "backHome": "Back to home",
+      "invalidToken": "Invalid invitation link. Please check your email again."
+    },
     "assignments": {
       "searchPlaceholder": "Search match, round, team or referee...",
       "allEvents": "All Events",
