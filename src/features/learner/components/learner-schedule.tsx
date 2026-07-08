@@ -160,6 +160,24 @@ function getKindLabel(kind: string, t: (key: string) => string) {
   }
 }
 
+function getPaymentStatusLabel(
+  status: string | null | undefined,
+  t: (key: string) => string
+) {
+  switch (status) {
+    case "PENDING_PROOF":
+      return t("learner.schedule.paymentStatus.pendingProof")
+    case "PENDING_REVIEW":
+      return t("learner.schedule.paymentStatus.pendingReview")
+    case "SETTLED":
+      return t("learner.schedule.paymentStatus.settled")
+    case "REJECTED":
+      return t("learner.schedule.paymentStatus.rejected")
+    default:
+      return status ?? "-"
+  }
+}
+
 /* --- Sub-components --- */
 
 function CoachAvatar({
@@ -315,7 +333,7 @@ function DetailDialog({
               <span className="text-muted-foreground">
                 {t("learner.schedule.detail.payment")}:{" "}
               </span>
-              {item.paymentStatus ?? "-"}
+              {getPaymentStatusLabel(item.paymentStatus, t)}
             </div>
           )}
 

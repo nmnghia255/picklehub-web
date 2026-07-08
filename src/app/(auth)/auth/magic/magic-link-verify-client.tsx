@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Field, FieldGroup } from "@/components/ui/field"
 import { verifyMagicLinkAction } from "@/features/auth/actions"
+import { translateAuthMessage } from "@/features/auth/utils"
 
 type State = "loading" | "success" | "error"
 
@@ -32,7 +33,7 @@ export function MagicLinkVerifyClient({ magic }: { magic?: string }) {
 
     verifyMagicLinkAction(magic).then((result) => {
       if (result.error) {
-        setErrorMessage(result.error)
+        setErrorMessage(translateAuthMessage(t, result.error))
         setState("error")
         return
       }

@@ -61,7 +61,7 @@ function toFriendItem(item: unknown): FriendItem {
   const friend = (obj.friend ?? {}) as Record<string, unknown>
   return {
     id: String(obj.friendId ?? obj.id ?? ""),
-    name: String(friend.name ?? obj.name ?? "Unknown"),
+    name: String(friend.name ?? obj.name ?? ""),
     email: String(friend.email ?? obj.email ?? ""),
   }
 }
@@ -169,12 +169,18 @@ export function LearnerCoachRecommendationDialog({
                             alt={friend.name}
                           />
                           <AvatarFallback>
-                            {friend.name.charAt(0).toUpperCase()}
+                            {(
+                              friend.name ||
+                              t("learner.recommendation.unknownFriend")
+                            )
+                              .charAt(0)
+                              .toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">
                           <span className="text-sm font-medium">
-                            {friend.name}
+                            {friend.name ||
+                              t("learner.recommendation.unknownFriend")}
                           </span>
                           {friend.email && (
                             <span className="text-xs text-muted-foreground">

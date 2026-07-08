@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 
 import { loginWithFacebookAction } from "../actions/facebook"
 import { useFacebookLogin } from "../hooks/use-facebook-login"
+import { translateAuthMessage } from "../utils"
 
 export function FacebookAuthButton({ title }: { title: string }) {
   const { t } = useTranslation("common")
@@ -26,11 +27,15 @@ export function FacebookAuthButton({ title }: { title: string }) {
 
       const result = await loginWithFacebookAction(accessToken)
       if (result?.error) {
-        toast.error(result.error)
+        toast.error(translateAuthMessage(t, result.error))
       }
     } catch (err) {
       console.error(err)
-      toast.error(t("auth.oauth.facebookErrorGeneric"))
+      if (err instanceof Error) {
+        toast.error(translateAuthMessage(t, err.message))
+      } else {
+        toast.error(t("auth.oauth.facebookErrorGeneric"))
+      }
     } finally {
       setLoading(false)
     }

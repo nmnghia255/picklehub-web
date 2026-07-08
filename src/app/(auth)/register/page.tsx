@@ -1,6 +1,6 @@
-import { BoxIcon } from "lucide-react"
 import { redirect } from "next/navigation"
 
+import { AuthBrandLink } from "@/features/auth/components/auth-brand-link"
 import { RegisterForm } from "@/features/auth/components/register-form"
 import { getSession } from "@/lib/session"
 
@@ -14,12 +14,7 @@ export default async function RegisterPage() {
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
-          <a href="#" className="flex items-center gap-2 font-medium">
-            <div className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <BoxIcon className="size-4" />
-            </div>
-            PickleHub
-          </a>
+          <AuthBrandLink />
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">

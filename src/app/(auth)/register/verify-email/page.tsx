@@ -10,6 +10,8 @@ import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Field, FieldGroup } from "@/components/ui/field"
 import { resendVerificationAction } from "@/features/auth/actions"
+import { AuthLoadingFallback } from "@/features/auth/components/auth-loading-fallback"
+import { translateAuthMessage } from "@/features/auth/utils"
 
 function VerifyEmailContent() {
   const { t } = useTranslation("common")
@@ -55,13 +57,13 @@ function VerifyEmailContent() {
 
                 {state.success && (
                   <p className="text-center text-sm text-green-600">
-                    {state.message}
+                    {translateAuthMessage(t, state.message)}
                   </p>
                 )}
 
                 {state.error && (
                   <p className="text-center text-sm text-red-500">
-                    {state.error}
+                    {translateAuthMessage(t, state.error)}
                   </p>
                 )}
 
@@ -108,7 +110,7 @@ function VerifyEmailContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<AuthLoadingFallback />}>
       <VerifyEmailContent />
     </Suspense>
   )

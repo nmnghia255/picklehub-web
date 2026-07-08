@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 
 import { linkFacebookAction } from "../actions/facebook"
 import { useFacebookLogin } from "../hooks/use-facebook-login"
+import { translateAuthMessage } from "../utils"
 
 export function LinkFacebookButton() {
   const { t } = useTranslation("common")
@@ -26,13 +27,24 @@ export function LinkFacebookButton() {
 
       const result = await linkFacebookAction(accessToken)
       if (result.success) {
-        toast.success(result.message ?? t("auth.oauth.linkFacebookSuccess"))
+        toast.success(
+          translateAuthMessage(
+            t,
+            result.message ?? t("auth.oauth.linkFacebookSuccess")
+          )
+        )
       } else {
-        toast.error(result.error ?? t("auth.oauth.linkFailed"))
+        toast.error(
+          translateAuthMessage(t, result.error ?? t("auth.oauth.linkFailed"))
+        )
       }
     } catch (err) {
       console.error(err)
-      toast.error(t("auth.oauth.facebookErrorGeneric"))
+      if (err instanceof Error) {
+        toast.error(translateAuthMessage(t, err.message))
+      } else {
+        toast.error(t("auth.oauth.facebookErrorGeneric"))
+      }
     } finally {
       setLoading(false)
     }

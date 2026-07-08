@@ -43,7 +43,7 @@ export async function loginWithFacebookAction(
         : responseData?.message || responseData?.error
 
       if (status === 403) {
-        return { error: "Your account has been disabled." }
+        return { error: "auth.oauth.accountDisabled" }
       }
 
       if (backendMessage) {
@@ -51,10 +51,10 @@ export async function loginWithFacebookAction(
       }
 
       return {
-        error: `Login failed (${status ?? "network"}). Please try again.`,
+        error: "auth.errors.loginFailed",
       }
     }
-    return { error: "Something went wrong. Please try again." }
+    return { error: "auth.errors.generic" }
   }
 
   return {}
@@ -73,7 +73,7 @@ export async function linkFacebookAction(
     await authenticatedAxios.post("/api/auth/facebook/link", { accessToken })
     return {
       success: true,
-      message: "Facebook account linked successfully.",
+      message: "auth.oauth.linkFacebookSuccess",
     }
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -85,9 +85,9 @@ export async function linkFacebookAction(
         : responseData?.message || responseData?.error
 
       return {
-        error: backendMessage || "Link failed. Please try again.",
+        error: backendMessage || "auth.oauth.linkFailed",
       }
     }
-    return { error: "Something went wrong. Please try again." }
+    return { error: "auth.errors.generic" }
   }
 }

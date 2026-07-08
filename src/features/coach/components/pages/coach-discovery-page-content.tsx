@@ -190,7 +190,8 @@ function CoachCard({
           </div>
           <div className="mt-auto">
             <p className="text-sm font-bold text-primary">
-              {formatCurrency(coach.hourlyRateVnd, locale)} VND
+              {formatCurrency(coach.hourlyRateVnd, locale)}{" "}
+              {t("coach.discovery.currencyCode")}
               <span className="text-xs font-normal text-muted-foreground">
                 {" "}
                 {t("coach.discovery.perHour")}

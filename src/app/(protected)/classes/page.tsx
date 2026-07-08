@@ -1,13 +1,14 @@
 "use client"
 
 import dayjs from "dayjs"
-import { Calendar, Clock,MapPin, Users } from "lucide-react"
+import { Calendar, Clock, MapPin, Users } from "lucide-react"
 import Link from "next/link"
-import { useCallback,useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { PageContainer } from "@/components/page-container"
 import { ErrorState } from "@/components/shared/error-state"
-import { Avatar, AvatarFallback,AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -34,18 +35,14 @@ import { getErrorMessage } from "@/lib/api-client"
 
 const LEVELS = ["Beginner", "Intermediate", "Advanced", "Pro"] as const
 
-const levelBadgeVariant: Record<string, "secondary" | "default" | "outline" | "destructive"> = {
+const levelBadgeVariant: Record<
+  string,
+  "secondary" | "default" | "outline" | "destructive"
+> = {
   Beginner: "secondary",
   Intermediate: "default",
   Advanced: "outline",
   Pro: "destructive",
-}
-
-const levelLabel: Record<string, string> = {
-  Beginner: "Cơ bản",
-  Intermediate: "Trung cấp",
-  Advanced: "Nâng cao",
-  Pro: "Chuyên nghiệp",
 }
 
 function ClassCardSkeleton() {
@@ -71,8 +68,12 @@ function ClassCardSkeleton() {
   )
 }
 
-function formatPrice(price: number) {
-  return new Intl.NumberFormat("vi-VN").format(price) + "₫"
+function getLocaleCode(language: string) {
+  return language.startsWith("vi") ? "vi-VN" : "en-US"
+}
+
+function formatPrice(price: number, locale: string) {
+  return `${new Intl.NumberFormat(locale).format(price)} ₫`
 }
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -85,6 +86,8 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 export default function ClassesPage() {
+  const { t, i18n } = useTranslation("common")
+  const locale = getLocaleCode(i18n.language)
   const [city, setCity] = useState("")
   const [level, setLevel] = useState("all")
   const [from, setFrom] = useState("")
@@ -102,11 +105,19 @@ export default function ClassesPage() {
     limit: 12,
   }
 
-  const { data, isLoading, isError, error, refetch } = useDiscoverClasses(params)
+  const { data, isLoading, isError, error, refetch } =
+    useDiscoverClasses(params)
 
   const classes = data?.data ?? []
   const meta = data?.meta
   const totalPages = meta?.totalPages ?? 0
+
+  const levelLabel: Record<string, string> = {
+    Beginner: t("learner.classes.level.beginner"),
+    Intermediate: t("learner.classes.level.intermediate"),
+    Advanced: t("learner.classes.level.advanced"),
+    Pro: t("learner.classes.level.pro"),
+  }
 
   const handlePageChange = useCallback(
     (newPage: number) => {
@@ -121,7 +132,7 @@ export default function ClassesPage() {
   if (isError) {
     return (
       <ErrorState
-        title="Không thể tải danh sách lớp học"
+        title={t("learner.classes.errorTitle")}
         description={getErrorMessage(error)}
         retry={refetch}
       />
@@ -132,32 +143,40 @@ export default function ClassesPage() {
     <PageContainer className="space-y-6 py-6">
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-semibold tracking-tight">
-          Khám phá lớp học
+          {t("learner.classes.pageTitle")}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Tìm kiếm lớp học pickleball phù hợp với bạn
+          {t("learner.classes.pageDescription")}
         </p>
       </div>
 
       <div className="flex flex-col gap-6 lg:flex-row">
         <aside className="w-full shrink-0 space-y-4 lg:w-72">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Thành phố</label>
+            <label className="text-sm font-medium">
+              {t("learner.classes.filters.cityLabel")}
+            </label>
             <Input
-              placeholder="Nhập thành phố..."
+              placeholder={t("learner.classes.filters.cityPlaceholder")}
               value={city}
               onChange={(e) => setCity(e.target.value)}
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Trình độ</label>
+            <label className="text-sm font-medium">
+              {t("learner.classes.filters.levelLabel")}
+            </label>
             <Select value={level} onValueChange={setLevel}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Tất cả trình độ" />
+                <SelectValue
+                  placeholder={t("learner.classes.filters.levelPlaceholder")}
+                />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tất cả</SelectItem>
+                <SelectItem value="all">
+                  {t("learner.classes.filters.allLevels")}
+                </SelectItem>
                 {LEVELS.map((lvl) => (
                   <SelectItem key={lvl} value={lvl}>
                     {levelLabel[lvl]}
@@ -168,7 +187,9 @@ export default function ClassesPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Từ ngày</label>
+            <label className="text-sm font-medium">
+              {t("learner.classes.filters.fromDate")}
+            </label>
             <Input
               type="date"
               value={from}
@@ -177,7 +198,9 @@ export default function ClassesPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Đến ngày</label>
+            <label className="text-sm font-medium">
+              {t("learner.classes.filters.toDate")}
+            </label>
             <Input
               type="date"
               value={to}
@@ -196,7 +219,7 @@ export default function ClassesPage() {
           ) : classes.length === 0 ? (
             <div className="flex min-h-[300px] items-center justify-center rounded-lg border border-dashed">
               <p className="text-muted-foreground">
-                Không tìm thấy lớp học nào
+                {t("learner.classes.empty")}
               </p>
             </div>
           ) : (
@@ -222,7 +245,7 @@ export default function ClassesPage() {
                           </div>
                         )}
                         <Badge
-                          className="absolute right-2 top-2"
+                          className="absolute top-2 right-2"
                           variant={levelBadgeVariant[cls.level]}
                         >
                           {levelLabel[cls.level] ?? cls.level}
@@ -250,14 +273,17 @@ export default function ClassesPage() {
                         </div>
 
                         <div className="text-lg font-bold text-primary">
-                          {formatPrice(cls.priceVnd)}
+                          {formatPrice(cls.priceVnd, locale)}
                         </div>
 
                         <div className="space-y-1">
                           <div className="flex items-center justify-between text-xs text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Users className="size-3.5" />
-                              {cls.enrolledCount}/{cls.capacity} đã đăng ký
+                              {t("learner.classes.enrolledCount", {
+                                enrolled: cls.enrolledCount,
+                                capacity: cls.capacity,
+                              })}
                             </span>
                             <span>
                               {Math.round(
@@ -267,9 +293,7 @@ export default function ClassesPage() {
                             </span>
                           </div>
                           <Progress
-                            value={
-                              (cls.enrolledCount / cls.capacity) * 100
-                            }
+                            value={(cls.enrolledCount / cls.capacity) * 100}
                           />
                         </div>
 
@@ -277,25 +301,29 @@ export default function ClassesPage() {
                           <div className="space-y-1">
                             <span className="flex items-center gap-1 text-xs text-muted-foreground">
                               <Clock className="size-3.5" />
-                              Lịch học:
+                              {t("learner.classes.scheduleLabel")}
                             </span>
                             <ul className="space-y-0.5">
-                              {cls.schedules
-                                .slice(0, 3)
-                                .map((schedule) => (
-                                  <li
-                                    key={schedule.id}
-                                    className="text-xs text-muted-foreground"
-                                  >
-                                    {dayjs(schedule.scheduledAt).format(
-                                      "DD/MM/YYYY HH:mm"
-                                    )}{" "}
-                                    ({schedule.durationMinutes} phút)
-                                  </li>
-                                ))}
+                              {cls.schedules.slice(0, 3).map((schedule) => (
+                                <li
+                                  key={schedule.id}
+                                  className="text-xs text-muted-foreground"
+                                >
+                                  {dayjs(schedule.scheduledAt).format(
+                                    "DD/MM/YYYY HH:mm"
+                                  )}{" "}
+                                  (
+                                  {t("learner.classes.minutes", {
+                                    count: schedule.durationMinutes,
+                                  })}
+                                  )
+                                </li>
+                              ))}
                               {cls.schedules.length > 3 && (
                                 <li className="text-xs text-muted-foreground">
-                                  +{cls.schedules.length - 3} buổi khác
+                                  {t("learner.classes.moreSessions", {
+                                    count: cls.schedules.length - 3,
+                                  })}
                                 </li>
                               )}
                             </ul>
@@ -337,8 +365,7 @@ export default function ClassesPage() {
                       const p = i + 1
                       const isFirst = p === 1
                       const isLast = p === totalPages
-                      const isNear =
-                        p >= page - 1 && p <= page + 1
+                      const isNear = p >= page - 1 && p <= page + 1
                       if (!isFirst && !isLast && !isNear) {
                         if (p === page - 2 || p === page + 2) {
                           return (

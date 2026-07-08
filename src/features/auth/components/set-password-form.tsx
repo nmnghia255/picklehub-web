@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { setPasswordAction } from "@/features/auth/actions"
+import { translateAuthMessage } from "@/features/auth/utils"
 import { cn } from "@/lib/utils"
 
 import { type SetPasswordFormData, setPasswordSchema } from "../schemas"
@@ -63,7 +64,7 @@ export function SetPasswordForm({
           />
           {form.formState.errors.password && (
             <p className="text-sm text-red-500">
-              {form.formState.errors.password.message}
+              {translateAuthMessage(t, form.formState.errors.password.message)}
             </p>
           )}
         </Field>
@@ -81,14 +82,19 @@ export function SetPasswordForm({
           />
           {form.formState.errors.confirmPassword && (
             <p className="text-sm text-red-500">
-              {form.formState.errors.confirmPassword.message}
+              {translateAuthMessage(
+                t,
+                form.formState.errors.confirmPassword.message
+              )}
             </p>
           )}
         </Field>
 
         {state.error && (
           <div className="rounded-md border border-red-200 bg-red-50 p-3">
-            <p className="text-sm text-red-600">{state.error}</p>
+            <p className="text-sm text-red-600">
+              {translateAuthMessage(t, state.error)}
+            </p>
           </div>
         )}
 

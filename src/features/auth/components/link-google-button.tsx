@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { linkGoogleAction } from "../actions/google"
+import { translateAuthMessage } from "../utils"
 
 export function LinkGoogleButton() {
   const { t } = useTranslation("common")
@@ -18,9 +19,16 @@ export function LinkGoogleButton() {
         }
         const result = await linkGoogleAction(idToken)
         if (result.success) {
-          toast.success(result.message ?? t("auth.oauth.linkGoogleSuccess"))
+          toast.success(
+            translateAuthMessage(
+              t,
+              result.message ?? t("auth.oauth.linkGoogleSuccess")
+            )
+          )
         } else {
-          toast.error(result.error ?? t("auth.oauth.linkFailed"))
+          toast.error(
+            translateAuthMessage(t, result.error ?? t("auth.oauth.linkFailed"))
+          )
         }
       }}
       onError={() => {

@@ -526,7 +526,7 @@ export function CoachClassesPanel() {
                             <div className="relative overflow-hidden rounded-lg border">
                               <img
                                 src={field.value}
-                                alt="Preview"
+                                alt={t("coach.classes.previewImageAlt")}
                                 className="h-40 w-full object-cover"
                               />
                             </div>

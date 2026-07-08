@@ -902,7 +902,7 @@ export function CoachWeekSchedule() {
                           key={learner.userId ?? index}
                           className="wrap-break-word"
                         >
-                          {learner.name}
+                          {learner.name || t("coach.students.noName")}
                         </li>
                       ))}
                     </ul>

@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { loginWithGoogleAction } from "../actions/google"
+import { translateAuthMessage } from "../utils"
 
 export function GoogleAuthButton({
   text,
@@ -27,7 +28,7 @@ export function GoogleAuthButton({
         const result = await loginWithGoogleAction(idToken)
         setIsPending(false)
         if (result?.error) {
-          toast.error(result.error)
+          toast.error(translateAuthMessage(t, result.error))
         }
       }}
       onError={() => {

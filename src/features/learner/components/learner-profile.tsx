@@ -59,7 +59,8 @@ export function LearnerProfile() {
                 alt={user.name ?? t("learner.profile.defaultUser")}
               />
               <AvatarFallback className="text-lg">
-                {(user.name ?? "U")[0].toUpperCase()}
+                {(user.name ??
+                  t("learner.profile.defaultUser"))[0].toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="space-y-2">

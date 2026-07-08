@@ -258,6 +258,7 @@
       "locationLabel": "Location",
       "locationPlaceholder": "e.g. PickleHub District 1",
       "coverImageLabel": "Cover image",
+      "previewImageAlt": "Preview image",
       "uploadSuccess": "Image uploaded successfully",
       "uploadError": "Image upload failed",
       "startDateLabel": "Start date",
@@ -282,6 +283,8 @@
       "errorTitle": "Cannot load class list",
       "detailError": "Class not found",
       "detail": {
+        "pageTitle": "Class details",
+        "notFound": "Class not found",
         "infoTab": "Class Info",
         "scheduleTab": "Schedule",
         "studentsTab": "Students",
@@ -297,6 +300,18 @@
         "startDate": "Start date",
         "endDate": "End date",
         "description": "Description",
+        "sessionCount": "{{count}} sessions",
+        "timeSlotsLabel": "Time slots",
+        "durationLabel": "Duration",
+        "scheduleTopicPlaceholder": "e.g. Serve technique",
+        "scheduleNoteLabel": "Note",
+        "scheduleNotePlaceholder": "Additional note (optional)",
+        "selectDateHint": "Select a date on the calendar to continue.",
+        "addingSession": "Adding...",
+        "settleEnrollmentTitle": "Confirm payment",
+        "settleEnrollmentDescription": "Confirm that {{name}} has paid {{amount}} VND?",
+        "rejectEnrollmentTitle": "Reject payment",
+        "rejectEnrollmentDescription": "Reject the payment for {{name}}?",
         "saveChanges": "Save changes",
         "saving": "Saving...",
         "publishButton": "Publish class",
@@ -644,6 +659,7 @@
       "noResults": "No coaches found",
       "noResultsHint": "Try changing filters or search with different keywords.",
       "perHour": "/hour",
+      "currencyCode": "VND",
       "noSpecialties": "",
       "verificationVerified": "Verified",
       "verificationPending": "Pending verification",
@@ -835,6 +851,12 @@
       "empty": {
         "agenda": "No schedules in this range",
         "list": "No matching schedules"
+      },
+      "paymentStatus": {
+        "pendingProof": "Pending proof",
+        "pendingReview": "Pending review",
+        "settled": "Settled",
+        "rejected": "Rejected"
       }
     },
     "tabs": {
@@ -858,7 +880,8 @@
       "sending": "Sending...",
       "send": "Send recommendation",
       "success": "Recommendation sent successfully!",
-      "error": "Failed to send recommendation."
+      "error": "Failed to send recommendation.",
+      "unknownFriend": "Unknown friend"
     },
     "enrollments": {
       "errorTitle": "Cannot load enrollments",
@@ -945,6 +968,117 @@
       "keepBooking": "Keep booking",
       "cancelling": "Cancelling...",
       "confirmCancel": "Confirm cancel"
+    },
+    "classes": {
+      "pageTitle": "Explore classes",
+      "pageDescription": "Find pickleball classes that fit your level and schedule.",
+      "errorTitle": "Cannot load class list",
+      "empty": "No classes found",
+      "filters": {
+        "cityLabel": "City",
+        "cityPlaceholder": "Enter a city...",
+        "levelLabel": "Level",
+        "levelPlaceholder": "All levels",
+        "allLevels": "All",
+        "fromDate": "From date",
+        "toDate": "To date"
+      },
+      "level": {
+        "beginner": "Beginner",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced",
+        "pro": "Pro"
+      },
+      "enrolledCount": "{{enrolled}}/{{capacity}} enrolled",
+      "scheduleLabel": "Schedule",
+      "minutes": "{{count}} min",
+      "moreSessions": "+{{count}} more sessions"
+    },
+    "classDetail": {
+      "notFound": "Class not found",
+      "coachLabel": "Coach",
+      "aboutTitle": "About this class",
+      "noDescription": "No description available.",
+      "scheduleTitle": "Schedule",
+      "noSchedule": "No schedule yet.",
+      "noLocation": "No location set",
+      "tuitionTitle": "Tuition",
+      "capacityTitle": "Capacity",
+      "enrolledCount": "{{enrolled}}/{{capacity}} enrolled",
+      "spotsLeft": "{{count}} spots left",
+      "full": "Full",
+      "registered": "Registered",
+      "registering": "Registering...",
+      "registerNow": "Register now",
+      "checkingEnrollment": "Checking enrollment...",
+      "statusPrefix": "Status:",
+      "paymentInfoTitle": "Payment information",
+      "paymentInfoDescription": "Please transfer the class fee to the account below and upload the receipt image to finish registration.",
+      "bankNameLabel": "Bank",
+      "accountNameLabel": "Account holder",
+      "accountNumberLabel": "Account number",
+      "amountLabel": "Amount",
+      "currencyLabel": "VND",
+      "enrollSuccess": "Class registration successful!",
+      "enrollError": "Class registration failed. Please try again.",
+      "level": {
+        "beginner": "Beginner",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced",
+        "pro": "Pro"
+      },
+      "status": {
+        "draft": "Draft",
+        "open": "Open",
+        "full": "Full",
+        "ongoing": "Ongoing",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "verification": {
+        "unverified": "Unverified",
+        "pending": "Pending verification",
+        "verified": "Verified",
+        "rejected": "Rejected"
+      },
+      "enrollmentStatus": {
+        "active": "Active",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      }
+    },
+    "bookingDetail": {
+      "errorTitle": "Cannot load booking details",
+      "notFoundTitle": "Booking not found",
+      "notFoundDescription": "We could not find this booking in your schedule.",
+      "backButton": "Back to schedule",
+      "coachFallback": "Coach",
+      "coachTitle": "Coach",
+      "verified": "Verified",
+      "pageTitle": "Booking details",
+      "pageDescription": "View the details of your training session.",
+      "statusTitle": "Status",
+      "scheduleStatusLabel": "Schedule status",
+      "paymentLabel": "Payment",
+      "sessionTitle": "Session information",
+      "timeLabel": "Time",
+      "durationLabel": "Duration: {{minutes}} min",
+      "locationLabel": "Location",
+      "noLocation": "No location set",
+      "noteLabel": "Note",
+      "noNote": "No note.",
+      "status": {
+        "upcoming": "Upcoming",
+        "live": "Live",
+        "past": "Past",
+        "pending": "Pending confirmation"
+      },
+      "paymentStatus": {
+        "pendingProof": "Pending proof",
+        "pendingReview": "Pending review",
+        "settled": "Settled",
+        "rejected": "Rejected"
+      }
     }
   },
   "friends": {
@@ -1103,6 +1237,8 @@
     "oauth": {
       "facebookError": "Could not get authentication info from Facebook.",
       "facebookErrorGeneric": "Could not authenticate with Facebook. Please try again.",
+      "facebookSdkMissing": "Facebook sign-in is unavailable right now.",
+      "facebookCancelled": "Facebook sign-in was cancelled.",
       "googleError": "Could not get authentication info from Google.",
       "googleErrorGeneric": "Could not authenticate with Google. Please try again.",
       "loading": "Processing...",

@@ -28,6 +28,7 @@ import {
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { CalendarNavigation } from "@/components/calendar-navigation"
@@ -88,15 +89,6 @@ import type {
   PaymentStatus,
 } from "@/features/coach/types/coach"
 
-const statusLabel: Record<ClassStatus, string> = {
-  DRAFT: "Nháp",
-  OPEN: "Đang mở",
-  FULL: "Đã đầy",
-  ONGOING: "Đang diễn ra",
-  COMPLETED: "Đã kết thúc",
-  CANCELLED: "Đã hủy",
-}
-
 const statusVariant: Record<
   ClassStatus,
   "default" | "secondary" | "destructive" | "outline"
@@ -109,20 +101,6 @@ const statusVariant: Record<
   CANCELLED: "destructive",
 }
 
-const levelOptions: { value: CoachLevel; label: string }[] = [
-  { value: "Beginner", label: "Cơ bản" },
-  { value: "Intermediate", label: "Trung cấp" },
-  { value: "Advanced", label: "Nâng cao" },
-  { value: "Pro", label: "Chuyên nghiệp" },
-]
-
-const paymentStatusLabel: Record<PaymentStatus, string> = {
-  PENDING_PROOF: "Chờ bằng chứng",
-  PENDING_REVIEW: "Chờ xác nhận",
-  SETTLED: "Đã thanh toán",
-  REJECTED: "Từ chối",
-}
-
 const paymentStatusVariant: Record<
   PaymentStatus,
   "default" | "secondary" | "destructive" | "outline"
@@ -133,13 +111,52 @@ const paymentStatusVariant: Record<
   REJECTED: "destructive",
 }
 
-const enrollmentStatusLabel: Record<EnrollmentStatus, string> = {
-  ACTIVE: "Đang học",
-  CANCELLED: "Đã hủy",
-  COMPLETED: "Đã hoàn thành",
+const durationOptions = [30, 60, 90, 120]
+
+function getClassStatusLabel(
+  t: (key: string, options?: Record<string, unknown>) => string
+) {
+  return {
+    DRAFT: t("coach.classes.status.draft"),
+    OPEN: t("coach.classes.status.open"),
+    FULL: t("coach.classes.status.full"),
+    ONGOING: t("coach.classes.status.ongoing"),
+    COMPLETED: t("coach.classes.status.completed"),
+    CANCELLED: t("coach.classes.status.cancelled"),
+  } as Record<ClassStatus, string>
 }
 
-const durationOptions = [30, 60, 90, 120]
+function getLevelOptions(
+  t: (key: string, options?: Record<string, unknown>) => string
+) {
+  return [
+    { value: "Beginner", label: t("coach.classes.level.beginner") },
+    { value: "Intermediate", label: t("coach.classes.level.intermediate") },
+    { value: "Advanced", label: t("coach.classes.level.advanced") },
+    { value: "Pro", label: t("coach.classes.level.pro") },
+  ] as { value: CoachLevel; label: string }[]
+}
+
+function getPaymentStatusLabel(
+  t: (key: string, options?: Record<string, unknown>) => string
+) {
+  return {
+    PENDING_PROOF: t("coach.schedule.paymentPendingProof"),
+    PENDING_REVIEW: t("coach.schedule.paymentPendingReview"),
+    SETTLED: t("coach.schedule.paymentSettled"),
+    REJECTED: t("coach.schedule.paymentRejected"),
+  } as Record<PaymentStatus, string>
+}
+
+function getEnrollmentStatusLabel(
+  t: (key: string, options?: Record<string, unknown>) => string
+) {
+  return {
+    ACTIVE: t("coach.students.learnerDetail.enrollmentActive"),
+    CANCELLED: t("coach.students.learnerDetail.enrollmentCancelled"),
+    COMPLETED: t("coach.students.learnerDetail.enrollmentCompleted"),
+  } as Record<EnrollmentStatus, string>
+}
 
 function LoadingSkeleton() {
   return (
@@ -159,6 +176,13 @@ export default function CoachClassDetailPage() {
   const session = useSession()
   const params = useParams()
   const classId = params.classId as string
+  const { t } = useTranslation("common")
+
+  const statusLabel = getClassStatusLabel(t)
+  const levelOptions = getLevelOptions(t)
+  const paymentStatusLabel = getPaymentStatusLabel(t)
+  const enrollmentStatusLabel = getEnrollmentStatusLabel(t)
+  const scheduleWeekDays = t("coach.schedule.weekDays") as unknown as string[]
 
   const {
     data: classData,
@@ -216,16 +240,6 @@ export default function CoachClassDetailPage() {
     const gridEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
     return eachDayOfInterval({ start: gridStart, end: gridEnd })
   }, [scheduleCalendarMonth])
-
-  const scheduleWeekDays = [
-    "Thứ 2",
-    "Thứ 3",
-    "Thứ 4",
-    "Thứ 5",
-    "Thứ 6",
-    "Thứ 7",
-    "Chủ nhật",
-  ]
 
   const [deleteScheduleId, setDeleteScheduleId] = useState<string | null>(null)
 
@@ -292,9 +306,9 @@ export default function CoachClassDetailPage() {
   }
 
   const scheduleStatusLabels: Record<string, string> = {
-    upcoming: "Sắp diễn ra",
-    live: "Đang diễn ra",
-    past: "Đã kết thúc",
+    upcoming: t("coach.schedule.statusUpcoming"),
+    live: t("coach.schedule.statusLive"),
+    past: t("coach.schedule.statusPast"),
   }
 
   const viewGridDays = useMemo(() => {
@@ -393,7 +407,9 @@ export default function CoachClassDetailPage() {
   if (isError || !classData) {
     return (
       <PageContainer variant="wide" className="py-20 text-center">
-        <p className="text-lg text-muted-foreground">Lớp học không tồn tại</p>
+        <p className="text-lg text-muted-foreground">
+          {t("coach.classes.detail.notFound")}
+        </p>
       </PageContainer>
     )
   }
@@ -457,7 +473,7 @@ export default function CoachClassDetailPage() {
       },
       {
         onSuccess: () => {
-          toast.success("Thêm buổi học thành công")
+          toast.success(t("coach.classes.detail.addSessionSuccess"))
           setShowAddSchedule(false)
           setScheduleDate(null)
           setScheduleTime("09:00")
@@ -467,7 +483,7 @@ export default function CoachClassDetailPage() {
           setScheduleCalendarMonth(startOfMonth(new Date()))
         },
         onError: (err: Error) =>
-          toast.error(err.message || "Thêm buổi học thất bại"),
+          toast.error(err.message || t("coach.classes.detail.addSessionError")),
       }
     )
   }
@@ -478,11 +494,13 @@ export default function CoachClassDetailPage() {
       { classId, scheduleId: deleteScheduleId },
       {
         onSuccess: () => {
-          toast.success("Xóa buổi học thành công")
+          toast.success(t("coach.classes.detail.deleteSessionSuccess"))
           setDeleteScheduleId(null)
         },
         onError: (err: Error) =>
-          toast.error(err.message || "Xóa buổi học thất bại"),
+          toast.error(
+            err.message || t("coach.classes.detail.deleteSessionError")
+          ),
       }
     )
   }
@@ -493,11 +511,13 @@ export default function CoachClassDetailPage() {
       { classId, enrollmentId: settleEnrollmentId },
       {
         onSuccess: () => {
-          toast.success("Xác nhận thanh toán thành công")
+          toast.success(t("coach.classes.detail.settlePaymentSuccess"))
           setSettleEnrollmentId(null)
         },
         onError: (err: Error) =>
-          toast.error(err.message || "Xác nhận thất bại"),
+          toast.error(
+            err.message || t("coach.classes.detail.settlePaymentError")
+          ),
       }
     )
   }
@@ -508,10 +528,13 @@ export default function CoachClassDetailPage() {
       { classId, enrollmentId: rejectEnrollmentId },
       {
         onSuccess: () => {
-          toast.success("Từ chối thanh toán thành công")
+          toast.success(t("coach.classes.detail.rejectPaymentSuccess"))
           setRejectEnrollmentId(null)
         },
-        onError: (err: Error) => toast.error(err.message || "Từ chối thất bại"),
+        onError: (err: Error) =>
+          toast.error(
+            err.message || t("coach.classes.detail.rejectPaymentError")
+          ),
       }
     )
   }
@@ -596,9 +619,15 @@ export default function CoachClassDetailPage() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="calendar">Calendar</SelectItem>
-            <SelectItem value="timeline">Lịch trình</SelectItem>
-            <SelectItem value="list">Danh sách</SelectItem>
+            <SelectItem value="calendar">
+              {t("coach.classes.detail.scheduleViewCalendar")}
+            </SelectItem>
+            <SelectItem value="timeline">
+              {t("coach.classes.detail.scheduleViewTimeline")}
+            </SelectItem>
+            <SelectItem value="list">
+              {t("coach.classes.detail.scheduleViewList")}
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -624,9 +653,15 @@ export default function CoachClassDetailPage() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="calendar">Calendar</SelectItem>
-            <SelectItem value="timeline">Lịch trình</SelectItem>
-            <SelectItem value="list">Danh sách</SelectItem>
+            <SelectItem value="calendar">
+              {t("coach.classes.detail.scheduleViewCalendar")}
+            </SelectItem>
+            <SelectItem value="timeline">
+              {t("coach.classes.detail.scheduleViewTimeline")}
+            </SelectItem>
+            <SelectItem value="list">
+              {t("coach.classes.detail.scheduleViewList")}
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -640,11 +675,13 @@ export default function CoachClassDetailPage() {
           <Input
             value={scheduleSearchTerm}
             onChange={(event) => handleScheduleSearchChange(event.target.value)}
-            placeholder="Tìm theo chủ đề, ghi chú..."
+            placeholder={t("coach.classes.detail.searchPlaceholder")}
             className="w-full max-w-sm bg-background text-foreground"
           />
           <div className="flex flex-wrap items-center gap-2">
-            <Label className="text-sm text-muted-foreground">Trạng thái</Label>
+            <Label className="text-sm text-muted-foreground">
+              {t("coach.classes.detail.filterStatus")}
+            </Label>
             <Select
               value={scheduleStatusFilter}
               onValueChange={handleScheduleStatusChange}
@@ -653,15 +690,25 @@ export default function CoachClassDetailPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tất cả</SelectItem>
-                <SelectItem value="upcoming">Sắp tới</SelectItem>
-                <SelectItem value="live">Đang diễn ra</SelectItem>
-                <SelectItem value="past">Đã qua</SelectItem>
+                <SelectItem value="all">
+                  {t("coach.classes.detail.filterAll")}
+                </SelectItem>
+                <SelectItem value="upcoming">
+                  {t("coach.classes.detail.filterUpcoming")}
+                </SelectItem>
+                <SelectItem value="live">
+                  {t("coach.classes.detail.filterLive")}
+                </SelectItem>
+                <SelectItem value="past">
+                  {t("coach.classes.detail.filterPast")}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Label className="text-sm text-muted-foreground">Sắp xếp</Label>
+            <Label className="text-sm text-muted-foreground">
+              {t("coach.classes.detail.filterSort")}
+            </Label>
             <Select
               value={scheduleSortOrder}
               onValueChange={handleScheduleSortChange}
@@ -670,13 +717,19 @@ export default function CoachClassDetailPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="asc">Cũ nhất</SelectItem>
-                <SelectItem value="desc">Mới nhất</SelectItem>
+                <SelectItem value="asc">
+                  {t("coach.classes.detail.sortOldest")}
+                </SelectItem>
+                <SelectItem value="desc">
+                  {t("coach.classes.detail.sortNewest")}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Label className="text-sm text-muted-foreground">Từ ngày</Label>
+            <Label className="text-sm text-muted-foreground">
+              {t("coach.classes.detail.filterFromDate")}
+            </Label>
             <Input
               type="date"
               value={scheduleFromDate ?? ""}
@@ -687,7 +740,9 @@ export default function CoachClassDetailPage() {
             />
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Label className="text-sm text-muted-foreground">Đến ngày</Label>
+            <Label className="text-sm text-muted-foreground">
+              {t("coach.classes.detail.filterToDate")}
+            </Label>
             <Input
               type="date"
               value={scheduleToDate ?? ""}
@@ -706,9 +761,15 @@ export default function CoachClassDetailPage() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="calendar">Calendar</SelectItem>
-            <SelectItem value="timeline">Lịch trình</SelectItem>
-            <SelectItem value="list">Danh sách</SelectItem>
+            <SelectItem value="calendar">
+              {t("coach.classes.detail.scheduleViewCalendar")}
+            </SelectItem>
+            <SelectItem value="timeline">
+              {t("coach.classes.detail.scheduleViewTimeline")}
+            </SelectItem>
+            <SelectItem value="list">
+              {t("coach.classes.detail.scheduleViewList")}
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -768,7 +829,8 @@ export default function CoachClassDetailPage() {
                         >
                           <div className="flex items-center justify-between gap-2">
                             <span className="truncate font-semibold text-foreground">
-                              {entry.topic || "Buổi học"}
+                              {entry.topic ||
+                                t("coach.classes.detail.sessionTitle")}
                             </span>
                             <span className="shrink-0 text-[10px] text-muted-foreground">
                               {formatScheduleTime(entry.scheduledAt)} ·{" "}
@@ -784,12 +846,14 @@ export default function CoachClassDetailPage() {
                       ))}
                       {dayEntries.length > 3 && (
                         <p className="pl-1 text-xs text-muted-foreground">
-                          +{dayEntries.length - 3} buổi khác
+                          {t("coach.schedule.moreEvents", {
+                            count: dayEntries.length - 3,
+                          })}
                         </p>
                       )}
                       {dayEntries.length === 0 && (
                         <p className="px-1 py-3 text-center text-xs text-muted-foreground">
-                          Trống
+                          {t("coach.schedule.emptyDay")}
                         </p>
                       )}
                     </div>
@@ -809,7 +873,7 @@ export default function CoachClassDetailPage() {
         <CardContent className="p-4">
           {sortedDates.length === 0 ? (
             <div className="py-12 text-center text-sm text-muted-foreground">
-              Không có buổi học nào trong tháng này.
+              {t("coach.schedule.noEventsMonth")}
             </div>
           ) : (
             <div className="space-y-6">
@@ -830,7 +894,9 @@ export default function CoachClassDetailPage() {
                         })}
                       </span>
                       <Badge variant="secondary" className="rounded-full">
-                        {dayEntries.length} buổi
+                        {t("coach.classes.detail.sessionCount", {
+                          count: dayEntries.length,
+                        })}
                       </Badge>
                     </div>
                     <div className="ml-5 space-y-2 border-l-2 border-border pl-4">
@@ -843,7 +909,8 @@ export default function CoachClassDetailPage() {
                             <div className="min-w-0 flex-1 space-y-1">
                               <div className="flex flex-wrap items-center gap-2">
                                 <p className="truncate font-semibold text-foreground">
-                                  {entry.topic || "Buổi học"}
+                                  {entry.topic ||
+                                    t("coach.classes.detail.sessionTitle")}
                                 </p>
                                 <Badge
                                   variant="outline"
@@ -858,7 +925,9 @@ export default function CoachClassDetailPage() {
                               </div>
                               <p className="text-sm text-muted-foreground">
                                 {formatScheduleTime(entry.scheduledAt)} ·{" "}
-                                {entry.durationMinutes} phút
+                                {t("coach.bookings.minutes", {
+                                  count: entry.durationMinutes,
+                                })}
                               </p>
                               {entry.note && (
                                 <p className="text-xs text-muted-foreground">
@@ -879,16 +948,26 @@ export default function CoachClassDetailPage() {
                               <AlertDialogContent>
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>
-                                    Xóa buổi học
+                                    {t(
+                                      "coach.classes.detail.deleteSessionTitle"
+                                    )}
                                   </AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Bạn có chắc muốn xóa buổi học ngày{" "}
-                                    {formatScheduleDate(entry.scheduledAt)}?
+                                    {t(
+                                      "coach.classes.detail.deleteSessionDescription",
+                                      {
+                                        date: formatScheduleDate(
+                                          entry.scheduledAt
+                                        ),
+                                      }
+                                    )}
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>
-                                    Quay lại
+                                    {t(
+                                      "coach.classes.detail.deleteSessionBack"
+                                    )}
                                   </AlertDialogCancel>
                                   <AlertDialogAction
                                     variant="destructive"
@@ -902,8 +981,10 @@ export default function CoachClassDetailPage() {
                                     disabled={removeScheduleSlot.isPending}
                                   >
                                     {removeScheduleSlot.isPending
-                                      ? "Đang xóa..."
-                                      : "Xóa"}
+                                      ? t("coach.classes.detail.deleting")
+                                      : t(
+                                          "coach.classes.detail.deleteSessionConfirm"
+                                        )}
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
@@ -928,7 +1009,7 @@ export default function CoachClassDetailPage() {
         <CardContent className="space-y-3 p-4">
           {paginatedListItems.length === 0 ? (
             <div className="py-12 text-center text-sm text-muted-foreground">
-              Không tìm thấy buổi học nào.
+              {t("coach.classes.detail.noSessions")}
             </div>
           ) : (
             paginatedListItems.map((entry) => (
@@ -940,7 +1021,7 @@ export default function CoachClassDetailPage() {
                   <div className="min-w-0 flex-1 space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="truncate font-semibold text-foreground">
-                        {entry.topic || "Buổi học"}
+                        {entry.topic || t("coach.classes.detail.sessionTitle")}
                       </p>
                       <Badge
                         variant="outline"
@@ -952,7 +1033,9 @@ export default function CoachClassDetailPage() {
                     <p className="text-sm text-muted-foreground">
                       {formatScheduleDate(entry.scheduledAt)} ·{" "}
                       {formatScheduleTime(entry.scheduledAt)} ·{" "}
-                      {entry.durationMinutes} phút
+                      {t("coach.bookings.minutes", {
+                        count: entry.durationMinutes,
+                      })}
                     </p>
                     {entry.note && (
                       <p className="text-xs text-muted-foreground">
@@ -972,14 +1055,19 @@ export default function CoachClassDetailPage() {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Xóa buổi học</AlertDialogTitle>
+                        <AlertDialogTitle>
+                          {t("coach.classes.detail.deleteSessionTitle")}
+                        </AlertDialogTitle>
                         <AlertDialogDescription>
-                          Bạn có chắc muốn xóa buổi học ngày{" "}
-                          {formatScheduleDate(entry.scheduledAt)}?
+                          {t("coach.classes.detail.deleteSessionDescription", {
+                            date: formatScheduleDate(entry.scheduledAt),
+                          })}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Quay lại</AlertDialogCancel>
+                        <AlertDialogCancel>
+                          {t("coach.classes.detail.deleteSessionBack")}
+                        </AlertDialogCancel>
                         <AlertDialogAction
                           variant="destructive"
                           onClick={() => {
@@ -988,7 +1076,9 @@ export default function CoachClassDetailPage() {
                           }}
                           disabled={removeScheduleSlot.isPending}
                         >
-                          {removeScheduleSlot.isPending ? "Đang xóa..." : "Xóa"}
+                          {removeScheduleSlot.isPending
+                            ? t("coach.classes.detail.deleting")
+                            : t("coach.classes.detail.deleteSessionConfirm")}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -1006,7 +1096,10 @@ export default function CoachClassDetailPage() {
     return (
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
-          Trang {safeSchedulePage}/{scheduleTotalPages}
+          {t("coach.classes.detail.pageInfo", {
+            page: safeSchedulePage,
+            total: scheduleTotalPages,
+          })}
         </p>
         <div className="flex items-center gap-2">
           <Button
@@ -1014,7 +1107,7 @@ export default function CoachClassDetailPage() {
             onClick={() => setSchedulePage((p) => Math.max(1, p - 1))}
             disabled={safeSchedulePage <= 1}
           >
-            Trước
+            {t("coach.classes.detail.prevPage")}
           </Button>
           <Button
             variant="outline"
@@ -1023,7 +1116,7 @@ export default function CoachClassDetailPage() {
             }
             disabled={safeSchedulePage >= scheduleTotalPages}
           >
-            Sau
+            {t("coach.classes.detail.nextPage")}
           </Button>
         </div>
       </div>
@@ -1035,7 +1128,9 @@ export default function CoachClassDetailPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button asChild variant="ghost" size="sm">
-            <Link href="/coach?tab=classes">← Quay lại</Link>
+            <Link href="/coach?tab=classes">
+              {t("coach.classes.detail.backLink")}
+            </Link>
           </Button>
           <h1 className="text-2xl font-semibold tracking-tight">
             {classData.title}
@@ -1050,15 +1145,15 @@ export default function CoachClassDetailPage() {
         <TabsList>
           <TabsTrigger value="info">
             <BookOpen className="size-4" />
-            Thông tin lớp
+            {t("coach.classes.detail.infoTab")}
           </TabsTrigger>
           <TabsTrigger value="schedule">
             <CalendarDays className="size-4" />
-            Lịch học
+            {t("coach.classes.detail.scheduleTab")}
           </TabsTrigger>
           <TabsTrigger value="students">
             <Users className="size-4" />
-            Học viên
+            {t("coach.classes.detail.studentsTab")}
           </TabsTrigger>
         </TabsList>
 
@@ -1066,12 +1161,14 @@ export default function CoachClassDetailPage() {
         <TabsContent value="info" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Chi tiết lớp học</CardTitle>
+              <CardTitle>{t("coach.classes.detail.pageTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Tên lớp</Label>
+                  <Label htmlFor="title">
+                    {t("coach.classes.detail.className")}
+                  </Label>
                   <Input
                     id="title"
                     value={title ?? ""}
@@ -1080,7 +1177,9 @@ export default function CoachClassDetailPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="level">Cấp độ</Label>
+                  <Label htmlFor="level">
+                    {t("coach.classes.detail.level")}
+                  </Label>
                   <Select
                     value={level ?? undefined}
                     onValueChange={(v) => setLevel(v as CoachLevel)}
@@ -1099,7 +1198,9 @@ export default function CoachClassDetailPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="capacity">Sức chứa</Label>
+                  <Label htmlFor="capacity">
+                    {t("coach.classes.detail.capacity")}
+                  </Label>
                   <Input
                     id="capacity"
                     type="number"
@@ -1109,7 +1210,9 @@ export default function CoachClassDetailPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="price">Học phí (VNĐ)</Label>
+                  <Label htmlFor="price">
+                    {t("coach.classes.detail.price")}
+                  </Label>
                   <Input
                     id="price"
                     type="number"
@@ -1119,7 +1222,9 @@ export default function CoachClassDetailPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="startDate">Ngày bắt đầu</Label>
+                  <Label htmlFor="startDate">
+                    {t("coach.classes.detail.startDate")}
+                  </Label>
                   <Input
                     id="startDate"
                     type="date"
@@ -1129,7 +1234,9 @@ export default function CoachClassDetailPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="endDate">Ngày kết thúc</Label>
+                  <Label htmlFor="endDate">
+                    {t("coach.classes.detail.endDate")}
+                  </Label>
                   <Input
                     id="endDate"
                     type="date"
@@ -1140,17 +1247,21 @@ export default function CoachClassDetailPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="location">Địa điểm</Label>
+                <Label htmlFor="location">
+                  {t("coach.classes.detail.location")}
+                </Label>
                 <Input
                   id="location"
                   value={locationDescription ?? ""}
                   onChange={(e) => setLocationDescription(e.target.value)}
                   disabled={!canEdit}
-                  placeholder="Ví dụ: Sân PickleHub Quận 1"
+                  placeholder={t("coach.classes.detail.locationPlaceholder")}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description">Mô tả</Label>
+                <Label htmlFor="description">
+                  {t("coach.classes.detail.description")}
+                </Label>
                 <Textarea
                   id="description"
                   value={description ?? ""}
@@ -1165,7 +1276,9 @@ export default function CoachClassDetailPage() {
                     onClick={handleUpdate}
                     disabled={updateClass.isPending}
                   >
-                    {updateClass.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+                    {updateClass.isPending
+                      ? t("coach.classes.detail.saving")
+                      : t("coach.classes.detail.saveChanges")}
                   </Button>
                 </div>
               )}
@@ -1176,7 +1289,9 @@ export default function CoachClassDetailPage() {
             {isDraft && (
               <Button onClick={handlePublish} disabled={publishClass.isPending}>
                 <Send className="size-4" />
-                {publishClass.isPending ? "Đang đăng..." : "Đăng lớp"}
+                {publishClass.isPending
+                  ? t("coach.classes.detail.publishing")
+                  : t("coach.classes.detail.publishButton")}
               </Button>
             )}
             {isCancellable && (
@@ -1184,25 +1299,30 @@ export default function CoachClassDetailPage() {
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive">
                     <XCircle className="size-4" />
-                    Hủy lớp
+                    {t("coach.classes.detail.cancelClassButton")}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Xác nhận hủy lớp</AlertDialogTitle>
+                    <AlertDialogTitle>
+                      {t("coach.classes.detail.cancelConfirmTitle")}
+                    </AlertDialogTitle>
                     <AlertDialogDescription>
-                      Bạn có chắc muốn hủy lớp học này? Hành động này không thể
-                      hoàn tác.
+                      {t("coach.classes.detail.cancelConfirmDescription")}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Quay lại</AlertDialogCancel>
+                    <AlertDialogCancel>
+                      {t("coach.classes.detail.cancelBack")}
+                    </AlertDialogCancel>
                     <AlertDialogAction
                       variant="destructive"
                       onClick={handleCancel}
                       disabled={cancelClass.isPending}
                     >
-                      {cancelClass.isPending ? "Đang hủy..." : "Xác nhận hủy"}
+                      {cancelClass.isPending
+                        ? t("coach.classes.detail.cancelling")
+                        : t("coach.classes.detail.cancelConfirm")}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -1212,13 +1332,15 @@ export default function CoachClassDetailPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Thống kê</CardTitle>
+              <CardTitle>{t("coach.classes.detail.statistics")}</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="flex items-center gap-3 rounded-lg border p-4">
                 <Users className="size-5 shrink-0 text-muted-foreground" />
                 <div className="min-w-0">
-                  <p className="text-sm text-muted-foreground">Đã đăng ký</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("coach.classes.detail.enrolled")}
+                  </p>
                   <p className="text-lg font-semibold">
                     {classData.enrolledCount}/{classData.capacity}
                   </p>
@@ -1227,7 +1349,9 @@ export default function CoachClassDetailPage() {
               <div className="flex items-center gap-3 rounded-lg border p-4">
                 <DollarSign className="size-5 shrink-0 text-muted-foreground" />
                 <div className="min-w-0">
-                  <p className="text-sm text-muted-foreground">Học phí</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("coach.classes.detail.tuition")}
+                  </p>
                   <p className="text-lg font-semibold">
                     {classData.priceVnd.toLocaleString("vi-VN")}₫
                   </p>
@@ -1236,9 +1360,12 @@ export default function CoachClassDetailPage() {
               <div className="flex items-center gap-3 rounded-lg border p-4">
                 <MapPin className="size-5 shrink-0 text-muted-foreground" />
                 <div className="min-w-0">
-                  <p className="text-sm text-muted-foreground">Địa điểm</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("coach.classes.detail.location")}
+                  </p>
                   <p className="truncate text-lg font-semibold">
-                    {classData.locationDescription || "Chưa có"}
+                    {classData.locationDescription ||
+                      t("coach.classes.detail.notSet")}
                   </p>
                 </div>
               </div>
@@ -1249,10 +1376,12 @@ export default function CoachClassDetailPage() {
         {/* ============ TAB 2: SCHEDULE ============ */}
         <TabsContent value="schedule" className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Lịch các buổi học</h2>
+            <h2 className="text-lg font-semibold">
+              {t("coach.classes.detail.scheduleTab")}
+            </h2>
             <Button onClick={() => setShowAddSchedule(true)}>
               <Plus className="size-4" />
-              Thêm buổi học
+              {t("coach.classes.detail.addScheduleButton")}
             </Button>
           </div>
 
@@ -1269,7 +1398,7 @@ export default function CoachClassDetailPage() {
           ) : schedules.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center text-sm text-muted-foreground">
-                Chưa có buổi học nào.
+                {t("coach.classes.detail.noSessions")}
               </CardContent>
             </Card>
           ) : (
@@ -1302,9 +1431,11 @@ export default function CoachClassDetailPage() {
           >
             <DialogContent className="sm:max-w-2xl">
               <DialogHeader>
-                <DialogTitle>Thêm buổi học</DialogTitle>
+                <DialogTitle>
+                  {t("coach.classes.detail.addScheduleDialogTitle")}
+                </DialogTitle>
                 <DialogDescription>
-                  Chọn ngày, giờ và điền thông tin buổi học.
+                  {t("coach.classes.detail.addScheduleDialogDescription")}
                 </DialogDescription>
               </DialogHeader>
 
@@ -1386,7 +1517,7 @@ export default function CoachClassDetailPage() {
 
                 {scheduleDate && (
                   <div className="space-y-2">
-                    <Label>Khung giờ</Label>
+                    <Label>{t("coach.classes.detail.timeSlotsLabel")}</Label>
                     <div className="flex max-h-32 flex-wrap gap-1.5 overflow-y-auto">
                       {timeSlots.map((slot) => {
                         const isSelected = scheduleTime === slot
@@ -1413,7 +1544,9 @@ export default function CoachClassDetailPage() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="scheduleDuration">Thời lượng</Label>
+                        <Label htmlFor="scheduleDuration">
+                          {t("coach.classes.detail.durationLabel")}
+                        </Label>
                         <Select
                           value={String(scheduleDuration)}
                           onValueChange={(v) => setScheduleDuration(Number(v))}
@@ -1431,23 +1564,31 @@ export default function CoachClassDetailPage() {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="scheduleTopic">Chủ đề</Label>
+                        <Label htmlFor="scheduleTopic">
+                          {t("coach.classes.detail.sessionTopic")}
+                        </Label>
                         <Input
                           id="scheduleTopic"
                           value={scheduleTopic}
                           onChange={(e) => setScheduleTopic(e.target.value)}
-                          placeholder="Kỹ thuật giao bóng"
+                          placeholder={t(
+                            "coach.classes.detail.scheduleTopicPlaceholder"
+                          )}
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="scheduleNote">Ghi chú</Label>
+                      <Label htmlFor="scheduleNote">
+                        {t("coach.classes.detail.scheduleNoteLabel")}
+                      </Label>
                       <Textarea
                         id="scheduleNote"
                         value={scheduleNote}
                         onChange={(e) => setScheduleNote(e.target.value)}
                         rows={2}
-                        placeholder="Ghi chú thêm (không bắt buộc)"
+                        placeholder={t(
+                          "coach.classes.detail.scheduleNotePlaceholder"
+                        )}
                       />
                     </div>
                   </div>
@@ -1455,7 +1596,7 @@ export default function CoachClassDetailPage() {
 
                 {!scheduleDate && (
                   <p className="py-4 text-center text-sm text-muted-foreground">
-                    Vui lòng chọn ngày trên lịch để tiếp tục.
+                    {t("coach.classes.detail.selectDateHint")}
                   </p>
                 )}
               </div>
@@ -1465,7 +1606,7 @@ export default function CoachClassDetailPage() {
                   variant="outline"
                   onClick={() => setShowAddSchedule(false)}
                 >
-                  Hủy
+                  {t("coach.classes.detail.cancelBack")}
                 </Button>
                 <Button
                   onClick={handleAddSchedule}
@@ -1473,7 +1614,9 @@ export default function CoachClassDetailPage() {
                     !scheduleDate || !scheduleTime || addScheduleSlot.isPending
                   }
                 >
-                  {addScheduleSlot.isPending ? "Đang thêm..." : "Thêm buổi học"}
+                  {addScheduleSlot.isPending
+                    ? t("coach.classes.detail.addingSession")
+                    : t("coach.classes.detail.addScheduleButton")}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -1482,7 +1625,9 @@ export default function CoachClassDetailPage() {
 
         {/* ============ TAB 3: STUDENTS ============ */}
         <TabsContent value="students" className="space-y-6">
-          <h2 className="text-lg font-semibold">Danh sách học viên</h2>
+          <h2 className="text-lg font-semibold">
+            {t("coach.classes.detail.studentsTab")}
+          </h2>
 
           {enrollmentLoading ? (
             <div className="space-y-3">
@@ -1493,7 +1638,7 @@ export default function CoachClassDetailPage() {
           ) : enrollments.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center text-sm text-muted-foreground">
-                Chưa có học viên nào đăng ký.
+                {t("coach.classes.detail.noEnrollments")}
               </CardContent>
             </Card>
           ) : (
@@ -1504,7 +1649,10 @@ export default function CoachClassDetailPage() {
                     <Avatar>
                       <AvatarImage
                         src={enrollment.learnerProfile?.avatarUrl ?? ""}
-                        alt={enrollment.learnerProfile?.name ?? "Học viên"}
+                        alt={
+                          enrollment.learnerProfile?.name ??
+                          t("coach.students.noName")
+                        }
                       />
                       <AvatarFallback>
                         {enrollment.learnerProfile?.name
@@ -1514,7 +1662,8 @@ export default function CoachClassDetailPage() {
                     </Avatar>
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-medium">
-                        {enrollment.learnerProfile?.name ?? "Không có tên"}
+                        {enrollment.learnerProfile?.name ??
+                          t("coach.students.noName")}
                       </p>
                       <p className="truncate text-sm text-muted-foreground">
                         {enrollment.learnerProfile?.email ?? "—"}
@@ -1540,29 +1689,35 @@ export default function CoachClassDetailPage() {
                           <AlertDialogTrigger asChild>
                             <Button size="sm">
                               <CheckCircle2 className="size-4" />
-                              Xác nhận thanh toán
+                              {t("coach.classes.detail.enrollmentSettle")}
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>
-                                Xác nhận thanh toán
+                                {t(
+                                  "coach.classes.detail.settleEnrollmentTitle"
+                                )}
                               </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Xác nhận học viên{" "}
-                                <strong>
-                                  {enrollment.learnerProfile?.name ??
-                                    "Không có tên"}
-                                </strong>{" "}
-                                đã thanh toán{" "}
-                                {enrollment?.amountVnd?.toLocaleString(
-                                  "vi-VN"
-                                ) ?? "0"}
-                                ₫?
+                                {t(
+                                  "coach.classes.detail.settleEnrollmentDescription",
+                                  {
+                                    name:
+                                      enrollment.learnerProfile?.name ??
+                                      t("coach.students.noName"),
+                                    amount:
+                                      enrollment?.amountVnd?.toLocaleString(
+                                        "vi-VN"
+                                      ) ?? "0",
+                                  }
+                                )}
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>Quay lại</AlertDialogCancel>
+                              <AlertDialogCancel>
+                                {t("coach.classes.detail.cancelBack")}
+                              </AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() => {
                                   setSettleEnrollmentId(enrollment.id)
@@ -1571,8 +1726,8 @@ export default function CoachClassDetailPage() {
                                 disabled={settleEnrollment.isPending}
                               >
                                 {settleEnrollment.isPending
-                                  ? "Đang xử lý..."
-                                  : "Xác nhận"}
+                                  ? t("coach.classes.detail.enrollmentSettling")
+                                  : t("coach.classes.detail.enrollmentSettle")}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -1582,25 +1737,31 @@ export default function CoachClassDetailPage() {
                           <AlertDialogTrigger asChild>
                             <Button size="sm" variant="destructive">
                               <XCircle className="size-4" />
-                              Từ chối
+                              {t("coach.classes.detail.enrollmentReject")}
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>
-                                Từ chối thanh toán
+                                {t(
+                                  "coach.classes.detail.rejectEnrollmentTitle"
+                                )}
                               </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Từ chối thanh toán của học viên{" "}
-                                <strong>
-                                  {enrollment.learnerProfile?.name ??
-                                    "Không có tên"}
-                                </strong>
-                                ?
+                                {t(
+                                  "coach.classes.detail.rejectEnrollmentDescription",
+                                  {
+                                    name:
+                                      enrollment.learnerProfile?.name ??
+                                      t("coach.students.noName"),
+                                  }
+                                )}
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>Quay lại</AlertDialogCancel>
+                              <AlertDialogCancel>
+                                {t("coach.classes.detail.cancelBack")}
+                              </AlertDialogCancel>
                               <AlertDialogAction
                                 variant="destructive"
                                 onClick={() => {
@@ -1610,8 +1771,10 @@ export default function CoachClassDetailPage() {
                                 disabled={rejectEnrollment.isPending}
                               >
                                 {rejectEnrollment.isPending
-                                  ? "Đang xử lý..."
-                                  : "Từ chối"}
+                                  ? t(
+                                      "coach.classes.detail.enrollmentRejecting"
+                                    )
+                                  : t("coach.classes.detail.enrollmentReject")}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>

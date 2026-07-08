@@ -80,7 +80,7 @@ export async function loginAction(
         hasExpiresIn: !!expiresIn,
         hasUser: !!user,
       })
-      return { error: "Login failed. Please try again." }
+      return { error: "auth.errors.loginFailed" }
     }
 
     const session = await getSession()
@@ -103,7 +103,7 @@ export async function loginAction(
         : responseData?.message || responseData?.error
 
       if (backendMessage) {
-        console.error("Login failed", {
+        console.error("auth.errors.loginFailed", {
           status: error.response?.status,
           message: backendMessage,
         })
@@ -111,10 +111,10 @@ export async function loginAction(
       }
 
       return {
-        error: `Login failed (${error.response?.status ?? "network"}). Please try again.`,
+        error: "auth.errors.loginFailed",
       }
     }
-    return { error: "Something went wrong. Please try again." }
+    return { error: "auth.errors.generic" }
   }
 
   redirect("/")
@@ -143,12 +143,10 @@ export async function registerAction(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Registration failed. Please try again.",
+        error: error.response?.data?.message || "auth.errors.registerFailed",
       }
     }
-    return { error: "Something went wrong. Please try again." }
+    return { error: "auth.errors.generic" }
   }
 
   redirect(
@@ -169,7 +167,7 @@ export async function verifyEmailAction(
   })
 
   if (!parsed.success) {
-    return { error: "Invalid token." }
+    return { error: "auth.validation.invalidToken" }
   }
 
   try {
@@ -177,12 +175,10 @@ export async function verifyEmailAction(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Verification failed. The link may have expired.",
+        error: error.response?.data?.message || "auth.errors.verifyFailed",
       }
     }
-    return { error: "Something went wrong. Please try again." }
+    return { error: "auth.errors.generic" }
   }
 
   redirect("/login")
@@ -201,7 +197,7 @@ export async function resendVerificationAction(
   })
 
   if (!parsed.success) {
-    return { error: "Invalid email." }
+    return { error: "auth.validation.emailInvalid" }
   }
 
   try {
@@ -209,14 +205,14 @@ export async function resendVerificationAction(
       `${API_BASE_URL}/api/auth/resend-verification`,
       parsed.data
     )
-    return { success: true, message: "Verification email has been resent!" }
+    return { success: true, message: "auth.verifyEmail.resendSuccess" }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error: error.response?.data?.message || "Resend failed.",
+        error: error.response?.data?.message || "auth.verifyEmail.resendFailed",
       }
     }
-    return { error: "Something went wrong. Please try again." }
+    return { error: "auth.errors.generic" }
   }
 }
 
@@ -247,12 +243,10 @@ export async function setPasswordAction(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Failed to set password. Please try again.",
+        error: error.response?.data?.message || "auth.errors.setPasswordFailed",
       }
     }
-    return { error: "Something went wrong. Please try again." }
+    return { error: "auth.errors.generic" }
   }
 
   redirect(groupId ? `/groups/${groupId}` : "/groups")
@@ -282,16 +276,15 @@ export async function changePasswordAction(
       currentPassword: parsed.data.currentPassword,
       newPassword: parsed.data.newPassword,
     })
-    return { success: true, message: "Password changed successfully." }
+    return { success: true, message: "auth.changePassword.success" }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
         error:
-          error.response?.data?.message ||
-          "Failed to change password. Please try again.",
+          error.response?.data?.message || "auth.errors.changePasswordFailed",
       }
     }
-    return { error: "Something went wrong. Please try again." }
+    return { error: "auth.errors.generic" }
   }
 }
 
@@ -325,18 +318,15 @@ export async function sendMagicLinkAction(
     await axios.post(`${API_BASE_URL}/api/auth/magic-link`, parsed.data)
     return {
       success: true,
-      message:
-        "If the account exists, a login link has been sent to your email.",
+      message: "auth.magicLink.successMessage",
     }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Failed to send link. Please try again.",
+        error: error.response?.data?.message || "auth.errors.sendLinkFailed",
       }
     }
-    return { error: "Something went wrong. Please try again." }
+    return { error: "auth.errors.generic" }
   }
 }
 
@@ -348,7 +338,7 @@ export async function verifyMagicLinkAction(magic: string): Promise<{
   error?: string
 }> {
   if (!magic) {
-    return { error: "Invalid login link." }
+    return { error: "auth.magicLinkVerify.invalidLink" }
   }
 
   try {
@@ -369,11 +359,9 @@ export async function verifyMagicLinkAction(magic: string): Promise<{
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Verification failed. The link may have expired or is invalid.",
+        error: error.response?.data?.message || "auth.errors.verifyFailed",
       }
     }
-    return { error: "Something went wrong. Please try again." }
+    return { error: "auth.errors.generic" }
   }
 }
