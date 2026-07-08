@@ -1,8 +1,18 @@
-"use client"
+﻿"use client"
 
 import dayjs from "dayjs"
-import { AlertTriangle, Calendar, CheckCircle2, Clock, CreditCard, MessageSquare,Upload, XCircle } from "lucide-react"
+import {
+  AlertTriangle,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  CreditCard,
+  MessageSquare,
+  Upload,
+  XCircle,
+} from "lucide-react"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { ErrorState } from "@/components/shared/error-state"
@@ -10,27 +20,48 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { Input } from "@/components/ui/input"
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useSession } from "@/features/auth/hooks/use-session"
 import type { Booking } from "@/features/coach/types/coach"
-import { useCancelMyBooking,useMyBookings, useUploadBookingPaymentProof } from "@/features/learner/hooks/use-learner-queries"
+import {
+  useCancelMyBooking,
+  useMyBookings,
+  useUploadBookingPaymentProof,
+} from "@/features/learner/hooks/use-learner-queries"
 import { getErrorMessage } from "@/lib/api-client"
 
-const TAB_STATUSES: { label: string; value: string }[] = [
-  { label: "Tất cả", value: "all" },
-  { label: "Chờ xác nhận", value: "PENDING_CONFIRMATION" },
-  { label: "Đã xác nhận", value: "CONFIRMED" },
-  { label: "Hoàn thành", value: "COMPLETED" },
-  { label: "Từ chối", value: "REJECTED" },
-  { label: "Đã hủy", value: "CANCELLED" },
-]
+function getLocaleCode(language: string) {
+  return language.startsWith("vi") ? "vi-VN" : "en-US"
+}
 
-const STATUS_BADGE_VARIANTS: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+const STATUS_BADGE_VARIANTS: Record<
+  string,
+  "default" | "secondary" | "destructive" | "outline"
+> = {
   PENDING_CONFIRMATION: "secondary",
   CONFIRMED: "default",
   COMPLETED: "default",
@@ -38,22 +69,10 @@ const STATUS_BADGE_VARIANTS: Record<string, "default" | "secondary" | "destructi
   CANCELLED: "outline",
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  PENDING_CONFIRMATION: "Chờ xác nhận",
-  CONFIRMED: "Đã xác nhận",
-  COMPLETED: "Hoàn thành",
-  REJECTED: "Đã từ chối",
-  CANCELLED: "Đã hủy",
-}
-
-const PAYMENT_STATUS_LABELS: Record<string, string> = {
-  PENDING_PROOF: "Chưa thanh toán",
-  PENDING_REVIEW: "Đang chờ xác nhận",
-  SETTLED: "Đã thanh toán",
-  REJECTED: "Bị từ chối",
-}
-
-const PAYMENT_STATUS_VARIANTS: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+const PAYMENT_STATUS_VARIANTS: Record<
+  string,
+  "default" | "secondary" | "destructive" | "outline"
+> = {
   PENDING_PROOF: "outline",
   PENDING_REVIEW: "secondary",
   SETTLED: "default",
@@ -66,7 +85,7 @@ function BookingSkeleton() {
       <CardContent className="pt-6">
         <div className="flex items-center gap-4">
           <Skeleton className="size-10 rounded-full" />
-          <div className="space-y-2 flex-1">
+          <div className="flex-1 space-y-2">
             <Skeleton className="h-4 w-40" />
             <Skeleton className="h-3 w-24" />
           </div>
@@ -89,16 +108,21 @@ function BookingSkeleton() {
 
 function renderActions(
   booking: Booking,
+  t: (key: string) => string,
   onUpload: (id: string) => void,
-  onCancel: (id: string) => void,
+  onCancel: (id: string) => void
 ) {
   const { status, paymentStatus, cancelReason } = booking
 
   if (status === "PENDING_CONFIRMATION") {
     return (
-      <Button variant="destructive" size="sm" onClick={() => onCancel(booking.id)}>
+      <Button
+        variant="destructive"
+        size="sm"
+        onClick={() => onCancel(booking.id)}
+      >
         <XCircle className="size-4" />
-        Hủy yêu cầu
+        {t("learner.bookings.cancelRequest")}
       </Button>
     )
   }
@@ -106,9 +130,13 @@ function renderActions(
   if (status === "CONFIRMED") {
     if (!paymentStatus || paymentStatus === "PENDING_PROOF") {
       return (
-        <Button variant="outline" size="sm" onClick={() => onUpload(booking.id)}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onUpload(booking.id)}
+        >
           <Upload className="size-4" />
-          Tải lên bằng chứng thanh toán
+          {t("learner.bookings.uploadProof")}
         </Button>
       )
     }
@@ -116,7 +144,7 @@ function renderActions(
       return (
         <Badge variant="secondary">
           <AlertTriangle className="size-3" />
-          Đang chờ xác nhận
+          {t("learner.bookings.paymentPendingReview")}
         </Badge>
       )
     }
@@ -124,15 +152,19 @@ function renderActions(
       return (
         <Badge variant="default">
           <CheckCircle2 className="size-3" />
-          Đã thanh toán
+          {t("learner.bookings.paymentSettled")}
         </Badge>
       )
     }
     if (paymentStatus === "REJECTED") {
       return (
-        <Button variant="outline" size="sm" onClick={() => onUpload(booking.id)}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onUpload(booking.id)}
+        >
           <Upload className="size-4" />
-          Tải lên lại bằng chứng thanh toán
+          {t("learner.bookings.uploadProofAgain")}
         </Button>
       )
     }
@@ -154,10 +186,12 @@ function renderActions(
 }
 
 export function LearnerBookingsPanel() {
+  const { t, i18n } = useTranslation("common")
   const session = useSession()
   const [status, setStatus] = useState("all")
   const [page, setPage] = useState(1)
   const LIMIT = 10
+  const locale = getLocaleCode(i18n.language)
 
   const { data, isLoading, isError, error, refetch } = useMyBookings(
     status === "all" ? { page, limit: LIMIT } : { status, page, limit: LIMIT },
@@ -171,16 +205,47 @@ export function LearnerBookingsPanel() {
   const cancelMutation = useCancelMyBooking()
 
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
-  const [uploadingBookingId, setUploadingBookingId] = useState<string | null>(null)
+  const [uploadingBookingId, setUploadingBookingId] = useState<string | null>(
+    null
+  )
   const [paymentProofUrl, setPaymentProofUrl] = useState("")
 
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
-  const [cancellingBookingId, setCancellingBookingId] = useState<string | null>(null)
+  const [cancellingBookingId, setCancellingBookingId] = useState<string | null>(
+    null
+  )
+
+  const tabs = [
+    { label: t("learner.bookings.tabAll"), value: "all" },
+    {
+      label: t("learner.bookings.tabPendingConfirmation"),
+      value: "PENDING_CONFIRMATION",
+    },
+    { label: t("learner.bookings.tabConfirmed"), value: "CONFIRMED" },
+    { label: t("learner.bookings.tabCompleted"), value: "COMPLETED" },
+    { label: t("learner.bookings.tabRejected"), value: "REJECTED" },
+    { label: t("learner.bookings.tabCancelled"), value: "CANCELLED" },
+  ]
+
+  const statusLabels: Record<string, string> = {
+    PENDING_CONFIRMATION: t("learner.bookings.statusPendingConfirmation"),
+    CONFIRMED: t("learner.bookings.statusConfirmed"),
+    COMPLETED: t("learner.bookings.statusCompleted"),
+    REJECTED: t("learner.bookings.statusRejected"),
+    CANCELLED: t("learner.bookings.statusCancelled"),
+  }
+
+  const paymentLabels: Record<string, string> = {
+    PENDING_PROOF: t("learner.bookings.paymentPendingProof"),
+    PENDING_REVIEW: t("learner.bookings.paymentPendingReview"),
+    SETTLED: t("learner.bookings.paymentSettled"),
+    REJECTED: t("learner.bookings.paymentRejected"),
+  }
 
   if (isError) {
     return (
       <ErrorState
-        title="Không thể tải danh sách đặt lịch"
+        title={t("learner.bookings.errorTitle")}
         description={getErrorMessage(error)}
         retry={refetch}
       />
@@ -195,20 +260,23 @@ export function LearnerBookingsPanel() {
 
   function handleUpload() {
     if (!uploadingBookingId || !paymentProofUrl.trim()) {
-      toast.error("Vui lòng nhập URL bằng chứng thanh toán")
+      toast.error(t("learner.bookings.uploadProofUrlRequired"))
       return
     }
     uploadProofMutation.mutate(
-      { bookingId: uploadingBookingId, paymentProofUrl: paymentProofUrl.trim() },
+      {
+        bookingId: uploadingBookingId,
+        paymentProofUrl: paymentProofUrl.trim(),
+      },
       {
         onSuccess: () => {
-          toast.success("Tải lên bằng chứng thanh toán thành công")
+          toast.success(t("learner.bookings.uploadProofSuccess"))
           setUploadDialogOpen(false)
           setPaymentProofUrl("")
           setUploadingBookingId(null)
         },
         onError: () => {
-          toast.error("Tải lên bằng chứng thanh toán thất bại")
+          toast.error(t("learner.bookings.uploadProofError"))
         },
       }
     )
@@ -223,12 +291,12 @@ export function LearnerBookingsPanel() {
     if (!cancellingBookingId) return
     cancelMutation.mutate(cancellingBookingId, {
       onSuccess: () => {
-        toast.success("Hủy yêu cầu thành công")
+        toast.success(t("learner.bookings.cancelSuccess"))
         setCancelDialogOpen(false)
         setCancellingBookingId(null)
       },
       onError: () => {
-        toast.error("Hủy yêu cầu thất bại")
+        toast.error(t("learner.bookings.cancelError"))
       },
     })
   }
@@ -238,14 +306,23 @@ export function LearnerBookingsPanel() {
   }
 
   function formatCurrency(vnd: number) {
-    return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(vnd)
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: "VND",
+    }).format(vnd)
   }
 
   return (
     <div className="space-y-6">
-      <Tabs value={status} onValueChange={(v) => { setStatus(v); setPage(1) }}>
+      <Tabs
+        value={status}
+        onValueChange={(v) => {
+          setStatus(v)
+          setPage(1)
+        }}
+      >
         <TabsList variant="line" className="w-full justify-start">
-          {TAB_STATUSES.map((tab) => (
+          {tabs.map((tab) => (
             <TabsTrigger key={tab.value} value={tab.value}>
               {tab.label}
             </TabsTrigger>
@@ -265,7 +342,7 @@ export function LearnerBookingsPanel() {
                 <EmptyMedia variant="icon">
                   <Calendar className="size-6" />
                 </EmptyMedia>
-                <EmptyTitle>Bạn chưa có yêu cầu đặt lịch nào</EmptyTitle>
+                <EmptyTitle>{t("learner.bookings.emptyTitle")}</EmptyTitle>
               </EmptyHeader>
             </Empty>
           ) : (
@@ -276,29 +353,46 @@ export function LearnerBookingsPanel() {
                     <CardHeader>
                       <div className="flex items-center gap-3">
                         <Avatar>
-                          <AvatarImage src={booking.coachProfile?.avatarUrl} alt={booking.coachProfile?.fullName} />
-                          <AvatarFallback>{getInitial(booking.coachProfile?.fullName ?? "C")}</AvatarFallback>
+                          <AvatarImage
+                            src={booking.coachProfile?.avatarUrl}
+                            alt={booking.coachProfile?.fullName}
+                          />
+                          <AvatarFallback>
+                            {getInitial(
+                              booking.coachProfile?.fullName ??
+                                t("learner.bookings.coachFallback")
+                            )}
+                          </AvatarFallback>
                         </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <CardTitle className="text-base">{booking.coachProfile?.fullName ?? "Huấn luyện viên"}</CardTitle>
+                        <div className="min-w-0 flex-1">
+                          <CardTitle className="text-base">
+                            {booking.coachProfile?.fullName ??
+                              t("learner.bookings.coachFallback")}
+                          </CardTitle>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <Badge variant={STATUS_BADGE_VARIANTS[booking.status]}>
-                            {STATUS_LABELS[booking.status]}
+                        <div className="flex shrink-0 items-center gap-2">
+                          <Badge
+                            variant={STATUS_BADGE_VARIANTS[booking.status]}
+                          >
+                            {statusLabels[booking.status]}
                           </Badge>
                         </div>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="grid grid-cols-2 gap-y-3 gap-x-6 text-sm">
+                      <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Calendar className="size-4 shrink-0" />
-                          <span>{dayjs(booking.sessionAt).format("DD/MM/YYYY")}</span>
+                          <span>
+                            {dayjs(booking.sessionAt).format("DD/MM/YYYY")}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Clock className="size-4 shrink-0" />
                           <span>
-                            {dayjs(booking.sessionAt).format("HH:mm")} &middot; {booking.durationMinutes} phút
+                            {dayjs(booking.sessionAt).format("HH:mm")} &middot;{" "}
+                            {booking.durationMinutes}{" "}
+                            {t("learner.bookings.minutes")}
                           </span>
                         </div>
                         <div className="flex items-center gap-2 text-muted-foreground">
@@ -307,8 +401,12 @@ export function LearnerBookingsPanel() {
                         </div>
                         <div className="flex items-center gap-2">
                           {booking.paymentStatus && (
-                            <Badge variant={PAYMENT_STATUS_VARIANTS[booking.paymentStatus]}>
-                              {PAYMENT_STATUS_LABELS[booking.paymentStatus]}
+                            <Badge
+                              variant={
+                                PAYMENT_STATUS_VARIANTS[booking.paymentStatus]
+                              }
+                            >
+                              {paymentLabels[booking.paymentStatus]}
                             </Badge>
                           )}
                         </div>
@@ -318,8 +416,12 @@ export function LearnerBookingsPanel() {
                         <div className="flex items-start gap-2 rounded-lg bg-muted p-3 text-sm">
                           <MessageSquare className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                           <div>
-                            <span className="font-medium">Ghi chú của bạn: </span>
-                            <span className="text-muted-foreground">{booking.learnerNote}</span>
+                            <span className="font-medium">
+                              {t("learner.bookings.learnerNote")}
+                            </span>
+                            <span className="text-muted-foreground">
+                              {booking.learnerNote}
+                            </span>
                           </div>
                         </div>
                       )}
@@ -328,14 +430,23 @@ export function LearnerBookingsPanel() {
                         <div className="flex items-start gap-2 rounded-lg bg-muted p-3 text-sm">
                           <MessageSquare className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                           <div>
-                            <span className="font-medium">Ghi chú của HLV: </span>
-                            <span className="text-muted-foreground">{booking.coachNote}</span>
+                            <span className="font-medium">
+                              {t("learner.bookings.coachNote")}
+                            </span>
+                            <span className="text-muted-foreground">
+                              {booking.coachNote}
+                            </span>
                           </div>
                         </div>
                       )}
 
                       <div className="flex items-center gap-2 pt-1">
-                        {renderActions(booking, openUploadDialog, openCancelDialog)}
+                        {renderActions(
+                          booking,
+                          t,
+                          openUploadDialog,
+                          openCancelDialog
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -348,27 +459,39 @@ export function LearnerBookingsPanel() {
                     <PaginationItem>
                       <PaginationPrevious
                         onClick={() => setPage((p) => Math.max(1, p - 1))}
-                        className={page <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        className={
+                          page <= 1
+                            ? "pointer-events-none opacity-50"
+                            : "cursor-pointer"
+                        }
                       />
                     </PaginationItem>
-                    {Array.from({ length: pagination.totalPages }).map((_, i) => {
-                      const pageNum = i + 1
-                      return (
-                        <PaginationItem key={pageNum}>
-                          <PaginationLink
-                            isActive={page === pageNum}
-                            onClick={() => setPage(pageNum)}
-                            className="cursor-pointer"
-                          >
-                            {pageNum}
-                          </PaginationLink>
-                        </PaginationItem>
-                      )
-                    })}
+                    {Array.from({ length: pagination.totalPages }).map(
+                      (_, i) => {
+                        const pageNum = i + 1
+                        return (
+                          <PaginationItem key={pageNum}>
+                            <PaginationLink
+                              isActive={page === pageNum}
+                              onClick={() => setPage(pageNum)}
+                              className="cursor-pointer"
+                            >
+                              {pageNum}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )
+                      }
+                    )}
                     <PaginationItem>
                       <PaginationNext
-                        onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
-                        className={page >= pagination.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        onClick={() =>
+                          setPage((p) => Math.min(pagination.totalPages, p + 1))
+                        }
+                        className={
+                          page >= pagination.totalPages
+                            ? "pointer-events-none opacity-50"
+                            : "cursor-pointer"
+                        }
                       />
                     </PaginationItem>
                   </PaginationContent>
@@ -382,25 +505,37 @@ export function LearnerBookingsPanel() {
       <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Tải lên bằng chứng thanh toán</DialogTitle>
+            <DialogTitle>
+              {t("learner.bookings.uploadProofDialogTitle")}
+            </DialogTitle>
             <DialogDescription>
-              Vui lòng cung cấp URL hình ảnh chụp màn hình hoặc bằng chứng chuyển khoản.
+              {t("learner.bookings.uploadProofDialogDescription")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
-            <label className="text-sm font-medium">URL bằng chứng thanh toán</label>
+            <label className="text-sm font-medium">
+              {t("learner.bookings.uploadProofUrlLabel")}
+            </label>
             <Input
-              placeholder="https://example.com/payment-proof.jpg"
+              placeholder={t("learner.bookings.uploadProofUrlPlaceholder")}
               value={paymentProofUrl}
               onChange={(e) => setPaymentProofUrl(e.target.value)}
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setUploadDialogOpen(false)}>
-              Hủy
+            <Button
+              variant="outline"
+              onClick={() => setUploadDialogOpen(false)}
+            >
+              {t("learner.bookings.cancel")}
             </Button>
-            <Button onClick={handleUpload} disabled={uploadProofMutation.isPending}>
-              {uploadProofMutation.isPending ? "Đang tải..." : "Tải lên"}
+            <Button
+              onClick={handleUpload}
+              disabled={uploadProofMutation.isPending}
+            >
+              {uploadProofMutation.isPending
+                ? t("learner.bookings.uploading")
+                : t("learner.bookings.upload")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -409,17 +544,26 @@ export function LearnerBookingsPanel() {
       <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Hủy yêu cầu đặt lịch</DialogTitle>
+            <DialogTitle>{t("learner.bookings.cancelDialogTitle")}</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn hủy yêu cầu đặt lịch này? Hành động này không thể hoàn tác.
+              {t("learner.bookings.cancelDialogDescription")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCancelDialogOpen(false)}>
-              Không, giữ lại
+            <Button
+              variant="outline"
+              onClick={() => setCancelDialogOpen(false)}
+            >
+              {t("learner.bookings.keepBooking")}
             </Button>
-            <Button variant="destructive" onClick={handleCancel} disabled={cancelMutation.isPending}>
-              {cancelMutation.isPending ? "Đang hủy..." : "Xác nhận hủy"}
+            <Button
+              variant="destructive"
+              onClick={handleCancel}
+              disabled={cancelMutation.isPending}
+            >
+              {cancelMutation.isPending
+                ? t("learner.bookings.cancelling")
+                : t("learner.bookings.confirmCancel")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,6 +1,7 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -72,6 +73,7 @@ export function LearnerCoachRecommendationDialog({
   coachId: string
   coachName: string
 }) {
+  const { t } = useTranslation("common")
   const [dialogEl, setDialogEl] = useState<HTMLDivElement | null>(null)
   const dialogRef = useCallback((el: HTMLDivElement | null) => {
     setDialogEl(el)
@@ -125,26 +127,28 @@ export function LearnerCoachRecommendationDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Giới thiệu bạn bè</Button>
+        <Button>{t("learner.recommendation.button")}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md" ref={dialogRef}>
         <DialogHeader>
-          <DialogTitle>Giới thiệu {coachName}</DialogTitle>
+          <DialogTitle>
+            {t("learner.recommendation.dialogTitle", { coachName })}
+          </DialogTitle>
           <DialogDescription>
-            Chọn bạn bè để giới thiệu huấn luyện viên này.
+            {t("learner.recommendation.dialogDescription")}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>Chọn bạn bè</Label>
+            <Label>{t("learner.recommendation.selectFriend")}</Label>
 
             {friends === null ? (
               <div className="flex items-center justify-center rounded-md border border-input px-3 py-6 text-sm text-muted-foreground">
-                Đang tải danh sách bạn bè...
+                {t("learner.recommendation.loadingFriends")}
               </div>
             ) : friends.length === 0 ? (
               <div className="flex items-center justify-center rounded-md border border-input px-3 py-6 text-sm text-muted-foreground">
-                Không tìm thấy bạn bè
+                {t("learner.recommendation.noFriends")}
               </div>
             ) : (
               <Combobox
@@ -152,7 +156,7 @@ export function LearnerCoachRecommendationDialog({
                 onValueChange={(val) => setSelectedId(val ?? "")}
               >
                 <ComboboxInput
-                  placeholder="Tìm kiếm bạn bè..."
+                  placeholder={t("learner.recommendation.searchFriends")}
                   showClear={!!selectedId}
                 />
                 <ComboboxContent container={dialogEl ?? undefined}>
@@ -181,7 +185,7 @@ export function LearnerCoachRecommendationDialog({
                       </ComboboxItem>
                     ))}
                     <ComboboxEmpty className="p-4 text-center text-sm text-muted-foreground">
-                      Không có kết quả
+                      {t("learner.recommendation.noResults")}
                     </ComboboxEmpty>
                   </ComboboxList>
                 </ComboboxContent>
@@ -190,35 +194,40 @@ export function LearnerCoachRecommendationDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="recommendMessage">Lời nhắn (không bắt buộc)</Label>
+            <Label htmlFor="recommendMessage">
+              {t("learner.recommendation.messageLabel")}
+            </Label>
             <Textarea
               id="recommendMessage"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
-              placeholder="Tôi nghĩ bạn sẽ thích HLV này vì..."
+              placeholder={t("learner.recommendation.messagePlaceholder")}
             />
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
-            Hủy
+            {t("learner.recommendation.cancel")}
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={recommendMutation.isPending || !selectedId}
           >
-            {recommendMutation.isPending ? "Đang gửi..." : "Gửi đề xuất"}
+            {recommendMutation.isPending
+              ? t("learner.recommendation.sending")
+              : t("learner.recommendation.send")}
           </Button>
         </DialogFooter>
         {recommendMutation.isSuccess && (
           <p className="text-sm font-medium text-green-600">
-            Đã gửi đề xuất thành công!
+            {t("learner.recommendation.success")}
           </p>
         )}
         {recommendMutation.isError && (
           <p className="text-sm font-medium text-destructive">
-            {recommendMutation.error?.message ?? "Gửi đề xuất thất bại."}
+            {recommendMutation.error?.message ??
+              t("learner.recommendation.error")}
           </p>
         )}
       </DialogContent>

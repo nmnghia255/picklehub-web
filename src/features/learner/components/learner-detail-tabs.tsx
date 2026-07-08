@@ -1,6 +1,7 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { LearnerBookingsPanel } from "@/features/learner/components/learner-bookings-panel"
@@ -15,6 +16,7 @@ export type LearnerTabValue =
   | "discovery"
 
 export function LearnerDetailTabs() {
+  const { t } = useTranslation("common")
   const [activeTab, setActiveTab] = useState<LearnerTabValue>("schedule")
 
   return (
@@ -28,16 +30,16 @@ export function LearnerDetailTabs() {
         className="w-full min-w-0 flex-wrap justify-start gap-1 overflow-x-auto pb-1"
       >
         <TabsTrigger value="schedule" className="sm:flex-none">
-          Lịch tập
+          {t("learner.tabs.schedule")}
         </TabsTrigger>
         <TabsTrigger value="enrollments" className="sm:flex-none">
-          Lớp đã đăng ký
+          {t("learner.tabs.enrollments")}
         </TabsTrigger>
         <TabsTrigger value="bookings" className="sm:flex-none">
-          Đặt lịch riêng
+          {t("learner.tabs.bookings")}
         </TabsTrigger>
         <TabsTrigger value="discovery" className="sm:flex-none">
-          Khám phá & Đăng ký HLV
+          {t("learner.tabs.discovery")}
         </TabsTrigger>
       </TabsList>
 

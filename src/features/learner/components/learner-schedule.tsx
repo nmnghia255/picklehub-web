@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { CalendarNavigation } from "@/components/calendar-navigation"
 import { ErrorState } from "@/components/shared/error-state"
@@ -49,32 +50,6 @@ import { cn } from "@/lib/utils"
 
 type ViewMode = "calendar" | "agenda" | "list"
 
-const STATE_OPTIONS = [
-  { value: "all", label: "Tất cả trạng thái" },
-  { value: "upcoming", label: "Sắp tới" },
-  { value: "live", label: "Đang diễn ra" },
-  { value: "past", label: "Đã kết thúc" },
-  { value: "pending", label: "Chờ xác nhận" },
-]
-
-const KIND_OPTIONS = [
-  { value: "all", label: "Tất cả loại" },
-  { value: "class", label: "Lớp học" },
-  { value: "booking", label: "Đặt lịch" },
-]
-
-const SORT_OPTIONS = [
-  { value: "desc", label: "Mới nhất" },
-  { value: "asc", label: "Cũ nhất" },
-]
-
-const STATUS_LABELS: Record<string, string> = {
-  upcoming: "Sắp tới",
-  live: "Đang diễn ra",
-  past: "Đã kết thúc",
-  pending: "Chờ xác nhận",
-}
-
 const STATUS_VARIANTS: Record<
   string,
   "default" | "secondary" | "outline" | "destructive"
@@ -85,18 +60,12 @@ const STATUS_VARIANTS: Record<
   pending: "outline",
 }
 
-const weekDays = [
-  "Thứ 2",
-  "Thứ 3",
-  "Thứ 4",
-  "Thứ 5",
-  "Thứ 6",
-  "Thứ 7",
-  "Chủ nhật",
-]
+function getLocaleCode(language: string) {
+  return language.startsWith("vi") ? "vi-VN" : "en-US"
+}
 
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("vi-VN", {
+function formatDate(value: string, locale: string) {
+  return new Date(value).toLocaleDateString(locale, {
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -104,16 +73,16 @@ function formatDate(value: string) {
   })
 }
 
-function formatShortDate(value: string) {
-  return new Date(value).toLocaleDateString("vi-VN", {
+function formatShortDate(value: string, locale: string) {
+  return new Date(value).toLocaleDateString(locale, {
     day: "numeric",
     month: "numeric",
     year: "numeric",
   })
 }
 
-function formatTime(value: string) {
-  return new Date(value).toLocaleTimeString("vi-VN", {
+function formatTime(value: string, locale: string) {
+  return new Date(value).toLocaleTimeString(locale, {
     hour: "2-digit",
     minute: "2-digit",
   })
@@ -165,7 +134,33 @@ function getToday() {
   return d
 }
 
-/* ─── Sub-components ─── */
+function getStatusLabel(status: string, t: (key: string) => string) {
+  switch (status) {
+    case "upcoming":
+      return t("learner.schedule.status.upcoming")
+    case "live":
+      return t("learner.schedule.status.live")
+    case "past":
+      return t("learner.schedule.status.past")
+    case "pending":
+      return t("learner.schedule.status.pending")
+    default:
+      return status
+  }
+}
+
+function getKindLabel(kind: string, t: (key: string) => string) {
+  switch (kind) {
+    case "class":
+      return t("learner.schedule.kind.class")
+    case "booking":
+      return t("learner.schedule.kind.booking")
+    default:
+      return kind
+  }
+}
+
+/* --- Sub-components --- */
 
 function CoachAvatar({
   avatarUrl,
@@ -186,9 +181,11 @@ function CoachAvatar({
 function CalendarEventCard({
   item,
   onClick,
+  locale,
 }: {
   item: LearnerScheduleItem
   onClick: (item: LearnerScheduleItem) => void
+  locale: string
 }) {
   const isPast = item.status === "past"
   return (
@@ -205,7 +202,7 @@ function CalendarEventCard({
     >
       <p className="truncate font-medium">{item.title}</p>
       <p className="truncate text-muted-foreground">
-        {formatTime(item.startsAt)} - {formatTime(item.endsAt)}
+        {formatTime(item.startsAt, locale)} - {formatTime(item.endsAt, locale)}
       </p>
       {item.coachProfile?.displayName && (
         <p className="truncate text-muted-foreground">
@@ -225,11 +222,15 @@ function DetailDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const { t, i18n } = useTranslation("common")
+  const locale = getLocaleCode(i18n.language)
+
   if (!item) return null
 
-  const coachName = item.coachProfile?.displayName ?? "Không xác định"
+  const coachName =
+    item.coachProfile?.displayName ?? t("learner.schedule.unknownCoach")
   const isVerified = item.coachProfile?.verificationStatus === "VERIFIED"
-  const statusLabel = STATUS_LABELS[item.status] ?? item.status
+  const statusLabel = getStatusLabel(item.status, t)
   const statusVariant = STATUS_VARIANTS[item.status] ?? "outline"
 
   return (
@@ -238,7 +239,7 @@ function DetailDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Badge variant="secondary" className="rounded-full text-[10px]">
-              {item.kind === "class" ? "Lớp học" : "Đặt lịch"}
+              {getKindLabel(item.kind, t)}
             </Badge>
             <Badge variant={statusVariant} className="rounded-full text-[10px]">
               {statusLabel}
@@ -272,12 +273,15 @@ function DetailDialog({
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Calendar className="size-4" />
-              {formatDate(item.startsAt)}
+              {formatDate(item.startsAt, locale)}
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Clock className="size-4" />
-              {formatTime(item.startsAt)} - {formatTime(item.endsAt)} (
-              {item.durationMinutes} phút)
+              {formatTime(item.startsAt, locale)} -{" "}
+              {formatTime(item.endsAt, locale)}{" "}
+              {t("learner.schedule.detail.durationMinutes", {
+                minutes: item.durationMinutes,
+              })}
             </div>
           </div>
 
@@ -291,7 +295,7 @@ function DetailDialog({
           {item.topic && (
             <div>
               <p className="text-xs font-medium text-muted-foreground">
-                Chủ đề
+                {t("learner.schedule.detail.topic")}
               </p>
               <p className="text-sm">{item.topic}</p>
             </div>
@@ -300,7 +304,7 @@ function DetailDialog({
           {item.note && (
             <div>
               <p className="text-xs font-medium text-muted-foreground">
-                Ghi chú
+                {t("learner.schedule.detail.note")}
               </p>
               <p className="text-sm whitespace-pre-wrap">{item.note}</p>
             </div>
@@ -308,7 +312,9 @@ function DetailDialog({
 
           {item.kind === "booking" && (
             <div className="text-sm">
-              <span className="text-muted-foreground">Thanh toán: </span>
+              <span className="text-muted-foreground">
+                {t("learner.schedule.detail.payment")}:{" "}
+              </span>
               {item.paymentStatus ?? "-"}
             </div>
           )}
@@ -316,12 +322,16 @@ function DetailDialog({
           <div className="flex gap-2 pt-2">
             {item.classId && (
               <Button variant="outline" size="sm" asChild>
-                <Link href={`/classes/${item.classId}`}>Xem lớp học</Link>
+                <Link href={`/classes/${item.classId}`}>
+                  {t("learner.schedule.actions.viewClass")}
+                </Link>
               </Button>
             )}
             {item.bookingId && (
               <Button variant="outline" size="sm" asChild>
-                <Link href={`/bookings/${item.bookingId}`}>Xem đặt lịch</Link>
+                <Link href={`/bookings/${item.bookingId}`}>
+                  {t("learner.schedule.actions.viewBooking")}
+                </Link>
               </Button>
             )}
           </div>
@@ -331,7 +341,7 @@ function DetailDialog({
   )
 }
 
-/* ─── Loading skeleton ─── */
+/* --- Loading skeleton --- */
 
 function ScheduleSkeleton() {
   return (
@@ -353,10 +363,12 @@ function ScheduleSkeleton() {
   )
 }
 
-/* ─── Main component ─── */
+/* --- Main component --- */
 
 export function LearnerSchedule() {
+  const { t, i18n } = useTranslation("common")
   const session = useSession()
+  const locale = getLocaleCode(i18n.language)
 
   const today = useMemo(() => getToday(), [])
   const [currentDate, setCurrentDate] = useState(today)
@@ -436,7 +448,6 @@ export function LearnerSchedule() {
     setCurrentDate(today)
   }
 
-  /* ── Filtered items for list/agenda ── */
   const filteredItems = useMemo(() => {
     let result = items
     if (search) {
@@ -452,9 +463,21 @@ export function LearnerSchedule() {
   }, [items, search])
 
   const viewModeOptions = [
-    { value: "calendar" as const, label: "Lịch", icon: Calendar },
-    { value: "agenda" as const, label: "Danh sách", icon: List },
-    { value: "list" as const, label: "Chi tiết", icon: Filter },
+    {
+      value: "calendar" as const,
+      label: t("learner.schedule.viewModes.calendar"),
+      icon: Calendar,
+    },
+    {
+      value: "agenda" as const,
+      label: t("learner.schedule.viewModes.agenda"),
+      icon: List,
+    },
+    {
+      value: "list" as const,
+      label: t("learner.schedule.viewModes.list"),
+      icon: Filter,
+    },
   ]
 
   const handleViewModeChange = (value: string) => {
@@ -465,7 +488,9 @@ export function LearnerSchedule() {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">Lịch tập</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {t("learner.schedule.pageTitle")}
+          </h1>
         </div>
         <ScheduleSkeleton />
       </div>
@@ -476,10 +501,12 @@ export function LearnerSchedule() {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">Lịch tập</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {t("learner.schedule.pageTitle")}
+          </h1>
         </div>
         <ErrorState
-          title="Không thể tải lịch tập"
+          title={t("learner.schedule.errorTitle")}
           description={getErrorMessage(error)}
           retry={refetch}
         />
@@ -490,7 +517,6 @@ export function LearnerSchedule() {
   return (
     <>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-4">
           {viewMode !== "list" && (
             <CalendarNavigation
@@ -524,19 +550,23 @@ export function LearnerSchedule() {
           )}
         </div>
 
-        {/* Content per view mode */}
         {viewMode === "calendar" && (
           <CalendarView
             allDays={allDays}
             currentDate={currentDate}
             scheduleMap={scheduleMap}
             today={today}
+            locale={locale}
             onItemClick={setDetailItem}
           />
         )}
 
         {viewMode === "agenda" && (
-          <AgendaView items={filteredItems} onItemClick={setDetailItem} />
+          <AgendaView
+            items={filteredItems}
+            locale={locale}
+            onItemClick={setDetailItem}
+          />
         )}
 
         {viewMode === "list" && (
@@ -573,6 +603,7 @@ export function LearnerSchedule() {
             }}
             onPageChange={setPage}
             onItemClick={setDetailItem}
+            locale={locale}
             viewModeSelector={
               <Select value={viewMode} onValueChange={handleViewModeChange}>
                 <SelectTrigger className="h-9 w-36 rounded-full bg-background shadow-sm">
@@ -608,30 +639,46 @@ export function LearnerSchedule() {
   )
 }
 
-/* ─── Calendar View ─── */
+/* --- Calendar View --- */
 
 function CalendarView({
   allDays,
   currentDate,
   scheduleMap,
   today,
+  locale,
   onItemClick,
 }: {
   allDays: Date[]
   currentDate: Date
   scheduleMap: Map<string, LearnerScheduleItem[]>
   today: Date
+  locale: string
   onItemClick: (item: LearnerScheduleItem) => void
 }) {
+  const { t } = useTranslation("common")
   const weeks: Date[][] = []
   for (let i = 0; i < allDays.length; i += 7) {
     weeks.push(allDays.slice(i, i + 7))
   }
 
+  const weekDayLabels = useMemo(() => {
+    const reference = new Date(2024, 0, 1)
+    return Array.from({ length: 7 }, (_, i) =>
+      new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
+        new Date(
+          reference.getFullYear(),
+          reference.getMonth(),
+          reference.getDate() + i
+        )
+      )
+    )
+  }, [locale])
+
   return (
     <div className="rounded-xl border bg-background shadow-sm">
       <div className="grid grid-cols-7 border-b">
-        {weekDays.map((day) => (
+        {weekDayLabels.map((day) => (
           <div
             key={day}
             className="p-3 text-center text-xs font-semibold text-muted-foreground"
@@ -673,12 +720,15 @@ function CalendarView({
                     <CalendarEventCard
                       key={item.id}
                       item={item}
+                      locale={locale}
                       onClick={onItemClick}
                     />
                   ))}
                   {dayItems.length > 3 && (
                     <p className="text-center text-[10px] text-muted-foreground">
-                      +{dayItems.length - 3} nữa
+                      {t("learner.schedule.calendar.more", {
+                        count: dayItems.length - 3,
+                      })}
                     </p>
                   )}
                 </div>
@@ -691,15 +741,18 @@ function CalendarView({
   )
 }
 
-/* ─── Agenda View ─── */
+/* --- Agenda View --- */
 
 function AgendaView({
   items,
+  locale,
   onItemClick,
 }: {
   items: LearnerScheduleItem[]
+  locale: string
   onItemClick: (item: LearnerScheduleItem) => void
 }) {
+  const { t } = useTranslation("common")
   const grouped = useMemo(() => {
     const map = new Map<string, LearnerScheduleItem[]>()
     for (const item of items) {
@@ -715,7 +768,7 @@ function AgendaView({
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <Calendar className="mb-2 size-10 text-muted-foreground" />
         <p className="text-muted-foreground">
-          Không có lịch tập trong khoảng này
+          {t("learner.schedule.empty.agenda")}
         </p>
       </div>
     )
@@ -726,7 +779,7 @@ function AgendaView({
       {grouped.map(([dateKey, dayItems]) => {
         const d = new Date(dateKey + "T00:00:00")
         const dayNum = d.getDate()
-        const dateStr = d.toLocaleDateString("vi-VN", {
+        const dateStr = d.toLocaleDateString(locale, {
           weekday: "long",
           month: "long",
           year: "numeric",
@@ -740,7 +793,9 @@ function AgendaView({
               <div>
                 <p className="text-sm font-medium">{dateStr}</p>
                 <p className="text-xs text-muted-foreground">
-                  {dayItems.length} buổi
+                  {t("learner.schedule.agenda.sessions", {
+                    count: dayItems.length,
+                  })}
                 </p>
               </div>
             </div>
@@ -749,6 +804,7 @@ function AgendaView({
                 <AgendaItemCard
                   key={item.id}
                   item={item}
+                  locale={locale}
                   onClick={() => onItemClick(item)}
                 />
               ))}
@@ -762,14 +818,18 @@ function AgendaView({
 
 function AgendaItemCard({
   item,
+  locale,
   onClick,
 }: {
   item: LearnerScheduleItem
+  locale: string
   onClick: () => void
 }) {
-  const statusLabel = STATUS_LABELS[item.status] ?? item.status
+  const { t } = useTranslation("common")
+  const statusLabel = getStatusLabel(item.status, t)
   const statusVariant = STATUS_VARIANTS[item.status] ?? "outline"
-  const coachName = item.coachProfile?.displayName ?? "Không xác định"
+  const coachName =
+    item.coachProfile?.displayName ?? t("learner.schedule.unknownCoach")
 
   return (
     <button
@@ -781,14 +841,15 @@ function AgendaItemCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="rounded-full text-[10px]">
-              {item.kind === "class" ? "Lớp học" : "Đặt lịch"}
+              {getKindLabel(item.kind, t)}
             </Badge>
             <p className="truncate text-sm font-medium">{item.title}</p>
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Clock className="size-3.5" />
-              {formatTime(item.startsAt)} - {formatTime(item.endsAt)}
+              {formatTime(item.startsAt, locale)} -{" "}
+              {formatTime(item.endsAt, locale)}
             </span>
             <span className="flex items-center gap-1">
               <User className="size-3.5" />
@@ -813,7 +874,7 @@ function AgendaItemCard({
   )
 }
 
-/* ─── List View ─── */
+/* --- List View --- */
 
 function ListView({
   items,
@@ -833,6 +894,7 @@ function ListView({
   onToDateChange,
   onPageChange,
   onItemClick,
+  locale,
   viewModeSelector,
 }: {
   items: LearnerScheduleItem[]
@@ -854,17 +916,38 @@ function ListView({
   onToDateChange: (v: string) => void
   onPageChange: (v: number) => void
   onItemClick: (item: LearnerScheduleItem) => void
+  locale: string
   viewModeSelector?: React.ReactNode
 }) {
+  const { t } = useTranslation("common")
+
+  const stateOptions = [
+    { value: "all", label: t("learner.schedule.filters.state.all") },
+    { value: "upcoming", label: t("learner.schedule.filters.state.upcoming") },
+    { value: "live", label: t("learner.schedule.filters.state.live") },
+    { value: "past", label: t("learner.schedule.filters.state.past") },
+    { value: "pending", label: t("learner.schedule.filters.state.pending") },
+  ]
+
+  const kindOptions = [
+    { value: "all", label: t("learner.schedule.filters.kind.all") },
+    { value: "class", label: t("learner.schedule.filters.kind.class") },
+    { value: "booking", label: t("learner.schedule.filters.kind.booking") },
+  ]
+
+  const sortOptions = [
+    { value: "desc", label: t("learner.schedule.filters.sort.desc") },
+    { value: "asc", label: t("learner.schedule.filters.sort.asc") },
+  ]
+
   return (
     <div className="space-y-4">
-      {/* Filter bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative">
             <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Tìm kiếm..."
+              placeholder={t("learner.schedule.filters.searchPlaceholder")}
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
               className="h-9 w-56 pl-9"
@@ -875,7 +958,7 @@ function ListView({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {KIND_OPTIONS.map((opt) => (
+              {kindOptions.map((opt) => (
                 <SelectItem key={opt.value} value={opt.value}>
                   {opt.label}
                 </SelectItem>
@@ -887,7 +970,7 @@ function ListView({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {STATE_OPTIONS.map((opt) => (
+              {stateOptions.map((opt) => (
                 <SelectItem key={opt.value} value={opt.value}>
                   {opt.label}
                 </SelectItem>
@@ -899,7 +982,7 @@ function ListView({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {SORT_OPTIONS.map((opt) => (
+              {sortOptions.map((opt) => (
                 <SelectItem key={opt.value} value={opt.value}>
                   {opt.label}
                 </SelectItem>
@@ -907,7 +990,9 @@ function ListView({
             </SelectContent>
           </Select>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Từ:</span>
+            <span className="text-sm text-muted-foreground">
+              {t("learner.schedule.filters.fromDate")}
+            </span>
             <Input
               type="date"
               value={fromDate}
@@ -916,7 +1001,9 @@ function ListView({
             />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Đến:</span>
+            <span className="text-sm text-muted-foreground">
+              {t("learner.schedule.filters.toDate")}
+            </span>
             <Input
               type="date"
               value={toDate}
@@ -928,11 +1015,12 @@ function ListView({
         {viewModeSelector}
       </div>
 
-      {/* Items */}
       {items.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <Calendar className="mb-2 size-10 text-muted-foreground" />
-          <p className="text-muted-foreground">Không có lịch tập phù hợp</p>
+          <p className="text-muted-foreground">
+            {t("learner.schedule.empty.list")}
+          </p>
         </div>
       ) : (
         <>
@@ -941,6 +1029,7 @@ function ListView({
               <ListCard
                 key={item.id}
                 item={item}
+                locale={locale}
                 onClick={() => onItemClick(item)}
               />
             ))}
@@ -996,14 +1085,18 @@ function ListView({
 
 function ListCard({
   item,
+  locale,
   onClick,
 }: {
   item: LearnerScheduleItem
+  locale: string
   onClick: () => void
 }) {
-  const coachName = item.coachProfile?.displayName ?? "Không xác định"
+  const { t } = useTranslation("common")
+  const coachName =
+    item.coachProfile?.displayName ?? t("learner.schedule.unknownCoach")
   const isVerified = item.coachProfile?.verificationStatus === "VERIFIED"
-  const statusLabel = STATUS_LABELS[item.status] ?? item.status
+  const statusLabel = getStatusLabel(item.status, t)
   const statusVariant = STATUS_VARIANTS[item.status] ?? "outline"
 
   return (
@@ -1028,7 +1121,7 @@ function ListCard({
                 variant="secondary"
                 className="rounded-full px-2 py-0 text-[10px]"
               >
-                {item.kind === "class" ? "Lớp học" : "Đặt lịch"}
+                {getKindLabel(item.kind, t)}
               </Badge>
             </div>
           </div>
@@ -1046,13 +1139,18 @@ function ListCard({
       <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
         <span className="flex items-center gap-1">
           <Calendar className="size-3.5" />
-          {formatShortDate(item.startsAt)}
+          {formatShortDate(item.startsAt, locale)}
         </span>
         <span className="flex items-center gap-1">
           <Clock className="size-3.5" />
-          {formatTime(item.startsAt)} - {formatTime(item.endsAt)}
+          {formatTime(item.startsAt, locale)} -{" "}
+          {formatTime(item.endsAt, locale)}
         </span>
-        <span className="text-xs">({item.durationMinutes} phút)</span>
+        <span className="text-xs">
+          {t("learner.schedule.detail.durationMinutes", {
+            minutes: item.durationMinutes,
+          })}
+        </span>
       </div>
 
       <div className="mt-2 space-y-1 text-sm">
@@ -1063,11 +1161,13 @@ function ListCard({
           </p>
         )}
         {item.topic && (
-          <p className="text-muted-foreground">Chủ đề: {item.topic}</p>
+          <p className="text-muted-foreground">
+            {t("learner.schedule.detail.topic")}: {item.topic}
+          </p>
         )}
         {item.note && (
           <p className="line-clamp-2 text-muted-foreground">
-            Ghi chú: {item.note}
+            {t("learner.schedule.detail.note")}: {item.note}
           </p>
         )}
         {item.sourceStatus && (
@@ -1079,19 +1179,23 @@ function ListCard({
 
       {item.kind === "booking" && (
         <div className="mt-2 text-sm text-muted-foreground">
-          Thanh toán: {item.paymentStatus ?? "-"}
+          {t("learner.schedule.detail.payment")}: {item.paymentStatus ?? "-"}
         </div>
       )}
 
       <div className="mt-3 flex gap-2">
         {item.classId && (
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/classes/${item.classId}`}>Xem lớp học</Link>
+            <Link href={`/classes/${item.classId}`}>
+              {t("learner.schedule.actions.viewClass")}
+            </Link>
           </Button>
         )}
         {item.bookingId && (
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/bookings/${item.bookingId}`}>Xem đặt lịch</Link>
+            <Link href={`/bookings/${item.bookingId}`}>
+              {t("learner.schedule.actions.viewBooking")}
+            </Link>
           </Button>
         )}
       </div>

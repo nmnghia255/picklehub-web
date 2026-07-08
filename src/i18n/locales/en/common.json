@@ -755,6 +755,198 @@
       }
     }
   },
+  "learner": {
+    "overview": {
+      "errorTitle": "Cannot load learner overview",
+      "errorDescription": "Please try again later.",
+      "totalSessions": "Total sessions",
+      "classes": "Classes",
+      "privateBookings": "Private bookings",
+      "upcomingSessions": "Upcoming sessions",
+      "coaches": "Coaches",
+      "upcomingTitle": "Upcoming sessions",
+      "noUpcomingSessions": "You have no upcoming sessions yet",
+      "minutes": "min",
+      "coachLabel": "Coach: {{name}}",
+      "live": "Live",
+      "upcoming": "Upcoming"
+    },
+    "profile": {
+      "loginRequired": "Please log in to view your profile",
+      "title": "Learner profile",
+      "defaultUser": "User"
+    },
+    "schedule": {
+      "pageTitle": "My schedule",
+      "errorTitle": "Cannot load schedule",
+      "viewModes": {
+        "calendar": "Calendar",
+        "agenda": "Agenda",
+        "list": "List"
+      },
+      "filters": {
+        "searchPlaceholder": "Search...",
+        "fromDate": "From",
+        "toDate": "To",
+        "state": {
+          "all": "All statuses",
+          "upcoming": "Upcoming",
+          "live": "Live",
+          "past": "Past",
+          "pending": "Pending confirmation"
+        },
+        "kind": {
+          "all": "All types",
+          "class": "Class",
+          "booking": "Booking"
+        },
+        "sort": {
+          "desc": "Newest first",
+          "asc": "Oldest first"
+        }
+      },
+      "status": {
+        "upcoming": "Upcoming",
+        "live": "Live",
+        "past": "Past",
+        "pending": "Pending confirmation"
+      },
+      "kind": {
+        "class": "Class",
+        "booking": "Booking"
+      },
+      "unknownCoach": "Unknown coach",
+      "detail": {
+        "durationMinutes": "({{minutes}} min)",
+        "topic": "Topic",
+        "note": "Note",
+        "payment": "Payment"
+      },
+      "actions": {
+        "viewClass": "View class",
+        "viewBooking": "View booking"
+      },
+      "calendar": {
+        "more": "+{{count}} more"
+      },
+      "agenda": {
+        "sessions": "{{count}} sessions"
+      },
+      "empty": {
+        "agenda": "No schedules in this range",
+        "list": "No matching schedules"
+      }
+    },
+    "tabs": {
+      "schedule": "Schedule",
+      "enrollments": "Enrolled classes",
+      "bookings": "Private bookings",
+      "discovery": "Discover coaches"
+    },
+    "recommendation": {
+      "button": "Recommend to a friend",
+      "dialogTitle": "Recommend {{coachName}}",
+      "dialogDescription": "Choose a friend to recommend this coach.",
+      "selectFriend": "Choose a friend",
+      "loadingFriends": "Loading friends...",
+      "noFriends": "No friends found",
+      "searchFriends": "Search friends...",
+      "noResults": "No results",
+      "messageLabel": "Message (optional)",
+      "messagePlaceholder": "I think you will like this coach because...",
+      "cancel": "Cancel",
+      "sending": "Sending...",
+      "send": "Send recommendation",
+      "success": "Recommendation sent successfully!",
+      "error": "Failed to send recommendation."
+    },
+    "enrollments": {
+      "errorTitle": "Cannot load enrollments",
+      "uploadProofUrlRequired": "Please enter a payment proof URL",
+      "uploadProofSuccess": "Payment proof uploaded successfully",
+      "uploadProofError": "Failed to upload payment proof",
+      "uploadProofDialogTitle": "Upload payment proof",
+      "uploadProofDialogDescription": "Please provide the URL of your transfer proof image.",
+      "uploadProofUrlLabel": "Payment proof URL",
+      "uploadProofUrlPlaceholder": "https://example.com/payment-proof.jpg",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "uploading": "Uploading...",
+      "cancelEnrollment": "Cancel enrollment",
+      "cancelDialogTitle": "Confirm cancellation",
+      "cancelDialogDescription": "Are you sure you want to cancel this class enrollment? This action cannot be undone.",
+      "cancelBack": "Go back",
+      "cancelConfirm": "Confirm cancel",
+      "cancelling": "Cancelling...",
+      "cancelSuccess": "Enrollment cancelled successfully",
+      "cancelError": "Failed to cancel enrollment",
+      "paymentPendingProof": "Awaiting proof",
+      "paymentPendingReview": "Awaiting confirmation",
+      "paymentSettled": "Paid",
+      "paymentRejected": "Rejected",
+      "statusActive": "Active",
+      "statusCancelled": "Cancelled",
+      "statusCompleted": "Completed",
+      "levelBeginner": "Beginner",
+      "levelIntermediate": "Intermediate",
+      "levelAdvanced": "Advanced",
+      "levelPro": "Pro",
+      "noEnrollments": "You are not enrolled in any classes yet.",
+      "noEnrollmentsDescription": "Discover classes now!",
+      "exploreClasses": "Explore classes",
+      "classFallback": "Class",
+      "coachFallback": "Coach",
+      "transferInfo": "Transfer information",
+      "bankName": "Bank: ",
+      "accountNumber": "Account number: ",
+      "accountName": "Account holder: ",
+      "uploadProof": "Upload payment proof",
+      "uploadProofAgain": "Upload proof again"
+    },
+    "bookings": {
+      "errorTitle": "Cannot load bookings",
+      "tabAll": "All",
+      "tabPendingConfirmation": "Pending confirmation",
+      "tabConfirmed": "Confirmed",
+      "tabCompleted": "Completed",
+      "tabRejected": "Rejected",
+      "tabCancelled": "Cancelled",
+      "statusPendingConfirmation": "Pending confirmation",
+      "statusConfirmed": "Confirmed",
+      "statusCompleted": "Completed",
+      "statusRejected": "Rejected",
+      "statusCancelled": "Cancelled",
+      "paymentPendingProof": "Awaiting proof",
+      "paymentPendingReview": "Awaiting confirmation",
+      "paymentSettled": "Paid",
+      "paymentRejected": "Rejected",
+      "uploadProofUrlRequired": "Please enter a payment proof URL",
+      "uploadProofSuccess": "Payment proof uploaded successfully",
+      "uploadProofError": "Failed to upload payment proof",
+      "cancelSuccess": "Booking cancelled successfully",
+      "cancelError": "Failed to cancel booking",
+      "emptyTitle": "You have no booking requests yet",
+      "coachFallback": "Coach",
+      "minutes": "min",
+      "learnerNote": "Your note: ",
+      "coachNote": "Coach note: ",
+      "cancelRequest": "Cancel request",
+      "uploadProof": "Upload payment proof",
+      "uploadProofAgain": "Upload proof again",
+      "uploadProofDialogTitle": "Upload payment proof",
+      "uploadProofDialogDescription": "Please provide the URL of your payment proof image.",
+      "uploadProofUrlLabel": "Payment proof URL",
+      "uploadProofUrlPlaceholder": "https://example.com/payment-proof.jpg",
+      "cancel": "Cancel",
+      "uploading": "Uploading...",
+      "upload": "Upload",
+      "cancelDialogTitle": "Cancel booking request",
+      "cancelDialogDescription": "Are you sure you want to cancel this booking request? This action cannot be undone.",
+      "keepBooking": "Keep booking",
+      "cancelling": "Cancelling...",
+      "confirmCancel": "Confirm cancel"
+    }
+  },
   "friends": {
     "pageTitle": "Friends",
     "pageDescription": "Manage invitations, find new connections, and view your friends list in one place.",

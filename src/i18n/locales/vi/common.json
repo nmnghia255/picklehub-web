@@ -508,7 +508,15 @@
     },
     "schedule": {
       "errorTitle": "Không thể tải lịch",
-      "weekDays": ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"],
+      "weekDays": [
+        "Thứ 2",
+        "Thứ 3",
+        "Thứ 4",
+        "Thứ 5",
+        "Thứ 6",
+        "Thứ 7",
+        "Chủ nhật"
+      ],
       "learnerCount": "{{count}} học viên",
       "noLocation": "Không có địa điểm",
       "emptyDay": "Trống",
@@ -613,7 +621,7 @@
       "loadingTitle": "Đánh giá HLV",
       "noReviews": "Chưa có đánh giá nào.",
       "title": "Đánh giá HLV",
-      "ratingInfo": "({{rating}} sao \u00b7 {{count}} đánh giá)",
+      "ratingInfo": "({{rating}} sao · {{count}} đánh giá)",
       "noReviewsPage": "Chưa có đánh giá nào.",
       "errorLoading": "Không thể tải đánh giá. Vui lòng thử lại sau.",
       "writeReview": "Viết đánh giá",
@@ -655,7 +663,7 @@
       "clearFilters": "Xoá bộ lọc",
       "noResults": "Không tìm thấy huấn luyện viên nào",
       "noResultsHint": "Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác.",
-      "perHour": "/giờ",
+      "perHour": "/ giờ",
       "noSpecialties": "",
       "verificationVerified": "Đã xác thực",
       "verificationPending": "Chờ xác thực",
@@ -697,7 +705,6 @@
       "specialtiesLabel": "Chuyên môn",
       "languagesLabel": "Ngôn ngữ",
       "priceLabel": "Giá",
-      "perHour": "/ giờ",
       "certificationsTitle": "Chứng chỉ",
       "issuedDate": "Cấp ngày: {{date}}",
       "expiresDate": " - Hết hạn: {{date}}",
@@ -765,6 +772,69 @@
         "intermediate": "Trung cấp",
         "advanced": "Nâng cao",
         "pro": "Chuyên nghiệp"
+      }
+    }
+  },
+  "learner": {
+    "schedule": {
+      "pageTitle": "Lịch của tôi",
+      "errorTitle": "Không thể tải lịch",
+      "viewModes": {
+        "calendar": "Lịch",
+        "agenda": "Lịch trình",
+        "list": "Danh sách"
+      },
+      "filters": {
+        "searchPlaceholder": "Tìm kiếm...",
+        "fromDate": "Từ",
+        "toDate": "Đến",
+        "state": {
+          "all": "Tất cả trạng thái",
+          "upcoming": "Sắp tới",
+          "live": "Đang diễn ra",
+          "past": "Đã kết thúc",
+          "pending": "Chờ xác nhận"
+        },
+        "kind": {
+          "all": "Tất cả loại",
+          "class": "Lớp học",
+          "booking": "Đặt lịch"
+        },
+        "sort": {
+          "desc": "Mới nhất",
+          "asc": "Cũ nhất"
+        }
+      },
+      "status": {
+        "upcoming": "Sắp tới",
+        "live": "Đang diễn ra",
+        "past": "Đã kết thúc",
+        "pending": "Chờ xác nhận"
+      },
+      "kind": {
+        "class": "Lớp học",
+        "booking": "Đặt lịch"
+      },
+      "unknownCoach": "Không xác định",
+      "detail": {
+        "durationMinutes": "({{minutes}} phút)",
+        "topic": "Chủ đề",
+        "note": "Ghi chú",
+        "payment": "Thanh toán"
+      },
+      "actions": {
+        "viewClass": "Xem lớp học",
+        "viewBooking": "Xem đặt lịch"
+      },
+      "calendar": {
+        "more": "+{{count}} nữa"
+      },
+      "agenda": {
+        "sessions": "{{count}} buổi"
+      },
+      "empty": {
+        "agenda": "Không có lịch trong khoảng này",
+        "list": "Không có lịch phù hợp"
       }
     }
   },
