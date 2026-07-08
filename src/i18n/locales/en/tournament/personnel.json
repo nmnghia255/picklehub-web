@@ -4,7 +4,8 @@
     "subtitle": "Manage your tournament referee roster and match assignments.",
     "tabs": {
       "roster": "Referees Roster",
-      "assignments": "Match Assignments"
+      "assignments": "Match Assignments",
+      "invitations": "Invitations"
     },
     "stats": {
       "totalReferees": "Total Referees",
@@ -14,11 +15,11 @@
     "roster": {
       "searchPlaceholder": "Search referees by name, email, or ID...",
       "reload": "Reload Roster",
-      "enrollBtn": "Enroll Referee",
+      "enrollBtn": "Invite Referee",
       "emptyTitle": "No Referees Found",
-      "emptyDesc": "Start enrolling referees to assign them to matches in this tournament.",
+      "emptyDesc": "Start inviting referees to assign them to matches in this tournament.",
       "emptySearch": "Try checking your spelling or adjusting your search term.",
-      "enrollFirst": "Enroll First Referee",
+      "enrollFirst": "Invite First Referee",
       "idLabel": "ID",
       "enrolledDate": "Enrolled: {{date}}",
       "workload": "Workload",
@@ -26,22 +27,67 @@
       "unenrollTitle": "Unenroll Referee?",
       "unenrollDesc": "Are you sure you want to remove {{name}} from the roster? This action cannot be undone and will fail if the referee is currently assigned to any matches.",
       "unenrollConfirm": "Unenroll Referee",
-      "cancel": "Cancel"
+      "unenrollSuccess": "Referee unenrolled from tournament",
+      "unenrollFailed": "Failed to unenroll referee. Make sure they have no active assignments.",
+      "cancel": "Cancel",
+      "loading": "Loading referees roster..."
     },
     "enrollDialog": {
-      "title": "Enroll New Referee",
-      "description": "Register a new referee into the tournament roster so they can be assigned to matches.",
+      "title": "Invite Referee",
+      "description": "Enter a referee's email to send them a tournament invitation.",
       "avatarLabel": "Avatar Image",
       "avatarPlaceholder": "Avatar URL...",
       "idLabel": "Unique Referee ID (Required)",
       "idPlaceholder": "e.g. ref_john_doe",
       "nameLabel": "Full Name (Required)",
       "namePlaceholder": "e.g. John Doe",
-      "emailLabel": "Email Address (Required)",
-      "emailPlaceholder": "e.g. john.doe@referee.com",
+      "emailLabel": "Referee Email",
+      "emailPlaceholder": "e.g. referee@example.com",
       "phoneLabel": "Phone Number (Optional)",
       "phonePlaceholder": "e.g. +1234567890",
-      "submitBtn": "Enroll Referee"
+      "submitBtn": "Enroll Referee",
+      "verifyBtn": "Search",
+      "verifiedStatus": "User profile found! Ready to send invitation.",
+      "noAccountTitle": "Email not registered in app",
+      "noAccountDesc": "This email is not yet registered. An invitation will be sent to the address above.",
+      "inviteBtn": "Send Invitation",
+      "successToast": "Referee enrolled successfully!",
+      "inviteSuccessToast": "Invitation sent successfully!",
+      "verifyFirst": "Please verify the referee email first",
+      "invalidEmail": "Please enter a valid email address."
+    },
+    "invitations": {
+      "revokeConfirm": "Are you sure you want to revoke the invitation sent to {{email}}?",
+      "revokeSuccess": "Invitation revoked successfully",
+      "status": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "revoked": "Revoked"
+      },
+      "cardTitle": "Referee Invitations",
+      "cardDescription": "Manage email invitations sent to prospective referees.",
+      "refresh": "Refresh",
+      "loading": "Loading invitations...",
+      "emptyTitle": "No invitations found",
+      "emptyDesc": "You haven't sent any invitations to referees yet. Click 'Enroll Referee' in the roster tab to send one.",
+      "table": {
+        "email": "Email",
+        "status": "Status",
+        "sentAt": "Sent At",
+        "expiresAt": "Expires At",
+        "actions": "Actions"
+      },
+      "revokeBtn": "Revoke"
+    },
+    "accept": {
+      "loadingTitle": "Processing referee invitation...",
+      "loadingDesc": "Please wait a moment.",
+      "successTitle": "Invitation accepted successfully!",
+      "successDesc": "You have joined the tournament as a Referee. Redirecting to tournament page...",
+      "errorTitle": "Failed to accept invitation",
+      "loginOther": "Log in with another account",
+      "backHome": "Back to home",
+      "invalidToken": "Invalid invitation link. Please check your email again."
     },
     "assignments": {
       "searchPlaceholder": "Search match, round, team or referee...",
@@ -56,7 +102,25 @@
       "refereeLabel": "Assigned Referee",
       "unassigned": "Unassigned",
       "reassignPlaceholder": "Reassign",
-      "assignPlaceholder": "Assign Referee"
+      "assignPlaceholder": "Assign Referee",
+      "refereesListTitle": "Referees List",
+      "selectRefereeTitle": "No Referee Selected",
+      "selectRefereePrompt": "Select a referee from the roster on the left to start managing match assignments.",
+      "assignMatches": "Assign Matches",
+      "currentAssignments": "Current Assignments ({{count}})",
+      "noUnassignedMatches": "No unassigned matches found",
+      "selectAll": "Select All",
+      "assignBulkBtn": "Assign Selected ({{count}})",
+      "assigning": "Assigning...",
+      "unassignConfirmBtn": "Remove",
+      "noAssignments": "This referee has no matches assigned yet.",
+      "bulkAssignSuccess": "Successfully assigned {{count}} matches to {{name}}!",
+      "bulkAssignPartial": "Assigned {{success}} matches. Failed to assign {{fail}} matches.",
+      "assignSuccess": "Referee assigned successfully!",
+      "assignFailed": "Failed to assign referee",
+      "unassignSuccess": "Referee unassigned from match",
+      "unassignFailed": "Failed to unassign referee",
+      "loading": "Loading matches list..."
     }
   },
   "referee": {

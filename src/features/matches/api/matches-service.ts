@@ -114,10 +114,14 @@ export async function getScoreHistory(id: string): Promise<ScoreUpdate[]> {
   return Array.isArray(payload) ? payload : []
 }
 
-export async function startMatch(id: string): Promise<Match> {
+export async function startMatch(
+  id: string,
+  payload?: { firstServingPlayerId?: string }
+): Promise<Match> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.patch<ApiEnvelope<Match> | Match>(
-    `/api/matches/${id}/start`
+    `/api/matches/${id}/start`,
+    payload
   )
   return unwrapEnvelope(response.data)
 }

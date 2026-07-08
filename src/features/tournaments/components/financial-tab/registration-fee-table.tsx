@@ -56,7 +56,11 @@ export function RegistrationFeeTable() {
       <CardContent>
         {registrationTransactions.length === 0 ? (
           <div className="flex h-32 flex-col items-center justify-center text-gray-500">
-            <p>No registration fee transactions found</p>
+            <p>
+              {t("financials.transactions.emptyRegistration", {
+                defaultValue: "No registration fee transactions found",
+              })}
+            </p>
           </div>
         ) : (
           <Table>

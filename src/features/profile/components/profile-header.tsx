@@ -12,12 +12,16 @@ export function ProfileHeader({
   avatarUrl,
   actionHref,
   actionLabel,
+  secondaryActionHref,
+  secondaryActionLabel,
 }: {
   name: string
   subtitle: string
   avatarUrl?: string | null
   actionHref?: string
   actionLabel?: string
+  secondaryActionHref?: string
+  secondaryActionLabel?: string
 }) {
   const { t } = useProfileTranslation()
   const displayName = name || t("unnamedPlayer")
@@ -44,11 +48,20 @@ export function ProfileHeader({
           <p className="text-muted-foreground">{subtitle}</p>
         </div>
       </div>
-      {actionHref ? (
-        <Button asChild>
-          <Link href={actionHref}>{actionLabel || t("editProfile")}</Link>
-        </Button>
-      ) : null}
+      <div className="flex items-center gap-2">
+        {secondaryActionHref ? (
+          <Button variant="outline" asChild>
+            <Link href={secondaryActionHref}>
+              {secondaryActionLabel || t("bookingHistory")}
+            </Link>
+          </Button>
+        ) : null}
+        {actionHref ? (
+          <Button asChild>
+            <Link href={actionHref}>{actionLabel || t("editProfile")}</Link>
+          </Button>
+        ) : null}
+      </div>
     </div>
   )
 }

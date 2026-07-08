@@ -13,12 +13,15 @@ export interface GameSnapshot {
   isA1Right: boolean
   isB1Right: boolean
   activeServer: ServerId
+  isSwappedSides: boolean
+  isAutoSwapped: boolean
 }
 
 interface ScoreState {
   teamAName: string
   teamBName: string
   playerNames: Record<ServerId, string>
+  playerIds: Record<ServerId, string>
   teamAScore: number
   teamBScore: number
   servingTeam: Team
@@ -35,6 +38,15 @@ interface ScoreState {
   currentSetId: number
   matchStatus: string
   socket: Socket | null
+
+  // Refactored Rules & States
+  isDoubles: boolean
+  gameTarget: number
+  isAutoSwapped: boolean
+  isTimeoutActive: boolean
+  timeoutTeam: Team | "TECHNICAL" | null
+  timeoutSecondsLeft: number
+  scoreCall: string | null
 }
 
 interface ScoreActions {
@@ -49,6 +61,7 @@ interface ScoreActions {
       | Partial<Record<ServerId, string>>
       | ((prev: Record<ServerId, string>) => Record<ServerId, string>)
   ) => void
+  setPlayerIds: (ids: Record<ServerId, string>) => void
   setTeamAScore: (score: number | ((s: number) => number)) => void
   setTeamBScore: (score: number | ((s: number) => number)) => void
   setServingTeam: (team: Team) => void
@@ -72,6 +85,13 @@ interface ScoreActions {
   ) => void
   handleUndo: (isMatchServiceMatch: boolean, matchId: string | null) => void
   applyReset: () => void
+  setScoreCall: (call: string | null) => void
+
+  // New Actions
+  setGameTarget: (target: number) => void
+  startTimeout: (team: Team | "TECHNICAL") => void
+  stopTimeout: () => void
+  decrementTimeoutTimer: () => void
 }
 
 const getPlayers = (teamStr: string | null, defaultPrefix: string) => {
@@ -96,6 +116,12 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
     B1: "B1",
     B2: "B2",
   },
+  playerIds: {
+    A1: "",
+    A2: "",
+    B1: "",
+    B2: "",
+  },
   teamAScore: 0,
   teamBScore: 0,
   servingTeam: "A",
@@ -113,10 +139,20 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
   matchStatus: "LIVE",
   socket: null,
 
+  isDoubles: true,
+  gameTarget: 11,
+  isAutoSwapped: false,
+  isTimeoutActive: false,
+  timeoutTeam: null,
+  timeoutSecondsLeft: 0,
+  scoreCall: null,
+
   // Actions
   initialize: ({ team1, team2, isMatchServiceMatch }) => {
     const [initialA1, initialA2] = getPlayers(team1 || null, "A")
     const [initialB1, initialB2] = getPlayers(team2 || null, "B")
+
+    const isDoubles = initialA2 !== "" || initialB2 !== ""
 
     set({
       teamAName: team1 || "Đội A",
@@ -127,10 +163,17 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
         B1: initialB1,
         B2: initialB2,
       },
+      playerIds: {
+        A1: "",
+        A2: "",
+        B1: "",
+        B2: "",
+      },
+      isDoubles,
       teamAScore: 0,
       teamBScore: 0,
       servingTeam: "A",
-      serverNumber: 2,
+      serverNumber: isDoubles ? 2 : 1, // Doubles starts at server 2, Singles starts at server 1
       isA1Right: true,
       isB1Right: true,
       activeServer: "A1",
@@ -143,18 +186,31 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
       currentSetId: 1,
       matchStatus: "LIVE",
       socket: null,
+      gameTarget: 11,
+      isAutoSwapped: false,
+      isTimeoutActive: false,
+      timeoutTeam: null,
+      timeoutSecondsLeft: 0,
+      scoreCall: null,
     })
   },
 
   setTeamNames: (teamA, teamB) => set({ teamAName: teamA, teamBName: teamB }),
 
   setPlayerNames: (names) =>
-    set((state) => ({
-      playerNames:
+    set((state) => {
+      const nextNames =
         typeof names === "function"
           ? names(state.playerNames)
-          : { ...state.playerNames, ...names },
-    })),
+          : { ...state.playerNames, ...names }
+      const isDoubles = nextNames.A2 !== "" || nextNames.B2 !== ""
+      return {
+        playerNames: nextNames,
+        isDoubles,
+      }
+    }),
+
+  setPlayerIds: (ids) => set({ playerIds: ids }),
 
   setTeamAScore: (score) =>
     set((state) => ({
@@ -200,6 +256,39 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
 
   setSocket: (socket) => set({ socket }),
 
+  setGameTarget: (target) => set({ gameTarget: target }),
+
+  startTimeout: (team) => {
+    set({
+      isTimeoutActive: true,
+      timeoutTeam: team,
+      timeoutSecondsLeft: team === "TECHNICAL" ? 120 : 60, // 2 mins for tech, 1 min for normal
+    })
+  },
+
+  stopTimeout: () => {
+    set({
+      isTimeoutActive: false,
+      timeoutTeam: null,
+      timeoutSecondsLeft: 0,
+    })
+  },
+
+  decrementTimeoutTimer: () => {
+    set((state) => {
+      if (state.timeoutSecondsLeft <= 1) {
+        return {
+          isTimeoutActive: false,
+          timeoutTeam: null,
+          timeoutSecondsLeft: 0,
+        }
+      }
+      return {
+        timeoutSecondsLeft: state.timeoutSecondsLeft - 1,
+      }
+    })
+  },
+
   saveHistory: () => {
     const {
       teamAScore,
@@ -209,6 +298,8 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
       isA1Right,
       isB1Right,
       activeServer,
+      isSwappedSides,
+      isAutoSwapped,
     } = get()
     set((state) => ({
       history: [
@@ -221,6 +312,8 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
           isA1Right,
           isB1Right,
           activeServer,
+          isSwappedSides,
+          isAutoSwapped,
         },
       ],
     }))
@@ -231,10 +324,12 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
       currentSetId,
       servingTeam,
       serverNumber,
-      isA1Right,
-      isB1Right,
       saveHistory,
       socket,
+      isDoubles,
+      gameTarget,
+      isSwappedSides,
+      isAutoSwapped,
     } = get()
 
     if (isMatchServiceMatch && socket && matchId) {
@@ -247,39 +342,92 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
 
     saveHistory()
 
-    if (winningTeam === servingTeam) {
-      if (servingTeam === "A") {
-        set((state) => ({
-          teamAScore: state.teamAScore + 1,
-          isA1Right: !state.isA1Right,
-        }))
+    let nextAScore = get().teamAScore
+    let nextBScore = get().teamBScore
+
+    if (isDoubles) {
+      // DOUBLE SCORING LOGIC
+      if (winningTeam === servingTeam) {
+        if (servingTeam === "A") {
+          nextAScore = nextAScore + 1
+          set((state) => ({
+            teamAScore: state.teamAScore + 1,
+            isA1Right: !state.isA1Right,
+          }))
+        } else {
+          nextBScore = nextBScore + 1
+          set((state) => ({
+            teamBScore: state.teamBScore + 1,
+            isB1Right: !state.isB1Right,
+          }))
+        }
       } else {
-        set((state) => ({
-          teamBScore: state.teamBScore + 1,
-          isB1Right: !state.isB1Right,
-        }))
+        if (serverNumber === 1) {
+          set({ serverNumber: 2 })
+          if (servingTeam === "A") {
+            set((state) => ({
+              activeServer: state.activeServer === "A1" ? "A2" : "A1",
+            }))
+          } else {
+            set((state) => ({
+              activeServer: state.activeServer === "B1" ? "B2" : "B1",
+            }))
+          }
+        } else {
+          // Side Out
+          const newServingTeam: Team = servingTeam === "A" ? "B" : "A"
+          set({ servingTeam: newServingTeam, serverNumber: 1 })
+          if (newServingTeam === "A") {
+            set((state) => ({ activeServer: state.isA1Right ? "A1" : "A2" }))
+          } else {
+            set((state) => ({ activeServer: state.isB1Right ? "B1" : "B2" }))
+          }
+        }
       }
     } else {
-      if (serverNumber === 1) {
-        set({ serverNumber: 2 })
+      // SINGLES SCORING LOGIC
+      if (winningTeam === servingTeam) {
         if (servingTeam === "A") {
-          set((state) => ({
-            activeServer: state.activeServer === "A1" ? "A2" : "A1",
-          }))
+          nextAScore = nextAScore + 1
+          set(() => {
+            const isRight = nextAScore % 2 === 0
+            return {
+              teamAScore: nextAScore,
+              isA1Right: isRight,
+              isB1Right: isRight, // Diagonal receiver positioning alignment
+            }
+          })
         } else {
-          set((state) => ({
-            activeServer: state.activeServer === "B1" ? "B2" : "B1",
-          }))
+          nextBScore = nextBScore + 1
+          set(() => {
+            const isRight = nextBScore % 2 === 0
+            return {
+              teamBScore: nextBScore,
+              isB1Right: isRight,
+              isA1Right: isRight, // Diagonal receiver positioning alignment
+            }
+          })
         }
       } else {
+        // Side Out immediately
         const newServingTeam: Team = servingTeam === "A" ? "B" : "A"
-        set({ servingTeam: newServingTeam, serverNumber: 1 })
-        if (newServingTeam === "A") {
-          set({ activeServer: isA1Right ? "A1" : "A2" })
-        } else {
-          set({ activeServer: isB1Right ? "B1" : "B2" })
-        }
+        const nextServerScore = newServingTeam === "A" ? nextAScore : nextBScore
+        const isRight = nextServerScore % 2 === 0
+        set({
+          servingTeam: newServingTeam,
+          serverNumber: 1,
+          activeServer: newServingTeam === "A" ? "A1" : "B1",
+          isA1Right: isRight,
+          isB1Right: isRight,
+        })
       }
+    }
+
+    // Auto side-out / end-change check
+    const swapThreshold = gameTarget === 15 ? 8 : gameTarget === 21 ? 11 : 6
+    const maxScore = Math.max(nextAScore, nextBScore)
+    if (maxScore === swapThreshold && !isAutoSwapped) {
+      set({ isSwappedSides: !isSwappedSides, isAutoSwapped: true })
     }
   },
 
@@ -302,20 +450,27 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
       isA1Right: lastState.isA1Right,
       isB1Right: lastState.isB1Right,
       activeServer: lastState.activeServer,
+      isSwappedSides: lastState.isSwappedSides,
+      isAutoSwapped: lastState.isAutoSwapped,
     })
     set((state) => ({ history: state.history.slice(0, -1) }))
   },
 
   applyReset: () => {
+    const { isDoubles } = get()
     set({
       teamAScore: 0,
       teamBScore: 0,
       servingTeam: "A",
-      serverNumber: 2,
+      serverNumber: isDoubles ? 2 : 1,
       isA1Right: true,
       isB1Right: true,
       activeServer: "A1",
       history: [],
+      isAutoSwapped: false,
+      scoreCall: null,
     })
   },
+
+  setScoreCall: (call) => set({ scoreCall: call }),
 }))

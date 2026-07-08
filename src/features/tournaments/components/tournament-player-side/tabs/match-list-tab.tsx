@@ -5,13 +5,13 @@ import {
   CalendarDays,
   ChevronDown,
   ChevronRight,
-  Users,
 } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
 import type { Match } from "../../../types/match"
@@ -22,6 +22,7 @@ interface MatchListTabProps {
 
 export function MatchListTab({ matches }: MatchListTabProps) {
   const { t } = useTournamentTranslation()
+  const router = useRouter()
 
   const renderMatchCard = (
     score: Match,
@@ -99,10 +100,27 @@ export function MatchListTab({ matches }: MatchListTabProps) {
       score.time ||
       `${9 + Math.floor(index / 2)}:${index % 2 === 0 ? "00" : "30"} AM`
 
+    const isLive = status === "live"
     return (
       <div
         key={index}
-        className="rounded-lg border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 hover:border-emerald-100"
+        onClick={
+          isLive
+            ? () => {
+                const targetMatchId = score.externalMatchId || score.id
+                router.push(
+                  `/score?matchId=${targetMatchId}&tournamentId=${score.tournamentId || ""}&team1=${encodeURIComponent(
+                    team1Name
+                  )}&team2=${encodeURIComponent(team2Name)}&mode=view`
+                )
+              }
+            : undefined
+        }
+        className={`rounded-lg border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 ${
+          isLive
+            ? "cursor-pointer hover:border-red-200 hover:bg-gray-50/80"
+            : "hover:border-emerald-100"
+        }`}
       >
         {/* Match Header */}
         <div className="mb-3 flex items-center justify-between border-b border-gray-50 pb-2">

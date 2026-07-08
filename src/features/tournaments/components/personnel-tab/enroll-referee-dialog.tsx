@@ -1,6 +1,6 @@
 "use client"
 
-import { Loader2, UserPlus2 } from "lucide-react"
+import { AlertCircle, Loader2, Mail, UserPlus2 } from "lucide-react"
 import { useState, useTransition } from "react"
 import { toast } from "sonner"
 
@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label"
 import type { User } from "@/features/profile/types"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
-import { getUserProfileAction } from "../../actions/tournament-registration-actions"
+import { searchUserByEmailAction } from "../../actions/referee-actions"
 import { usePersonnelStore } from "../../stores/use-personnel-store"
 
 interface EnrollRefereeDialogProps {
@@ -32,94 +32,99 @@ export function EnrollRefereeDialog({
   onOpenChange,
 }: EnrollRefereeDialogProps) {
   const { t } = useTournamentTranslation()
-  const enrollReferee = usePersonnelStore((s) => s.enrollReferee)
+  const inviteReferee = usePersonnelStore((s) => s.inviteReferee)
   const [isPending, startTransition] = useTransition()
 
   // Local Form State
-  const [refereeId, setRefereeId] = useState("")
+  const [refereeEmail, setRefereeEmail] = useState("")
   const [userProfile, setUserProfile] = useState<User | null>(null)
-  const [isFetching, setIsFetching] = useState(false)
-  const [fetchError, setFetchError] = useState<string | null>(null)
+  const [hasNoAccount, setHasNoAccount] = useState(false)
+  const [isSearching, setIsSearching] = useState(false)
+  const [searchError, setSearchError] = useState<string | null>(null)
+  const [searchedEmail, setSearchedEmail] = useState("")
 
   // Set defaults when opening/closing the dialog
   const handleOpenChange = (open: boolean) => {
     if (open) {
-      setRefereeId("")
+      setRefereeEmail("")
       setUserProfile(null)
-      setFetchError(null)
-      setIsFetching(false)
+      setHasNoAccount(false)
+      setSearchError(null)
+      setIsSearching(false)
+      setSearchedEmail("")
     }
     onOpenChange(open)
   }
 
   const handleVerify = async () => {
-    const trimmedId = refereeId.trim()
-    if (!trimmedId) return
+    const trimmedEmail = refereeEmail.trim()
+    if (!trimmedEmail) return
 
-    setIsFetching(true)
-    setFetchError(null)
-    setUserProfile(null)
-
-    try {
-      const res = await getUserProfileAction(trimmedId)
-      if (res.success && res.data) {
-        setUserProfile(res.data)
-      } else {
-        setFetchError(
-          res.error ||
-            t("personnel.enrollDialog.profileNotFound", {
-              defaultValue: "User profile not found. Please verify the ID.",
-            })
-        )
-        toast.error(res.error || "User profile not found")
-      }
-    } catch (err) {
-      setFetchError(
-        t("personnel.enrollDialog.fetchFailed", {
-          defaultValue: "Failed to fetch user profile.",
-        })
-      )
-      toast.error("Failed to verify user ID")
-    } finally {
-      setIsFetching(false)
-    }
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!userProfile) {
-      toast.error(
-        t("personnel.enrollDialog.verifyFirst", {
-          defaultValue: "Please verify the referee ID first",
+    // Simple email regex validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(trimmedEmail)) {
+      setSearchError(
+        t("personnel.enrollDialog.invalidEmail", {
+          defaultValue: "Please enter a valid email address.",
         })
       )
       return
     }
 
-    startTransition(async () => {
-      const res = await enrollReferee({
-        refereeId: userProfile.id,
-        refereeName: userProfile.fullName || userProfile.name || "",
-        refereeEmail: userProfile.email || "",
-        refereeAvatar: userProfile.avatarUrl || "",
-        phone: userProfile.phoneNumber || "",
-      })
+    setIsSearching(true)
+    setSearchError(null)
+    setUserProfile(null)
+    setHasNoAccount(false)
+    setSearchedEmail(trimmedEmail)
+
+    try {
+      const res = await searchUserByEmailAction(trimmedEmail)
       if (res.success) {
-        toast.success(
-          t("personnel.enrollDialog.successToast", {
-            defaultValue: "Referee enrolled successfully!",
-          })
-        )
-        handleOpenChange(false)
+        if (res.user) {
+          setUserProfile(res.user as User)
+        } else {
+          setHasNoAccount(true)
+        }
       } else {
-        toast.error(
-          res.error ||
-            t("personnel.enrollDialog.failToast", {
-              defaultValue: "Failed to enroll referee",
-            })
-        )
+        setSearchError(res.error || "Failed to search user profile")
+        toast.error(res.error || "Failed to search user")
       }
-    })
+    } catch {
+      setSearchError(
+        t("personnel.enrollDialog.fetchFailed", {
+          defaultValue: "Failed to fetch user profile.",
+        })
+      )
+      toast.error("Failed to verify email")
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (searchedEmail) {
+      startTransition(async () => {
+        const res = await inviteReferee(searchedEmail)
+        if (res.success) {
+          toast.success(
+            t("personnel.enrollDialog.inviteSuccessToast", {
+              defaultValue: "Invitation sent successfully!",
+            })
+          )
+          handleOpenChange(false)
+        } else {
+          toast.error(res.error || "Failed to send invitation")
+        }
+      })
+    } else {
+      toast.error(
+        t("personnel.enrollDialog.verifyFirst", {
+          defaultValue: "Please verify the referee email first",
+        })
+      )
+    }
   }
 
   return (
@@ -129,35 +134,46 @@ export function EnrollRefereeDialog({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl font-bold text-gray-900">
               <UserPlus2 className="h-5.5 w-5.5 text-emerald-600" />
-              {t("personnel.enrollDialog.title")}
+              {t("personnel.enrollDialog.title", {
+                defaultValue: "Invite Referee",
+              })}
             </DialogTitle>
             <DialogDescription className="text-sm text-gray-500">
-              {t("personnel.enrollDialog.description")}
+              {t("personnel.enrollDialog.description", {
+                defaultValue:
+                  "Enter a referee's email to send them a tournament invitation.",
+              })}
             </DialogDescription>
           </DialogHeader>
 
           <div className="my-4 space-y-4 border-t border-b border-gray-100 py-5">
-            {/* Unique ID Input with Verify Button */}
+            {/* Email Input with Verify Button */}
             <div className="space-y-1.5">
               <Label
-                htmlFor="enroll-id"
+                htmlFor="enroll-email"
                 className="text-sm font-semibold text-gray-700"
               >
-                {t("personnel.enrollDialog.idLabel")}
+                {t("personnel.enrollDialog.emailLabel", {
+                  defaultValue: "Referee Email",
+                })}
               </Label>
               <div className="flex gap-2">
                 <Input
-                  id="enroll-id"
-                  placeholder={t("personnel.enrollDialog.idPlaceholder")}
-                  value={refereeId}
+                  id="enroll-email"
+                  type="email"
+                  placeholder={t("personnel.enrollDialog.emailPlaceholder", {
+                    defaultValue: "e.g. referee@example.com",
+                  })}
+                  value={refereeEmail}
                   onChange={(e) => {
-                    setRefereeId(e.target.value)
+                    setRefereeEmail(e.target.value)
                     setUserProfile(null)
-                    setFetchError(null)
+                    setHasNoAccount(false)
+                    setSearchError(null)
                   }}
                   className="flex-1 bg-white text-sm"
                   required
-                  disabled={isFetching || isPending}
+                  disabled={isSearching || isPending}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault()
@@ -168,15 +184,15 @@ export function EnrollRefereeDialog({
                 <Button
                   type="button"
                   onClick={handleVerify}
-                  disabled={isFetching || isPending || !refereeId.trim()}
+                  disabled={isSearching || isPending || !refereeEmail.trim()}
                   variant="outline"
-                  className="shrink-0 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+                  className="border-emerald-250 shrink-0 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
                 >
-                  {isFetching ? (
+                  {isSearching ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     t("personnel.enrollDialog.verifyBtn", {
-                      defaultValue: "Verify",
+                      defaultValue: "Search",
                     })
                   )}
                 </Button>
@@ -184,13 +200,14 @@ export function EnrollRefereeDialog({
             </div>
 
             {/* Error Message */}
-            {fetchError && (
-              <div className="rounded-lg border border-red-100 bg-red-50 p-3 text-sm text-red-600">
-                {fetchError}
+            {searchError && (
+              <div className="flex gap-2 rounded-lg border border-red-100 bg-red-50 p-3 text-sm text-red-600">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>{searchError}</span>
               </div>
             )}
 
-            {/* Profile Preview Card */}
+            {/* Profile Preview Card (User Exists) */}
             {userProfile && (
               <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 p-4 transition-all hover:bg-emerald-50/50">
                 <div className="flex items-start gap-4">
@@ -210,11 +227,6 @@ export function EnrollRefereeDialog({
                       <h4 className="text-sm font-bold text-gray-900">
                         {userProfile.fullName || userProfile.name}
                       </h4>
-                      {userProfile.selfRating && (
-                        <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-600/10 ring-inset">
-                          ★ {userProfile.selfRating.toFixed(2)}
-                        </span>
-                      )}
                     </div>
 
                     <div className="space-y-1 text-xs text-gray-600">
@@ -229,32 +241,38 @@ export function EnrollRefereeDialog({
                           {userProfile.email || "N/A"}
                         </span>
                       </p>
-                      {userProfile.phoneNumber && (
-                        <p className="flex items-center gap-1.5">
-                          <span className="font-medium text-gray-500">
-                            Phone:
-                          </span>
-                          <span>{userProfile.phoneNumber}</span>
-                        </p>
-                      )}
-                      {userProfile.preferredHand && (
-                        <p className="flex items-center gap-1.5">
-                          <span className="font-medium text-gray-500">
-                            Hand:
-                          </span>
-                          <span className="capitalize">
-                            {userProfile.preferredHand.toLowerCase()}
-                          </span>
-                        </p>
-                      )}
                     </div>
                   </div>
                 </div>
                 <div className="mt-3 border-t border-emerald-100/50 pt-2 text-center text-[11px] font-medium text-emerald-600">
                   ✓{" "}
                   {t("personnel.enrollDialog.verifiedStatus", {
-                    defaultValue: "Profile verified and ready to be enrolled",
+                    defaultValue:
+                      "User profile found! Ready to send invitation.",
                   })}
+                </div>
+              </div>
+            )}
+
+            {/* Invitation Notice (User Doesn't Exist) */}
+            {hasNoAccount && (
+              <div className="rounded-xl border border-amber-100 bg-amber-50/40 p-4 transition-all">
+                <div className="flex items-start gap-2.5">
+                  <Mail className="mt-0.5 h-5 w-5 shrink-0 animate-pulse text-amber-600" />
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-bold text-gray-900">
+                      {t("personnel.enrollDialog.noAccountTitle", {
+                        defaultValue: "Email not registered in app",
+                      })}
+                    </h4>
+                    <p className="text-xs text-gray-600">
+                      {t("personnel.enrollDialog.noAccountDesc", {
+                        defaultValue:
+                          "This email is not yet registered. An invitation will be sent to the address above.",
+                        email: searchedEmail,
+                      })}
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
@@ -270,11 +288,15 @@ export function EnrollRefereeDialog({
             </Button>
             <Button
               type="submit"
-              disabled={isPending || isFetching || !userProfile}
+              disabled={
+                isPending || isSearching || (!userProfile && !hasNoAccount)
+              }
               className="bg-emerald-600 font-semibold text-white hover:bg-emerald-700"
             >
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t("personnel.enrollDialog.submitBtn")}
+              {t("personnel.enrollDialog.inviteBtn", {
+                defaultValue: "Send Invitation",
+              })}
             </Button>
           </DialogFooter>
         </form>

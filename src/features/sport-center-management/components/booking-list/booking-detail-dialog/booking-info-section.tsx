@@ -16,11 +16,23 @@ interface Props {
   booking: Booking
   note: string
   startTime: string
+  variant?: "card" | "ghost"
 }
 
-export function BookingInfoSection({ booking, note, startTime }: Props) {
+export function BookingInfoSection({
+  booking,
+  note,
+  startTime,
+  variant = "card",
+}: Props) {
   return (
-    <section className="space-y-4 rounded-3xl border bg-card p-4 shadow-sm">
+    <section
+      className={
+        variant === "ghost"
+          ? "space-y-4"
+          : "space-y-4 rounded-3xl border bg-card p-4 shadow-sm"
+      }
+    >
       <div className="text-md flex items-center gap-2 font-semibold">
         <TextSearch className="size-5 text-emerald-500" />
         Thông tin đặt sân

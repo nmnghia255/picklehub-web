@@ -97,7 +97,9 @@
       "failedDelete": "Xóa giao dịch thất bại",
       "descPlaceholder": "vd: Lương trọng tài, Mua bóng giải đấu",
       "validationDesc": "Vui lòng nhập mô tả",
-      "validationAmount": "Vui lòng nhập số tiền hợp lệ lớn hơn 0"
+      "validationAmount": "Vui lòng nhập số tiền hợp lệ lớn hơn 0",
+      "emptyOther": "Không tìm thấy giao dịch tài chính khác",
+      "emptyRegistration": "Không tìm thấy giao dịch lệ phí đăng ký"
     }
   },
   "sponsors": {

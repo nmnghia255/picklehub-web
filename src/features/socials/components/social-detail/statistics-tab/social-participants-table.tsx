@@ -51,7 +51,7 @@ export function SocialParticipantsTable({
   }
 
   return (
-    <Card className="border-border/60 bg-card/40 shadow-sm backdrop-blur">
+    <Card className="gap-0 border-border/60 bg-card/40 shadow-sm backdrop-blur">
       <CardHeader className="border-b border-border/40 pb-4">
         <div className="flex items-center justify-between">
           <div>

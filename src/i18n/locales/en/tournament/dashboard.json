@@ -97,7 +97,9 @@
       "failedDelete": "Failed to delete transaction",
       "descPlaceholder": "e.g., Referee salaries, Balls purchase",
       "validationDesc": "Please enter a description",
-      "validationAmount": "Please enter a valid amount greater than 0"
+      "validationAmount": "Please enter a valid amount greater than 0",
+      "emptyOther": "No other finance transactions found",
+      "emptyRegistration": "No registration fee transactions found"
     }
   },
   "sponsors": {

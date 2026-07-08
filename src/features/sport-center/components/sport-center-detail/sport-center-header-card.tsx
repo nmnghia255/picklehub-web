@@ -125,22 +125,38 @@ export function SportCenterHeaderCard({
         <div className="grid grid-cols-1 gap-3 text-sm text-muted-foreground md:grid-cols-2">
           <p className="flex items-center gap-2">
             <MapPin className="size-4" />
-            {sportCenter.address}
+            <span className={!sportCenter.address?.trim() ? "" : ""}>
+              {sportCenter.address?.trim() || t("detail.header.notUpdated")}
+            </span>
           </p>
           <p className="flex items-center gap-2">
             <Clock3 className="size-4" />
-            {t("detail.header.operatingHours", {
-              openTime: sportCenter.openTime,
-              closeTime: sportCenter.closeTime,
-            })}
+            <span
+              className={
+                !sportCenter.openTime?.trim() || !sportCenter.closeTime?.trim()
+                  ? ""
+                  : ""
+              }
+            >
+              {sportCenter.openTime?.trim() && sportCenter.closeTime?.trim()
+                ? t("detail.header.operatingHours", {
+                    openTime: sportCenter.openTime,
+                    closeTime: sportCenter.closeTime,
+                  })
+                : t("detail.header.notUpdated")}
+            </span>
           </p>
           <p className="flex items-center gap-2">
             <Phone className="size-4" />
-            {sportCenter.phone}
+            <span className={!sportCenter.phone?.trim() ? "" : ""}>
+              {sportCenter.phone?.trim() || t("detail.header.notUpdated")}
+            </span>
           </p>
           <p className="flex items-center gap-2">
             <Mail className="size-4" />
-            {sportCenter.email}
+            <span className={!sportCenter.email?.trim() ? "" : ""}>
+              {sportCenter.email?.trim() || t("detail.header.notUpdated")}
+            </span>
           </p>
         </div>
 

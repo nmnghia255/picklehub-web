@@ -355,7 +355,11 @@ export function LiveControlCenter({
       {/* Matches Overview Lists */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Live Matches List */}
-        <LiveMatchesCard liveMatches={liveMatches} isLoading={isLoading} />
+        <LiveMatchesCard
+          liveMatches={liveMatches}
+          isLoading={isLoading}
+          tournamentId={tournamentId}
+        />
 
         {/* Scheduled Matches Queue */}
         <ScheduledQueueCard

@@ -4,15 +4,13 @@ import { format } from "date-fns"
 import { Activity, Calendar, Check, Users } from "lucide-react"
 import Image from "next/image"
 
-// import { AvatarGroup } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import type { ListSocial as Social } from "@/features/socials/types/social"
+import { TOURNAMENT_THEME } from "@/features/tournaments/styles/theme"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import { getGenderPolicyLabel, getStatusClasses } from "../../utils"
-// import UserAvatar from "./UserAvatar"
 
 interface SocialCardProps {
   social: Social
@@ -29,7 +27,7 @@ export default function SocialCard({ social, onClick }: SocialCardProps) {
   return (
     <Card
       key={social.id}
-      className="group flex h-full cursor-pointer flex-col gap-0 overflow-hidden border-border/40 bg-card p-0 transition-all duration-300 hover:-translate-y-1 hover:border-border/80 hover:shadow-md"
+      className={`group flex h-full cursor-pointer flex-col gap-0 p-0 transition-all duration-300 hover:-translate-y-1 ${TOURNAMENT_THEME.card.base}`}
       onClick={onClick}
     >
       <div className="relative flex h-48 items-center justify-center overflow-hidden bg-linear-to-br from-sky-500 via-blue-600 to-violet-600">
@@ -42,12 +40,16 @@ export default function SocialCard({ social, onClick }: SocialCardProps) {
         />
 
         {social.isHost && (
-          <Badge className="absolute top-3 left-3 border-primary/20 bg-primary text-primary-foreground">
+          <Badge
+            className={`absolute top-3 left-3 border-sky-200 bg-sky-50 font-semibold text-sky-700`}
+          >
             {t("badges.hosting")}
           </Badge>
         )}
         {social.isParticipant && !social.isHost && (
-          <Badge className="text-white-800/60 absolute top-3 left-3 gap-1 border-emerald-500/30 bg-emerald-500">
+          <Badge
+            className={`absolute top-3 left-3 gap-1 ${TOURNAMENT_THEME.badge.success}`}
+          >
             <Check className="size-3.5" />
             {t("badges.joined")}
           </Badge>
@@ -56,7 +58,9 @@ export default function SocialCard({ social, onClick }: SocialCardProps) {
 
       <CardHeader className="space-y-0 pt-6 pb-0">
         <div className="flex items-start justify-between gap-3">
-          <h2 className="line-clamp-1 text-lg font-semibold tracking-tight transition-colors group-hover:text-primary">
+          <h2
+            className={`line-clamp-1 text-lg font-semibold tracking-tight transition-colors`}
+          >
             {social.title}
           </h2>
           <Badge className={getStatusClasses(social.status)} variant="outline">
@@ -81,7 +85,7 @@ export default function SocialCard({ social, onClick }: SocialCardProps) {
           {social.isFree && (
             <Badge
               variant="default"
-              className="bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
+              className={`${TOURNAMENT_THEME.badge.success} hover:bg-emerald-100`}
             >
               {t("listing.free", { defaultValue: "Free" })}
             </Badge>

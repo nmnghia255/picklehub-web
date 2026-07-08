@@ -58,7 +58,8 @@
         "actions": "Actions",
         "verifyReceipt": "Verify Receipt",
         "recordCash": "Record Cash",
-        "issueRefund": "Issue Refund"
+        "issueRefund": "Issue Refund",
+        "openMenu": "Open menu"
       }
     },
     "verifyPaymentDialog": {

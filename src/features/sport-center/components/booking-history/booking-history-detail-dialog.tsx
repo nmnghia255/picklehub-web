@@ -4,6 +4,7 @@ import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Separator } from "@/components/ui/separator"
 import { cancelBookingAction } from "@/features/sport-center/actions/cancel-booking-action"
 import type { BookingResponse } from "@/features/sport-center/types/booking"
 import { BookingCancellationSection } from "@/features/sport-center-management/components/booking-list/booking-detail-dialog/booking-cancellation-section"
@@ -82,65 +83,45 @@ export function BookingHistoryDetailDialog({
             <div className="space-y-6 px-6 py-5">
               <BookingSummaryCards booking={booking} />
 
-              <BookingCustomerSection booking={booking} />
+              <Separator />
+
+              <BookingCustomerSection booking={booking} variant="ghost" />
+
+              <Separator />
 
               <BookingInfoSection
                 booking={booking}
                 note={displayNote}
                 startTime={startTime}
+                variant="ghost"
               />
-              {/* 
-              <section className="space-y-4 rounded-3xl border bg-card p-4 shadow-sm">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border bg-background/80 p-3 shadow-sm">
-                    <p className="text-xs text-muted-foreground">Trung tâm</p>
-                    <p className="mt-1 text-sm font-medium text-foreground">
-                      {booking.center.name}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border bg-background/80 p-3 shadow-sm">
-                    <p className="text-xs text-muted-foreground">Ngày tạo</p>
-                    <p className="mt-1 text-sm font-medium text-foreground">
-                      {formatBookingCreatedAt(booking.createdAt)}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border bg-background/80 p-3 shadow-sm">
-                    <p className="text-xs text-muted-foreground">Ngày đặt</p>
-                    <p className="mt-1 text-sm font-medium text-foreground">
-                      {formatBookingDate(booking.date)}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border bg-background/80 p-3 shadow-sm">
-                    <p className="text-xs text-muted-foreground">Tổng tiền</p>
-                    <p className="mt-1 text-sm font-medium text-foreground">
-                      {formatCurrency(booking.totalPrice)}
-                    </p>
-                  </div>
-                </div>
-                <div className="rounded-2xl border bg-muted/20 p-3">
-                  <p className="text-xs text-muted-foreground">Ghi chú</p>
-                  <p className="mt-1 text-sm leading-6 text-foreground">
-                    {displayNote}
-                  </p>
-                </div>
-              </section> */}
 
-              <BookingPaymentSection booking={booking} />
+              <Separator />
+
+              <BookingPaymentSection booking={booking} variant="ghost" />
+
+              <Separator />
 
               <BookingSummarySection
                 booking={booking}
                 serviceCount={serviceCount}
                 productCount={productCount}
+                variant="ghost"
               />
 
               {booking.status === "CANCELLED" && (
-                <BookingCancellationSection
-                  booking={booking}
-                  displayNote={displayNote}
-                />
+                <>
+                  <Separator />
+                  <BookingCancellationSection
+                    booking={booking}
+                    variant="ghost"
+                  />
+                </>
               )}
 
-              <BookingScheduleServices booking={booking} />
+              <Separator />
+
+              <BookingScheduleServices booking={booking} variant="ghost" />
 
               {cancelError ? (
                 <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">

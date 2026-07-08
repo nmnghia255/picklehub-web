@@ -92,7 +92,7 @@ export function ExtraExpensesCard({
 
   return (
     <>
-      <Card className="overflow-hidden">
+      <Card className="gap-0 overflow-hidden">
         <CardHeader className="border-b border-border/60 bg-muted/20">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>

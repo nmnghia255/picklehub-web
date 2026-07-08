@@ -10,15 +10,23 @@ interface Props {
   booking: Booking
   serviceCount: number
   productCount: number
+  variant?: "card" | "ghost"
 }
 
 export function BookingSummarySection({
   booking,
   serviceCount,
   productCount,
+  variant = "card",
 }: Props) {
   return (
-    <section className="space-y-4 rounded-3xl border bg-card p-4 shadow-sm">
+    <section
+      className={
+        variant === "ghost"
+          ? "space-y-4"
+          : "space-y-4 rounded-3xl border bg-card p-4 shadow-sm"
+      }
+    >
       <div className="text-md flex items-center gap-2 font-semibold">
         <ReceiptText className="size-5 text-violet-500" />
         Tổng hợp đặt sân

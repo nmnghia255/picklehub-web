@@ -5,7 +5,7 @@ import {
   Coins,
   CreditCard,
   DollarSign,
-  Image,
+  Image as ImageIcon,
 } from "lucide-react"
 
 import type { Booking } from "../../../types/booking"
@@ -14,11 +14,18 @@ import { BookingDetailField } from "./booking-detail-field"
 
 interface Props {
   booking: Booking
+  variant?: "card" | "ghost"
 }
 
-export function BookingPaymentSection({ booking }: Props) {
+export function BookingPaymentSection({ booking, variant = "card" }: Props) {
   return (
-    <section className="space-y-4 rounded-3xl border bg-card p-4 shadow-sm">
+    <section
+      className={
+        variant === "ghost"
+          ? "space-y-4"
+          : "space-y-4 rounded-3xl border bg-card p-4 shadow-sm"
+      }
+    >
       <div className="text-md flex items-center gap-2 font-semibold">
         <CreditCard className="size-5 text-orange-500" />
         Thông tin thanh toán
@@ -51,7 +58,7 @@ export function BookingPaymentSection({ booking }: Props) {
         {booking.paymentProofUrl ? (
           <div className="rounded-2xl border bg-background/80 p-3 shadow-sm">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Image className="size-4 text-orange-500" />
+              <ImageIcon className="size-4 text-orange-500" />
               <span>Ảnh minh chứng</span>
             </div>
             <div className="mt-2">
@@ -73,7 +80,7 @@ export function BookingPaymentSection({ booking }: Props) {
           <BookingDetailField
             label="Ảnh minh chứng"
             value="Chưa thanh toán"
-            icon={Image}
+            icon={ImageIcon}
             toneClassName="text-orange-500"
           />
         )}

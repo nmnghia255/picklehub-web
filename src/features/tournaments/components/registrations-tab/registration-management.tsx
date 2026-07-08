@@ -201,7 +201,7 @@ export function RegistrationManagement({
           </TabsList>
 
           <TabsContent value="pending" className="mt-6">
-            <Card>
+            <Card className="gap-0 py-0">
               <CardContent className="p-6">
                 <RegistrationTable
                   registrations={registrations.filter(
@@ -218,7 +218,7 @@ export function RegistrationManagement({
           </TabsContent>
 
           <TabsContent value="approved" className="mt-6">
-            <Card>
+            <Card className="gap-0 py-0">
               <CardContent className="p-6">
                 <RegistrationTable
                   registrations={registrations.filter(
@@ -233,7 +233,7 @@ export function RegistrationManagement({
           </TabsContent>
 
           <TabsContent value="rejected" className="mt-6">
-            <Card>
+            <Card className="gap-0 py-0">
               <CardContent className="p-6">
                 <RegistrationTable
                   registrations={registrations.filter(
@@ -248,7 +248,7 @@ export function RegistrationManagement({
           </TabsContent>
 
           <TabsContent value="waitlisted" className="mt-6">
-            <Card>
+            <Card className="gap-0 py-0">
               <CardContent className="p-6">
                 <RegistrationTable
                   registrations={registrations.filter(
@@ -263,7 +263,7 @@ export function RegistrationManagement({
           </TabsContent>
 
           <TabsContent value="withdrawn" className="mt-6">
-            <Card>
+            <Card className="gap-0 py-0">
               <CardContent className="p-6">
                 <RegistrationTable
                   registrations={registrations.filter(

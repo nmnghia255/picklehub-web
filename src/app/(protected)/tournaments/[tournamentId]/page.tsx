@@ -12,6 +12,8 @@ import type { Sponsor } from "@/features/tournaments/types/sponsor"
 import type { Tournament } from "@/features/tournaments/types/tournament"
 import type { TournamentEvent } from "@/features/tournaments/types/tournament-event"
 
+import { TournamentLoading } from "./tournament-loading"
+
 export default async function TournamentDetailPage(props: {
   params: Promise<{ tournamentId: string }>
 }) {
@@ -86,13 +88,7 @@ export default async function TournamentDetailPage(props: {
 
   return (
     <div className="tournament-player-root flex flex-1 flex-col">
-      <Suspense
-        fallback={
-          <div className="p-8 text-center text-gray-500">
-            Đang tải thông tin giải đấu...
-          </div>
-        }
-      >
+      <Suspense fallback={<TournamentLoading />}>
         <PlayerTournament
           tournament={tournament}
           events={events}

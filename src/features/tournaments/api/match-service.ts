@@ -102,11 +102,14 @@ export const TournamentMatchService = {
     return unwrapApiResponse(response.data)
   },
 
-  startMatch: async (id: string): Promise<PlaySessionMatch> => {
+  startMatch: async (
+    id: string,
+    payload?: { firstServingPlayerId?: string }
+  ): Promise<PlaySessionMatch> => {
     const axios = await getAuthenticatedAxios()
     const response = await axios.patch<
       ApiResponse<PlaySessionMatch> | PlaySessionMatch
-    >(`/api/matches/${id}/start`)
+    >(`/api/matches/${id}/start`, payload)
     return unwrapApiResponse(response.data)
   },
 

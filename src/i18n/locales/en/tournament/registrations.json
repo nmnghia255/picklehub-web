@@ -20,6 +20,7 @@
       "paid": "Paid",
       "pending": "Pending"
     },
+    "noRegistrations": "No registrations found",
     "profile": {
       "title": "Player Profile",
       "description": "View player information, rating, and tournament history",

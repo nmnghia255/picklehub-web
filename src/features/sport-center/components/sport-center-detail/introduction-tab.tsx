@@ -42,8 +42,10 @@ export function IntroductionTab({ description, courts }: IntroductionTabProps) {
           <h2 className="text-lg font-semibold tracking-tight">
             {t("detail.introduction.title")}
           </h2>
-          <p className="text-md leading-6 text-muted-foreground">
-            {description}
+          <p
+            className={`text-md leading-6 text-muted-foreground ${!description?.trim() ? "" : ""}`}
+          >
+            {description?.trim() || t("detail.introduction.noDescription")}
           </p>
         </div>
 

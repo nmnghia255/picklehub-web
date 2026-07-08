@@ -8,12 +8,21 @@ import { BookingDetailField } from "./booking-detail-field"
 
 interface Props {
   booking: Booking
-  displayNote: string
+  variant?: "card" | "ghost"
 }
 
-export function BookingCancellationSection({ booking, displayNote }: Props) {
+export function BookingCancellationSection({
+  booking,
+  variant = "card",
+}: Props) {
   return (
-    <section className="space-y-4 rounded-3xl border bg-card p-4 shadow-sm">
+    <section
+      className={
+        variant === "ghost"
+          ? "space-y-4"
+          : "space-y-4 rounded-3xl border bg-card p-4 shadow-sm"
+      }
+    >
       <div className="text-md flex items-center gap-2 font-semibold">
         <ShieldX className="size-5 text-rose-500" />
         Thông tin hủy
