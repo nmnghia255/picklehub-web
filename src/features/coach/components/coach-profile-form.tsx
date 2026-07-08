@@ -25,6 +25,7 @@ import {
   useMemo,
   useState,
 } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -55,12 +56,27 @@ import {
   useUpdateMyCoachProfile,
 } from "../hooks/use-coach-queries"
 
-const skillOptions = [
-  { value: "Beginner Coaching", label: "Dạy người mới" },
-  { value: "Advanced Strategy", label: "Dạy nâng cao" },
-  { value: "Kids Coaching", label: "Dạy trẻ em" },
-  { value: "Tournament Coaching", label: "Huấn luyện thi đấu" },
-] as const
+function getLocaleCode(language: string) {
+  return language.startsWith("vi") ? "vi-VN" : "en-US"
+}
+
+function getSkillOptions(t: (key: string) => string) {
+  return [
+    {
+      value: "Beginner Coaching",
+      label: t("coach.onboarding.specialtyBeginner"),
+    },
+    {
+      value: "Advanced Strategy",
+      label: t("coach.onboarding.specialtyAdvanced"),
+    },
+    { value: "Kids Coaching", label: t("coach.onboarding.specialtyKids") },
+    {
+      value: "Tournament Coaching",
+      label: t("coach.onboarding.specialtyTournament"),
+    },
+  ] as const
+}
 
 function getInitials(name: string) {
   return name
@@ -84,16 +100,16 @@ function getCertStatusColor(status: string) {
   }
 }
 
-function getCertStatusLabel(status: string) {
+function getCertStatusLabel(t: (key: string) => string, status: string) {
   switch (status) {
     case "VERIFIED":
-      return "Đã xác minh"
+      return t("coach.profile.confirmed")
     case "PENDING":
-      return "Chờ duyệt"
+      return t("coach.profile.pending")
     case "REJECTED":
-      return "Từ chối"
+      return t("coach.profile.rejected")
     default:
-      return "Chưa xác minh"
+      return t("coach.profile.unverified")
   }
 }
 
@@ -109,6 +125,8 @@ function getCertStatusIcon(status: string) {
 }
 
 export function CoachProfileForm() {
+  const { t, i18n } = useTranslation("common")
+  const locale = getLocaleCode(i18n.language)
   const session = useSession()
   const { data: profile, isLoading: profileLoading } = useMyCoachProfile({
     enabled: !!session?.user,
@@ -128,7 +146,9 @@ export function CoachProfileForm() {
   const [locationCity, setLocationCity] = useState("")
   const [yearsExperience, setYearsExperience] = useState("0")
   const [avatarUrl, setAvatarUrl] = useState("")
-  const [avatarFileName, setAvatarFileName] = useState("Chưa tải ảnh mới")
+  const [avatarFileName, setAvatarFileName] = useState(
+    t("coach.profile.noAvatarUploaded")
+  )
 
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
   const [certDialogOpen, setCertDialogOpen] = useState(false)
@@ -139,6 +159,7 @@ export function CoachProfileForm() {
   const [certFileName, setCertFileName] = useState("")
 
   const certifications = certs ?? []
+  const skillOptions = getSkillOptions(t)
 
   useEffect(() => {
     if (profile) {
@@ -173,7 +194,7 @@ export function CoachProfileForm() {
     setLocationCity(profile?.locationCity ?? "")
     setYearsExperience(String(profile?.yearsExperience ?? 0))
     setAvatarUrl(profile?.avatarUrl ?? "")
-    setAvatarFileName("Chưa tải ảnh mới")
+    setAvatarFileName(t("coach.profile.noAvatarUploaded"))
     setIsEditingBasicInfo(true)
   }
 
@@ -273,11 +294,10 @@ export function CoachProfileForm() {
           <div className="max-w-3xl space-y-3">
             <div className="space-y-2">
               <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
-                Hồ sơ chuyên môn huấn luyện viên
+                {t("coach.profile.pageTitle")}
               </h2>
               <p className="text-sm text-muted-foreground md:text-base">
-                Cập nhật thông tin cơ bản, chứng chỉ, chuyên môn và mô tả phương
-                pháp giảng dạy trong một màn hình duy nhất.
+                {t("coach.profile.pageDescription")}
               </p>
             </div>
           </div>
@@ -285,13 +305,13 @@ export function CoachProfileForm() {
           <div className="grid gap-3 sm:grid-cols-2 lg:min-w-90 lg:grid-cols-2">
             <div className="rounded-2xl border bg-background/80 p-4 backdrop-blur-sm">
               <p className="text-xs tracking-wide text-muted-foreground uppercase">
-                Chứng chỉ đã xác minh
+                {t("coach.profile.verifiedCerts")}
               </p>
               <p className="mt-1 text-2xl font-semibold">{verifiedCount}</p>
             </div>
             <div className="rounded-2xl border bg-background/80 p-4 backdrop-blur-sm">
               <p className="text-xs tracking-wide text-muted-foreground uppercase">
-                Chứng chỉ chờ duyệt
+                {t("coach.profile.pendingCerts")}
               </p>
               <p className="mt-1 text-2xl font-semibold">{pendingCount}</p>
             </div>
@@ -304,8 +324,8 @@ export function CoachProfileForm() {
               >
                 <Send className="size-4" />
                 {publishProfile.isPending
-                  ? "Đang công khai..."
-                  : "Công khai hồ sơ"}
+                  ? t("coach.profile.publishingButton")
+                  : t("coach.profile.publishButton")}
               </Button>
             )}
           </div>
@@ -318,9 +338,9 @@ export function CoachProfileForm() {
             <CardHeader className="space-y-2">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <CardTitle>Thông tin cơ bản</CardTitle>
+                  <CardTitle>{t("coach.profile.basicInfoTitle")}</CardTitle>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Hiển thị avatar, tên, khu vực giảng dạy và kinh nghiệm.
+                    {t("coach.profile.basicInfoDescription")}
                   </p>
                 </div>
 
@@ -333,7 +353,7 @@ export function CoachProfileForm() {
                     disabled={updateProfile.isPending}
                   >
                     <Edit3 className="size-4" />
-                    Chỉnh sửa
+                    {t("coach.profile.editButton")}
                   </Button>
                 ) : (
                   <Button
@@ -342,7 +362,7 @@ export function CoachProfileForm() {
                     className="rounded-full"
                     onClick={handleBasicInfoCancel}
                   >
-                    Hủy
+                    {t("coach.profile.cancelButton")}
                   </Button>
                 )}
               </div>
@@ -365,26 +385,29 @@ export function CoachProfileForm() {
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="text-xl font-semibold">
-                          {profile?.displayName ?? "Chưa có tên"}
+                          {profile?.displayName ?? t("coach.profile.noName")}
                         </h3>
                         <Badge variant="secondary" className="rounded-full">
-                          HLV Pickleball
+                          {t("coach.profile.coachBadge")}
                         </Badge>
                       </div>
                       <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
                         <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1">
                           <MapPin className="size-4" />
-                          {profile?.locationCity ?? "Chưa cập nhật"}
+                          {profile?.locationCity ??
+                            t("coach.profile.noLocation")}
                         </span>
                         <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1">
                           <CalendarDays className="size-4" />
-                          {profile?.yearsExperience ?? 0} năm kinh nghiệm
+                          {t("coach.profile.experienceYears", {
+                            years: profile?.yearsExperience ?? 0,
+                          })}
                         </span>
                       </div>
                     </div>
 
                     <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-                      {profile?.bio ?? "Chưa có mô tả."}
+                      {profile?.bio ?? t("coach.profile.noBio")}
                     </p>
                   </div>
                 </div>
@@ -400,7 +423,9 @@ export function CoachProfileForm() {
                       </Avatar>
 
                       <div className="space-y-2 rounded-2xl border border-dashed p-4">
-                        <Label htmlFor="avatarUpload">Upload avatar</Label>
+                        <Label htmlFor="avatarUpload">
+                          {t("coach.profile.uploadAvatar")}
+                        </Label>
                         <Input
                           id="avatarUpload"
                           type="file"
@@ -415,39 +440,47 @@ export function CoachProfileForm() {
 
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="space-y-2 sm:col-span-2">
-                        <Label htmlFor="displayName">Tên hiển thị</Label>
+                        <Label htmlFor="displayName">
+                          {t("coach.profile.displayNameLabel")}
+                        </Label>
                         <Input
                           id="displayName"
                           value={displayName}
                           onChange={(e) => setDisplayName(e.target.value)}
-                          placeholder="Nguyễn Văn A"
+                          placeholder={t(
+                            "coach.profile.displayNamePlaceholder"
+                          )}
                         />
                       </div>
 
                       <div className="space-y-2 sm:col-span-2">
-                        <Label htmlFor="bio">Bio</Label>
+                        <Label htmlFor="bio">
+                          {t("coach.profile.bioLabel")}
+                        </Label>
                         <Textarea
                           id="bio"
                           value={bio}
                           onChange={(e) => setBio(e.target.value)}
                           rows={4}
-                          placeholder="Mô tả ngắn về chuyên môn và phong cách huấn luyện"
+                          placeholder={t("coach.profile.bioPlaceholder")}
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="locationCity">Khu vực giảng dạy</Label>
+                        <Label htmlFor="locationCity">
+                          {t("coach.profile.locationLabel")}
+                        </Label>
                         <Input
                           id="locationCity"
                           value={locationCity}
                           onChange={(e) => setLocationCity(e.target.value)}
-                          placeholder="TP.HCM"
+                          placeholder={t("coach.profile.locationPlaceholder")}
                         />
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="yearsExperience">
-                          Số năm kinh nghiệm
+                          {t("coach.profile.experienceLabel")}
                         </Label>
                         <Input
                           id="yearsExperience"
@@ -467,7 +500,9 @@ export function CoachProfileForm() {
                       disabled={updateProfile.isPending}
                     >
                       <Save className="size-4" />
-                      {updateProfile.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+                      {updateProfile.isPending
+                        ? t("coach.profile.saving")
+                        : t("coach.profile.saveChanges")}
                     </Button>
                     <Button
                       type="button"
@@ -475,7 +510,7 @@ export function CoachProfileForm() {
                       className="rounded-full"
                       onClick={handleBasicInfoCancel}
                     >
-                      Hủy chỉnh sửa
+                      {t("coach.profile.cancelEditButton")}
                     </Button>
                   </div>
                 </form>
@@ -487,9 +522,9 @@ export function CoachProfileForm() {
             <CardHeader className="space-y-2">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <CardTitle>Chứng chỉ</CardTitle>
+                  <CardTitle>{t("coach.profile.certificationTitle")}</CardTitle>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Quản lý chứng chỉ, file đính kèm và trạng thái xác minh.
+                    {t("coach.profile.certificationDescription")}
                   </p>
                 </div>
 
@@ -500,7 +535,7 @@ export function CoachProfileForm() {
                   disabled={addCert.isPending}
                 >
                   <Plus className="size-4" />
-                  Thêm chứng chỉ
+                  {t("coach.profile.addCertButton")}
                 </Button>
               </div>
             </CardHeader>
@@ -532,6 +567,7 @@ export function CoachProfileForm() {
                           >
                             <StatusIcon className="size-3.5" />
                             {getCertStatusLabel(
+                              t,
                               certification.verificationStatus
                             )}
                           </Badge>
@@ -541,15 +577,15 @@ export function CoachProfileForm() {
                           <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1">
                             <Award className="size-4" />
                             {certification.issuingOrganization ??
-                              "Không có tổ chức"}
+                              t("coach.profile.noOrganization")}
                           </span>
                           <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1">
                             <CalendarDays className="size-4" />
                             {certification.issuedAt
                               ? new Date(
                                   certification.issuedAt
-                                ).toLocaleDateString("vi-VN")
-                              : "Không có ngày"}
+                                ).toLocaleDateString(locale)
+                              : t("coach.profile.noDate")}
                           </span>
                         </div>
 
@@ -561,7 +597,7 @@ export function CoachProfileForm() {
                             className="inline-flex items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline"
                           >
                             <FileText className="size-4" />
-                            Xem tài liệu
+                            {t("coach.profile.viewDocument")}
                           </a>
                         )}
                       </div>
@@ -577,7 +613,7 @@ export function CoachProfileForm() {
                           disabled={deleteCert.isPending}
                         >
                           <Trash2 className="size-4" />
-                          Xóa
+                          {t("coach.profile.delete")}
                         </Button>
                       </div>
                     </div>
@@ -587,8 +623,7 @@ export function CoachProfileForm() {
 
               {certifications.length === 0 && (
                 <p className="py-4 text-center text-sm text-muted-foreground">
-                  Chưa có chứng chỉ nào. Nhấn \u201CThêm chứng chỉ\u201D để bắt
-                  đầu.
+                  {t("coach.profile.noCertification")}
                 </p>
               )}
             </CardContent>
@@ -600,9 +635,9 @@ export function CoachProfileForm() {
             <CardHeader className="space-y-2">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <CardTitle>Kinh nghiệm &amp; chuyên môn</CardTitle>
+                  <CardTitle>{t("coach.profile.skillsTitle")}</CardTitle>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Chọn chuyên môn bằng checkbox và lưu thay đổi.
+                    {t("coach.profile.skillsDescription")}
                   </p>
                 </div>
               </div>
@@ -634,18 +669,22 @@ export function CoachProfileForm() {
                   disabled={updateProfile.isPending}
                 >
                   <Save className="size-4" />
-                  {updateProfile.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+                  {updateProfile.isPending
+                    ? t("coach.profile.saving")
+                    : t("coach.profile.saveChanges")}
                 </Button>
               </div>
 
               <Separator />
 
               <div className="space-y-3">
-                <p className="text-sm font-medium">Chuyên môn đang chọn</p>
+                <p className="text-sm font-medium">
+                  {t("coach.profile.selectedSkills")}
+                </p>
                 <div className="flex flex-wrap gap-2">
                   {selectedSkills.length === 0 ? (
                     <span className="text-sm text-muted-foreground">
-                      Chưa chọn chuyên môn nào.
+                      {t("coach.profile.noSkillsSelected")}
                     </span>
                   ) : (
                     selectedSkills.map((skill) => (
@@ -664,7 +703,7 @@ export function CoachProfileForm() {
               <div className="rounded-2xl border bg-muted/20 p-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2 font-medium text-foreground">
                   <Globe2 className="size-4" />
-                  {profile?.bio ?? "Chưa có bio"}
+                  {profile?.bio ?? t("coach.profile.noBio")}
                 </div>
               </div>
             </CardContent>
@@ -674,14 +713,13 @@ export function CoachProfileForm() {
             <CardHeader className="space-y-2">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <CardTitle>Thống kê giảng dạy</CardTitle>
+                  <CardTitle>{t("coach.profile.statsTitle")}</CardTitle>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Auto cập nhật từ dữ liệu hệ thống, không chỉnh sửa trực
-                    tiếp.
+                    {t("coach.profile.statsDescription")}
                   </p>
                 </div>
                 <Badge variant="secondary" className="rounded-full">
-                  Auto cập nhật
+                  {t("coach.profile.autoUpdate")}
                 </Badge>
               </div>
             </CardHeader>
@@ -689,23 +727,23 @@ export function CoachProfileForm() {
             <CardContent className="grid gap-4 sm:grid-cols-2">
               <StatCard
                 icon={CalendarDays}
-                label="Tổng số buổi đã dạy"
+                label={t("coach.profile.sessionsTaught")}
                 value={profile ? String(profile.yearsExperience ?? 0) : "0"}
               />
               <StatCard
                 icon={Users}
-                label="Số học viên đã dạy"
+                label={t("coach.profile.studentsTaught")}
                 value={String(profile?.reviewCount ?? 0)}
               />
               <StatCard
                 icon={Star}
-                label="Rating trung bình"
+                label={t("coach.profile.averageRating")}
                 value={(profile?.averageRating ?? 0).toFixed(1)}
                 suffix="/ 5"
               />
               <StatCard
                 icon={CheckCircle2}
-                label="Số lượt đánh giá"
+                label={t("coach.profile.reviewCount")}
                 value={String(profile?.reviewCount ?? 0)}
               />
             </CardContent>
@@ -728,37 +766,43 @@ export function CoachProfileForm() {
       >
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Thêm chứng chỉ</DialogTitle>
+            <DialogTitle>{t("coach.profile.addCertButton")}</DialogTitle>
             <DialogDescription>
-              Nhập thông tin chứng chỉ để gửi lên hệ thống xác minh.
+              {t("coach.profile.certDialogDescription")}
             </DialogDescription>
           </DialogHeader>
 
           <form className="space-y-4" onSubmit={handleCertificationSave}>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="certName">Tên chứng chỉ</Label>
+                <Label htmlFor="certName">
+                  {t("coach.profile.certNameLabel")}
+                </Label>
                 <Input
                   id="certName"
                   value={certName}
                   onChange={(e) => setCertName(e.target.value)}
-                  placeholder="IPTPA Level 1"
+                  placeholder={t("coach.profile.certNamePlaceholder")}
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="certOrg">Tổ chức cấp</Label>
+                <Label htmlFor="certOrg">
+                  {t("coach.profile.certOrgLabel")}
+                </Label>
                 <Input
                   id="certOrg"
                   value={certOrg}
                   onChange={(e) => setCertOrg(e.target.value)}
-                  placeholder="IPTPA"
+                  placeholder={t("coach.profile.certOrgPlaceholder")}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="certIssuedAt">Ngày cấp</Label>
+                <Label htmlFor="certIssuedAt">
+                  {t("coach.profile.certDateLabel")}
+                </Label>
                 <Input
                   id="certIssuedAt"
                   type="date"
@@ -768,7 +812,9 @@ export function CoachProfileForm() {
               </div>
 
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="certFile">File chứng chỉ (URL)</Label>
+                <Label htmlFor="certFile">
+                  {t("coach.profile.certFileLabel")}
+                </Label>
                 <Input
                   id="certFile"
                   type="file"
@@ -777,7 +823,9 @@ export function CoachProfileForm() {
                 />
                 <div className="flex items-center gap-2 rounded-2xl border border-dashed px-3 py-2 text-sm text-muted-foreground">
                   <ImageIcon className="size-4" />
-                  <span>{certFileName || "Chưa chọn file"}</span>
+                  <span>
+                    {certFileName || t("coach.profile.noFileSelected")}
+                  </span>
                 </div>
               </div>
             </div>
@@ -788,14 +836,16 @@ export function CoachProfileForm() {
                 variant="outline"
                 onClick={() => setCertDialogOpen(false)}
               >
-                Hủy
+                {t("coach.profile.cancelButton")}
               </Button>
               <Button
                 type="submit"
                 disabled={addCert.isPending || !certName.trim()}
               >
                 <Save className="size-4" />
-                {addCert.isPending ? "Đang lưu..." : "Lưu chứng chỉ"}
+                {addCert.isPending
+                  ? t("coach.profile.saving")
+                  : t("coach.profile.saveCert")}
               </Button>
             </DialogFooter>
           </form>
@@ -804,24 +854,26 @@ export function CoachProfileForm() {
 
       {updateProfile.isSuccess && (
         <p className="text-sm font-medium text-green-600">
-          Đã cập nhật hồ sơ thành công!
+          {t("coach.profile.updated")}
         </p>
       )}
 
       {publishProfile.isSuccess && (
         <p className="text-sm font-medium text-green-600">
-          Hồ sơ đã được công khai!
+          {t("coach.profile.published")}
         </p>
       )}
 
       {addCert.isSuccess && (
         <p className="text-sm font-medium text-green-600">
-          Đã thêm chứng chỉ thành công!
+          {t("coach.profile.certAdded")}
         </p>
       )}
 
       {deleteCert.isSuccess && (
-        <p className="text-sm font-medium text-green-600">Đã xóa chứng chỉ!</p>
+        <p className="text-sm font-medium text-green-600">
+          {t("coach.profile.certDeleted")}
+        </p>
       )}
     </div>
   )

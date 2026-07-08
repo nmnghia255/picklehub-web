@@ -2,6 +2,7 @@
 
 import { Search } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { ErrorState } from "@/components/shared/error-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -29,12 +30,6 @@ import { getErrorMessage } from "@/lib/api-client"
 
 import { useCoachLearners } from "../hooks/use-coach-queries"
 
-const kindLabels: Record<string, string> = {
-  all: "Tất cả",
-  class: "Lớp học",
-  booking: "Đặt lịch",
-}
-
 const DEFAULT_LIMIT = 12
 
 export function CoachStudentsTable({
@@ -42,13 +37,16 @@ export function CoachStudentsTable({
 }: {
   onSelect?: (learnerId: string) => void
 }) {
+  const { t } = useTranslation("common")
   const session = useSession()
   const [search, setSearch] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [kind, setKind] = useState("all")
   const [page, setPage] = useState(1)
 
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  )
 
   useEffect(() => {
     debounceRef.current = setTimeout(() => {
@@ -58,19 +56,27 @@ export function CoachStudentsTable({
     return () => clearTimeout(debounceRef.current)
   }, [search])
 
-  const params: { search?: string; kind?: string; page?: number; limit?: number } = {
+  const params: {
+    search?: string
+    kind?: string
+    page?: number
+    limit?: number
+  } = {
     page,
     limit: DEFAULT_LIMIT,
   }
   if (debouncedSearch) params.search = debouncedSearch
   if (kind !== "all") params.kind = kind
 
-  const { data, isLoading, isError, error, refetch } = useCoachLearners(params, { enabled: !!session?.user })
+  const { data, isLoading, isError, error, refetch } = useCoachLearners(
+    params,
+    { enabled: !!session?.user }
+  )
 
   if (isError) {
     return (
       <ErrorState
-        title="Không thể tải danh sách học viên"
+        title={t("coach.students.errorTitle")}
         description={getErrorMessage(error)}
         retry={refetch}
       />
@@ -108,7 +114,7 @@ export function CoachStudentsTable({
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Tìm theo tên, email hoặc ID"
+            placeholder={t("coach.students.searchPlaceholder")}
             className="pl-9"
           />
         </div>
@@ -121,12 +127,16 @@ export function CoachStudentsTable({
           }}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Loại học viên" />
+            <SelectValue placeholder={t("coach.students.kindAll")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{kindLabels.all}</SelectItem>
-            <SelectItem value="class">{kindLabels.class}</SelectItem>
-            <SelectItem value="booking">{kindLabels.booking}</SelectItem>
+            <SelectItem value="all">{t("coach.students.kindAll")}</SelectItem>
+            <SelectItem value="class">
+              {t("coach.students.kindClass")}
+            </SelectItem>
+            <SelectItem value="booking">
+              {t("coach.students.kindBooking")}
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -137,10 +147,10 @@ export function CoachStudentsTable({
             <CardContent className="p-4">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-start gap-4">
-                    <Avatar className="size-12">
+                  <Avatar className="size-12">
                     <AvatarImage
                       src={student.avatarUrl ?? ""}
-                      alt={student.name ?? "Học viên"}
+                      alt={student.name ?? t("coach.students.viewProfile")}
                     />
                     <AvatarFallback>
                       {student?.name?.charAt(0) ?? "?"}
@@ -148,11 +158,25 @@ export function CoachStudentsTable({
                   </Avatar>
 
                   <div className="space-y-1">
-                    <p className="font-semibold">{student.name ?? "Không có tên"}</p>
+                    <p className="font-semibold">
+                      {student.name ?? t("coach.students.noName")}
+                    </p>
                     <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                      <span>{student.classEnrollmentCount} lớp tham gia</span>
-                      <span>{student.activeClassEnrollmentCount} lớp đang hoạt động</span>
-                      <span>{student.privateBookingCount} lịch đặt riêng</span>
+                      <span>
+                        {t("coach.students.classesAttended", {
+                          count: student.classEnrollmentCount,
+                        })}
+                      </span>
+                      <span>
+                        {t("coach.students.activeClasses", {
+                          count: student.activeClassEnrollmentCount,
+                        })}
+                      </span>
+                      <span>
+                        {t("coach.students.privateBookings", {
+                          count: student.privateBookingCount,
+                        })}
+                      </span>
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {student.email ?? "—"}
@@ -166,7 +190,7 @@ export function CoachStudentsTable({
                     className="rounded-full"
                     onClick={() => onSelect?.(student.id)}
                   >
-                    Xem hồ sơ
+                    {t("coach.students.viewProfile")}
                   </Button>
                 </div>
               </div>
@@ -177,7 +201,7 @@ export function CoachStudentsTable({
 
       {students.length === 0 ? (
         <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-          Không tìm thấy học viên phù hợp.
+          {t("coach.students.noResults")}
         </div>
       ) : null}
 
@@ -194,20 +218,22 @@ export function CoachStudentsTable({
                 className={page <= 1 ? "pointer-events-none opacity-50" : ""}
               />
             </PaginationItem>
-            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => (
-              <PaginationItem key={p}>
-                <PaginationLink
-                  href="#"
-                  isActive={p === page}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    setPage(p)
-                  }}
-                >
-                  {p}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
+            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(
+              (p) => (
+                <PaginationItem key={p}>
+                  <PaginationLink
+                    href="#"
+                    isActive={p === page}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setPage(p)
+                    }}
+                  >
+                    {p}
+                  </PaginationLink>
+                </PaginationItem>
+              )
+            )}
             <PaginationItem>
               <PaginationNext
                 href="#"

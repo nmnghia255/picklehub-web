@@ -456,7 +456,8 @@ function ClassesTab() {
                       </span>
                       <span className="flex items-center gap-1">
                         <DollarSign className="size-3.5 text-muted-foreground" />
-                        {item.settledEnrollmentCount ?? 0} đã thanh toán
+                        {item.settledEnrollmentCount ?? 0}{" "}
+                        {t("coach.income.paid")}
                       </span>
                     </div>
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">

@@ -115,7 +115,8 @@ export function CoachLearnerDetailPanel({
                 >
                   <div className="space-y-1">
                     <p className="font-medium">
-                      {session.title || "Không có tiêu đề"}
+                      {session.title ||
+                        t("coach.students.learnerDetail.sessionNoTitle")}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       <Clock className="inline size-3.5 align-middle" />{" "}
@@ -129,7 +130,9 @@ export function CoachLearnerDetailPanel({
                     }
                     className="rounded-full"
                   >
-                    {session.status === "live" ? "Đang diễn ra" : "Sắp tới"}
+                    {session.status === "live"
+                      ? t("coach.schedule.statusLive")
+                      : t("coach.schedule.statusUpcoming")}
                   </Badge>
                 </div>
               )
@@ -162,7 +165,8 @@ export function CoachLearnerDetailPanel({
                       className="flex items-center justify-between rounded-lg border p-3"
                     >
                       <p className="text-sm font-medium">
-                        {enr.className || "Không xác định"}
+                        {enr.className ||
+                          t("coach.students.learnerDetail.noClassName")}
                       </p>
                       <Badge
                         variant="outline"
@@ -212,7 +216,9 @@ export function CoachLearnerDetailPanel({
                           {safeFormatDateTime(bk.scheduledAt)}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {bk.durationMinutes ?? 0} phút
+                          {t("coach.bookings.minutes", {
+                            count: bk.durationMinutes ?? 0,
+                          })}
                         </p>
                       </div>
                       <Badge
@@ -220,10 +226,12 @@ export function CoachLearnerDetailPanel({
                         className="rounded-full text-[11px]"
                       >
                         {bk.status === "confirmed"
-                          ? "Đã xác nhận"
+                          ? t("coach.students.learnerDetail.bookingConfirmed")
                           : bk.status === "completed"
-                            ? "Đã hoàn thành"
-                            : "Đã hủy"}
+                            ? t("coach.students.learnerDetail.bookingCompleted")
+                            : t(
+                                "coach.students.learnerDetail.bookingCancelled"
+                              )}
                       </Badge>
                     </div>
                   )

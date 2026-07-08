@@ -25,6 +25,7 @@ import {
 } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useCallback, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { CalendarNavigation } from "@/components/calendar-navigation"
@@ -78,13 +79,6 @@ import {
 } from "@/features/learner/hooks/use-learner-queries"
 import { cn } from "@/lib/utils"
 
-const LEVEL_LABELS: Record<CoachLevel, string> = {
-  Beginner: "Cơ bản",
-  Intermediate: "Trung cấp",
-  Advanced: "Nâng cao",
-  Pro: "Chuyên nghiệp",
-}
-
 function StarRating({ rating }: { rating: number }) {
   return (
     <div className="flex items-center gap-0.5">
@@ -102,25 +96,39 @@ function StarRating({ rating }: { rating: number }) {
   )
 }
 
-function formatRelativeTime(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const minutes = Math.floor(diff / 60000)
-  if (minutes < 1) return "Vừa xong"
-  if (minutes < 60) return `${minutes} phút trước`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours} giờ trước`
-  const days = Math.floor(hours / 24)
-  if (days < 7) return `${days} ngày trước`
-  const weeks = Math.floor(days / 7)
-  if (weeks < 4) return `${weeks} tuần trước`
-  const months = Math.floor(days / 30)
-  if (months < 12) return `${months} tháng trước`
-  const years = Math.floor(days / 365)
-  return `${years} năm trước`
+function getLocaleCode(language: string) {
+  return language.startsWith("vi") ? "vi-VN" : "en-US"
 }
 
-function formatScheduleDate(value: string) {
-  return new Date(value).toLocaleDateString("vi-VN", {
+function getLevelLabel(t: (key: string) => string, level: CoachLevel) {
+  return {
+    Beginner: t("coach.discovery.levelLabels.beginner"),
+    Intermediate: t("coach.discovery.levelLabels.intermediate"),
+    Advanced: t("coach.discovery.levelLabels.advanced"),
+    Pro: t("coach.discovery.levelLabels.pro"),
+  }[level]
+}
+
+function formatRelativeTime(dateStr: string, locale: string) {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const minutes = Math.floor(diff / 60000)
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" })
+  if (minutes < 1) return rtf.format(0, "minute")
+  if (minutes < 60) return rtf.format(-minutes, "minute")
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return rtf.format(-hours, "hour")
+  const days = Math.floor(hours / 24)
+  if (days < 7) return rtf.format(-days, "day")
+  const weeks = Math.floor(days / 7)
+  if (weeks < 4) return rtf.format(-weeks, "week")
+  const months = Math.floor(days / 30)
+  if (months < 12) return rtf.format(-months, "month")
+  const years = Math.floor(days / 365)
+  return rtf.format(-years, "year")
+}
+
+function formatScheduleDate(value: string, locale: string) {
+  return new Date(value).toLocaleDateString(locale, {
     weekday: "long",
     day: "numeric",
     month: "numeric",
@@ -128,8 +136,8 @@ function formatScheduleDate(value: string) {
   })
 }
 
-function formatScheduleTime(value: string) {
-  return new Date(value).toLocaleTimeString("vi-VN", {
+function formatScheduleTime(value: string, locale: string) {
+  return new Date(value).toLocaleTimeString(locale, {
     hour: "2-digit",
     minute: "2-digit",
   })
@@ -143,8 +151,8 @@ function isSameDay(a: Date, b: Date) {
   )
 }
 
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("vi-VN", {
+function formatCurrency(amount: number, locale: string) {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: "VND",
   }).format(amount)
@@ -163,6 +171,8 @@ function getCertBadgeVariant(status: VerificationStatus) {
 }
 
 function OverviewTab({ coach }: { coach: CoachProfile }) {
+  const { t, i18n } = useTranslation("common")
+  const locale = getLocaleCode(i18n.language)
   const { data: reviewsData, isLoading: reviewsLoading } = useCoachReviews(
     coach.id
   )
@@ -178,7 +188,7 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <BookOpen className="size-5" />
-              Giới thiệu
+              {t("coach.discovery.aboutTitle")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -193,20 +203,26 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Award className="size-5" />
-            Thông tin
+            {t("coach.discovery.infoTitle")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Kinh nghiệm</p>
+              <p className="text-sm text-muted-foreground">
+                {t("coach.discovery.experienceLabel")}
+              </p>
               <p className="flex items-center gap-1 font-medium">
                 <Clock className="size-4" />
-                {coach.yearsExperience} năm
+                {t("coach.discovery.yearsExperience", {
+                  years: coach.yearsExperience,
+                })}
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Chuyên môn</p>
+              <p className="text-sm text-muted-foreground">
+                {t("coach.discovery.specialtiesLabel")}
+              </p>
               <div className="flex flex-wrap gap-1">
                 {coach.specialties.map((s) => (
                   <Badge key={s} variant="outline">
@@ -216,17 +232,22 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
               </div>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Ngôn ngữ</p>
+              <p className="text-sm text-muted-foreground">
+                {t("coach.discovery.languagesLabel")}
+              </p>
               <p className="flex items-center gap-1 font-medium">
                 <Globe className="size-4" />
                 {coach.languages.join(", ")}
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Giá</p>
+              <p className="text-sm text-muted-foreground">
+                {t("coach.discovery.priceLabel")}
+              </p>
               <p className="flex items-center gap-1 font-medium">
                 <Clock className="size-4" />
-                {formatCurrency(coach.hourlyRateVnd)} / giờ
+                {formatCurrency(coach.hourlyRateVnd, locale)}{" "}
+                {t("coach.discovery.perHour")}
               </p>
             </div>
           </div>
@@ -238,7 +259,7 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <BadgeCheck className="size-5" />
-              Chứng chỉ
+              {t("coach.discovery.certificationsTitle")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -256,20 +277,30 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground">
-                      Cấp ngày:{" "}
-                      {new Date(cert.issuedAt).toLocaleDateString("vi-VN")}
+                      {t("coach.discovery.issuedDate", {
+                        date: new Date(cert.issuedAt).toLocaleDateString(
+                          locale
+                        ),
+                      })}
                       {cert.expiresAt &&
-                        ` - Hết hạn: ${new Date(cert.expiresAt).toLocaleDateString("vi-VN")}`}
+                        t("coach.discovery.expiresDate", {
+                          date: new Date(cert.expiresAt).toLocaleDateString(
+                            locale
+                          ),
+                        })}
                     </p>
                   </div>
                   <Badge
                     className={getCertBadgeVariant(cert.verificationStatus)}
                   >
-                    {cert.verificationStatus === "VERIFIED" && "Đã xác thực"}
+                    {cert.verificationStatus === "VERIFIED" &&
+                      t("coach.discovery.certVerified")}
                     {cert.verificationStatus === "UNVERIFIED" &&
-                      "Chưa xác thực"}
-                    {cert.verificationStatus === "PENDING" && "Đang chờ"}
-                    {cert.verificationStatus === "REJECTED" && "Từ chối"}
+                      t("coach.discovery.certUnverified")}
+                    {cert.verificationStatus === "PENDING" &&
+                      t("coach.discovery.certPending")}
+                    {cert.verificationStatus === "REJECTED" &&
+                      t("coach.discovery.certRejected")}
                   </Badge>
                 </div>
               ))}
@@ -282,7 +313,7 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Star className="size-5" />
-            Đánh giá
+            {t("coach.discovery.reviewsSectionTitle")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -296,7 +327,7 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
             <Separator orientation="vertical" className="h-16" />
             <div>
               <p className="text-sm text-muted-foreground">
-                {coach.reviewCount} đánh giá
+                {t("coach.discovery.reviewCount", { count: coach.reviewCount })}
               </p>
             </div>
           </div>
@@ -321,7 +352,7 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Star className="size-5" />
-              Đánh giá từ học viên
+              {t("coach.discovery.reviewsFromLearners")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -349,7 +380,7 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground">
-                      {formatRelativeTime(review.createdAt)}
+                      {formatRelativeTime(review.createdAt, locale)}
                     </p>
                   </div>
                 </div>
@@ -363,7 +394,7 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <BookOpen className="size-5" />
-            Lớp học có sẵn
+            {t("coach.discovery.classesTab")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -376,7 +407,9 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
           ) : !classes || classes.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8">
               <BookOpen className="mb-2 size-10 text-muted-foreground" />
-              <p className="text-muted-foreground">Hiện chưa có lớp học nào</p>
+              <p className="text-muted-foreground">
+                {t("coach.discovery.noClasses")}
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -390,15 +423,18 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
                       <div className="flex items-center gap-2">
                         <h3 className="font-semibold">{cls.title}</h3>
                         <Badge variant="outline">
-                          {LEVEL_LABELS[cls.level]}
+                          {getLevelLabel(t, cls.level)}
                         </Badge>
                       </div>
                       <div className="flex flex-wrap items-center gap-4 text-sm">
                         <span className="text-muted-foreground">
-                          {formatCurrency(cls.priceVnd)}
+                          {formatCurrency(cls.priceVnd, locale)}
                         </span>
                         <span className="text-muted-foreground">
-                          {cls.enrolledCount}/{cls.capacity} học viên
+                          {t("coach.discovery.enrolledCount", {
+                            enrolled: cls.enrolledCount,
+                            capacity: cls.capacity,
+                          })}
                         </span>
                       </div>
                       {cls.schedules && cls.schedules.length > 0 && (
@@ -410,7 +446,7 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
                               className="rounded-md border px-2 py-0.5 text-xs"
                             >
                               {new Date(sched.scheduledAt).toLocaleDateString(
-                                "vi-VN",
+                                locale,
                                 {
                                   weekday: "short",
                                   day: "numeric",
@@ -437,27 +473,6 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
 
 type ViewMode = "calendar" | "agenda" | "list"
 
-const STATUS_OPTIONS = [
-  { value: "all", label: "Tất cả trạng thái" },
-  { value: "upcoming", label: "Sắp tới" },
-  { value: "live", label: "Đang diễn ra" },
-  { value: "past", label: "Đã kết thúc" },
-  { value: "pending", label: "Chờ xác nhận" },
-]
-
-const KIND_OPTIONS_SCHEDULE = [
-  { value: "all", label: "Tất cả loại" },
-  { value: "class", label: "Lớp học" },
-  { value: "booking", label: "Đặt lịch" },
-]
-
-const STATUS_LABEL: Record<string, string> = {
-  upcoming: "Sắp tới",
-  live: "Đang diễn ra",
-  past: "Đã kết thúc",
-  pending: "Chờ xác nhận",
-}
-
 function ScheduleItemCard({
   item,
   onClick,
@@ -465,7 +480,15 @@ function ScheduleItemCard({
   item: LearnerScheduleItem
   onClick: (item: LearnerScheduleItem) => void
 }) {
-  const coachName = item.coachProfile?.displayName ?? "Không xác định"
+  const { t, i18n } = useTranslation("common")
+  const locale = getLocaleCode(i18n.language)
+  const coachName = item.coachProfile?.displayName ?? ""
+  const STATUS_LABEL: Record<string, string> = {
+    upcoming: t("coach.schedule.statusUpcoming"),
+    live: t("coach.schedule.statusLive"),
+    past: t("coach.schedule.statusPast"),
+    pending: t("coach.schedule.statusPending"),
+  }
   const statusLabel = STATUS_LABEL[item.status] ?? item.status
 
   return (
@@ -478,18 +501,22 @@ function ScheduleItemCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="rounded-full text-[10px]">
-              {item.kind === "class" ? "Lớp học" : "Đặt lịch"}
+              {item.kind === "class"
+                ? t("coach.discovery.scheduleClass")
+                : t("coach.discovery.scheduleBooking")}
             </Badge>
             <p className="truncate text-sm font-medium">{item.title}</p>
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Clock className="size-3.5" />
-              {formatScheduleTime(item.startsAt)} -{" "}
-              {formatScheduleTime(item.endsAt)}
+              {formatScheduleTime(item.startsAt, locale)} -{" "}
+              {formatScheduleTime(item.endsAt, locale)}
             </span>
-            <span>({item.durationMinutes} phút)</span>
-            {coachName !== "Không xác định" && (
+            <span>
+              ({item.durationMinutes} {t("coach.bookings.minutes")})
+            </span>
+            {coachName && (
               <span className="flex items-center gap-1">
                 <User className="size-3.5" />
                 {coachName}
@@ -504,7 +531,7 @@ function ScheduleItemCard({
           </div>
           {item.topic && (
             <p className="mt-1 text-xs text-muted-foreground">
-              Chủ đề: {item.topic}
+              {t("coach.discovery.scheduleDetailTopic", { topic: item.topic })}
             </p>
           )}
         </div>
@@ -525,7 +552,16 @@ function DetailDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const { t, i18n } = useTranslation("common")
+  const locale = getLocaleCode(i18n.language)
   if (!item) return null
+
+  const STATUS_LABEL: Record<string, string> = {
+    upcoming: t("coach.schedule.statusUpcoming"),
+    live: t("coach.schedule.statusLive"),
+    past: t("coach.schedule.statusPast"),
+    pending: t("coach.schedule.statusPending"),
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -533,7 +569,9 @@ function DetailDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Badge variant="secondary" className="rounded-full text-[10px]">
-              {item.kind === "class" ? "Lớp học" : "Đặt lịch"}
+              {item.kind === "class"
+                ? t("coach.discovery.scheduleClass")
+                : t("coach.discovery.scheduleBooking")}
             </Badge>
             <Badge className="rounded-full text-[10px]">
               {STATUS_LABEL[item.status] ?? item.status}
@@ -544,15 +582,17 @@ function DetailDialog({
           <h3 className="text-lg font-semibold">{item.title}</h3>
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <Calendar className="size-4" />
-            {formatScheduleDate(item.startsAt)}
+            {formatScheduleDate(item.startsAt, locale)}
           </div>
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <Clock className="size-4" />
-            {formatScheduleTime(item.startsAt)} -{" "}
-            {formatScheduleTime(item.endsAt)}
+            {formatScheduleTime(item.startsAt, locale)} -{" "}
+            {formatScheduleTime(item.endsAt, locale)}
           </div>
           <p className="text-sm text-muted-foreground">
-            Thời lượng: {item.durationMinutes} phút
+            {t("coach.discovery.scheduleDetailDuration", {
+              minutes: item.durationMinutes,
+            })}
           </p>
           {item.coachProfile?.displayName && (
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -568,13 +608,13 @@ function DetailDialog({
           )}
           {item.topic && (
             <p className="text-sm text-muted-foreground">
-              Chủ đề: {item.topic}
+              {t("coach.discovery.scheduleDetailTopic", { topic: item.topic })}
             </p>
           )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Đóng
+            {t("coach.discovery.scheduleClose")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -583,7 +623,31 @@ function DetailDialog({
 }
 
 function ScheduleTab({ coachId }: { coachId: string }) {
+  const { t, i18n } = useTranslation("common")
+  const locale = getLocaleCode(i18n.language)
   const session = useSession()
+
+  const STATUS_OPTIONS = [
+    { value: "all", label: t("coach.discovery.scheduleAllStatus") },
+    { value: "upcoming", label: t("coach.discovery.scheduleUpcoming") },
+    { value: "live", label: t("coach.discovery.scheduleLive") },
+    { value: "past", label: t("coach.discovery.schedulePast") },
+    { value: "pending", label: t("coach.discovery.schedulePending") },
+  ]
+
+  const KIND_OPTIONS_SCHEDULE = [
+    { value: "all", label: t("coach.discovery.scheduleAllKind") },
+    { value: "class", label: t("coach.discovery.scheduleClass") },
+    { value: "booking", label: t("coach.discovery.scheduleBooking") },
+  ]
+
+  const STATUS_LABEL: Record<string, string> = {
+    upcoming: t("coach.discovery.scheduleUpcoming"),
+    live: t("coach.discovery.scheduleLive"),
+    past: t("coach.discovery.schedulePast"),
+    pending: t("coach.discovery.schedulePending"),
+  }
+
   const [state, setState] = useState<string>("all")
   const { data, isLoading, error, refetch } = useLearnerSchedule(
     {
@@ -699,15 +763,7 @@ function ScheduleTab({ coachId }: { coachId: string }) {
     setCurrentDate(d)
   }
 
-  const weekDays = [
-    "Thứ 2",
-    "Thứ 3",
-    "Thứ 4",
-    "Thứ 5",
-    "Thứ 6",
-    "Thứ 7",
-    "Chủ nhật",
-  ]
+  const weekDays = t("coach.schedule.weekDays") as unknown as string[]
 
   const weeks: Date[][] = []
   for (let i = 0; i < allDays.length; i += 7) {
@@ -715,9 +771,21 @@ function ScheduleTab({ coachId }: { coachId: string }) {
   }
 
   const viewModeOptions = [
-    { value: "calendar" as const, label: "Lịch", icon: Calendar },
-    { value: "agenda" as const, label: "Danh sách", icon: List },
-    { value: "list" as const, label: "Chi tiết", icon: Filter },
+    {
+      value: "calendar" as const,
+      label: t("coach.schedule.viewCalendar"),
+      icon: Calendar,
+    },
+    {
+      value: "agenda" as const,
+      label: t("coach.schedule.viewAgenda"),
+      icon: List,
+    },
+    {
+      value: "list" as const,
+      label: t("coach.schedule.viewList"),
+      icon: Filter,
+    },
   ]
 
   const viewModeSelect = (
@@ -781,7 +849,7 @@ function ScheduleTab({ coachId }: { coachId: string }) {
             <div className="relative">
               <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Tìm kiếm..."
+                placeholder={t("coach.discovery.scheduleSearchPlaceholder")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="h-9 w-48 pl-9"
@@ -812,7 +880,9 @@ function ScheduleTab({ coachId }: { coachId: string }) {
               </SelectContent>
             </Select>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Từ:</span>
+              <span className="text-sm text-muted-foreground">
+                {t("coach.discovery.scheduleFrom")}
+              </span>
               <Input
                 type="date"
                 value={fromDate}
@@ -821,7 +891,9 @@ function ScheduleTab({ coachId }: { coachId: string }) {
               />
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Đến:</span>
+              <span className="text-sm text-muted-foreground">
+                {t("coach.discovery.scheduleTo")}
+              </span>
               <Input
                 type="date"
                 value={toDate}
@@ -845,9 +917,11 @@ function ScheduleTab({ coachId }: { coachId: string }) {
       ) : filteredItems.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <Calendar className="mb-2 size-10 text-muted-foreground" />
-          <p className="text-lg font-medium">Không có kết quả phù hợp</p>
+          <p className="text-lg font-medium">
+            {t("coach.discovery.scheduleNoResults")}
+          </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
+            {t("coach.discovery.scheduleNoResultsHint")}
           </p>
         </div>
       ) : (
@@ -916,8 +990,8 @@ function ScheduleTab({ coachId }: { coachId: string }) {
                                   {item.title}
                                 </p>
                                 <p className="truncate text-muted-foreground">
-                                  {formatScheduleTime(item.startsAt)} -{" "}
-                                  {formatScheduleTime(item.endsAt)}
+                                  {formatScheduleTime(item.startsAt, locale)} -{" "}
+                                  {formatScheduleTime(item.endsAt, locale)}
                                 </p>
                                 {item.coachProfile?.displayName && (
                                   <p className="truncate text-muted-foreground">
@@ -929,7 +1003,9 @@ function ScheduleTab({ coachId }: { coachId: string }) {
                           })}
                           {dayItems.length > 3 && (
                             <p className="text-center text-[10px] text-muted-foreground">
-                              +{dayItems.length - 3} nữa
+                              {t("coach.schedule.moreEvents", {
+                                count: dayItems.length - 3,
+                              })}
                             </p>
                           )}
                         </div>
@@ -963,10 +1039,12 @@ function ScheduleTab({ coachId }: { coachId: string }) {
                         </div>
                         <div>
                           <p className="text-sm font-medium">
-                            {formatScheduleDate(dateKey)}
+                            {formatScheduleDate(dateKey, locale)}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {dayItems.length} buổi
+                            {t("coach.schedule.learnerCount", {
+                              count: dayItems.length,
+                            })}
                           </p>
                         </div>
                       </div>
@@ -1014,6 +1092,8 @@ function ScheduleTab({ coachId }: { coachId: string }) {
 }
 
 function ReviewsTab({ coachId }: { coachId: string }) {
+  const { t, i18n } = useTranslation("common")
+  const locale = getLocaleCode(i18n.language)
   const session = useSession()
   const isLearner = !!session?.user
   const [reviewOpen, setReviewOpen] = useState(false)
@@ -1032,7 +1112,7 @@ function ReviewsTab({ coachId }: { coachId: string }) {
 
   const handleSubmitReview = async () => {
     if (reviewRating < 1 || reviewRating > 5) {
-      toast.error("Vui lòng chọn số sao từ 1 đến 5")
+      toast.error(t("coach.reviews.ratingRequired"))
       return
     }
     try {
@@ -1040,11 +1120,11 @@ function ReviewsTab({ coachId }: { coachId: string }) {
         coachId,
         dto: { rating: reviewRating, comment: reviewComment || undefined },
       })
-      toast.success("Đã gửi đánh giá")
+      toast.success(t("coach.reviews.submitSuccess"))
       setReviewOpen(false)
       setReviewComment("")
     } catch {
-      toast.error("Gửi đánh giá thất bại")
+      toast.error(t("coach.reviews.submitError"))
     }
   }
 
@@ -1061,7 +1141,7 @@ function ReviewsTab({ coachId }: { coachId: string }) {
   const handleSaveEdit = async () => {
     if (!editingReviewId) return
     if (editRating < 1 || editRating > 5) {
-      toast.error("Vui lòng chọn số sao từ 1 đến 5")
+      toast.error(t("coach.reviews.ratingRequired"))
       return
     }
     try {
@@ -1070,10 +1150,10 @@ function ReviewsTab({ coachId }: { coachId: string }) {
         reviewId: editingReviewId,
         dto: { rating: editRating, comment: editComment || undefined },
       })
-      toast.success("Đã cập nhật đánh giá")
+      toast.success(t("coach.reviews.updateSuccess"))
       setEditingReviewId(null)
     } catch {
-      toast.error("Cập nhật thất bại")
+      toast.error(t("coach.reviews.updateError"))
     }
   }
 
@@ -1081,10 +1161,10 @@ function ReviewsTab({ coachId }: { coachId: string }) {
     if (!deleteConfirmId) return
     try {
       await deleteReview.mutateAsync({ coachId, reviewId: deleteConfirmId })
-      toast.success("Đã xóa đánh giá")
+      toast.success(t("coach.reviews.deleteSuccess"))
       setDeleteConfirmId(null)
     } catch {
-      toast.error("Xóa đánh giá thất bại")
+      toast.error(t("coach.reviews.deleteError"))
     }
   }
 
@@ -1109,9 +1189,7 @@ function ReviewsTab({ coachId }: { coachId: string }) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <p className="text-destructive">
-            Không thể tải đánh giá. Vui lòng thử lại sau.
-          </p>
+          <p className="text-destructive">{t("coach.reviews.errorLoading")}</p>
         </CardContent>
       </Card>
     )
@@ -1124,19 +1202,19 @@ function ReviewsTab({ coachId }: { coachId: string }) {
           <DialogTrigger asChild>
             <Button>
               <Star className="size-4" />
-              Viết đánh giá
+              {t("coach.reviews.writeReview")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Viết đánh giá</DialogTitle>
+              <DialogTitle>{t("coach.reviews.writeReviewTitle")}</DialogTitle>
               <DialogDescription>
-                Chia sẻ trải nghiệm của bạn với huấn luyện viên này.
+                {t("coach.reviews.writeReviewDescription")}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Đánh giá (1-5 sao)</Label>
+                <Label>{t("coach.reviews.ratingLabel")}</Label>
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
@@ -1151,11 +1229,11 @@ function ReviewsTab({ coachId }: { coachId: string }) {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Nhận xét</Label>
+                <Label>{t("coach.reviews.commentLabel")}</Label>
                 <textarea
                   className="w-full rounded-md border p-2 text-sm"
                   rows={4}
-                  placeholder="Chia sẻ cảm nhận của bạn..."
+                  placeholder={t("coach.reviews.commentPlaceholder")}
                   value={reviewComment}
                   onChange={(e) => setReviewComment(e.target.value)}
                 />
@@ -1163,13 +1241,15 @@ function ReviewsTab({ coachId }: { coachId: string }) {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setReviewOpen(false)}>
-                Hủy
+                {t("coach.reviews.cancelButton")}
               </Button>
               <Button
                 onClick={handleSubmitReview}
                 disabled={createReview.isPending}
               >
-                {createReview.isPending ? "Đang gửi..." : "Gửi đánh giá"}
+                {createReview.isPending
+                  ? t("coach.reviews.submitting")
+                  : t("coach.reviews.submitButton")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -1180,7 +1260,9 @@ function ReviewsTab({ coachId }: { coachId: string }) {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Star className="mb-2 size-10 text-muted-foreground" />
-            <p className="text-muted-foreground">Chưa có đánh giá nào</p>
+            <p className="text-muted-foreground">
+              {t("coach.reviews.noReviewsPage")}
+            </p>
           </CardContent>
         </Card>
       ) : (
@@ -1235,14 +1317,16 @@ function ReviewsTab({ coachId }: { coachId: string }) {
                           onClick={handleSaveEdit}
                           disabled={updateReview.isPending}
                         >
-                          {updateReview.isPending ? "Đang lưu..." : "Lưu"}
+                          {updateReview.isPending
+                            ? t("coach.reviews.saving")
+                            : t("coach.reviews.saveButton")}
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => setEditingReviewId(null)}
                         >
-                          Hủy
+                          {t("coach.reviews.cancelEditButton")}
                         </Button>
                       </div>
                     </div>
@@ -1275,7 +1359,7 @@ function ReviewsTab({ coachId }: { coachId: string }) {
                             type="button"
                             onClick={() => handleStartEdit(review)}
                             className="text-muted-foreground hover:text-foreground"
-                            title="Sửa đánh giá"
+                            title={t("coach.reviews.editTooltip")}
                           >
                             <Pencil className="size-4" />
                           </button>
@@ -1283,7 +1367,7 @@ function ReviewsTab({ coachId }: { coachId: string }) {
                             type="button"
                             onClick={() => setDeleteConfirmId(review.reviewId)}
                             className="text-muted-foreground hover:text-destructive"
-                            title="Xóa đánh giá"
+                            title={t("coach.reviews.deleteTooltip")}
                           >
                             <Trash2 className="size-4" />
                           </button>
@@ -1297,7 +1381,7 @@ function ReviewsTab({ coachId }: { coachId: string }) {
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground">
-                      {formatRelativeTime(review.createdAt)}
+                      {formatRelativeTime(review.createdAt, locale)}
                     </p>
                   </div>
                 </div>
@@ -1315,22 +1399,23 @@ function ReviewsTab({ coachId }: { coachId: string }) {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa đánh giá</DialogTitle>
+            <DialogTitle>{t("coach.reviews.deleteTitle")}</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa đánh giá này? Hành động này không thể
-              hoàn tác.
+              {t("coach.reviews.deleteDescription")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
-              Hủy
+              {t("coach.reviews.deleteCancelButton")}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDeleteReview}
               disabled={deleteReview.isPending}
             >
-              {deleteReview.isPending ? "Đang xóa..." : "Xóa"}
+              {deleteReview.isPending
+                ? t("coach.reviews.deleting")
+                : t("coach.reviews.deleteConfirmButton")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1340,6 +1425,8 @@ function ReviewsTab({ coachId }: { coachId: string }) {
 }
 
 function ClassesTab({ coachId }: { coachId: string }) {
+  const { t, i18n } = useTranslation("common")
+  const locale = getLocaleCode(i18n.language)
   const session = useSession()
   const isLearner = !!session?.user
   const [enrollingId, setEnrollingId] = useState<string | null>(null)
@@ -1351,9 +1438,9 @@ function ClassesTab({ coachId }: { coachId: string }) {
     setEnrollingId(classId)
     try {
       await enrollMutation.mutateAsync(classId)
-      toast.success("Đăng ký lớp học thành công")
+      toast.success(t("coach.discovery.enrollSuccess"))
     } catch {
-      toast.error("Đăng ký lớp thất bại")
+      toast.error(t("coach.discovery.enrollError"))
     } finally {
       setEnrollingId(null)
     }
@@ -1374,7 +1461,7 @@ function ClassesTab({ coachId }: { coachId: string }) {
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <p className="text-destructive">
-            Không thể tải lớp học. Vui lòng thử lại sau.
+            {t("coach.discovery.classesLoadError")}
           </p>
         </CardContent>
       </Card>
@@ -1387,7 +1474,7 @@ function ClassesTab({ coachId }: { coachId: string }) {
         <CardContent className="flex flex-col items-center justify-center py-12">
           <BookOpen className="mb-2 size-10 text-muted-foreground" />
           <p className="text-muted-foreground">
-            Huấn luyện viên chưa có lớp học nào
+            {t("coach.discovery.noOpenClasses")}
           </p>
         </CardContent>
       </Card>
@@ -1403,14 +1490,17 @@ function ClassesTab({ coachId }: { coachId: string }) {
               <div className="flex-1 space-y-2">
                 <div className="flex items-center gap-2">
                   <h3 className="font-semibold">{cls.title}</h3>
-                  <Badge variant="outline">{LEVEL_LABELS[cls.level]}</Badge>
+                  <Badge variant="outline">{getLevelLabel(t, cls.level)}</Badge>
                 </div>
                 <div className="flex flex-wrap items-center gap-4 text-sm">
                   <span className="text-muted-foreground">
-                    {formatCurrency(cls.priceVnd)}
+                    {formatCurrency(cls.priceVnd, locale)}
                   </span>
                   <span className="text-muted-foreground">
-                    {cls.enrolledCount}/{cls.capacity} học viên
+                    {t("coach.discovery.enrolledCount", {
+                      enrolled: cls.enrolledCount,
+                      capacity: cls.capacity,
+                    })}
                   </span>
                 </div>
                 {cls.schedules && cls.schedules.length > 0 && (
@@ -1422,7 +1512,7 @@ function ClassesTab({ coachId }: { coachId: string }) {
                         className="rounded-md border px-2 py-0.5 text-xs"
                       >
                         {new Date(sched.scheduledAt).toLocaleDateString(
-                          "vi-VN",
+                          locale,
                           {
                             weekday: "short",
                             day: "numeric",
@@ -1443,7 +1533,9 @@ function ClassesTab({ coachId }: { coachId: string }) {
                     onClick={() => handleEnroll(cls.id)}
                     disabled={enrollingId === cls.id}
                   >
-                    {enrollingId === cls.id ? "Đang xử lý..." : "Đăng ký"}
+                    {enrollingId === cls.id
+                      ? t("coach.discovery.enrolling")
+                      : t("coach.discovery.enrollButton")}
                   </Button>
                 )}
               </div>
@@ -1456,29 +1548,43 @@ function ClassesTab({ coachId }: { coachId: string }) {
 }
 
 function InfoTab({ coach }: { coach: CoachProfile }) {
+  const { t, i18n } = useTranslation("common")
+  const locale = getLocaleCode(i18n.language)
   return (
     <Card>
       <CardContent className="space-y-6 pt-6">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-muted-foreground">Kinh nghiệm</p>
-              <p className="font-medium">{coach.yearsExperience} năm</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Giá theo giờ</p>
+              <p className="text-sm text-muted-foreground">
+                {t("coach.discovery.experienceLabel")}
+              </p>
               <p className="font-medium">
-                {formatCurrency(coach.hourlyRateVnd)}
+                {t("coach.discovery.yearsExperience", {
+                  years: coach.yearsExperience,
+                })}
               </p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Thành phố</p>
+              <p className="text-sm text-muted-foreground">
+                {t("coach.discovery.pricePerHourLabel")}
+              </p>
+              <p className="font-medium">
+                {formatCurrency(coach.hourlyRateVnd, locale)}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">
+                {t("coach.discovery.city")}
+              </p>
               <p className="font-medium">{coach.locationCity}</p>
             </div>
           </div>
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-muted-foreground">Chuyên môn</p>
+              <p className="text-sm text-muted-foreground">
+                {t("coach.discovery.specialtiesLabel")}
+              </p>
               <div className="mt-1 flex flex-wrap gap-1">
                 {coach.specialties.map((s) => (
                   <Badge key={s} variant="secondary">
@@ -1488,12 +1594,14 @@ function InfoTab({ coach }: { coach: CoachProfile }) {
               </div>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Ngôn ngữ</p>
+              <p className="text-sm text-muted-foreground">
+                {t("coach.discovery.languagesLabel")}
+              </p>
               <p className="font-medium">{coach.languages.join(", ")}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">
-                Trạng thái xác thực
+                {t("coach.discovery.verificationStatus")}
               </p>
               <Badge
                 variant={
@@ -1502,10 +1610,14 @@ function InfoTab({ coach }: { coach: CoachProfile }) {
                     : "secondary"
                 }
               >
-                {coach.verificationStatus === "VERIFIED" && "Đã xác thực"}
-                {coach.verificationStatus === "PENDING" && "Chờ xác thực"}
-                {coach.verificationStatus === "UNVERIFIED" && "Chưa xác thực"}
-                {coach.verificationStatus === "REJECTED" && "Từ chối"}
+                {coach.verificationStatus === "VERIFIED" &&
+                  t("coach.discovery.certVerified")}
+                {coach.verificationStatus === "PENDING" &&
+                  t("coach.discovery.certPending")}
+                {coach.verificationStatus === "UNVERIFIED" &&
+                  t("coach.discovery.certUnverified")}
+                {coach.verificationStatus === "REJECTED" &&
+                  t("coach.discovery.certRejected")}
               </Badge>
             </div>
           </div>
@@ -1515,19 +1627,25 @@ function InfoTab({ coach }: { coach: CoachProfile }) {
 
         <div>
           <p className="mb-2 text-sm text-muted-foreground">
-            Thông tin thanh toán
+            {t("coach.discovery.paymentInfo")}
           </p>
           <div className="space-y-2 rounded-lg border bg-muted/50 p-4">
             <p className="text-sm">
-              <span className="text-muted-foreground">Ngân hàng: </span>
+              <span className="text-muted-foreground">
+                {t("coach.discovery.paymentBank")}
+              </span>
               <span className="font-medium">{coach.paymentBankName}</span>
             </p>
             <p className="text-sm">
-              <span className="text-muted-foreground">Số tài khoản: </span>
+              <span className="text-muted-foreground">
+                {t("coach.discovery.paymentAccountNumber")}
+              </span>
               <span className="font-medium">{coach.paymentAccountNumber}</span>
             </p>
             <p className="text-sm">
-              <span className="text-muted-foreground">Chủ tài khoản: </span>
+              <span className="text-muted-foreground">
+                {t("coach.discovery.paymentAccountName")}
+              </span>
               <span className="font-medium">{coach.paymentAccountName}</span>
             </p>
           </div>
@@ -1536,9 +1654,11 @@ function InfoTab({ coach }: { coach: CoachProfile }) {
         <Separator />
 
         <div>
-          <p className="mb-2 text-sm text-muted-foreground">Các chứng chỉ</p>
+          <p className="mb-2 text-sm text-muted-foreground">
+            {t("coach.discovery.certificates")}
+          </p>
           {coach.certifications.length === 0 ? (
-            <p className="text-sm">Chưa có chứng chỉ nào</p>
+            <p className="text-sm">{t("coach.discovery.noCertificates")}</p>
           ) : (
             <div className="space-y-2">
               {coach.certifications.map((cert) => (
@@ -1556,8 +1676,14 @@ function InfoTab({ coach }: { coach: CoachProfile }) {
                     className={getCertBadgeVariant(cert.verificationStatus)}
                   >
                     {cert.verificationStatus === "VERIFIED"
-                      ? "Đã xác thực"
-                      : cert.verificationStatus}
+                      ? t("coach.discovery.certVerified")
+                      : cert.verificationStatus === "PENDING"
+                        ? t("coach.discovery.certPending")
+                        : cert.verificationStatus === "UNVERIFIED"
+                          ? t("coach.discovery.certUnverified")
+                          : cert.verificationStatus === "REJECTED"
+                            ? t("coach.discovery.certRejected")
+                            : cert.verificationStatus}
                   </Badge>
                 </div>
               ))}
@@ -1570,6 +1696,8 @@ function InfoTab({ coach }: { coach: CoachProfile }) {
 }
 
 function StatsTab({ coach }: { coach: CoachProfile }) {
+  const { t, i18n } = useTranslation("common")
+  const locale = getLocaleCode(i18n.language)
   const { data: reviewsData } = useCoachReviews(coach.id)
   const { data: classes } = useCoachOpenClasses(coach.id)
   const totalReviews = reviewsData?.reviewCount ?? coach.reviewCount
@@ -1586,13 +1714,13 @@ function StatsTab({ coach }: { coach: CoachProfile }) {
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-sm font-medium">
             <Star className="size-4 text-yellow-500" />
-            Đánh giá
+            {t("coach.discovery.reviewsSectionTitle")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-2xl font-bold">{avgRating.toFixed(1)}</p>
           <p className="text-sm text-muted-foreground">
-            {totalReviews} lượt đánh giá
+            {totalReviews} {t("coach.discovery.statsReviews")}
           </p>
         </CardContent>
       </Card>
@@ -1600,26 +1728,30 @@ function StatsTab({ coach }: { coach: CoachProfile }) {
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-sm font-medium">
             <BookOpen className="size-4 text-blue-500" />
-            Lớp học
+            {t("coach.discovery.classesTab")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-2xl font-bold">{totalClasses}</p>
-          <p className="text-sm text-muted-foreground">lớp đang mở</p>
+          <p className="text-sm text-muted-foreground">
+            {totalClasses} {t("coach.discovery.statsOpenClasses")}
+          </p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-sm font-medium">
             <Users className="size-4 text-green-500" />
-            Học viên
+            {t("coach.discovery.statsEnrolled")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-2xl font-bold">
             {totalEnrolled}/{totalCapacity}
           </p>
-          <p className="text-sm text-muted-foreground">đã đăng ký</p>
+          <p className="text-sm text-muted-foreground">
+            {t("coach.discovery.statsEnrolled")}
+          </p>
         </CardContent>
       </Card>
     </div>
@@ -1634,21 +1766,37 @@ export type DiscoveryTabValue =
   | "info"
   | "stats"
 
-const TABS: {
-  value: DiscoveryTabValue
-  label: string
-  icon: React.ReactNode
-}[] = [
-  { value: "overview", label: "Tổng quan", icon: <Info className="size-4" /> },
-  { value: "schedule", label: "Lịch", icon: <Calendar className="size-4" /> },
-  { value: "reviews", label: "Đánh giá", icon: <Star className="size-4" /> },
+const TABS = (t: (key: string) => string) => [
   {
-    value: "classes",
-    label: "Khóa học",
+    value: "overview" as const,
+    label: t("coach.discovery.tabOverview"),
+    icon: <Info className="size-4" />,
+  },
+  {
+    value: "schedule" as const,
+    label: t("coach.discovery.tabSchedule"),
+    icon: <Calendar className="size-4" />,
+  },
+  {
+    value: "reviews" as const,
+    label: t("coach.discovery.tabReviews"),
+    icon: <Star className="size-4" />,
+  },
+  {
+    value: "classes" as const,
+    label: t("coach.discovery.tabClasses"),
     icon: <BookOpen className="size-4" />,
   },
-  { value: "stats", label: "Thống kê", icon: <BarChart3 className="size-4" /> },
-  { value: "info", label: "Thông tin", icon: <Award className="size-4" /> },
+  {
+    value: "stats" as const,
+    label: t("coach.discovery.tabStats"),
+    icon: <BarChart3 className="size-4" />,
+  },
+  {
+    value: "info" as const,
+    label: t("coach.discovery.tabInfo"),
+    icon: <Award className="size-4" />,
+  },
 ]
 
 function CoachDiscoveryDetailInner({
@@ -1660,6 +1808,8 @@ function CoachDiscoveryDetailInner({
   onBack: () => void
   defaultTab: DiscoveryTabValue
 }) {
+  const { t, i18n } = useTranslation("common")
+  const locale = getLocaleCode(i18n.language)
   const router = useRouter()
   const searchParams = useSearchParams()
   const session = useSession()
@@ -1686,7 +1836,7 @@ function CoachDiscoveryDetailInner({
 
   const handleCreateBooking = async () => {
     if (!bookingDate || !bookingTime) {
-      toast.error("Vui lòng chọn ngày và giờ")
+      toast.error(t("coach.discovery.bookingDateRequired"))
       return
     }
     const sessionAt = new Date(`${bookingDate}T${bookingTime}:00`).toISOString()
@@ -1699,13 +1849,13 @@ function CoachDiscoveryDetailInner({
           learnerNote: bookingNote || undefined,
         },
       })
-      toast.success("Yêu cầu đặt lịch đã được gửi")
+      toast.success(t("coach.discovery.bookingSuccess"))
       setBookingOpen(false)
       setBookingDate("")
       setBookingTime("")
       setBookingNote("")
     } catch {
-      toast.error("Đặt lịch thất bại")
+      toast.error(t("coach.discovery.bookingError"))
     }
   }
 
@@ -1729,18 +1879,18 @@ function CoachDiscoveryDetailInner({
           className="flex items-center gap-1"
         >
           <ArrowLeft className="size-4" />
-          Quay lại danh sách
+          {t("coach.discovery.backToList")}
         </Button>
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16">
             <p className="text-xl font-medium text-muted-foreground">
-              Không thể tải thông tin huấn luyện viên
+              {t("coach.discovery.loadError")}
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
-              Vui lòng thử lại hoặc quay lại danh sách.
+              {t("coach.discovery.loadErrorHint")}
             </p>
             <Button variant="outline" className="mt-4" onClick={onBack}>
-              Quay lại danh sách
+              {t("coach.discovery.backToList")}
             </Button>
           </CardContent>
         </Card>
@@ -1756,7 +1906,7 @@ function CoachDiscoveryDetailInner({
         className="-ml-2 flex items-center gap-1"
       >
         <ArrowLeft className="size-4" />
-        Quay lại danh sách
+        {t("coach.discovery.backToList")}
       </Button>
 
       <Card>
@@ -1770,7 +1920,7 @@ function CoachDiscoveryDetailInner({
           <div className="flex flex-1 flex-col gap-2">
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold">{coach.displayName}</h1>
-              <Badge variant="secondary">{LEVEL_LABELS[coach.level]}</Badge>
+              <Badge variant="secondary">{getLevelLabel(t, coach.level)}</Badge>
               {coach.verificationStatus === "VERIFIED" && (
                 <BadgeCheck className="size-5 text-blue-500" />
               )}
@@ -1786,19 +1936,22 @@ function CoachDiscoveryDetailInner({
                   {coach.averageRating.toFixed(1)}
                 </span>
                 <span className="text-muted-foreground">
-                  ({coach.reviewCount} đánh giá)
+                  {t("coach.discovery.reviewCount", {
+                    count: coach.reviewCount,
+                  })}
                 </span>
               </div>
               <span className="text-muted-foreground">·</span>
               <span className="font-medium text-primary">
-                {formatCurrency(coach.hourlyRateVnd)}/giờ
+                {formatCurrency(coach.hourlyRateVnd, locale)}
+                {t("coach.discovery.perHour")}
               </span>
             </div>
             {isLearner && (
               <div className="mt-2 flex gap-2">
                 <Button onClick={() => setBookingOpen(true)}>
                   <Plus className="size-4" />
-                  Đặt lịch riêng
+                  {t("coach.discovery.bookButton")}
                 </Button>
                 <LearnerCoachRecommendationDialog
                   coachId={coachId}
@@ -1813,15 +1966,19 @@ function CoachDiscoveryDetailInner({
       <Dialog open={bookingOpen} onOpenChange={setBookingOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Đặt lịch với {coach.displayName}</DialogTitle>
+            <DialogTitle>
+              {t("coach.discovery.bookingDialogTitle", {
+                name: coach.displayName,
+              })}
+            </DialogTitle>
             <DialogDescription>
-              Chọn thời gian bạn muốn học. HLV sẽ xác nhận sau.
+              {t("coach.discovery.bookingDialogDescription")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Ngày</Label>
+                <Label>{t("coach.discovery.bookingDateLabel")}</Label>
                 <Input
                   type="date"
                   value={bookingDate}
@@ -1829,7 +1986,7 @@ function CoachDiscoveryDetailInner({
                 />
               </div>
               <div className="space-y-2">
-                <Label>Giờ</Label>
+                <Label>{t("coach.discovery.bookingTimeLabel")}</Label>
                 <Input
                   type="time"
                   value={bookingTime}
@@ -1838,7 +1995,7 @@ function CoachDiscoveryDetailInner({
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Thời lượng (phút)</Label>
+              <Label>{t("coach.discovery.bookingDurationLabel")}</Label>
               <Input
                 type="number"
                 value={bookingDuration}
@@ -1848,9 +2005,9 @@ function CoachDiscoveryDetailInner({
               />
             </div>
             <div className="space-y-2">
-              <Label>Ghi chú (không bắt buộc)</Label>
+              <Label>{t("coach.discovery.bookingNoteLabel")}</Label>
               <Input
-                placeholder="Ví dụ: Tôi muốn học kỹ thuật serve"
+                placeholder={t("coach.discovery.bookingNotePlaceholder")}
                 value={bookingNote}
                 onChange={(e) => setBookingNote(e.target.value)}
               />
@@ -1858,13 +2015,15 @@ function CoachDiscoveryDetailInner({
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setBookingOpen(false)}>
-              Hủy
+              {t("coach.discovery.bookingCancelButton")}
             </Button>
             <Button
               onClick={handleCreateBooking}
               disabled={createBooking.isPending}
             >
-              {createBooking.isPending ? "Đang gửi..." : "Gửi yêu cầu"}
+              {createBooking.isPending
+                ? t("coach.discovery.bookingSubmitting")
+                : t("coach.discovery.bookingSubmitButton")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1879,7 +2038,7 @@ function CoachDiscoveryDetailInner({
           variant="line"
           className="w-full min-w-0 flex-wrap justify-start gap-1 overflow-x-auto pb-1"
         >
-          {TABS.map((tab) => (
+          {TABS(t).map((tab) => (
             <TabsTrigger
               key={tab.value}
               value={tab.value}

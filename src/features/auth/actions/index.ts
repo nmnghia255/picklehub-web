@@ -43,11 +43,45 @@ export async function loginAction(
   }
 
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/api/auth/login`,
-      parsed.data
-    )
-    const { accessToken, refreshToken, expiresIn, user } = response.data
+    const response = await axios.post<{
+      accessToken?: string
+      refreshToken?: string
+      expiresIn?: number
+      user?: { id: string; email: string; name?: string | null }
+      message?: string | string[]
+      error?: string
+    }>(`${API_BASE_URL}/api/auth/login`, parsed.data)
+    const { accessToken, refreshToken, expiresIn, user, message, error } =
+      response.data
+
+    const backendMessage = Array.isArray(message)
+      ? message.join(", ")
+      : message || error
+
+    if (backendMessage) {
+      console.error("Login rejected by backend", {
+        status: response.status,
+        message: backendMessage,
+      })
+      return { error: backendMessage }
+    }
+
+    if (
+      !accessToken ||
+      !refreshToken ||
+      !expiresIn ||
+      !user?.id ||
+      !user.email
+    ) {
+      console.error("Login response missing auth payload", {
+        status: response.status,
+        hasAccessToken: !!accessToken,
+        hasRefreshToken: !!refreshToken,
+        hasExpiresIn: !!expiresIn,
+        hasUser: !!user,
+      })
+      return { error: "Login failed. Please try again." }
+    }
 
     const session = await getSession()
     session.user = {
@@ -61,9 +95,23 @@ export async function loginAction(
     await session.save()
   } catch (error) {
     if (axios.isAxiosError(error)) {
+      const responseData = error.response?.data as
+        | { message?: string | string[]; error?: string }
+        | undefined
+      const backendMessage = Array.isArray(responseData?.message)
+        ? responseData.message.join(", ")
+        : responseData?.message || responseData?.error
+
+      if (backendMessage) {
+        console.error("Login failed", {
+          status: error.response?.status,
+          message: backendMessage,
+        })
+        return { error: backendMessage }
+      }
+
       return {
-        error:
-          error.response?.data?.message || "Login failed. Please try again.",
+        error: `Login failed (${error.response?.status ?? "network"}). Please try again.`,
       }
     }
     return { error: "Something went wrong. Please try again." }
