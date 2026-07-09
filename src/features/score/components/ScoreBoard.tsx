@@ -37,9 +37,7 @@ export function ScoreBoard() {
   return (
     <Card className="rounded-none shadow-none">
       <CardHeader className="text-center">
-        <CardTitle className="text-base">
-          {t("referee.score", { defaultValue: "Tỷ số" })}
-        </CardTitle>
+        <CardTitle className="text-base">{t("referee.score")}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col items-center gap-4">
         <div className="flex w-full items-center justify-center gap-6">
@@ -76,29 +74,23 @@ export function ScoreBoard() {
 
         <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/50 py-1.5 pr-2 pl-4 text-sm">
           <span className="text-muted-foreground">
-            {t("referee.tracker.servingTurn", {
-              defaultValue: "Lượt giao bóng",
-            })}
+            {t("referee.tracker.servingTurn")}
           </span>
           <Badge variant="default">
             {t("referee.tracker.serverBadge", {
               number: serverNumber,
-              defaultValue: `Thứ ${serverNumber}`,
             })}
           </Badge>
         </div>
 
         <p className="text-center text-sm text-muted-foreground">
           <span className="font-medium text-foreground">
-            {t("referee.tracker.scoreCallFormat", {
-              defaultValue: "Cách gọi tỷ số: ",
-            })}
+            {t("referee.tracker.scoreCallFormat")}
           </span>
           {`${scoreServing} - ${scoreReceiving} - ${serverNumber}`}
           <span className="sr-only">
             {t("referee.tracker.scoreCallFormatHelp", {
               number: serverNumber,
-              defaultValue: ` (tỷ số đội giao bóng trước, tỷ số đội nhận, lượt giao thứ ${serverNumber})`,
             })}
           </span>
         </p>
@@ -108,7 +100,7 @@ export function ScoreBoard() {
           <div className="mt-2 flex w-full flex-wrap justify-center gap-2 border-t pt-3 text-xs font-semibold text-muted-foreground">
             {sets.map((setScore, idx) => (
               <div key={idx} className="rounded-md border bg-muted px-2.5 py-1">
-                Set {idx + 1}:{" "}
+                {t("referee.tracker.setLabel", { setNumber: idx + 1 })}{" "}
                 <span className="text-foreground">
                   {setScore[0]} – {setScore[1]}
                 </span>

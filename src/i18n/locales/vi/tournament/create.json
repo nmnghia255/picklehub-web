@@ -44,6 +44,11 @@
       "eventsDesc": "Xác định các hạng mục và nội dung thi đấu cho giải đấu này.",
       "entryFeeLabel": "Phí tham gia *",
       "currencyLabel": "Tiền tệ",
+      "currencies": {
+        "usd": "USD ($)",
+        "cad": "CAD ($)",
+        "eur": "EUR (€)"
+      },
       "refundPolicyLabel": "Chính sách hoàn tiền",
       "refundPolicies": {
         "full": "Hoàn tiền 100% trước khi đóng đăng ký",
@@ -53,6 +58,7 @@
       "dupr": "DUPR: {{skillRange}}",
       "capacity": "Quy mô: {{capacity}} Lượt đăng ký",
       "fee": "Lệ phí: {{fee}}",
+      "lateFeeLabel": "Phí đăng ký muộn (tùy chọn)",
       "noEvents": "Chưa có sự kiện nào được thêm vào. Nhấp 'Thêm sự kiện' để thiết lập nội dung thi đấu."
     },
     "step4": {

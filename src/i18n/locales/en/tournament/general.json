@@ -51,6 +51,7 @@
     "noResultsDescription": "Try adjusting your search or status filter."
   },
   "public": {
+    "noMatches": "No matches yet",
     "hero": {
       "title": "San Diego Summer Slam 2026",
       "location": "Balboa Park Tennis & Pickleball Center",
@@ -100,6 +101,36 @@
       "vs": "vs",
       "live": "Live",
       "final": "Final"
+    }
+  },
+  "referee": {
+    "score": "Score",
+    "tracker": {
+      "loading": "Loading scoreboard...",
+      "servingTurn": "Serving turn",
+      "serverBadge": "Server {{number}}",
+      "scoreCallFormat": "Score call: ",
+      "scoreCallFormatHelp": " (team serving first, team receiving, serve number {{number}})",
+      "setLabel": "Set {{setNumber}}:",
+      "swapEnds": "Swap court sides",
+      "swapPositions": "Swap positions for {{team}}",
+      "resetMatch": "Reset match",
+      "resetConfirmTitle": "Reset Match?",
+      "resetConfirmDesc": "The score will reset to 0-0, server 2, and the court positions will return to the default layout. Previous steps will be removed from the undo history.",
+      "cancel": "Cancel",
+      "reset": "Reset",
+      "undo": "Undo",
+      "matchFinishedGoBack": "Match finished. Go back",
+      "savingResult": "Saving result...",
+      "confirmResult": "Confirm & save result",
+      "disconnected": "Disconnected...",
+      "disconnectedDesc": "Please check your network connection.",
+      "syncing": "Syncing...",
+      "syncingDesc": "Restoring and syncing the latest score.",
+      "rallyWon": "{{team}} won the rally",
+      "successMessage": "Match score updated successfully!",
+      "errorMessage": "Unable to update the score",
+      "unexpectedErrorMessage": "An unexpected error occurred"
     }
   }
 }

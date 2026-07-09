@@ -1,40 +1,58 @@
 {
   "brand": "PickleHub",
-  "saving": "Đang lưu...",
-  "saveSuccess": "Lưu thành công",
-  "saveError": "Lưu thất bại",
-  "create": "Tạo",
-  "createSuccess": "Tạo thành công",
-  "createError": "Tạo thất bại",
-  "update": "Cập nhật",
-  "updateSuccess": "Cập nhật thành công",
-  "updateError": "Cập nhật thất bại",
-  "delete": "Xóa",
-  "deleteSuccess": "Xóa thành công",
-  "deleteError": "Xóa thất bại",
-  "loading": "Đang tải...",
-  "dialog": {
-    "close": "Đóng"
-  },
-  "sheet": {
-    "close": "Đóng"
-  },
-  "errorState": {
-    "title": "Không thể tải dữ liệu",
-    "description": "Đã có lỗi xảy ra. Vui lòng thử lại sau.",
-    "retry": "Thử lại"
+  "settings": {
+    "title": "Cài đặt",
+    "description": "Điều chỉnh ngôn ngữ, giao diện và đăng xuất khỏi thiết bị này.",
+    "language": {
+      "title": "Ngôn ngữ",
+      "description": "Chọn ngôn ngữ hiển thị của ứng dụng.",
+      "placeholder": "Chọn ngôn ngữ",
+      "current": "Ngôn ngữ hiện tại: {{language}}",
+      "options": {
+        "vi": "Tiếng Việt",
+        "en": "English"
+      }
+    },
+    "theme": {
+      "title": "Giao diện",
+      "description": "Chọn giao diện sáng, tối hoặc theo hệ thống.",
+      "placeholder": "Chọn giao diện",
+      "options": {
+        "light": "Sáng",
+        "dark": "Tối",
+        "system": "Theo hệ thống"
+      },
+      "current": {
+        "light": "Bạn đang dùng giao diện sáng.",
+        "dark": "Bạn đang dùng giao diện tối.",
+        "system": "Giao diện sẽ theo cài đặt của hệ điều hành."
+      }
+    },
+    "session": {
+      "title": "Phiên đăng nhập",
+      "description": "Đăng xuất khi bạn không còn sử dụng thiết bị này.",
+      "logout": "Đăng xuất"
+    }
   },
   "calendar": {
     "title": "Lịch của tôi",
     "description": "Quản lý và theo dõi hoạt động pickleball cá nhân của bạn.",
+    "pageTitle": "Lịch của tôi",
+    "pageDescription": "Quản lý và theo dõi hoạt động pickleball cá nhân của bạn.",
     "today": "Hôm nay",
     "previousMonth": "Tháng trước",
     "nextMonth": "Tháng sau",
     "monthPlaceholder": "Tháng",
+    "monthSelectLabel": "Chọn tháng",
     "yearLabel": "Năm",
+    "yearSelectLabel": "Chọn năm",
     "monthYear": "Tháng {{month}}, {{year}}",
     "monthCaption": "{{month}} {{year}}",
     "monthViewLabel": "Xem lịch dạng ô",
+    "viewModes": {
+      "month": "Xem lịch dạng ô"
+    },
+    "loading": "Đang tải...",
     "dayDetailsTitle": "Chi tiết ngày {{date}}",
     "dayDetailsDescription": "Danh sách hoạt động bạn đã đăng ký tham gia trong ngày này.",
     "noDayActivitiesTitle": "Không có hoạt động",
@@ -88,7 +106,46 @@
       "9": "Tháng 10",
       "10": "Tháng 11",
       "11": "Tháng 12"
+    },
+    "aria": {
+      "nav": "Điều hướng lịch",
+      "grid": "Lưới lịch",
+      "gridcell": "Ngày trên lịch",
+      "monthDropdown": "Chọn tháng",
+      "yearDropdown": "Chọn năm",
+      "nextMonth": "Tháng sau",
+      "previousMonth": "Tháng trước",
+      "dayButtonToday": "{{date}} - hôm nay",
+      "dayButtonSelected": "{{date}} - đã chọn",
+      "dayButton": "{{date}}",
+      "weekday": "{{weekday}}",
+      "weekNumber": "Tuần {{weekNumber}}",
+      "weekNumberHeader": "Số tuần"
     }
+  },
+  "saving": "Đang lưu...",
+  "saveSuccess": "Lưu thành công",
+  "saveError": "Lưu thất bại",
+  "create": "Tạo",
+  "createSuccess": "Tạo thành công",
+  "createError": "Tạo thất bại",
+  "update": "Cập nhật",
+  "updateSuccess": "Cập nhật thành công",
+  "updateError": "Cập nhật thất bại",
+  "delete": "Xóa",
+  "deleteSuccess": "Xóa thành công",
+  "deleteError": "Xóa thất bại",
+  "loading": "Đang tải...",
+  "dialog": {
+    "close": "Đóng"
+  },
+  "sheet": {
+    "close": "Đóng"
+  },
+  "errorState": {
+    "title": "Không thể tải dữ liệu",
+    "description": "Đã có lỗi xảy ra. Vui lòng thử lại sau.",
+    "retry": "Thử lại"
   },
   "back": "Quay lại",
   "pagination": {
@@ -439,6 +496,7 @@
       "locationLabel": "Khu vực",
       "locationPlaceholder": "TP. Hồ Chí Minh",
       "hourlyRateLabel": "Giá theo giờ (VNĐ)",
+      "hourlyRatePlaceholder": "0",
       "hourlyRateRequired": "Giá theo giờ phải >= 0",
       "paymentInfoTitle": "Thông tin thanh toán",
       "paymentInfoDescription": "Thông tin nhận thanh toán từ học viên.",
@@ -643,6 +701,7 @@
         "enrolled": "Đã đăng ký",
         "tuition": "Học phí",
         "location": "Địa điểm",
+        "locationPlaceholder": "Ví dụ: Sân PickleHub Quận 1",
         "notSet": "Chưa có",
         "className": "Tên lớp",
         "level": "Cấp độ",
@@ -1167,11 +1226,13 @@
         "upcoming": "Sắp tới",
         "live": "Đang diễn ra",
         "past": "Đã kết thúc",
-        "pending": "Chờ xác nhận"
+        "pending": "Chờ xác nhận",
+        "unknown": "Trạng thái không xác định"
       },
       "kind": {
         "class": "Lớp học",
-        "booking": "Đặt lịch"
+        "booking": "Đặt lịch",
+        "unknown": "Loại không xác định"
       },
       "unknownCoach": "Không xác định",
       "detail": {
@@ -1198,7 +1259,16 @@
         "pendingProof": "Chờ bằng chứng",
         "pendingReview": "Chờ xác nhận",
         "settled": "Đã thanh toán",
-        "rejected": "Bị từ chối"
+        "rejected": "Bị từ chối",
+        "unknown": "Trạng thái thanh toán không xác định"
+      },
+      "sourceStatus": {
+        "pendingConfirmation": "Chờ xác nhận",
+        "confirmed": "Đã xác nhận",
+        "completed": "Đã hoàn thành",
+        "rejected": "Từ chối",
+        "cancelled": "Đã hủy",
+        "unknown": "Trạng thái không xác định"
       }
     },
     "overview": {
@@ -1354,7 +1424,8 @@
       "enrolledCount": "{{enrolled}}/{{capacity}} đã đăng ký",
       "scheduleLabel": "Lịch học",
       "minutes": "{{count}} phút",
-      "moreSessions": "+{{count}} buổi khác"
+      "moreSessions": "+{{count}} buổi khác",
+      "locationFallback": "Chưa có địa điểm"
     },
     "classDetail": {
       "notFound": "Lớp học không tồn tại",
@@ -1395,7 +1466,8 @@
         "full": "Đã đầy",
         "ongoing": "Đang diễn ra",
         "completed": "Đã kết thúc",
-        "cancelled": "Đã hủy"
+        "cancelled": "Đã hủy",
+        "unknown": "Trạng thái không xác định"
       },
       "verification": {
         "unverified": "Chưa xác thực",
@@ -1407,7 +1479,8 @@
         "active": "Đang hoạt động",
         "completed": "Đã hoàn thành",
         "cancelled": "Đã hủy"
-      }
+      },
+      "durationMinutes": "Thời lượng: {{minutes}} phút"
     },
     "bookingDetail": {
       "errorTitle": "Không thể tải chi tiết đặt lịch",
@@ -1433,15 +1506,19 @@
         "upcoming": "Sắp tới",
         "live": "Đang diễn ra",
         "past": "Đã kết thúc",
-        "pending": "Chờ xác nhận"
+        "pending": "Chờ xác nhận",
+        "unknown": "Trạng thái không xác định"
       },
       "paymentStatus": {
         "pendingProof": "Chờ bằng chứng",
         "pendingReview": "Chờ xác nhận",
         "settled": "Đã thanh toán",
-        "rejected": "Bị từ chối"
+        "rejected": "Bị từ chối",
+        "unknown": "Trạng thái thanh toán không xác định"
       }
-    }
+    },
+    "pageTitle": "Học viên",
+    "pageDescription": "Theo dõi lịch, đăng ký lớp và đặt lịch riêng của bạn tại một nơi."
   },
   "friends": {
     "pageTitle": "Bạn bè",
@@ -1495,6 +1572,15 @@
     "optimistic": {
       "requestSent": "Lời mời kết bạn đã gửi",
       "justFriended": "Vừa kết bạn"
+    },
+    "service": {
+      "friendBio": "Đã là bạn bè",
+      "userBio": "Người dùng trên hệ thống",
+      "location": "Chưa cập nhật",
+      "loading": "Đang tải...",
+      "requestSentBio": "Lời mời kết bạn đã gửi",
+      "requestReceivedBio": "Lời mời kết bạn đã nhận",
+      "inviteSource": "Dịch vụ bạn bè"
     }
   },
   "equipment": {
@@ -1690,5 +1776,16 @@
       "backToLogin": "Về trang đăng nhập",
       "imageAlt": "Minh họa lời mời"
     }
+  },
+  "breadcrumb": {
+    "navLabel": "Điều hướng breadcrumb",
+    "more": "Xem thêm"
+  },
+  "carousel": {
+    "previous": "Slide trước",
+    "next": "Slide tiếp theo"
+  },
+  "spinner": {
+    "loading": "Đang tải"
   }
 }

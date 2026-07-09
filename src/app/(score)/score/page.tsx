@@ -1,5 +1,7 @@
 import { Suspense } from "react"
 
+import i18n from "@/i18n/client"
+
 import PickleballTracker from "./PickleballTracker"
 
 export default function SocialPage() {
@@ -7,7 +9,7 @@ export default function SocialPage() {
     <Suspense
       fallback={
         <div className="p-8 text-center text-gray-500">
-          Đang tải bảng ghi điểm...
+          {i18n.t("referee.tracker.loading")}
         </div>
       }
     >

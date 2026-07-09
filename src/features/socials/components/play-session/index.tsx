@@ -60,10 +60,10 @@ export default function PlaySessionDetail({
             (part) => part.id === player.id || part.userId === player.id
           )
           if (p) {
-            name = p.guestName || p.user?.name || "Unknown Player"
+            name = p.guestName || p.user?.name || t("common.unknownPlayer")
             avatar = p.user?.avatarUrl || null
           } else {
-            name = "Unknown Player"
+            name = t("common.unknownPlayer")
           }
         }
 

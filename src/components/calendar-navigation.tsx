@@ -57,6 +57,8 @@ export function CalendarNavigation({
         variant="secondary"
         onClick={onToday}
         className="h-10 px-4 font-semibold"
+        aria-label={t("calendar.today")}
+        title={t("calendar.today")}
       >
         {t("calendar.today")}
       </Button>
@@ -89,7 +91,10 @@ export function CalendarNavigation({
           value={String(currentDate.getMonth())}
           onValueChange={(val) => onMonthChange(parseInt(val))}
         >
-          <SelectTrigger className="h-10 w-30 bg-background font-semibold text-foreground shadow-sm">
+          <SelectTrigger
+            className="h-10 w-30 bg-background font-semibold text-foreground shadow-sm"
+            aria-label={t("calendar.monthSelectLabel")}
+          >
             <SelectValue placeholder={t("calendar.monthPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
@@ -109,7 +114,10 @@ export function CalendarNavigation({
             value={String(currentYear)}
             onValueChange={handleYearSelect}
           >
-            <ComboboxInput className="w-24 [appearance:textfield] border-none bg-transparent text-sm font-bold text-foreground focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+            <ComboboxInput
+              aria-label={t("calendar.yearSelectLabel")}
+              className="w-24 [appearance:textfield] border-none bg-transparent text-sm font-bold text-foreground focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            />
             <ComboboxContent>
               <ComboboxList>
                 {years.map((y) => (

@@ -24,7 +24,7 @@ export function CourtControls() {
         onClick={() => setIsSwappedSides((prev) => !prev)}
         className="text-xs font-bold hover:bg-muted"
       >
-        🔄 {t("referee.tracker.swapEnds", { defaultValue: "Đổi bên sân" })}
+        🔄 {t("referee.tracker.swapEnds")}
       </Button>
       <Button
         type="button"
@@ -36,7 +36,6 @@ export function CourtControls() {
         🔄{" "}
         {t("referee.tracker.swapPositions", {
           team: teamAName,
-          defaultValue: `Đổi vị trí ${teamAName}`,
         })}
       </Button>
       <Button
@@ -49,7 +48,6 @@ export function CourtControls() {
         🔄{" "}
         {t("referee.tracker.swapPositions", {
           team: teamBName,
-          defaultValue: `Đổi vị trí ${teamBName}`,
         })}
       </Button>
     </div>

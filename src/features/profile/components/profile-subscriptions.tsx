@@ -26,7 +26,8 @@ export function ProfileSubscriptions({
   isOwnProfile = false,
 }: ProfileSubscriptionsProps) {
   const router = useRouter()
-  const { t } = useProfileTranslation()
+  const { t, i18n } = useProfileTranslation()
+  const locale = i18n.language?.startsWith("vi") ? "vi-VN" : "en-US"
 
   if (!isOwnProfile) return null
 

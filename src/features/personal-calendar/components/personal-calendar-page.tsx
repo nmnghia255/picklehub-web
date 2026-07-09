@@ -22,7 +22,7 @@ import {
   User,
   Users,
 } from "lucide-react"
-import React, { useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CalendarNavigation } from "@/components/calendar-navigation"
@@ -88,7 +88,12 @@ export function PersonalCalendarPage() {
     return eachDayOfInterval({ start: gridStart, end: gridEnd })
   }, [gridStart, gridEnd])
 
-  const { data: allEvents = [], isLoading } = useMyCalendar(
+  const {
+    data: allEvents = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useMyCalendar(
     format(gridStart, "yyyy-MM-dd"),
     format(gridEnd, "yyyy-MM-dd")
   )
@@ -161,6 +166,56 @@ export function PersonalCalendarPage() {
     month: currentDate.getMonth() + 1,
     year: currentDate.getFullYear(),
   })
+
+  useEffect(() => {
+    document.title = t("calendar.pageTitle")
+
+    const description = document.querySelector<HTMLMetaElement>(
+      'meta[name="description"]'
+    )
+
+    if (description) {
+      description.content = t("calendar.pageDescription")
+    }
+  }, [t])
+
+  if (isError) {
+    return (
+      <div className="space-y-6 pb-10">
+        <div className="flex flex-col gap-4 border-b pb-6 md:flex-row md:items-end md:justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <div className="rounded-xl bg-primary/10 p-2">
+                <CalendarCheck className="size-8 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-extrabold tracking-tight">
+                  {t("calendar.title")}
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  {t("calendar.description")}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Card className="rounded-2xl border shadow-sm">
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <p className="mb-2 text-lg font-medium">
+              {t("calendar.errorTitle")}
+            </p>
+            <p className="mb-6 text-sm text-muted-foreground">
+              {t("calendar.errorDescription")}
+            </p>
+            <Button variant="outline" onClick={() => void refetch()}>
+              {t("calendar.retry")}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   // Status Badge Class Generator
   const getStatusBadge = (status: CalendarActivity["status"]) => {
@@ -360,7 +415,7 @@ export function PersonalCalendarPage() {
             <CardHeader className="border-b bg-muted/15 pb-4">
               <div className="flex items-center gap-2 font-bold text-primary">
                 <CalendarDays className="size-5" />
-                <span>{t("calendar.monthViewLabel")}</span>
+                <span>{t("calendar.viewModes.month")}</span>
               </div>
             </CardHeader>
             <CardContent className="p-4">
@@ -379,7 +434,8 @@ export function PersonalCalendarPage() {
               {/* Grid cells */}
               {isLoading ? (
                 /* Loading skeleton grid */
-                <div className="grid grid-cols-7 gap-2">
+                <div className="grid grid-cols-7 gap-2" aria-busy="true">
+                  <span className="sr-only">{t("calendar.loading")}</span>
                   {Array.from({ length: 35 }).map((_, i) => (
                     <div
                       key={i}
@@ -540,7 +596,7 @@ export function PersonalCalendarPage() {
             </h3>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
               {t("calendar.monthEmptyDescription", {
-                monthYear: monthYearLabel.toLowerCase(),
+                monthYear: monthYearLabel,
               })}
             </p>
           </div>

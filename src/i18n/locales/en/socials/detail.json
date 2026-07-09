@@ -15,6 +15,11 @@
     "submitDupr": "DUPR Submission",
     "joinedOn": "Joined {{date}}",
     "noParticipants": "No participants yet.",
+    "noParticipantsDescription": "No one has joined this social yet.",
+    "kickSuccess": "Participant removed successfully",
+    "kickError": "Failed to remove participant",
+    "approveSuccess": "Participant approved successfully",
+    "approveError": "Failed to approve participant",
     "noSkillLevelLimit": "Không giới hạn trình độ",
     "kick": "Đá người tham gia",
     "approve": "Duyệt"
@@ -80,7 +85,8 @@
       "cancel": "Cancel",
       "recordPayment": "Record Payment",
       "success": "Payment recorded successfully",
-      "error": "Failed to record payment"
+      "error": "Failed to record payment",
+      "amountPlaceholder": "e.g. 50.000"
     },
     "courtBookings": {
       "title": "Court Bookings Cost",
@@ -113,6 +119,41 @@
       "successUpdate": "Expense updated successfully",
       "errorAdd": "Failed to add expense",
       "errorUpdate": "Failed to update expense"
+    },
+    "pricing": {
+      "title": "Pricing Calculator",
+      "description": "Calculate the break-even price based on the expected number of players and expenses.",
+      "expectedPlayers": "Expected Number of Players",
+      "bookingCost": "Booking Cost",
+      "manualExpenses": "Extra Expenses",
+      "totalCost": "Total Cost",
+      "breakEvenPackage": "Break-even (Package)",
+      "suggestedPrices": "Suggested Prices",
+      "estProfitPackage": "Est. Profit (Package)",
+      "fullPackagePrice": "Full Package Price",
+      "warningBelowBreakEven": "Warning: Package price is below break-even!",
+      "sessionFallback": "Session",
+      "currency": "VND",
+      "cancel": "Cancel",
+      "applyPricing": "Apply Pricing",
+      "appliedSuccessfully": "Pricing applied successfully",
+      "applyFailed": "Failed to apply pricing",
+      "headers": {
+        "session": "Session",
+        "bookingCost": "Booking Cost",
+        "currentFee": "Current Fee",
+        "priceOverride": "Price Override"
+      }
+    },
+    "refundDialog": {
+      "title": "Issue Refund",
+      "description": "Confirm you have manually transferred the money back to the user, then record it here.",
+      "amountLabel": "Amount to Refund (VND)",
+      "maxError": "Amount cannot exceed available credit balance ({{maxRefundAmount}})",
+      "cancel": "Cancel",
+      "confirm": "Confirm Refund",
+      "success": "Refund processed successfully",
+      "error": "Failed to process refund"
     }
   },
   "payment": {
@@ -175,6 +216,7 @@
     "errorEmptyRating": "Please choose a rating before submitting.",
     "errorEmptyComment": "Please write a comment before submitting.",
     "submitBtn": "Submit Feedback",
+    "submitFailed": "Failed to submit feedback.",
     "othersTitle": "Participant Reviews",
     "othersSubtitle": "See what other players say about this social event",
     "dialogTitle": "Feedback Received",

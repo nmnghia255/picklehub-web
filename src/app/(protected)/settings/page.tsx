@@ -1,5 +1,6 @@
 "use client"
 
+import type { LucideIcon } from "lucide-react"
 import {
   Languages,
   LogOut,
@@ -9,6 +10,7 @@ import {
 } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
@@ -29,21 +31,11 @@ import {
 import { logoutAction } from "@/features/auth/actions"
 import { languageStorageKey } from "@/i18n/settings"
 
-const languageOptions = [
-  { value: "vi", label: "Tiếng Việt" },
-  { value: "en", label: "English" },
-]
-
-const themeOptions = [
-  { value: "light", label: "Sáng", icon: SunMedium },
-  { value: "dark", label: "Tối", icon: MoonStar },
-  { value: "system", label: "Theo hệ thống", icon: MonitorCog },
-] as const
-
-type ThemeValue = (typeof themeOptions)[number]["value"]
-type LanguageValue = (typeof languageOptions)[number]["value"]
+type ThemeValue = "light" | "dark" | "system"
+type LanguageValue = "vi" | "en"
 
 export default function SettingsPage() {
+  const { t, i18n } = useTranslation("common")
   const { theme, setTheme } = useTheme()
   const [language, setLanguage] = useState<LanguageValue>(() => {
     if (typeof window === "undefined") {
@@ -56,20 +48,55 @@ export default function SettingsPage() {
       : "vi"
   })
 
+  const languageOptions = [
+    { value: "vi" as const, label: t("settings.language.options.vi") },
+    { value: "en" as const, label: t("settings.language.options.en") },
+  ]
+
+  const themeOptions: Array<{
+    value: ThemeValue
+    label: string
+    icon: LucideIcon
+  }> = [
+    {
+      value: "light",
+      label: t("settings.theme.options.light"),
+      icon: SunMedium,
+    },
+    { value: "dark", label: t("settings.theme.options.dark"), icon: MoonStar },
+    {
+      value: "system",
+      label: t("settings.theme.options.system"),
+      icon: MonitorCog,
+    },
+  ]
+
   useEffect(() => {
     window.localStorage.setItem(languageStorageKey, language)
     document.documentElement.lang = language
-  }, [language])
+    void i18n.changeLanguage(language)
+  }, [i18n, language])
 
   const themeValue = (theme ?? "system") as ThemeValue
+  const currentLanguageLabel =
+    language === "vi"
+      ? t("settings.language.options.vi")
+      : t("settings.language.options.en")
+  const currentThemeMessage =
+    themeValue === "dark"
+      ? t("settings.theme.current.dark")
+      : themeValue === "light"
+        ? t("settings.theme.current.light")
+        : t("settings.theme.current.system")
 
   return (
     <PageContainer className="py-8">
       <div className="mb-8 space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Cài đặt</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          {t("settings.title")}
+        </h1>
         <p className="max-w-2xl text-muted-foreground">
-          Chỉnh ngôn ngữ, giao diện và quản lý phiên đăng nhập của bạn ngay tại
-          đây.
+          {t("settings.description")}
         </p>
       </div>
 
@@ -79,10 +106,10 @@ export default function SettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Languages className="size-4" />
-                Ngôn ngữ
+                {t("settings.language.title")}
               </CardTitle>
               <CardDescription>
-                Chọn ngôn ngữ hiển thị cho giao diện ứng dụng.
+                {t("settings.language.description")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -92,7 +119,9 @@ export default function SettingsPage() {
                   onValueChange={(value) => setLanguage(value as LanguageValue)}
                 >
                   <SelectTrigger className="w-full sm:max-w-xs">
-                    <SelectValue placeholder="Chọn ngôn ngữ" />
+                    <SelectValue
+                      placeholder={t("settings.language.placeholder")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {languageOptions.map((option) => (
@@ -104,9 +133,9 @@ export default function SettingsPage() {
                 </Select>
 
                 <p className="text-sm text-muted-foreground">
-                  {language === "vi"
-                    ? "Giao diện ưu tiên tiếng Việt."
-                    : "Interface is set to English."}
+                  {t("settings.language.current", {
+                    language: currentLanguageLabel,
+                  })}
                 </p>
               </div>
             </CardContent>
@@ -116,10 +145,10 @@ export default function SettingsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <SunMedium className="size-4" />
-                Giao diện
+                {t("settings.theme.title")}
               </CardTitle>
               <CardDescription>
-                Điều chỉnh chế độ sáng, tối hoặc theo thiết bị của bạn.
+                {t("settings.theme.description")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -129,7 +158,9 @@ export default function SettingsPage() {
                   onValueChange={(value) => setTheme(value as ThemeValue)}
                 >
                   <SelectTrigger className="w-full sm:max-w-xs">
-                    <SelectValue placeholder="Chọn giao diện" />
+                    <SelectValue
+                      placeholder={t("settings.theme.placeholder")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {themeOptions.map((option) => {
@@ -148,11 +179,7 @@ export default function SettingsPage() {
                 </Select>
 
                 <p className="text-sm text-muted-foreground">
-                  {themeValue === "dark"
-                    ? "Bạn đang dùng giao diện tối."
-                    : themeValue === "light"
-                      ? "Bạn đang dùng giao diện sáng."
-                      : "Giao diện sẽ tự theo cài đặt của hệ điều hành."}
+                  {currentThemeMessage}
                 </p>
               </div>
             </CardContent>
@@ -163,16 +190,16 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <LogOut className="size-4" />
-              Phiên đăng nhập
+              {t("settings.session.title")}
             </CardTitle>
             <CardDescription>
-              Đăng xuất khỏi thiết bị này khi bạn không còn sử dụng nữa.
+              {t("settings.session.description")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form action={logoutAction}>
               <Button type="submit" variant="destructive" className="w-full">
-                Đăng xuất
+                {t("settings.session.logout")}
               </Button>
             </form>
           </CardContent>

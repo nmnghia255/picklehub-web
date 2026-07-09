@@ -281,27 +281,14 @@ function PickleballTracker() {
         status: "completed",
       })
       if (res.success) {
-        toast.success(
-          t("referee.tracker.successMessage", {
-            defaultValue: "Cập nhật tỷ số trận đấu thành công!",
-          })
-        )
+        toast.success(t("referee.tracker.successMessage"))
         router.push(`/tournaments/${tournamentId}?tab=referee`)
       } else {
-        toast.error(
-          res.error ||
-            t("referee.tracker.errorMessage", {
-              defaultValue: "Không thể cập nhật tỷ số",
-            })
-        )
+        toast.error(res.error || t("referee.tracker.errorMessage"))
       }
     } catch (err) {
       console.error(err)
-      toast.error(
-        t("referee.tracker.unexpectedErrorMessage", {
-          defaultValue: "Đã xảy ra lỗi không mong muốn",
-        })
-      )
+      toast.error(t("referee.tracker.unexpectedErrorMessage"))
     } finally {
       setIsSaving(false)
     }

@@ -58,35 +58,28 @@ export function ScoreFooter({
               variant="outline"
               className="text-muted-foreground"
             >
-              {t("referee.tracker.resetMatch", {
-                defaultValue: "Đặt lại trận đấu",
-              })}
+              {t("referee.tracker.resetMatch")}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>
-                {t("referee.tracker.resetConfirmTitle", {
-                  defaultValue: "Bắt đầu lại từ đầu?",
-                })}
+                {t("referee.tracker.resetConfirmTitle")}
               </AlertDialogTitle>
               <AlertDialogDescription>
-                {t("referee.tracker.resetConfirmDesc", {
-                  defaultValue:
-                    "Tỷ số sẽ về 0-0, lượt giao bóng 2, vị trí sân theo mặc định. Các bước trước đó sẽ không còn trong lịch sử hoàn tác.",
-                })}
+                {t("referee.tracker.resetConfirmDesc")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel type="button">
-                {t("referee.tracker.cancel", { defaultValue: "Hủy" })}
+                {t("referee.tracker.cancel")}
               </AlertDialogCancel>
               <AlertDialogAction
                 type="button"
                 variant="destructive"
                 onClick={applyReset}
               >
-                {t("referee.tracker.reset", { defaultValue: "Đặt lại" })}
+                {t("referee.tracker.reset")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -99,7 +92,7 @@ export function ScoreFooter({
           onClick={() => handleUndo(isMatchServiceMatch, matchId)}
         >
           <Undo2 data-icon="inline-start" />
-          {t("referee.tracker.undo", { defaultValue: "Hoàn tác" })}
+          {t("referee.tracker.undo")}
         </Button>
       </div>
 
@@ -113,9 +106,7 @@ export function ScoreFooter({
                 router.push(`/tournaments/${tournamentId}?tab=referee`)
               }
             >
-              {t("referee.tracker.matchFinishedGoBack", {
-                defaultValue: "Trận đấu đã kết thúc. Quay lại",
-              })}
+              {t("referee.tracker.matchFinishedGoBack")}
             </Button>
           ) : (
             <Button
@@ -125,12 +116,8 @@ export function ScoreFooter({
               disabled={isSaving}
             >
               {isSaving
-                ? t("referee.tracker.savingResult", {
-                    defaultValue: "Đang lưu kết quả...",
-                  })
-                : t("referee.tracker.confirmResult", {
-                    defaultValue: "Xác nhận & Lưu kết quả",
-                  })}
+                ? t("referee.tracker.savingResult")
+                : t("referee.tracker.confirmResult")}
             </Button>
           )}
         </div>

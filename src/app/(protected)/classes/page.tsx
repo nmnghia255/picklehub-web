@@ -73,7 +73,10 @@ function getLocaleCode(language: string) {
 }
 
 function formatPrice(price: number, locale: string) {
-  return `${new Intl.NumberFormat(locale).format(price)} ₫`
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "VND",
+  }).format(price)
 }
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -334,7 +337,8 @@ export default function ClassesPage() {
                           <MapPin className="size-3.5 shrink-0" />
                           <span className="line-clamp-1">
                             {cls.locationDescription ||
-                              cls.coachProfile.locationCity}
+                              cls.coachProfile.locationCity ||
+                              t("learner.classes.locationFallback")}
                           </span>
                         </div>
                       </CardContent>

@@ -14,8 +14,11 @@
     "buttons": {
       "previous": "Previous",
       "next": "Next Step",
-      "publish": "Publish Tournament"
+      "publish": "Publish Tournament",
+      "publishing": "Publishing..."
     },
+    "successMessage": "Tournament created successfully!",
+    "errorMessage": "Failed to create the tournament. Please try again.",
     "step1": {
       "nameLabel": "Tournament Name *",
       "namePlaceholder": "e.g., San Diego Summer Slam 2026",

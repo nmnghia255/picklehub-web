@@ -137,7 +137,10 @@
     "rank3": "#3 Supporter",
     "website": "Website",
     "deleteTitle": "Remove Sponsor",
-    "delete": "Delete"
+    "delete": "Delete",
+    "addSuccess": "Sponsor added successfully!",
+    "loading": "Loading...",
+    "deleteSuccess": "Sponsor deleted successfully!"
   },
   "paymentTab": {
     "title": "Payment Settings",

@@ -1,29 +1,64 @@
 {
   "brand": "PickleHub",
-  "back": "Back",
-  "loading": "Loading...",
-  "dialog": {
-    "close": "Close"
-  },
-  "sheet": {
-    "close": "Close"
-  },
-  "errorState": {
-    "title": "Could not load data",
-    "description": "An error occurred. Please try again later.",
-    "retry": "Try again"
+  "create": "Create",
+  "createError": "Creation failed",
+  "createSuccess": "Created successfully",
+  "delete": "Delete",
+  "deleteError": "Deletion failed",
+  "deleteSuccess": "Deleted successfully",
+  "settings": {
+    "title": "Settings",
+    "description": "Adjust language, appearance, and sign out from this device.",
+    "language": {
+      "title": "Language",
+      "description": "Choose the interface language for the app.",
+      "placeholder": "Select a language",
+      "current": "Current language: {{language}}",
+      "options": {
+        "vi": "Vietnamese",
+        "en": "English"
+      }
+    },
+    "theme": {
+      "title": "Theme",
+      "description": "Choose light, dark, or system theme.",
+      "placeholder": "Select a theme",
+      "options": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      },
+      "current": {
+        "light": "You are using the light theme.",
+        "dark": "You are using the dark theme.",
+        "system": "Your theme follows the system preference."
+      }
+    },
+    "session": {
+      "title": "Session",
+      "description": "Sign out when you are done using this device.",
+      "logout": "Log out"
+    }
   },
   "calendar": {
     "title": "My Calendar",
     "description": "Manage and track your personal pickleball activities.",
+    "pageTitle": "My Calendar",
+    "pageDescription": "Manage and track your personal pickleball activities.",
     "today": "Today",
     "previousMonth": "Previous month",
     "nextMonth": "Next month",
     "monthPlaceholder": "Month",
+    "monthSelectLabel": "Select month",
     "yearLabel": "Year",
+    "yearSelectLabel": "Select year",
     "monthYear": "Month {{month}}, {{year}}",
     "monthCaption": "{{month}} {{year}}",
     "monthViewLabel": "Month view",
+    "viewModes": {
+      "month": "Month view"
+    },
+    "loading": "Loading...",
     "dayDetailsTitle": "Day details {{date}}",
     "dayDetailsDescription": "Activities you are registered for on this day.",
     "noDayActivitiesTitle": "No activities",
@@ -77,7 +112,35 @@
       "9": "October",
       "10": "November",
       "11": "December"
+    },
+    "aria": {
+      "nav": "Calendar navigation",
+      "grid": "Calendar grid",
+      "gridcell": "Calendar day",
+      "monthDropdown": "Select month",
+      "yearDropdown": "Select year",
+      "nextMonth": "Next month",
+      "previousMonth": "Previous month",
+      "dayButtonToday": "{{date}} - today",
+      "dayButtonSelected": "{{date}} - selected",
+      "dayButton": "{{date}}",
+      "weekday": "{{weekday}}",
+      "weekNumber": "Week {{weekNumber}}",
+      "weekNumberHeader": "Week number"
     }
+  },
+  "back": "Back",
+  "loading": "Loading...",
+  "dialog": {
+    "close": "Close"
+  },
+  "sheet": {
+    "close": "Close"
+  },
+  "errorState": {
+    "title": "Could not load data",
+    "description": "An error occurred. Please try again later.",
+    "retry": "Try again"
   },
   "pagination": {
     "navigation": "Pagination",
@@ -427,6 +490,7 @@
       "locationLabel": "Location",
       "locationPlaceholder": "Ho Chi Minh City",
       "hourlyRateLabel": "Hourly rate (VND)",
+      "hourlyRatePlaceholder": "0",
       "hourlyRateRequired": "Hourly rate must be >= 0",
       "paymentInfoTitle": "Payment Information",
       "paymentInfoDescription": "Payment details to receive payments from learners.",
@@ -633,8 +697,9 @@
         "statistics": "Statistics",
         "enrolled": "Enrolled",
         "tuition": "Tuition",
-        "location": "Location",
-        "notSet": "Not set",
+      "location": "Location",
+      "locationPlaceholder": "e.g. PickleHub District 1",
+      "notSet": "Not set",
         "className": "Class name",
         "level": "Level",
         "capacity": "Capacity",
@@ -1175,11 +1240,13 @@
         "upcoming": "Upcoming",
         "live": "Live",
         "past": "Past",
-        "pending": "Pending confirmation"
+        "pending": "Pending confirmation",
+        "unknown": "Unknown status"
       },
       "kind": {
         "class": "Class",
-        "booking": "Booking"
+        "booking": "Booking",
+        "unknown": "Unknown type"
       },
       "unknownCoach": "Unknown coach",
       "detail": {
@@ -1206,7 +1273,16 @@
         "pendingProof": "Pending proof",
         "pendingReview": "Pending review",
         "settled": "Settled",
-        "rejected": "Rejected"
+        "rejected": "Rejected",
+        "unknown": "Unknown payment status"
+      },
+      "sourceStatus": {
+        "pendingConfirmation": "Pending confirmation",
+        "confirmed": "Confirmed",
+        "completed": "Completed",
+        "rejected": "Rejected",
+        "cancelled": "Cancelled",
+        "unknown": "Unknown status"
       }
     },
     "tabs": {
@@ -1342,7 +1418,8 @@
       "enrolledCount": "{{enrolled}}/{{capacity}} enrolled",
       "scheduleLabel": "Schedule",
       "minutes": "{{count}} min",
-      "moreSessions": "+{{count}} more sessions"
+      "moreSessions": "+{{count}} more sessions",
+      "locationFallback": "No location set"
     },
     "classDetail": {
       "notFound": "Class not found",
@@ -1383,7 +1460,8 @@
         "full": "Full",
         "ongoing": "Ongoing",
         "completed": "Completed",
-        "cancelled": "Cancelled"
+        "cancelled": "Cancelled",
+        "unknown": "Unknown status"
       },
       "verification": {
         "unverified": "Unverified",
@@ -1395,7 +1473,8 @@
         "active": "Active",
         "completed": "Completed",
         "cancelled": "Cancelled"
-      }
+      },
+      "durationMinutes": "Duration: {{minutes}} min"
     },
     "bookingDetail": {
       "errorTitle": "Cannot load booking details",
@@ -1421,15 +1500,19 @@
         "upcoming": "Upcoming",
         "live": "Live",
         "past": "Past",
-        "pending": "Pending confirmation"
+        "pending": "Pending confirmation",
+        "unknown": "Unknown status"
       },
       "paymentStatus": {
         "pendingProof": "Pending proof",
         "pendingReview": "Pending review",
         "settled": "Settled",
-        "rejected": "Rejected"
+        "rejected": "Rejected",
+        "unknown": "Unknown payment status"
       }
-    }
+    },
+    "pageTitle": "Learner",
+    "pageDescription": "Track your schedule, enrollments, and private bookings in one place."
   },
   "friends": {
     "pageTitle": "Friends",
@@ -1483,6 +1566,15 @@
     "optimistic": {
       "requestSent": "Friend request sent",
       "justFriended": "Just became friends"
+    },
+    "service": {
+      "friendBio": "Already friends",
+      "userBio": "User on the system",
+      "location": "Not updated",
+      "loading": "Loading...",
+      "requestSentBio": "Friend request sent",
+      "requestReceivedBio": "Friend request received",
+      "inviteSource": "Friend service"
     }
   },
   "equipment": {
@@ -1678,5 +1770,22 @@
       "backToLogin": "Back to login",
       "imageAlt": "Decorative invitation illustration"
     }
-  }
+  },
+  "breadcrumb": {
+    "navLabel": "Breadcrumb",
+    "more": "More"
+  },
+  "carousel": {
+    "previous": "Previous slide",
+    "next": "Next slide"
+  },
+  "spinner": {
+    "loading": "Loading"
+  },
+  "saveError": "Save failed",
+  "saveSuccess": "Saved successfully",
+  "saving": "Saving...",
+  "update": "Update",
+  "updateError": "Update failed",
+  "updateSuccess": "Updated successfully"
 }

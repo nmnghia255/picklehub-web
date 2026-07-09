@@ -251,7 +251,7 @@ export function EditPlayerInfoForm({
                     id="avatarUrl"
                     name="avatarUrl"
                     type="url"
-                    placeholder="https://example.com/avatar.jpg"
+                    placeholder={t("edit.avatar.placeholder")}
                     defaultValue={initialValues?.avatarUrl ?? ""}
                   />
                 </Field>

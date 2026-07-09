@@ -37,7 +37,10 @@
         "close": "Đóng"
       },
       "dates": {
-        "noDates": "Không có lịch"
+        "noDates": "Không có lịch",
+        "june15": "15 tháng 6, 2026",
+        "june16": "16 tháng 6, 2026",
+        "june17": "17 tháng 6, 2026"
       }
     },
     "grid": {

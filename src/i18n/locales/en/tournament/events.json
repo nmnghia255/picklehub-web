@@ -64,7 +64,10 @@
       "targetEventLabel": "Target Event",
       "prizeValueLabel": "Value",
       "prizeDescLabel": "Description",
-      "submitPrize": "Save Prize"
+      "submitPrize": "Save Prize",
+      "deleteConfirm": "Are you sure you want to delete this event?",
+      "deleteSuccess": "Event deleted successfully!",
+      "deleteError": "Failed to delete event. Please try again."
     },
     "prizes": {
       "sectionTitle": "Placement Prizes — {{eventName}}",
@@ -89,7 +92,12 @@
       "selectTeam": "Select Winner Team",
       "success": "Prize awarded successfully!",
       "error": "Failed to award prize"
-    }
+    },
+    "saveError": "Failed to create event. Please try again.",
+    "updateSuccess": "Event updated successfully!",
+    "updateError": "Failed to update event. Please try again.",
+    "createSuccess": "Event created successfully!",
+    "createError": "Failed to create event. Please try again."
   },
   "eventDetail": {
     "backToTournament": "Back to Tournament Details",

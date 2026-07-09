@@ -222,10 +222,10 @@ export function ParticipantPaymentTrackingCard({
                       }}
                     >
                       <TableCell className="px-6 py-4 font-medium">
-                        {row.user.name || "Unknown"}
+                        {row.user.name || t("common.unknownUser")}
                         {row.isHost && (
                           <Badge variant="outline" className="ml-2 text-[10px]">
-                            Host
+                            {t("common.host")}
                           </Badge>
                         )}
                       </TableCell>
@@ -237,7 +237,8 @@ export function ParticipantPaymentTrackingCard({
                           formatCurrencyVnd(row.amountDue)
                         ) : row.amountDue < 0 ? (
                           <span className="text-emerald-600">
-                            Credit: {formatCurrencyVnd(Math.abs(row.amountDue))}
+                            {t("expenses.tracking.creditPrefix")}
+                            {formatCurrencyVnd(Math.abs(row.amountDue))}
                           </span>
                         ) : (
                           "0"
@@ -258,13 +259,11 @@ export function ParticipantPaymentTrackingCard({
                               }}
                               disabled={isCompleted}
                               className="group relative flex h-7 w-6 items-center justify-center overflow-hidden rounded-[4px] border border-border/50 bg-muted/50 shadow-xs transition-colors hover:border-primary/50 disabled:pointer-events-none disabled:opacity-50"
-                              title={t("expenses.tracking.viewReceipt", {
-                                defaultValue: "View Receipt",
-                              })}
+                              title={t("expenses.tracking.viewReceipt")}
                             >
                               <img
                                 src={row.payments[0].receiptUrl}
-                                alt="Receipt"
+                                alt={t("expenses.tracking.paymentProof")}
                                 className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
                               />
                             </button>
@@ -282,7 +281,9 @@ export function ParticipantPaymentTrackingCard({
                               className="size-8 p-0"
                               disabled={isCompleted}
                             >
-                              <span className="sr-only">Open menu</span>
+                              <span className="sr-only">
+                                {t("common.openMenu")}
+                              </span>
                               <MoreHorizontal className="size-4" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -295,9 +296,7 @@ export function ParticipantPaymentTrackingCard({
                               onClick={() => openVerifyPayment(row)}
                             >
                               <Check className="mr-2 size-4" />
-                              {t("expenses.tracking.actions.verifyReceipt", {
-                                defaultValue: "Verify Receipt",
-                              })}
+                              {t("expenses.tracking.actions.verifyReceipt")}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => openRecordPayment(row)}

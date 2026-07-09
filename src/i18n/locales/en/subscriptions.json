@@ -27,5 +27,41 @@
   "yes": "Yes",
   "no": "No",
   "confirm": "Confirm",
-  "back": "Back"
+  "back": "Back",
+  "redirectingToPayment": "Redirecting to VNPay payment for {{planName}}...",
+  "confirmSubscribeVNPayDesc": "You will be redirected to VNPay to finish subscribing to \"{{planName}}\". After payment succeeds, your plan will activate immediately.",
+  "vnpaySecureNote": "Secure payment via VNPay, supporting domestic cards, international cards, and e-wallets.",
+  "proceedToPayment": "Pay with VNPay",
+  "paymentReturn": {
+    "successTitle": "Payment successful!",
+    "successDescription": "Your subscription plan has been activated successfully.",
+    "successBadge": "Payment via VNPay has been confirmed",
+    "vnpayLogoAlt": "VNPay payment logo",
+    "successBody": "You can start using the plan features right away. You will be redirected back to the subscriptions page in {{countdown}} seconds.",
+    "successAction": "View my subscriptions",
+    "successHelp": "If you run into any issues, please contact support.",
+    "failureTitle": "Payment failed",
+    "failureDescription": "Your transaction has not been completed.",
+    "failureBody": "Your subscription has not been activated. You can try again at any time. You will be redirected back to the subscriptions page in {{countdown}} seconds.",
+    "retry": "Try again",
+    "goHome": "Back to home",
+    "errorCodeLabel": "Error code: {{responseCode}}",
+    "defaultError": "Transaction failed. Please try again.",
+    "responseCodes": {
+      "10": "Transaction failed because the card/account authentication failed more than 3 times.",
+      "11": "Transaction failed because the payment timeout expired. Please try again.",
+      "12": "Transaction failed because the card/account is locked.",
+      "13": "Transaction failed because the OTP password was entered incorrectly.",
+      "24": "Transaction failed because the customer cancelled the transaction.",
+      "51": "Transaction failed because the account does not have enough balance.",
+      "65": "Transaction failed because the transaction limit for the day was exceeded.",
+      "75": "The payment bank is under maintenance.",
+      "79": "Transaction failed because the payment password was entered incorrectly too many times.",
+      "99": "Unknown error.",
+      "00": "Transaction successful",
+      "07": "Transaction successful but suspicious (fraud or unusual activity).",
+      "09": "Transaction failed because the customer has not registered Internet Banking with the bank."
+    }
+  },
+  "dayUnit": "day"
 }

@@ -51,11 +51,7 @@ export default function SocialParticipantsTab({
     setLoadingAction({ id: participantId, action: "approve" })
     try {
       await approveParticipantAction(socialId, participantId)
-      toast.success(
-        t("detail.approveSuccess", {
-          defaultValue: "Participant approved successfully",
-        })
-      )
+      toast.success(t("detail.approveSuccess"))
       router.refresh()
     } catch (error) {
       toast.error(
@@ -71,11 +67,7 @@ export default function SocialParticipantsTab({
     setLoadingAction({ id: participantId, action: "kick" })
     try {
       await kickParticipantAction(socialId, participantId)
-      toast.success(
-        t("detail.kickSuccess", {
-          defaultValue: "Participant removed successfully",
-        })
-      )
+      toast.success(t("detail.kickSuccess"))
       router.refresh()
     } catch (error) {
       toast.error(
@@ -98,9 +90,7 @@ export default function SocialParticipantsTab({
               </EmptyMedia>
               <EmptyTitle>{t("detail.noParticipants")}</EmptyTitle>
               <EmptyDescription>
-                {t("detail.noParticipantsDescription", {
-                  defaultValue: "No one has joined this social yet.",
-                })}
+                {t("detail.noParticipantsDescription")}
               </EmptyDescription>
             </EmptyHeader>
           </Empty>
@@ -127,7 +117,7 @@ export default function SocialParticipantsTab({
                     <p className="text-md font-medium">
                       {participant.user.name
                         ? participant.user.name
-                        : "Unknown User"}
+                        : t("common.unknownUser")}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       <Badge

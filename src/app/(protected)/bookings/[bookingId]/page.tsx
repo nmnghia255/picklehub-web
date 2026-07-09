@@ -191,7 +191,8 @@ export default function BookingDetailPage() {
                 {t("learner.bookingDetail.scheduleStatusLabel")}
               </span>
               <Badge variant={statusVariant[booking.status] ?? "outline"}>
-                {statusLabel[booking.status] ?? booking.status}
+                {statusLabel[booking.status] ??
+                  t("learner.bookingDetail.status.unknown")}
               </Badge>
             </div>
             <div className="flex items-center justify-between gap-3 text-sm">
@@ -201,8 +202,8 @@ export default function BookingDetailPage() {
               <span className="font-medium">
                 {booking.paymentStatus
                   ? (paymentLabel[booking.paymentStatus] ??
-                    booking.paymentStatus)
-                  : "-"}
+                    t("learner.bookingDetail.paymentStatus.unknown"))
+                  : t("learner.bookingDetail.paymentStatus.unknown")}
               </span>
             </div>
           </CardContent>

@@ -45,7 +45,7 @@ export function MatchResultDialog({
   // Get formatted team display names
   const getTeamName = (team: typeof match.team1) => {
     const names = [team.player1?.name, team.player2?.name].filter(Boolean)
-    return names.length > 0 ? names.join(" & ") : "Unknown Team"
+    return names.length > 0 ? names.join(" & ") : t("common.unknownTeam")
   }
 
   const teamAName = getTeamName(match.team1)
@@ -214,9 +214,7 @@ export function MatchResultDialog({
     } catch (error) {
       console.error("Error saving match result:", error)
       const message = error instanceof Error ? error.message : ""
-      toast.error(
-        message || t("matches.submitError") || "Failed to save match result"
-      )
+      toast.error(message || t("matches.submitError"))
     } finally {
       setIsPending(false)
     }
@@ -243,15 +241,15 @@ export function MatchResultDialog({
                 {teamAName}
               </div>
               <div className="rounded border bg-background px-2 py-1 text-xs font-semibold text-muted-foreground">
-                VS
+                {t("matches.versus")}
               </div>
               <div className="truncate text-sm font-semibold text-primary">
                 {teamBName}
               </div>
             </div>
             <div className="mt-1 grid grid-cols-2 text-[10px] text-muted-foreground">
-              <div>{t("matches.teamA") || "Team A"}</div>
-              <div>{t("matches.teamB") || "Team B"}</div>
+              <div>{t("matches.teamA")}</div>
+              <div>{t("matches.teamB")}</div>
             </div>
           </div>
 
@@ -286,7 +284,7 @@ export function MatchResultDialog({
                   <div className="grid flex-1 grid-cols-2 gap-4">
                     <div className="flex items-center gap-2">
                       <Label htmlFor={`set-${idx}-a`} className="sr-only">
-                        Team A
+                        {t("matches.teamA")}
                       </Label>
                       <Input
                         id={`set-${idx}-a`}
@@ -299,7 +297,7 @@ export function MatchResultDialog({
                     </div>
                     <div className="flex items-center gap-2">
                       <Label htmlFor={`set-${idx}-b`} className="sr-only">
-                        Team B
+                        {t("matches.teamB")}
                       </Label>
                       <Input
                         id={`set-${idx}-b`}
@@ -360,10 +358,10 @@ export function MatchResultDialog({
                 onChange={(e) => setWinner(e.target.value)}
               >
                 <NativeSelectOption value="TEAM_A">
-                  {t("matches.teamAGreen") || "Team A (Green/Left)"}
+                  {t("matches.teamAGreen")}
                 </NativeSelectOption>
                 <NativeSelectOption value="TEAM_B">
-                  {t("matches.teamBRed") || "Team B (Red/Right)"}
+                  {t("matches.teamBRed")}
                 </NativeSelectOption>
                 <NativeSelectOption value="DRAW">
                   {t("matches.draw") || "Draw"}

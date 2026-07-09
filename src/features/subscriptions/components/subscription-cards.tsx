@@ -138,7 +138,6 @@ export function SubscriptionCards({
         toast.success(
           t("redirectingToPayment", {
             planName,
-            defaultValue: `Đang chuyển đến trang thanh toán VNPay cho gói ${planName}...`,
           })
         )
         // Redirect to VNPay payment gateway
@@ -348,8 +347,7 @@ export function SubscriptionCards({
                     {formatPrice(plan.priceVnd)}
                   </span>
                   <span className="ml-1 text-sm text-muted-foreground">
-                    / {plan.durationInDays}{" "}
-                    {plan.durationInDays === 30 ? "ngày" : `ngày`}
+                    / {plan.durationInDays} {t("dayUnit")}
                   </span>
                 </div>
               </CardHeader>
@@ -428,7 +426,6 @@ export function SubscriptionCards({
               {subscribingPlan?.priceVnd && subscribingPlan.priceVnd > 0
                 ? t("confirmSubscribeVNPayDesc", {
                     planName: subscribingPlan?.name || "",
-                    defaultValue: `Bạn sẽ được chuyển đến cổng thanh toán VNPay để hoàn tất đăng ký gói "${subscribingPlan?.name}". Sau khi thanh toán thành công, gói của bạn sẽ được kích hoạt ngay lập tức.`,
                   })
                 : t("confirmSubscribeDesc", {
                     planName: subscribingPlan?.name || "",
@@ -438,17 +435,14 @@ export function SubscriptionCards({
               <div className="mt-3 flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 dark:border-blue-800 dark:bg-blue-950/30">
                 <img
                   src="https://vnpay.vn/s1/statics/img/logo-icon.svg"
-                  alt="VNPay"
+                  alt={t("paymentReturn.vnpayLogoAlt")}
                   className="h-5 w-auto"
                   onError={(e) => {
                     ;(e.target as HTMLImageElement).style.display = "none"
                   }}
                 />
                 <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
-                  {t("vnpaySecureNote", {
-                    defaultValue:
-                      "Thanh toán an toàn qua VNPay — hỗ trợ thẻ nội địa, thẻ quốc tế và ví điện tử.",
-                  })}
+                  {t("vnpaySecureNote")}
                 </span>
               </div>
             )}
@@ -464,9 +458,7 @@ export function SubscriptionCards({
             >
               {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
               {subscribingPlan?.priceVnd && subscribingPlan.priceVnd > 0
-                ? t("proceedToPayment", {
-                    defaultValue: "Thanh toán qua VNPay",
-                  })
+                ? t("proceedToPayment")
                 : t("confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>

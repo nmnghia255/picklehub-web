@@ -45,21 +45,15 @@ export function ParticipantDetailDialog({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl font-bold">
-            {participant.user.name ||
-              t("expenses.tracking.unknownUser", {
-                defaultValue: "Unknown",
-              })}
+            {participant.user.name || t("expenses.tracking.unknownUser")}
             {participant.isHost && (
               <Badge variant="outline" className="text-[10px]">
-                {t("labels.host", { defaultValue: "Host" })}
+                {t("labels.host")}
               </Badge>
             )}
           </DialogTitle>
           <DialogDescription>
-            {participant.user.email ||
-              t("expenses.tracking.noEmail", {
-                defaultValue: "No email available",
-              })}
+            {participant.user.email || t("expenses.tracking.noEmail")}
           </DialogDescription>
         </DialogHeader>
 
@@ -68,9 +62,7 @@ export function ParticipantDetailDialog({
           <div className="grid grid-cols-2 gap-4 rounded-lg border bg-muted/20 p-4 text-sm">
             <div>
               <span className="block text-xs font-medium text-muted-foreground">
-                {t("expenses.tracking.headers.status", {
-                  defaultValue: "Status",
-                })}
+                {t("expenses.tracking.headers.status")}
               </span>
               <Badge
                 className={cn(
@@ -83,9 +75,7 @@ export function ParticipantDetailDialog({
             </div>
             <div>
               <span className="block text-xs font-medium text-muted-foreground">
-                {t("expenses.tracking.headers.totalFee", {
-                  defaultValue: "Total Fee",
-                })}
+                {t("expenses.tracking.headers.totalFee")}
               </span>
               <span className="mt-1 block font-semibold">
                 {formatCurrencyVnd(participant.totalFee)}
@@ -93,9 +83,7 @@ export function ParticipantDetailDialog({
             </div>
             <div>
               <span className="block text-xs font-medium text-muted-foreground">
-                {t("expenses.tracking.headers.amountPaid", {
-                  defaultValue: "Amount Paid",
-                })}
+                {t("expenses.tracking.headers.amountPaid")}
               </span>
               <span className="mt-1 block font-semibold text-emerald-600">
                 {formatCurrencyVnd(
@@ -105,9 +93,7 @@ export function ParticipantDetailDialog({
             </div>
             <div>
               <span className="block text-xs font-medium text-muted-foreground">
-                {t("expenses.tracking.headers.amountDue", {
-                  defaultValue: "Amount Due",
-                })}
+                {t("expenses.tracking.headers.amountDue")}
               </span>
               <span
                 className={cn(
@@ -123,9 +109,7 @@ export function ParticipantDetailDialog({
                   formatCurrencyVnd(participant.amountDue)
                 ) : participant.amountDue < 0 ? (
                   <span>
-                    {t("expenses.tracking.creditPrefix", {
-                      defaultValue: "Credit: ",
-                    })}
+                    {t("expenses.tracking.creditPrefix")}
                     {formatCurrencyVnd(Math.abs(participant.amountDue))}
                   </span>
                 ) : (
@@ -139,9 +123,7 @@ export function ParticipantDetailDialog({
           {participant.paymentStatus === "PAID" && (
             <div className="space-y-2">
               <span className="block text-sm font-medium text-muted-foreground">
-                {t("expenses.tracking.paymentProof", {
-                  defaultValue: "Payment Proof",
-                })}
+                {t("expenses.tracking.paymentProof")}
               </span>
               {latestPayment?.receiptUrl ? (
                 <div className="overflow-hidden rounded-lg border bg-muted/30 p-2">
@@ -153,25 +135,19 @@ export function ParticipantDetailDialog({
                   >
                     <img
                       src={latestPayment.receiptUrl}
-                      alt={t("expenses.tracking.paymentProof", {
-                        defaultValue: "Payment Proof",
-                      })}
+                      alt={t("expenses.tracking.paymentProof")}
                       className="h-full w-full object-contain transition-transform group-hover:scale-[1.02]"
                     />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
                       <span className="rounded-md bg-background/90 px-3 py-1.5 text-sm font-medium text-foreground shadow-sm">
-                        {t("expenses.tracking.viewFullImage", {
-                          defaultValue: "View Full Image",
-                        })}
+                        {t("expenses.tracking.viewFullImage")}
                       </span>
                     </div>
                   </a>
                 </div>
               ) : (
                 <div className="flex h-32 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
-                  {t("expenses.tracking.noReceiptImage", {
-                    defaultValue: "No receipt image uploaded",
-                  })}
+                  {t("expenses.tracking.noReceiptImage")}
                 </div>
               )}
             </div>
@@ -185,9 +161,7 @@ export function ParticipantDetailDialog({
             className="flex-1 sm:flex-initial"
           >
             <Check className="mr-2 size-4" />
-            {t("expenses.tracking.actions.verifyReceipt", {
-              defaultValue: "Verify Receipt",
-            })}
+            {t("expenses.tracking.actions.verifyReceipt")}
           </Button>
           <Button
             variant="outline"
@@ -195,9 +169,7 @@ export function ParticipantDetailDialog({
             className="flex-1 sm:flex-initial"
           >
             <HandCoins className="mr-2 size-4" />
-            {t("expenses.tracking.actions.recordCash", {
-              defaultValue: "Record Cash",
-            })}
+            {t("expenses.tracking.actions.recordCash")}
           </Button>
           {participant.amountDue < 0 && (
             <Button
@@ -206,9 +178,7 @@ export function ParticipantDetailDialog({
               className="flex-1 text-destructive hover:bg-destructive/10 sm:flex-initial"
             >
               <Undo className="mr-2 size-4" />
-              {t("expenses.tracking.actions.issueRefund", {
-                defaultValue: "Issue Refund",
-              })}
+              {t("expenses.tracking.actions.issueRefund")}
             </Button>
           )}
         </DialogFooter>

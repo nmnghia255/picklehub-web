@@ -117,7 +117,8 @@ export function SocialParticipantsTable({
               ) : (
                 participants.map((participant) => {
                   const rating = participant.user?.selfRating
-                  const displayName = participant.user?.name || "Unknown Player"
+                  const displayName =
+                    participant.user?.name || t("common.unknownPlayer")
 
                   return (
                     <TableRow

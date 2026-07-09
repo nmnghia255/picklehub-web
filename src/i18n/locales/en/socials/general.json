@@ -2,6 +2,13 @@
   "common": {
     "na": "N/A",
     "level": "Level",
+    "unknown": "Unknown",
+    "unknownUser": "Unknown User",
+    "unknownPlayer": "Unknown Player",
+    "unknownTeam": "Unknown Team",
+    "guest": "Guest",
+    "host": "Host",
+    "openMenu": "Open menu",
     "beforeEvent": "before event",
     "hours_one": "{{count}} hour",
     "hours_other": "{{count}} hours",
@@ -12,7 +19,9 @@
     "submitting": "Submitting...",
     "loading": "Loading...",
     "cancel": "Cancel",
-    "proceed": "Proceed"
+    "proceed": "Proceed",
+    "currency": "VND",
+    "validationError": "Please check the errors below:"
   },
   "labels": {
     "published": "Published",

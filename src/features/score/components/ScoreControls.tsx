@@ -44,7 +44,6 @@ export function ScoreControls({
       >
         {t("referee.tracker.rallyWon", {
           team: displayTeam1Name,
-          defaultValue: `${displayTeam1Name} thắng pha`,
         })}
       </Button>
 
@@ -64,7 +63,6 @@ export function ScoreControls({
       >
         {t("referee.tracker.rallyWon", {
           team: displayTeam2Name,
-          defaultValue: `${displayTeam2Name} thắng pha`,
         })}
       </Button>
     </div>

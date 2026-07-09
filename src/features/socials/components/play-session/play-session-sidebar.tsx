@@ -71,9 +71,11 @@ export default function PlaySessionSidebar({
             <Avatar className="size-11">
               <AvatarImage
                 src={host.avatarUrl ?? undefined}
-                alt={host.name ?? "Host"}
+                alt={host.name ?? t("common.host")}
               />
-              <AvatarFallback>{host.name.slice(0, 1)}</AvatarFallback>
+              <AvatarFallback>
+                {host.name ? host.name.slice(0, 1) : t("common.host")}
+              </AvatarFallback>
             </Avatar>
             <div>
               <p className="text-sm font-medium">{host.name}</p>

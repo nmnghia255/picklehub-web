@@ -32,6 +32,7 @@ function Calendar({
   const defaultClassNames = getDefaultClassNames()
   const { t, i18n } = useTranslation("common")
   const locale = i18n.language.startsWith("vi") ? vi : enUS
+  const localeCode = i18n.language.startsWith("vi") ? "vi-VN" : "en-US"
   const weekdayKeys = [
     "sunday",
     "monday",
@@ -64,6 +65,42 @@ function Calendar({
         formatWeekdayName: (date) =>
           t(`calendar.weekdays.${weekdayKeys[date.getDay()]}`),
         ...formatters,
+      }}
+      labels={{
+        labelNav: () => t("calendar.aria.nav"),
+        labelGrid: () => t("calendar.aria.grid"),
+        labelGridcell: () => t("calendar.aria.gridcell"),
+        labelMonthDropdown: () => t("calendar.aria.monthDropdown"),
+        labelYearDropdown: () => t("calendar.aria.yearDropdown"),
+        labelNext: () => t("calendar.aria.nextMonth"),
+        labelPrevious: () => t("calendar.aria.previousMonth"),
+        labelDayButton: (date, modifiers) => {
+          const formattedDate = date.toLocaleDateString(localeCode, {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })
+
+          if (modifiers.today) {
+            return t("calendar.aria.dayButtonToday", { date: formattedDate })
+          }
+
+          if (modifiers.selected) {
+            return t("calendar.aria.dayButtonSelected", {
+              date: formattedDate,
+            })
+          }
+
+          return t("calendar.aria.dayButton", { date: formattedDate })
+        },
+        labelWeekday: (date) =>
+          t("calendar.aria.weekday", {
+            weekday: date.toLocaleDateString(localeCode, { weekday: "long" }),
+          }),
+        labelWeekNumber: (weekNumber) =>
+          t("calendar.aria.weekNumber", { weekNumber }),
+        labelWeekNumberHeader: () => t("calendar.aria.weekNumberHeader"),
       }}
       classNames={{
         root: cn("w-fit", defaultClassNames.root),

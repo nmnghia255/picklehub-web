@@ -16,7 +16,8 @@
     "joinedOn": "Tham gia ngày {{date}}",
     "noSkillLevelLimit": "Không giới hạn trình độ",
     "noParticipants": "Chưa có người tham gia.",
-    "kickSuccess": "Đã đá người tham gia",
+    "noParticipantsDescription": "Chưa có ai tham gia buổi chơi này.",
+    "kickSuccess": "Đã xóa người tham gia",
     "kickError": "Lỗi khi đá người tham gia",
     "approveSuccess": "Đã duyệt người tham gia",
     "approveError": "Lỗi khi duyệt người tham gia",
@@ -262,30 +263,43 @@
       "cancel": "Hủy",
       "recordPayment": "Ghi nhận thanh toán",
       "success": "Ghi nhận thanh toán thành công",
-      "error": "Ghi nhận thanh toán thất bại"
+      "error": "Ghi nhận thanh toán thất bại",
+      "amountPlaceholder": "vd: 50.000"
     },
     "pricing": {
-      "title": "Công cụ tính giá",
-      "description": "Tính toán giá hòa vốn dựa trên số lượng người chơi dự kiến và chi phí.",
+      "title": "Bộ tính giá",
+      "description": "Tính giá hòa vốn dựa trên số người chơi dự kiến và tổng chi phí.",
       "expectedPlayers": "Số người chơi dự kiến",
-      "totalCost": "Tổng chi phí",
-      "breakEvenPackage": "Hòa vốn (Gói)",
-      "estProfitPackage": "Lợi nhuận ước tính (Gói)",
-      "fullPackagePrice": "Giá trọn gói",
-      "warningBelowBreakEven": "Cảnh báo: Giá trọn gói đang dưới mức hòa vốn!",
       "bookingCost": "Chi phí đặt sân",
-      "manualExpenses": "Chi phí phát sinh",
-      "suggestedPrices": "Giá đề xuất (Gói)",
+      "manualExpenses": "Chi phí bổ sung",
+      "totalCost": "Tổng chi phí",
+      "breakEvenPackage": "Hòa vốn (gói)",
+      "suggestedPrices": "Giá đề xuất",
+      "estProfitPackage": "Lợi nhuận ước tính (gói)",
+      "fullPackagePrice": "Giá trọn gói",
+      "warningBelowBreakEven": "Cảnh báo: Giá gói thấp hơn mức hòa vốn!",
+      "sessionFallback": "Phiên",
+      "currency": "VND",
+      "cancel": "Hủy",
+      "applyPricing": "Áp dụng giá",
+      "appliedSuccessfully": "Đã áp dụng giá thành công",
+      "applyFailed": "Không thể áp dụng giá",
       "headers": {
         "session": "Phiên",
-        "breakEven": "Hòa vốn",
-        "priceOverride": "Ghi đè giá",
+        "bookingCost": "Chi phí đặt sân",
         "currentFee": "Phí hiện tại",
-        "bookingCost": "Chi phí đặt sân"
-      },
-      "applyPricing": "Áp dụng giá",
-      "appliedSuccessfully": "Áp dụng giá thành công",
-      "cancel": "Hủy"
+        "priceOverride": "Giá ghi đè"
+      }
+    },
+    "refundDialog": {
+      "title": "Ghi nhận hoàn tiền",
+      "description": "Xác nhận rằng bạn đã chuyển tiền lại cho người dùng bằng phương thức thủ công, sau đó ghi nhận tại đây.",
+      "amountLabel": "Số tiền hoàn (VND)",
+      "maxError": "Số tiền không được vượt quá số dư tín dụng khả dụng ({{maxRefundAmount}})",
+      "cancel": "Hủy",
+      "confirm": "Xác nhận hoàn tiền",
+      "success": "Đã xử lý hoàn tiền thành công",
+      "error": "Không thể xử lý hoàn tiền"
     }
   },
   "payment": {
@@ -351,6 +365,7 @@
     "errorEmptyRating": "Vui lòng chọn mức đánh giá trước khi gửi.",
     "errorEmptyComment": "Vui lòng viết bình luận trước khi gửi.",
     "submitBtn": "Gửi phản hồi",
+    "submitFailed": "Không thể gửi phản hồi.",
     "othersTitle": "Đánh giá từ người tham gia",
     "othersSubtitle": "Xem những người chơi khác nói gì về buổi giao lưu này",
     "dialogTitle": "Đã nhận phản hồi",

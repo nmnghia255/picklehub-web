@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import dayjs from "dayjs"
 import { Banknote, Calendar, Clock, MapPin, Shield, Users } from "lucide-react"
 import { useParams } from "next/navigation"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
@@ -76,7 +76,8 @@ function ClassDetailSkeleton() {
 export default function ClassDetailPage() {
   const params = useParams()
   const classId = params.classId as string
-  const { t } = useTranslation("common")
+  const { t, i18n } = useTranslation("common")
+  const locale = i18n.language.startsWith("vi") ? "vi-VN" : "en-US"
   const { data: session, isLoading: isSessionLoading } = useQuery({
     queryKey: ["session"],
     queryFn: fetchSession,
@@ -187,13 +188,17 @@ export default function ClassDetailPage() {
     CANCELLED: t("learner.classDetail.enrollmentStatus.cancelled"),
   }
 
+  const currencyFormatter = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "VND",
+  })
+
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-8">
       <div className="flex items-center justify-between">
         <BackNavigation fallbackPath="/learner" />
       </div>
 
-      {/* Hero */}
       <div className="relative overflow-hidden rounded-xl bg-muted">
         {coverImageUrl ? (
           <img
@@ -215,13 +220,12 @@ export default function ClassDetailPage() {
               variant={statusVariant[status] ?? "outline"}
               className="border-none"
             >
-              {statusLabel[status] ?? status}
+              {statusLabel[status] ?? t("learner.classDetail.status.unknown")}
             </Badge>
           </div>
         </div>
       </div>
 
-      {/* Coach */}
       <Card>
         <CardContent className="flex items-center gap-4 pt-6">
           <Avatar size="lg">
@@ -250,7 +254,6 @@ export default function ClassDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Description */}
       <Card>
         <CardHeader>
           <CardTitle>{t("learner.classDetail.aboutTitle")}</CardTitle>
@@ -262,7 +265,6 @@ export default function ClassDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Schedule */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -290,8 +292,10 @@ export default function ClassDetailPage() {
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Clock className="size-4" />
                       {dayjs(entry.scheduledAt).format("HH:mm")}
-                      {" — "}
-                      {entry.durationMinutes} phút
+                      {" - "}
+                      {t("learner.classDetail.durationMinutes", {
+                        minutes: entry.durationMinutes,
+                      })}
                     </div>
                     {entry.topic && <p className="text-sm">{entry.topic}</p>}
                   </div>
@@ -306,7 +310,6 @@ export default function ClassDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Price & Capacity */}
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
@@ -317,10 +320,7 @@ export default function ClassDetailPage() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">
-              {new Intl.NumberFormat("vi-VN").format(priceVnd)}
-              <span className="ml-1 text-base font-normal text-muted-foreground">
-                {t("learner.classDetail.currencyLabel")}
-              </span>
+              {currencyFormatter.format(priceVnd)}
             </p>
           </CardContent>
         </Card>
@@ -351,7 +351,6 @@ export default function ClassDetailPage() {
         </Card>
       </div>
 
-      {/* Enrollment */}
       <Card>
         <CardContent className="pt-6">
           {currentEnrollment ? (
@@ -381,13 +380,12 @@ export default function ClassDetailPage() {
           ) : (
             <p className="text-center text-sm text-muted-foreground">
               {t("learner.classDetail.statusPrefix")}{" "}
-              {statusLabel[status] ?? status}
+              {statusLabel[status] ?? t("learner.classDetail.status.unknown")}
             </p>
           )}
         </CardContent>
       </Card>
 
-      {/* Bank Info Dialog */}
       <Dialog open={showBankDialog} onOpenChange={setShowBankDialog}>
         <DialogContent>
           <DialogHeader>
@@ -425,7 +423,7 @@ export default function ClassDetailPage() {
                   {t("learner.classDetail.amountLabel")}
                 </span>
                 <span className="font-medium">
-                  {new Intl.NumberFormat("vi-VN").format(priceVnd)}{" "}
+                  {currencyFormatter.format(priceVnd)}{" "}
                   {t("learner.classDetail.currencyLabel")}
                 </span>
               </div>

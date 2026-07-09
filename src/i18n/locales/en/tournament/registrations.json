@@ -38,6 +38,9 @@
       "noRegistrations": "No registrations found",
       "paymentProof": "Payment Proof",
       "viewProof": "View Proof"
-    }
+    },
+    "filterEvent": "Filter Event",
+    "filterStatus": "Filter Status",
+    "allEvents": "All Events"
   }
 }

@@ -88,15 +88,12 @@ export function PricingCalculatorDialog({
           })) || [],
       }),
     onSuccess: () => {
-      toast.success(
-        t("expenses.pricing.appliedSuccessfully") ||
-          "Pricing applied successfully"
-      )
+      toast.success(t("expenses.pricing.appliedSuccessfully"))
       queryClient.invalidateQueries({ queryKey: ["financeSummary", socialId] })
       onOpenChange(false)
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to apply pricing")
+      toast.error(error.message || t("expenses.pricing.applyFailed"))
     },
   })
 
@@ -113,24 +110,17 @@ export function PricingCalculatorDialog({
         <DialogHeader className="border-b px-6 pt-6 pb-4">
           <DialogTitle className="flex items-center gap-2">
             <Calculator className="size-5" />
-            {t("expenses.pricing.title", {
-              defaultValue: "Pricing Calculator",
-            })}
+            {t("expenses.pricing.title")}
           </DialogTitle>
           <DialogDescription>
-            {t("expenses.pricing.description", {
-              defaultValue:
-                "Calculate the break-even price based on the expected number of players and expenses.",
-            })}
+            {t("expenses.pricing.description")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-6 px-6 py-4">
           <div className="grid gap-2">
             <Label htmlFor="targetPlayers">
-              {t("expenses.pricing.expectedPlayers", {
-                defaultValue: "Expected Number of Players",
-              })}
+              {t("expenses.pricing.expectedPlayers")}
             </Label>
             <Input
               id="targetPlayers"
@@ -150,9 +140,7 @@ export function PricingCalculatorDialog({
               <div className="grid grid-cols-2 gap-4 rounded-xl border bg-muted/30 p-5 sm:grid-cols-3">
                 <div>
                   <p className="text-xs text-muted-foreground">
-                    {t("expenses.pricing.bookingCost", {
-                      defaultValue: "Booking Cost",
-                    })}
+                    {t("expenses.pricing.bookingCost")}
                   </p>
                   <p className="font-semibold">
                     {formatCurrencyVnd(data.summary.totalBookingCost)}
@@ -160,9 +148,7 @@ export function PricingCalculatorDialog({
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">
-                    {t("expenses.pricing.manualExpenses", {
-                      defaultValue: "Extra Expenses",
-                    })}
+                    {t("expenses.pricing.manualExpenses")}
                   </p>
                   <p className="font-semibold">
                     {formatCurrencyVnd(data.summary.totalManualExpenses)}
@@ -170,9 +156,7 @@ export function PricingCalculatorDialog({
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">
-                    {t("expenses.pricing.totalCost", {
-                      defaultValue: "Total Cost",
-                    })}
+                    {t("expenses.pricing.totalCost")}
                   </p>
                   <p className="font-semibold">
                     {formatCurrencyVnd(data.summary.totalExpense)}
@@ -180,9 +164,7 @@ export function PricingCalculatorDialog({
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">
-                    {t("expenses.pricing.breakEvenPackage", {
-                      defaultValue: "Break-even (Package)",
-                    })}
+                    {t("expenses.pricing.breakEvenPackage")}
                   </p>
                   <p className="font-semibold">
                     {formatCurrencyVnd(data.summary.packageBreakEven)}
@@ -190,9 +172,7 @@ export function PricingCalculatorDialog({
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">
-                    {t("expenses.pricing.suggestedPrices", {
-                      defaultValue: "Suggested Prices",
-                    })}
+                    {t("expenses.pricing.suggestedPrices")}
                   </p>
                   <p className="font-semibold">
                     {formatCurrencyVnd(data.summary.sumSessionSuggestedPrices)}
@@ -200,9 +180,7 @@ export function PricingCalculatorDialog({
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">
-                    {t("expenses.pricing.estProfitPackage", {
-                      defaultValue: "Est. Profit (Package)",
-                    })}
+                    {t("expenses.pricing.estProfitPackage")}
                   </p>
                   <p
                     className={`font-semibold ${data.summary.simulatedPackageProfit < 0 ? "text-destructive" : "text-emerald-600"}`}
@@ -214,11 +192,7 @@ export function PricingCalculatorDialog({
 
               <div className="space-y-3">
                 <Label className="flex items-center justify-between">
-                  <span>
-                    {t("expenses.pricing.fullPackagePrice", {
-                      defaultValue: "Full Package Price",
-                    })}
-                  </span>
+                  <span>{t("expenses.pricing.fullPackagePrice")}</span>
                   {isFetching && <Loader2 className="size-3 animate-spin" />}
                 </Label>
                 <div className="flex items-center gap-2">
@@ -239,14 +213,13 @@ export function PricingCalculatorDialog({
                       setPackageOverride(numericVal ? Number(numericVal) : "")
                     }}
                   />
-                  <div className="text-sm text-muted-foreground">VND</div>
+                  <div className="text-sm text-muted-foreground">
+                    {t("expenses.pricing.currency")}
+                  </div>
                 </div>
                 {data.summary.warningPackageBelowBreakEven && (
                   <p className="text-xs text-destructive">
-                    {t("expenses.pricing.warningBelowBreakEven", {
-                      defaultValue:
-                        "Warning: Package price is below break-even!",
-                    })}
+                    {t("expenses.pricing.warningBelowBreakEven")}
                   </p>
                 )}
               </div>
@@ -256,24 +229,16 @@ export function PricingCalculatorDialog({
                   <TableHeader>
                     <TableRow>
                       <TableHead>
-                        {t("expenses.pricing.headers.session", {
-                          defaultValue: "Session",
-                        })}
+                        {t("expenses.pricing.headers.session")}
                       </TableHead>
                       <TableHead>
-                        {t("expenses.pricing.headers.bookingCost", {
-                          defaultValue: "Booking Cost",
-                        })}
+                        {t("expenses.pricing.headers.bookingCost")}
                       </TableHead>
                       <TableHead>
-                        {t("expenses.pricing.headers.currentFee", {
-                          defaultValue: "Current Fee",
-                        })}
+                        {t("expenses.pricing.headers.currentFee")}
                       </TableHead>
                       <TableHead>
-                        {t("expenses.pricing.headers.priceOverride", {
-                          defaultValue: "Price Override",
-                        })}
+                        {t("expenses.pricing.headers.priceOverride")}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -281,7 +246,8 @@ export function PricingCalculatorDialog({
                     {data.sessions.map((session) => (
                       <TableRow key={session.id}>
                         <TableCell className="font-medium">
-                          {session.title || "Session"}
+                          {session.title ||
+                            t("expenses.pricing.sessionFallback")}
                         </TableCell>
                         <TableCell>
                           {formatCurrencyVnd(session.bookingCost)}
@@ -316,7 +282,7 @@ export function PricingCalculatorDialog({
                               }}
                             />
                             <span className="text-xs text-muted-foreground">
-                              VND
+                              {t("expenses.pricing.currency")}
                             </span>
                           </div>
                         </TableCell>
@@ -331,13 +297,11 @@ export function PricingCalculatorDialog({
 
         <DialogFooter className="border-t bg-muted/20 px-6 py-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {t("expenses.pricing.cancel", { defaultValue: "Cancel" })}
+            {t("expenses.pricing.cancel")}
           </Button>
           <Button onClick={() => applyPrice()} disabled={isApplying || !data}>
             {isApplying && <Loader2 className="mr-2 size-4 animate-spin" />}
-            {t("expenses.pricing.applyPricing", {
-              defaultValue: "Apply Pricing",
-            })}
+            {t("expenses.pricing.applyPricing")}
           </Button>
         </DialogFooter>
       </DialogContent>

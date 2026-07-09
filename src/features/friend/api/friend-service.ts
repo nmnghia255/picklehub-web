@@ -1,3 +1,4 @@
+import i18n from "@/i18n/client"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type { FriendUser } from "../types"
@@ -53,9 +54,11 @@ function mapSearchUser(item: GlobalUserSearchApiItem): FriendUser {
     username: getUsernameFromEmail(item.email),
     fullName: displayName,
     avatarUrl: createAvatarUrl(item.id),
-    bio: item.isFriend ? "Da la ban be" : "Nguoi dung tren he thong",
+    bio: item.isFriend
+      ? i18n.t("friends.service.friendBio")
+      : i18n.t("friends.service.userBio"),
     level: "Beginner",
-    location: "Chua cap nhat",
+    location: i18n.t("friends.service.location"),
     mutualFriends: item.mutualFriendsCount,
   }
 }
@@ -69,12 +72,12 @@ function mapFriendship(item: FriendshipApiItem): FriendUser {
     username: getUsernameFromEmail(email),
     fullName: displayName,
     avatarUrl: createAvatarUrl(item.friendId),
-    bio: "Da la ban be",
+    bio: i18n.t("friends.service.friendBio"),
     level: "Intermediate",
-    location: "Chua cap nhat",
+    location: i18n.t("friends.service.location"),
     mutualFriends: item.mutualFriendsCount,
     becameFriendAt: item.createdAt,
-    friendshipSinceLabel: "Dang tai",
+    friendshipSinceLabel: i18n.t("friends.service.loading"),
   }
 }
 
@@ -95,13 +98,13 @@ function mapRequest(
     avatarUrl: createAvatarUrl(counterpartId),
     bio:
       direction === "sent"
-        ? "Loi moi ket ban da gui"
-        : "Loi moi ket ban da nhan",
+        ? i18n.t("friends.service.requestSentBio")
+        : i18n.t("friends.service.requestReceivedBio"),
     level: "Beginner",
-    location: "Chua cap nhat",
+    location: i18n.t("friends.service.location"),
     mutualFriends: item.mutualFriendsCount,
     invitedAt: item.createdAt,
-    inviteSource: "Friend service",
+    inviteSource: i18n.t("friends.service.inviteSource"),
   }
 }
 

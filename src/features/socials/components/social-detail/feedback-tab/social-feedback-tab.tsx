@@ -72,20 +72,12 @@ export default function SocialFeedbackTab({
     setErrorMessage(null)
 
     if (overallRating === 0) {
-      setErrorMessage(
-        t("feedback.errorEmptyRating", {
-          defaultValue: "Please choose a rating before submitting.",
-        })
-      )
+      setErrorMessage(t("feedback.errorEmptyRating"))
       return
     }
 
     if (!comment.trim()) {
-      setErrorMessage(
-        t("feedback.errorEmptyComment", {
-          defaultValue: "Please write a comment before submitting.",
-        })
-      )
+      setErrorMessage(t("feedback.errorEmptyComment"))
       return
     }
 
@@ -103,7 +95,7 @@ export default function SocialFeedbackTab({
     } catch (err: unknown) {
       console.error(err)
       const msg =
-        err instanceof Error ? err.message : "Failed to submit feedback."
+        err instanceof Error ? err.message : t("feedback.submitFailed")
       setErrorMessage(msg)
     } finally {
       setIsSubmitting(false)

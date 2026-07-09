@@ -38,7 +38,8 @@
         "completed": "Completed",
         "inProgress": "In Progress",
         "remaining": "Remaining"
-      }
+      },
+      "refresh": "Refresh"
     },
     "toolbar": {
       "searchPlaceholder": "Search matches...",
@@ -79,7 +80,10 @@
         "Quarterfinal": "Quarterfinals",
         "Semifinal": "Semifinals",
         "Final": "Finals",
-        "Bronze Match": "Bronze Match"
+        "Bronze Match": "Bronze Match",
+        "Quarterfinals": "Quarterfinals",
+        "Semifinals": "Semifinals",
+        "Finals": "Finals"
       },
       "details": {
         "title": "Match Details",

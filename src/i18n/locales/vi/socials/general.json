@@ -2,6 +2,13 @@
   "common": {
     "na": "Không áp dụng",
     "level": "Cấp độ",
+    "unknown": "Không rõ",
+    "unknownUser": "Người dùng không rõ",
+    "unknownPlayer": "Người chơi không rõ",
+    "unknownTeam": "Đội không rõ",
+    "guest": "Khách",
+    "host": "Chủ nhà",
+    "openMenu": "Mở menu",
     "beforeEvent": "trước sự kiện",
     "hours_one": "{{count}} giờ",
     "hours_other": "{{count}} giờ",
@@ -12,7 +19,9 @@
     "submitting": "Đang gửi...",
     "loading": "Đang tải...",
     "cancel": "Hủy",
-    "proceed": "Tiếp tục"
+    "proceed": "Tiếp tục",
+    "currency": "VND",
+    "validationError": "Vui lòng kiểm tra các lỗi bên dưới:"
   },
   "labels": {
     "published": "Đã đăng",

@@ -402,7 +402,7 @@ export function CoachOnboarding() {
                   min={0}
                   value={hourlyRateVnd}
                   onChange={(e) => setHourlyRateVnd(e.target.value)}
-                  placeholder="0"
+                  placeholder={t("coach.onboarding.hourlyRatePlaceholder")}
                 />
                 {errors.hourlyRateVnd && (
                   <p className="text-xs text-destructive">

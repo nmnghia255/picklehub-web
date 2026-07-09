@@ -145,7 +145,7 @@ function getStatusLabel(status: string, t: (key: string) => string) {
     case "pending":
       return t("learner.schedule.status.pending")
     default:
-      return status
+      return t("learner.schedule.status.unknown")
   }
 }
 
@@ -156,7 +156,7 @@ function getKindLabel(kind: string, t: (key: string) => string) {
     case "booking":
       return t("learner.schedule.kind.booking")
     default:
-      return kind
+      return t("learner.schedule.kind.unknown")
   }
 }
 
@@ -174,7 +174,24 @@ function getPaymentStatusLabel(
     case "REJECTED":
       return t("learner.schedule.paymentStatus.rejected")
     default:
-      return status ?? "-"
+      return t("learner.schedule.paymentStatus.unknown")
+  }
+}
+
+function getSourceStatusLabel(status: string, t: (key: string) => string) {
+  switch (status) {
+    case "PENDING_CONFIRMATION":
+      return t("learner.schedule.sourceStatus.pendingConfirmation")
+    case "CONFIRMED":
+      return t("learner.schedule.sourceStatus.confirmed")
+    case "COMPLETED":
+      return t("learner.schedule.sourceStatus.completed")
+    case "REJECTED":
+      return t("learner.schedule.sourceStatus.rejected")
+    case "CANCELLED":
+      return t("learner.schedule.sourceStatus.cancelled")
+    default:
+      return t("learner.schedule.sourceStatus.unknown")
   }
 }
 
@@ -187,7 +204,7 @@ function CoachAvatar({
   avatarUrl: string | null
   displayName: string | null
 }) {
-  const initials = (displayName ?? "?").charAt(0).toUpperCase()
+  const initials = (displayName ?? "").charAt(0).toUpperCase() || "U"
   return (
     <Avatar className="size-9">
       <AvatarImage src={avatarUrl ?? ""} alt={displayName ?? ""} />
@@ -1190,14 +1207,15 @@ function ListCard({
         )}
         {item.sourceStatus && (
           <Badge variant="outline" className="rounded-full text-[10px]">
-            {item.sourceStatus}
+            {getSourceStatusLabel(item.sourceStatus, t)}
           </Badge>
         )}
       </div>
 
       {item.kind === "booking" && (
         <div className="mt-2 text-sm text-muted-foreground">
-          {t("learner.schedule.detail.payment")}: {item.paymentStatus ?? "-"}
+          {t("learner.schedule.detail.payment")}:{" "}
+          {getPaymentStatusLabel(item.paymentStatus, t)}
         </div>
       )}
 

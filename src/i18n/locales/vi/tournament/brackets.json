@@ -80,7 +80,10 @@
         "Quarterfinals": "Tứ kết",
         "Semifinals": "Bán kết",
         "Finals": "Chung kết",
-        "Bronze Match": "Tranh hạng ba"
+        "Bronze Match": "Tranh hạng ba",
+        "Quarterfinal": "Tứ kết",
+        "Semifinal": "Bán kết",
+        "Final": "Chung kết"
       },
       "details": {
         "title": "Chi tiết trận đấu",
