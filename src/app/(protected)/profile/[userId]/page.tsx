@@ -88,10 +88,9 @@ export default async function OtherProfilePage({ params }: PageProps) {
     <div className="min-h-screen bg-background py-6 text-foreground">
       <PageContainer className="space-y-6">
         <ProfileHeader
-          name={user?.fullName || "Unnamed Player"}
-          subtitle={
-            user?.bio?.trim() || "Người dùng này chưa cập nhật giới thiệu."
-          }
+          name={user?.fullName || ""}
+          subtitle={user?.bio?.trim() || ""}
+          subtitleFallbackKey="noBio"
           avatarUrl={user?.avatarUrl}
         />
 

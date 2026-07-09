@@ -8,55 +8,55 @@ import {
   Trophy,
   Users,
 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Card } from "@/components/ui/card"
 
 const features = [
   {
     icon: Trophy,
-    title: "Quản Lý Giải Đấu",
-    description: "Tạo, quản lý và theo dõi giải đấu với bracket thông minh",
+    titleKey: "landing.features.items.tournament.title",
+    descriptionKey: "landing.features.items.tournament.description",
   },
   {
     icon: Users,
-    title: "Tương Tác Cộng Đồng",
-    description:
-      "Kết nối người chơi, huấn luyện viên, nhà kinh doanh và tổ chức giải đấu",
+    titleKey: "landing.features.items.community.title",
+    descriptionKey: "landing.features.items.community.description",
   },
   {
     icon: TrendingUp,
-    title: "Phân Tích Hiệu Suất",
-    description:
-      "Phân tích chi tiết dữ liệu trận đấu, thống kê cá nhân, và xu hướng hiệu suất",
+    titleKey: "landing.features.items.analytics.title",
+    descriptionKey: "landing.features.items.analytics.description",
   },
   {
     icon: Sparkles,
-    title: "Trợ Lý AI",
-    description:
-      "Nhận lời khuyên chiến lược, phân tích nâng cao và hỗ trợ quản lý từ AI",
+    titleKey: "landing.features.items.ai.title",
+    descriptionKey: "landing.features.items.ai.description",
   },
   {
     icon: Package,
-    title: "Quản Lý Thiết Bị",
-    description:
-      "Quản lý, kinh doanh và chia sẻ thông tin thiết bị thể thao chuyên dụng",
+    titleKey: "landing.features.items.equipment.title",
+    descriptionKey: "landing.features.items.equipment.description",
   },
   {
     icon: Target,
-    title: "Nhóm Chuyên Biệt",
-    description:
-      "Tạo nhóm riêng cho huấn luyện, kinh tế, và tổ chức giải đấu phù hợp nhu cầu",
+    titleKey: "landing.features.items.groups.title",
+    descriptionKey: "landing.features.items.groups.description",
   },
 ]
 
 export function LandingFeatures() {
+  const { t } = useTranslation("common")
+
   return (
     <section className="py-12 md:py-16 lg:py-20">
       <div className="container mx-auto max-w-6xl px-6 md:px-10">
         <div className="mb-12 text-center">
-          <h2 className="text-3xl font-bold md:text-4xl">Tính Năng Chính</h2>
+          <h2 className="text-3xl font-bold md:text-4xl">
+            {t("landing.features.title")}
+          </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Dịch vụ toàn diện hỗ trợ mọi đối tượng trong cộng đồng pickleball
+            {t("landing.features.description")}
           </p>
         </div>
 
@@ -72,9 +72,9 @@ export function LandingFeatures() {
                   <Icon className="size-6 text-primary" />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <h3 className="font-semibold">{feature.title}</h3>
+                  <h3 className="font-semibold">{t(feature.titleKey)}</h3>
                   <p className="text-sm text-muted-foreground">
-                    {feature.description}
+                    {t(feature.descriptionKey)}
                   </p>
                 </div>
               </Card>

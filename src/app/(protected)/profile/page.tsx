@@ -91,8 +91,9 @@ export default async function ProfilePage() {
       <PageContainer className="space-y-6">
         {/* Header */}
         <ProfileHeader
-          name={user?.fullName || authUser?.name || "Unnamed Player"}
-          subtitle={authUser?.email || "No email available"}
+          name={user?.fullName || authUser?.name || ""}
+          subtitle={authUser?.email || ""}
+          subtitleFallbackKey="noEmail"
           avatarUrl={user?.avatarUrl}
           actionHref="/profile/edit-profile"
         />

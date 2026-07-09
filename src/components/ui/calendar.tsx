@@ -1,6 +1,6 @@
 "use client"
 
-import { vi } from "date-fns/locale/vi"
+import { enUS, vi } from "date-fns/locale"
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -12,6 +12,7 @@ import {
   DayPicker,
   getDefaultClassNames,
 } from "react-day-picker"
+import { useTranslation } from "react-i18next"
 
 import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -29,10 +30,21 @@ function Calendar({
   buttonVariant?: React.ComponentProps<typeof Button>["variant"]
 }) {
   const defaultClassNames = getDefaultClassNames()
+  const { t, i18n } = useTranslation("common")
+  const locale = i18n.language.startsWith("vi") ? vi : enUS
+  const weekdayKeys = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+  ] as const
 
   return (
     <DayPicker
-      locale={vi}
+      locale={locale}
       showOutsideDays={showOutsideDays}
       className={cn(
         "group/calendar bg-background p-3 [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
@@ -42,14 +54,15 @@ function Calendar({
       )}
       captionLayout={captionLayout}
       formatters={{
-        formatMonthDropdown: (date) => `Tháng ${date.getMonth() + 1}`,
+        formatMonthDropdown: (date) =>
+          t(`calendar.monthNames.${date.getMonth()}`),
         formatMonthCaption: (date) =>
-          `Tháng ${date.getMonth() + 1} năm ${date.getFullYear()}`,
-        formatWeekdayName: (date) => {
-          // Map to Vietnamese short weekday labels: T2..T7, CN
-          const map = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"]
-          return map[date.getDay()]
-        },
+          t("calendar.monthCaption", {
+            month: t(`calendar.monthNames.${date.getMonth()}`),
+            year: date.getFullYear(),
+          }),
+        formatWeekdayName: (date) =>
+          t(`calendar.weekdays.${weekdayKeys[date.getDay()]}`),
         ...formatters,
       }}
       classNames={{

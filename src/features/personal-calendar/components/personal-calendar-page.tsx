@@ -23,6 +23,7 @@ import {
   Users,
 } from "lucide-react"
 import React, { useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { CalendarNavigation } from "@/components/calendar-navigation"
 import { Badge } from "@/components/ui/badge"
@@ -46,9 +47,37 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 import { type CalendarActivity, useMyCalendar } from "../api/calendar-client"
 
+const weekdayKeys = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+] as const
+
+const statusLabelKeys: Record<CalendarActivity["status"], string> = {
+  COMPLETED: "completed",
+  LIVE: "live",
+  UPCOMING: "upcoming",
+  PENDING_CONFIRM: "pendingConfirm",
+  CANCELLED: "cancelled",
+}
+
+const typeLabelKeys: Record<CalendarActivity["type"], string> = {
+  SOCIAL_SESSION: "socialSession",
+  BOOKING: "booking",
+  TOURNAMENT: "tournament",
+  MATCH_PRACTICE: "matchPractice",
+  MATCH_TOURNAMENT: "matchTournament",
+}
+
 export function PersonalCalendarPage() {
+  const { t, i18n } = useTranslation("common")
   const [currentDate, setCurrentDate] = useState(() => new Date())
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date())
+  const locale = i18n.language.startsWith("vi") ? "vi-VN" : "en-US"
 
   // Get date helper structures
   const monthStart = startOfMonth(currentDate)
@@ -128,40 +157,44 @@ export function PersonalCalendarPage() {
     setIsDialogOpen(true)
   }
 
-  // Format date helper for localized headings
-  const vietnameseMonthYear = `Tháng ${currentDate.getMonth() + 1} năm ${currentDate.getFullYear()}`
+  const monthYearLabel = t("calendar.monthYear", {
+    month: currentDate.getMonth() + 1,
+    year: currentDate.getFullYear(),
+  })
 
   // Status Badge Class Generator
   const getStatusBadge = (status: CalendarActivity["status"]) => {
+    const labelKey = statusLabelKeys[status]
+
     switch (status) {
       case "COMPLETED":
         return (
           <Badge className="border border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
-            Đã hoàn thành
+            {t(`calendar.status.${labelKey}`)}
           </Badge>
         )
       case "LIVE":
         return (
           <Badge className="animate-pulse border border-blue-200 bg-blue-100 text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-            Đang diễn ra
+            {t(`calendar.status.${labelKey}`)}
           </Badge>
         )
       case "UPCOMING":
         return (
           <Badge className="border border-emerald-200 bg-emerald-100 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300">
-            Sắp diễn ra
+            {t(`calendar.status.${labelKey}`)}
           </Badge>
         )
       case "PENDING_CONFIRM":
         return (
           <Badge className="border border-amber-200 bg-amber-100 text-amber-700 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
-            Chờ xác nhận
+            {t(`calendar.status.${labelKey}`)}
           </Badge>
         )
       case "CANCELLED":
         return (
           <Badge className="border border-red-200 bg-red-100 text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
-            Đã hủy
+            {t(`calendar.status.${labelKey}`)}
           </Badge>
         )
     }
@@ -169,6 +202,8 @@ export function PersonalCalendarPage() {
 
   // Event Type Icon/Badge Generator
   const getEventTypeBadge = (type: CalendarActivity["type"]) => {
+    const labelKey = typeLabelKeys[type]
+
     switch (type) {
       case "SOCIAL_SESSION":
         return (
@@ -176,7 +211,7 @@ export function PersonalCalendarPage() {
             variant="outline"
             className="gap-1 border-orange-200 bg-orange-50 font-normal text-orange-700 dark:border-orange-900/30 dark:bg-orange-950/20 dark:text-orange-400"
           >
-            <span>🏓</span> Social
+            <span>🏓</span> {t(`calendar.types.${labelKey}`)}
           </Badge>
         )
       case "BOOKING":
@@ -185,7 +220,7 @@ export function PersonalCalendarPage() {
             variant="outline"
             className="gap-1 border-blue-200 bg-blue-50 font-normal text-blue-700 dark:border-blue-900/30 dark:bg-blue-950/20 dark:text-blue-400"
           >
-            <span>📅</span> Booking
+            <span>📅</span> {t(`calendar.types.${labelKey}`)}
           </Badge>
         )
       case "TOURNAMENT":
@@ -194,7 +229,7 @@ export function PersonalCalendarPage() {
             variant="outline"
             className="gap-1 border-purple-200 bg-purple-50 font-normal text-purple-700 dark:border-purple-900/30 dark:bg-purple-950/20 dark:text-purple-400"
           >
-            <span>🏆</span> Tournament
+            <span>🏆</span> {t(`calendar.types.${labelKey}`)}
           </Badge>
         )
       case "MATCH_PRACTICE":
@@ -203,7 +238,7 @@ export function PersonalCalendarPage() {
             variant="outline"
             className="gap-1 border-pink-200 bg-pink-50 font-normal text-pink-700 dark:border-pink-900/30 dark:bg-pink-950/20 dark:text-pink-400"
           >
-            <span>⚔️</span> Practice
+            <span>⚔️</span> {t(`calendar.types.${labelKey}`)}
           </Badge>
         )
       case "MATCH_TOURNAMENT":
@@ -212,7 +247,7 @@ export function PersonalCalendarPage() {
             variant="outline"
             className="gap-1 border-amber-200 bg-amber-50 font-normal text-amber-700 dark:border-amber-900/30 dark:bg-amber-950/20 dark:text-amber-400"
           >
-            <span>🏅</span> Tournament Match
+            <span>🏅</span> {t(`calendar.types.${labelKey}`)}
           </Badge>
         )
     }
@@ -234,7 +269,7 @@ export function PersonalCalendarPage() {
   const formatDateString = (isoString: string) => {
     try {
       const d = new Date(isoString)
-      return d.toLocaleDateString("vi-VN", {
+      return d.toLocaleDateString(locale, {
         weekday: "long",
         year: "numeric",
         month: "long",
@@ -293,10 +328,10 @@ export function PersonalCalendarPage() {
             </div>
             <div>
               <h1 className="text-3xl font-extrabold tracking-tight">
-                Lịch của tôi
+                {t("calendar.title")}
               </h1>
               <p className="text-sm text-muted-foreground">
-                Quản lý và theo dõi hoạt động pickleball cá nhân của bạn.
+                {t("calendar.description")}
               </p>
             </div>
           </div>
@@ -325,19 +360,20 @@ export function PersonalCalendarPage() {
             <CardHeader className="border-b bg-muted/15 pb-4">
               <div className="flex items-center gap-2 font-bold text-primary">
                 <CalendarDays className="size-5" />
-                <span>Xem lịch dạng ô</span>
+                <span>{t("calendar.monthViewLabel")}</span>
               </div>
             </CardHeader>
             <CardContent className="p-4">
               {/* Calendar grid weekday header */}
               <div className="mb-2 grid grid-cols-7 gap-2 border-b pb-3 text-center text-xs font-semibold text-muted-foreground">
-                <span>Thứ 2</span>
-                <span>Thứ 3</span>
-                <span>Thứ 4</span>
-                <span>Thứ 5</span>
-                <span>Thứ 6</span>
-                <span>Thứ 7</span>
-                <span className="text-red-500">Chủ nhật</span>
+                {weekdayKeys.map((weekday, index) => (
+                  <span
+                    key={weekday}
+                    className={index === 6 ? "text-red-500" : undefined}
+                  >
+                    {t(`calendar.weekdays.${weekday}`)}
+                  </span>
+                ))}
               </div>
 
               {/* Grid cells */}
@@ -402,7 +438,9 @@ export function PersonalCalendarPage() {
                           ))}
                           {dayEvents.length > 3 && (
                             <div className="mt-1 pl-1 text-[10px] font-semibold text-muted-foreground">
-                              +{dayEvents.length - 3} hoạt động khác
+                              {t("calendar.moreActivities", {
+                                count: dayEvents.length - 3,
+                              })}
                             </div>
                           )}
                         </div>
@@ -419,10 +457,12 @@ export function PersonalCalendarPage() {
             <CardHeader className="border-b pb-4">
               <CardTitle className="flex items-center gap-1.5 text-base font-bold">
                 <Sparkles className="size-4 text-primary" />
-                Chi tiết ngày {format(selectedDate, "dd/MM/yyyy")}
+                {t("calendar.dayDetailsTitle", {
+                  date: format(selectedDate, "dd/MM/yyyy"),
+                })}
               </CardTitle>
               <CardDescription className="text-xs">
-                Danh sách hoạt động bạn đã đăng ký tham gia trong ngày này.
+                {t("calendar.dayDetailsDescription")}
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1 p-4">
@@ -431,17 +471,18 @@ export function PersonalCalendarPage() {
                 <div className="flex flex-col items-center justify-center rounded-xl border border-dashed bg-muted/20 px-4 py-10 text-center">
                   <span className="mb-2 text-3xl">🍃</span>
                   <p className="text-sm font-semibold text-foreground/80">
-                    Không có hoạt động
+                    {t("calendar.noDayActivitiesTitle")}
                   </p>
                   <p className="mt-1 max-w-[200px] text-xs text-muted-foreground">
-                    Bạn không có lịch social, đặt sân hay giải đấu nào trong
-                    ngày này.
+                    {t("calendar.noDayActivitiesDescription")}
                   </p>
                 </div>
               ) : (
                 <div className="space-y-3.5">
                   <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                    Có {selectedDayEvents.length} hoạt động
+                    {t("calendar.activitiesCount", {
+                      count: selectedDayEvents.length,
+                    })}
                   </p>
                   <div className="max-h-[600px] space-y-3 overflow-y-auto pr-1">
                     {selectedDayEvents.map((event) => (
@@ -474,7 +515,9 @@ export function PersonalCalendarPage() {
                         <div className="mt-1 flex items-center justify-between border-t border-border/40 pt-2">
                           {getEventTypeBadge(event.type)}
                           <span className="text-[10px] font-medium text-muted-foreground">
-                            {event.participantsCount} người tham gia
+                            {t("calendar.participantsCount", {
+                              count: event.participantsCount,
+                            })}
                           </span>
                         </div>
                       </div>
@@ -493,11 +536,12 @@ export function PersonalCalendarPage() {
               <CalendarDays className="size-8 text-primary" />
             </div>
             <h3 className="text-lg font-bold text-foreground">
-              Bạn chưa có hoạt động nào
+              {t("calendar.monthEmptyTitle")}
             </h3>
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              Hiện tại bạn chưa đăng ký tham gia bất kỳ buổi social, đặt sân cá
-              nhân hay giải đấu nào trong {vietnameseMonthYear.toLowerCase()}.
+              {t("calendar.monthEmptyDescription", {
+                monthYear: monthYearLabel.toLowerCase(),
+              })}
             </p>
           </div>
         )}
@@ -520,7 +564,7 @@ export function PersonalCalendarPage() {
                 </DialogTitle>
                 <DialogDescription className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Info className="size-3.5 text-primary" />
-                  Chi tiết lịch hoạt động cá nhân của bạn
+                  {t("calendar.detailDescription")}
                 </DialogDescription>
               </DialogHeader>
 
@@ -535,7 +579,7 @@ export function PersonalCalendarPage() {
                   </div>
                   <div className="space-y-0.5">
                     <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                      Thời gian
+                      {t("calendar.time")}
                     </p>
                     <p className="font-bold text-foreground/90">
                       {formatTime(selectedEvent.startTime)} -{" "}
@@ -554,7 +598,7 @@ export function PersonalCalendarPage() {
                   </div>
                   <div className="space-y-0.5">
                     <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                      Địa điểm
+                      {t("calendar.location")}
                     </p>
                     <p className="leading-relaxed font-medium text-foreground/95">
                       {selectedEvent.location.name}
@@ -573,7 +617,7 @@ export function PersonalCalendarPage() {
                   </div>
                   <div className="space-y-0.5">
                     <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                      Người tổ chức
+                      {t("calendar.organizer")}
                     </p>
                     <p className="font-semibold text-foreground/90">
                       {selectedEvent.organizer}
@@ -588,10 +632,12 @@ export function PersonalCalendarPage() {
                   </div>
                   <div className="space-y-0.5">
                     <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                      Số người tham gia
+                      {t("calendar.participants")}
                     </p>
                     <p className="font-semibold text-foreground/90">
-                      {selectedEvent.participantsCount} người đã tham gia
+                      {t("calendar.participantsJoined", {
+                        count: selectedEvent.participantsCount,
+                      })}
                     </p>
                   </div>
                 </div>
@@ -602,7 +648,7 @@ export function PersonalCalendarPage() {
               {/* Description */}
               <div className="space-y-1.5">
                 <h5 className="text-xs font-bold tracking-wide text-muted-foreground uppercase">
-                  Mô tả hoạt động
+                  {t("calendar.descriptionLabel")}
                 </h5>
                 <p className="rounded-lg border border-border/30 bg-muted/40 p-3 text-sm leading-relaxed text-foreground/80">
                   {selectedEvent.description}
@@ -615,7 +661,7 @@ export function PersonalCalendarPage() {
                   onClick={() => setIsDialogOpen(false)}
                   className="w-full sm:w-auto"
                 >
-                  Đóng
+                  {t("calendar.close")}
                 </Button>
               </div>
             </div>

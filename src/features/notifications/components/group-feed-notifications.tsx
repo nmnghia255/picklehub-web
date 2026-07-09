@@ -1,6 +1,7 @@
 "use client"
 
 import { Bell, Clock } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,23 +21,34 @@ interface GroupFeedNotificationsProps {
   isLoading?: boolean
 }
 
-function formatDate(dateString: string): string {
+function formatDate(
+  dateString: string,
+  locale: string,
+  t: (key: string, options?: Record<string, unknown>) => string
+): string {
   const date = new Date(dateString)
   if (Number.isNaN(date.getTime())) {
-    return "Vừa xong"
+    return t("notifications.groupFeed.time.justNow")
   }
+
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffMins = Math.floor(diffMs / 60000)
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)
 
-  if (diffMins < 1) return "Vừa xong"
-  if (diffMins < 60) return `${diffMins} phút trước`
-  if (diffHours < 24) return `${diffHours} giờ trước`
-  if (diffDays < 7) return `${diffDays} ngày trước`
+  if (diffMins < 1) return t("notifications.groupFeed.time.justNow")
+  if (diffMins < 60) {
+    return t("notifications.groupFeed.time.minutesAgo", { count: diffMins })
+  }
+  if (diffHours < 24) {
+    return t("notifications.groupFeed.time.hoursAgo", { count: diffHours })
+  }
+  if (diffDays < 7) {
+    return t("notifications.groupFeed.time.daysAgo", { count: diffDays })
+  }
 
-  return date.toLocaleDateString("vi-VN")
+  return date.toLocaleDateString(locale)
 }
 
 export function GroupFeedNotifications({
@@ -44,18 +56,23 @@ export function GroupFeedNotifications({
   isLoading = false,
   className = "",
 }: GroupFeedNotificationsProps & { className?: string }) {
+  const { t, i18n } = useTranslation("common")
+  const locale = i18n.language.startsWith("vi")
+    ? "vi-VN"
+    : i18n.language || "en-US"
+
   if (isLoading) {
     return (
       <Card className={"mt-6 " + className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Bell className="size-5" />
-            Thông báo nhóm
+            {t("notifications.groupFeed.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="py-8 text-center text-sm text-muted-foreground">
-            Đang tải thông báo...
+            {t("notifications.groupFeed.loading")}
           </div>
         </CardContent>
       </Card>
@@ -68,12 +85,12 @@ export function GroupFeedNotifications({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Bell className="size-5" />
-            Thông báo nhóm
+            {t("notifications.groupFeed.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="py-8 text-center text-sm text-muted-foreground">
-            Chưa có thông báo nào được gửi tới nhóm
+            {t("notifications.groupFeed.empty")}
           </div>
         </CardContent>
       </Card>
@@ -85,7 +102,9 @@ export function GroupFeedNotifications({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Bell className="size-5" />
-          Thông báo nhóm ({notifications.length})
+          {t("notifications.groupFeed.countTitle", {
+            count: notifications.length,
+          })}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -105,14 +124,15 @@ export function GroupFeedNotifications({
                     className="text-xs whitespace-nowrap"
                   >
                     <Clock className="mr-1 size-3" />
-                    {notification.timeLabel ?? formatDate(notification.sentAt)}
+                    {notification.timeLabel ??
+                      formatDate(notification.sentAt, locale, t)}
                   </Badge>
                 </div>
                 <p className="line-clamp-2 text-sm text-muted-foreground">
                   {notification.message}
                 </p>
                 <p className="mt-2 text-xs text-muted-foreground/60">
-                  Từ:{" "}
+                  {t("notifications.groupFeed.from")}{" "}
                   <span className="font-medium">{notification.senderName}</span>
                 </p>
               </div>

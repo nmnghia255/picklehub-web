@@ -2,8 +2,10 @@
 
 import { BoxIcon } from "lucide-react"
 import Link from "next/link"
+import { useTranslation } from "react-i18next"
 
 export function LandingFooter() {
+  const { t } = useTranslation("common")
   const currentYear = new Date().getFullYear()
 
   return (
@@ -18,22 +20,24 @@ export function LandingFooter() {
               <div className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
                 <BoxIcon className="size-4" />
               </div>
-              PickleHub
+              {t("brand")}
             </Link>
             <p className="text-sm text-muted-foreground">
-              Quản lý nhóm, chia sẻ dễ dàng
+              {t("landing.footer.description")}
             </p>
           </div>
 
           <div className="flex flex-col gap-3">
-            <h4 className="font-semibold">Công Ty</h4>
+            <h4 className="font-semibold">
+              {t("landing.footer.sections.company")}
+            </h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/"
                   className="text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  Về Chúng Tôi
+                  {t("landing.footer.links.about")}
                 </Link>
               </li>
               <li>
@@ -41,21 +45,23 @@ export function LandingFooter() {
                   href="/"
                   className="text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  Blog
+                  {t("landing.footer.links.blog")}
                 </Link>
               </li>
             </ul>
           </div>
 
           <div className="flex flex-col gap-3">
-            <h4 className="font-semibold">Pháp Lý</h4>
+            <h4 className="font-semibold">
+              {t("landing.footer.sections.legal")}
+            </h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/"
                   className="text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  Chính Sách Bảo Mật
+                  {t("landing.footer.links.privacy")}
                 </Link>
               </li>
               <li>
@@ -63,21 +69,23 @@ export function LandingFooter() {
                   href="/"
                   className="text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  Điều Khoản Dịch Vụ
+                  {t("landing.footer.links.terms")}
                 </Link>
               </li>
             </ul>
           </div>
 
           <div className="flex flex-col gap-3">
-            <h4 className="font-semibold">Hỗ Trợ</h4>
+            <h4 className="font-semibold">
+              {t("landing.footer.sections.support")}
+            </h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/"
                   className="text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  Liên Hệ
+                  {t("landing.footer.links.contact")}
                 </Link>
               </li>
               <li>
@@ -85,7 +93,7 @@ export function LandingFooter() {
                   href="/"
                   className="text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  FAQ
+                  {t("landing.footer.links.faq")}
                 </Link>
               </li>
             </ul>
@@ -93,7 +101,7 @@ export function LandingFooter() {
         </div>
 
         <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {currentYear} PickleHub. Tất cả quyền được bảo lưu.</p>
+          <p>{t("landing.footer.copyright", { year: currentYear })}</p>
         </div>
       </div>
     </footer>

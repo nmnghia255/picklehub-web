@@ -2,11 +2,92 @@
   "brand": "PickleHub",
   "back": "Back",
   "loading": "Loading...",
+  "dialog": {
+    "close": "Close"
+  },
+  "sheet": {
+    "close": "Close"
+  },
+  "errorState": {
+    "title": "Could not load data",
+    "description": "An error occurred. Please try again later.",
+    "retry": "Try again"
+  },
+  "calendar": {
+    "title": "My Calendar",
+    "description": "Manage and track your personal pickleball activities.",
+    "today": "Today",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "monthPlaceholder": "Month",
+    "yearLabel": "Year",
+    "monthYear": "Month {{month}}, {{year}}",
+    "monthCaption": "{{month}} {{year}}",
+    "monthViewLabel": "Month view",
+    "dayDetailsTitle": "Day details {{date}}",
+    "dayDetailsDescription": "Activities you are registered for on this day.",
+    "noDayActivitiesTitle": "No activities",
+    "noDayActivitiesDescription": "You do not have any social sessions, court bookings, or tournaments on this day.",
+    "activitiesCount": "There are {{count}} activities",
+    "moreActivities": "+{{count}} more activities",
+    "participantsCount": "{{count}} participants",
+    "monthEmptyTitle": "No activities yet",
+    "monthEmptyDescription": "You have not registered for any social session, personal court booking, or tournament in {{monthYear}}.",
+    "detailDescription": "Your personal activity schedule details",
+    "time": "Time",
+    "location": "Location",
+    "organizer": "Organizer",
+    "participants": "Participants",
+    "participantsJoined": "{{count}} participants joined",
+    "descriptionLabel": "Activity description",
+    "close": "Close",
+    "status": {
+      "completed": "Completed",
+      "live": "Live",
+      "upcoming": "Upcoming",
+      "pendingConfirm": "Pending confirmation",
+      "cancelled": "Cancelled"
+    },
+    "types": {
+      "socialSession": "Social",
+      "booking": "Booking",
+      "tournament": "Tournament",
+      "matchPractice": "Practice",
+      "matchTournament": "Tournament Match"
+    },
+    "weekdays": {
+      "monday": "Mon",
+      "tuesday": "Tue",
+      "wednesday": "Wed",
+      "thursday": "Thu",
+      "friday": "Fri",
+      "saturday": "Sat",
+      "sunday": "Sun"
+    },
+    "monthNames": {
+      "0": "January",
+      "1": "February",
+      "2": "March",
+      "3": "April",
+      "4": "May",
+      "5": "June",
+      "6": "July",
+      "7": "August",
+      "8": "September",
+      "9": "October",
+      "10": "November",
+      "11": "December"
+    }
+  },
   "pagination": {
+    "navigation": "Pagination",
     "previous": "Previous",
     "next": "Next",
     "page": "Page {{page}}",
-    "pageInfo": "Page {{currentPage}} of {{totalPages}}"
+    "pageInfo": "Page {{currentPage}} of {{totalPages}}",
+    "previousPage": "Go to previous page",
+    "nextPage": "Go to next page",
+    "morePages": "More pages"
   },
   "sidebar": {
     "home": "Home",
@@ -30,7 +111,10 @@
     "customerManagement": "Customer Management",
     "bookingList": "Booking List",
     "servicesProducts": "Services & Products",
-    "revenueReport": "Revenue Report"
+    "revenueReport": "Revenue Report",
+    "mobileTitle": "Sidebar",
+    "mobileDescription": "Displays the mobile sidebar.",
+    "toggle": "Toggle sidebar"
   },
   "header": {
     "notifications": "Notifications",
@@ -49,6 +133,264 @@
     "logout": "Log out",
     "loggingOut": "Logging out...",
     "defaultUser": "User"
+  },
+  "landing": {
+    "header": {
+      "switchToLight": "Switch to light mode",
+      "switchToDark": "Switch to dark mode",
+      "themeToggle": "Toggle theme"
+    },
+    "hero": {
+      "titlePrefix": "A Complete Platform For",
+      "titleHighlight": "The Pickleball Community",
+      "description": "PickleHub connects players, coaches, sports equipment businesses, and tournament organizers. With integrated AI and LLM support, the platform provides management, interaction, and advanced analytics services that create a more personalized and effective experience for every audience.",
+      "cta": "Join Now"
+    },
+    "features": {
+      "title": "Core Features",
+      "description": "A full-service platform that supports every role in the pickleball community.",
+      "items": {
+        "tournament": {
+          "title": "Tournament Management",
+          "description": "Create, manage, and track tournaments with smart brackets."
+        },
+        "community": {
+          "title": "Community Interaction",
+          "description": "Connect players, coaches, businesses, and tournament organizers."
+        },
+        "analytics": {
+          "title": "Performance Analytics",
+          "description": "Analyze match data, personal statistics, and performance trends in detail."
+        },
+        "ai": {
+          "title": "AI Assistant",
+          "description": "Get strategic guidance, advanced analysis, and management support from AI."
+        },
+        "equipment": {
+          "title": "Equipment Management",
+          "description": "Manage, sell, and share information about specialized sports equipment."
+        },
+        "groups": {
+          "title": "Specialized Groups",
+          "description": "Create dedicated groups for coaching, business, and tournament operations."
+        }
+      }
+    },
+    "footer": {
+      "description": "Manage groups and share with ease.",
+      "sections": {
+        "company": "Company",
+        "legal": "Legal",
+        "support": "Support"
+      },
+      "links": {
+        "about": "About Us",
+        "blog": "Blog",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "contact": "Contact",
+        "faq": "FAQ"
+      },
+      "copyright": "© {{year}} PickleHub. All rights reserved."
+    }
+  },
+  "home": {
+    "welcome": {
+      "title": "Welcome, {{name}}! 👋",
+      "description": "This is your home dashboard, where you can manage groups and friends."
+    },
+    "groups": {
+      "title": "My groups",
+      "description": "Groups you manage or have joined."
+    }
+  },
+  "dashboard": {
+    "stats": {
+      "groups": "Groups",
+      "members": "Members",
+      "pendingInvites": "Pending invites"
+    },
+    "quickActions": {
+      "createGroup": {
+        "title": "Create a new group",
+        "description": "Start a new group for your community.",
+        "button": "Create group"
+      },
+      "myGroups": {
+        "title": "My groups",
+        "description": "See every group you belong to.",
+        "button": "View groups"
+      },
+      "profile": {
+        "title": "Profile",
+        "description": "Manage your personal information.",
+        "button": "View profile"
+      }
+    },
+    "groups": {
+      "loading": "Loading group data...",
+      "emptyTitle": "No groups yet",
+      "emptyDescription": "Start by creating a group to share with friends.",
+      "createButton": "Create a group",
+      "viewDetails": "View details",
+      "settings": "Settings",
+      "members": "{{count}} members",
+      "role": {
+        "owner": "Owner",
+        "member": "Member"
+      }
+    },
+    "pendingInvites": {
+      "loading": "Loading group invites...",
+      "title": "Pending invites to review",
+      "description": "You have {{count}} pending invites from other groups.",
+      "invitedBy": "Invite from {{name}}",
+      "decline": "Decline",
+      "accept": "Accept"
+    }
+  },
+  "feed": {
+    "hero": {
+      "badge": "Notification center",
+      "title": "Recent activity feed",
+      "description": "Keep invites, reminders, group updates, and system notices in one place so you can act faster."
+    },
+    "stats": {
+      "unread": {
+        "label": "Unread",
+        "helper": "Needs attention today"
+      },
+      "pendingInvites": {
+        "label": "Pending invites",
+        "helper": "You can reply right away"
+      },
+      "upcomingSessions": {
+        "label": "Sessions",
+        "helper": "Upcoming reminders"
+      }
+    },
+    "list": {
+      "title": "Notification list",
+      "description": "{{count}} notifications are visible in the current filter"
+    },
+    "actions": {
+      "markAllAsRead": "Mark all as read",
+      "deleteRead": "Delete read",
+      "viewAll": "View all",
+      "viewDetails": "View details",
+      "markAsRead": "Mark as read",
+      "markedRead": "Read",
+      "delete": "Delete",
+      "accept": "Accept",
+      "decline": "Decline"
+    },
+    "filters": {
+      "all": "All",
+      "unread": "Unread",
+      "invitation": "Invites",
+      "session": "Sessions",
+      "group": "Groups",
+      "system": "System"
+    },
+    "sections": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "thisWeek": "This week"
+    },
+    "types": {
+      "invitation": "Invite",
+      "session": "Session",
+      "group": "Group",
+      "system": "System"
+    },
+    "statuses": {
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "pending": "Pending"
+    },
+    "tags": {
+      "group": "Group",
+      "notification": "Notification"
+    },
+    "quickActions": {
+      "title": "Quick actions",
+      "description": "Handle the items you need right now.",
+      "pendingInvites": {
+        "title": "Pending invites",
+        "description": "Reply directly from the feed"
+      },
+      "upcomingSessions": {
+        "title": "Upcoming sessions",
+        "description": "Training reminders and events"
+      },
+      "unread": {
+        "title": "Unread notifications",
+        "description": "Best handled before you leave"
+      }
+    },
+    "legend": {
+      "title": "Feed legend",
+      "description": "Colors help distinguish notification types.",
+      "itemDescription": "Notifications of the same type share the same accent."
+    },
+    "empty": {
+      "title": "No matching notifications",
+      "description": "This filter currently has no results. You can switch back to all notifications to review recent updates.",
+      "action": "Show all notifications"
+    }
+  },
+  "notifications": {
+    "defaults": {
+      "title": "Notification",
+      "description": "Notification details",
+      "actor": "System"
+    },
+    "groupFeed": {
+      "title": "Group notifications",
+      "loading": "Loading notifications...",
+      "empty": "No notifications have been sent to this group",
+      "countTitle": "Group notifications ({{count}})",
+      "from": "From:",
+      "time": {
+        "justNow": "Just now",
+        "minutesAgo": "{{count}} minutes ago",
+        "hoursAgo": "{{count}} hours ago",
+        "daysAgo": "{{count}} days ago"
+      }
+    },
+    "sender": {
+      "trigger": "Send notification",
+      "dialog": {
+        "title": "Send a group notification",
+        "description": "Send a feed notification to all members of the group"
+      },
+      "validation": {
+        "title": "Title is required",
+        "message": "Message is required"
+      },
+      "noPermission": {
+        "title": "No permission",
+        "description": "Only group owners can send notifications."
+      },
+      "success": {
+        "title": "Success",
+        "description": "The notification was sent to all group members."
+      },
+      "error": {
+        "title": "Error",
+        "generic": "Could not send the notification"
+      },
+      "fields": {
+        "title": "Title",
+        "titlePlaceholder": "Enter a notification title...",
+        "titleHelp": "Max 200 characters",
+        "message": "Message",
+        "messagePlaceholder": "Enter a notification message...",
+        "messageHelp": "Max 1000 characters"
+      },
+      "cancel": "Cancel",
+      "submit": "Send notification"
+    }
   },
   "coach": {
     "registration": {
@@ -511,7 +853,15 @@
     },
     "schedule": {
       "errorTitle": "Cannot load schedule",
-      "weekDays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      "weekDays": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
       "learnerCount": "{{count}} learners",
       "noLocation": "No location",
       "emptyDay": "Empty",
@@ -616,7 +966,7 @@
       "loadingTitle": "Coach Reviews",
       "noReviews": "No reviews yet.",
       "title": "Coach Reviews",
-      "ratingInfo": "({{rating}} stars \u00b7 {{count}} reviews)",
+      "ratingInfo": "({{rating}} stars · {{count}} reviews)",
       "noReviewsPage": "No reviews yet.",
       "errorLoading": "Cannot load reviews. Please try again later.",
       "writeReview": "Write a review",
@@ -1313,6 +1663,20 @@
     },
     "alt": {
       "decorativeImage": "Decorative background image"
+    }
+  },
+  "invitation": {
+    "accept": {
+      "loadingTitle": "Processing invitation...",
+      "loadingDescription": "Please wait a moment.",
+      "successTitle": "Invitation accepted",
+      "successDescription": "Redirecting to your group...",
+      "redirecting": "Redirecting...",
+      "errorTitle": "Failed to accept invitation",
+      "invalidLink": "The invitation link is invalid. Please check your email.",
+      "genericError": "Failed to accept invitation. Please try again.",
+      "backToLogin": "Back to login",
+      "imageAlt": "Decorative invitation illustration"
     }
   }
 }

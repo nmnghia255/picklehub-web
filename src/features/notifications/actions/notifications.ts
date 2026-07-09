@@ -1,4 +1,4 @@
-"use server"
+﻿"use server"
 
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
@@ -20,11 +20,11 @@ export async function sendGroupFeedNotificationAction(
 
     return {
       success: true,
-      message: response.data?.message || "Thông báo đã được gửi thành công",
+      message: response.data?.message || "Notification sent successfully",
     }
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Không thể gửi thông báo"
+      error instanceof Error ? error.message : "Could not send the notification"
     console.error("Error sending group feed notification:", error)
     throw new Error(errorMessage)
   }

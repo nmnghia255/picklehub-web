@@ -2,9 +2,8 @@ import { PageContainer } from "@/components/page-container"
 import { PersonalCalendarPage } from "@/features/personal-calendar/components/personal-calendar-page"
 
 export const metadata = {
-  title: "Lịch của tôi | PickleHub",
-  description:
-    "Quản lý và xem lịch trình các hoạt động Pickleball cá nhân của bạn.",
+  title: "My Calendar | PickleHub",
+  description: "Manage and view your personal Pickleball activity schedule.",
 }
 
 export default function CalendarRoutePage() {

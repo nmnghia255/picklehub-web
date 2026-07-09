@@ -37,10 +37,9 @@ export async function fetchMyNotifications(): Promise<FeedNotification[]> {
           const now = new Date()
           const diff = now.getTime() - created.getTime()
           const mins = Math.floor(diff / 60000)
-          if (mins < 60) return "Hôm nay"
-          if (mins < 1440) return "Hôm nay"
-          if (mins < 10080) return "Tuần này"
-          return "Hôm qua"
+          if (mins < 1440) return "today"
+          if (mins < 10080) return "thisWeek"
+          return "yesterday"
         })()
 
         return {
@@ -52,12 +51,12 @@ export async function fetchMyNotifications(): Promise<FeedNotification[]> {
             | string
             | undefined,
           section,
-          title: (it["title"] ?? it["subject"] ?? "Thông báo") as string,
+          title: (it["title"] ?? it["subject"] ?? "Notification") as string,
           description: (it["message"] ?? it["description"] ?? "") as string,
-          actor: (it["actorName"] ?? it["sender"] ?? "Hệ thống") as string,
+          actor: (it["actorName"] ?? it["sender"] ?? "System") as string,
           timeLabel: new Date(
             (it["createdAt"] ?? it["sentAt"] ?? Date.now()) as string | number
-          ).toLocaleString("vi-VN"),
+          ).toLocaleString(),
           unread:
             it["read"] === false ||
             it["isRead"] === false ||

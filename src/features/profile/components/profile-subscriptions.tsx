@@ -80,13 +80,13 @@ export function ProfileSubscriptions({
                           : "border border-border bg-muted text-muted-foreground"
                       }`}
                     >
-                      {isActive ? t("active") : sub.status}
+                      {isActive ? t("active") : t("expired")}
                     </span>
                   </div>
                   <div className="my-1 h-px bg-border/40" />
                   <p className="text-xs text-muted-foreground">
                     {t("expiresOn", {
-                      date: new Date(sub.endDate).toLocaleDateString("vi-VN"),
+                      date: new Date(sub.endDate).toLocaleDateString(locale),
                     })}
                   </p>
                 </div>

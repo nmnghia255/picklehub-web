@@ -1,10 +1,11 @@
-"use client"
+﻿"use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAtom } from "jotai"
 import { Bell, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -33,12 +34,20 @@ import { sendGroupFeedNotificationAction } from "@/features/notifications/action
 import { groupFeedNotificationsAtom } from "@/features/notifications/store/group-feed-store"
 import { useToast } from "@/hooks/use-toast"
 
-const sendNotificationSchema = z.object({
-  title: z.string().min(1, "Tiêu đề không được để trống").max(200),
-  message: z.string().min(1, "Nội dung không được để trống").max(1000),
-})
+function createSchema(t: (key: string) => string) {
+  return z.object({
+    title: z
+      .string()
+      .min(1, t("notifications.sender.validation.title"))
+      .max(200),
+    message: z
+      .string()
+      .min(1, t("notifications.sender.validation.message"))
+      .max(1000),
+  })
+}
 
-type SendNotificationFormValues = z.infer<typeof sendNotificationSchema>
+type SendNotificationFormValues = z.infer<ReturnType<typeof createSchema>>
 
 interface GroupFeedNotificationSenderProps {
   groupId: string
@@ -51,11 +60,13 @@ export function GroupFeedNotificationSender({
   groupName,
   canSend = true,
 }: GroupFeedNotificationSenderProps) {
+  const { t, i18n } = useTranslation("common")
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [, setNotifications] = useAtom(notificationFeedAtom)
   const [, setGroupNotifications] = useAtom(groupFeedNotificationsAtom)
   const { toast } = useToast()
+  const sendNotificationSchema = createSchema(t)
 
   const form = useForm<SendNotificationFormValues>({
     resolver: zodResolver(sendNotificationSchema),
@@ -68,8 +79,8 @@ export function GroupFeedNotificationSender({
   const onSubmit = async (data: SendNotificationFormValues) => {
     if (!canSend) {
       toast({
-        title: "Không có quyền",
-        description: "Chỉ trưởng nhóm mới có thể gửi thông báo.",
+        title: t("notifications.sender.noPermission.title"),
+        description: t("notifications.sender.noPermission.description"),
         variant: "destructive",
       })
       return
@@ -84,19 +95,21 @@ export function GroupFeedNotificationSender({
       })
 
       const now = new Date()
-      const timeLabel = now.toLocaleString("vi-VN")
+      const timeLabel = now.toLocaleString(
+        i18n.language.startsWith("vi") ? "vi-VN" : i18n.language || undefined
+      )
 
       const optimisticNotification: FeedNotification = {
         id: `group-notification-${groupId}-${now.getTime()}`,
         type: "group",
         groupId,
-        section: "Hôm nay",
+        section: "today",
         title: data.title,
         description: data.message,
         actor: groupName,
         timeLabel,
         unread: true,
-        tags: ["Nhóm", "Thông báo"],
+        tags: [t("feed.tags.group"), t("feed.tags.notification")],
         actionHref: `/groups/${groupId}`,
       }
 
@@ -115,18 +128,20 @@ export function GroupFeedNotificationSender({
       ])
 
       toast({
-        title: "Thành công",
-        description: "Thông báo đã được gửi đến tất cả thành viên nhóm.",
+        title: t("notifications.sender.success.title"),
+        description: t("notifications.sender.success.description"),
       })
 
       form.reset()
       setIsOpen(false)
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "Không thể gửi thông báo"
+        error instanceof Error
+          ? error.message
+          : t("notifications.sender.error.generic")
 
       toast({
-        title: "Lỗi",
+        title: t("notifications.sender.error.title"),
         description: errorMessage,
         variant: "destructive",
       })
@@ -146,15 +161,14 @@ export function GroupFeedNotificationSender({
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <Bell className="size-4" />
-          Gửi thông báo
+          {t("notifications.sender.trigger")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Gửi thông báo cho nhóm</DialogTitle>
+          <DialogTitle>{t("notifications.sender.dialog.title")}</DialogTitle>
           <DialogDescription>
-            Gửi thông báo feed tới tất cả thành viên của nhóm{" "}
-            <span className="font-semibold">{groupName}</span>
+            {t("notifications.sender.dialog.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -165,15 +179,21 @@ export function GroupFeedNotificationSender({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tiêu đề</FormLabel>
+                  <FormLabel>
+                    {t("notifications.sender.fields.title")}
+                  </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Nhập tiêu đề thông báo..."
+                      placeholder={t(
+                        "notifications.sender.fields.titlePlaceholder"
+                      )}
                       disabled={isLoading}
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>Tối đa 200 ký tự</FormDescription>
+                  <FormDescription>
+                    {t("notifications.sender.fields.titleHelp")}
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -184,16 +204,22 @@ export function GroupFeedNotificationSender({
               name="message"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nội dung</FormLabel>
+                  <FormLabel>
+                    {t("notifications.sender.fields.message")}
+                  </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Nhập nội dung thông báo..."
+                      placeholder={t(
+                        "notifications.sender.fields.messagePlaceholder"
+                      )}
                       disabled={isLoading}
                       rows={4}
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>Tối đa 1000 ký tự</FormDescription>
+                  <FormDescription>
+                    {t("notifications.sender.fields.messageHelp")}
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -206,11 +232,11 @@ export function GroupFeedNotificationSender({
                 onClick={() => setIsOpen(false)}
                 disabled={isLoading}
               >
-                Hủy
+                {t("notifications.sender.cancel")}
               </Button>
               <Button type="submit" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
-                Gửi thông báo
+                {t("notifications.sender.submit")}
               </Button>
             </div>
           </form>

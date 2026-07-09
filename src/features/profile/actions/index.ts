@@ -18,7 +18,7 @@ export interface UpdateProfileState {
 }
 
 const updateProfileSchema = z.object({
-  name: z.string().trim().min(1, "Vui lòng nhập tên hiển thị"),
+  name: z.string().trim().min(1, "edit.nameRequiredError"),
   avatarUrl: z.preprocess((value) => {
     if (typeof value !== "string") return value
     const trimmed = value.trim()
@@ -68,8 +68,7 @@ export async function updateProfileDetailsAction(
 
   if (avatarFile) {
     return {
-      error:
-        "User service hiện chỉ hỗ trợ cập nhật avatar bằng avatarUrl. Vui lòng dùng Avatar URL.",
+      error: "edit.avatarFileError",
     }
   }
 
@@ -102,18 +101,16 @@ export async function updateProfileDetailsAction(
 
     return {
       success: true,
-      message: "Cập nhật hồ sơ thành công.",
+      message: "edit.updateSuccess",
       user: updatedUser,
     }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Không thể cập nhật hồ sơ. Vui lòng thử lại.",
+        error: error.response?.data?.message || "edit.updateError",
       }
     }
 
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "edit.genericError" }
   }
 }

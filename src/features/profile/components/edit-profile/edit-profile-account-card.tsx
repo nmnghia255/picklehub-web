@@ -42,7 +42,9 @@ export function EditProfileAccountCard({
         <div className="flex items-center gap-4 rounded-lg border bg-muted/20 p-4">
           <Avatar className="size-14">
             <AvatarImage src={avatarUrl || undefined} alt={displayName} />
-            <AvatarFallback>{initials || "U"}</AvatarFallback>
+            <AvatarFallback>
+              {initials || t("unnamedPlayer").charAt(0)}
+            </AvatarFallback>
           </Avatar>
 
           <div className="min-w-0">

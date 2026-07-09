@@ -1,6 +1,7 @@
 "use client"
 
 import { CheckCircle2, XCircle } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -25,10 +26,14 @@ export function DashboardPendingInvites({
   onAccept,
   onDecline,
 }: DashboardPendingInvitesProps) {
+  const { t } = useTranslation("common")
+
   if (isLoading) {
     return (
       <Card className="p-8">
-        <p className="text-center text-muted-foreground">Đang tải dữ liệu...</p>
+        <p className="text-center text-muted-foreground">
+          {t("dashboard.pendingInvites.loading")}
+        </p>
       </Card>
     )
   }
@@ -40,9 +45,11 @@ export function DashboardPendingInvites({
   return (
     <Card className="p-6">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold">Lời Mời Chờ Xử Lý</h3>
+        <h3 className="text-lg font-semibold">
+          {t("dashboard.pendingInvites.title")}
+        </h3>
         <p className="text-sm text-muted-foreground">
-          Bạn có {invites.length} lời mời từ nhóm khác
+          {t("dashboard.pendingInvites.description", { count: invites.length })}
         </p>
       </div>
 
@@ -55,7 +62,9 @@ export function DashboardPendingInvites({
             <div className="flex flex-col gap-1">
               <p className="font-medium">{invite.groupName}</p>
               <p className="text-xs text-muted-foreground">
-                Lời mời từ {invite.invitedBy}
+                {t("dashboard.pendingInvites.invitedBy", {
+                  name: invite.invitedBy,
+                })}
               </p>
             </div>
 
@@ -67,7 +76,7 @@ export function DashboardPendingInvites({
                 className="flex-1 sm:flex-none"
               >
                 <XCircle className="mr-2 size-4" />
-                Từ Chối
+                {t("dashboard.pendingInvites.decline")}
               </Button>
               <Button
                 size="sm"
@@ -75,7 +84,7 @@ export function DashboardPendingInvites({
                 className="flex-1 sm:flex-none"
               >
                 <CheckCircle2 className="mr-2 size-4" />
-                Chấp Nhận
+                {t("dashboard.pendingInvites.accept")}
               </Button>
             </div>
           </div>

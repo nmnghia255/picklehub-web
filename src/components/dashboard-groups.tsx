@@ -2,6 +2,7 @@
 
 import { MoreHorizontal, Settings, Users2 } from "lucide-react"
 import Link from "next/link"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -25,20 +26,18 @@ interface DashboardGroupsProps {
   isLoading?: boolean
 }
 
-function getRoleLabel(role: string): string {
-  if (role === "OWNER") return "Chủ Sở Hữu"
-  if (role === "MEMBER") return "Thành Viên"
-  return role
-}
-
 export function DashboardGroups({
   groups = [],
   isLoading = false,
 }: DashboardGroupsProps) {
+  const { t } = useTranslation("common")
+
   if (isLoading) {
     return (
       <Card className="p-8">
-        <p className="text-center text-muted-foreground">Đang tải dữ liệu...</p>
+        <p className="text-center text-muted-foreground">
+          {t("dashboard.groups.loading")}
+        </p>
       </Card>
     )
   }
@@ -49,13 +48,15 @@ export function DashboardGroups({
         <div className="flex flex-col items-center gap-3 text-center">
           <Users2 className="size-12 text-muted-foreground/50" />
           <div>
-            <p className="font-semibold">Chưa có nhóm nào</p>
+            <p className="font-semibold">{t("dashboard.groups.emptyTitle")}</p>
             <p className="text-sm text-muted-foreground">
-              Bắt đầu tạo nhóm mới để chia sẻ với bạn bè
+              {t("dashboard.groups.emptyDescription")}
             </p>
           </div>
           <Button asChild className="mt-4">
-            <Link href="/groups/create">Tạo Nhóm Mới</Link>
+            <Link href="/groups/create">
+              {t("dashboard.groups.createButton")}
+            </Link>
           </Button>
         </div>
       </Card>
@@ -84,10 +85,16 @@ export function DashboardGroups({
                 <div className="flex items-center gap-3 pt-2 text-xs text-muted-foreground">
                   <span className="inline-flex items-center gap-1">
                     <Users2 className="size-3" />
-                    {group.memberCount} thành viên
+                    {t("dashboard.groups.members", {
+                      count: group.memberCount,
+                    })}
                   </span>
                   <span className="inline-block rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
-                    {getRoleLabel(group.role)}
+                    {t(
+                      group.role === "OWNER"
+                        ? "dashboard.groups.role.owner"
+                        : "dashboard.groups.role.member"
+                    )}
                   </span>
                 </div>
               </div>
@@ -101,13 +108,15 @@ export function DashboardGroups({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
-                  <Link href={`/groups/${group.id}`}>Xem Chi Tiết</Link>
+                  <Link href={`/groups/${group.id}`}>
+                    {t("dashboard.groups.viewDetails")}
+                  </Link>
                 </DropdownMenuItem>
                 {group.role === "OWNER" && (
                   <DropdownMenuItem asChild>
                     <Link href={`/groups/${group.id}/settings`}>
                       <Settings className="mr-2 size-4" />
-                      Cài Đặt
+                      {t("dashboard.groups.settings")}
                     </Link>
                   </DropdownMenuItem>
                 )}

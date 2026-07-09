@@ -1,7 +1,7 @@
 "use client"
 
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -39,6 +39,7 @@ export function CalendarNavigation({
   onToday,
   className,
 }: CalendarNavigationProps) {
+  const { t } = useTranslation("common")
   const months = Array.from({ length: 12 }, (_, i) => i)
 
   const currentYear = currentDate.getFullYear()
@@ -57,7 +58,7 @@ export function CalendarNavigation({
         onClick={onToday}
         className="h-10 px-4 font-semibold"
       >
-        Hôm nay
+        {t("calendar.today")}
       </Button>
 
       <div className="flex items-center gap-1">
@@ -66,6 +67,8 @@ export function CalendarNavigation({
           size="icon"
           onClick={onPrevMonth}
           className="size-10 rounded-full bg-background shadow-sm transition-all hover:text-primary"
+          aria-label={t("calendar.previousMonth")}
+          title={t("calendar.previousMonth")}
         >
           <ChevronLeft className="size-5" />
         </Button>
@@ -74,6 +77,8 @@ export function CalendarNavigation({
           size="icon"
           onClick={onNextMonth}
           className="size-10 rounded-full bg-background shadow-sm transition-all hover:text-primary"
+          aria-label={t("calendar.nextMonth")}
+          title={t("calendar.nextMonth")}
         >
           <ChevronRight className="size-5" />
         </Button>
@@ -85,12 +90,12 @@ export function CalendarNavigation({
           onValueChange={(val) => onMonthChange(parseInt(val))}
         >
           <SelectTrigger className="h-10 w-30 bg-background font-semibold text-foreground shadow-sm">
-            <SelectValue placeholder="Tháng" />
+            <SelectValue placeholder={t("calendar.monthPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
             {months.map((m) => (
               <SelectItem key={m} value={String(m)}>
-                Tháng {m + 1}
+                {t(`calendar.monthNames.${m}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -98,7 +103,7 @@ export function CalendarNavigation({
 
         <div className="flex h-10 w-auto items-center gap-2 rounded-md border bg-background pl-3 shadow-sm transition-all focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
           <span className="text-sm font-semibold whitespace-nowrap text-foreground">
-            Năm
+            {t("calendar.yearLabel")}
           </span>
           <Combobox
             value={String(currentYear)}

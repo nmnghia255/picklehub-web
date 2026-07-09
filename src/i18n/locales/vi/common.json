@@ -13,12 +13,93 @@
   "deleteSuccess": "Xóa thành công",
   "deleteError": "Xóa thất bại",
   "loading": "Đang tải...",
+  "dialog": {
+    "close": "Đóng"
+  },
+  "sheet": {
+    "close": "Đóng"
+  },
+  "errorState": {
+    "title": "Không thể tải dữ liệu",
+    "description": "Đã có lỗi xảy ra. Vui lòng thử lại sau.",
+    "retry": "Thử lại"
+  },
+  "calendar": {
+    "title": "Lịch của tôi",
+    "description": "Quản lý và theo dõi hoạt động pickleball cá nhân của bạn.",
+    "today": "Hôm nay",
+    "previousMonth": "Tháng trước",
+    "nextMonth": "Tháng sau",
+    "monthPlaceholder": "Tháng",
+    "yearLabel": "Năm",
+    "monthYear": "Tháng {{month}}, {{year}}",
+    "monthCaption": "{{month}} {{year}}",
+    "monthViewLabel": "Xem lịch dạng ô",
+    "dayDetailsTitle": "Chi tiết ngày {{date}}",
+    "dayDetailsDescription": "Danh sách hoạt động bạn đã đăng ký tham gia trong ngày này.",
+    "noDayActivitiesTitle": "Không có hoạt động",
+    "noDayActivitiesDescription": "Bạn không có lịch social, đặt sân hay giải đấu nào trong ngày này.",
+    "activitiesCount": "Có {{count}} hoạt động",
+    "moreActivities": "+{{count}} hoạt động khác",
+    "participantsCount": "{{count}} người tham gia",
+    "monthEmptyTitle": "Bạn chưa có hoạt động nào",
+    "monthEmptyDescription": "Hiện tại bạn chưa đăng ký tham gia bất kỳ buổi social, đặt sân cá nhân hay giải đấu nào trong {{monthYear}}.",
+    "detailDescription": "Chi tiết lịch hoạt động cá nhân của bạn",
+    "time": "Thời gian",
+    "location": "Địa điểm",
+    "organizer": "Người tổ chức",
+    "participants": "Số người tham gia",
+    "participantsJoined": "{{count}} người đã tham gia",
+    "descriptionLabel": "Mô tả hoạt động",
+    "close": "Đóng",
+    "status": {
+      "completed": "Đã hoàn thành",
+      "live": "Đang diễn ra",
+      "upcoming": "Sắp diễn ra",
+      "pendingConfirm": "Chờ xác nhận",
+      "cancelled": "Đã hủy"
+    },
+    "types": {
+      "socialSession": "Social",
+      "booking": "Booking",
+      "tournament": "Tournament",
+      "matchPractice": "Practice",
+      "matchTournament": "Tournament Match"
+    },
+    "weekdays": {
+      "monday": "T2",
+      "tuesday": "T3",
+      "wednesday": "T4",
+      "thursday": "T5",
+      "friday": "T6",
+      "saturday": "T7",
+      "sunday": "CN"
+    },
+    "monthNames": {
+      "0": "Tháng 1",
+      "1": "Tháng 2",
+      "2": "Tháng 3",
+      "3": "Tháng 4",
+      "4": "Tháng 5",
+      "5": "Tháng 6",
+      "6": "Tháng 7",
+      "7": "Tháng 8",
+      "8": "Tháng 9",
+      "9": "Tháng 10",
+      "10": "Tháng 11",
+      "11": "Tháng 12"
+    }
+  },
   "back": "Quay lại",
   "pagination": {
+    "navigation": "Phân trang",
     "previous": "Trước",
     "next": "Sau",
     "page": "Trang {{page}}",
-    "pageInfo": "Trang {{currentPage}} / {{totalPages}}"
+    "pageInfo": "Trang {{currentPage}} / {{totalPages}}",
+    "previousPage": "Đi tới trang trước",
+    "nextPage": "Đi tới trang sau",
+    "morePages": "Thêm trang"
   },
   "sidebar": {
     "home": "Trang chủ",
@@ -42,7 +123,10 @@
     "customerManagement": "Quản lý khách hàng",
     "bookingList": "Danh sách đặt sân",
     "servicesProducts": "Dịch vụ & Sản phẩm",
-    "revenueReport": "Báo cáo doanh thu"
+    "revenueReport": "Báo cáo doanh thu",
+    "mobileTitle": "Thanh bên",
+    "mobileDescription": "Hiển thị thanh bên trên thiết bị di động.",
+    "toggle": "Chuyển thanh bên"
   },
   "header": {
     "notifications": "Thông báo",
@@ -61,6 +145,264 @@
     "logout": "Đăng xuất",
     "loggingOut": "Đang đăng xuất...",
     "defaultUser": "Người dùng"
+  },
+  "landing": {
+    "header": {
+      "switchToLight": "Chuyển sang chế độ sáng",
+      "switchToDark": "Chuyển sang chế độ tối",
+      "themeToggle": "Đổi giao diện"
+    },
+    "hero": {
+      "titlePrefix": "Nền tảng toàn diện cho",
+      "titleHighlight": "cộng đồng pickleball",
+      "description": "PickleHub kết nối người chơi, huấn luyện viên, nhà kinh doanh thiết bị thể thao, và tổ chức giải đấu. Với AI và LLM tích hợp, nền tảng cung cấp dịch vụ quản lý, tương tác, và phân tích nâng cao - giúp trải nghiệm cá nhân hóa và hiệu quả cho mọi đối tượng.",
+      "cta": "Tham Gia Ngay"
+    },
+    "features": {
+      "title": "Tính Năng Chính",
+      "description": "Giải pháp toàn diện hỗ trợ mọi vai trò trong cộng đồng pickleball.",
+      "items": {
+        "tournament": {
+          "title": "Quản Lý Giải Đấu",
+          "description": "Tạo, quản lý và theo dõi giải đấu với bracket thông minh."
+        },
+        "community": {
+          "title": "Tương Tác Cộng Đồng",
+          "description": "Kết nối người chơi, huấn luyện viên, doanh nghiệp và tổ chức giải đấu."
+        },
+        "analytics": {
+          "title": "Phân Tích Hiệu Suất",
+          "description": "Phân tích chi tiết dữ liệu trận đấu, thống kê cá nhân và xu hướng hiệu suất."
+        },
+        "ai": {
+          "title": "Trợ Lý AI",
+          "description": "Nhận lời khuyên chiến lược, phân tích nâng cao và hỗ trợ quản lý từ AI."
+        },
+        "equipment": {
+          "title": "Quản Lý Thiết Bị",
+          "description": "Quản lý, kinh doanh và chia sẻ thông tin về thiết bị thể thao chuyên dụng."
+        },
+        "groups": {
+          "title": "Nhóm Chuyên Biệt",
+          "description": "Tạo nhóm riêng cho huấn luyện, kinh doanh và tổ chức giải đấu phù hợp nhu cầu."
+        }
+      }
+    },
+    "footer": {
+      "description": "Quản lý nhóm, chia sẻ dễ dàng.",
+      "sections": {
+        "company": "Công Ty",
+        "legal": "Pháp Lý",
+        "support": "Hỗ Trợ"
+      },
+      "links": {
+        "about": "Về Chúng Tôi",
+        "blog": "Blog",
+        "privacy": "Chính Sách Bảo Mật",
+        "terms": "Điều Khoản Dịch Vụ",
+        "contact": "Liên Hệ",
+        "faq": "FAQ"
+      },
+      "copyright": "© {{year}} PickleHub. Tất cả quyền được bảo lưu."
+    }
+  },
+  "home": {
+    "welcome": {
+      "title": "Xin chào, {{name}}! 👋",
+      "description": "Đây là bảng điều khiển của bạn, nơi bạn có thể quản lý nhóm và bạn bè."
+    },
+    "groups": {
+      "title": "Nhóm của tôi",
+      "description": "Những nhóm bạn đang quản lý hoặc đã tham gia."
+    }
+  },
+  "dashboard": {
+    "stats": {
+      "groups": "Nhóm",
+      "members": "Thành viên",
+      "pendingInvites": "Lời mời chờ"
+    },
+    "quickActions": {
+      "createGroup": {
+        "title": "Tạo nhóm mới",
+        "description": "Bắt đầu một nhóm mới cho cộng đồng của bạn.",
+        "button": "Tạo nhóm"
+      },
+      "myGroups": {
+        "title": "Nhóm của tôi",
+        "description": "Xem tất cả các nhóm bạn đang tham gia.",
+        "button": "Xem nhóm"
+      },
+      "profile": {
+        "title": "Hồ sơ",
+        "description": "Quản lý thông tin cá nhân của bạn.",
+        "button": "Xem hồ sơ"
+      }
+    },
+    "groups": {
+      "loading": "Đang tải dữ liệu nhóm...",
+      "emptyTitle": "Chưa có nhóm nào",
+      "emptyDescription": "Hãy bắt đầu bằng cách tạo một nhóm để chia sẻ với bạn bè.",
+      "createButton": "Tạo nhóm",
+      "viewDetails": "Xem chi tiết",
+      "settings": "Cài đặt",
+      "members": "{{count}} thành viên",
+      "role": {
+        "owner": "Chủ sở hữu",
+        "member": "Thành viên"
+      }
+    },
+    "pendingInvites": {
+      "loading": "Đang tải lời mời nhóm...",
+      "title": "Lời mời chờ xử lý",
+      "description": "Bạn có {{count}} lời mời chờ từ các nhóm khác.",
+      "invitedBy": "Lời mời từ {{name}}",
+      "decline": "Từ chối",
+      "accept": "Chấp nhận"
+    }
+  },
+  "feed": {
+    "hero": {
+      "badge": "Trung tâm thông báo",
+      "title": "Bảng tin hoạt động gần đây",
+      "description": "Tập trung mọi lời mời, nhắc lịch, cập nhật nhóm và thông báo hệ thống vào một nơi để bạn xử lý nhanh hơn."
+    },
+    "stats": {
+      "unread": {
+        "label": "Chưa đọc",
+        "helper": "Cần xem trong hôm nay"
+      },
+      "pendingInvites": {
+        "label": "Lời mời chờ",
+        "helper": "Có thể phản hồi ngay"
+      },
+      "upcomingSessions": {
+        "label": "Phiên chơi",
+        "helper": "Nhắc lịch sắp diễn ra"
+      }
+    },
+    "list": {
+      "title": "Danh sách thông báo",
+      "description": "{{count}} thông báo đang hiển thị trong bộ lọc hiện tại"
+    },
+    "actions": {
+      "markAllAsRead": "Đánh dấu tất cả đã đọc",
+      "deleteRead": "Xóa tất cả đã đọc",
+      "viewAll": "Xem tất cả",
+      "viewDetails": "Xem chi tiết",
+      "markAsRead": "Đánh dấu đã đọc",
+      "markedRead": "Đã đọc",
+      "delete": "Xóa",
+      "accept": "Chấp nhận",
+      "decline": "Từ chối"
+    },
+    "filters": {
+      "all": "Tất cả",
+      "unread": "Chưa đọc",
+      "invitation": "Lời mời",
+      "session": "Phiên chơi",
+      "group": "Nhóm",
+      "system": "Hệ thống"
+    },
+    "sections": {
+      "today": "Hôm nay",
+      "yesterday": "Hôm qua",
+      "thisWeek": "Tuần này"
+    },
+    "types": {
+      "invitation": "Lời mời",
+      "session": "Phiên chơi",
+      "group": "Nhóm",
+      "system": "Hệ thống"
+    },
+    "statuses": {
+      "accepted": "Đã chấp nhận",
+      "declined": "Đã từ chối",
+      "pending": "Đang chờ"
+    },
+    "tags": {
+      "group": "Nhóm",
+      "notification": "Thông báo"
+    },
+    "quickActions": {
+      "title": "Hành động nhanh",
+      "description": "Xử lý những việc bạn cần làm ngay.",
+      "pendingInvites": {
+        "title": "Lời mời đang chờ",
+        "description": "Phản hồi ngay trong bảng tin"
+      },
+      "upcomingSessions": {
+        "title": "Nhắc lịch sắp diễn ra",
+        "description": "Phiên chơi và sự kiện"
+      },
+      "unread": {
+        "title": "Thông báo chưa đọc",
+        "description": "Nên xử lý trước khi thoát"
+      }
+    },
+    "legend": {
+      "title": "Quy ước bảng tin",
+      "description": "Màu sắc giúp phân biệt loại thông báo.",
+      "itemDescription": "Thông báo cùng loại sẽ dùng cùng sắc thái."
+    },
+    "empty": {
+      "title": "Không có thông báo phù hợp",
+      "description": "Bộ lọc hiện tại chưa có dữ liệu. Bạn có thể quay về toàn bộ thông báo để xem lại các cập nhật gần đây.",
+      "action": "Xem tất cả thông báo"
+    }
+  },
+  "notifications": {
+    "defaults": {
+      "title": "Thông báo",
+      "description": "Chi tiết thông báo",
+      "actor": "Hệ thống"
+    },
+    "groupFeed": {
+      "title": "Thông báo nhóm",
+      "loading": "Đang tải thông báo...",
+      "empty": "Chưa có thông báo nào được gửi tới nhóm",
+      "countTitle": "Thông báo nhóm ({{count}})",
+      "from": "Từ:",
+      "time": {
+        "justNow": "Vừa xong",
+        "minutesAgo": "{{count}} phút trước",
+        "hoursAgo": "{{count}} giờ trước",
+        "daysAgo": "{{count}} ngày trước"
+      }
+    },
+    "sender": {
+      "trigger": "Gửi thông báo",
+      "dialog": {
+        "title": "Gửi thông báo cho nhóm",
+        "description": "Gửi thông báo feed tới tất cả thành viên của nhóm"
+      },
+      "validation": {
+        "title": "Tiêu đề không được để trống",
+        "message": "Nội dung không được để trống"
+      },
+      "noPermission": {
+        "title": "Không có quyền",
+        "description": "Chỉ trưởng nhóm mới có thể gửi thông báo."
+      },
+      "success": {
+        "title": "Thành công",
+        "description": "Thông báo đã được gửi đến tất cả thành viên nhóm."
+      },
+      "error": {
+        "title": "Lỗi",
+        "generic": "Không thể gửi thông báo"
+      },
+      "fields": {
+        "title": "Tiêu đề",
+        "titlePlaceholder": "Nhập tiêu đề thông báo...",
+        "titleHelp": "Tối đa 200 ký tự",
+        "message": "Nội dung",
+        "messagePlaceholder": "Nhập nội dung thông báo...",
+        "messageHelp": "Tối đa 1000 ký tự"
+      },
+      "cancel": "Hủy",
+      "submit": "Gửi thông báo"
+    }
   },
   "coach": {
     "registration": {
@@ -1333,6 +1675,20 @@
     },
     "alt": {
       "decorativeImage": "Ảnh nền trang trí"
+    }
+  },
+  "invitation": {
+    "accept": {
+      "loadingTitle": "Đang xử lý lời mời...",
+      "loadingDescription": "Vui lòng chờ trong giây lát.",
+      "successTitle": "Chấp nhận lời mời thành công",
+      "successDescription": "Đang chuyển hướng đến nhóm của bạn...",
+      "redirecting": "Đang chuyển hướng...",
+      "errorTitle": "Chấp nhận lời mời thất bại",
+      "invalidLink": "Link mời không hợp lệ. Vui lòng kiểm tra lại email.",
+      "genericError": "Chấp nhận lời mời thất bại. Vui lòng thử lại.",
+      "backToLogin": "Về trang đăng nhập",
+      "imageAlt": "Minh họa lời mời"
     }
   }
 }

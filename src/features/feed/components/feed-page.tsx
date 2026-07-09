@@ -17,6 +17,7 @@ import {
 import Link from "next/link"
 import { useState } from "react"
 import { useEffect } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -33,25 +34,27 @@ import { cn } from "@/lib/utils"
 
 import { notificationFeedAtom } from "../store/feed-store"
 
+type FeedSection = "today" | "yesterday" | "thisWeek"
+
 type FeedTypeMeta = {
-  label: string
   icon: typeof BellRing
   accentClassName: string
   badgeClassName: string
 }
 
-const filterOptions: Array<{ value: FeedFilter; label: string }> = [
-  { value: "all", label: "Tất cả" },
-  { value: "unread", label: "Chưa đọc" },
-  { value: "invitation", label: "Lời mời" },
-  { value: "session", label: "Phiên chơi" },
-  { value: "group", label: "Nhóm" },
-  { value: "system", label: "Hệ thống" },
-]
+const sectionOrder: FeedSection[] = ["today", "yesterday", "thisWeek"]
+
+const sectionAliases: Record<string, FeedSection> = {
+  today: "today",
+  "Hôm nay": "today",
+  yesterday: "yesterday",
+  "Hôm qua": "yesterday",
+  thisWeek: "thisWeek",
+  "Tuần này": "thisWeek",
+}
 
 const feedTypeMeta: Record<FeedNotificationType, FeedTypeMeta> = {
   invitation: {
-    label: "Lời mời",
     icon: Users2,
     accentClassName:
       "bg-sky-500/10 text-sky-600 dark:bg-sky-500/15 dark:text-sky-200",
@@ -59,7 +62,6 @@ const feedTypeMeta: Record<FeedNotificationType, FeedTypeMeta> = {
       "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-200",
   },
   session: {
-    label: "Phiên chơi",
     icon: CalendarDays,
     accentClassName:
       "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-200",
@@ -67,7 +69,6 @@ const feedTypeMeta: Record<FeedNotificationType, FeedTypeMeta> = {
       "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200",
   },
   group: {
-    label: "Nhóm",
     icon: CircleAlert,
     accentClassName:
       "bg-amber-500/10 text-amber-600 dark:bg-amber-500/15 dark:text-amber-200",
@@ -75,13 +76,47 @@ const feedTypeMeta: Record<FeedNotificationType, FeedTypeMeta> = {
       "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200",
   },
   system: {
-    label: "Hệ thống",
     icon: ShieldCheck,
     accentClassName:
       "bg-violet-500/10 text-violet-600 dark:bg-violet-500/15 dark:text-violet-200",
     badgeClassName:
       "border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-200",
   },
+}
+
+function normalizeSection(section: string): FeedSection {
+  return sectionAliases[section] ?? "today"
+}
+
+function getSectionLabel(section: string, t: (key: string) => string) {
+  switch (section) {
+    case "today":
+      return t("feed.sections.today")
+    case "yesterday":
+      return t("feed.sections.yesterday")
+    case "thisWeek":
+      return t("feed.sections.thisWeek")
+    default:
+      return section
+  }
+}
+
+function getNotificationTypeLabel(
+  type: FeedNotificationType,
+  t: (key: string) => string
+) {
+  return t(`feed.types.${type}`)
+}
+
+function getFeedFilterOptions(t: (key: string) => string) {
+  return [
+    { value: "all" as const, label: t("feed.filters.all") },
+    { value: "unread" as const, label: t("feed.filters.unread") },
+    { value: "invitation" as const, label: t("feed.filters.invitation") },
+    { value: "session" as const, label: t("feed.filters.session") },
+    { value: "group" as const, label: t("feed.filters.group") },
+    { value: "system" as const, label: t("feed.filters.system") },
+  ]
 }
 
 function getFilteredNotifications(
@@ -102,13 +137,13 @@ function getFilteredNotifications(
 }
 
 function groupNotificationsBySection(notifications: FeedNotification[]) {
-  const sectionOrder = ["Hôm nay", "Hôm qua", "Tuần này"]
   const grouped = new Map<string, FeedNotification[]>()
 
   notifications.forEach((notification) => {
-    const items = grouped.get(notification.section) ?? []
+    const normalizedSection = normalizeSection(notification.section)
+    const items = grouped.get(normalizedSection) ?? []
     items.push(notification)
-    grouped.set(notification.section, items)
+    grouped.set(normalizedSection, items)
   })
 
   return sectionOrder
@@ -136,12 +171,14 @@ function NotificationAccent({ type }: { type: FeedNotificationType }) {
 
 function FeedNotificationCard({
   notification,
+  t,
   onAccept,
   onDecline,
   onMarkRead,
   onDelete,
 }: {
   notification: FeedNotification
+  t: (key: string, options?: Record<string, unknown>) => string
   onAccept: (id: string) => void
   onDecline: (id: string) => void
   onMarkRead: (id: string) => void
@@ -150,6 +187,22 @@ function FeedNotificationCard({
   const typeMeta = feedTypeMeta[notification.type]
   const isPendingInvitation =
     notification.type === "invitation" && notification.status === "pending"
+  const typeLabel = getNotificationTypeLabel(notification.type, t)
+  const statusLabel =
+    notification.status === "accepted"
+      ? t("feed.statuses.accepted")
+      : notification.status === "declined"
+        ? t("feed.statuses.declined")
+        : t("feed.statuses.pending")
+  const translatedTags = notification.tags.map((tag) => {
+    if (tag === "Nhóm" || tag === "group") {
+      return t("feed.tags.group")
+    }
+    if (tag === "Thông báo" || tag === "notification") {
+      return t("feed.tags.notification")
+    }
+    return tag
+  })
 
   return (
     <Card
@@ -175,27 +228,28 @@ function FeedNotificationCard({
               </div>
 
               <p className="max-w-3xl text-sm leading-6 text-muted-foreground sm:text-[15px]">
-                {notification.description}
+                {notification.description ||
+                  t("notifications.defaults.description")}
               </p>
 
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                 <span className="font-medium text-foreground/80">
-                  {notification.actor}
+                  {notification.actor || t("notifications.defaults.actor")}
                 </span>
                 <span className="text-muted-foreground/60">•</span>
                 <span>{notification.timeLabel}</span>
                 <span className="text-muted-foreground/60">•</span>
-                <span>{typeMeta.label}</span>
+                <span>{typeLabel}</span>
               </div>
             </div>
 
             <Badge variant="outline" className={typeMeta.badgeClassName}>
-              {typeMeta.label}
+              {typeLabel}
             </Badge>
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {notification.tags.map((tag) => (
+            {translatedTags.map((tag) => (
               <Badge key={tag} variant="secondary" className="rounded-full">
                 {tag}
               </Badge>
@@ -212,7 +266,7 @@ function FeedNotificationCard({
                   className="sm:flex-none"
                 >
                   <XCircle className="size-4" />
-                  Từ chối
+                  {t("feed.actions.decline")}
                 </Button>
                 <Button
                   size="sm"
@@ -220,7 +274,7 @@ function FeedNotificationCard({
                   className="sm:flex-none"
                 >
                   <CheckCircle2 className="size-4" />
-                  Chấp nhận
+                  {t("feed.actions.accept")}
                 </Button>
               </>
             ) : (
@@ -232,7 +286,7 @@ function FeedNotificationCard({
               >
                 <Link href={notification.actionHref ?? "/feed"}>
                   <ArrowRight className="size-4" />
-                  Xem chi tiết
+                  {t("feed.actions.viewDetails")}
                 </Link>
               </Button>
             )}
@@ -244,7 +298,9 @@ function FeedNotificationCard({
               className="sm:flex-none"
             >
               <CheckCheck className="size-4" />
-              {notification.unread ? "Đánh dấu đã đọc" : "Đã đọc"}
+              {notification.unread
+                ? t("feed.actions.markAsRead")
+                : t("feed.actions.markedRead")}
             </Button>
 
             <Button
@@ -254,7 +310,7 @@ function FeedNotificationCard({
               className="text-muted-foreground hover:text-destructive sm:flex-none"
             >
               <Trash2 className="size-4" />
-              Xóa
+              {t("feed.actions.delete")}
             </Button>
 
             {notification.status && notification.type === "invitation" && (
@@ -268,11 +324,7 @@ function FeedNotificationCard({
                 }
                 className="rounded-full"
               >
-                {notification.status === "accepted"
-                  ? "Đã chấp nhận"
-                  : notification.status === "declined"
-                    ? "Đã từ chối"
-                    : "Đang chờ phản hồi"}
+                {statusLabel}
               </Badge>
             )}
           </div>
@@ -317,8 +369,10 @@ function StatCard({
 }
 
 export function FeedPage() {
+  const { t } = useTranslation("common")
   const [activeFilter, setActiveFilter] = useState<FeedFilter>("all")
   const [notifications, setNotifications] = useAtom(notificationFeedAtom)
+  const filterOptions = getFeedFilterOptions(t)
 
   useEffect(() => {
     let mounted = true
@@ -418,38 +472,37 @@ export function FeedPage() {
             <div className="max-w-3xl space-y-4">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-white/85 backdrop-blur">
                 <BellRing className="size-3.5" />
-                Trung tâm thông báo
+                {t("feed.hero.badge")}
               </div>
               <div className="space-y-2">
                 <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-                  Bảng tin hoạt động gần đây
+                  {t("feed.hero.title")}
                 </h1>
                 <p className="max-w-2xl text-sm leading-6 text-white/75 sm:text-base">
-                  Tập trung mọi lời mời, nhắc lịch, cập nhật nhóm và thông báo
-                  hệ thống vào một nơi để bạn xử lý nhanh hơn.
+                  {t("feed.hero.description")}
                 </p>
               </div>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3 lg:max-w-2xl lg:min-w-120">
               <StatCard
-                label="Chưa đọc"
+                label={t("feed.stats.unread.label")}
                 value={unreadCount}
-                helper="Cần xem trong hôm nay"
+                helper={t("feed.stats.unread.helper")}
                 icon={BellRing}
                 accent="bg-white/10 text-white"
               />
               <StatCard
-                label="Lời mời chờ"
+                label={t("feed.stats.pendingInvites.label")}
                 value={pendingInviteCount}
-                helper="Có thể phản hồi ngay"
+                helper={t("feed.stats.pendingInvites.helper")}
                 icon={Users2}
                 accent="bg-white/10 text-white"
               />
               <StatCard
-                label="Phiên chơi"
+                label={t("feed.stats.upcomingSessions.label")}
                 value={upcomingSessionCount}
-                helper="Nhắc lịch sắp diễn ra"
+                helper={t("feed.stats.upcomingSessions.helper")}
                 icon={CalendarDays}
                 accent="bg-white/10 text-white"
               />
@@ -463,11 +516,12 @@ export function FeedPage() {
               <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                 <div>
                   <p className="text-sm font-medium tracking-[0.24em] text-muted-foreground uppercase">
-                    Danh sách thông báo
+                    {t("feed.list.title")}
                   </p>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    {visibleNotifications.length} thông báo đang hiển thị trong
-                    bộ lọc hiện tại.
+                    {t("feed.list.description", {
+                      count: visibleNotifications.length,
+                    })}
                   </p>
                 </div>
 
@@ -478,7 +532,7 @@ export function FeedPage() {
                     className="whitespace-nowrap"
                   >
                     <CheckCheck className="size-4" />
-                    Đánh dấu tất cả đã đọc
+                    {t("feed.actions.markAllAsRead")}
                   </Button>
                   <Button
                     variant="outline"
@@ -489,7 +543,7 @@ export function FeedPage() {
                     className="whitespace-nowrap"
                   >
                     <Trash2 className="size-4" />
-                    Xóa tất cả đã đọc
+                    {t("feed.actions.deleteRead")}
                   </Button>
                 </div>
               </div>
@@ -540,7 +594,7 @@ export function FeedPage() {
                   <section key={group.section} className="space-y-3">
                     <div className="flex items-center gap-3">
                       <h3 className="text-sm font-semibold tracking-[0.24em] text-muted-foreground uppercase">
-                        {group.section}
+                        {getSectionLabel(group.section, t)}
                       </h3>
                       <div className="h-px flex-1 bg-border" />
                       <Badge variant="outline" className="rounded-full">
@@ -553,6 +607,7 @@ export function FeedPage() {
                         <FeedNotificationCard
                           key={notification.id}
                           notification={notification}
+                          t={t}
                           onAccept={(id) =>
                             handleResolveInvitation(id, "accepted")
                           }
@@ -575,15 +630,14 @@ export function FeedPage() {
                   </div>
                   <div className="space-y-2">
                     <h3 className="text-lg font-semibold">
-                      Không có thông báo phù hợp
+                      {t("feed.empty.title")}
                     </h3>
                     <p className="max-w-md text-sm text-muted-foreground">
-                      Bộ lọc hiện tại chưa có dữ liệu. Bạn có thể quay về toàn
-                      bộ thông báo để xem lại các cập nhật gần đây.
+                      {t("feed.empty.description")}
                     </p>
                   </div>
                   <Button onClick={() => setActiveFilter("all")}>
-                    Xem tất cả thông báo
+                    {t("feed.empty.action")}
                   </Button>
                 </div>
               </Card>
@@ -597,9 +651,11 @@ export function FeedPage() {
                   <Sparkles className="size-5" />
                 </div>
                 <div>
-                  <h3 className="font-semibold">Hành động nhanh</h3>
+                  <h3 className="font-semibold">
+                    {t("feed.quickActions.title")}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
-                    Xử lý những việc bạn cần làm ngay.
+                    {t("feed.quickActions.description")}
                   </p>
                 </div>
               </div>
@@ -607,9 +663,11 @@ export function FeedPage() {
               <div className="mt-5 space-y-3">
                 <div className="flex items-center justify-between rounded-2xl border p-3">
                   <div>
-                    <p className="text-sm font-medium">Lời mời đang chờ</p>
+                    <p className="text-sm font-medium">
+                      {t("feed.quickActions.pendingInvites.title")}
+                    </p>
                     <p className="text-xs text-muted-foreground">
-                      Phản hồi ngay trong bảng tin
+                      {t("feed.quickActions.pendingInvites.description")}
                     </p>
                   </div>
                   <Badge variant="secondary" className="rounded-full">
@@ -618,9 +676,11 @@ export function FeedPage() {
                 </div>
                 <div className="flex items-center justify-between rounded-2xl border p-3">
                   <div>
-                    <p className="text-sm font-medium">Nhắc lịch sắp diễn ra</p>
+                    <p className="text-sm font-medium">
+                      {t("feed.quickActions.upcomingSessions.title")}
+                    </p>
                     <p className="text-xs text-muted-foreground">
-                      Phiên chơi và sự kiện
+                      {t("feed.quickActions.upcomingSessions.description")}
                     </p>
                   </div>
                   <Badge variant="secondary" className="rounded-full">
@@ -629,9 +689,11 @@ export function FeedPage() {
                 </div>
                 <div className="flex items-center justify-between rounded-2xl border p-3">
                   <div>
-                    <p className="text-sm font-medium">Thông báo chưa đọc</p>
+                    <p className="text-sm font-medium">
+                      {t("feed.quickActions.unread.title")}
+                    </p>
                     <p className="text-xs text-muted-foreground">
-                      Nên xử lý trước khi thoát
+                      {t("feed.quickActions.unread.description")}
                     </p>
                   </div>
                   <Badge variant="secondary" className="rounded-full">
@@ -647,20 +709,20 @@ export function FeedPage() {
                   <ShieldCheck className="size-5" />
                 </div>
                 <div>
-                  <h3 className="font-semibold">Quy ước bảng tin</h3>
+                  <h3 className="font-semibold">{t("feed.legend.title")}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Màu sắc giúp phân biệt loại thông báo.
+                    {t("feed.legend.description")}
                   </p>
                 </div>
               </div>
 
               <div className="mt-5 space-y-3 text-sm text-muted-foreground">
-                {Object.values(feedTypeMeta).map((meta) => {
+                {Object.entries(feedTypeMeta).map(([type, meta]) => {
                   const Icon = meta.icon
 
                   return (
                     <div
-                      key={meta.label}
+                      key={type}
                       className="flex items-center gap-3 rounded-2xl border p-3"
                     >
                       <div
@@ -673,10 +735,13 @@ export function FeedPage() {
                       </div>
                       <div>
                         <p className="font-medium text-foreground">
-                          {meta.label}
+                          {getNotificationTypeLabel(
+                            type as FeedNotificationType,
+                            t
+                          )}
                         </p>
                         <p className="text-xs">
-                          Thông báo cùng loại sẽ dùng cùng sắc thái.
+                          {t("feed.legend.itemDescription")}
                         </p>
                       </div>
                     </div>
