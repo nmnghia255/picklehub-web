@@ -19,6 +19,7 @@ import {
   CheckCircle2,
   DollarSign,
   MapPin,
+  Pencil,
   Plus,
   Send,
   Trash2,
@@ -80,6 +81,7 @@ import {
   useRemoveScheduleSlot,
   useSettleEnrollmentPayment,
   useUpdateClass,
+  useUpdateClassScheduleLocation,
 } from "@/features/coach/hooks/use-coach-queries"
 import type {
   ClassScheduleEntry,
@@ -203,6 +205,7 @@ export default function CoachClassDetailPage() {
   const cancelClass = useCancelClass()
   const addScheduleSlot = useAddScheduleSlot()
   const removeScheduleSlot = useRemoveScheduleSlot()
+  const updateClassScheduleLocation = useUpdateClassScheduleLocation()
   const settleEnrollment = useSettleEnrollmentPayment()
   const rejectEnrollment = useRejectEnrollmentPayment()
 
@@ -221,6 +224,13 @@ export default function CoachClassDetailPage() {
   const [scheduleDuration, setScheduleDuration] = useState(60)
   const [scheduleTopic, setScheduleTopic] = useState("")
   const [scheduleNote, setScheduleNote] = useState("")
+  const [scheduleLocationMode, setScheduleLocationMode] = useState<
+    "free-text" | "court"
+  >("free-text")
+  const [scheduleCourtBookingId, setScheduleCourtBookingId] = useState("")
+  const [scheduleCourtId, setScheduleCourtId] = useState("")
+  const [scheduleLocationDescription, setScheduleLocationDescription] =
+    useState("")
   const [scheduleCalendarMonth, setScheduleCalendarMonth] = useState(() =>
     startOfMonth(new Date())
   )
@@ -242,6 +252,8 @@ export default function CoachClassDetailPage() {
   }, [scheduleCalendarMonth])
 
   const [deleteScheduleId, setDeleteScheduleId] = useState<string | null>(null)
+  const [locationScheduleEntry, setLocationScheduleEntry] =
+    useState<ClassScheduleEntry | null>(null)
 
   type ScheduleViewMode = "calendar" | "timeline" | "list"
   const [scheduleViewMode, setScheduleViewMode] =
@@ -465,15 +477,27 @@ export default function CoachClassDetailPage() {
     const [hours, minutes] = scheduleTime.split(":").map(Number)
     const scheduledAt = new Date(scheduleDate)
     scheduledAt.setHours(hours, minutes, 0, 0)
+    const baseDto = {
+      scheduledAt: scheduledAt.toISOString(),
+      durationMinutes: scheduleDuration,
+      topic: scheduleTopic || undefined,
+      note: scheduleNote || undefined,
+    }
+    const dto =
+      scheduleLocationMode === "court"
+        ? {
+            ...baseDto,
+            courtBookingId: scheduleCourtBookingId || undefined,
+            courtId: scheduleCourtId || undefined,
+          }
+        : {
+            ...baseDto,
+            locationDescription: scheduleLocationDescription || undefined,
+          }
     addScheduleSlot.mutate(
       {
         classId,
-        dto: {
-          scheduledAt: scheduledAt.toISOString(),
-          durationMinutes: scheduleDuration,
-          topic: scheduleTopic || undefined,
-          note: scheduleNote || undefined,
-        },
+        dto,
       },
       {
         onSuccess: () => {
@@ -484,10 +508,45 @@ export default function CoachClassDetailPage() {
           setScheduleDuration(60)
           setScheduleTopic("")
           setScheduleNote("")
+          setScheduleLocationMode("free-text")
+          setScheduleCourtBookingId("")
+          setScheduleCourtId("")
+          setScheduleLocationDescription("")
           setScheduleCalendarMonth(startOfMonth(new Date()))
         },
         onError: (err: Error) =>
           toast.error(err.message || t("coach.classes.detail.addSessionError")),
+      }
+    )
+  }
+
+  const handleUpdateScheduleLocation = () => {
+    if (!locationScheduleEntry) return
+    const dto =
+      scheduleLocationMode === "court"
+        ? {
+            courtBookingId: scheduleCourtBookingId || undefined,
+            courtId: scheduleCourtId || undefined,
+          }
+        : {
+            locationDescription: scheduleLocationDescription || undefined,
+          }
+
+    updateClassScheduleLocation.mutate(
+      {
+        classId,
+        scheduleId: locationScheduleEntry.id,
+        dto,
+      },
+      {
+        onSuccess: () => {
+          toast.success(t("coach.classes.detail.updateLocationSuccess"))
+          setLocationScheduleEntry(null)
+        },
+        onError: (err: Error) =>
+          toast.error(
+            err.message || t("coach.classes.detail.updateLocationError")
+          ),
       }
     )
   }
@@ -846,6 +905,30 @@ export default function CoachClassDetailPage() {
                               {entry.note}
                             </span>
                           )}
+                          <div className="pt-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 text-[11px]"
+                              onClick={(event) => {
+                                event.stopPropagation()
+                                setLocationScheduleEntry(entry)
+                                setScheduleLocationMode(
+                                  entry.courtBookingId ? "court" : "free-text"
+                                )
+                                setScheduleCourtBookingId(
+                                  entry.courtBookingId ?? ""
+                                )
+                                setScheduleCourtId(entry.courtId ?? "")
+                                setScheduleLocationDescription(
+                                  entry.locationDescription ?? ""
+                                )
+                              }}
+                            >
+                              <Pencil className="mr-1 size-3.5" />
+                              {t("coach.classes.detail.editLocation")}
+                            </Button>
+                          </div>
                         </div>
                       ))}
                       {dayEntries.length > 3 && (
@@ -938,6 +1021,32 @@ export default function CoachClassDetailPage() {
                                   {entry.note}
                                 </p>
                               )}
+                              {entry.locationDescription && (
+                                <p className="text-xs text-muted-foreground">
+                                  {entry.locationDescription}
+                                </p>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="mt-1 h-6 px-2 text-[11px]"
+                                onClick={() => {
+                                  setLocationScheduleEntry(entry)
+                                  setScheduleLocationMode(
+                                    entry.courtBookingId ? "court" : "free-text"
+                                  )
+                                  setScheduleCourtBookingId(
+                                    entry.courtBookingId ?? ""
+                                  )
+                                  setScheduleCourtId(entry.courtId ?? "")
+                                  setScheduleLocationDescription(
+                                    entry.locationDescription ?? ""
+                                  )
+                                }}
+                              >
+                                <Pencil className="mr-1 size-3.5" />
+                                {t("coach.classes.detail.editLocation")}
+                              </Button>
                             </div>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
@@ -1044,6 +1153,11 @@ export default function CoachClassDetailPage() {
                     {entry.note && (
                       <p className="text-xs text-muted-foreground">
                         {entry.note}
+                      </p>
+                    )}
+                    {entry.locationDescription && (
+                      <p className="text-xs text-muted-foreground">
+                        {entry.locationDescription}
                       </p>
                     )}
                   </div>
@@ -1429,6 +1543,10 @@ export default function CoachClassDetailPage() {
                 setScheduleDuration(60)
                 setScheduleTopic("")
                 setScheduleNote("")
+                setScheduleLocationMode("free-text")
+                setScheduleCourtBookingId("")
+                setScheduleCourtId("")
+                setScheduleLocationDescription("")
                 setScheduleCalendarMonth(startOfMonth(new Date()))
               }
             }}
@@ -1444,6 +1562,82 @@ export default function CoachClassDetailPage() {
               </DialogHeader>
 
               <div className="space-y-6">
+                <div className="space-y-2">
+                  <Label>
+                    {t("coach.classes.detail.scheduleLocationMode")}
+                  </Label>
+                  <Select
+                    value={scheduleLocationMode}
+                    onValueChange={(value) =>
+                      setScheduleLocationMode(value as "free-text" | "court")
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="free-text">
+                        {t("coach.classes.detail.scheduleLocationModeFreeText")}
+                      </SelectItem>
+                      <SelectItem value="court">
+                        {t("coach.classes.detail.scheduleLocationModeCourt")}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {scheduleLocationMode === "court" ? (
+                  <div className="space-y-4 rounded-lg border bg-muted/30 p-4">
+                    <p className="text-xs text-muted-foreground">
+                      {t("coach.classes.detail.scheduleCourtModeHint")}
+                    </p>
+                    <div className="space-y-2">
+                      <Label htmlFor="scheduleCourtBookingId">
+                        {t("coach.classes.detail.scheduleCourtBookingIdLabel")}
+                      </Label>
+                      <Input
+                        id="scheduleCourtBookingId"
+                        value={scheduleCourtBookingId}
+                        onChange={(e) =>
+                          setScheduleCourtBookingId(e.target.value)
+                        }
+                        placeholder={t(
+                          "coach.classes.detail.scheduleCourtBookingIdPlaceholder"
+                        )}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="scheduleCourtId">
+                        {t("coach.classes.detail.scheduleCourtIdLabel")}
+                      </Label>
+                      <Input
+                        id="scheduleCourtId"
+                        value={scheduleCourtId}
+                        onChange={(e) => setScheduleCourtId(e.target.value)}
+                        placeholder={t(
+                          "coach.classes.detail.scheduleCourtIdPlaceholder"
+                        )}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label htmlFor="scheduleLocationDescription">
+                      {t("coach.classes.detail.scheduleLocationLabel")}
+                    </Label>
+                    <Input
+                      id="scheduleLocationDescription"
+                      value={scheduleLocationDescription}
+                      onChange={(e) =>
+                        setScheduleLocationDescription(e.target.value)
+                      }
+                      placeholder={t(
+                        "coach.classes.detail.scheduleLocationPlaceholder"
+                      )}
+                    />
+                  </div>
+                )}
+
                 <div className="space-y-3">
                   <CalendarNavigation
                     currentDate={scheduleCalendarMonth}
@@ -1621,6 +1815,131 @@ export default function CoachClassDetailPage() {
                   {addScheduleSlot.isPending
                     ? t("coach.classes.detail.addingSession")
                     : t("coach.classes.detail.addScheduleButton")}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog
+            open={Boolean(locationScheduleEntry)}
+            onOpenChange={(open) => {
+              if (!open) {
+                setLocationScheduleEntry(null)
+                setScheduleLocationMode("free-text")
+                setScheduleCourtBookingId("")
+                setScheduleCourtId("")
+                setScheduleLocationDescription("")
+              }
+            }}
+          >
+            <DialogContent className="sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle>
+                  {t("coach.classes.detail.editLocationDialogTitle")}
+                </DialogTitle>
+                <DialogDescription>
+                  {locationScheduleEntry
+                    ? t("coach.classes.detail.editLocationDialogDescription", {
+                        title:
+                          locationScheduleEntry.topic ||
+                          t("coach.classes.detail.sessionTitle"),
+                      })
+                    : null}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>
+                    {t("coach.classes.detail.scheduleLocationMode")}
+                  </Label>
+                  <Select
+                    value={scheduleLocationMode}
+                    onValueChange={(value) =>
+                      setScheduleLocationMode(value as "free-text" | "court")
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="free-text">
+                        {t("coach.classes.detail.scheduleLocationModeFreeText")}
+                      </SelectItem>
+                      <SelectItem value="court">
+                        {t("coach.classes.detail.scheduleLocationModeCourt")}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {scheduleLocationMode === "court" ? (
+                  <div className="space-y-4 rounded-lg border bg-muted/30 p-4">
+                    <p className="text-xs text-muted-foreground">
+                      {t("coach.classes.detail.scheduleCourtModeHint")}
+                    </p>
+                    <div className="space-y-2">
+                      <Label htmlFor="editScheduleCourtBookingId">
+                        {t("coach.classes.detail.scheduleCourtBookingIdLabel")}
+                      </Label>
+                      <Input
+                        id="editScheduleCourtBookingId"
+                        value={scheduleCourtBookingId}
+                        onChange={(e) =>
+                          setScheduleCourtBookingId(e.target.value)
+                        }
+                        placeholder={t(
+                          "coach.classes.detail.scheduleCourtBookingIdPlaceholder"
+                        )}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="editScheduleCourtId">
+                        {t("coach.classes.detail.scheduleCourtIdLabel")}
+                      </Label>
+                      <Input
+                        id="editScheduleCourtId"
+                        value={scheduleCourtId}
+                        onChange={(e) => setScheduleCourtId(e.target.value)}
+                        placeholder={t(
+                          "coach.classes.detail.scheduleCourtIdPlaceholder"
+                        )}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label htmlFor="editScheduleLocationDescription">
+                      {t("coach.classes.detail.scheduleLocationLabel")}
+                    </Label>
+                    <Input
+                      id="editScheduleLocationDescription"
+                      value={scheduleLocationDescription}
+                      onChange={(e) =>
+                        setScheduleLocationDescription(e.target.value)
+                      }
+                      placeholder={t(
+                        "coach.classes.detail.scheduleLocationPlaceholder"
+                      )}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setLocationScheduleEntry(null)}
+                >
+                  {t("coach.classes.detail.cancelBack")}
+                </Button>
+                <Button
+                  onClick={handleUpdateScheduleLocation}
+                  disabled={updateClassScheduleLocation.isPending}
+                >
+                  {updateClassScheduleLocation.isPending
+                    ? t("coach.classes.detail.updatingLocation")
+                    : t("coach.classes.detail.saveLocation")}
                 </Button>
               </DialogFooter>
             </DialogContent>

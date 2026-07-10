@@ -362,6 +362,8 @@
     "summary": {
       "settledRevenue": "Settled revenue",
       "pendingRevenue": "Pending revenue",
+      "courtCost": "Court cost",
+      "netRevenue": "Net revenue",
       "settledTransactions": "Settled transactions",
       "pendingTransactions": "Pending transactions"
     },
@@ -409,7 +411,13 @@
       "status": "Status",
       "total": "Total amount",
       "fee": "Fee",
+      "courtCost": "Court cost",
+      "netRevenue": "Net revenue",
       "showing": "Showing {{start}}-{{end}} / {{total}}"
+    },
+    "drawer": {
+      "courtCost": "Court cost",
+      "netRevenue": "Net revenue"
     }
   },
   "inventory": {

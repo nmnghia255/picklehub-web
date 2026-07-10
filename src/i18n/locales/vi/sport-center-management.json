@@ -358,6 +358,8 @@
         "summary": {
             "settledRevenue": "Doanh thu đã quyết toán",
             "pendingRevenue": "Doanh thu chờ duyệt",
+            "courtCost": "Chi phí sân",
+            "netRevenue": "Doanh thu ròng",
             "settledTransactions": "Giao dịch đã quyết toán",
             "pendingTransactions": "Giao dịch chờ duyệt"
         },
@@ -405,7 +407,13 @@
             "status": "Trạng thái",
             "total": "Tổng tiền",
             "fee": "Phí",
+            "courtCost": "Chi phí sân",
+            "netRevenue": "Doanh thu ròng",
             "showing": "Hiển thị {{start}}-{{end}} / {{total}}"
+        },
+        "drawer": {
+            "courtCost": "Chi phí sân",
+            "netRevenue": "Doanh thu ròng"
         }
     },
     "inventory": {

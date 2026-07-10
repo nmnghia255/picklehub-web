@@ -106,6 +106,12 @@ export function RevenueTransactionsTable({
                 {t("revenue.transactions.total")}
               </TableHead>
               <TableHead className="text-right">
+                {t("revenue.transactions.courtCost")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("revenue.transactions.netRevenue")}
+              </TableHead>
+              <TableHead className="text-right">
                 {t("revenue.transactions.fee")}
               </TableHead>
             </TableRow>
@@ -147,6 +153,18 @@ export function RevenueTransactionsTable({
                   </TableCell>
                   <TableCell className="text-right">
                     {formatCurrencyVnd(transaction.amount)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {transaction.courtCostVnd === null ||
+                    transaction.courtCostVnd === undefined
+                      ? "-"
+                      : formatCurrencyVnd(transaction.courtCostVnd)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {transaction.netRevenueVnd === null ||
+                    transaction.netRevenueVnd === undefined
+                      ? "-"
+                      : formatCurrencyVnd(transaction.netRevenueVnd)}
                   </TableCell>
                   <TableCell className="text-right">
                     {fee === null ? "-" : formatCurrencyVnd(fee)}

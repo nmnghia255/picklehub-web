@@ -346,6 +346,27 @@ export function useRemoveScheduleSlot() {
   })
 }
 
+export function useUpdateClassScheduleLocation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      classId,
+      scheduleId,
+      dto,
+    }: {
+      classId: string
+      scheduleId: string
+      dto: CoachTypes.UpdateClassScheduleLocationDto
+    }) => CoachClient.updateClassScheduleLocation(classId, scheduleId, dto),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: coachQueryKeys.myClasses() })
+      queryClient.invalidateQueries({
+        queryKey: [...coachQueryKeys.myClass(variables.classId), "schedules"],
+      })
+    },
+  })
+}
+
 export function useClassEnrollments(
   classId: string,
   options?: { enabled?: boolean }

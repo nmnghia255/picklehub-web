@@ -4,6 +4,7 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
+  DollarSign,
   Filter,
   List,
   MapPin,
@@ -195,6 +196,101 @@ function getSourceStatusLabel(status: string, t: (key: string) => string) {
   }
 }
 
+function formatCurrency(vnd: number, locale: string) {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "VND",
+  }).format(vnd)
+}
+
+function getActionLabel(action: string, t: (key: string) => string) {
+  switch (action) {
+    case "VIEW_CLASS":
+      return t("learner.schedule.actions.viewClass")
+    case "VIEW_BOOKING":
+      return t("learner.schedule.actions.viewBooking")
+    case "VIEW_COACH":
+      return t("learner.schedule.actions.viewCoach")
+    case "VIEW_COURT":
+      return t("learner.schedule.actions.viewCourt")
+    case "UPLOAD_PAYMENT_PROOF":
+      return t("learner.schedule.actions.uploadPaymentProof")
+    case "CANCEL":
+      return t("learner.schedule.actions.cancel")
+    case "LEAVE_REVIEW":
+      return t("learner.schedule.actions.leaveReview")
+    default:
+      return action
+  }
+}
+
+function getActionHref(item: LearnerScheduleItem, action: string) {
+  switch (action) {
+    case "VIEW_CLASS":
+      return item.classId ? `/classes/${item.classId}` : null
+    case "VIEW_BOOKING":
+      return item.bookingId ? `/bookings/${item.bookingId}` : null
+    case "VIEW_COACH":
+      return item.coachProfile?.id ? `/coaches/${item.coachProfile.id}` : null
+    case "VIEW_COURT":
+      return item.courtId ? `/sport-center/${item.courtId}` : null
+    case "UPLOAD_PAYMENT_PROOF":
+      return item.bookingId
+        ? `/bookings/${item.bookingId}?action=upload-proof`
+        : null
+    case "CANCEL":
+      return item.bookingId ? `/bookings/${item.bookingId}?action=cancel` : null
+    case "LEAVE_REVIEW":
+      return item.coachProfile?.id
+        ? `/coaches/${item.coachProfile.id}?tab=reviews`
+        : null
+    default:
+      return null
+  }
+}
+
+function ScheduleActionButtons({ item }: { item: LearnerScheduleItem }) {
+  const { t } = useTranslation("common")
+  if (!Array.isArray(item.actions) || item.actions.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {item.actions.map((action) => {
+        const href = getActionHref(item, action)
+        const label = getActionLabel(action, t)
+
+        if (href) {
+          return (
+            <Button
+              key={action}
+              variant="outline"
+              size="sm"
+              asChild
+              onClick={(event) => event.stopPropagation()}
+            >
+              <Link href={href}>{label}</Link>
+            </Button>
+          )
+        }
+
+        return (
+          <Button
+            key={action}
+            variant="outline"
+            size="sm"
+            disabled
+            onClick={(event) => event.stopPropagation()}
+          >
+            {label}
+          </Button>
+        )
+      })}
+    </div>
+  )
+}
+
 /* --- Sub-components --- */
 
 function CoachAvatar({
@@ -235,10 +331,22 @@ function CalendarEventCard({
         isPast && "opacity-55"
       )}
     >
+      {item.coverImageUrl && (
+        <img
+          src={item.coverImageUrl}
+          alt={item.title}
+          className="mb-1 h-16 w-full rounded object-cover"
+        />
+      )}
       <p className="truncate font-medium">{item.title}</p>
       <p className="truncate text-muted-foreground">
         {formatTime(item.startsAt, locale)} - {formatTime(item.endsAt, locale)}
       </p>
+      {item.priceVnd !== null && (
+        <p className="truncate text-muted-foreground">
+          {formatCurrency(item.priceVnd, locale)}
+        </p>
+      )}
       {item.coachProfile?.displayName && (
         <p className="truncate text-muted-foreground">
           {item.coachProfile.displayName}
@@ -283,6 +391,14 @@ function DetailDialog({
         </DialogHeader>
 
         <div className="space-y-4">
+          {item.coverImageUrl && (
+            <img
+              src={item.coverImageUrl}
+              alt={item.title}
+              className="h-48 w-full rounded-lg object-cover"
+            />
+          )}
+
           <div>
             <h3 className="text-lg font-semibold">{item.title}</h3>
           </div>
@@ -320,10 +436,25 @@ function DetailDialog({
             </div>
           </div>
 
+          {item.priceVnd !== null && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <DollarSign className="size-4" />
+              {formatCurrency(item.priceVnd, locale)}
+            </div>
+          )}
+
           {item.locationDescription && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="size-4 shrink-0" />
               {item.locationDescription}
+            </div>
+          )}
+
+          {item.courtId && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Badge variant="outline" className="rounded-full text-[10px]">
+                {t("learner.schedule.detail.courtId", { id: item.courtId })}
+              </Badge>
             </div>
           )}
 
@@ -354,22 +485,7 @@ function DetailDialog({
             </div>
           )}
 
-          <div className="flex gap-2 pt-2">
-            {item.classId && (
-              <Button variant="outline" size="sm" asChild>
-                <Link href={`/classes/${item.classId}`}>
-                  {t("learner.schedule.actions.viewClass")}
-                </Link>
-              </Button>
-            )}
-            {item.bookingId && (
-              <Button variant="outline" size="sm" asChild>
-                <Link href={`/bookings/${item.bookingId}`}>
-                  {t("learner.schedule.actions.viewBooking")}
-                </Link>
-              </Button>
-            )}
-          </div>
+          <ScheduleActionButtons item={item} />
         </div>
       </DialogContent>
     </Dialog>
@@ -896,6 +1012,12 @@ function AgendaItemCard({
                 {item.locationDescription}
               </span>
             )}
+            {item.priceVnd !== null && (
+              <span className="flex items-center gap-1">
+                <DollarSign className="size-3.5" />
+                {formatCurrency(item.priceVnd, locale)}
+              </span>
+            )}
           </div>
         </div>
         <Badge
@@ -1135,29 +1257,52 @@ function ListCard({
   const statusVariant = STATUS_VARIANTS[item.status] ?? "outline"
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault()
+          onClick()
+        }
+      }}
       className="w-full rounded-xl border bg-background p-4 text-left shadow-sm transition hover:bg-accent/50"
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <CoachAvatar
-            avatarUrl={item.coachProfile?.avatarUrl ?? null}
-            displayName={coachName}
-          />
-          <div>
+        <div className="flex min-w-0 items-center gap-3">
+          {item.coverImageUrl ? (
+            <img
+              src={item.coverImageUrl}
+              alt={item.title}
+              className="size-14 rounded-lg object-cover"
+            />
+          ) : (
+            <CoachAvatar
+              avatarUrl={item.coachProfile?.avatarUrl ?? null}
+              displayName={coachName}
+            />
+          )}
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">{coachName}</span>
               {isVerified && <CheckCircle2 className="size-4 text-primary" />}
             </div>
-            <div className="mt-0.5 flex items-center gap-2">
+            <div className="mt-0.5 flex flex-wrap items-center gap-2">
               <Badge
                 variant="secondary"
                 className="rounded-full px-2 py-0 text-[10px]"
               >
                 {getKindLabel(item.kind, t)}
               </Badge>
+              {item.priceVnd !== null && (
+                <Badge
+                  variant="outline"
+                  className="rounded-full px-2 py-0 text-[10px]"
+                >
+                  {formatCurrency(item.priceVnd, locale)}
+                </Badge>
+              )}
             </div>
           </div>
         </div>
@@ -1195,6 +1340,11 @@ function ListCard({
             {item.locationDescription}
           </p>
         )}
+        {item.courtId && (
+          <p className="text-muted-foreground">
+            {t("learner.schedule.detail.courtId", { id: item.courtId })}
+          </p>
+        )}
         {item.topic && (
           <p className="text-muted-foreground">
             {t("learner.schedule.detail.topic")}: {item.topic}
@@ -1219,22 +1369,9 @@ function ListCard({
         </div>
       )}
 
-      <div className="mt-3 flex gap-2">
-        {item.classId && (
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`/classes/${item.classId}`}>
-              {t("learner.schedule.actions.viewClass")}
-            </Link>
-          </Button>
-        )}
-        {item.bookingId && (
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`/bookings/${item.bookingId}`}>
-              {t("learner.schedule.actions.viewBooking")}
-            </Link>
-          </Button>
-        )}
+      <div className="mt-3">
+        <ScheduleActionButtons item={item} />
       </div>
-    </button>
+    </div>
   )
 }

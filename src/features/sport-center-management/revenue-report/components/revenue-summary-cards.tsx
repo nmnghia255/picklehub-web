@@ -1,6 +1,13 @@
 "use client"
 
-import { BadgeDollarSign, Clock9, ReceiptText, WalletCards } from "lucide-react"
+import {
+  BadgeDollarSign,
+  Clock9,
+  DollarSign,
+  ReceiptText,
+  TrendingUp,
+  WalletCards,
+} from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
@@ -34,6 +41,18 @@ const CARD_CONFIG = [
     icon: ReceiptText,
     tone: "text-orange-600",
   },
+  {
+    key: "courtCostVnd",
+    labelKey: "revenue.summary.courtCost",
+    icon: DollarSign,
+    tone: "text-rose-600",
+  },
+  {
+    key: "netRevenueVnd",
+    labelKey: "revenue.summary.netRevenue",
+    icon: TrendingUp,
+    tone: "text-cyan-600",
+  },
 ] as const
 
 export function RevenueSummaryCards({
@@ -49,13 +68,15 @@ export function RevenueSummaryCards({
   }
 
   return (
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
       {CARD_CONFIG.map((card) => {
         const Icon = card.icon
         const rawValue = summary ? summary[card.key] : 0
         const value =
           card.key === "totalSettledRevenue" ||
-          card.key === "totalPendingRevenue"
+          card.key === "totalPendingRevenue" ||
+          card.key === "courtCostVnd" ||
+          card.key === "netRevenueVnd"
             ? formatCurrencyVnd(Number(rawValue))
             : String(rawValue ?? 0)
 

@@ -66,6 +66,8 @@ export function normalizeCoachScheduleItem(
     type: normalizeScheduleType(item),
     title: item.title,
     description: item.description ?? null,
+    priceVnd: item.priceVnd ?? null,
+    coverImageUrl: item.coverImageUrl ?? null,
     startTime,
     endTime,
     status:
@@ -80,12 +82,14 @@ export function normalizeCoachScheduleItem(
     learners,
     classId: item.classId ?? null,
     bookingId: item.bookingId ?? null,
+    courtId: item.courtId ?? null,
     location: item.locationDescription ?? item.location ?? null,
     meetingUrl: item.meetingUrl ?? null,
     learnerCount: item.learnerCount ?? learners.length,
     coachName: getProfileName(item.coachProfile) || null,
     learnerName:
       getProfileName(item.learnerProfile) || learners[0]?.name || null,
+    actions: Array.isArray(item.actions) ? item.actions : [],
   }
 }
 

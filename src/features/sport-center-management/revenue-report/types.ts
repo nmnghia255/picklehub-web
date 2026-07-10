@@ -21,6 +21,8 @@ export type RevenueSummary = {
   period: RevenuePeriod
   totalSettledRevenue: number
   totalPendingRevenue: number
+  courtCostVnd: number
+  netRevenueVnd: number
   settledTransactionCount: number
   pendingTransactionCount: number
   byCenter: RevenueSummaryByCenter[]
@@ -114,6 +116,8 @@ export type RevenueTransaction = {
   amount: number
   method: RevenueMethod
   status: RevenueStatus
+  courtCostVnd?: number | null
+  netRevenueVnd?: number | null
   proofUrl?: string | null
   receivedAt?: string | null
   reviewedAt?: string | null

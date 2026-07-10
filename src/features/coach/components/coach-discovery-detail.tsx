@@ -1820,6 +1820,13 @@ function CoachDiscoveryDetailInner({
   const [bookingTime, setBookingTime] = useState("")
   const [bookingDuration, setBookingDuration] = useState(60)
   const [bookingNote, setBookingNote] = useState("")
+  const [bookingLocationMode, setBookingLocationMode] = useState<
+    "free-text" | "court"
+  >("free-text")
+  const [bookingCourtBookingId, setBookingCourtBookingId] = useState("")
+  const [bookingCourtId, setBookingCourtId] = useState("")
+  const [bookingLocationDescription, setBookingLocationDescription] =
+    useState("")
 
   const createBooking = useCreateBooking()
 
@@ -1841,19 +1848,35 @@ function CoachDiscoveryDetailInner({
     }
     const sessionAt = new Date(`${bookingDate}T${bookingTime}:00`).toISOString()
     try {
+      const dto =
+        bookingLocationMode === "court"
+          ? {
+              sessionAt,
+              durationMinutes: bookingDuration,
+              learnerNote: bookingNote || undefined,
+              courtBookingId: bookingCourtBookingId || undefined,
+              courtId: bookingCourtId || undefined,
+            }
+          : {
+              sessionAt,
+              durationMinutes: bookingDuration,
+              learnerNote: bookingNote || undefined,
+              locationDescription: bookingLocationDescription || undefined,
+            }
+
       await createBooking.mutateAsync({
         coachId,
-        dto: {
-          sessionAt,
-          durationMinutes: bookingDuration,
-          learnerNote: bookingNote || undefined,
-        },
+        dto,
       })
       toast.success(t("coach.discovery.bookingSuccess"))
       setBookingOpen(false)
       setBookingDate("")
       setBookingTime("")
       setBookingNote("")
+      setBookingLocationMode("free-text")
+      setBookingCourtBookingId("")
+      setBookingCourtId("")
+      setBookingLocationDescription("")
     } catch {
       toast.error(t("coach.discovery.bookingError"))
     }
@@ -1976,6 +1999,67 @@ function CoachDiscoveryDetailInner({
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>{t("coach.discovery.bookingLocationModeLabel")}</Label>
+              <Select
+                value={bookingLocationMode}
+                onValueChange={(value) =>
+                  setBookingLocationMode(value as "free-text" | "court")
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="free-text">
+                    {t("coach.discovery.bookingLocationModeFreeText")}
+                  </SelectItem>
+                  <SelectItem value="court">
+                    {t("coach.discovery.bookingLocationModeCourt")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {bookingLocationMode === "court" ? (
+              <div className="space-y-4 rounded-lg border bg-muted/30 p-4">
+                <p className="text-xs text-muted-foreground">
+                  {t("coach.discovery.bookingCourtModeHint")}
+                </p>
+                <div className="space-y-2">
+                  <Label>
+                    {t("coach.discovery.bookingCourtBookingIdLabel")}
+                  </Label>
+                  <Input
+                    placeholder={t(
+                      "coach.discovery.bookingCourtBookingIdPlaceholder"
+                    )}
+                    value={bookingCourtBookingId}
+                    onChange={(e) => setBookingCourtBookingId(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t("coach.discovery.bookingCourtIdLabel")}</Label>
+                  <Input
+                    placeholder={t("coach.discovery.bookingCourtIdPlaceholder")}
+                    value={bookingCourtId}
+                    onChange={(e) => setBookingCourtId(e.target.value)}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Label>{t("coach.discovery.bookingLocationLabel")}</Label>
+                <Input
+                  placeholder={t("coach.discovery.bookingLocationPlaceholder")}
+                  value={bookingLocationDescription}
+                  onChange={(e) =>
+                    setBookingLocationDescription(e.target.value)
+                  }
+                />
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t("coach.discovery.bookingDateLabel")}</Label>

@@ -140,12 +140,14 @@ function OverviewTab() {
     classRevenueVnd = 0,
     bookingRevenueVnd = 0,
     totalRevenueVnd = 0,
+    courtCostVnd = 0,
+    netRevenueVnd = 0,
     totalSettlementCount = 0,
   } = data.totals
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
         <Card className="rounded-2xl border shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center justify-between text-muted-foreground">
@@ -191,6 +193,28 @@ function OverviewTab() {
             </div>
             <p className="mt-1 text-xl font-semibold tracking-tight">
               {totalSettlementCount}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="rounded-2xl border shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between text-muted-foreground">
+              <span className="text-xs">{t("coach.income.courtCost")}</span>
+              <DollarSign className="size-3.5" />
+            </div>
+            <p className="mt-1 text-xl font-semibold tracking-tight">
+              {formatVnd(courtCostVnd)}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="rounded-2xl border shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between text-muted-foreground">
+              <span className="text-xs">{t("coach.income.netRevenue")}</span>
+              <TrendingUp className="size-3.5" />
+            </div>
+            <p className="mt-1 text-xl font-semibold tracking-tight">
+              {formatVnd(netRevenueVnd)}
             </p>
           </CardContent>
         </Card>
@@ -736,6 +760,18 @@ function BookingsTab() {
                     <p className="font-bold text-primary">
                       {formatVnd(item.priceVnd)}
                     </p>
+                    <div className="space-y-0.5 text-right text-xs text-muted-foreground">
+                      <p>
+                        {t("coach.income.courtCost")}:{" "}
+                        {item.courtCostVnd !== null
+                          ? formatVnd(item.courtCostVnd)
+                          : t("coach.income.notApplicable")}
+                      </p>
+                      <p>
+                        {t("coach.income.netRevenue")}:{" "}
+                        {formatVnd(item.netRevenueVnd)}
+                      </p>
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       {item.settledAt
                         ? safeFormatDate(item.settledAt)

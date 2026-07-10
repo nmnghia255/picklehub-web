@@ -187,6 +187,19 @@ export const CoachClient = {
       }
     ),
 
+  updateClassScheduleLocation: (
+    classId: string,
+    scheduleId: string,
+    dto: CoachTypes.UpdateClassScheduleLocationDto
+  ) =>
+    apiFetch<CoachTypes.ClassScheduleEntry>(
+      `/coach/classes/${classId}/schedules/${scheduleId}/location`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(dto),
+      }
+    ),
+
   listScheduleEntries: (
     classId: string,
     params?: { from?: string; to?: string }
@@ -427,6 +440,15 @@ export const CoachClient = {
   createBooking: (coachId: string, dto: CoachTypes.CreateBookingDto) =>
     apiFetch<CoachTypes.Booking>(`/coaches/${coachId}/bookings`, {
       method: "POST",
+      body: JSON.stringify(dto),
+    }),
+
+  updateBookingLocation: (
+    bookingId: string,
+    dto: CoachTypes.UpdateBookingLocationDto
+  ) =>
+    apiFetch<CoachTypes.Booking>(`/coach/bookings/${bookingId}/location`, {
+      method: "PATCH",
       body: JSON.stringify(dto),
     }),
 
