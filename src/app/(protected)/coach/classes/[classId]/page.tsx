@@ -17,7 +17,6 @@ import {
   BookOpen,
   CalendarDays,
   CheckCircle2,
-  Clock,
   DollarSign,
   MapPin,
   Plus,
