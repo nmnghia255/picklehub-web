@@ -2,7 +2,15 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { format, startOfMonth } from "date-fns"
-import { Edit, Plus, Trash2 } from "lucide-react"
+import {
+  AlertTriangle,
+  Edit,
+  Loader2,
+  MapPin,
+  Plus,
+  Trash2,
+  Users,
+} from "lucide-react"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 
@@ -10,6 +18,25 @@ import { CalendarNavigation } from "@/components/calendar-navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  cancelCourtBookingClient,
+  checkCancelEligibilityClient,
+} from "@/features/groups/api/groups-client"
 
 import {
   activityQueryKeys,
@@ -36,19 +63,21 @@ interface GroupActivitySchedulePageProps {
   initialGroupId?: string
   embedded?: boolean
   currentUserRole?: string | null
+  currentUserId?: string
 }
 
 export function GroupActivitySchedulePage({
   initialGroupId,
   embedded = false,
   currentUserRole,
+  currentUserId,
 }: GroupActivitySchedulePageProps) {
   const queryClient = useQueryClient()
   const groupId = initialGroupId || ""
 
   const canManageActivities = useMemo(() => {
     const role = currentUserRole?.toLowerCase()
-    return role === "owner"
+    return role === "owner" || role === "host"
   }, [currentUserRole])
 
   // States
@@ -57,6 +86,7 @@ export function GroupActivitySchedulePage({
   )
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date())
   const [view, setView] = useState<"month" | "week" | "agenda">("month")
+  const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar")
 
   // Dialog & Drawer States
   const [formOpen, setFormOpen] = useState(false)
@@ -64,6 +94,19 @@ export function GroupActivitySchedulePage({
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedEventForDetail, setSelectedEventForDetail] =
     useState<GroupActivity | null>(null)
+
+  // Cascade Cancel States
+  const [cancelActivityConfirmOpen, setCancelActivityConfirmOpen] =
+    useState(false)
+  const [activityToCancel, setActivityToCancel] =
+    useState<GroupActivity | null>(null)
+  const [cancelCourtBookingChecked, setCancelCourtBookingChecked] =
+    useState(false)
+  const [cancellationEligibility, setCancellationEligibility] = useState<{
+    eligibleForRefund: boolean
+    warningMessage: string
+  } | null>(null)
+  const [checkingEligibility, setCheckingEligibility] = useState(false)
 
   // Queries
   const { data: activitiesResponse, isLoading } = useQuery({
@@ -120,10 +163,28 @@ export function GroupActivitySchedulePage({
       void queryClient.invalidateQueries({
         queryKey: ["group-activities", groupId],
       })
-      toast.success("Đã xóa hoạt động")
+      toast.success("Đã xóa hoạt động nhóm.")
+      setCancelActivityConfirmOpen(false)
+      setActivityToCancel(null)
     },
     onError: (error: Error) => {
       toast.error(error.message || "Không thể xóa hoạt động")
+    },
+  })
+
+  const cancelBookingMutation = useMutation({
+    mutationFn: (bookingId: string) =>
+      cancelCourtBookingClient(groupId, bookingId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["group-activities", groupId],
+      })
+      toast.success("Đã hủy thành công đặt sân và hoạt động nhóm.")
+      setCancelActivityConfirmOpen(false)
+      setActivityToCancel(null)
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Hủy lịch đặt sân thất bại.")
     },
   })
 
@@ -154,9 +215,36 @@ export function GroupActivitySchedulePage({
     updateMutation.mutate({ activityId, payload })
   }
 
-  const handleDeleteEvent = (activityId: string) => {
-    if (window.confirm("Bạn có chắc muốn xóa hoạt động này không?")) {
-      deleteMutation.mutate(activityId)
+  const handleDeleteClick = async (event: GroupActivity) => {
+    setActivityToCancel(event)
+    setCancelCourtBookingChecked(false)
+    setCancellationEligibility(null)
+
+    if (event.bookingId) {
+      setCancelActivityConfirmOpen(true)
+      setCheckingEligibility(true)
+      try {
+        const elig = await checkCancelEligibilityClient(
+          groupId,
+          event.bookingId
+        )
+        setCancellationEligibility(elig)
+      } catch (err) {
+        console.error("Error checking cancel eligibility:", err)
+      } finally {
+        setCheckingEligibility(false)
+      }
+    } else {
+      setCancelActivityConfirmOpen(true)
+    }
+  }
+
+  const handleConfirmCancellation = () => {
+    if (!activityToCancel) return
+    if (activityToCancel.bookingId && cancelCourtBookingChecked) {
+      cancelBookingMutation.mutate(activityToCancel.bookingId)
+    } else {
+      deleteMutation.mutate(activityToCancel.id)
     }
   }
 
@@ -179,6 +267,123 @@ export function GroupActivitySchedulePage({
     return <GroupActivityLoadingSkeleton />
   }
 
+  const renderListView = () => {
+    // Filter activities that occur in the current selectedMonth
+    const filteredEvents = events.filter((e) => {
+      const eDate = new Date(e.startAt)
+      return (
+        eDate.getMonth() === currentMonth.getMonth() &&
+        eDate.getFullYear() === currentMonth.getFullYear()
+      )
+    })
+
+    return (
+      <div className="space-y-4">
+        {filteredEvents.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center text-sm text-muted-foreground">
+              Không có hoạt động nào trong tháng này.
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredEvents
+              .slice()
+              .sort(
+                (a, b) =>
+                  new Date(a.startAt).getTime() - new Date(b.startAt).getTime()
+              )
+              .map((event) => {
+                const stats = (() => {
+                  const attendance = event.attendance ?? []
+                  const attending = attendance.filter(
+                    (a) => a.status !== "ABSENT"
+                  )
+                  const mCount = attending.length
+                  const gCount = attending.reduce(
+                    (sum, a) =>
+                      sum + (a.guestStatus === "APPROVED" ? a.guestCount : 0),
+                    0
+                  )
+                  return `${mCount + gCount} người tham gia`
+                })()
+
+                return (
+                  <Card
+                    key={event.id}
+                    className="cursor-pointer bg-card/65 shadow-sm backdrop-blur-sm transition-all hover:border-primary/50"
+                    onClick={() => openDetailDrawer(event)}
+                  >
+                    <CardContent className="space-y-3 p-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="line-clamp-1 text-base font-bold">
+                          {event.title}
+                        </h3>
+                        <Badge
+                          variant="outline"
+                          className={getStatusBadgeClass(event.status)}
+                        >
+                          {getStatusLabel(event.status)}
+                        </Badge>
+                      </div>
+
+                      <p className="text-xs text-muted-foreground">
+                        {format(new Date(event.startAt), "dd/MM/yyyy")} ·{" "}
+                        {format(new Date(event.startAt), "HH:mm")} -{" "}
+                        {format(new Date(event.endAt), "HH:mm")}
+                      </p>
+
+                      {event.location && (
+                        <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <MapPin className="size-3" />
+                          <span className="truncate">{event.location}</span>
+                        </p>
+                      )}
+
+                      <div className="mt-2.5 flex items-center justify-between border-t pt-2.5 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Users className="size-3 text-muted-foreground" />
+                          {stats}
+                        </span>
+                        {canManageActivities && (
+                          <div
+                            className="flex items-center gap-1"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-7"
+                              onClick={() => openEditDialog(event)}
+                              disabled={updateMutation.isPending}
+                            >
+                              <Edit className="size-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-7 text-destructive hover:bg-destructive/10"
+                              onClick={() => handleDeleteClick(event)}
+                              disabled={
+                                deleteMutation.isPending ||
+                                cancelBookingMutation.isPending
+                              }
+                            >
+                              <Trash2 className="size-3.5" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   const content = (
     <div className={embedded ? "space-y-6" : "space-y-6 px-4 py-6 pb-8"}>
       {!embedded && (
@@ -193,140 +398,196 @@ export function GroupActivitySchedulePage({
       )}
 
       <Card className="mb-6 border-border bg-card/65 shadow-sm backdrop-blur-sm">
-        <CardContent className="flex flex-col items-center justify-between gap-6 p-4 md:flex-row">
-          <CalendarNavigation
-            currentDate={currentMonth}
-            onMonthChange={(month) =>
-              setCurrentMonth((prev) => new Date(prev.getFullYear(), month, 1))
-            }
-            onYearChange={(year) =>
-              setCurrentMonth((prev) => new Date(year, prev.getMonth(), 1))
-            }
-            onPrevMonth={() =>
-              setCurrentMonth((prev) => {
-                const d = new Date(prev)
-                d.setMonth(d.getMonth() - 1)
-                return d
-              })
-            }
-            onNextMonth={() =>
-              setCurrentMonth((prev) => {
-                const d = new Date(prev)
-                d.setMonth(d.getMonth() + 1)
-                return d
-              })
-            }
-            onToday={() => {
-              const now = new Date()
-              setCurrentMonth(startOfMonth(now))
-              setSelectedDate(now)
-            }}
-          />
+        <CardContent className="flex w-full flex-col items-center justify-between gap-6 p-4 md:flex-row">
+          <div className="flex flex-wrap items-center gap-4">
+            <CalendarNavigation
+              currentDate={currentMonth}
+              onMonthChange={(month) =>
+                setCurrentMonth(
+                  (prev) => new Date(prev.getFullYear(), month, 1)
+                )
+              }
+              onYearChange={(year) =>
+                setCurrentMonth((prev) => new Date(year, prev.getMonth(), 1))
+              }
+              onPrevMonth={() =>
+                setCurrentMonth((prev) => {
+                  const d = new Date(prev)
+                  d.setMonth(d.getMonth() - 1)
+                  return d
+                })
+              }
+              onNextMonth={() =>
+                setCurrentMonth((prev) => {
+                  const d = new Date(prev)
+                  d.setMonth(d.getMonth() + 1)
+                  return d
+                })
+              }
+              onToday={() => {
+                const now = new Date()
+                setCurrentMonth(startOfMonth(now))
+                setSelectedDate(now)
+              }}
+            />
+
+            <Select
+              value={viewMode}
+              onValueChange={(val: "calendar" | "list") => setViewMode(val)}
+            >
+              <SelectTrigger className="w-32 border bg-background text-xs">
+                <SelectValue placeholder="Chế độ xem" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="calendar" className="text-xs">
+                  Dạng lịch
+                </SelectItem>
+                <SelectItem value="list" className="text-xs">
+                  Danh sách
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           {canManageActivities && (
-            <Button className="ml-auto" onClick={openCreateDialog}>
+            <Button
+              onClick={openCreateDialog}
+              className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+            >
               <Plus className="mr-2 size-4" />
-              Thêm sự kiện
+              Thêm hoạt động
             </Button>
           )}
         </CardContent>
       </Card>
-      <div className="grid gap-6 lg:grid-cols-[1fr_350px]">
-        <GroupActivityCalendarView
-          events={events}
-          baseDate={currentMonth}
-          view={view}
-          selectedDate={selectedDate}
-          onViewChange={setView}
-          onSelectDate={setSelectedDate}
-          onOpenEvent={openDetailDrawer}
-        />
 
-        <Card className="h-fit">
-          <CardContent className="space-y-4 p-4">
-            <div>
-              <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-                Sự kiện ngày {format(selectedDate, "dd/MM/yyyy")}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Có {selectedDayEvents.length} sự kiện được lên lịch
-              </p>
-            </div>
+      {viewMode === "list" ? (
+        renderListView()
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-[1fr_350px]">
+          <GroupActivityCalendarView
+            events={events}
+            baseDate={currentMonth}
+            view={view}
+            selectedDate={selectedDate}
+            onViewChange={setView}
+            onSelectDate={setSelectedDate}
+            onOpenEvent={openDetailDrawer}
+          />
 
-            {canManageActivities && (
-              <Button
-                className="w-full"
-                variant="outline"
-                onClick={openCreateDialog}
-              >
-                <Plus className="mr-2 size-4" />
-                Tạo sự kiện cho ngày này
-              </Button>
-            )}
-
-            {selectedDayEvents.length === 0 ? (
-              <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-                Không có sự kiện nào trong ngày này.
+          <Card className="h-fit">
+            <CardContent className="space-y-4 p-4">
+              <div>
+                <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+                  Hoạt động ngày {format(selectedDate, "dd/MM/yyyy")}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Có {selectedDayEvents.length} hoạt động được lên lịch
+                </p>
               </div>
-            ) : (
-              <div className="space-y-3">
-                {selectedDayEvents
-                  .slice()
-                  .sort(
-                    (a, b) =>
-                      new Date(a.startAt).getTime() -
-                      new Date(b.startAt).getTime()
-                  )
-                  .map((event) => (
-                    <div
-                      key={event.id}
-                      className="group relative rounded-lg border p-3 transition-colors hover:border-primary/50"
-                    >
-                      <div className="mb-2 flex items-start justify-between gap-2">
-                        <p className="line-clamp-2 text-sm font-bold">
-                          {event.title}
-                        </p>
-                        <Badge
-                          variant="outline"
-                          className={getStatusBadgeClass(event.status)}
+
+              {canManageActivities && (
+                <Button
+                  className="w-full border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                  onClick={openCreateDialog}
+                >
+                  <Plus className="mr-2 size-4" />
+                  Thêm hoạt động
+                </Button>
+              )}
+
+              {selectedDayEvents.length === 0 ? (
+                <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
+                  Không có hoạt động nào trong ngày này.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {selectedDayEvents
+                    .slice()
+                    .sort(
+                      (a, b) =>
+                        new Date(a.startAt).getTime() -
+                        new Date(b.startAt).getTime()
+                    )
+                    .map((event) => {
+                      const eventStats = (() => {
+                        const attendance = event.attendance ?? []
+                        const attending = attendance.filter(
+                          (a) => a.status !== "ABSENT"
+                        )
+                        const mCount = attending.length
+                        const gCount = attending.reduce(
+                          (sum, a) =>
+                            sum +
+                            (a.guestStatus === "APPROVED" ? a.guestCount : 0),
+                          0
+                        )
+                        return `${mCount + gCount} người tham gia`
+                      })()
+
+                      return (
+                        <div
+                          key={event.id}
+                          className="group relative cursor-pointer rounded-lg border p-3 transition-colors hover:border-primary/50"
+                          onClick={() => openDetailDrawer(event)}
                         >
-                          {getStatusLabel(event.status)}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        {format(new Date(event.startAt), "HH:mm")} -{" "}
-                        {format(new Date(event.endAt), "HH:mm")}
-                      </p>
+                          <div className="mb-2 flex items-start justify-between gap-2">
+                            <p className="line-clamp-2 text-sm font-bold">
+                              {event.title}
+                            </p>
+                            <Badge
+                              variant="outline"
+                              className={getStatusBadgeClass(event.status)}
+                            >
+                              {getStatusLabel(event.status)}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {format(new Date(event.startAt), "HH:mm")} -{" "}
+                            {format(new Date(event.endAt), "HH:mm")}
+                          </p>
+                          <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
+                            <Users className="size-3 text-muted-foreground" />
+                            <span>{eventStats}</span>
+                          </p>
 
-                      {canManageActivities && (
-                        <div className="mt-3 flex items-center justify-end gap-2 opacity-0 transition-opacity group-hover:opacity-100">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 text-muted-foreground hover:text-primary"
-                            onClick={() => openEditDialog(event)}
-                            disabled={updateMutation.isPending}
-                          >
-                            <Edit className="size-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 text-muted-foreground hover:text-destructive"
-                            onClick={() => handleDeleteEvent(event.id)}
-                            disabled={deleteMutation.isPending}
-                          >
-                            <Trash2 className="size-4" />
-                          </Button>
+                          {canManageActivities && (
+                            <div
+                              className="mt-3 flex items-center justify-end gap-2 opacity-0 transition-opacity group-hover:opacity-100"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8 text-muted-foreground hover:text-primary"
+                                onClick={() => openEditDialog(event)}
+                                disabled={updateMutation.isPending}
+                              >
+                                <Edit className="size-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8 text-muted-foreground hover:text-destructive"
+                                onClick={() => handleDeleteClick(event)}
+                                disabled={
+                                  deleteMutation.isPending ||
+                                  cancelBookingMutation.isPending
+                                }
+                              >
+                                <Trash2 className="size-4" />
+                              </Button>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                      )
+                    })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <GroupActivityFormDialog
         open={formOpen}
@@ -344,8 +605,93 @@ export function GroupActivitySchedulePage({
           onOpenChange={setDetailOpen}
           activityId={selectedEventForDetail.id}
           groupId={groupId}
+          currentUserRole={currentUserRole}
+          currentUserId={currentUserId}
+          onEdit={() => {
+            setEditingEvent(selectedEventForDetail)
+            setFormOpen(true)
+          }}
         />
       )}
+
+      {/* Cascade Cancel Confirmation Dialog */}
+      <Dialog
+        open={cancelActivityConfirmOpen}
+        onOpenChange={setCancelActivityConfirmOpen}
+      >
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="size-5" />
+              Xác nhận hủy hoạt động nhóm
+            </DialogTitle>
+            <DialogDescription>
+              {activityToCancel?.bookingId ? (
+                <div className="space-y-4 text-foreground">
+                  <p className="text-sm">
+                    Sự kiện này đang liên kết với một lịch đặt sân tại cụm sân.
+                  </p>
+                  {checkingEligibility ? (
+                    <div className="flex items-center gap-2 py-2 text-xs text-muted-foreground">
+                      <Loader2 className="size-4 animate-spin text-primary" />
+                      Đang kiểm tra chính sách hủy đặt sân...
+                    </div>
+                  ) : cancellationEligibility ? (
+                    <p className="rounded-md border border-amber-200 bg-muted/60 p-2.5 text-xs text-amber-800">
+                      {cancellationEligibility.warningMessage}
+                    </p>
+                  ) : null}
+
+                  <label className="flex cursor-pointer items-center gap-2 py-1 text-sm font-medium select-none">
+                    <input
+                      type="checkbox"
+                      checked={cancelCourtBookingChecked}
+                      onChange={(e) =>
+                        setCancelCourtBookingChecked(e.target.checked)
+                      }
+                      className="h-4 w-4 rounded border-border bg-background accent-primary"
+                    />
+                    <span>Xác nhận hủy đặt sân thực tế tại cụm sân</span>
+                  </label>
+                </div>
+              ) : (
+                "Bạn có chắc muốn hủy hoạt động nhóm này không? Hành động này không thể hoàn tác."
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setCancelActivityConfirmOpen(false)
+                setActivityToCancel(null)
+              }}
+              disabled={
+                deleteMutation.isPending || cancelBookingMutation.isPending
+              }
+            >
+              Hủy
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleConfirmCancellation}
+              disabled={
+                deleteMutation.isPending ||
+                cancelBookingMutation.isPending ||
+                checkingEligibility
+              }
+            >
+              {(deleteMutation.isPending ||
+                cancelBookingMutation.isPending) && (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              )}
+              Xác nhận hủy
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 

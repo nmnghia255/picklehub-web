@@ -1,5 +1,6 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -36,6 +37,53 @@ import {
   buildEventDateRange,
   formatISO,
 } from "@/features/group-activity-schedule/group-activity-schedule.utils"
+import {
+  groupQueryKeys,
+  listGroupCourtBookingsClient,
+} from "@/features/groups/api/groups-client"
+import type { GroupCourtBooking } from "@/features/groups/types"
+
+const formatBookingTime = (isoString?: string) => {
+  if (!isoString) return ""
+  try {
+    if (isoString.length === 5 && isoString.includes(":")) return isoString
+    const date = new Date(isoString)
+    if (isNaN(date.getTime())) return isoString
+    return date.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })
+  } catch {
+    return isoString
+  }
+}
+
+const formatBookingDate = (dateStr?: string) => {
+  if (!dateStr) return ""
+  try {
+    const date = new Date(dateStr)
+    if (isNaN(date.getTime())) return dateStr
+    return date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    })
+  } catch {
+    return dateStr
+  }
+}
+
+const formatBookingDateForInput = (dateStr?: string) => {
+  if (!dateStr) return ""
+  try {
+    const date = new Date(dateStr)
+    if (isNaN(date.getTime())) return dateStr
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
+  } catch {
+    return dateStr
+  }
+}
 
 interface GroupActivityFormDialogProps {
   open: boolean
@@ -56,16 +104,31 @@ const defaultValues: EventFormValues = {
   location: "",
   description: "",
   status: "SCHEDULED",
+  courtBookingId: null,
 }
 
 export function GroupActivityFormDialog({
   open,
   onOpenChange,
   editingEvent,
+  activeGroupId,
   onCreate,
   onUpdate,
   isSubmitting = false,
 }: GroupActivityFormDialogProps) {
+  // Query group court bookings
+  const courtBookingsQuery = useQuery({
+    queryKey: groupQueryKeys.courtBookings(activeGroupId, {
+      page: 1,
+      limit: 100,
+    }),
+    queryFn: () =>
+      listGroupCourtBookingsClient(activeGroupId, { page: 1, limit: 100 }),
+    enabled: open && !!activeGroupId,
+  })
+
+  const courtBookings = courtBookingsQuery.data?.data || []
+
   const initialValues = useMemo<EventFormValues>(() => {
     if (editingEvent) {
       const start = new Date(editingEvent.startAt)
@@ -81,6 +144,8 @@ export function GroupActivityFormDialog({
         description: editingEvent.description,
         status: editingEvent.status,
         remindAt: editingEvent.remindAt,
+        courtBookingId:
+          editingEvent.courtBookingId || editingEvent.bookingId || null,
       }
     }
 
@@ -95,7 +160,7 @@ export function GroupActivityFormDialog({
   const dialogDescription = useMemo(
     () =>
       editingEvent
-        ? "Cập nhật thông tin thời gian, địa điểm và trạng thái hoạt động."
+        ? "Cập nhật thông tin thời gian, địa điểm và các cấu phần liên quan."
         : "Điền thông tin để tạo hoạt động mới cho nhóm.",
     [editingEvent]
   )
@@ -119,6 +184,7 @@ export function GroupActivityFormDialog({
           onUpdate={onUpdate}
           onCancel={() => onOpenChange(false)}
           isSubmitting={isSubmitting}
+          courtBookings={courtBookings}
         />
       </DialogContent>
     </Dialog>
@@ -133,6 +199,7 @@ interface GroupActivityFormFieldsProps {
   onUpdate: GroupActivityFormDialogProps["onUpdate"]
   onCancel: () => void
   isSubmitting: boolean
+  courtBookings: GroupCourtBooking[]
 }
 
 function GroupActivityFormFields({
@@ -142,6 +209,7 @@ function GroupActivityFormFields({
   onUpdate,
   onCancel,
   isSubmitting,
+  courtBookings,
 }: GroupActivityFormFieldsProps) {
   const [values, setValues] = useState<EventFormValues>(initialValues)
   const [errors, setErrors] = useState<
@@ -223,6 +291,7 @@ function GroupActivityFormFields({
         location: values.location.trim(),
         description: values.description.trim(),
         remindAt: values.remindAt ? formatISO(values.remindAt) : undefined,
+        courtBookingId: values.courtBookingId,
       }
       onUpdate(editingEvent.id, payload)
     } else {
@@ -234,8 +303,29 @@ function GroupActivityFormFields({
         location: values.location.trim(),
         description: values.description.trim(),
         remindAt: values.remindAt ? formatISO(values.remindAt) : undefined,
+        courtBookingId: values.courtBookingId,
       }
       onCreate(payload)
+    }
+  }
+
+  const handleSelectBooking = (bookingId: string) => {
+    if (bookingId === "none") {
+      handleChange("courtBookingId", null)
+      return
+    }
+    const booking = courtBookings.find(
+      (b) => b.id === bookingId || b.bookingId === bookingId
+    )
+    if (booking) {
+      setValues((prev) => ({
+        ...prev,
+        courtBookingId: booking.id || booking.bookingId,
+        date: formatBookingDateForInput(booking.date),
+        startTime: formatBookingTime(booking.startTime),
+        endTime: formatBookingTime(booking.endTime),
+        location: booking.centerName || prev.location,
+      }))
     }
   }
 
@@ -279,21 +369,23 @@ function GroupActivityFormFields({
           </Field>
 
           <Field>
-            <FieldLabel>Trạng thái</FieldLabel>
+            <FieldLabel>Liên kết sân đặt</FieldLabel>
             <Select
-              value={values.status}
-              onValueChange={(value) =>
-                handleChange("status", value as EventFormValues["status"])
-              }
-              disabled={!editingEvent}
+              value={values.courtBookingId || "none"}
+              onValueChange={handleSelectBooking}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Chọn trạng thái" />
+                <SelectValue placeholder="Chọn lịch đặt sân để liên kết..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="SCHEDULED">Sắp diễn ra</SelectItem>
-                <SelectItem value="COMPLETED">Đã kết thúc</SelectItem>
-                <SelectItem value="CANCELLED">Đã hủy</SelectItem>
+                <SelectItem value="none">Không liên kết</SelectItem>
+                {courtBookings.map((b) => (
+                  <SelectItem key={b.id} value={b.id} className="text-xs">
+                    {b.centerName} - {formatBookingDate(b.date)} (
+                    {formatBookingTime(b.startTime)} -{" "}
+                    {formatBookingTime(b.endTime)})
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </Field>
@@ -426,7 +518,11 @@ function GroupActivityFormFields({
         <Button variant="outline" onClick={onCancel} disabled={isSubmitting}>
           Hủy
         </Button>
-        <Button onClick={handleSubmit} disabled={isSubmitting}>
+        <Button
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className="border-none bg-[#1A56DB] text-white hover:bg-[#133F9A]"
+        >
           {isSubmitting
             ? "Đang xử lý..."
             : editingEvent

@@ -170,7 +170,9 @@ export async function listCreditBalancesClient(
 }
 
 export async function getGroupMembersClient(
-  groupId: string
+  groupId: string,
+  params?: { activityId?: string }
 ): Promise<Member[]> {
-  return fetchJson<Member[]>(`/api/groups/${groupId}/members`)
+  const query = params?.activityId ? `?activityId=${params.activityId}` : ""
+  return fetchJson<Member[]>(`/api/groups/${groupId}/members${query}`)
 }

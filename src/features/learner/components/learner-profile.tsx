@@ -1,10 +1,11 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Mail, Phone, User } from "lucide-react"
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useSession } from "@/features/auth/hooks/use-session"
-import { Mail, Phone, User } from "lucide-react"
 
 export function LearnerProfile() {
   const session = useSession()
@@ -34,7 +35,9 @@ export function LearnerProfile() {
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-16 text-center">
           <User className="mb-2 size-10 text-muted-foreground" />
-          <p className="text-muted-foreground">Vui lòng đăng nhập để xem hồ sơ</p>
+          <p className="text-muted-foreground">
+            Vui lòng đăng nhập để xem hồ sơ
+          </p>
         </CardContent>
       </Card>
     )
@@ -55,7 +58,9 @@ export function LearnerProfile() {
               </AvatarFallback>
             </Avatar>
             <div className="space-y-2">
-              <h2 className="text-xl font-semibold">{user.name ?? "Người dùng"}</h2>
+              <h2 className="text-xl font-semibold">
+                {user.name ?? "Người dùng"}
+              </h2>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="size-4" />
                 {user.email}

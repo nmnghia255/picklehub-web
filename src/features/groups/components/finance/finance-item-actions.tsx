@@ -1,0 +1,1327 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+"use client"
+
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { Loader2, MoreHorizontal, Plus, Send } from "lucide-react"
+import { useActionState, useEffect, useMemo, useRef, useState } from "react"
+import { toast } from "sonner"
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  getActivityClient,
+  listActivitiesClient,
+} from "@/features/group-activity-schedule/api/activities-client"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
+
+import {
+  createExpenseAction,
+  createTransactionAction,
+  deleteExpenseAction,
+  remindDebtAction,
+  updateExpenseAction,
+  verifyTransactionAction,
+} from "../../actions/finance-actions"
+import { financeQueryKeys } from "../../api/finance-client"
+import { getGroupMembersClient } from "../../api/groups-client"
+import { useGroupDebts } from "../../hooks/use-group-debts"
+import type { Member } from "../../types"
+import type {
+  ExpenseItem,
+  Transaction,
+  TransactionStatus,
+} from "../../types/finance"
+
+function formatDateOnly(value?: string | null) {
+  if (!value) return ""
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ""
+  return date.toISOString().slice(0, 10)
+}
+
+function formatDate(value?: string | null) {
+  if (!value) return "-"
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return "-"
+  return date.toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  })
+}
+
+function formatCurrency(value?: string | number | null) {
+  if (value === undefined || value === null || value === "") return "-"
+
+  const numericValue = typeof value === "number" ? value : Number(value)
+  if (Number.isNaN(numericValue)) {
+    return String(value ?? "-")
+  }
+
+  return formatCurrencyVnd(numericValue)
+}
+
+function getInitials(name: string) {
+  const words = name.trim().split(/\s+/).filter(Boolean)
+  if (!words.length) return "TV"
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
+  return `${words[0][0] ?? ""}${words[1][0] ?? ""}`.toUpperCase()
+}
+
+function isImageReceiptUrl(url?: string | null) {
+  if (!url) return false
+  const normalized = url.toLowerCase()
+  return (
+    normalized.includes(".jpg") ||
+    normalized.includes(".jpeg") ||
+    normalized.includes(".png") ||
+    normalized.includes(".webp") ||
+    normalized.includes(".gif") ||
+    normalized.includes("image/upload")
+  )
+}
+
+export function PaymentReceiptPreview({ receiptUrl }: { receiptUrl: string }) {
+  const [open, setOpen] = useState(false)
+  const isImage = isImageReceiptUrl(receiptUrl)
+
+  return (
+    <>
+      <Button
+        type="button"
+        variant="outline"
+        size="xs"
+        className="h-7 rounded-full bg-orange-100 px-2.5"
+        onClick={() => setOpen(true)}
+      >
+        {isImage ? "Xem ảnh" : "Xem chứng từ"}
+      </Button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-h-[90vh] overflow-hidden p-0 sm:max-w-4xl">
+          <div className="grid max-h-[90vh] gap-0 overflow-hidden md:grid-cols-[minmax(0,1fr)_280px]">
+            <div className="flex items-center justify-center bg-black/90 p-4 md:min-h-[70vh]">
+              {isImage ? (
+                <img
+                  src={receiptUrl}
+                  alt="Biên lai thanh toán"
+                  className="max-h-[78vh] w-full max-w-full rounded-md object-contain"
+                />
+              ) : (
+                <iframe
+                  src={receiptUrl}
+                  title="Biên lai thanh toán"
+                  className="h-[78vh] w-full rounded-md bg-white"
+                />
+              )}
+            </div>
+
+            <div className="flex flex-col gap-4 border-t p-5 md:border-t-0 md:border-l">
+              <DialogHeader className="text-left">
+                <DialogTitle>Chứng từ thanh toán</DialogTitle>
+                <DialogDescription>
+                  Xem chứng từ ngay trong trang hiện tại.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="mt-auto flex justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
+                  Đóng
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
+
+type DialogMode = "create" | "edit"
+
+function useToastState(
+  state: { success?: boolean; error?: string },
+  successMessage: string,
+  onSuccess: () => void
+) {
+  const handledRef = useRef(false)
+
+  useEffect(() => {
+    if (state.success && !handledRef.current) {
+      handledRef.current = true
+      toast.success(successMessage)
+      onSuccess()
+    }
+
+    if (!state.success) {
+      handledRef.current = false
+    }
+
+    if (state.error) {
+      toast.error(state.error)
+    }
+  }, [onSuccess, state.error, state.success, successMessage])
+}
+
+function useFinanceInvalidation(groupId: string) {
+  const queryClient = useQueryClient()
+
+  return {
+    refreshSummary() {
+      return queryClient.invalidateQueries({
+        queryKey: financeQueryKeys.summary(groupId),
+      })
+    },
+    refreshTransactions() {
+      return Promise.all([
+        this.refreshSummary(),
+        queryClient.invalidateQueries({
+          queryKey: financeQueryKeys.transactions(groupId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: financeQueryKeys.creditBalances(groupId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: financeQueryKeys.myDebt(groupId),
+        }),
+      ])
+    },
+    refreshExpenses() {
+      return Promise.all([
+        this.refreshSummary(),
+        queryClient.invalidateQueries({
+          queryKey: financeQueryKeys.expenses(groupId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: financeQueryKeys.myDebt(groupId),
+        }),
+      ])
+    },
+  }
+}
+
+function FinanceDialogShell({
+  open,
+  onOpenChange,
+  title,
+  description,
+  children,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  title: string
+  description: string
+  children: React.ReactNode
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+        {children}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function TransactionForm({
+  groupId,
+  onDone,
+}: {
+  groupId: string
+  onDone: () => void
+}) {
+  const [state, formAction, isPending] = useActionState(
+    createTransactionAction.bind(null, groupId),
+    {}
+  )
+
+  useToastState(state, "Đã gửi giao dịch thanh toán.", onDone)
+
+  return (
+    <form action={formAction}>
+      <div className="space-y-4 py-2">
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="tx-amount">Số tiền thanh toán</FieldLabel>
+            <Input id="tx-amount" name="amount" type="number" required />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="tx-receipt-file">
+              Tệp biên lai (Tùy chọn)
+            </FieldLabel>
+            <Input
+              id="tx-receipt-file"
+              name="receiptFile"
+              type="file"
+              accept="image/*"
+            />
+          </Field>
+        </FieldGroup>
+      </div>
+
+      <DialogFooter showCloseButton>
+        <Button type="submit" disabled={isPending}>
+          {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+          Gửi thanh toán
+        </Button>
+      </DialogFooter>
+    </form>
+  )
+}
+
+function ExpenseForm({
+  groupId,
+  mode,
+  expense,
+  members,
+  onDone,
+}: {
+  groupId: string
+  mode: DialogMode
+  expense?: ExpenseItem
+  members: Member[]
+  onDone: () => void
+}) {
+  const [state, formAction, isPending] = useActionState(
+    mode === "create"
+      ? createExpenseAction.bind(null, groupId)
+      : updateExpenseAction.bind(null, groupId, expense?.id ?? ""),
+    {}
+  )
+
+  useToastState(
+    state,
+    mode === "create" ? "Đã tạo chi tiêu." : "Đã cập nhật chi tiêu.",
+    onDone
+  )
+
+  const [selectedMap, setSelectedMap] = useState<Record<string, boolean>>({})
+  const [feeMap, setFeeMap] = useState<Record<string, string>>({})
+  const [guestCountMap, setGuestCountMap] = useState<Record<string, string>>({})
+  const [guestUnitPriceMap, setGuestUnitPriceMap] = useState<
+    Record<string, string>
+  >({})
+  const [totalAmount, setTotalAmount] = useState<string>(
+    expense?.totalAmount?.toString() ?? ""
+  )
+  const [selectedActivityId, setSelectedActivityId] = useState(
+    expense?.activityId || ""
+  )
+
+  const [title, setTitle] = useState(expense?.title ?? "")
+  const [description, setDescription] = useState(expense?.description ?? "")
+  const [expenseDate, setExpenseDate] = useState(
+    formatDateOnly(expense?.expenseDate ?? null)
+  )
+
+  // Fetch activities list for linking (only show those without expenses)
+  const activitiesQuery = useQuery({
+    queryKey: ["group-activities-for-expense", groupId],
+    queryFn: () =>
+      listActivitiesClient(groupId, { limit: 100, hasExpense: false }),
+    enabled: mode === "create",
+  })
+
+  // Fetch selected activity detail for pre-filling attendance/absence
+  const activityDetailQuery = useQuery({
+    queryKey: [
+      "group-activity-detail-for-expense",
+      groupId,
+      selectedActivityId,
+    ],
+    queryFn: () => getActivityClient(groupId, selectedActivityId),
+    enabled:
+      !!selectedActivityId &&
+      selectedActivityId !== "none" &&
+      mode === "create",
+  })
+
+  // Fetch members of the group, optionally with activity details (to get guest count for the activity)
+  const membersQuery = useQuery({
+    queryKey: ["group-members-for-expense", groupId, selectedActivityId],
+    queryFn: () =>
+      getGroupMembersClient(
+        groupId,
+        selectedActivityId ? { activityId: selectedActivityId } : undefined
+      ),
+    enabled: mode === "create",
+    initialData: members,
+  })
+
+  const resolvedMembers = membersQuery.data || members
+
+  // Sync edits from existing expense
+  useEffect(() => {
+    if (mode === "edit" && expense) {
+      setTitle(expense.title ?? "")
+      setDescription(expense.description ?? "")
+      setExpenseDate(formatDateOnly(expense.expenseDate ?? null))
+
+      if (expense.allocations) {
+        const newSelected: Record<string, boolean> = {}
+        const newFees: Record<string, string> = {}
+        const newGuestCounts: Record<string, string> = {}
+        const newGuestUnitPrices: Record<string, string> = {}
+        expense.allocations.forEach((a) => {
+          newSelected[a.userId] = true
+          const personal = a.requiredFee - (a.guestFee ?? 0)
+          newFees[a.userId] = personal.toString()
+          newGuestCounts[a.userId] = (a.guestCount ?? 0).toString()
+          const gUnitPrice =
+            a.guestCount && a.guestCount > 0 && a.guestFee
+              ? Math.floor(a.guestFee / a.guestCount)
+              : 0
+          newGuestUnitPrices[a.userId] = gUnitPrice.toString()
+        })
+        setSelectedMap(newSelected)
+        setFeeMap(newFees)
+        setGuestCountMap(newGuestCounts)
+        setGuestUnitPriceMap(newGuestUnitPrices)
+      }
+    }
+  }, [expense, mode])
+
+  // Auto fill checklist, guest count, title, description and date when linked activity details are loaded
+  useEffect(() => {
+    if (activityDetailQuery.data && mode === "create") {
+      const activity = activityDetailQuery.data
+
+      // Auto fill inputs
+      setTitle(`Hoạt động: ${activity.title}`)
+      setDescription(`Chi phí cho hoạt động: ${activity.title}`)
+      if (activity.startAt) {
+        const d = new Date(activity.startAt)
+        if (!isNaN(d.getTime())) {
+          const yyyy = d.getFullYear()
+          const mm = String(d.getMonth() + 1).padStart(2, "0")
+          const dd = String(d.getDate()).padStart(2, "0")
+          setExpenseDate(`${yyyy}-${mm}-${dd}`)
+        }
+      }
+
+      const newSelected: Record<string, boolean> = {}
+      const newGuestCounts: Record<string, string> = {}
+
+      resolvedMembers.forEach((m) => {
+        const mGuestCount =
+          m.guestCount !== undefined ? String(m.guestCount) : null
+        const att = activity.attendance?.find(
+          (a) => a.memberId === m.userId || a.member?.userId === m.userId
+        )
+        if (att) {
+          newSelected[m.userId] = att.status !== "ABSENT"
+          newGuestCounts[m.userId] =
+            mGuestCount ??
+            (att.guestStatus === "APPROVED" ? String(att.guestCount || 0) : "0")
+        } else {
+          newSelected[m.userId] = true
+          newGuestCounts[m.userId] = mGuestCount ?? "0"
+        }
+      })
+
+      setSelectedMap(newSelected)
+      setGuestCountMap(newGuestCounts)
+    }
+  }, [activityDetailQuery.data, resolvedMembers, mode])
+
+  const allocations = useMemo(
+    () =>
+      resolvedMembers
+        .filter((m) => selectedMap[m.userId])
+        .map((m) => {
+          const personal = Number(feeMap[m.userId] || 0)
+          const gCount = Number(guestCountMap[m.userId] || 0)
+          const gUnitPrice = Number(guestUnitPriceMap[m.userId] || 0)
+          const totalGuestFee = gCount * gUnitPrice
+
+          return {
+            userId: m.userId,
+            requiredFee: personal + totalGuestFee,
+            guestCount: gCount,
+            guestFee: totalGuestFee,
+          }
+        }),
+    [feeMap, guestCountMap, guestUnitPriceMap, resolvedMembers, selectedMap]
+  )
+
+  const totalAllocated = useMemo(
+    () => allocations.reduce((sum, a) => sum + a.requiredFee, 0),
+    [allocations]
+  )
+  const totalAmountNum = Number(totalAmount)
+  const isTotalMatching =
+    totalAllocated === totalAmountNum && totalAmountNum > 0
+
+  return (
+    <form action={formAction}>
+      <div className="space-y-4 py-2">
+        <FieldGroup>
+          {mode === "create" && (
+            <Field>
+              <FieldLabel htmlFor="expense-activity">
+                Liên kết hoạt động (không bắt buộc)
+              </FieldLabel>
+              {activitiesQuery.isLoading ? (
+                <div className="flex items-center gap-2 py-2 text-xs text-muted-foreground">
+                  <Loader2 className="size-4 animate-spin text-primary" />
+                  Đang tải danh sách hoạt động...
+                </div>
+              ) : (
+                <Select
+                  value={selectedActivityId || "none"}
+                  onValueChange={(val) =>
+                    setSelectedActivityId(val === "none" ? "" : val)
+                  }
+                >
+                  <SelectTrigger className="h-9 w-full border bg-background text-xs">
+                    <SelectValue placeholder="Chọn hoạt động nhóm..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none" className="text-xs">
+                      -- Không liên kết hoạt động --
+                    </SelectItem>
+                    {activitiesQuery.data?.data?.map((act) => (
+                      <SelectItem
+                        key={act.id}
+                        value={act.id}
+                        className="text-xs"
+                      >
+                        {act.title} -{" "}
+                        {new Date(act.startAt).toLocaleDateString("vi-VN")}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              <input
+                type="hidden"
+                name="activityId"
+                value={selectedActivityId}
+              />
+            </Field>
+          )}
+
+          <Field>
+            <FieldLabel htmlFor="expense-title">Tên khoản chi</FieldLabel>
+            <Input
+              id="expense-title"
+              name="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="expense-description">Mô tả</FieldLabel>
+            <Textarea
+              id="expense-description"
+              name="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </Field>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field>
+              <FieldLabel htmlFor="expense-amount">Tổng số tiền</FieldLabel>
+              <Input
+                id="expense-amount"
+                name="totalAmount"
+                type="number"
+                value={totalAmount}
+                onChange={(e) => setTotalAmount(e.target.value)}
+                required
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="expense-date">Ngày chi</FieldLabel>
+              <Input
+                id="expense-date"
+                name="expenseDate"
+                type="date"
+                value={expenseDate}
+                onChange={(e) => setExpenseDate(e.target.value)}
+                required
+              />
+            </Field>
+          </div>
+
+          <Field>
+            <FieldLabel>Phân bổ cho thành viên</FieldLabel>
+            <div className="max-h-80 space-y-3 overflow-y-auto rounded-md border bg-muted/5 p-3">
+              {resolvedMembers.map((member) => {
+                const isSelected = !!selectedMap[member.userId]
+                const personal = Number(feeMap[member.userId] || 0)
+                const gCount = Number(guestCountMap[member.userId] || 0)
+                const gUnitPrice = Number(guestUnitPriceMap[member.userId] || 0)
+                const memberTotal = personal + gCount * gUnitPrice
+
+                return (
+                  <div
+                    key={member.userId}
+                    className="flex flex-col gap-2 rounded-md border bg-card p-2.5 shadow-sm"
+                  >
+                    <div className="flex items-center justify-between">
+                      <label className="flex items-center gap-2 font-medium">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) =>
+                            setSelectedMap((prev) => ({
+                              ...prev,
+                              [member.userId]: e.target.checked,
+                            }))
+                          }
+                        />
+                        <span className="text-sm">{member.name}</span>
+                      </label>
+                    </div>
+                    {isSelected && (
+                      <div className="mt-2 space-y-3 border-t border-dashed pt-2">
+                        {/* Dòng 1: Phí thành viên (không full width) */}
+                        <div className="w-48">
+                          <span className="mb-0.5 block text-[10px] font-medium text-muted-foreground">
+                            Phí thành viên
+                          </span>
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            className="h-8 bg-background text-xs"
+                            value={feeMap[member.userId] ?? ""}
+                            onChange={(e) =>
+                              setFeeMap((prev) => ({
+                                ...prev,
+                                [member.userId]: e.target.value,
+                              }))
+                            }
+                          />
+                        </div>
+
+                        {/* Dòng 2: Phí mỗi khách (chỉ hiện khi số khách > 0) */}
+                        {gCount > 0 && (
+                          <div className="flex items-center gap-2">
+                            <div className="w-48 shrink-0">
+                              <span className="mb-0.5 block text-[10px] font-medium text-muted-foreground">
+                                Phí mỗi khách
+                              </span>
+                              <Input
+                                type="number"
+                                placeholder="0"
+                                className="h-8 bg-background text-xs"
+                                value={guestUnitPriceMap[member.userId] ?? ""}
+                                onChange={(e) =>
+                                  setGuestUnitPriceMap((prev) => ({
+                                    ...prev,
+                                    [member.userId]: e.target.value,
+                                  }))
+                                }
+                              />
+                            </div>
+                            <div className="pt-4 text-xs font-medium text-muted-foreground">
+                              * {gCount} khách =
+                            </div>
+                            <div className="pt-4 text-xs font-semibold text-foreground">
+                              {formatCurrency(gCount * gUnitPrice)}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Dòng 3: Tổng cộng */}
+                        <div className="flex items-center justify-between border-t border-muted-foreground/10 pt-2 text-xs">
+                          <span className="font-semibold text-muted-foreground">
+                            Tổng cộng:
+                          </span>
+                          <span className="font-bold text-foreground">
+                            {formatCurrency(memberTotal)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+            <div className="mt-2 flex items-center justify-between text-xs">
+              <span className="font-medium text-muted-foreground">
+                Đã phân bổ: {formatCurrency(totalAllocated)} /{" "}
+                {formatCurrency(totalAmountNum)}
+              </span>
+              <Button
+                type="button"
+                variant="link"
+                size="xs"
+                onClick={() => {
+                  if (totalAmountNum > 0) {
+                    const selectedMembers = resolvedMembers.filter(
+                      (m) => selectedMap[m.userId]
+                    )
+                    if (selectedMembers.length === 0) return
+
+                    let totalSlots = 0
+                    selectedMembers.forEach((m) => {
+                      const gCount = Number(guestCountMap[m.userId] || 0)
+                      totalSlots += 1 + gCount
+                    })
+
+                    if (totalSlots === 0) return
+                    const equalShare = Math.floor(totalAmountNum / totalSlots)
+                    const remainder = totalAmountNum % totalSlots
+
+                    const newFees: Record<string, string> = { ...feeMap }
+                    const newGuestUnitPrices: Record<string, string> = {
+                      ...guestUnitPriceMap,
+                    }
+
+                    selectedMembers.forEach((m, idx) => {
+                      newFees[m.userId] = (
+                        equalShare + (idx === 0 ? remainder : 0)
+                      ).toString()
+
+                      const gCount = Number(guestCountMap[m.userId] || 0)
+                      if (gCount > 0) {
+                        newGuestUnitPrices[m.userId] = equalShare.toString()
+                      } else {
+                        newGuestUnitPrices[m.userId] = "0"
+                      }
+                    })
+
+                    setFeeMap(newFees)
+                    setGuestUnitPriceMap(newGuestUnitPrices)
+                  }
+                }}
+              >
+                Chia đều
+              </Button>
+            </div>
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="expense-receipt-file">Tệp biên lai</FieldLabel>
+            <Input
+              id="expense-receipt-file"
+              name="receiptFile"
+              type="file"
+              accept="image/*"
+            />
+          </Field>
+        </FieldGroup>
+      </div>
+
+      <input
+        type="hidden"
+        name="allocations"
+        value={JSON.stringify(allocations)}
+      />
+
+      <DialogFooter showCloseButton>
+        <Button type="submit" disabled={isPending || !isTotalMatching}>
+          {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+          {mode === "create" ? "Tạo khoản chi" : "Lưu thay đổi"}
+        </Button>
+      </DialogFooter>
+    </form>
+  )
+}
+
+function DeleteForm({
+  label,
+  action,
+  onDone,
+}: {
+  label: string
+  action: (
+    prevState: { success?: boolean; error?: string },
+    formData: FormData
+  ) => Promise<{ success?: boolean; error?: string }>
+  onDone: () => void
+}) {
+  const [state, formAction, isPending] = useActionState(action, {})
+  useToastState(state, "Đã xóa thành công.", onDone)
+
+  return (
+    <form action={formAction} className="space-y-4">
+      <div className="space-y-2 py-2 text-sm text-muted-foreground">
+        {label}
+      </div>
+      <DialogFooter showCloseButton={false} className="pt-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onDone}
+          disabled={isPending}
+        >
+          Hủy
+        </Button>
+        <Button type="submit" variant="destructive" disabled={isPending}>
+          {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+          Xác nhận xóa
+        </Button>
+      </DialogFooter>
+    </form>
+  )
+}
+
+export function CreateTransactionButton({ groupId }: { groupId: string }) {
+  const [open, setOpen] = useState(false)
+  const invalidation = useFinanceInvalidation(groupId)
+
+  return (
+    <>
+      <Button
+        onClick={() => setOpen(true)}
+        size="sm"
+        className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+      >
+        <Plus className="mr-2 size-4" />
+        Gửi thanh toán
+      </Button>
+      <FinanceDialogShell
+        open={open}
+        onOpenChange={setOpen}
+        title="Gửi thanh toán"
+        description="Gửi thông tin giao dịch bạn đã chuyển khoản cho nhóm."
+      >
+        <TransactionForm
+          groupId={groupId}
+          onDone={() => {
+            void invalidation.refreshTransactions()
+            setOpen(false)
+          }}
+        />
+      </FinanceDialogShell>
+    </>
+  )
+}
+
+export function CreateExpenseButton({
+  groupId,
+  members,
+}: {
+  groupId: string
+  members: Member[]
+}) {
+  const [open, setOpen] = useState(false)
+  const invalidation = useFinanceInvalidation(groupId)
+
+  return (
+    <>
+      <Button
+        onClick={() => setOpen(true)}
+        size="sm"
+        className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+      >
+        <Plus className="mr-2 size-4" />
+        Tạo khoản chi
+      </Button>
+      <FinanceDialogShell
+        open={open}
+        onOpenChange={setOpen}
+        title="Tạo khoản chi"
+        description="Ghi nhận chi tiêu và phân bổ cho các thành viên."
+      >
+        <ExpenseForm
+          groupId={groupId}
+          mode="create"
+          members={members}
+          onDone={() => {
+            void invalidation.refreshExpenses()
+            setOpen(false)
+          }}
+        />
+      </FinanceDialogShell>
+    </>
+  )
+}
+
+export function RemindDebtButton({
+  groupId,
+  members,
+}: {
+  groupId: string
+  members: Member[]
+}) {
+  const [open, setOpen] = useState(false)
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([])
+  const [sendEmail, setSendEmail] = useState(true)
+  const [state, formAction, isPending] = useActionState(
+    remindDebtAction.bind(null, groupId),
+    {}
+  )
+
+  useToastState(state, "Đã gửi nhắc nợ thành công.", () => setOpen(false))
+
+  useEffect(() => {
+    if (!open) {
+      setSelectedUsers([])
+    }
+  }, [open])
+
+  const [nowTime] = useState(() => Date.now())
+
+  const debtsQuery = useGroupDebts(groupId, { limit: 1000 }, { enabled: open })
+  const debtsList = useMemo(
+    () => debtsQuery.data?.data ?? [],
+    [debtsQuery.data?.data]
+  )
+
+  const debtDetails = useMemo(() => {
+    return members.reduce<
+      Record<
+        string,
+        {
+          totalDebt: number
+          unpaidCount: number
+          oldestDebtDate: string
+          daysOverdue: number
+        }
+      >
+    >((acc, m) => {
+      const d = debtsList.find((item) => item.userId === m.userId)
+      if (!d) {
+        return {
+          ...acc,
+          [m.userId]: {
+            totalDebt: 0,
+            unpaidCount: 0,
+            oldestDebtDate: "-",
+            daysOverdue: 0,
+          },
+        }
+      }
+
+      let oldestDebtDate = "-"
+      let daysOverdue = 0
+      if (d.unpaidPayments && d.unpaidPayments.length > 0) {
+        const dates = d.unpaidPayments
+          .map((u) => new Date(u.createdAt))
+          .filter((date) => !isNaN(date.getTime()))
+        if (dates.length > 0) {
+          const oldest = new Date(
+            Math.min(...dates.map((date) => date.getTime()))
+          )
+          oldestDebtDate = oldest.toLocaleDateString("vi-VN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          })
+          const diff = nowTime - oldest.getTime()
+          daysOverdue = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
+        }
+      }
+
+      return {
+        ...acc,
+        [m.userId]: {
+          totalDebt: d.debt,
+          unpaidCount: d.unpaidPayments?.length ?? 0,
+          oldestDebtDate,
+          daysOverdue,
+        },
+      }
+    }, {})
+  }, [members, debtsList, nowTime])
+
+  return (
+    <>
+      <Button
+        onClick={() => setOpen(true)}
+        size="sm"
+        className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+      >
+        <Send className="mr-2 size-4" />
+        Nhắc nợ
+      </Button>
+      <FinanceDialogShell
+        open={open}
+        onOpenChange={setOpen}
+        title="Nhắc nợ thành viên"
+        description="Gửi thông báo nhắc nhở thành viên hoàn thành các khoản nợ."
+      >
+        <form action={formAction}>
+          <div className="space-y-4 py-2">
+            <Field>
+              <FieldLabel>Chọn thành viên</FieldLabel>
+              <div className="max-h-[400px] space-y-3 overflow-y-auto rounded-md border p-4">
+                {debtsQuery.isLoading ? (
+                  <div className="flex items-center justify-center gap-2 py-6 text-center text-sm text-muted-foreground">
+                    <Loader2 className="size-4 animate-spin" />
+                    Đang tải danh sách công nợ...
+                  </div>
+                ) : members.length === 0 ? (
+                  <div className="py-6 text-center text-sm text-muted-foreground">
+                    Không có thành viên nào.
+                  </div>
+                ) : (
+                  members.map((m) => {
+                    const detail = debtDetails[m.userId]
+                    const hasDebt = detail && detail.totalDebt > 0
+                    return (
+                      <div
+                        key={m.userId}
+                        className={`flex flex-col gap-2 rounded-lg border p-3 ${!hasDebt ? "bg-muted/20 opacity-60" : ""}`}
+                      >
+                        <label
+                          className={`flex items-center gap-3 ${hasDebt ? "cursor-pointer" : "cursor-not-allowed"}`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedUsers.includes(m.userId)}
+                            disabled={!hasDebt}
+                            onChange={(e) => {
+                              if (e.target.checked)
+                                setSelectedUsers([...selectedUsers, m.userId])
+                              else
+                                setSelectedUsers(
+                                  selectedUsers.filter((id) => id !== m.userId)
+                                )
+                            }}
+                          />
+                          <span className="font-medium">{m.name}</span>
+                          <Badge
+                            variant={
+                              detail.totalDebt > 50000
+                                ? "destructive"
+                                : "outline"
+                            }
+                            className="ml-auto"
+                          >
+                            {formatCurrency(detail.totalDebt)}
+                          </Badge>
+                        </label>
+                        <div className="ml-7 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                          <div>Số khoản: {detail.unpaidCount}</div>
+                          <div>Quá hạn: {detail.daysOverdue} ngày</div>
+                        </div>
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+            </Field>
+            <Field>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={sendEmail}
+                  onChange={(e) => setSendEmail(e.target.checked)}
+                />
+                <span className="text-sm">Gửi kèm Email thông báo</span>
+              </label>
+            </Field>
+          </div>
+          <input
+            type="hidden"
+            name="userIds"
+            value={JSON.stringify(selectedUsers)}
+          />
+          <input type="hidden" name="sendEmail" value={String(sendEmail)} />
+          <DialogFooter showCloseButton>
+            <Button
+              type="submit"
+              disabled={isPending || selectedUsers.length === 0}
+            >
+              {isPending ? (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              ) : null}
+              Gửi nhắc nợ ({selectedUsers.length})
+            </Button>
+          </DialogFooter>
+        </form>
+      </FinanceDialogShell>
+    </>
+  )
+}
+
+export function TransactionRowActions({
+  groupId,
+  transaction,
+  canManage,
+}: {
+  groupId: string
+  transaction: Transaction
+  canManage: boolean
+}) {
+  const invalidation = useFinanceInvalidation(groupId)
+  const [state, formAction, isPending] = useActionState(
+    verifyTransactionAction.bind(null, groupId, transaction.id),
+    {}
+  )
+
+  useToastState(state, "Đã cập nhật trạng thái giao dịch.", () =>
+    invalidation.refreshTransactions()
+  )
+
+  if (!canManage || transaction.status !== "PENDING_REVIEW") return null
+
+  return (
+    <form action={formAction} className="flex gap-2">
+      <Button
+        type="submit"
+        name="status"
+        value="VERIFIED"
+        size="xs"
+        className="bg-blue-600 text-white hover:bg-blue-800"
+        disabled={isPending}
+      >
+        Duyệt
+      </Button>
+      <Button
+        type="submit"
+        name="status"
+        value="REJECTED"
+        size="xs"
+        className="bg-red-500 text-white hover:bg-red-700"
+        disabled={isPending}
+      >
+        Từ chối
+      </Button>
+    </form>
+  )
+}
+
+export function ExpenseRowActions({
+  groupId,
+  expense,
+  members,
+  canManage,
+}: {
+  groupId: string
+  expense: ExpenseItem
+  members: Member[]
+  canManage: boolean
+}) {
+  const [editOpen, setEditOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [viewOpen, setViewOpen] = useState(false)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [expenseDetail, setExpenseDetail] = useState<ExpenseItem | null>(null)
+  const invalidation = useFinanceInvalidation(groupId)
+
+  const loadDetail = async () => {
+    if (expenseDetail) return
+    setDetailLoading(true)
+    try {
+      const res = await fetch(`/api/groups/${groupId}/expenses/${expense.id}`)
+      const json = await res.json()
+      setExpenseDetail(json.data)
+    } catch {
+      toast.error("Không thể tải chi tiết khoản chi.")
+    } finally {
+      setDetailLoading(false)
+    }
+  }
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <MoreHorizontal className="size-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            onSelect={() => {
+              setViewOpen(true)
+              void loadDetail()
+            }}
+          >
+            Xem chi tiết
+          </DropdownMenuItem>
+          {canManage && (
+            <DropdownMenuItem onSelect={() => setEditOpen(true)}>
+              Chỉnh sửa
+            </DropdownMenuItem>
+          )}
+          {canManage && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                variant="destructive"
+                onSelect={() => setDeleteOpen(true)}
+              >
+                Xóa
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <FinanceDialogShell
+        open={viewOpen}
+        onOpenChange={setViewOpen}
+        title="Chi tiết khoản chi"
+        description={expense.title}
+      >
+        {detailLoading ? (
+          <div className="py-10 text-center">
+            <Loader2 className="mx-auto animate-spin" />
+          </div>
+        ) : expenseDetail ? (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-xs text-muted-foreground uppercase">
+                  Số tiền
+                </div>
+                <div className="font-semibold">
+                  {formatCurrency(expenseDetail.totalAmount)}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground uppercase">
+                  Ngày chi
+                </div>
+                <div className="font-semibold">
+                  {formatDate(expenseDetail.expenseDate)}
+                </div>
+              </div>
+            </div>
+            {expenseDetail.description && (
+              <div>
+                <div className="text-xs text-muted-foreground uppercase">
+                  Mô tả
+                </div>
+                <div className="text-sm">{expenseDetail.description}</div>
+              </div>
+            )}
+            {expenseDetail.receiptUrl && (
+              <div>
+                <div className="text-xs text-muted-foreground uppercase">
+                  Chứng từ
+                </div>
+                <PaymentReceiptPreview receiptUrl={expenseDetail.receiptUrl} />
+              </div>
+            )}
+            <div className="rounded-md border bg-muted/20 p-3">
+              <div className="mb-1 text-xs font-semibold text-muted-foreground uppercase">
+                Chi tiết vật dụng
+              </div>
+              <ul className="space-y-1 text-sm">
+                <li>• Mua: Banh x5</li>
+                <li className="ml-4 text-xs text-muted-foreground">
+                  - Sử dụng cho trận 05/06
+                </li>
+                <li className="ml-4 text-xs text-muted-foreground">
+                  - Sử dụng cho buổi tập
+                </li>
+              </ul>
+            </div>
+            <div>
+              <div className="mb-2 text-xs text-muted-foreground uppercase">
+                Phân bổ thành viên
+              </div>
+              <div className="space-y-2">
+                {expenseDetail.allocations?.length ? (
+                  expenseDetail.allocations.map((a) => (
+                    <div
+                      key={a.id}
+                      className="flex items-center justify-between rounded-md border p-2 text-sm"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Avatar>
+                          <AvatarImage src={a.user?.avatarUrl || ""} />
+                          <AvatarFallback>
+                            {getInitials(a.user?.name || "?")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span>{a.user?.name}</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold">
+                          {formatCurrency(a.requiredFee)}
+                        </div>
+                        {a.guestCount && a.guestCount > 0 ? (
+                          <div className="text-[10px] text-muted-foreground">
+                            (Cá nhân:{" "}
+                            {formatCurrency(a.requiredFee - (a.guestFee ?? 0))}{" "}
+                            + {a.guestCount} khách: {formatCurrency(a.guestFee)}
+                            )
+                          </div>
+                        ) : null}
+                        <Badge
+                          variant={a.status === "PAID" ? "default" : "outline"}
+                          className="mt-0.5 h-4 text-[10px]"
+                        >
+                          {a.status}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">Không có</p>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </FinanceDialogShell>
+
+      <FinanceDialogShell
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        title="Chỉnh sửa khoản chi"
+        description={`Cập nhật khoản chi "${expense.title}".`}
+      >
+        <ExpenseForm
+          groupId={groupId}
+          mode="edit"
+          expense={expense}
+          members={members}
+          onDone={() => {
+            void invalidation.refreshExpenses()
+            setEditOpen(false)
+          }}
+        />
+      </FinanceDialogShell>
+
+      <FinanceDialogShell
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="Xóa khoản chi"
+        description="Thao tác này không thể hoàn tác."
+      >
+        <DeleteForm
+          label={`Bạn có chắc muốn xóa khoản chi "${expense.title}" không?`}
+          action={deleteExpenseAction.bind(null, groupId, expense.id)}
+          onDone={() => {
+            void invalidation.refreshExpenses()
+            setDeleteOpen(false)
+          }}
+        />
+      </FinanceDialogShell>
+    </>
+  )
+}

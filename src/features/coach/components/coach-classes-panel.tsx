@@ -1,27 +1,31 @@
 "use client"
 
+import { useQueryClient } from "@tanstack/react-query"
+import {
+  CalendarDays,
+  DollarSign,
+  Edit3,
+  Eye,
+  Plus,
+  Send,
+  Users,
+  XCircle,
+} from "lucide-react"
+import Link from "next/link"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { useQueryClient } from "@tanstack/react-query"
-import Link from "next/link"
 import { toast } from "sonner"
+
 import { ErrorState } from "@/components/shared/error-state"
-import { getErrorMessage } from "@/lib/api-client"
-import { CoachMediaService } from "@/features/coach/api/media-service"
-import { useSession } from "@/features/auth/hooks/use-session"
-import {
-  useMyClasses,
-  useCreateClass,
-  usePublishClass,
-  useCancelClass,
-} from "@/features/coach/hooks/use-coach-queries"
-import { coachQueryKeys } from "@/features/coach/api/query-keys"
-import type { CreateCoachClassDto, CoachClass, ClassStatus } from "@/features/coach/types/coach"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Progress } from "@/components/ui/progress"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -38,7 +42,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import { Progress } from "@/components/ui/progress"
 import {
   Select,
   SelectContent,
@@ -46,8 +50,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Eye, Edit3, XCircle, Send, CalendarDays, Users, DollarSign } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { useSession } from "@/features/auth/hooks/use-session"
+import { CoachMediaService } from "@/features/coach/api/media-service"
+import { coachQueryKeys } from "@/features/coach/api/query-keys"
+import {
+  useCancelClass,
+  useCreateClass,
+  useMyClasses,
+  usePublishClass,
+} from "@/features/coach/hooks/use-coach-queries"
+import type {
+  ClassStatus,
+  CoachClass,
+  CreateCoachClassDto,
+} from "@/features/coach/types/coach"
+import { getErrorMessage } from "@/lib/api-client"
 
 const STATUS_TABS: { label: string; value: ClassStatus | "ALL" }[] = [
   { label: "Tất cả", value: "ALL" },
@@ -59,12 +79,24 @@ const STATUS_TABS: { label: string; value: ClassStatus | "ALL" }[] = [
   { label: "Đã hủy", value: "CANCELLED" },
 ]
 
-const STATUS_BADGE: Record<ClassStatus, { variant: "default" | "secondary" | "destructive" | "outline"; className?: string }> = {
+const STATUS_BADGE: Record<
+  ClassStatus,
+  {
+    variant: "default" | "secondary" | "destructive" | "outline"
+    className?: string
+  }
+> = {
   DRAFT: { variant: "secondary" },
   OPEN: { variant: "default", className: "bg-blue-600 hover:bg-blue-600/80" },
-  FULL: { variant: "secondary", className: "bg-amber-500/20 text-amber-700 hover:bg-amber-500/30" },
+  FULL: {
+    variant: "secondary",
+    className: "bg-amber-500/20 text-amber-700 hover:bg-amber-500/30",
+  },
   ONGOING: { variant: "default", className: "bg-sky-600 hover:bg-sky-600/80" },
-  COMPLETED: { variant: "secondary", className: "bg-emerald-500/20 text-emerald-700 hover:bg-emerald-500/30" },
+  COMPLETED: {
+    variant: "secondary",
+    className: "bg-emerald-500/20 text-emerald-700 hover:bg-emerald-500/30",
+  },
   CANCELLED: { variant: "outline" },
 }
 
@@ -85,12 +117,19 @@ const LEVEL_OPTIONS = [
 ]
 
 function formatPrice(vnd: number) {
-  return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(vnd)
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(vnd)
 }
 
 function formatDate(dateStr: string | null | undefined) {
   if (!dateStr) return "—"
-  return new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(dateStr))
+  return new Intl.DateTimeFormat("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(dateStr))
 }
 
 function ClassCard({
@@ -110,7 +149,10 @@ function ClassCard({
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="line-clamp-1 text-base">{cls.title}</CardTitle>
-          <Badge variant={badgeConfig.variant} className={badgeConfig.className}>
+          <Badge
+            variant={badgeConfig.variant}
+            className={badgeConfig.className}
+          >
             {STATUS_LABEL[cls.status]}
           </Badge>
         </div>
@@ -127,7 +169,13 @@ function ClassCard({
             {cls.enrolledCount ?? cls._count?.enrollments ?? 0} / {cls.capacity}
           </span>
         </div>
-        <Progress value={((cls.enrolledCount ?? cls._count?.enrollments ?? 0) / cls.capacity) * 100} />
+        <Progress
+          value={
+            ((cls.enrolledCount ?? cls._count?.enrollments ?? 0) /
+              cls.capacity) *
+            100
+          }
+        />
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <DollarSign className="size-4" />
           <span>{formatPrice(cls.priceVnd)}</span>
@@ -135,14 +183,19 @@ function ClassCard({
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <CalendarDays className="size-4" />
           <span>
-            {scheduleCount} buổi · {formatDate(cls.startDate)} – {formatDate(cls.endDate)}
+            {scheduleCount} buổi · {formatDate(cls.startDate)} –{" "}
+            {formatDate(cls.endDate)}
           </span>
         </div>
       </CardContent>
       <CardFooter className="flex flex-wrap gap-2 border-t pt-4">
         {cls.status === "DRAFT" && (
           <>
-            <Button size="sm" variant="default" onClick={() => onPublish(cls.id)}>
+            <Button
+              size="sm"
+              variant="default"
+              onClick={() => onPublish(cls.id)}
+            >
               <Send /> Xuất bản
             </Button>
             <Button size="sm" variant="outline" asChild>
@@ -150,7 +203,11 @@ function ClassCard({
                 <Edit3 /> Chỉnh sửa
               </Link>
             </Button>
-            <Button size="sm" variant="destructive" onClick={() => onCancel(cls.id)}>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => onCancel(cls.id)}
+            >
               <XCircle /> Hủy
             </Button>
           </>
@@ -162,7 +219,11 @@ function ClassCard({
                 <Edit3 /> Chỉnh sửa
               </Link>
             </Button>
-            <Button size="sm" variant="destructive" onClick={() => onCancel(cls.id)}>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => onCancel(cls.id)}
+            >
               <XCircle /> Hủy lớp
             </Button>
           </>
@@ -190,7 +251,13 @@ export function CoachClassesPanel() {
 
   const session = useSession()
   const queryClient = useQueryClient()
-  const { data: classes, isLoading, isError, error, refetch } = useMyClasses(
+  const {
+    data: classes,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useMyClasses(
     statusFilter === "ALL" ? undefined : { status: statusFilter },
     { enabled: !!session?.user }
   )
@@ -245,14 +312,16 @@ export function CoachClassesPanel() {
   const handlePublish = (classId: string) => {
     publishClass.mutate(classId, {
       onSuccess: () => toast.success("Đã xuất bản lớp học"),
-      onError: (err) => toast.error(err instanceof Error ? err.message : "Xuất bản thất bại"),
+      onError: (err) =>
+        toast.error(err instanceof Error ? err.message : "Xuất bản thất bại"),
     })
   }
 
   const handleCancel = (classId: string) => {
     cancelClass.mutate(classId, {
       onSuccess: () => toast.success("Đã hủy lớp học"),
-      onError: (err) => toast.error(err instanceof Error ? err.message : "Hủy lớp thất bại"),
+      onError: (err) =>
+        toast.error(err instanceof Error ? err.message : "Hủy lớp thất bại"),
     })
   }
 
@@ -280,7 +349,10 @@ export function CoachClassesPanel() {
               <DialogTitle>Tạo lớp học mới</DialogTitle>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onCreateSubmit)} className="space-y-4">
+              <form
+                onSubmit={form.handleSubmit(onCreateSubmit)}
+                className="space-y-4"
+              >
                 <FormField
                   control={form.control}
                   name="title"
@@ -289,7 +361,10 @@ export function CoachClassesPanel() {
                     <FormItem>
                       <FormLabel>Tiêu đề *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Ví dụ: Pickleball cơ bản" {...field} />
+                        <Input
+                          placeholder="Ví dụ: Pickleball cơ bản"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -302,7 +377,10 @@ export function CoachClassesPanel() {
                     <FormItem>
                       <FormLabel>Mô tả</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Mô tả về lớp học..." {...field} />
+                        <Textarea
+                          placeholder="Mô tả về lớp học..."
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -316,7 +394,10 @@ export function CoachClassesPanel() {
                       <FormItem>
                         <FormLabel>Cấp độ</FormLabel>
                         <FormControl>
-                          <Select value={field.value ?? "Beginner"} onValueChange={field.onChange}>
+                          <Select
+                            value={field.value ?? "Beginner"}
+                            onValueChange={field.onChange}
+                          >
                             <SelectTrigger className="w-full">
                               <SelectValue placeholder="Chọn cấp độ" />
                             </SelectTrigger>
@@ -336,7 +417,10 @@ export function CoachClassesPanel() {
                   <FormField
                     control={form.control}
                     name="capacity"
-                    rules={{ required: "Số lượng không được để trống", min: { value: 1, message: "Tối thiểu 1 học viên" } }}
+                    rules={{
+                      required: "Số lượng không được để trống",
+                      min: { value: 1, message: "Tối thiểu 1 học viên" },
+                    }}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Số lượng *</FormLabel>
@@ -360,7 +444,10 @@ export function CoachClassesPanel() {
                 <FormField
                   control={form.control}
                   name="priceVnd"
-                  rules={{ required: "Giá không được để trống", min: { value: 0, message: "Giá không hợp lệ" } }}
+                  rules={{
+                    required: "Giá không được để trống",
+                    min: { value: 0, message: "Giá không hợp lệ" },
+                  }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Giá (VNĐ) *</FormLabel>
@@ -387,7 +474,10 @@ export function CoachClassesPanel() {
                     <FormItem>
                       <FormLabel>Địa điểm</FormLabel>
                       <FormControl>
-                        <Input placeholder="Ví dụ: Sân PickleHub Quận 1" {...field} />
+                        <Input
+                          placeholder="Ví dụ: Sân PickleHub Quận 1"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -417,7 +507,8 @@ export function CoachClassesPanel() {
                               const file = e.target.files?.[0]
                               if (!file) return
                               try {
-                                const url = await CoachMediaService.uploadImage(file)
+                                const url =
+                                  await CoachMediaService.uploadImage(file)
                                 field.onChange(url)
                                 toast.success("Tải ảnh lên thành công")
                               } catch {
@@ -460,7 +551,11 @@ export function CoachClassesPanel() {
                   />
                 </div>
                 <div className="flex justify-end gap-3 pt-2">
-                  <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setDialogOpen(false)}
+                  >
                     Hủy
                   </Button>
                   <Button type="submit" disabled={createClass.isPending}>
@@ -478,9 +573,16 @@ export function CoachClassesPanel() {
         onValueChange={(v) => setStatusFilter(v as ClassStatus | "ALL")}
         className="w-full gap-6"
       >
-        <TabsList variant="line" className="w-full min-w-0 flex-wrap justify-start gap-1 overflow-x-auto pb-1">
+        <TabsList
+          variant="line"
+          className="w-full min-w-0 flex-wrap justify-start gap-1 overflow-x-auto pb-1"
+        >
           {STATUS_TABS.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value} className="sm:flex-none">
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className="sm:flex-none"
+            >
               {tab.label}
             </TabsTrigger>
           ))}

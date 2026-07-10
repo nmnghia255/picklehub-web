@@ -11,6 +11,23 @@ export type CalendarView = "month" | "week" | "agenda"
 export type PeriodFilter = "today" | "week" | "month"
 export type ActivityTypeFilter = ActivityType | "all"
 
+export type AttendanceStatus = "ATTENDING" | "ABSENT"
+
+export interface ActivityAttendance {
+  id: string
+  activityId: string
+  memberId: string
+  status: AttendanceStatus
+  guestCount: number
+  guestStatus: "PENDING" | "APPROVED" | "REJECTED" | null
+  pendingGuestCount?: number | null
+  member?: {
+    userId: string
+    name: string
+    email: string
+  }
+}
+
 export interface GroupActivity {
   id: string
   groupId: string
@@ -25,6 +42,10 @@ export interface GroupActivity {
   createdAt: string
   updatedAt: string
   equipment?: { name: string; quantity: number }[]
+  bookingId?: string | null
+  courtBookingId?: string | null
+  cancellationDeadlineHours?: number
+  attendance?: ActivityAttendance[]
 }
 
 export interface CreateGroupActivityDto {
@@ -35,6 +56,7 @@ export interface CreateGroupActivityDto {
   startAt: string
   endAt: string
   remindAt?: string
+  courtBookingId?: string | null
 }
 
 export interface UpdateGroupActivityDto extends Partial<CreateGroupActivityDto> {
@@ -45,6 +67,7 @@ export interface ListActivitiesParams {
   page?: number
   limit?: number
   type?: "upcoming" | "past"
+  hasExpense?: boolean
 }
 
 export interface PaginatedActivitiesResponse {
@@ -77,4 +100,5 @@ export interface EventFormValues {
   description: string
   remindAt?: string
   status: GroupActivityStatus
+  courtBookingId?: string | null
 }

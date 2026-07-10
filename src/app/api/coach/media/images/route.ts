@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+import { NextResponse } from "next/server"
 
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
@@ -21,8 +22,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(response.data)
   } catch (error: unknown) {
-    const message =
-      error instanceof Error ? error.message : "Upload failed"
+    const message = error instanceof Error ? error.message : "Upload failed"
     return NextResponse.json({ message }, { status: 500 })
   }
 }

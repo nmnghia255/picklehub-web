@@ -1,6 +1,22 @@
 "use client"
 
-import { ArrowLeft, Award, BadgeCheck, BarChart3, BookOpen, Calendar, Clock, Globe, Info, MapPin, Pencil, Plus, Star, Trash2,Users } from "lucide-react"
+import {
+  ArrowLeft,
+  Award,
+  BadgeCheck,
+  BarChart3,
+  BookOpen,
+  Calendar,
+  Clock,
+  Globe,
+  Info,
+  MapPin,
+  Pencil,
+  Plus,
+  Star,
+  Trash2,
+  Users,
+} from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useCallback, useState } from "react"
 import { toast } from "sonner"
@@ -9,17 +25,42 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useSession } from "@/features/auth/hooks/use-session"
-import { useCoachOpenClasses, useCoachPublicProfile, useCoachReviews, useCreateReview, useDeleteReview,useUpdateReview } from "@/features/coach/hooks/use-coach-queries"
-import type { Certification, CoachLevel, CoachProfile, LearnerScheduleItem,VerificationStatus } from "@/features/coach/types/coach"
-import { useCreateBooking, useEnrollInClass, useLearnerSchedule } from "@/features/learner/hooks/use-learner-queries"
+import {
+  useCoachOpenClasses,
+  useCoachPublicProfile,
+  useCoachReviews,
+  useCreateReview,
+  useDeleteReview,
+  useUpdateReview,
+} from "@/features/coach/hooks/use-coach-queries"
+import type {
+  Certification,
+  CoachLevel,
+  CoachProfile,
+  LearnerScheduleItem,
+  VerificationStatus,
+} from "@/features/coach/types/coach"
 import { LearnerCoachRecommendationDialog } from "@/features/learner/components/learner-coach-recommendation-dialog"
+import {
+  useCreateBooking,
+  useEnrollInClass,
+  useLearnerSchedule,
+} from "@/features/learner/hooks/use-learner-queries"
 
 const LEVEL_LABELS: Record<CoachLevel, string> = {
   Beginner: "Cơ bản",
@@ -63,7 +104,10 @@ function formatRelativeTime(dateStr: string) {
 }
 
 function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount)
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(amount)
 }
 
 function getCertBadgeVariant(status: VerificationStatus) {
@@ -79,8 +123,12 @@ function getCertBadgeVariant(status: VerificationStatus) {
 }
 
 function OverviewTab({ coach }: { coach: CoachProfile }) {
-  const { data: reviewsData, isLoading: reviewsLoading } = useCoachReviews(coach.id)
-  const { data: classes, isLoading: classesLoading } = useCoachOpenClasses(coach.id)
+  const { data: reviewsData, isLoading: reviewsLoading } = useCoachReviews(
+    coach.id
+  )
+  const { data: classes, isLoading: classesLoading } = useCoachOpenClasses(
+    coach.id
+  )
   const reviews = reviewsData?.reviews ?? []
 
   return (
@@ -94,7 +142,9 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="whitespace-pre-line text-muted-foreground">{coach.bio}</p>
+            <p className="whitespace-pre-line text-muted-foreground">
+              {coach.bio}
+            </p>
           </CardContent>
         </Card>
       )}
@@ -119,7 +169,9 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
               <p className="text-sm text-muted-foreground">Chuyên môn</p>
               <div className="flex flex-wrap gap-1">
                 {coach.specialties.map((s) => (
-                  <Badge key={s} variant="outline">{s}</Badge>
+                  <Badge key={s} variant="outline">
+                    {s}
+                  </Badge>
                 ))}
               </div>
             </div>
@@ -152,20 +204,30 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
           <CardContent>
             <div className="space-y-4">
               {coach.certifications.map((cert: Certification) => (
-                <div key={cert.id} className="flex items-center justify-between rounded-lg border p-4">
+                <div
+                  key={cert.id}
+                  className="flex items-center justify-between rounded-lg border p-4"
+                >
                   <div className="space-y-1">
                     <p className="font-medium">{cert.name}</p>
                     {cert.issuingOrganization && (
-                      <p className="text-sm text-muted-foreground">{cert.issuingOrganization}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {cert.issuingOrganization}
+                      </p>
                     )}
                     <p className="text-xs text-muted-foreground">
-                      Cấp ngày: {new Date(cert.issuedAt).toLocaleDateString("vi-VN")}
-                      {cert.expiresAt && ` - Hết hạn: ${new Date(cert.expiresAt).toLocaleDateString("vi-VN")}`}
+                      Cấp ngày:{" "}
+                      {new Date(cert.issuedAt).toLocaleDateString("vi-VN")}
+                      {cert.expiresAt &&
+                        ` - Hết hạn: ${new Date(cert.expiresAt).toLocaleDateString("vi-VN")}`}
                     </p>
                   </div>
-                  <Badge className={getCertBadgeVariant(cert.verificationStatus)}>
+                  <Badge
+                    className={getCertBadgeVariant(cert.verificationStatus)}
+                  >
                     {cert.verificationStatus === "VERIFIED" && "Đã xác thực"}
-                    {cert.verificationStatus === "UNVERIFIED" && "Chưa xác thực"}
+                    {cert.verificationStatus === "UNVERIFIED" &&
+                      "Chưa xác thực"}
                     {cert.verificationStatus === "PENDING" && "Đang chờ"}
                     {cert.verificationStatus === "REJECTED" && "Từ chối"}
                   </Badge>
@@ -186,12 +248,16 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
         <CardContent>
           <div className="flex items-center gap-4">
             <div className="text-center">
-              <p className="text-4xl font-bold">{coach.averageRating.toFixed(1)}</p>
+              <p className="text-4xl font-bold">
+                {coach.averageRating.toFixed(1)}
+              </p>
               <StarRating rating={coach.averageRating} />
             </div>
             <Separator orientation="vertical" className="h-16" />
             <div>
-              <p className="text-sm text-muted-foreground">{coach.reviewCount} đánh giá</p>
+              <p className="text-sm text-muted-foreground">
+                {coach.reviewCount} đánh giá
+              </p>
             </div>
           </div>
         </CardContent>
@@ -221,16 +287,30 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
           <CardContent>
             <div className="space-y-6">
               {reviews.slice(0, 5).map((review, idx) => (
-                <div key={review.reviewId ?? `review-${idx}`} className="flex gap-4">
+                <div
+                  key={review.reviewId ?? `review-${idx}`}
+                  className="flex gap-4"
+                >
                   <Avatar size="default">
-                    <AvatarImage src={review.reviewerProfile.avatar ?? ""} alt={review.reviewerProfile.name} />
-                    <AvatarFallback>{review.reviewerProfile.name.charAt(0).toUpperCase()}</AvatarFallback>
+                    <AvatarImage
+                      src={review.reviewerProfile.avatar ?? ""}
+                      alt={review.reviewerProfile.name}
+                    />
+                    <AvatarFallback>
+                      {review.reviewerProfile.name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 space-y-1">
                     <p className="font-medium">{review.reviewerProfile.name}</p>
                     <StarRating rating={review.rating} />
-                    {review.comment && <p className="text-sm text-muted-foreground">{review.comment}</p>}
-                    <p className="text-xs text-muted-foreground">{formatRelativeTime(review.createdAt)}</p>
+                    {review.comment && (
+                      <p className="text-sm text-muted-foreground">
+                        {review.comment}
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      {formatRelativeTime(review.createdAt)}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -261,26 +341,44 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
           ) : (
             <div className="space-y-4">
               {classes.map((cls, idx) => (
-                <div key={cls.id ?? `class-${idx}`} className="rounded-lg border p-4 transition-colors hover:bg-accent/50">
+                <div
+                  key={cls.id ?? `class-${idx}`}
+                  className="rounded-lg border p-4 transition-colors hover:bg-accent/50"
+                >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 space-y-2">
                       <div className="flex items-center gap-2">
                         <h3 className="font-semibold">{cls.title}</h3>
-                        <Badge variant="outline">{LEVEL_LABELS[cls.level]}</Badge>
+                        <Badge variant="outline">
+                          {LEVEL_LABELS[cls.level]}
+                        </Badge>
                       </div>
                       <div className="flex flex-wrap items-center gap-4 text-sm">
-                        <span className="text-muted-foreground">{formatCurrency(cls.priceVnd)}</span>
-                        <span className="text-muted-foreground">{cls.enrolledCount}/{cls.capacity} học viên</span>
+                        <span className="text-muted-foreground">
+                          {formatCurrency(cls.priceVnd)}
+                        </span>
+                        <span className="text-muted-foreground">
+                          {cls.enrolledCount}/{cls.capacity} học viên
+                        </span>
                       </div>
                       {cls.schedules && cls.schedules.length > 0 && (
                         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                           <Calendar className="size-4" />
                           {cls.schedules.slice(0, 3).map((sched, sIdx) => (
-                            <span key={sched.id ?? `sched-${sIdx}`} className="rounded-md border px-2 py-0.5 text-xs">
-                              {new Date(sched.scheduledAt).toLocaleDateString("vi-VN", {
-                                weekday: "short", day: "numeric", month: "numeric",
-                                hour: "2-digit", minute: "2-digit",
-                              })}
+                            <span
+                              key={sched.id ?? `sched-${sIdx}`}
+                              className="rounded-md border px-2 py-0.5 text-xs"
+                            >
+                              {new Date(sched.scheduledAt).toLocaleDateString(
+                                "vi-VN",
+                                {
+                                  weekday: "short",
+                                  day: "numeric",
+                                  month: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
                             </span>
                           ))}
                         </div>
@@ -299,12 +397,15 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
 
 function ScheduleTab({ coachId }: { coachId: string }) {
   const session = useSession()
-  const { data, isLoading, error } = useLearnerSchedule({
-    coachProfileId: coachId,
-    state: "all",
-    sort: "asc",
-    limit: 50,
-  }, { enabled: !!session?.user })
+  const { data, isLoading, error } = useLearnerSchedule(
+    {
+      coachProfileId: coachId,
+      state: "all",
+      sort: "asc",
+      limit: 50,
+    },
+    { enabled: !!session?.user }
+  )
 
   if (isLoading) {
     return (
@@ -321,7 +422,9 @@ function ScheduleTab({ coachId }: { coachId: string }) {
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <Calendar className="mb-2 size-10 text-muted-foreground" />
-          <p className="text-muted-foreground">Chưa có lịch học với huấn luyện viên này</p>
+          <p className="text-muted-foreground">
+            Chưa có lịch học với huấn luyện viên này
+          </p>
         </CardContent>
       </Card>
     )
@@ -335,11 +438,28 @@ function ScheduleTab({ coachId }: { coachId: string }) {
             <div className="flex-1 space-y-1">
               <p className="font-medium">{item.title}</p>
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                <span>{new Date(item.startsAt).toLocaleDateString("vi-VN", {
-                  weekday: "long", day: "numeric", month: "numeric", year: "numeric",
-                })}</span>
-                <span>{new Date(item.startsAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}</span>
-                <span>{Math.round((new Date(item.endsAt).getTime() - new Date(item.startsAt).getTime()) / 60000)} phút</span>
+                <span>
+                  {new Date(item.startsAt).toLocaleDateString("vi-VN", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "numeric",
+                    year: "numeric",
+                  })}
+                </span>
+                <span>
+                  {new Date(item.startsAt).toLocaleTimeString("vi-VN", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+                <span>
+                  {Math.round(
+                    (new Date(item.endsAt).getTime() -
+                      new Date(item.startsAt).getTime()) /
+                      60000
+                  )}{" "}
+                  phút
+                </span>
               </div>
             </div>
             <Badge>
@@ -390,7 +510,11 @@ function ReviewsTab({ coachId }: { coachId: string }) {
     }
   }
 
-  const handleStartEdit = (review: { reviewId: string; rating: number; comment: string | null }) => {
+  const handleStartEdit = (review: {
+    reviewId: string
+    rating: number
+    comment: string | null
+  }) => {
     setEditingReviewId(review.reviewId)
     setEditRating(review.rating)
     setEditComment(review.comment ?? "")
@@ -447,7 +571,9 @@ function ReviewsTab({ coachId }: { coachId: string }) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <p className="text-destructive">Không thể tải đánh giá. Vui lòng thử lại sau.</p>
+          <p className="text-destructive">
+            Không thể tải đánh giá. Vui lòng thử lại sau.
+          </p>
         </CardContent>
       </Card>
     )
@@ -466,7 +592,9 @@ function ReviewsTab({ coachId }: { coachId: string }) {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Viết đánh giá</DialogTitle>
-              <DialogDescription>Chia sẻ trải nghiệm của bạn với huấn luyện viên này.</DialogDescription>
+              <DialogDescription>
+                Chia sẻ trải nghiệm của bạn với huấn luyện viên này.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
@@ -496,8 +624,13 @@ function ReviewsTab({ coachId }: { coachId: string }) {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setReviewOpen(false)}>Hủy</Button>
-              <Button onClick={handleSubmitReview} disabled={createReview.isPending}>
+              <Button variant="outline" onClick={() => setReviewOpen(false)}>
+                Hủy
+              </Button>
+              <Button
+                onClick={handleSubmitReview}
+                disabled={createReview.isPending}
+              >
                 {createReview.isPending ? "Đang gửi..." : "Gửi đánh giá"}
               </Button>
             </DialogFooter>
@@ -516,18 +649,30 @@ function ReviewsTab({ coachId }: { coachId: string }) {
         <Card>
           <CardContent className="space-y-6 pt-6">
             {reviews.map((review, idx) => {
-              const isOwnReview = session?.user?.id && review.reviewerProfile.userId === session.user.id
+              const isOwnReview =
+                session?.user?.id &&
+                review.reviewerProfile.userId === session.user.id
               const isEditing = editingReviewId === review.reviewId
 
               if (isEditing) {
                 return (
-                  <div key={review.reviewId ?? `review-${idx}`} className="flex gap-4 rounded-lg border p-4">
+                  <div
+                    key={review.reviewId ?? `review-${idx}`}
+                    className="flex gap-4 rounded-lg border p-4"
+                  >
                     <Avatar size="default">
-                      <AvatarImage src={review.reviewerProfile.avatar ?? ""} alt={review.reviewerProfile.name} />
-                      <AvatarFallback>{review.reviewerProfile.name.charAt(0).toUpperCase()}</AvatarFallback>
+                      <AvatarImage
+                        src={review.reviewerProfile.avatar ?? ""}
+                        alt={review.reviewerProfile.name}
+                      />
+                      <AvatarFallback>
+                        {review.reviewerProfile.name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 space-y-2">
-                      <p className="font-medium">{review.reviewerProfile.name}</p>
+                      <p className="font-medium">
+                        {review.reviewerProfile.name}
+                      </p>
                       <div className="flex gap-1">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <button
@@ -547,10 +692,18 @@ function ReviewsTab({ coachId }: { coachId: string }) {
                         onChange={(e) => setEditComment(e.target.value)}
                       />
                       <div className="flex gap-2">
-                        <Button size="sm" onClick={handleSaveEdit} disabled={updateReview.isPending}>
+                        <Button
+                          size="sm"
+                          onClick={handleSaveEdit}
+                          disabled={updateReview.isPending}
+                        >
                           {updateReview.isPending ? "Đang lưu..." : "Lưu"}
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => setEditingReviewId(null)}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingReviewId(null)}
+                        >
                           Hủy
                         </Button>
                       </div>
@@ -560,14 +713,24 @@ function ReviewsTab({ coachId }: { coachId: string }) {
               }
 
               return (
-                <div key={review.reviewId ?? `review-${idx}`} className="flex gap-4">
+                <div
+                  key={review.reviewId ?? `review-${idx}`}
+                  className="flex gap-4"
+                >
                   <Avatar size="default">
-                    <AvatarImage src={review.reviewerProfile.avatar ?? ""} alt={review.reviewerProfile.name} />
-                    <AvatarFallback>{review.reviewerProfile.name.charAt(0).toUpperCase()}</AvatarFallback>
+                    <AvatarImage
+                      src={review.reviewerProfile.avatar ?? ""}
+                      alt={review.reviewerProfile.name}
+                    />
+                    <AvatarFallback>
+                      {review.reviewerProfile.name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
-                      <p className="font-medium">{review.reviewerProfile.name}</p>
+                      <p className="font-medium">
+                        {review.reviewerProfile.name}
+                      </p>
                       {isOwnReview && (
                         <div className="flex gap-1">
                           <button
@@ -590,8 +753,14 @@ function ReviewsTab({ coachId }: { coachId: string }) {
                       )}
                     </div>
                     <StarRating rating={review.rating} />
-                    {review.comment && <p className="text-sm text-muted-foreground">{review.comment}</p>}
-                    <p className="text-xs text-muted-foreground">{formatRelativeTime(review.createdAt)}</p>
+                    {review.comment && (
+                      <p className="text-sm text-muted-foreground">
+                        {review.comment}
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      {formatRelativeTime(review.createdAt)}
+                    </p>
                   </div>
                 </div>
               )
@@ -600,15 +769,29 @@ function ReviewsTab({ coachId }: { coachId: string }) {
         </Card>
       )}
 
-      <Dialog open={!!deleteConfirmId} onOpenChange={(open) => { if (!open) setDeleteConfirmId(null) }}>
+      <Dialog
+        open={!!deleteConfirmId}
+        onOpenChange={(open) => {
+          if (!open) setDeleteConfirmId(null)
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Xác nhận xóa đánh giá</DialogTitle>
-            <DialogDescription>Bạn có chắc chắn muốn xóa đánh giá này? Hành động này không thể hoàn tác.</DialogDescription>
+            <DialogDescription>
+              Bạn có chắc chắn muốn xóa đánh giá này? Hành động này không thể
+              hoàn tác.
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>Hủy</Button>
-            <Button variant="destructive" onClick={handleDeleteReview} disabled={deleteReview.isPending}>
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
+              Hủy
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteReview}
+              disabled={deleteReview.isPending}
+            >
               {deleteReview.isPending ? "Đang xóa..." : "Xóa"}
             </Button>
           </DialogFooter>
@@ -652,7 +835,9 @@ function ClassesTab({ coachId }: { coachId: string }) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <p className="text-destructive">Không thể tải lớp học. Vui lòng thử lại sau.</p>
+          <p className="text-destructive">
+            Không thể tải lớp học. Vui lòng thử lại sau.
+          </p>
         </CardContent>
       </Card>
     )
@@ -663,7 +848,9 @@ function ClassesTab({ coachId }: { coachId: string }) {
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <BookOpen className="mb-2 size-10 text-muted-foreground" />
-          <p className="text-muted-foreground">Huấn luyện viên chưa có lớp học nào</p>
+          <p className="text-muted-foreground">
+            Huấn luyện viên chưa có lớp học nào
+          </p>
         </CardContent>
       </Card>
     )
@@ -681,18 +868,31 @@ function ClassesTab({ coachId }: { coachId: string }) {
                   <Badge variant="outline">{LEVEL_LABELS[cls.level]}</Badge>
                 </div>
                 <div className="flex flex-wrap items-center gap-4 text-sm">
-                  <span className="text-muted-foreground">{formatCurrency(cls.priceVnd)}</span>
-                  <span className="text-muted-foreground">{cls.enrolledCount}/{cls.capacity} học viên</span>
+                  <span className="text-muted-foreground">
+                    {formatCurrency(cls.priceVnd)}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {cls.enrolledCount}/{cls.capacity} học viên
+                  </span>
                 </div>
                 {cls.schedules && cls.schedules.length > 0 && (
                   <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                     <Calendar className="size-4" />
                     {cls.schedules.map((sched, sIdx) => (
-                      <span key={sched.id ?? `sched-${sIdx}`} className="rounded-md border px-2 py-0.5 text-xs">
-                        {new Date(sched.scheduledAt).toLocaleDateString("vi-VN", {
-                          weekday: "short", day: "numeric", month: "numeric",
-                          hour: "2-digit", minute: "2-digit",
-                        })}
+                      <span
+                        key={sched.id ?? `sched-${sIdx}`}
+                        className="rounded-md border px-2 py-0.5 text-xs"
+                      >
+                        {new Date(sched.scheduledAt).toLocaleDateString(
+                          "vi-VN",
+                          {
+                            weekday: "short",
+                            day: "numeric",
+                            month: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )}
                       </span>
                     ))}
                   </div>
@@ -729,7 +929,9 @@ function InfoTab({ coach }: { coach: CoachProfile }) {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Giá theo giờ</p>
-              <p className="font-medium">{formatCurrency(coach.hourlyRateVnd)}</p>
+              <p className="font-medium">
+                {formatCurrency(coach.hourlyRateVnd)}
+              </p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Thành phố</p>
@@ -739,9 +941,11 @@ function InfoTab({ coach }: { coach: CoachProfile }) {
           <div className="space-y-4">
             <div>
               <p className="text-sm text-muted-foreground">Chuyên môn</p>
-              <div className="flex flex-wrap gap-1 mt-1">
+              <div className="mt-1 flex flex-wrap gap-1">
                 {coach.specialties.map((s) => (
-                  <Badge key={s} variant="secondary">{s}</Badge>
+                  <Badge key={s} variant="secondary">
+                    {s}
+                  </Badge>
                 ))}
               </div>
             </div>
@@ -750,8 +954,16 @@ function InfoTab({ coach }: { coach: CoachProfile }) {
               <p className="font-medium">{coach.languages.join(", ")}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Trạng thái xác thực</p>
-              <Badge variant={coach.verificationStatus === "VERIFIED" ? "default" : "secondary"}>
+              <p className="text-sm text-muted-foreground">
+                Trạng thái xác thực
+              </p>
+              <Badge
+                variant={
+                  coach.verificationStatus === "VERIFIED"
+                    ? "default"
+                    : "secondary"
+                }
+              >
                 {coach.verificationStatus === "VERIFIED" && "Đã xác thực"}
                 {coach.verificationStatus === "PENDING" && "Chờ xác thực"}
                 {coach.verificationStatus === "UNVERIFIED" && "Chưa xác thực"}
@@ -764,8 +976,10 @@ function InfoTab({ coach }: { coach: CoachProfile }) {
         <Separator />
 
         <div>
-          <p className="text-sm text-muted-foreground mb-2">Thông tin thanh toán</p>
-          <div className="rounded-lg border bg-muted/50 p-4 space-y-2">
+          <p className="mb-2 text-sm text-muted-foreground">
+            Thông tin thanh toán
+          </p>
+          <div className="space-y-2 rounded-lg border bg-muted/50 p-4">
             <p className="text-sm">
               <span className="text-muted-foreground">Ngân hàng: </span>
               <span className="font-medium">{coach.paymentBankName}</span>
@@ -784,19 +998,28 @@ function InfoTab({ coach }: { coach: CoachProfile }) {
         <Separator />
 
         <div>
-          <p className="text-sm text-muted-foreground mb-2">Các chứng chỉ</p>
+          <p className="mb-2 text-sm text-muted-foreground">Các chứng chỉ</p>
           {coach.certifications.length === 0 ? (
             <p className="text-sm">Chưa có chứng chỉ nào</p>
           ) : (
             <div className="space-y-2">
               {coach.certifications.map((cert) => (
-                <div key={cert.id} className="flex items-center justify-between rounded-lg border p-3">
+                <div
+                  key={cert.id}
+                  className="flex items-center justify-between rounded-lg border p-3"
+                >
                   <div>
                     <p className="text-sm font-medium">{cert.name}</p>
-                    <p className="text-xs text-muted-foreground">{cert.issuingOrganization}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {cert.issuingOrganization}
+                    </p>
                   </div>
-                  <Badge className={getCertBadgeVariant(cert.verificationStatus)}>
-                    {cert.verificationStatus === "VERIFIED" ? "Đã xác thực" : cert.verificationStatus}
+                  <Badge
+                    className={getCertBadgeVariant(cert.verificationStatus)}
+                  >
+                    {cert.verificationStatus === "VERIFIED"
+                      ? "Đã xác thực"
+                      : cert.verificationStatus}
                   </Badge>
                 </div>
               ))}
@@ -814,8 +1037,10 @@ function StatsTab({ coach }: { coach: CoachProfile }) {
   const totalReviews = reviewsData?.reviewCount ?? coach.reviewCount
   const avgRating = reviewsData?.averageRating ?? coach.averageRating
   const totalClasses = classes?.length ?? 0
-  const totalEnrolled = classes?.reduce((sum, cls) => sum + cls.enrolledCount, 0) ?? 0
-  const totalCapacity = classes?.reduce((sum, cls) => sum + cls.capacity, 0) ?? 0
+  const totalEnrolled =
+    classes?.reduce((sum, cls) => sum + cls.enrolledCount, 0) ?? 0
+  const totalCapacity =
+    classes?.reduce((sum, cls) => sum + cls.capacity, 0) ?? 0
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -828,7 +1053,9 @@ function StatsTab({ coach }: { coach: CoachProfile }) {
         </CardHeader>
         <CardContent>
           <p className="text-2xl font-bold">{avgRating.toFixed(1)}</p>
-          <p className="text-sm text-muted-foreground">{totalReviews} lượt đánh giá</p>
+          <p className="text-sm text-muted-foreground">
+            {totalReviews} lượt đánh giá
+          </p>
         </CardContent>
       </Card>
       <Card>
@@ -851,7 +1078,9 @@ function StatsTab({ coach }: { coach: CoachProfile }) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-2xl font-bold">{totalEnrolled}/{totalCapacity}</p>
+          <p className="text-2xl font-bold">
+            {totalEnrolled}/{totalCapacity}
+          </p>
           <p className="text-sm text-muted-foreground">đã đăng ký</p>
         </CardContent>
       </Card>
@@ -859,13 +1088,27 @@ function StatsTab({ coach }: { coach: CoachProfile }) {
   )
 }
 
-export type DiscoveryTabValue = "overview" | "schedule" | "reviews" | "classes" | "info" | "stats"
+export type DiscoveryTabValue =
+  | "overview"
+  | "schedule"
+  | "reviews"
+  | "classes"
+  | "info"
+  | "stats"
 
-const TABS: { value: DiscoveryTabValue; label: string; icon: React.ReactNode }[] = [
+const TABS: {
+  value: DiscoveryTabValue
+  label: string
+  icon: React.ReactNode
+}[] = [
   { value: "overview", label: "Tổng quan", icon: <Info className="size-4" /> },
   { value: "schedule", label: "Lịch", icon: <Calendar className="size-4" /> },
   { value: "reviews", label: "Đánh giá", icon: <Star className="size-4" /> },
-  { value: "classes", label: "Khóa học", icon: <BookOpen className="size-4" /> },
+  {
+    value: "classes",
+    label: "Khóa học",
+    icon: <BookOpen className="size-4" />,
+  },
   { value: "stats", label: "Thống kê", icon: <BarChart3 className="size-4" /> },
   { value: "info", label: "Thông tin", icon: <Award className="size-4" /> },
 ]
@@ -894,11 +1137,14 @@ function CoachDiscoveryDetailInner({
 
   const { data: coach, isLoading, error } = useCoachPublicProfile(coachId)
 
-  const handleTabChange = useCallback((value: string) => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set("tab", value)
-    router.replace(`/coaches?${params.toString()}`, { scroll: false })
-  }, [router, searchParams])
+  const handleTabChange = useCallback(
+    (value: string) => {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set("tab", value)
+      router.replace(`/coaches?${params.toString()}`, { scroll: false })
+    },
+    [router, searchParams]
+  )
 
   const handleCreateBooking = async () => {
     if (!bookingDate || !bookingTime) {
@@ -939,7 +1185,11 @@ function CoachDiscoveryDetailInner({
   if (error || !coach) {
     return (
       <div className="space-y-6">
-        <Button variant="ghost" onClick={onBack} className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          onClick={onBack}
+          className="flex items-center gap-1"
+        >
           <ArrowLeft className="size-4" />
           Quay lại danh sách
         </Button>
@@ -962,7 +1212,11 @@ function CoachDiscoveryDetailInner({
 
   return (
     <div className="space-y-6">
-      <Button variant="ghost" onClick={onBack} className="flex items-center gap-1 -ml-2">
+      <Button
+        variant="ghost"
+        onClick={onBack}
+        className="-ml-2 flex items-center gap-1"
+      >
         <ArrowLeft className="size-4" />
         Quay lại danh sách
       </Button>
@@ -971,7 +1225,9 @@ function CoachDiscoveryDetailInner({
         <CardContent className="flex items-start gap-6 pt-6">
           <Avatar size="lg" className="size-24">
             <AvatarImage src={coach.avatarUrl} alt={coach.displayName} />
-            <AvatarFallback>{coach.displayName.charAt(0).toUpperCase()}</AvatarFallback>
+            <AvatarFallback>
+              {coach.displayName.charAt(0).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
           <div className="flex flex-1 flex-col gap-2">
             <div className="flex items-center gap-3">
@@ -1028,35 +1284,69 @@ function CoachDiscoveryDetailInner({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Ngày</Label>
-                <Input type="date" value={bookingDate} onChange={(e) => setBookingDate(e.target.value)} />
+                <Input
+                  type="date"
+                  value={bookingDate}
+                  onChange={(e) => setBookingDate(e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Giờ</Label>
-                <Input type="time" value={bookingTime} onChange={(e) => setBookingTime(e.target.value)} />
+                <Input
+                  type="time"
+                  value={bookingTime}
+                  onChange={(e) => setBookingTime(e.target.value)}
+                />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Thời lượng (phút)</Label>
-              <Input type="number" value={bookingDuration} onChange={(e) => setBookingDuration(Number(e.target.value))} min={30} step={15} />
+              <Input
+                type="number"
+                value={bookingDuration}
+                onChange={(e) => setBookingDuration(Number(e.target.value))}
+                min={30}
+                step={15}
+              />
             </div>
             <div className="space-y-2">
               <Label>Ghi chú (không bắt buộc)</Label>
-              <Input placeholder="Ví dụ: Tôi muốn học kỹ thuật serve" value={bookingNote} onChange={(e) => setBookingNote(e.target.value)} />
+              <Input
+                placeholder="Ví dụ: Tôi muốn học kỹ thuật serve"
+                value={bookingNote}
+                onChange={(e) => setBookingNote(e.target.value)}
+              />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setBookingOpen(false)}>Hủy</Button>
-            <Button onClick={handleCreateBooking} disabled={createBooking.isPending}>
+            <Button variant="outline" onClick={() => setBookingOpen(false)}>
+              Hủy
+            </Button>
+            <Button
+              onClick={handleCreateBooking}
+              disabled={createBooking.isPending}
+            >
               {createBooking.isPending ? "Đang gửi..." : "Gửi yêu cầu"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      <Tabs value={defaultTab} onValueChange={handleTabChange} className="w-full gap-6">
-        <TabsList variant="line" className="w-full min-w-0 flex-wrap justify-start gap-1 overflow-x-auto pb-1">
+      <Tabs
+        value={defaultTab}
+        onValueChange={handleTabChange}
+        className="w-full gap-6"
+      >
+        <TabsList
+          variant="line"
+          className="w-full min-w-0 flex-wrap justify-start gap-1 overflow-x-auto pb-1"
+        >
           {TABS.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value} className="sm:flex-none">
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className="sm:flex-none"
+            >
               {tab.icon}
               {tab.label}
             </TabsTrigger>
@@ -1097,7 +1387,11 @@ export function CoachDiscoveryDetail({
 }) {
   return (
     <Suspense fallback={null}>
-      <CoachDiscoveryDetailInner coachId={coachId} onBack={onBack} defaultTab={defaultTab} />
+      <CoachDiscoveryDetailInner
+        coachId={coachId}
+        onBack={onBack}
+        defaultTab={defaultTab}
+      />
     </Suspense>
   )
 }

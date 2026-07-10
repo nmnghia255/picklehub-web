@@ -44,9 +44,8 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
-
-
 import { useSession } from "@/features/auth/hooks/use-session"
+
 import {
   useAddCertification,
   useDeleteCertification,
@@ -111,8 +110,12 @@ function getCertStatusIcon(status: string) {
 
 export function CoachProfileForm() {
   const session = useSession()
-  const { data: profile, isLoading: profileLoading } = useMyCoachProfile({ enabled: !!session?.user })
-  const { data: certs, isLoading: certsLoading } = useMyCertifications({ enabled: !!session?.user })
+  const { data: profile, isLoading: profileLoading } = useMyCoachProfile({
+    enabled: !!session?.user,
+  })
+  const { data: certs, isLoading: certsLoading } = useMyCertifications({
+    enabled: !!session?.user,
+  })
   const updateProfile = useUpdateMyCoachProfile()
   const publishProfile = usePublishMyProfile()
   const addCert = useAddCertification()
@@ -150,11 +153,17 @@ export function CoachProfileForm() {
   }, [profile])
 
   const verifiedCount = useMemo(
-    () => certifications.filter((c) => c.verificationStatus === "VERIFIED").length,
+    () =>
+      certifications.filter((c) => c.verificationStatus === "VERIFIED").length,
     [certifications]
   )
   const pendingCount = useMemo(
-    () => certifications.filter((c) => c.verificationStatus === "PENDING" || c.verificationStatus === "UNVERIFIED").length,
+    () =>
+      certifications.filter(
+        (c) =>
+          c.verificationStatus === "PENDING" ||
+          c.verificationStatus === "UNVERIFIED"
+      ).length,
     [certifications]
   )
 
@@ -217,7 +226,9 @@ export function CoachProfileForm() {
     setCertDialogOpen(true)
   }
 
-  const handleCertificationFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleCertificationFileChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0]
     if (!file) return
     setCertFileUrl(URL.createObjectURL(file))
@@ -287,12 +298,14 @@ export function CoachProfileForm() {
             {profile?.status === "DRAFT" && (
               <Button
                 type="button"
-                className="rounded-full col-span-full"
+                className="col-span-full rounded-full"
                 onClick={() => publishProfile.mutate()}
                 disabled={publishProfile.isPending}
               >
                 <Send className="size-4" />
-                {publishProfile.isPending ? "Đang công khai..." : "Công khai hồ sơ"}
+                {publishProfile.isPending
+                  ? "Đang công khai..."
+                  : "Công khai hồ sơ"}
               </Button>
             )}
           </div>
@@ -339,7 +352,10 @@ export function CoachProfileForm() {
               {!isEditingBasicInfo ? (
                 <div className="grid gap-6 md:grid-cols-[auto_1fr] md:items-start">
                   <Avatar size="lg" className="size-20 rounded-3xl">
-                    <AvatarImage src={profile?.avatarUrl ?? ""} alt={profile?.displayName} />
+                    <AvatarImage
+                      src={profile?.avatarUrl ?? ""}
+                      alt={profile?.displayName}
+                    />
                     <AvatarFallback className="rounded-3xl text-lg font-semibold">
                       {profile ? getInitials(profile.displayName) : "?"}
                     </AvatarFallback>
@@ -445,7 +461,11 @@ export function CoachProfileForm() {
                   </div>
 
                   <div className="flex flex-wrap gap-2">
-                    <Button type="submit" className="rounded-full" disabled={updateProfile.isPending}>
+                    <Button
+                      type="submit"
+                      className="rounded-full"
+                      disabled={updateProfile.isPending}
+                    >
                       <Save className="size-4" />
                       {updateProfile.isPending ? "Đang lưu..." : "Lưu thay đổi"}
                     </Button>
@@ -487,7 +507,9 @@ export function CoachProfileForm() {
 
             <CardContent className="space-y-4">
               {certifications.map((certification, index) => {
-                const StatusIcon = getCertStatusIcon(certification.verificationStatus)
+                const StatusIcon = getCertStatusIcon(
+                  certification.verificationStatus
+                )
 
                 return (
                   <div
@@ -501,23 +523,32 @@ export function CoachProfileForm() {
                             {certification.name}
                           </h3>
                           <Badge
-                            variant={getCertStatusColor(certification.verificationStatus) as "default" | "outline" | "destructive"}
+                            variant={
+                              getCertStatusColor(
+                                certification.verificationStatus
+                              ) as "default" | "outline" | "destructive"
+                            }
                             className="rounded-full"
                           >
                             <StatusIcon className="size-3.5" />
-                            {getCertStatusLabel(certification.verificationStatus)}
+                            {getCertStatusLabel(
+                              certification.verificationStatus
+                            )}
                           </Badge>
                         </div>
 
                         <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
                           <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1">
                             <Award className="size-4" />
-                            {certification.issuingOrganization ?? "Không có tổ chức"}
+                            {certification.issuingOrganization ??
+                              "Không có tổ chức"}
                           </span>
                           <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1">
                             <CalendarDays className="size-4" />
                             {certification.issuedAt
-                              ? new Date(certification.issuedAt).toLocaleDateString("vi-VN")
+                              ? new Date(
+                                  certification.issuedAt
+                                ).toLocaleDateString("vi-VN")
                               : "Không có ngày"}
                           </span>
                         </div>
@@ -540,7 +571,9 @@ export function CoachProfileForm() {
                           type="button"
                           variant="outline"
                           className="rounded-full text-destructive hover:text-destructive"
-                          onClick={() => handleCertificationDelete(certification.id)}
+                          onClick={() =>
+                            handleCertificationDelete(certification.id)
+                          }
                           disabled={deleteCert.isPending}
                         >
                           <Trash2 className="size-4" />
@@ -554,7 +587,8 @@ export function CoachProfileForm() {
 
               {certifications.length === 0 && (
                 <p className="py-4 text-center text-sm text-muted-foreground">
-                  Chưa có chứng chỉ nào. Nhấn \u201CThêm chứng chỉ\u201D để bắt đầu.
+                  Chưa có chứng chỉ nào. Nhấn \u201CThêm chứng chỉ\u201D để bắt
+                  đầu.
                 </p>
               )}
             </CardContent>
@@ -756,7 +790,10 @@ export function CoachProfileForm() {
               >
                 Hủy
               </Button>
-              <Button type="submit" disabled={addCert.isPending || !certName.trim()}>
+              <Button
+                type="submit"
+                disabled={addCert.isPending || !certName.trim()}
+              >
                 <Save className="size-4" />
                 {addCert.isPending ? "Đang lưu..." : "Lưu chứng chỉ"}
               </Button>
@@ -784,9 +821,7 @@ export function CoachProfileForm() {
       )}
 
       {deleteCert.isSuccess && (
-        <p className="text-sm font-medium text-green-600">
-          Đã xóa chứng chỉ!
-        </p>
+        <p className="text-sm font-medium text-green-600">Đã xóa chứng chỉ!</p>
       )}
     </div>
   )

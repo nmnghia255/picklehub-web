@@ -1,7 +1,7 @@
 "use client"
 
-import { Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { Suspense, useEffect, useState } from "react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CoachDashboardStats } from "@/features/coach/components/coach-dashboard-stats"
@@ -29,8 +29,12 @@ function CoachDetailTabsInner() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const tabFromUrl = searchParams.get("tab") as CoachTabValue | null
-  const [activeTab, setActiveTab] = useState<CoachTabValue>(tabFromUrl ?? "overview")
-  const [selectedLearnerId, setSelectedLearnerId] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<CoachTabValue>(
+    tabFromUrl ?? "overview"
+  )
+  const [selectedLearnerId, setSelectedLearnerId] = useState<string | null>(
+    null
+  )
 
   // Sync tab from URL on mount / URL change
   useEffect(() => {

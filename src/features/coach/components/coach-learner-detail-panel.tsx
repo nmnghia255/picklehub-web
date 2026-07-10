@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-
 import { useSession } from "@/features/auth/hooks/use-session"
+
 import { useCoachLearnerDetail } from "../hooks/use-coach-queries"
 
 function safeFormatDateTime(value?: string) {
@@ -27,7 +27,9 @@ export function CoachLearnerDetailPanel({
   onBack: () => void
 }) {
   const session = useSession()
-  const { data, isLoading } = useCoachLearnerDetail(learnerId, { enabled: !!session?.user })
+  const { data, isLoading } = useCoachLearnerDetail(learnerId, {
+    enabled: !!session?.user,
+  })
 
   if (isLoading) {
     return (

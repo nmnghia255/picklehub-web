@@ -1,8 +1,6 @@
 "use client"
 
 import { format } from "date-fns"
-import { ErrorState } from "@/components/shared/error-state"
-import { getErrorMessage } from "@/lib/api-client"
 import {
   BookOpen,
   CalendarDays,
@@ -15,6 +13,7 @@ import {
 import { useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useState } from "react"
 
+import { ErrorState } from "@/components/shared/error-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -38,8 +37,9 @@ import {
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
 import { useSession } from "@/features/auth/hooks/use-session"
+import { getErrorMessage } from "@/lib/api-client"
+
 import {
   useBookingRevenue,
   useClassRevenue,
@@ -118,7 +118,10 @@ function OverviewTab() {
   const [period, setPeriod] = useState<string>("month")
   const [year, setYear] = useState<number>(currentYear)
 
-  const { data, isLoading, isError, error, refetch } = useRevenueSummary({ period, year }, { enabled: !!session?.user })
+  const { data, isLoading, isError, error, refetch } = useRevenueSummary(
+    { period, year },
+    { enabled: !!session?.user }
+  )
 
   if (isError) {
     return (

@@ -1,16 +1,16 @@
 "use client"
 
-import { useState } from "react"
 import dayjs from "dayjs"
-import { toast } from "sonner"
 import {
   CheckCircle2,
   Clock,
-  FileText,
   ExternalLink,
-  Search,
+  FileText,
   Filter,
+  Search,
 } from "lucide-react"
+import { useState } from "react"
+import { toast } from "sonner"
 
 import { PageContainer } from "@/components/page-container"
 import { Badge } from "@/components/ui/badge"
@@ -24,6 +24,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
   Select,
   SelectContent,
@@ -42,24 +51,23 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
 import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty"
-
-import {
-  useAdminPendingCertifications,
   useAdminCertifications,
+  useAdminPendingCertifications,
   useAdminReviewCertification,
 } from "@/features/coach/hooks/use-coach-queries"
-import type { CertificationWithCoach, VerificationStatus } from "@/features/coach/types/coach"
+import type {
+  CertificationWithCoach,
+  VerificationStatus,
+} from "@/features/coach/types/coach"
 
-const STATUS_CONFIG: Record<VerificationStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+const STATUS_CONFIG: Record<
+  VerificationStatus,
+  {
+    label: string
+    variant: "default" | "secondary" | "destructive" | "outline"
+  }
+> = {
   VERIFIED: { label: "Đã xác thực", variant: "default" },
   PENDING: { label: "Chờ duyệt", variant: "secondary" },
   UNVERIFIED: { label: "Chưa xác thực", variant: "outline" },
@@ -111,10 +119,17 @@ function AllCertificationsSkeleton() {
 }
 
 function PendingTab() {
-  const { data: pendingCerts, isLoading, error } = useAdminPendingCertifications()
+  const {
+    data: pendingCerts,
+    isLoading,
+    error,
+  } = useAdminPendingCertifications()
   const reviewMutation = useAdminReviewCertification()
-  const [selectedCert, setSelectedCert] = useState<CertificationWithCoach | null>(null)
-  const [reviewStatus, setReviewStatus] = useState<"VERIFIED" | "REJECTED">("VERIFIED")
+  const [selectedCert, setSelectedCert] =
+    useState<CertificationWithCoach | null>(null)
+  const [reviewStatus, setReviewStatus] = useState<"VERIFIED" | "REJECTED">(
+    "VERIFIED"
+  )
   const [reviewNote, setReviewNote] = useState("")
   const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -130,7 +145,10 @@ function PendingTab() {
     try {
       await reviewMutation.mutateAsync({
         certId: selectedCert.id,
-        dto: { verificationStatus: reviewStatus, reviewNote: reviewNote || undefined },
+        dto: {
+          verificationStatus: reviewStatus,
+          reviewNote: reviewNote || undefined,
+        },
       })
       toast.success(
         reviewStatus === "VERIFIED"
@@ -145,7 +163,12 @@ function PendingTab() {
   }
 
   if (isLoading) return <PendingSkeleton />
-  if (error) return <p className="text-sm text-destructive">Không thể tải danh sách chờ duyệt</p>
+  if (error)
+    return (
+      <p className="text-sm text-destructive">
+        Không thể tải danh sách chờ duyệt
+      </p>
+    )
   if (!pendingCerts || pendingCerts.length === 0) {
     return (
       <Empty>
@@ -232,9 +255,7 @@ function PendingTab() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              Duyệt chứng chỉ: {selectedCert?.name}
-            </DialogTitle>
+            <DialogTitle>Duyệt chứng chỉ: {selectedCert?.name}</DialogTitle>
             <DialogDescription>
               Xác nhận hoặc từ chối chứng chỉ của{" "}
               {selectedCert?.coachProfile.displayName}
@@ -279,10 +300,7 @@ function PendingTab() {
           </div>
 
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Hủy
             </Button>
             <Button
@@ -318,7 +336,12 @@ function AllCertificationsTab() {
   const { data, isLoading, error } = useAdminCertifications(params)
 
   if (isLoading) return <AllCertificationsSkeleton />
-  if (error) return <p className="text-sm text-destructive">Không thể tải danh sách chứng chỉ</p>
+  if (error)
+    return (
+      <p className="text-sm text-destructive">
+        Không thể tải danh sách chứng chỉ
+      </p>
+    )
 
   const certs = data?.data ?? []
   const meta = data?.meta ?? { page: 1, limit, total: 0, totalPages: 0 }
@@ -327,7 +350,13 @@ function AllCertificationsTab() {
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Filter className="size-4 text-muted-foreground" />
-        <Select value={statusFilter} onValueChange={(val) => { setStatusFilter(val); setPage(1) }}>
+        <Select
+          value={statusFilter}
+          onValueChange={(val) => {
+            setStatusFilter(val)
+            setPage(1)
+          }}
+        >
           <SelectTrigger className="w-44">
             <SelectValue placeholder="Lọc theo trạng thái" />
           </SelectTrigger>

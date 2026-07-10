@@ -1,51 +1,25 @@
 "use client"
 
+import dayjs from "dayjs"
+import {
+  BookOpen,
+  CalendarDays,
+  CheckCircle2,
+  Clock,
+  DollarSign,
+  MapPin,
+  Plus,
+  Send,
+  Trash2,
+  Users,
+  XCircle,
+} from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
-import dayjs from "dayjs"
 import { toast } from "sonner"
-import {
-  Plus,
-  Trash2,
-  Send,
-  XCircle,
-  CheckCircle2,
-  Clock,
-  Users,
-  CalendarDays,
-  DollarSign,
-  MapPin,
-  BookOpen,
-} from "lucide-react"
 
-import { useSession } from "@/features/auth/hooks/use-session"
-import {
-  useMyClassDetail,
-  useUpdateClass,
-  usePublishClass,
-  useCancelClass,
-  useClassScheduleEntries,
-  useAddScheduleSlot,
-  useRemoveScheduleSlot,
-  useClassEnrollments,
-  useSettleEnrollmentPayment,
-  useRejectEnrollmentPayment,
-} from "@/features/coach/hooks/use-coach-queries"
-import type { ClassStatus, CoachLevel, PaymentStatus, EnrollmentStatus } from "@/features/coach/types/coach"
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog"
+import { PageContainer } from "@/components/page-container"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -57,10 +31,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
   SelectContent,
@@ -68,8 +52,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { PageContainer } from "@/components/page-container"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
+import { useSession } from "@/features/auth/hooks/use-session"
+import {
+  useAddScheduleSlot,
+  useCancelClass,
+  useClassEnrollments,
+  useClassScheduleEntries,
+  useMyClassDetail,
+  usePublishClass,
+  useRejectEnrollmentPayment,
+  useRemoveScheduleSlot,
+  useSettleEnrollmentPayment,
+  useUpdateClass,
+} from "@/features/coach/hooks/use-coach-queries"
+import type {
+  ClassStatus,
+  CoachLevel,
+  EnrollmentStatus,
+  PaymentStatus,
+} from "@/features/coach/types/coach"
 
 const statusLabel: Record<ClassStatus, string> = {
   DRAFT: "Nháp",
@@ -80,7 +84,10 @@ const statusLabel: Record<ClassStatus, string> = {
   CANCELLED: "Đã hủy",
 }
 
-const statusVariant: Record<ClassStatus, "default" | "secondary" | "destructive" | "outline"> = {
+const statusVariant: Record<
+  ClassStatus,
+  "default" | "secondary" | "destructive" | "outline"
+> = {
   DRAFT: "outline",
   OPEN: "default",
   FULL: "secondary",
@@ -103,7 +110,10 @@ const paymentStatusLabel: Record<PaymentStatus, string> = {
   REJECTED: "Từ chối",
 }
 
-const paymentStatusVariant: Record<PaymentStatus, "default" | "secondary" | "destructive" | "outline"> = {
+const paymentStatusVariant: Record<
+  PaymentStatus,
+  "default" | "secondary" | "destructive" | "outline"
+> = {
   PENDING_PROOF: "outline",
   PENDING_REVIEW: "secondary",
   SETTLED: "default",
@@ -137,9 +147,15 @@ export default function CoachClassDetailPage() {
   const params = useParams()
   const classId = params.classId as string
 
-  const { data: classData, isLoading, isError } = useMyClassDetail(classId, { enabled: !!session?.user })
-  const { data: scheduleData, isLoading: scheduleLoading } = useClassScheduleEntries(classId, undefined, { enabled: !!session?.user })
-  const { data: enrollmentData, isLoading: enrollmentLoading } = useClassEnrollments(classId, { enabled: !!session?.user })
+  const {
+    data: classData,
+    isLoading,
+    isError,
+  } = useMyClassDetail(classId, { enabled: !!session?.user })
+  const { data: scheduleData, isLoading: scheduleLoading } =
+    useClassScheduleEntries(classId, undefined, { enabled: !!session?.user })
+  const { data: enrollmentData, isLoading: enrollmentLoading } =
+    useClassEnrollments(classId, { enabled: !!session?.user })
 
   const updateClass = useUpdateClass()
   const publishClass = usePublishClass()
@@ -166,8 +182,12 @@ export default function CoachClassDetailPage() {
 
   const [deleteScheduleId, setDeleteScheduleId] = useState<string | null>(null)
 
-  const [settleEnrollmentId, setSettleEnrollmentId] = useState<string | null>(null)
-  const [rejectEnrollmentId, setRejectEnrollmentId] = useState<string | null>(null)
+  const [settleEnrollmentId, setSettleEnrollmentId] = useState<string | null>(
+    null
+  )
+  const [rejectEnrollmentId, setRejectEnrollmentId] = useState<string | null>(
+    null
+  )
 
   useEffect(() => {
     if (classData) {
@@ -182,8 +202,14 @@ export default function CoachClassDetailPage() {
       setCapacity(classData.capacity ?? 0)
       setPriceVnd(classData.priceVnd ?? 0)
       setLocationDescription(classData.locationDescription ?? "")
-      setStartDate(classData.startDate ? dayjs(classData.startDate).format("YYYY-MM-DD") : "")
-      setEndDate(classData.endDate ? dayjs(classData.endDate).format("YYYY-MM-DD") : "")
+      setStartDate(
+        classData.startDate
+          ? dayjs(classData.startDate).format("YYYY-MM-DD")
+          : ""
+      )
+      setEndDate(
+        classData.endDate ? dayjs(classData.endDate).format("YYYY-MM-DD") : ""
+      )
     }
   }, [classData])
 
@@ -199,7 +225,8 @@ export default function CoachClassDetailPage() {
 
   const canEdit = classData.status === "DRAFT" || classData.status === "OPEN"
   const isDraft = classData.status === "DRAFT"
-  const isCancellable = classData.status !== "COMPLETED" && classData.status !== "CANCELLED"
+  const isCancellable =
+    classData.status !== "COMPLETED" && classData.status !== "CANCELLED"
 
   const handleUpdate = () => {
     updateClass.mutate(
@@ -218,7 +245,8 @@ export default function CoachClassDetailPage() {
       },
       {
         onSuccess: () => toast.success("Cập nhật lớp học thành công"),
-        onError: (err: Error) => toast.error(err.message || "Cập nhật thất bại"),
+        onError: (err: Error) =>
+          toast.error(err.message || "Cập nhật thất bại"),
       }
     )
   }
@@ -257,7 +285,8 @@ export default function CoachClassDetailPage() {
           setScheduleTopic("")
           setScheduleNote("")
         },
-        onError: (err: Error) => toast.error(err.message || "Thêm buổi học thất bại"),
+        onError: (err: Error) =>
+          toast.error(err.message || "Thêm buổi học thất bại"),
       }
     )
   }
@@ -271,7 +300,8 @@ export default function CoachClassDetailPage() {
           toast.success("Xóa buổi học thành công")
           setDeleteScheduleId(null)
         },
-        onError: (err: Error) => toast.error(err.message || "Xóa buổi học thất bại"),
+        onError: (err: Error) =>
+          toast.error(err.message || "Xóa buổi học thất bại"),
       }
     )
   }
@@ -285,7 +315,8 @@ export default function CoachClassDetailPage() {
           toast.success("Xác nhận thanh toán thành công")
           setSettleEnrollmentId(null)
         },
-        onError: (err: Error) => toast.error(err.message || "Xác nhận thất bại"),
+        onError: (err: Error) =>
+          toast.error(err.message || "Xác nhận thất bại"),
       }
     )
   }
@@ -314,7 +345,9 @@ export default function CoachClassDetailPage() {
           <Button asChild variant="ghost" size="sm">
             <Link href="/coach?tab=classes">← Quay lại</Link>
           </Button>
-          <h1 className="text-2xl font-semibold tracking-tight">{classData.title}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {classData.title}
+          </h1>
           <Badge variant={statusVariant[classData.status]}>
             {statusLabel[classData.status]}
           </Badge>
@@ -436,7 +469,10 @@ export default function CoachClassDetailPage() {
               </div>
               {canEdit && (
                 <div className="flex justify-end">
-                  <Button onClick={handleUpdate} disabled={updateClass.isPending}>
+                  <Button
+                    onClick={handleUpdate}
+                    disabled={updateClass.isPending}
+                  >
                     {updateClass.isPending ? "Đang lưu..." : "Lưu thay đổi"}
                   </Button>
                 </div>
@@ -463,7 +499,8 @@ export default function CoachClassDetailPage() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Xác nhận hủy lớp</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Bạn có chắc muốn hủy lớp học này? Hành động này không thể hoàn tác.
+                      Bạn có chắc muốn hủy lớp học này? Hành động này không thể
+                      hoàn tác.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -485,7 +522,7 @@ export default function CoachClassDetailPage() {
             <CardHeader>
               <CardTitle>Thống kê</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-4 grid-cols-1 md:grid-cols-3">
+            <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="flex items-center gap-3 rounded-lg border p-4">
                 <Users className="size-5 shrink-0 text-muted-foreground" />
                 <div className="min-w-0">
@@ -508,7 +545,7 @@ export default function CoachClassDetailPage() {
                 <MapPin className="size-5 shrink-0 text-muted-foreground" />
                 <div className="min-w-0">
                   <p className="text-sm text-muted-foreground">Địa điểm</p>
-                  <p className="text-lg font-semibold truncate">
+                  <p className="truncate text-lg font-semibold">
                     {classData.locationDescription || "Chưa có"}
                   </p>
                 </div>
@@ -557,12 +594,18 @@ export default function CoachClassDetailPage() {
                       </div>
                       {entry.topic && <p className="text-sm">{entry.topic}</p>}
                       {entry.note && (
-                        <p className="text-xs text-muted-foreground">{entry.note}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {entry.note}
+                        </p>
                       )}
                     </div>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="shrink-0 text-destructive">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="shrink-0 text-destructive"
+                        >
                           <Trash2 className="size-4" />
                         </Button>
                       </AlertDialogTrigger>
@@ -571,7 +614,10 @@ export default function CoachClassDetailPage() {
                           <AlertDialogTitle>Xóa buổi học</AlertDialogTitle>
                           <AlertDialogDescription>
                             Bạn có chắc muốn xóa buổi học ngày{" "}
-                            {dayjs(entry.scheduledAt).format("DD/MM/YYYY HH:mm")}?
+                            {dayjs(entry.scheduledAt).format(
+                              "DD/MM/YYYY HH:mm"
+                            )}
+                            ?
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -584,7 +630,9 @@ export default function CoachClassDetailPage() {
                             }}
                             disabled={removeScheduleSlot.isPending}
                           >
-                            {removeScheduleSlot.isPending ? "Đang xóa..." : "Xóa"}
+                            {removeScheduleSlot.isPending
+                              ? "Đang xóa..."
+                              : "Xóa"}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
@@ -653,7 +701,10 @@ export default function CoachClassDetailPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setShowAddSchedule(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAddSchedule(false)}
+                >
                   Hủy
                 </Button>
                 <Button
@@ -694,22 +745,30 @@ export default function CoachClassDetailPage() {
                         alt={enrollment.learnerProfile?.name ?? "Học viên"}
                       />
                       <AvatarFallback>
-                        {enrollment.learnerProfile?.name?.charAt(0)?.toUpperCase() ?? "?"}
+                        {enrollment.learnerProfile?.name
+                          ?.charAt(0)
+                          ?.toUpperCase() ?? "?"}
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium truncate">
+                      <p className="truncate font-medium">
                         {enrollment.learnerProfile?.name ?? "Không có tên"}
                       </p>
-                      <p className="text-sm text-muted-foreground truncate">
+                      <p className="truncate text-sm text-muted-foreground">
                         {enrollment.learnerProfile?.email ?? "—"}
                       </p>
                       <div className="mt-1 flex flex-wrap gap-2">
                         <Badge variant="outline">
-                          {enrollmentStatusLabel[enrollment.status] ?? enrollment.status}
+                          {enrollmentStatusLabel[enrollment.status] ??
+                            enrollment.status}
                         </Badge>
-                        <Badge variant={paymentStatusVariant[enrollment.paymentStatus]}>
-                          {paymentStatusLabel[enrollment.paymentStatus] ?? enrollment.paymentStatus}
+                        <Badge
+                          variant={
+                            paymentStatusVariant[enrollment.paymentStatus]
+                          }
+                        >
+                          {paymentStatusLabel[enrollment.paymentStatus] ??
+                            enrollment.paymentStatus}
                         </Badge>
                       </div>
                     </div>
@@ -724,11 +783,20 @@ export default function CoachClassDetailPage() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Xác nhận thanh toán</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                Xác nhận thanh toán
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
                                 Xác nhận học viên{" "}
-                                <strong>{enrollment.learnerProfile?.name ?? "Không có tên"}</strong> đã thanh toán{" "}
-                                {enrollment?.amountVnd?.toLocaleString("vi-VN") ?? "0"}₫?
+                                <strong>
+                                  {enrollment.learnerProfile?.name ??
+                                    "Không có tên"}
+                                </strong>{" "}
+                                đã thanh toán{" "}
+                                {enrollment?.amountVnd?.toLocaleString(
+                                  "vi-VN"
+                                ) ?? "0"}
+                                ₫?
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -740,7 +808,9 @@ export default function CoachClassDetailPage() {
                                 }}
                                 disabled={settleEnrollment.isPending}
                               >
-                                {settleEnrollment.isPending ? "Đang xử lý..." : "Xác nhận"}
+                                {settleEnrollment.isPending
+                                  ? "Đang xử lý..."
+                                  : "Xác nhận"}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -755,10 +825,16 @@ export default function CoachClassDetailPage() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Từ chối thanh toán</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                Từ chối thanh toán
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
                                 Từ chối thanh toán của học viên{" "}
-                                <strong>{enrollment.learnerProfile?.name ?? "Không có tên"}</strong>?
+                                <strong>
+                                  {enrollment.learnerProfile?.name ??
+                                    "Không có tên"}
+                                </strong>
+                                ?
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -771,7 +847,9 @@ export default function CoachClassDetailPage() {
                                 }}
                                 disabled={rejectEnrollment.isPending}
                               >
-                                {rejectEnrollment.isPending ? "Đang xử lý..." : "Từ chối"}
+                                {rejectEnrollment.isPending
+                                  ? "Đang xử lý..."
+                                  : "Từ chối"}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>

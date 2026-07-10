@@ -1,19 +1,19 @@
 "use client"
 
-import Link from "next/link"
-import { useParams } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
-import { useMemo } from "react"
 import dayjs from "dayjs"
 import { Calendar, Clock, MapPin, Shield, User } from "lucide-react"
+import Link from "next/link"
+import { useParams } from "next/navigation"
+import { useMemo } from "react"
 
+import { PageContainer } from "@/components/page-container"
+import { ErrorState } from "@/components/shared/error-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ErrorState } from "@/components/shared/error-state"
-import { PageContainer } from "@/components/page-container"
 import { useLearnerSchedule } from "@/features/learner/hooks/use-learner-queries"
 import { getErrorMessage } from "@/lib/api-client"
 
@@ -125,7 +125,9 @@ export default function BookingDetailPage() {
     <PageContainer variant="wide" className="space-y-6 py-8">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Chi tiết đặt lịch</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">
+            Chi tiết đặt lịch
+          </h1>
           <p className="text-sm text-muted-foreground">
             Xem thông tin buổi tập của bạn.
           </p>
@@ -145,8 +147,13 @@ export default function BookingDetailPage() {
           </CardHeader>
           <CardContent className="flex items-center gap-4">
             <Avatar size="lg">
-              <AvatarImage src={booking.coachProfile?.avatarUrl ?? ""} alt={coachName} />
-              <AvatarFallback>{coachName.charAt(0).toUpperCase()}</AvatarFallback>
+              <AvatarImage
+                src={booking.coachProfile?.avatarUrl ?? ""}
+                alt={coachName}
+              />
+              <AvatarFallback>
+                {coachName.charAt(0).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">
@@ -181,7 +188,10 @@ export default function BookingDetailPage() {
             <div className="flex items-center justify-between gap-3 text-sm">
               <span className="text-muted-foreground">Thanh toán</span>
               <span className="font-medium">
-                {booking.paymentStatus ? paymentLabel[booking.paymentStatus] ?? booking.paymentStatus : "-"}
+                {booking.paymentStatus
+                  ? (paymentLabel[booking.paymentStatus] ??
+                    booking.paymentStatus)
+                  : "-"}
               </span>
             </div>
           </CardContent>
@@ -223,7 +233,7 @@ export default function BookingDetailPage() {
 
           <div className="space-y-1 rounded-lg border p-4 md:col-span-2">
             <p className="text-sm font-medium">Ghi chú</p>
-            <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+            <p className="text-sm whitespace-pre-wrap text-muted-foreground">
               {booking.note || "Không có ghi chú."}
             </p>
           </div>
