@@ -25,7 +25,6 @@ export function CourtControls() {
         onClick={() => setIsSwappedSides((prev) => !prev)}
         className="border-gray-200 text-xs font-bold hover:bg-muted"
       >
-        🔄{" "}
         {t("referee.tracker.swapEnds", {
           defaultValue: "Đổi bên sân (Swap Sides)",
         })}
@@ -40,7 +39,6 @@ export function CourtControls() {
             onClick={() => setIsA1Right((prev) => !prev)}
             className="border-gray-200 text-xs font-bold hover:bg-muted"
           >
-            🔄{" "}
             {t("referee.tracker.swapPositions", {
               team: teamAName,
               defaultValue: `Đổi vị trí ${teamAName}`,
@@ -53,7 +51,6 @@ export function CourtControls() {
             onClick={() => setIsB1Right((prev) => !prev)}
             className="border-gray-200 text-xs font-bold hover:bg-muted"
           >
-            🔄{" "}
             {t("referee.tracker.swapPositions", {
               team: teamBName,
               defaultValue: `Đổi vị trí ${teamBName}`,

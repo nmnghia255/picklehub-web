@@ -85,6 +85,16 @@
     "saveBtn": "Lưu thông tin",
     "account": "Tài khoản",
     "accountDesc": "Thông tin cơ bản cho hồ sơ của bạn.",
+    "accountSettings": "Thiết lập tài khoản",
+    "accountSettingsDesc": "Quản lý liên kết tài khoản (Google, Facebook), đổi mật khẩu hoặc đăng xuất.",
+    "manageAccount": "Quản lý tài khoản",
+    "back": "Quay lại",
+    "accountPageDesc": "Cấu hình bảo mật, đổi mật khẩu và quản lý liên kết tài khoản mạng xã hội của bạn.",
+    "changePasswordIntro": "Đổi mật khẩu định kỳ để nâng cao bảo mật tài khoản.",
+    "changePasswordDesc": "Nhập mật khẩu hiện tại và mật khẩu mới để cập nhật bảo mật tài khoản.",
+    "cancel": "Hủy",
+    "logoutDesc": "Đăng xuất khỏi phiên làm việc hiện tại của bạn.",
+    "logoutBtn": "Đăng xuất tài khoản",
     "security": "Bảo mật",
     "securityDesc": "Cập nhật mật khẩu hoặc đăng xuất.",
     "changePassword": "Đổi mật khẩu",
@@ -94,6 +104,7 @@
     "linked": "Đã liên kết",
     "notLinked": "Chưa liên kết",
     "linkedAt": "Đã liên kết lúc {{date}}",
-    "noLinked": "Chưa liên kết tài khoản nào."
+    "noLinked": "Chưa liên kết tài khoản nào.",
+    "continueWithFacebook": "Tiếp tục với Facebook"
   }
 }

@@ -175,11 +175,7 @@ export function HostBracketSidebar({
                   {isLocked ? (
                     <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-2.5 text-sm font-medium text-gray-600 dark:text-zinc-300">
                       <Lock className="h-4 w-4 shrink-0 text-emerald-600" />
-                      <span>
-                        {t("brackets.sidebar.lockedStatus", {
-                          defaultValue: "Locked (Official Matches)",
-                        })}
-                      </span>
+                      <span>{t("brackets.sidebar.lockedStatus")}</span>
                     </div>
                   ) : (
                     <AlertDialog
@@ -192,30 +188,21 @@ export function HostBracketSidebar({
                           className="w-full justify-start bg-emerald-600 font-medium text-white hover:bg-emerald-700"
                         >
                           <Lock className="mr-2 h-4 w-4" />
-                          {t("brackets.sidebar.lockBracket", {
-                            defaultValue: "Lock Matchups",
-                          })}
+                          {t("brackets.sidebar.lockBracket")}
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>
-                            {t("brackets.lockConfirmTitle", {
-                              defaultValue: "Lock Matchups",
-                            })}
+                            {t("brackets.lockConfirmTitle")}
                           </AlertDialogTitle>
                           <AlertDialogDescription>
-                            {t("brackets.lockConfirmDesc", {
-                              defaultValue:
-                                "Are you sure you want to lock the bracket matchups? Once locked, matches will be official and you will not be able to edit team positions anymore.",
-                            })}
+                            {t("brackets.lockConfirmDesc")}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel disabled={isLoading || isPending}>
-                            {t("brackets.dialog.cancel", {
-                              defaultValue: "Cancel",
-                            })}
+                            {t("brackets.dialog.cancel")}
                           </AlertDialogCancel>
                           <AlertDialogAction
                             disabled={isLoading || isPending}
@@ -225,9 +212,7 @@ export function HostBracketSidebar({
                               setIsLockAlertOpen(false)
                             }}
                           >
-                            {t("brackets.dialog.lock", {
-                              defaultValue: "Lock",
-                            })}
+                            {t("brackets.dialog.lock")}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
@@ -242,30 +227,21 @@ export function HostBracketSidebar({
                         className="w-full justify-start border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
-                        {t("brackets.sidebar.deleteBracket", {
-                          defaultValue: "Delete Bracket",
-                        })}
+                        {t("brackets.sidebar.deleteBracket")}
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>
-                          {t("brackets.deleteConfirmTitle", {
-                            defaultValue: "Delete Bracket",
-                          })}
+                          {t("brackets.deleteConfirmTitle")}
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                          {t("brackets.deleteConfirm", {
-                            defaultValue:
-                              "Are you sure you want to delete this bracket? This cannot be undone.",
-                          })}
+                          {t("brackets.deleteConfirm")}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel disabled={isLoading || isPending}>
-                          {t("brackets.dialog.cancel", {
-                            defaultValue: "Cancel",
-                          })}
+                          {t("brackets.dialog.cancel")}
                         </AlertDialogCancel>
                         <AlertDialogAction
                           variant="destructive"
@@ -276,9 +252,7 @@ export function HostBracketSidebar({
                             setIsAlertOpen(false)
                           }}
                         >
-                          {t("brackets.dialog.delete", {
-                            defaultValue: "Delete",
-                          })}
+                          {t("brackets.dialog.delete")}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -341,7 +315,7 @@ export function HostBracketSidebar({
         </div>
       </div>
 
-      {/* Sticky Bottom Stats */}
+      {/* Sticky Bottom Stats
       {hasBrackets && (
         <div className="sticky bottom-0 z-10 shrink-0 border-t bg-white p-6">
           <div className="space-y-2 text-sm">
@@ -379,7 +353,7 @@ export function HostBracketSidebar({
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   )
 }

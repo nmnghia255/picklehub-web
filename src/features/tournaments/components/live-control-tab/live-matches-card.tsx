@@ -8,18 +8,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
-import type { Match, MatchTeam } from "../../types/match"
+import type { Team, TournamentSchedule } from "../../types/schedule"
 
 interface LiveMatchesCardProps {
-  liveMatches: Match[]
+  liveMatches: TournamentSchedule[]
   isLoading: boolean
   tournamentId?: number
 }
 
-function getTeamName(team: MatchTeam | string | null | undefined): string {
+function getTeamName(team: Team | null | undefined): string {
   if (!team) return "TBD"
-  if (typeof team === "object") return team.name || "TBD"
-  return String(team)
+  return team.name
 }
 
 export function LiveMatchesCard({
@@ -62,7 +61,7 @@ export function LiveMatchesCard({
                   <div
                     key={match.id}
                     onClick={() => {
-                      const targetMatchId = match.externalMatchId || match.id
+                      const targetMatchId = match.externalMatchId
                       router.push(
                         `/score?matchId=${targetMatchId}&tournamentId=${tournamentId || ""}&team1=${encodeURIComponent(
                           t1

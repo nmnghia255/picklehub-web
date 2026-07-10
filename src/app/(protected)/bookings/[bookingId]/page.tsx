@@ -7,6 +7,7 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useMemo } from "react"
 
+import { BackNavigation } from "@/components/common/back-navigation"
 import { PageContainer } from "@/components/page-container"
 import { ErrorState } from "@/components/shared/error-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -132,9 +133,7 @@ export default function BookingDetailPage() {
             Xem thông tin buổi tập của bạn.
           </p>
         </div>
-        <Button asChild variant="outline">
-          <Link href="/learner">Quay lại</Link>
-        </Button>
+        <BackNavigation fallbackPath="/learner" />
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">

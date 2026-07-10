@@ -11,6 +11,7 @@ import {
   Settings,
   Sun,
   User,
+  UserCog,
   XCircle,
 } from "lucide-react"
 import Link from "next/link"
@@ -325,6 +326,12 @@ export function Header({ user }: HeaderProps) {
               <Link href="/settings">
                 <Settings className="size-4" />
                 <span>{t("header.settings")}</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/account">
+                <UserCog className="size-4" />
+                <span>{t("header.account")}</span>
               </Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>

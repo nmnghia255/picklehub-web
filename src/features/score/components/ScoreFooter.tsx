@@ -3,17 +3,6 @@
 import { Undo2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
@@ -34,15 +23,8 @@ export function ScoreFooter({
 }: ScoreFooterProps) {
   const { t } = useTournamentTranslation()
   const router = useRouter()
-  const {
-    teamAScore,
-    teamBScore,
-    history,
-    isSaving,
-    matchStatus,
-    handleUndo,
-    applyReset,
-  } = useScoreStore()
+  const { teamAScore, teamBScore, history, isSaving, matchStatus, handleUndo } =
+    useScoreStore()
 
   const isUndoDisabled = isMatchServiceMatch
     ? teamAScore === 0 && teamBScore === 0
@@ -50,48 +32,7 @@ export function ScoreFooter({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col-reverse items-stretch justify-between gap-4 sm:flex-row sm:items-center">
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              className="text-muted-foreground"
-            >
-              {t("referee.tracker.resetMatch", {
-                defaultValue: "Đặt lại trận đấu",
-              })}
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                {t("referee.tracker.resetConfirmTitle", {
-                  defaultValue: "Bắt đầu lại từ đầu?",
-                })}
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                {t("referee.tracker.resetConfirmDesc", {
-                  defaultValue:
-                    "Tỷ số sẽ về 0-0, lượt giao bóng 2, vị trí sân theo mặc định. Các bước trước đó sẽ không còn trong lịch sử hoàn tác.",
-                })}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel type="button">
-                {t("referee.tracker.cancel", { defaultValue: "Hủy" })}
-              </AlertDialogCancel>
-              <AlertDialogAction
-                type="button"
-                variant="destructive"
-                onClick={applyReset}
-              >
-                {t("referee.tracker.reset", { defaultValue: "Đặt lại" })}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
+      <div className="flex flex-col-reverse items-stretch justify-end gap-4 sm:flex-row sm:items-center">
         <Button
           type="button"
           variant="outline"
@@ -99,7 +40,7 @@ export function ScoreFooter({
           onClick={() => handleUndo(isMatchServiceMatch, matchId)}
         >
           <Undo2 data-icon="inline-start" />
-          {t("referee.tracker.undo", { defaultValue: "Hoàn tác" })}
+          {t("referee.tracker.undo", { defaultValue: "Undo" })}
         </Button>
       </div>
 
@@ -109,12 +50,10 @@ export function ScoreFooter({
             <Button
               type="button"
               className="h-14 w-full rounded-xl bg-emerald-600 text-lg font-bold text-white shadow-md transition-all duration-200 hover:bg-emerald-700"
-              onClick={() =>
-                router.push(`/tournaments/${tournamentId}?tab=referee`)
-              }
+              onClick={() => router.push(`/tournaments/${tournamentId}`)}
             >
               {t("referee.tracker.matchFinishedGoBack", {
-                defaultValue: "Trận đấu đã kết thúc. Quay lại",
+                defaultValue: "Match Finished. Go Back",
               })}
             </Button>
           ) : (
@@ -126,10 +65,10 @@ export function ScoreFooter({
             >
               {isSaving
                 ? t("referee.tracker.savingResult", {
-                    defaultValue: "Đang lưu kết quả...",
+                    defaultValue: "Saving...",
                   })
                 : t("referee.tracker.confirmResult", {
-                    defaultValue: "Xác nhận & Lưu kết quả",
+                    defaultValue: "Confirm & Save Result",
                   })}
             </Button>
           )}

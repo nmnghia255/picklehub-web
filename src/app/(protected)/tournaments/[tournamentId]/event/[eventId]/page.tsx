@@ -8,10 +8,10 @@ import { TournamentScheduleService } from "@/features/tournaments/api/schedule-s
 import { TournamentTeamService } from "@/features/tournaments/api/teams-service"
 import { TournamentService } from "@/features/tournaments/api/tournaments-service"
 import { EventDetailClient } from "@/features/tournaments/components/tournament-player-side/event-page/event-detail-client"
-import type { Match } from "@/features/tournaments/types/match"
 import type { Team } from "@/features/tournaments/types/player"
 import type { TournamentPrize } from "@/features/tournaments/types/prize"
 import type { RegistrationResponse } from "@/features/tournaments/types/registration"
+import type { TournamentSchedule } from "@/features/tournaments/types/schedule"
 import type { Tournament } from "@/features/tournaments/types/tournament"
 import type { TournamentEvent } from "@/features/tournaments/types/tournament-event"
 
@@ -26,7 +26,7 @@ export default async function TournamentEventDetailPage(props: {
   let prizes: TournamentPrize[] = []
   let registrations: RegistrationResponse[] = []
   let currentUser = null
-  let fixtures: Match[] = []
+  let fixtures: TournamentSchedule[] = []
   let teams: Team[] = []
 
   try {
@@ -61,7 +61,7 @@ export default async function TournamentEventDetailPage(props: {
     prizes = prizesData || []
     registrations = registrationsData || []
     currentUser = profileData
-    fixtures = (fixturesData || []) as unknown as Match[]
+    fixtures = fixturesData || []
     teams = teamsData || []
   } catch (error) {
     console.error("Failed to fetch tournament event detail data:", error)

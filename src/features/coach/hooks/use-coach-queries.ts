@@ -74,6 +74,56 @@ export function useMyCoachProfile(options?: { enabled?: boolean }) {
   })
 }
 
+interface CoachProfileState {
+  profile: CoachTypes.CoachProfile | null
+  isLoading: boolean
+  exists: boolean
+  isError: boolean
+  error: Error | null
+  refetch: () => void
+}
+
+export function useCoachProfile(options?: {
+  enabled?: boolean
+}): CoachProfileState {
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch: queryRefetch,
+  } = useQuery({
+    queryKey: coachQueryKeys.myProfile(),
+    queryFn: () => CoachClient.getMyCoachProfile(),
+    enabled: options?.enabled ?? true,
+    retry: (failureCount, err) => {
+      if (
+        err instanceof Error &&
+        err.message.includes("Coach profile not found")
+      )
+        return false
+      return failureCount < 3
+    },
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  })
+
+  const exists = data !== null && data !== undefined
+
+  return {
+    profile: data ?? null,
+    isLoading,
+    exists,
+    isError,
+    error: error instanceof Error ? error : null,
+    refetch: () => {
+      queryRefetch()
+    },
+  }
+}
+
 export function useRegisterAsCoach() {
   const queryClient = useQueryClient()
   return useMutation({
@@ -139,49 +189,10 @@ export function useDeleteCertification() {
   })
 }
 
-export function useAdminCertifications(params?: {
-  verificationStatus?: string
-  coachProfileId?: string
-  page?: number
-  limit?: number
-}, options?: { enabled?: boolean }) {
-  return useQuery({
-    queryKey: [...coachQueryKeys.all, "admin-certifications", params],
-    queryFn: () => CoachClient.adminListCertifications(params),
-    enabled: options?.enabled ?? true,
-  })
-}
-
-export function useAdminPendingCertifications(options?: { enabled?: boolean }) {
-  return useQuery({
-    queryKey: [...coachQueryKeys.all, "admin-pending-certifications"],
-    queryFn: () => CoachClient.adminListPendingCertifications(),
-    enabled: options?.enabled ?? true,
-  })
-}
-
-export function useAdminReviewCertification() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: ({
-      certId,
-      dto,
-    }: {
-      certId: string
-      dto: { verificationStatus: "VERIFIED" | "REJECTED"; reviewNote?: string }
-    }) => CoachClient.adminReviewCertification(certId, dto),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [...coachQueryKeys.all, "admin-certifications"],
-      })
-      queryClient.invalidateQueries({
-        queryKey: [...coachQueryKeys.all, "admin-pending-certifications"],
-      })
-    },
-  })
-}
-
-export function useCoachSchedule(params?: Record<string, unknown>, options?: { enabled?: boolean }) {
+export function useCoachSchedule(
+  params?: Record<string, unknown>,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: coachQueryKeys.schedule(params),
     queryFn: () => CoachClient.getCoachSchedule(params),
@@ -189,14 +200,17 @@ export function useCoachSchedule(params?: Record<string, unknown>, options?: { e
   })
 }
 
-export function useMyClasses(params?: {
-  status?: string
-  level?: string
-  from?: string
-  to?: string
-  page?: number
-  limit?: number
-}, options?: { enabled?: boolean }) {
+export function useMyClasses(
+  params?: {
+    status?: string
+    level?: string
+    from?: string
+    to?: string
+    page?: number
+    limit?: number
+  },
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: coachQueryKeys.myClasses(params),
     queryFn: () => CoachClient.listMyClasses(params),
@@ -204,7 +218,10 @@ export function useMyClasses(params?: {
   })
 }
 
-export function useMyClassDetail(classId: string, options?: { enabled?: boolean }) {
+export function useMyClassDetail(
+  classId: string,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: coachQueryKeys.myClass(classId),
     queryFn: () => CoachClient.getMyClassDetail(classId),
@@ -329,7 +346,10 @@ export function useRemoveScheduleSlot() {
   })
 }
 
-export function useClassEnrollments(classId: string, options?: { enabled?: boolean }) {
+export function useClassEnrollments(
+  classId: string,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: coachQueryKeys.enrollments(classId),
     queryFn: () => CoachClient.viewClassEnrollments(classId),
@@ -394,12 +414,15 @@ export function useRejectEnrollmentPayment() {
   })
 }
 
-export function useCoachLearners(params?: {
-  search?: string
-  kind?: string
-  page?: number
-  limit?: number
-}, options?: { enabled?: boolean }) {
+export function useCoachLearners(
+  params?: {
+    search?: string
+    kind?: string
+    page?: number
+    limit?: number
+  },
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: coachQueryKeys.learners(params),
     queryFn: () => CoachClient.listLearners(params),
@@ -415,7 +438,10 @@ export function useCoachLearnerDashboard(options?: { enabled?: boolean }) {
   })
 }
 
-export function useCoachLearnerDetail(learnerId: string, options?: { enabled?: boolean }) {
+export function useCoachLearnerDetail(
+  learnerId: string,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: coachQueryKeys.learner(learnerId),
     queryFn: () => CoachClient.getLearnerDetail(learnerId),
@@ -498,12 +524,17 @@ export function useRecommendCoach() {
       dto: CoachTypes.CreateRecommendationDto
     }) => CoachClient.recommendCoach(coachId, dto),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [...coachQueryKeys.all, "reviews"] })
+      queryClient.invalidateQueries({
+        queryKey: [...coachQueryKeys.all, "reviews"],
+      })
     },
   })
 }
 
-export function useRevenueSummary(params?: { period?: string; year?: number }, options?: { enabled?: boolean }) {
+export function useRevenueSummary(
+  params?: { period?: string; year?: number },
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: coachQueryKeys.revenueSummary(params),
     queryFn: () => CoachClient.getRevenueSummary(params),
@@ -533,13 +564,16 @@ export function useBookingRevenue(
   })
 }
 
-export function useIncomingBookings(params?: {
-  status?: string
-  from?: string
-  to?: string
-  page?: number
-  limit?: number
-}, options?: { enabled?: boolean }) {
+export function useIncomingBookings(
+  params?: {
+    status?: string
+    from?: string
+    to?: string
+    page?: number
+    limit?: number
+  },
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: coachQueryKeys.bookings(params),
     queryFn: () => CoachClient.listIncomingBookings(params),

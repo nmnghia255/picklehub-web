@@ -492,32 +492,36 @@ export function LearnerSchedule() {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <CalendarNavigation
-            currentDate={currentDate}
-            onMonthChange={monthChange}
-            onYearChange={yearChange}
-            onPrevMonth={prevMonth}
-            onNextMonth={nextMonth}
-            onToday={goToday}
-          />
-          <Select value={viewMode} onValueChange={handleViewModeChange}>
-            <SelectTrigger className="h-10 w-36 rounded-full bg-background shadow-sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {viewModeOptions.map((opt) => {
-                const Icon = opt.icon
-                return (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    <span className="flex items-center gap-2">
-                      <Icon className="size-4" />
-                      {opt.label}
-                    </span>
-                  </SelectItem>
-                )
-              })}
-            </SelectContent>
-          </Select>
+          {viewMode !== "list" && (
+            <CalendarNavigation
+              currentDate={currentDate}
+              onMonthChange={monthChange}
+              onYearChange={yearChange}
+              onPrevMonth={prevMonth}
+              onNextMonth={nextMonth}
+              onToday={goToday}
+            />
+          )}
+          {viewMode !== "list" && (
+            <Select value={viewMode} onValueChange={handleViewModeChange}>
+              <SelectTrigger className="h-10 w-36 rounded-full bg-background shadow-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {viewModeOptions.map((opt) => {
+                  const Icon = opt.icon
+                  return (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      <span className="flex items-center gap-2">
+                        <Icon className="size-4" />
+                        {opt.label}
+                      </span>
+                    </SelectItem>
+                  )
+                })}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         {/* Content per view mode */}
@@ -569,6 +573,26 @@ export function LearnerSchedule() {
             }}
             onPageChange={setPage}
             onItemClick={setDetailItem}
+            viewModeSelector={
+              <Select value={viewMode} onValueChange={handleViewModeChange}>
+                <SelectTrigger className="h-9 w-36 rounded-full bg-background shadow-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {viewModeOptions.map((opt) => {
+                    const Icon = opt.icon
+                    return (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        <span className="flex items-center gap-2">
+                          <Icon className="size-4" />
+                          {opt.label}
+                        </span>
+                      </SelectItem>
+                    )
+                  })}
+                </SelectContent>
+              </Select>
+            }
           />
         )}
       </div>
@@ -809,6 +833,7 @@ function ListView({
   onToDateChange,
   onPageChange,
   onItemClick,
+  viewModeSelector,
 }: {
   items: LearnerScheduleItem[]
   pagination:
@@ -829,74 +854,78 @@ function ListView({
   onToDateChange: (v: string) => void
   onPageChange: (v: number) => void
   onItemClick: (item: LearnerScheduleItem) => void
+  viewModeSelector?: React.ReactNode
 }) {
   return (
     <div className="space-y-4">
       {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative">
-          <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Tìm kiếm..."
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="h-9 w-56 pl-9"
-          />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative">
+            <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Tìm kiếm..."
+              value={search}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="h-9 w-56 pl-9"
+            />
+          </div>
+          <Select value={kind} onValueChange={onKindChange}>
+            <SelectTrigger className="h-9 w-36">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {KIND_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={state} onValueChange={onStateChange}>
+            <SelectTrigger className="h-9 w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {STATE_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={sort} onValueChange={onSortChange}>
+            <SelectTrigger className="h-9 w-28">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {SORT_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Từ:</span>
+            <Input
+              type="date"
+              value={fromDate}
+              onChange={(e) => onFromDateChange(e.target.value)}
+              className="h-9 w-36"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Đến:</span>
+            <Input
+              type="date"
+              value={toDate}
+              onChange={(e) => onToDateChange(e.target.value)}
+              className="h-9 w-36"
+            />
+          </div>
         </div>
-        <Select value={kind} onValueChange={onKindChange}>
-          <SelectTrigger className="h-9 w-36">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {KIND_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={state} onValueChange={onStateChange}>
-          <SelectTrigger className="h-9 w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {STATE_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={sort} onValueChange={onSortChange}>
-          <SelectTrigger className="h-9 w-28">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {SORT_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Từ:</span>
-          <Input
-            type="date"
-            value={fromDate}
-            onChange={(e) => onFromDateChange(e.target.value)}
-            className="h-9 w-36"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Đến:</span>
-          <Input
-            type="date"
-            value={toDate}
-            onChange={(e) => onToDateChange(e.target.value)}
-            className="h-9 w-36"
-          />
-        </div>
+        {viewModeSelector}
       </div>
 
       {/* Items */}

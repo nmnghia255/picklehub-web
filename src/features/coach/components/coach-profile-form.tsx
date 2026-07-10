@@ -320,7 +320,7 @@ export function CoachProfileForm() {
                 <div>
                   <CardTitle>Thông tin cơ bản</CardTitle>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Hiển thị avatar, tên, khu vực giảng dạy, bio và kinh nghiệm.
+                    Hiển thị avatar, tên, khu vực giảng dạy và kinh nghiệm.
                   </p>
                 </div>
 

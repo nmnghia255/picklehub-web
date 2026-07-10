@@ -11,6 +11,7 @@ import type {
   MatchesPaginationMeta,
   ScoreUpdate,
   UpdateLiveScoreInput,
+  UpdateMatchInput,
   UserMatchStats,
 } from "../types"
 
@@ -90,11 +91,14 @@ export async function listMatches(
 }
 
 export async function getUserMatchStats(
-  userId: string
+  userId: string,
+  params: ListMatchesParams = {}
 ): Promise<UserMatchStats> {
   const response = await apiClient.get<
     ApiEnvelope<UserMatchStats> | UserMatchStats
-  >(`/api/matches/stats/${userId}`)
+  >(`/api/matches/stats/${userId}`, {
+    params,
+  })
   return unwrapEnvelope(response.data)
 }
 
@@ -154,6 +158,43 @@ export async function cancelMatch(id: string): Promise<Match> {
   const axios = await getAuthenticatedAxios()
   const response = await axios.patch<ApiEnvelope<Match> | Match>(
     `/api/matches/${id}/cancel`
+  )
+  return unwrapEnvelope(response.data)
+}
+
+export async function listMyMatches(
+  params: ListMatchesParams = {}
+): Promise<ListMatchesResult> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.get<
+    Match[] | MatchesListEnvelope | MatchesListControllerResponse
+  >("/api/matches/my", {
+    params,
+  })
+
+  return normalizeListMatchesPayload(response.data)
+}
+
+export async function getMyStats(
+  params: ListMatchesParams = {}
+): Promise<UserMatchStats> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.get<
+    ApiEnvelope<UserMatchStats> | UserMatchStats
+  >("/api/matches/my/stats", {
+    params,
+  })
+  return unwrapEnvelope(response.data)
+}
+
+export async function updateMatch(
+  id: string,
+  input: UpdateMatchInput
+): Promise<Match> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.patch<ApiEnvelope<Match> | Match>(
+    `/api/matches/${id}`,
+    input
   )
   return unwrapEnvelope(response.data)
 }

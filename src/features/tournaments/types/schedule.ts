@@ -1,3 +1,11 @@
+export type MatchStatus =
+  | "scheduled"
+  | "ready"
+  | "in_progress"
+  | "completed"
+  | "walkover"
+  | "pending"
+
 export interface TournamentSchedule {
   id: number
   event: string
@@ -6,7 +14,7 @@ export interface TournamentSchedule {
   team2: Team
   winner: string | null
   score: string | null
-  status: string
+  status: MatchStatus
   court: string
   courtId: string
   courtStatus: string
@@ -20,7 +28,7 @@ export interface TournamentSchedule {
   endTime?: string | null
 }
 
-interface Team {
+export interface Team {
   teamId: number
   name: string
   seed: number
@@ -49,7 +57,7 @@ export interface AutoScheduleConfigDto {
   endTime: string
   matchDurationMinutes: number
   restDurationMinutes: number
-  optimizationCriteria: "fastest" | "balanced" | "max_rest"
+  optimizationCriteria: "balanced" | "fastest"
 }
 
 export interface PreviewAssignment {

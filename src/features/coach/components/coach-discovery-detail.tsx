@@ -7,20 +7,28 @@ import {
   BarChart3,
   BookOpen,
   Calendar,
+  ChevronLeft,
+  ChevronRight,
   Clock,
+  Filter,
   Globe,
   Info,
+  List,
   MapPin,
   Pencil,
   Plus,
+  Search,
   Star,
   Trash2,
+  User,
   Users,
 } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Suspense, useCallback, useState } from "react"
+import { Suspense, useCallback, useMemo, useState } from "react"
 import { toast } from "sonner"
 
+import { CalendarNavigation } from "@/components/calendar-navigation"
+import { ErrorState } from "@/components/shared/error-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -36,6 +44,13 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -61,6 +76,7 @@ import {
   useEnrollInClass,
   useLearnerSchedule,
 } from "@/features/learner/hooks/use-learner-queries"
+import { cn } from "@/lib/utils"
 
 const LEVEL_LABELS: Record<CoachLevel, string> = {
   Beginner: "Cơ bản",
@@ -101,6 +117,30 @@ function formatRelativeTime(dateStr: string) {
   if (months < 12) return `${months} tháng trước`
   const years = Math.floor(days / 365)
   return `${years} năm trước`
+}
+
+function formatScheduleDate(value: string) {
+  return new Date(value).toLocaleDateString("vi-VN", {
+    weekday: "long",
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+  })
+}
+
+function formatScheduleTime(value: string) {
+  return new Date(value).toLocaleTimeString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+}
+
+function isSameDay(a: Date, b: Date) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  )
 }
 
 function formatCurrency(amount: number) {
@@ -395,82 +435,580 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
   )
 }
 
+type ViewMode = "calendar" | "agenda" | "list"
+
+const STATUS_OPTIONS = [
+  { value: "all", label: "Tất cả trạng thái" },
+  { value: "upcoming", label: "Sắp tới" },
+  { value: "live", label: "Đang diễn ra" },
+  { value: "past", label: "Đã kết thúc" },
+  { value: "pending", label: "Chờ xác nhận" },
+]
+
+const KIND_OPTIONS_SCHEDULE = [
+  { value: "all", label: "Tất cả loại" },
+  { value: "class", label: "Lớp học" },
+  { value: "booking", label: "Đặt lịch" },
+]
+
+const STATUS_LABEL: Record<string, string> = {
+  upcoming: "Sắp tới",
+  live: "Đang diễn ra",
+  past: "Đã kết thúc",
+  pending: "Chờ xác nhận",
+}
+
+function ScheduleItemCard({
+  item,
+  onClick,
+}: {
+  item: LearnerScheduleItem
+  onClick: (item: LearnerScheduleItem) => void
+}) {
+  const coachName = item.coachProfile?.displayName ?? "Không xác định"
+  const statusLabel = STATUS_LABEL[item.status] ?? item.status
+
+  return (
+    <button
+      type="button"
+      onClick={() => onClick(item)}
+      className="w-full rounded-xl border bg-background p-4 text-left shadow-sm transition hover:bg-accent/50"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="rounded-full text-[10px]">
+              {item.kind === "class" ? "Lớp học" : "Đặt lịch"}
+            </Badge>
+            <p className="truncate text-sm font-medium">{item.title}</p>
+          </div>
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <Clock className="size-3.5" />
+              {formatScheduleTime(item.startsAt)} -{" "}
+              {formatScheduleTime(item.endsAt)}
+            </span>
+            <span>({item.durationMinutes} phút)</span>
+            {coachName !== "Không xác định" && (
+              <span className="flex items-center gap-1">
+                <User className="size-3.5" />
+                {coachName}
+              </span>
+            )}
+            {item.locationDescription && (
+              <span className="flex items-center gap-1">
+                <MapPin className="size-3.5" />
+                {item.locationDescription}
+              </span>
+            )}
+          </div>
+          {item.topic && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              Chủ đề: {item.topic}
+            </p>
+          )}
+        </div>
+        <Badge className="shrink-0 rounded-full text-[10px]">
+          {statusLabel}
+        </Badge>
+      </div>
+    </button>
+  )
+}
+
+function DetailDialog({
+  item,
+  open,
+  onOpenChange,
+}: {
+  item: LearnerScheduleItem | null
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}) {
+  if (!item) return null
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Badge variant="secondary" className="rounded-full text-[10px]">
+              {item.kind === "class" ? "Lớp học" : "Đặt lịch"}
+            </Badge>
+            <Badge className="rounded-full text-[10px]">
+              {STATUS_LABEL[item.status] ?? item.status}
+            </Badge>
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">{item.title}</h3>
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <Calendar className="size-4" />
+            {formatScheduleDate(item.startsAt)}
+          </div>
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <Clock className="size-4" />
+            {formatScheduleTime(item.startsAt)} -{" "}
+            {formatScheduleTime(item.endsAt)}
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Thời lượng: {item.durationMinutes} phút
+          </p>
+          {item.coachProfile?.displayName && (
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <User className="size-4" />
+              {item.coachProfile.displayName}
+            </div>
+          )}
+          {item.locationDescription && (
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <MapPin className="size-4" />
+              {item.locationDescription}
+            </div>
+          )}
+          {item.topic && (
+            <p className="text-sm text-muted-foreground">
+              Chủ đề: {item.topic}
+            </p>
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Đóng
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 function ScheduleTab({ coachId }: { coachId: string }) {
   const session = useSession()
-  const { data, isLoading, error } = useLearnerSchedule(
+  const [state, setState] = useState<string>("all")
+  const { data, isLoading, error, refetch } = useLearnerSchedule(
     {
       coachProfileId: coachId,
-      state: "all",
+      ...(state !== "all" ? { state } : {}),
       sort: "asc",
       limit: 50,
     },
     { enabled: !!session?.user }
   )
 
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-20 w-full rounded-lg" />
-        ))}
-      </div>
+  const today = useMemo(() => {
+    const d = new Date()
+    d.setHours(0, 0, 0, 0)
+    return d
+  }, [])
+  const [viewMode, setViewMode] = useState<ViewMode>("calendar")
+  const [currentDate, setCurrentDate] = useState(() => {
+    const d = new Date()
+    d.setHours(0, 0, 0, 0)
+    d.setDate(1)
+    return d
+  })
+  const [selectedItem, setSelectedItem] = useState<LearnerScheduleItem | null>(
+    null
+  )
+  const [search, setSearch] = useState("")
+  const [kind, setKind] = useState("all")
+  const [fromDate, setFromDate] = useState("")
+  const [toDate, setToDate] = useState("")
+
+  /* ── Calendar calculations ── */
+
+  const monthStart = useMemo(
+    () => new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
+    [currentDate]
+  )
+  const monthEnd = useMemo(
+    () => new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0),
+    [currentDate]
+  )
+
+  const calendarStart = useMemo(() => {
+    const d = new Date(monthStart)
+    const day = d.getDay()
+    d.setDate(d.getDate() - (day === 0 ? 6 : day - 1))
+    return d
+  }, [monthStart])
+
+  const calendarEnd = useMemo(() => {
+    const d = new Date(monthEnd)
+    const day = d.getDay()
+    d.setDate(d.getDate() + (day === 0 ? 0 : 7 - day))
+    return d
+  }, [monthEnd])
+
+  const allDays = useMemo(() => {
+    const days: Date[] = []
+    const current = new Date(calendarStart)
+    while (current <= calendarEnd) {
+      days.push(new Date(current))
+      current.setDate(current.getDate() + 1)
+    }
+    return days
+  }, [calendarStart, calendarEnd])
+
+  const scheduleMap = useMemo(() => {
+    const map = new Map<string, LearnerScheduleItem[]>()
+    if (!data?.data) return map
+    for (const item of data.data) {
+      const key = item.startsAt.slice(0, 10)
+      if (!map.has(key)) map.set(key, [])
+      map.get(key)!.push(item)
+    }
+    return map
+  }, [data])
+
+  /* ── Filtered items ── */
+
+  const filteredItems = useMemo(() => {
+    let result = data?.data ?? []
+    if (search) {
+      const q = search.toLowerCase()
+      result = result.filter(
+        (it) =>
+          it.title.toLowerCase().includes(q) ||
+          it.coachProfile?.displayName?.toLowerCase().includes(q) ||
+          it.topic?.toLowerCase().includes(q)
+      )
+    }
+    if (kind !== "all") result = result.filter((it) => it.kind === kind)
+    if (fromDate)
+      result = result.filter((it) => it.startsAt.slice(0, 10) >= fromDate)
+    if (toDate)
+      result = result.filter((it) => it.startsAt.slice(0, 10) <= toDate)
+    return result
+  }, [data?.data, search, kind, state, fromDate, toDate])
+
+  /* ── Navigation handlers ── */
+
+  const prevMonth = () =>
+    setCurrentDate(
+      (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
     )
+  const nextMonth = () =>
+    setCurrentDate(
+      (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
+    )
+  const goToday = () => {
+    const d = new Date()
+    d.setHours(0, 0, 0, 0)
+    d.setDate(1)
+    setCurrentDate(d)
   }
 
-  if (error || !data?.data || data.data.length === 0) {
-    return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center py-12">
-          <Calendar className="mb-2 size-10 text-muted-foreground" />
-          <p className="text-muted-foreground">
-            Chưa có lịch học với huấn luyện viên này
-          </p>
-        </CardContent>
-      </Card>
-    )
+  const weekDays = [
+    "Thứ 2",
+    "Thứ 3",
+    "Thứ 4",
+    "Thứ 5",
+    "Thứ 6",
+    "Thứ 7",
+    "Chủ nhật",
+  ]
+
+  const weeks: Date[][] = []
+  for (let i = 0; i < allDays.length; i += 7) {
+    weeks.push(allDays.slice(i, i + 7))
   }
+
+  const viewModeOptions = [
+    { value: "calendar" as const, label: "Lịch", icon: Calendar },
+    { value: "agenda" as const, label: "Danh sách", icon: List },
+    { value: "list" as const, label: "Chi tiết", icon: Filter },
+  ]
+
+  const viewModeSelect = (
+    <Select value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
+      <SelectTrigger className="h-9 w-36 rounded-full bg-background shadow-sm">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {viewModeOptions.map((opt) => {
+          const Icon = opt.icon
+          return (
+            <SelectItem key={opt.value} value={opt.value}>
+              <span className="flex items-center gap-2">
+                <Icon className="size-4" />
+                {opt.label}
+              </span>
+            </SelectItem>
+          )
+        })}
+      </SelectContent>
+    </Select>
+  )
+
+  const calendarNav = (
+    <CalendarNavigation
+      currentDate={currentDate}
+      onMonthChange={(month) =>
+        setCurrentDate((prev) => new Date(prev.getFullYear(), month, 1))
+      }
+      onYearChange={(year) =>
+        setCurrentDate((prev) => new Date(year, prev.getMonth(), 1))
+      }
+      onPrevMonth={prevMonth}
+      onNextMonth={nextMonth}
+      onToday={goToday}
+    />
+  )
 
   return (
     <div className="space-y-4">
-      {data.data.map((item: LearnerScheduleItem, idx: number) => (
-        <Card key={item.id ?? `schedule-${idx}`}>
-          <CardContent className="flex items-center gap-4 pt-6">
-            <div className="flex-1 space-y-1">
-              <p className="font-medium">{item.title}</p>
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                <span>
-                  {new Date(item.startsAt).toLocaleDateString("vi-VN", {
-                    weekday: "long",
-                    day: "numeric",
-                    month: "numeric",
-                    year: "numeric",
-                  })}
-                </span>
-                <span>
-                  {new Date(item.startsAt).toLocaleTimeString("vi-VN", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
-                <span>
-                  {Math.round(
-                    (new Date(item.endsAt).getTime() -
-                      new Date(item.startsAt).getTime()) /
-                      60000
-                  )}{" "}
-                  phút
-                </span>
-              </div>
+      {/* ── Calendar toolbar ── */}
+      {viewMode === "calendar" && (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {calendarNav}
+          {viewModeSelect}
+        </div>
+      )}
+
+      {/* ── Agenda toolbar ── */}
+      {viewMode === "agenda" && (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {calendarNav}
+          {viewModeSelect}
+        </div>
+      )}
+
+      {/* ── List toolbar ── */}
+      {viewMode === "list" && (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative">
+              <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Tìm kiếm..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="h-9 w-48 pl-9"
+              />
             </div>
-            <Badge>
-              {item.status === "upcoming" && "Sắp tới"}
-              {item.status === "live" && "Đang diễn ra"}
-              {item.status === "past" && "Đã kết thúc"}
-              {item.status === "pending" && "Chờ xác nhận"}
-            </Badge>
-          </CardContent>
-        </Card>
-      ))}
+            <Select value={kind} onValueChange={setKind}>
+              <SelectTrigger className="h-9 w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {KIND_OPTIONS_SCHEDULE.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={state} onValueChange={setState}>
+              <SelectTrigger className="h-9 w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Từ:</span>
+              <Input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="h-9 w-34"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Đến:</span>
+              <Input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="h-9 w-34"
+              />
+            </div>
+          </div>
+          {viewModeSelect}
+        </div>
+      )}
+
+      {isLoading ? (
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-20 w-full rounded-lg" />
+          ))}
+        </div>
+      ) : error ? (
+        <ErrorState retry={refetch} />
+      ) : filteredItems.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <Calendar className="mb-2 size-10 text-muted-foreground" />
+          <p className="text-lg font-medium">Không có kết quả phù hợp</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* ── Calendar view ── */}
+          {viewMode === "calendar" && (
+            <div className="rounded-xl border bg-background shadow-sm">
+              <div className="grid grid-cols-7 border-b">
+                {weekDays.map((day) => (
+                  <div
+                    key={day}
+                    className="p-2 text-center text-xs font-semibold text-muted-foreground"
+                  >
+                    {day}
+                  </div>
+                ))}
+              </div>
+              {weeks.map((week, wi) => (
+                <div key={wi} className="grid grid-cols-7">
+                  {week.map((day) => {
+                    const dateKey = day.toISOString().slice(0, 10)
+                    const dayItems = scheduleMap.get(dateKey) ?? []
+                    const isTodayDate = isSameDay(day, today)
+                    const isCurrentMonth =
+                      day.getMonth() === currentDate.getMonth()
+
+                    return (
+                      <div
+                        key={dateKey}
+                        className={cn(
+                          "min-h-24 border-t border-r p-1 last:border-r-0",
+                          !isCurrentMonth && "bg-muted/30"
+                        )}
+                      >
+                        <div className="mb-1 flex justify-center">
+                          <span
+                            className={cn(
+                              "inline-flex size-6 items-center justify-center rounded-full text-xs",
+                              isTodayDate &&
+                                "bg-primary font-semibold text-primary-foreground",
+                              !isTodayDate &&
+                                !isCurrentMonth &&
+                                "text-muted-foreground"
+                            )}
+                          >
+                            {day.getDate()}
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          {dayItems.slice(0, 3).map((item) => {
+                            const isPast = item.status === "past"
+                            return (
+                              <button
+                                key={item.id}
+                                type="button"
+                                onClick={() => setSelectedItem(item)}
+                                className={cn(
+                                  "w-full rounded-md border-l-4 px-2 py-1.5 text-left text-xs transition-colors hover:bg-accent",
+                                  item.kind === "class"
+                                    ? "border-l-blue-500 bg-blue-50 dark:bg-blue-950"
+                                    : "border-l-emerald-500 bg-emerald-50 dark:bg-emerald-950",
+                                  isPast && "opacity-55"
+                                )}
+                              >
+                                <p className="truncate font-medium">
+                                  {item.title}
+                                </p>
+                                <p className="truncate text-muted-foreground">
+                                  {formatScheduleTime(item.startsAt)} -{" "}
+                                  {formatScheduleTime(item.endsAt)}
+                                </p>
+                                {item.coachProfile?.displayName && (
+                                  <p className="truncate text-muted-foreground">
+                                    {item.coachProfile.displayName}
+                                  </p>
+                                )}
+                              </button>
+                            )
+                          })}
+                          {dayItems.length > 3 && (
+                            <p className="text-center text-[10px] text-muted-foreground">
+                              +{dayItems.length - 3} nữa
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* ── Agenda view ── */}
+          {viewMode === "agenda" && (
+            <div className="space-y-6">
+              {(() => {
+                const grouped = new Map<string, LearnerScheduleItem[]>()
+                for (const item of filteredItems) {
+                  const key = item.startsAt.slice(0, 10)
+                  if (!grouped.has(key)) grouped.set(key, [])
+                  grouped.get(key)!.push(item)
+                }
+                const sortedDates = Array.from(grouped.keys()).sort()
+                return sortedDates.map((dateKey) => {
+                  const dayItems = grouped.get(dateKey) ?? []
+                  const d = new Date(dateKey + "T00:00:00")
+                  return (
+                    <div key={dateKey}>
+                      <div className="mb-3 flex items-center gap-3">
+                        <div className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                          {d.getDate()}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">
+                            {formatScheduleDate(dateKey)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {dayItems.length} buổi
+                          </p>
+                        </div>
+                      </div>
+                      <div className="relative ml-5 space-y-3 border-l-2 border-muted pl-5">
+                        {dayItems.map((item) => (
+                          <ScheduleItemCard
+                            key={item.id}
+                            item={item}
+                            onClick={setSelectedItem}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })
+              })()}
+            </div>
+          )}
+
+          {/* ── List view ── */}
+          {viewMode === "list" && (
+            <div className="space-y-3">
+              {filteredItems.map((item) => (
+                <ScheduleItemCard
+                  key={item.id}
+                  item={item}
+                  onClick={setSelectedItem}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Detail dialog */}
+      <DetailDialog
+        item={selectedItem}
+        open={!!selectedItem}
+        onOpenChange={(open) => {
+          if (!open) setSelectedItem(null)
+        }}
+      />
     </div>
   )
 }

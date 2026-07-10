@@ -39,6 +39,11 @@ export interface AssignedReferee {
   }
 }
 
+export interface AssignRefereesResponseDto {
+  isReferee: boolean
+  assignments: AssignedReferee[]
+}
+
 export interface InviteRefereeDto {
   email: string
 }

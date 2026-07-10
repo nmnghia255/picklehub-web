@@ -7,6 +7,7 @@ import { useParams } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
+import { BackNavigation } from "@/components/common/back-navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -184,6 +185,10 @@ export default function ClassDetailPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-8">
+      <div className="flex items-center justify-between">
+        <BackNavigation fallbackPath="/learner" />
+      </div>
+
       {/* Hero */}
       <div className="relative overflow-hidden rounded-xl bg-muted">
         {coverImageUrl ? (

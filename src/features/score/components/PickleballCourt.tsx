@@ -25,8 +25,8 @@ export function PickleballCourt() {
   const rightTopSlot = isSwappedSides ? teamASlots.left : teamBSlots.right
   const rightBottomSlot = isSwappedSides ? teamASlots.right : teamBSlots.left
 
-  const leftTeam = isSwappedSides ? "B" : "A"
-  const rightTeam = isSwappedSides ? "A" : "B"
+  const leftTeam = "A"
+  const rightTeam = "B"
 
   // Calculate receiver player ID
   const receiverId = useMemo(() => {

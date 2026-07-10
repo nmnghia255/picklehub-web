@@ -8,21 +8,11 @@ import {
   Play,
   Trophy,
 } from "lucide-react"
-import { useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
-import { useBracketStore } from "../../stores/use-bracket-store"
-import type { Bracket, Team } from "../../types/bracket"
+import type { Bracket } from "../../types/bracket"
 
 interface MatchDetailsProps {
   match: Bracket
@@ -36,58 +26,7 @@ export function MatchDetailsContent({
   tournamentId,
 }: MatchDetailsProps) {
   const { t } = useTournamentTranslation()
-  const editBracket = useBracketStore((s) => s.editBracket)
-  const isLocked = useBracketStore((s) => s.isLocked)
-  const selectedEventId = useBracketStore((s) => s.selectedEventId)
-  const brackets = useBracketStore((s) => s.brackets)
 
-  const [isEditing, setIsEditing] = useState(false)
-  const [selectedTeam1Id, setSelectedTeam1Id] = useState<string>(
-    match.team1?.teamId?.toString() || "none"
-  )
-  const [selectedTeam2Id, setSelectedTeam2Id] = useState<string>(
-    match.team2?.teamId?.toString() || "none"
-  )
-
-  // Get all unique teams from the current bracket
-  const allTeams = Array.from(
-    new Map(
-      brackets
-        .flatMap((b) => [b.team1, b.team2])
-        .filter((t): t is Team => t !== null && t !== undefined)
-        .map((t) => [t.teamId, t])
-    ).values()
-  ).sort((a, b) => a.seed - b.seed)
-
-  const handleSaveEdit = async () => {
-    if (!selectedEventId) return
-    const successMsg = t("brackets.match.editSuccess", {
-      defaultValue: "Matchup updated successfully!",
-    })
-    const errorMsg = t("brackets.match.editError", {
-      defaultValue: "Failed to update matchup",
-    })
-
-    const t1Id = selectedTeam1Id === "none" ? 0 : Number(selectedTeam1Id)
-    const t2Id = selectedTeam2Id === "none" ? 0 : Number(selectedTeam2Id)
-
-    await editBracket(
-      tournamentId,
-      selectedEventId,
-      {
-        matches: [
-          {
-            id: match.id,
-            team1Id: t1Id,
-            team2Id: t2Id,
-          },
-        ],
-      },
-      successMsg,
-      errorMsg
-    )
-    setIsEditing(false)
-  }
   const t1 = match.team1
   const t2 = match.team2
 
@@ -183,13 +122,6 @@ export function MatchDetailsContent({
           <span className="block text-sm font-semibold tracking-wider text-gray-400 uppercase">
             {t("brackets.match.details.status")}
           </span>
-          {/* <span className="text-sm font-medium text-gray-600">
-            {match.status === "in_progress"
-              ? "Live updates available"
-              : match.status === "completed"
-                ? "Match concluded"
-                : "Match status details"}
-          </span> */}
         </div>
         <Badge
           variant="outline"
@@ -200,127 +132,42 @@ export function MatchDetailsContent({
         </Badge>
       </div>
 
-      {isEditing ? (
-        <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-4 shadow-xs">
-          <h3 className="font-semibold text-gray-950">
-            {t("brackets.match.edit.title", {
-              defaultValue: "Edit Match Matchup",
-            })}
-          </h3>
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-gray-500 uppercase">
-                {t("brackets.match.edit.team1", { defaultValue: "Team 1" })}
-              </label>
-              <Select
-                value={selectedTeam1Id}
-                onValueChange={setSelectedTeam1Id}
-              >
-                <SelectTrigger className="w-full border-gray-300 bg-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">
-                    {t("brackets.match.tbd", { defaultValue: "TBD / Bye" })}
-                  </SelectItem>
-                  {allTeams.map((team) => (
-                    <SelectItem
-                      key={team.teamId}
-                      value={team.teamId.toString()}
-                    >
-                      Seed {team.seed}:{" "}
-                      {team.name || team.player1?.name || "TBD"}{" "}
-                      {team.player2 ? `/ ${team.player2.name}` : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-gray-500 uppercase">
-                {t("brackets.match.edit.team2", { defaultValue: "Team 2" })}
-              </label>
-              <Select
-                value={selectedTeam2Id}
-                onValueChange={setSelectedTeam2Id}
-              >
-                <SelectTrigger className="w-full border-gray-300 bg-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">
-                    {t("brackets.match.tbd", { defaultValue: "TBD / Bye" })}
-                  </SelectItem>
-                  {allTeams.map((team) => (
-                    <SelectItem
-                      key={team.teamId}
-                      value={team.teamId.toString()}
-                    >
-                      Seed {team.seed}:{" "}
-                      {team.name || team.player1?.name || "TBD"}{" "}
-                      {team.player2 ? `/ ${team.player2.name}` : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+      <div>
+        <h3 className="mb-3 font-semibold text-gray-900">
+          {t("brackets.match.details.participants")}
+        </h3>
+        <div className="space-y-3">
+          <div
+            className={`rounded-lg p-3 ${
+              match.winner === "team1"
+                ? "border border-emerald-200 bg-emerald-50"
+                : "bg-gray-100"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              {renderTeamDetails(t1, match.winner === "team1")}
+              {match.winner === "team1" && (
+                <Trophy className="h-5 w-5 text-amber-500" />
+              )}
             </div>
           </div>
 
-          <div className="flex gap-2 pt-2">
-            <Button
-              onClick={handleSaveEdit}
-              className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700"
-            >
-              {t("brackets.match.edit.save", { defaultValue: "Save Matchup" })}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setIsEditing(false)}
-              className="flex-1 border-gray-300 hover:bg-gray-50"
-            >
-              {t("brackets.match.edit.cancel", { defaultValue: "Cancel" })}
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div>
-          <h3 className="mb-3 font-semibold text-gray-900">
-            {t("brackets.match.details.participants")}
-          </h3>
-          <div className="space-y-3">
-            <div
-              className={`rounded-lg p-3 ${
-                match.winner === "team1"
-                  ? "border border-emerald-200 bg-emerald-50"
-                  : "bg-gray-100"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                {renderTeamDetails(t1, match.winner === "team1")}
-                {match.winner === "team1" && (
-                  <Trophy className="h-5 w-5 text-amber-500" />
-                )}
-              </div>
-            </div>
-
-            <div
-              className={`rounded-lg p-3 ${
-                match.winner === "team2"
-                  ? "border border-emerald-200 bg-emerald-50"
-                  : "bg-gray-100"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                {renderTeamDetails(t2, match.winner === "team2")}
-                {match.winner === "team2" && (
-                  <Trophy className="h-5 w-5 text-amber-500" />
-                )}
-              </div>
+          <div
+            className={`rounded-lg p-3 ${
+              match.winner === "team2"
+                ? "border border-emerald-200 bg-emerald-50"
+                : "bg-gray-100"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              {renderTeamDetails(t2, match.winner === "team2")}
+              {match.winner === "team2" && (
+                <Trophy className="h-5 w-5 text-amber-500" />
+              )}
             </div>
           </div>
         </div>
-      )}
+      </div>
 
       {match.score && (
         <div>
@@ -371,37 +218,6 @@ export function MatchDetailsContent({
           </div>
         </div>
       </div>
-
-      {isHost && !isLocked && !isEditing && (
-        <div className="space-y-2 border-t pt-4">
-          <h3 className="mb-3 font-semibold text-gray-900">
-            {t("brackets.match.details.actions")}
-          </h3>
-          <Button
-            variant="outline"
-            className="w-full justify-start border-gray-300 font-medium text-gray-700 hover:bg-gray-50"
-            onClick={() => setIsEditing(true)}
-          >
-            {t("brackets.match.details.editMatch", {
-              defaultValue: "Edit Matchup Teams",
-            })}
-          </Button>
-          <Button variant="outline" className="w-full justify-start" disabled>
-            {t("brackets.match.details.reassignCourt")}
-          </Button>
-          <Button variant="outline" className="w-full justify-start" disabled>
-            {t("brackets.match.details.updateScore")}
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full justify-start text-yellow-600 hover:text-yellow-700"
-            disabled
-          >
-            <AlertTriangle className="mr-2 h-4 w-4" />
-            {t("brackets.match.details.markWalkover")}
-          </Button>
-        </div>
-      )}
     </div>
   )
 }

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
-import type { Match } from "../../types/match"
+import type { TournamentSchedule } from "../../types/schedule"
 
 interface SlotScheduleDialogProps {
   open: boolean
@@ -22,8 +22,8 @@ interface SlotScheduleDialogProps {
     courtName: string
     timeSlot: string
   } | null
-  unscheduledMatches: Match[]
-  setSelectedMatchForManual: (match: Match) => void
+  unscheduledMatches: TournamentSchedule[]
+  setSelectedMatchForManual: (match: TournamentSchedule) => void
   manualSchedule: (
     courtId: string,
     timeSlot: string
@@ -48,7 +48,7 @@ export function SlotScheduleDialog({
 }: SlotScheduleDialogProps) {
   const { t } = useTournamentTranslation()
 
-  const handleSchedule = async (match: Match) => {
+  const handleSchedule = async (match: TournamentSchedule) => {
     if (!slotToSchedule) return
 
     setSelectedMatchForManual(match)

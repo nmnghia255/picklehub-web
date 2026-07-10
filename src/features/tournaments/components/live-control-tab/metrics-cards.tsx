@@ -46,7 +46,7 @@ export function MetricsCards({
       </Card>
 
       {/* Upcoming Matches */}
-      <Card className="border-gray-100 shadow-sm">
+      <Card className="gap-0 border-gray-100 shadow-sm">
         <CardContent className="p-6">
           <div className="mb-2 flex items-center justify-between">
             <Calendar className="h-5 w-5 text-blue-600" />
@@ -68,7 +68,7 @@ export function MetricsCards({
       </Card>
 
       {/* Courts in Use */}
-      <Card className="border-gray-100 shadow-sm">
+      <Card className="gap-0 border-gray-100 shadow-sm">
         <CardContent className="p-6">
           <div className="mb-2 flex items-center justify-between">
             <MapPin className="h-5 w-5 text-emerald-600" />
