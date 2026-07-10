@@ -14,6 +14,7 @@ import {
   House,
   type LucideIcon,
   MapPinned,
+  MessageSquare,
   Shield,
   Trophy,
   UserRound,
@@ -59,6 +60,7 @@ const sidebarItems: SidebarItem[] = [
   { titleKey: "tournaments", href: "/tournaments", icon: Trophy },
   { titleKey: "groups", href: "/groups", icon: Users },
   { titleKey: "friends", href: "/friend", icon: Handshake },
+  { titleKey: "chat", href: "/chat", icon: MessageSquare },
   {
     titleKey: "tournamentManagement",
     href: "/tournament-management",

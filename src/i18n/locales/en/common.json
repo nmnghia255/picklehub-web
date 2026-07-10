@@ -159,6 +159,7 @@
     "tournaments": "Tournaments",
     "groups": "Groups",
     "friends": "Friends",
+    "chat": "Chat",
     "tournamentManagement": "Tournament Management",
     "notifications": "Notifications",
     "learner": "Learner",
@@ -175,6 +176,39 @@
     "mobileTitle": "Sidebar",
     "mobileDescription": "Displays the mobile sidebar.",
     "toggle": "Toggle sidebar"
+  },
+  "chat": {
+    "pageTitle": "Chat",
+    "pageDescription": "Message friends, groups, and social sessions.",
+    "conversationList": {
+      "searchPlaceholder": "Search conversations...",
+      "emptyState": "No conversations found."
+    },
+    "emptyState": {
+      "title": "Select a conversation to start",
+      "description": "Message friends, groups, and social sessions."
+    },
+    "messages": {
+      "groupMembers": "{{count}} members",
+      "socialPrefix": "Social: {{name}}",
+      "fromGroup": "From group: {{name}}",
+      "groupOnly": "Group",
+      "groupPrefix": "Group: {{name}}",
+      "you": "You"
+    },
+    "composer": {
+      "imageButton": "Send image",
+      "emojiButton": "Emoji picker",
+      "messagePlaceholder": "Type a message...",
+      "send": "Send"
+    },
+    "relativeTime": {
+      "justNow": "Just now",
+      "minutesAgo": "{{count}} minutes ago",
+      "hoursAgo": "{{count}} hours ago",
+      "yesterday": "Yesterday",
+      "daysAgo": "{{count}} days ago"
+    }
   },
   "previewImageAlt": "Preview image",
   "logoAlt": "PickleHub logo",

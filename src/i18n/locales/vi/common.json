@@ -160,6 +160,7 @@
     "tournaments": "Giải đấu",
     "groups": "Nhóm",
     "friends": "Bạn bè",
+    "chat": "Chat",
     "tournamentManagement": "Quản lý giải đấu",
     "notifications": "Thông báo",
     "learner": "Người học",
@@ -176,6 +177,39 @@
     "mobileTitle": "Thanh bên",
     "mobileDescription": "Hiển thị thanh bên trên thiết bị di động.",
     "toggle": "Chuyển thanh bên"
+  },
+  "chat": {
+    "pageTitle": "Chat",
+    "pageDescription": "Nhắn tin với bạn bè, nhóm và các buổi chơi.",
+    "conversationList": {
+      "searchPlaceholder": "Tìm kiếm hội thoại...",
+      "emptyState": "Không tìm thấy hội thoại."
+    },
+    "emptyState": {
+      "title": "Chọn một hội thoại để bắt đầu",
+      "description": "Nhắn tin với bạn bè, nhóm và các buổi chơi."
+    },
+    "messages": {
+      "groupMembers": "{{count}} thành viên",
+      "socialPrefix": "Buổi chơi: {{name}}",
+      "fromGroup": "Từ nhóm: {{name}}",
+      "groupOnly": "Nhóm",
+      "groupPrefix": "Nhóm: {{name}}",
+      "you": "Bạn"
+    },
+    "composer": {
+      "imageButton": "Gửi ảnh",
+      "emojiButton": "Bảng chọn emoji",
+      "messagePlaceholder": "Nhập tin nhắn...",
+      "send": "Gửi"
+    },
+    "relativeTime": {
+      "justNow": "Vừa xong",
+      "minutesAgo": "{{count}} phút trước",
+      "hoursAgo": "{{count}} giờ trước",
+      "yesterday": "Hôm qua",
+      "daysAgo": "{{count}} ngày trước"
+    }
   },
   "previewImageAlt": "Ảnh xem trước",
   "logoAlt": "Logo PickleHub",
