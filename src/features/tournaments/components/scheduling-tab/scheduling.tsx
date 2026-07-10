@@ -22,7 +22,7 @@ import {
   useViewMode,
 } from "../../stores/use-scheduling-store"
 import type { TournamentBooking } from "../../types/booking"
-import type { Match } from "../../types/match"
+import type { TournamentSchedule } from "../../types/schedule"
 import type { Tournament } from "../../types/tournament"
 import type { TournamentEvent } from "../../types/tournament-event"
 import { AutoScheduleDialog } from "./auto-schedule-dialog"
@@ -34,29 +34,15 @@ import { SlotScheduleDialog } from "./slot-schedule-dialog"
 import { TimelineGrid } from "./timeline-grid"
 
 // Timezone-safe local date comparison helper
+// Extracts the date portion directly from the ISO string to avoid browser-local timezone conversion.
+// e.g. "2026-07-09T09:00:00+07:00" → date part "2026-07-09" regardless of browser timezone.
 const isSameLocalDate = (
   timeStr: string | null | undefined,
   targetDateStr: string
 ): boolean => {
   if (!timeStr) return false
   if (timeStr.includes("T")) {
-    if (
-      timeStr.includes("Z") ||
-      timeStr.includes("+") ||
-      (timeStr.includes("-") && timeStr.split("T")[1].includes("-"))
-    ) {
-      try {
-        const d = new Date(timeStr)
-        if (!isNaN(d.getTime())) {
-          const year = d.getFullYear()
-          const month = String(d.getMonth() + 1).padStart(2, "0")
-          const day = String(d.getDate()).padStart(2, "0")
-          return `${year}-${month}-${day}` === targetDateStr
-        }
-      } catch (e) {
-        console.error("Error parsing local date:", e)
-      }
-    }
+    // Always compare using the date portion in the string itself, not the browser-local date
     return timeStr.split("T")[0] === targetDateStr
   }
   return timeStr.startsWith(targetDateStr)
@@ -247,22 +233,28 @@ export function Scheduling({
 
   // Filter scheduled matches and mark other event matches
   const allScheduledMatchesForGrid = useMemo(() => {
+    // Find the selected event name from the events list
+    const selectedEventName =
+      selectedEventId && selectedEventId !== "all"
+        ? events.find((e) => e.id.toString() === selectedEventId)?.name
+        : null
+
     return fixtures
       .filter((f) => f.court)
       .map((m) => ({
         ...m,
         isOtherEvent:
-          selectedEventId &&
-          selectedEventId !== "all" &&
-          m.eventId?.toString() !== selectedEventId,
+          selectedEventName !== null &&
+          selectedEventName !== undefined &&
+          m.event !== selectedEventName,
       }))
-  }, [fixtures, selectedEventId])
+  }, [fixtures, selectedEventId, events])
   const bookings = useBookings()
   const centers = useCenters()
   const selectedCenterId = useSelectedCenterId()
   const setSelectedCenterId = useSchedulingStore((s) => s.setSelectedCenterId)
 
-  // Dynamically resolve preview assignments into Match objects
+  // Dynamically resolve preview assignments into TournamentSchedule objects
   const previewMatches = useMemo(() => {
     if (
       !isPreviewMode ||
@@ -289,19 +281,7 @@ export function Scheduling({
         }
 
         const startIso = `${pa.date}T${pa.startTime}`
-
-        let duration = 45
-        try {
-          const startParts = pa.startTime.split(":")
-          const endParts = pa.endTime.split(":")
-          if (startParts.length >= 2 && endParts.length >= 2) {
-            const startMin = Number(startParts[0]) * 60 + Number(startParts[1])
-            const endMin = Number(endParts[0]) * 60 + Number(endParts[1])
-            duration = endMin - startMin
-          }
-        } catch (e) {
-          console.error("Error computing duration:", e)
-        }
+        const endIso = `${pa.date}T${pa.endTime}`
 
         const team1 = match?.team1 || { name: pa.team1Name || "TBD" }
         const team2 = match?.team2 || { name: pa.team2Name || "TBD" }
@@ -310,30 +290,29 @@ export function Scheduling({
 
         return {
           id: pa.matchId,
-          tournamentId: tournamentId,
-          eventId: match?.eventId || 0,
           event,
           round,
-          team1,
-          team2,
-          winner: match?.winner || null,
-          score: match?.score || null,
-          status: match?.status || "pending",
+          team1: team1 as TournamentSchedule["team1"],
+          team2: team2 as TournamentSchedule["team2"],
+          winner: (match?.winner as string | null) ?? null,
+          score: match?.score ?? null,
+          status: (match?.status || "pending") as TournamentSchedule["status"],
           court: courtDisplay,
           courtId: pa.courtName, // GUID
-          startTime: startIso,
-          duration,
-          priority: match?.priority || "medium",
-          refereeId: match?.refereeId,
-          refereeName: match?.refereeName,
-          bookingId: pa.bookingId,
+          courtStatus: match?.courtStatus ?? "",
+          externalMatchId: "",
+          bookingId: String(pa.bookingId),
           bookingItemId: pa.bookingItemId,
-          warnings: match?.warnings || [],
+          refereeId: match?.refereeId ?? "",
+          refereeName: match?.refereeName ?? "",
+          date: pa.date,
+          startTime: startIso,
+          endTime: endIso,
           isPreview: true,
-        }
+        } satisfies TournamentSchedule & { isPreview: boolean }
       })
-      .filter(Boolean) as Match[]
-  }, [isPreviewMode, previewAssignments, fixtures, bookings, tournamentId])
+      .filter(Boolean) as (TournamentSchedule & { isPreview: boolean })[]
+  }, [isPreviewMode, previewAssignments, fixtures, bookings])
 
   const handleConfirmAutoSchedule = async () => {
     if (!previewEventId || !autoScheduleConfig) {

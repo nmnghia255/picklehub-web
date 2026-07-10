@@ -55,6 +55,7 @@ export function PlayerTournament({
     null
   )
   const [refereeMatches, setRefereeMatches] = useState<AssignedReferee[]>([])
+  const [isReferee, setIsReferee] = useState<boolean>(false)
 
   useEffect(() => {
     getMyProfileAction().then((res) => {
@@ -68,7 +69,8 @@ export function PlayerTournament({
     if (tournament?.id) {
       listMyAssignmentsAction(String(tournament.id)).then((res) => {
         if (res.success && res.data) {
-          setRefereeMatches(res.data)
+          setRefereeMatches(res.data.assignments)
+          setIsReferee(res.data.isReferee)
         }
       })
     }
@@ -89,7 +91,7 @@ export function PlayerTournament({
   const displaySponsors: TournamentSponsor[] = sponsors
   const displayParticipants = participants
 
-  const hasRefereeAssignments = refereeMatches.length > 0
+  const hasRefereeAssignments = isReferee
 
   const myAssignments = refereeMatches
 
@@ -204,7 +206,7 @@ export function PlayerTournament({
             >
               <RefereeTab
                 assignments={myAssignments}
-                onRefresh={fetchRefereeAssignments}
+                tournamentId={tournament?.id ? Number(tournament.id) : 0}
               />
             </TabsContent>
           )}

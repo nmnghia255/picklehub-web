@@ -44,42 +44,42 @@ export function ScoreControls({
   }, [isTimeoutActive, decrementTimeoutTimer])
 
   const displayTeam1Name = isSwappedSides ? teamBName : teamAName
-  const team1Color = isSwappedSides ? TEAM_COLOR.B : TEAM_COLOR.A
+  const team1Color = TEAM_COLOR.A
   const team1Id = isSwappedSides ? "B" : "A"
 
   const displayTeam2Name = isSwappedSides ? teamAName : teamBName
-  const team2Color = isSwappedSides ? TEAM_COLOR.A : TEAM_COLOR.B
+  const team2Color = TEAM_COLOR.B
   const team2Id = isSwappedSides ? "A" : "B"
 
   const getConsequenceText1 = () => {
     if (servingTeam === team1Id) {
-      return t("referee.tracker.gainPoint", { defaultValue: "+1 point" })
+      return t("referee.tracker.gainPoint", { defaultValue: "+1" })
     }
     if (!isDoubles) {
       return t("referee.tracker.sideOutConsequence", {
-        defaultValue: "Side out",
+        defaultValue: "Side Out",
       })
     }
     return serverNumber === 1
       ? t("referee.tracker.server2Consequence", { defaultValue: "Server 2" })
       : t("referee.tracker.sideOutConsequence", {
-          defaultValue: "Side out",
+          defaultValue: "Side Out",
         })
   }
 
   const getConsequenceText2 = () => {
     if (servingTeam === team2Id) {
-      return t("referee.tracker.gainPoint", { defaultValue: "+1 point" })
+      return t("referee.tracker.gainPoint", { defaultValue: "+1" })
     }
     if (!isDoubles) {
       return t("referee.tracker.sideOutConsequence", {
-        defaultValue: "Side out",
+        defaultValue: "Side Out",
       })
     }
     return serverNumber === 1
       ? t("referee.tracker.server2Consequence", { defaultValue: "Server 2" })
       : t("referee.tracker.sideOutConsequence", {
-          defaultValue: "Side out",
+          defaultValue: "Side Out",
         })
   }
 
@@ -89,10 +89,10 @@ export function ScoreControls({
         <h4 className="animate-pulse text-xs font-black tracking-widest text-amber-800 uppercase dark:text-amber-300">
           {timeoutTeam === "TECHNICAL"
             ? t("referee.tracker.techTimeout", {
-                defaultValue: "Technical timeout",
+                defaultValue: "Technical Timeout",
               })
             : t("referee.tracker.teamTimeout", {
-                defaultValue: `Timeout - ${timeoutTeam === "A" ? teamAName : teamBName}`,
+                defaultValue: `Timeout ${timeoutTeam === "A" ? teamAName : teamBName}`,
                 name: timeoutTeam === "A" ? teamAName : teamBName,
               })}
         </h4>
@@ -108,7 +108,7 @@ export function ScoreControls({
           className="rounded-lg font-bold shadow-xs"
         >
           {t("referee.tracker.endTimeoutBtn", {
-            defaultValue: "Resume",
+            defaultValue: "Resume Match",
           })}
         </Button>
       </div>
@@ -135,7 +135,7 @@ export function ScoreControls({
           <span className="text-lg font-extrabold">
             {t("referee.tracker.rallyWon", {
               team: displayTeam1Name,
-              defaultValue: `${displayTeam1Name} wins the rally`,
+              defaultValue: `${displayTeam1Name} wins rally`,
             })}
           </span>
           <span className="rounded-md bg-black/10 px-2 py-0.5 text-xs font-black tracking-wider text-white/80 uppercase">
@@ -160,7 +160,7 @@ export function ScoreControls({
           <span className="text-lg font-extrabold">
             {t("referee.tracker.rallyWon", {
               team: displayTeam2Name,
-              defaultValue: `${displayTeam2Name} wins the rally`,
+              defaultValue: `${displayTeam2Name} wins rally`,
             })}
           </span>
           <span className="rounded-md bg-black/10 px-2 py-0.5 text-xs font-black tracking-wider text-white/80 uppercase">
@@ -178,7 +178,7 @@ export function ScoreControls({
           className="border-gray-200 bg-white text-xs font-bold hover:bg-gray-50"
         >
           ⏱️{" "}
-          {t("referee.tracker.timeoutTeamA", {
+          {t("referee.tracker.timeoutTeam", {
             defaultValue: `Timeout ${teamAName}`,
             name: teamAName,
           })}
@@ -192,7 +192,7 @@ export function ScoreControls({
           className="border-gray-200 bg-white text-xs font-bold hover:bg-gray-50"
         >
           ⏱️{" "}
-          {t("referee.tracker.timeoutTeamB", {
+          {t("referee.tracker.timeoutTeam", {
             defaultValue: `Timeout ${teamBName}`,
             name: teamBName,
           })}
@@ -207,7 +207,7 @@ export function ScoreControls({
         >
           🛠️{" "}
           {t("referee.tracker.timeoutTechnical", {
-            defaultValue: "Technical timeout",
+            defaultValue: "Technical Timeout",
           })}
         </Button>
       </div>

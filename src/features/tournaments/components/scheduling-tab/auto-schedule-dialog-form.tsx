@@ -67,9 +67,9 @@ export function AutoScheduleDialogForm({
   const [restTime, setRestTime] = useState(
     autoScheduleConfig?.restDurationMinutes?.toString() || "15"
   )
-  const [optimization, setOptimization] = useState<
-    "fastest" | "balanced" | "max_rest"
-  >(autoScheduleConfig?.optimizationCriteria || "fastest")
+  const [optimization, setOptimization] = useState<"balanced" | "fastest">(
+    autoScheduleConfig?.optimizationCriteria || "balanced"
+  )
   const [isPreviewing, setIsPreviewing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [previewResult, setPreviewResult] =
@@ -304,7 +304,7 @@ export function AutoScheduleDialogForm({
           </Label>
           <Select
             value={optimization}
-            onValueChange={(val: "fastest" | "balanced" | "max_rest") =>
+            onValueChange={(val: "balanced" | "fastest") =>
               setOptimization(val)
             }
           >
@@ -312,19 +312,14 @@ export function AutoScheduleDialogForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="fastest">
-                {t("scheduling.autoScheduleForm.optimizeOptions.fastest", {
-                  defaultValue: "Fastest Completion",
-                })}
-              </SelectItem>
               <SelectItem value="balanced">
                 {t("scheduling.autoScheduleForm.optimizeOptions.balanced", {
                   defaultValue: "Balanced Court Usage",
                 })}
               </SelectItem>
-              <SelectItem value="max_rest">
-                {t("scheduling.autoScheduleForm.optimizeOptions.rest", {
-                  defaultValue: "Maximum Rest Time",
+              <SelectItem value="fastest">
+                {t("scheduling.autoScheduleForm.optimizeOptions.fastest", {
+                  defaultValue: "Fastest Completion",
                 })}
               </SelectItem>
             </SelectContent>

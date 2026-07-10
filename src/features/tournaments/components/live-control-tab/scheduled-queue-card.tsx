@@ -1,23 +1,22 @@
 "use client"
 
-import { Clock, Loader2 } from "lucide-react"
+import { Calendar, Clock, Loader2 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
-import type { Match, MatchTeam } from "../../types/match"
+import type { Team, TournamentSchedule } from "../../types/schedule"
 
 interface ScheduledQueueCardProps {
-  upcomingMatches: Match[]
+  upcomingMatches: TournamentSchedule[]
   isLoading: boolean
 }
 
-function getTeamName(team: MatchTeam | string | null | undefined): string {
+function getTeamName(team: Team | null | undefined): string {
   if (!team) return "TBD"
-  if (typeof team === "object") return team.name || "TBD"
-  return String(team)
+  return team.name
 }
 
 export function ScheduledQueueCard({
@@ -30,7 +29,7 @@ export function ScheduledQueueCard({
     <Card className="gap-0 border-gray-200 pb-0 shadow-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base font-bold text-gray-800">
-          <Clock className="h-4 w-4 text-blue-500" />
+          <Calendar className="h-4 w-4 text-blue-500" />
           {t("liveControl.matchQueue.titleWithCount", {
             count: upcomingMatches.length,
             defaultValue: `Scheduled Queue (${upcomingMatches.length})`,

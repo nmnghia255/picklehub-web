@@ -1,17 +1,31 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
-import { Button } from "@/components/ui/button"
+import { useProfileTranslation } from "@/i18n/use-profile-translation"
 
 import { linkFacebookAction } from "../actions/facebook"
 import { useFacebookLogin } from "../hooks/use-facebook-login"
 import { translateAuthMessage } from "../utils"
 
+function FacebookIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-[18px]">
+      <circle cx="12" cy="12" r="10" fill="#1877F2" />
+      <path
+        fill="#FFFFFF"
+        transform="translate(0.5, 0)"
+        d="M13.4 8.3h1.8V5.9h-2.1c-2.3 0-3.5 1.4-3.5 3.6v1.8H8v2.4h1.6v4.4h2.6v-4.4h2l.4-2.4h-2.4V9.8c0-.8.2-1.5 1.2-1.5z"
+      />
+    </svg>
+  )
+}
+
 export function LinkFacebookButton() {
-  const { t } = useTranslation("common")
+  const { t: tCommon } = useTranslation("common")
+  const { t: tProfile } = useProfileTranslation()
   const { getFacebookAccessToken } = useFacebookLogin()
   const [loading, setLoading] = useState(false)
 
@@ -21,7 +35,7 @@ export function LinkFacebookButton() {
 
       const accessToken = await getFacebookAccessToken()
       if (!accessToken) {
-        toast.error(t("auth.oauth.facebookError"))
+        toast.error(tCommon("auth.oauth.facebookError"))
         return
       }
 
@@ -29,21 +43,24 @@ export function LinkFacebookButton() {
       if (result.success) {
         toast.success(
           translateAuthMessage(
-            t,
-            result.message ?? t("auth.oauth.linkFacebookSuccess")
+            tCommon,
+            result.message ?? tCommon("auth.oauth.linkFacebookSuccess")
           )
         )
       } else {
         toast.error(
-          translateAuthMessage(t, result.error ?? t("auth.oauth.linkFailed"))
+          translateAuthMessage(
+            tCommon,
+            result.error ?? tCommon("auth.oauth.linkFailed")
+          )
         )
       }
     } catch (err) {
       console.error(err)
       if (err instanceof Error) {
-        toast.error(translateAuthMessage(t, err.message))
+        toast.error(translateAuthMessage(tCommon, err.message))
       } else {
-        toast.error(t("auth.oauth.facebookErrorGeneric"))
+        toast.error(tCommon("auth.oauth.facebookErrorGeneric"))
       }
     } finally {
       setLoading(false)
@@ -51,14 +68,21 @@ export function LinkFacebookButton() {
   }
 
   return (
-    <Button
-      variant="outline"
+    <button
       type="button"
-      className="w-full sm:w-auto"
       disabled={loading}
+      aria-busy={loading}
       onClick={handleFacebookLink}
+      className="relative flex h-10 w-full cursor-pointer items-center justify-center rounded-[4px] border border-[#dadce0] bg-white px-3 text-sm font-medium text-[#3c4043] transition-colors hover:bg-[#f8f9fa] disabled:opacity-50"
     >
-      {loading ? t("auth.oauth.loading") : t("auth.oauth.linkFacebook")}
-    </Button>
+      <div className="absolute left-3 flex items-center justify-center">
+        <FacebookIcon />
+      </div>
+      <span className="font-normal">
+        {loading
+          ? tCommon("auth.oauth.loading")
+          : tProfile("continueWithFacebook")}
+      </span>
+    </button>
   )
 }

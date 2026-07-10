@@ -161,11 +161,49 @@ export interface AcceptInvitationResponse {
 }
 
 // ============================================
-// Set Password Types
+// Password Management Types
 // ============================================
 
 export interface SetPasswordRequest {
   password: string
+}
+
+export type SetPasswordDto = SetPasswordRequest
+
+export interface SetPasswordResponse {
+  message: string
+}
+
+export interface ChangePasswordDto {
+  oldPassword: string
+  newPassword: string
+}
+
+export type ChangePasswordRequest = ChangePasswordDto
+
+export interface ChangePasswordResponse {
+  message: string
+}
+
+export interface ForgotPasswordDto {
+  email: string
+}
+
+export type ForgotPasswordRequest = ForgotPasswordDto
+
+export interface ForgotPasswordResponse {
+  message: string
+}
+
+export interface ResetPasswordDto {
+  token: string
+  password: string
+}
+
+export type ResetPasswordRequest = ResetPasswordDto
+
+export interface ResetPasswordResponse {
+  message: string
 }
 
 // ============================================

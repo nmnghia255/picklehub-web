@@ -17,13 +17,15 @@ import {
 } from "../../actions/schedule-actions"
 import { listTournamentRegistrationsAction } from "../../actions/tournament-registration-actions"
 import type { CheckIn } from "../../types/checkin"
-import type { Match, MatchWarning } from "../../types/match"
 import type { RegistrationResponse } from "../../types/registration"
+import type { TournamentSchedule } from "../../types/schedule"
 import type { TournamentEvent } from "../../types/tournament-event"
+import { CompletedMatchesCard } from "./completed-matches-card"
 import { LiveMatchesCard } from "./live-matches-card"
 import { MetricsCards } from "./metrics-cards"
 import { OperationsCard } from "./operations-card"
 import { PlayerCheckinCard } from "./player-checkin-card"
+import { ReadyMatchesCard } from "./ready-matches-card"
 import { ScheduledQueueCard } from "./scheduled-queue-card"
 
 interface LiveControlCenterProps {
@@ -31,36 +33,12 @@ interface LiveControlCenterProps {
   events: TournamentEvent[]
 }
 
-interface FixtureRawData {
-  id: number | string
-  eventId?: number | null
-  event?: string | null
-  round?: string | null
-  team1?: { name: string } | string | null
-  team2?: { name: string } | string | null
-  winner?: string | number | null
-  score?: string | null
-  status?: string | null
-  court?: string | null
-  courtId?: string | null
-  courtStatus?: string | null
-  time?: string | null
-  startTime?: string | null
-  duration?: number | null
-  priority?: string | null
-  refereeId?: string | null
-  refereeName?: string | null
-  bookingId?: string | number | null
-  bookingItemId?: string | null
-  warnings?: MatchWarning[] | null
-}
-
 export function LiveControlCenter({
   tournamentId,
   events,
 }: LiveControlCenterProps) {
   const { t } = useTournamentTranslation()
-  const [fixtures, setFixtures] = useState<Match[]>([])
+  const [fixtures, setFixtures] = useState<TournamentSchedule[]>([])
   const [registrations, setRegistrations] = useState<RegistrationResponse[]>([])
   const [checkins, setCheckins] = useState<CheckIn[]>([])
 
@@ -83,7 +61,7 @@ export function LiveControlCenter({
       ])
 
       if (fixturesRes.success && fixturesRes.data) {
-        let rawFixtures: FixtureRawData[] = []
+        let rawFixtures: TournamentSchedule[] = []
         if (Array.isArray(fixturesRes.data)) {
           rawFixtures = fixturesRes.data
         } else if (fixturesRes.data && typeof fixturesRes.data === "object") {
@@ -94,47 +72,16 @@ export function LiveControlCenter({
             )
           ) {
             rawFixtures = (fixturesRes.data as Record<string, unknown>)
-              .fixtures as FixtureRawData[]
+              .fixtures as TournamentSchedule[]
           } else if (
             "data" in fixturesRes.data &&
             Array.isArray((fixturesRes.data as Record<string, unknown>).data)
           ) {
             rawFixtures = (fixturesRes.data as Record<string, unknown>)
-              .data as FixtureRawData[]
+              .data as TournamentSchedule[]
           }
         }
-
-        const mappedMatches: Match[] = rawFixtures.map((f) => ({
-          id: f.id,
-          tournamentId: tournamentId,
-          eventId: f.eventId || 0,
-          event: f.event,
-          round: f.round,
-          team1:
-            typeof f.team1 === "object" && f.team1
-              ? f.team1
-              : { name: (f.team1 as string) || "TBD" },
-          team2:
-            typeof f.team2 === "object" && f.team2
-              ? f.team2
-              : { name: (f.team2 as string) || "TBD" },
-          winner: f.winner,
-          score: f.score,
-          status: f.status || "pending",
-          court: f.court,
-          courtId: f.courtId,
-          courtStatus: f.courtStatus,
-          time: f.time,
-          startTime: f.startTime,
-          duration: f.duration || 45,
-          priority: f.priority || "medium",
-          refereeId: f.refereeId,
-          refereeName: f.refereeName,
-          bookingId: f.bookingId ? Number(f.bookingId) : null,
-          bookingItemId: f.bookingItemId,
-          warnings: f.warnings || [],
-        }))
-        setFixtures(mappedMatches)
+        setFixtures(rawFixtures)
       }
       if (regsRes.success && regsRes.data) {
         setRegistrations(regsRes.data)
@@ -161,12 +108,10 @@ export function LiveControlCenter({
   }, [loadData])
 
   // Computed metrics
-  const liveMatches = fixtures.filter(
-    (f) => f.status === "in_progress" || f.status === "LIVE"
-  )
-  const upcomingMatches = fixtures.filter(
-    (f) => f.status === "scheduled" || f.status === "ready"
-  )
+  const liveMatches = fixtures.filter((f) => f.status === "in_progress")
+  const readyMatches = fixtures.filter((f) => f.status === "ready")
+  const upcomingMatches = fixtures.filter((f) => f.status === "scheduled")
+  const completedMatches = fixtures.filter((f) => f.status === "completed")
 
   // Active courts count
   const occupiedCourts = Array.from(
@@ -357,6 +302,15 @@ export function LiveControlCenter({
         {/* Live Matches List */}
         <LiveMatchesCard
           liveMatches={liveMatches}
+          isLoading={isLoading}
+          tournamentId={tournamentId}
+        />
+
+        {/* Ready Matches List */}
+        <ReadyMatchesCard readyMatches={readyMatches} isLoading={isLoading} />
+
+        <CompletedMatchesCard
+          completedMatches={completedMatches}
           isLoading={isLoading}
           tournamentId={tournamentId}
         />

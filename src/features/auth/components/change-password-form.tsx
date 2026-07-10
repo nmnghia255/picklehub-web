@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { startTransition, useActionState } from "react"
@@ -14,7 +14,13 @@ import { cn } from "@/lib/utils"
 
 import { type ChangePasswordFormData, changePasswordSchema } from "../schemas"
 
-export function ChangePasswordForm({ className }: { className?: string }) {
+export function ChangePasswordForm({
+  className,
+  hideHeader = false,
+}: {
+  className?: string
+  hideHeader?: boolean
+}) {
   const { t } = useTranslation("common")
   const [state, formAction, isPending] = useActionState(
     changePasswordAction,
@@ -41,14 +47,16 @@ export function ChangePasswordForm({ className }: { className?: string }) {
   return (
     <form className={cn("flex flex-col gap-6", className)} onSubmit={onSubmit}>
       <FieldGroup>
-        <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-2xl font-bold">
-            {t("auth.changePassword.title")}
-          </h1>
-          <p className="text-sm text-balance text-muted-foreground">
-            {t("auth.changePassword.subtitle")}
-          </p>
-        </div>
+        {!hideHeader && (
+          <div className="flex flex-col items-center gap-1 text-center">
+            <h1 className="text-2xl font-bold">
+              {t("auth.changePassword.title")}
+            </h1>
+            <p className="text-sm text-balance text-muted-foreground">
+              {t("auth.changePassword.subtitle")}
+            </p>
+          </div>
+        )}
 
         <Field>
           <FieldLabel htmlFor="currentPassword">

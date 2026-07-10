@@ -1,16 +1,16 @@
 {
-  "teamMatching": {
-    "title": "Ghép đội",
-    "subtitle": "Ghép cặp cho các sự kiện đánh đôi",
-    "autoMatch": "Tự động ghép",
-    "ungroupedPlayers": "Người chơi chưa có đội ({{count}})",
-    "generatedTeams": "Đội đã tạo ({{count}})",
-    "genderMale": "Nam",
-    "genderFemale": "Nữ",
-    "age": "Tuổi {{age}}",
-    "matchScore": "Khớp {{score}}%",
-    "avgRating": "Trình độ TB: {{rating}}",
-    "playerRating": "Trình độ: {{rating}}",
-    "instructions": "Kéo thả người chơi từ bên trái để tạo đội tùy chỉnh, hoặc sử dụng nút Tự động ghép để tạo các cặp tối ưu dựa trên trình độ, độ tuổi và cấp độ kỹ năng."
-  }
+    "teamMatching": {
+        "title": "Ghép đội",
+        "subtitle": "Ghép cặp cho các sự kiện đánh đôi",
+        "autoMatch": "Tự động ghép",
+        "ungroupedPlayers": "Người chơi chưa có đội ({{count}})",
+        "generatedTeams": "Đội đã tạo ({{count}})",
+        "genderMale": "Nam",
+        "genderFemale": "Nữ",
+        "age": "Tuổi {{age}}",
+        "matchScore": "Khớp {{score}}%",
+        "avgRating": "Trình độ TB: {{rating}}",
+        "playerRating": "Trình độ: {{rating}}",
+        "instructions": "Kéo thả người chơi từ bên trái để tạo đội tùy chỉnh, hoặc sử dụng nút Tự động ghép để tạo các cặp tối ưu dựa trên trình độ, độ tuổi và cấp độ kỹ năng."
+    }
 }

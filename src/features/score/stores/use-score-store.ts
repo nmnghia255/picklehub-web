@@ -1,5 +1,8 @@
 import type { Socket } from "socket.io-client"
+import { toast } from "sonner"
 import { create } from "zustand"
+
+import { resetMatchScoreAction } from "@/features/matches/actions"
 
 export type Team = "A" | "B"
 export type ServerId = "A1" | "A2" | "B1" | "B2"
@@ -15,6 +18,8 @@ export interface GameSnapshot {
   activeServer: ServerId
   isSwappedSides: boolean
   isAutoSwapped: boolean
+  sets: number[][]
+  currentSetId: number
 }
 
 interface ScoreState {
@@ -47,6 +52,7 @@ interface ScoreState {
   timeoutTeam: Team | "TECHNICAL" | null
   timeoutSecondsLeft: number
   scoreCall: string | null
+  setsToWin: number
 }
 
 interface ScoreActions {
@@ -56,6 +62,7 @@ interface ScoreActions {
     defaultTeam1Label: string
     defaultTeam2Label: string
     isMatchServiceMatch: boolean
+    isViewOnly?: boolean
   }) => void
   setTeamNames: (teamA: string, teamB: string) => void
   setPlayerNames: (
@@ -86,11 +93,13 @@ interface ScoreActions {
     matchId: string | null
   ) => void
   handleUndo: (isMatchServiceMatch: boolean, matchId: string | null) => void
-  applyReset: () => void
+  applyReset: (isMatchServiceMatch: boolean, matchId: string | null) => void
   setScoreCall: (call: string | null) => void
+  startNextSet: () => void
 
   // New Actions
   setGameTarget: (target: number) => void
+  setSetsToWin: (num: number) => void
   startTimeout: (team: Team | "TECHNICAL") => void
   stopTimeout: () => void
   decrementTimeoutTimer: () => void
@@ -143,6 +152,7 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
 
   isDoubles: true,
   gameTarget: 11,
+  setsToWin: 2,
   isAutoSwapped: false,
   isTimeoutActive: false,
   timeoutTeam: null,
@@ -156,6 +166,7 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
     defaultTeam1Label,
     defaultTeam2Label,
     isMatchServiceMatch,
+    isViewOnly,
   }) => {
     const [initialA1, initialA2] = getPlayers(team1 || null, "A")
     const [initialB1, initialB2] = getPlayers(team2 || null, "B")
@@ -192,9 +203,13 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
       isSyncing: false,
       sets: [],
       currentSetId: 1,
-      matchStatus: "LIVE",
+      // For match-service matches, start as READY so the SpectatorWaiting screen
+      // shows until the WebSocket sync provides the real status. For referee mode
+      // (non-view-only) the match is assumed LIVE once they land on the page.
+      matchStatus: isMatchServiceMatch && isViewOnly ? "READY" : "LIVE",
       socket: null,
       gameTarget: 11,
+      setsToWin: 2,
       isAutoSwapped: false,
       isTimeoutActive: false,
       timeoutTeam: null,
@@ -265,6 +280,7 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
   setSocket: (socket) => set({ socket }),
 
   setGameTarget: (target) => set({ gameTarget: target }),
+  setSetsToWin: (num) => set({ setsToWin: num }),
 
   startTimeout: (team) => {
     set({
@@ -308,6 +324,8 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
       activeServer,
       isSwappedSides,
       isAutoSwapped,
+      sets,
+      currentSetId,
     } = get()
     set((state) => ({
       history: [
@@ -322,6 +340,8 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
           activeServer,
           isSwappedSides,
           isAutoSwapped,
+          sets,
+          currentSetId,
         },
       ],
     }))
@@ -341,6 +361,11 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
     } = get()
 
     if (isMatchServiceMatch && socket && matchId) {
+      // Emit the score-point to the backend. The socket match-event response
+      // will sync the authoritative state. We also apply the local optimistic
+      // update below so the UI responds immediately without waiting for the
+      // network round-trip. The hasReceivedLiveEvent guard in use-match-sync.ts
+      // prevents the REST re-sync from overwriting live socket data.
       socket.emit("score-point", {
         matchId,
         setId: currentSetId,
@@ -431,7 +456,7 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
       }
     }
 
-    // Auto side-out / end-change check
+    // Auto end-change check at the halfway point of every set
     const swapThreshold = gameTarget === 15 ? 8 : gameTarget === 21 ? 11 : 6
     const maxScore = Math.max(nextAScore, nextBScore)
     if (maxScore === swapThreshold && !isAutoSwapped) {
@@ -443,7 +468,13 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
     const { history, socket } = get()
 
     if (isMatchServiceMatch && socket && matchId) {
+      // For socket-driven matches, the backend is the authoritative source.
+      // Emit undo-point and let the match-event response update state correctly.
+      // We do NOT pop local history here because history snapshots are taken
+      // before the authoritative socket state is applied, so they can be stale
+      // (e.g., 0-0 instead of the real previous state).
       socket.emit("undo-point", { matchId })
+      return
     }
 
     if (history.length === 0) return
@@ -460,11 +491,13 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
       activeServer: lastState.activeServer,
       isSwappedSides: lastState.isSwappedSides,
       isAutoSwapped: lastState.isAutoSwapped,
+      sets: lastState.sets || [],
+      currentSetId: lastState.currentSetId || 1,
     })
     set((state) => ({ history: state.history.slice(0, -1) }))
   },
 
-  applyReset: () => {
+  applyReset: async (isMatchServiceMatch, matchId) => {
     const { isDoubles } = get()
     set({
       teamAScore: 0,
@@ -477,8 +510,69 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
       history: [],
       isAutoSwapped: false,
       scoreCall: null,
+      sets: [],
+      currentSetId: 1,
     })
+
+    if (isMatchServiceMatch && matchId) {
+      try {
+        const res = await resetMatchScoreAction(matchId)
+        if (res && !res.success) {
+          toast.error(res.error || "Không thể đặt lại tỷ số trên máy chủ")
+        } else {
+          toast.success("Đặt lại tỷ số trận đấu thành công trên máy chủ!")
+        }
+      } catch (err) {
+        console.error("Failed to reset match score on server:", err)
+        toast.error("Đã xảy ra lỗi khi đặt lại tỷ số trên máy chủ")
+      }
+    }
   },
 
   setScoreCall: (call) => set({ scoreCall: call }),
+
+  startNextSet: () => {
+    const { teamAScore, teamBScore, sets, currentSetId, isDoubles, socket } =
+      get()
+
+    const nextSetId = currentSetId + 1
+    const nextServingTeam: Team = nextSetId % 2 === 0 ? "B" : "A"
+
+    if (socket) {
+      // Socket-driven match: DON'T push to sets here — the match-event from the
+      // backend already gave us the correct `completedSets` via applyMatchScoreDetails.
+      // Pushing again would duplicate the just-finished set in the array.
+      // The next match-event (first point of the new set) will provide the
+      // authoritative sets state if anything needs correcting.
+      set({
+        currentSetId: nextSetId,
+        teamAScore: 0,
+        teamBScore: 0,
+        servingTeam: nextServingTeam,
+        serverNumber: isDoubles ? 2 : 1,
+        isA1Right: true,
+        isB1Right: true,
+        activeServer: nextServingTeam === "A" ? "A1" : "B1",
+        isAutoSwapped: false,
+        scoreCall: null,
+        isSwappedSides: nextSetId % 2 === 0,
+      })
+    } else {
+      // Local-only match: push the completed set scores ourselves.
+      const updatedSets = [...sets, [teamAScore, teamBScore]]
+      set({
+        sets: updatedSets,
+        currentSetId: nextSetId,
+        teamAScore: 0,
+        teamBScore: 0,
+        servingTeam: nextServingTeam,
+        serverNumber: isDoubles ? 2 : 1,
+        isA1Right: true,
+        isB1Right: true,
+        activeServer: nextServingTeam === "A" ? "A1" : "B1",
+        isAutoSwapped: false,
+        isSwappedSides: nextSetId % 2 === 0,
+      })
+    }
+  },
 }))

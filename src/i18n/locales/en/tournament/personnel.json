@@ -30,11 +30,7 @@
       "cancel": "Cancel",
       "loading": "Loading referees roster...",
       "unenrollSuccess": "Referee unenrolled from tournament",
-      "unenrollFailed": "Failed to unenroll referee. Make sure they have no active assignments.",
-      "unenrollSuccess": "Referee unenrolled from tournament",
-      "unenrollFailed": "Failed to unenroll referee. Make sure they have no active assignments.",
-      "cancel": "Cancel",
-      "loading": "Loading referees roster..."
+      "unenrollFailed": "Failed to unenroll referee. Make sure they have no active assignments."
     },
     "enrollDialog": {
       "title": "Invite Referee",
@@ -50,20 +46,16 @@
       "phoneLabel": "Phone Number (Optional)",
       "phonePlaceholder": "e.g. +1234567890",
       "submitBtn": "Enroll Referee",
-      "verifyBtn": "Verify",
-      "verifyFirst": "Please verify the referee ID first",
-      "verifiedStatus": "Profile verified and ready to be enrolled",
       "profileNotFound": "User profile not found. Please verify the ID.",
       "fetchFailed": "Failed to fetch user profile.",
       "successToast": "Referee enrolled successfully!",
       "failToast": "Failed to enroll referee",
-      "verifyBtn": "Search",
-      "verifiedStatus": "User profile found! Ready to send invitation.",
       "noAccountTitle": "Email not registered in app",
       "noAccountDesc": "This email is not yet registered. An invitation will be sent to the address above.",
       "inviteBtn": "Send Invitation",
-      "successToast": "Referee enrolled successfully!",
       "inviteSuccessToast": "Invitation sent successfully!",
+      "verifyBtn": "Search",
+      "verifiedStatus": "User profile found! Ready to send invitation.",
       "verifyFirst": "Please verify the referee email first",
       "invalidEmail": "Please enter a valid email address."
     },
@@ -132,12 +124,7 @@
       "unassignConfirmBtn": "Remove",
       "noAssignments": "This referee has no matches assigned yet.",
       "bulkAssignSuccess": "Successfully assigned {{count}} matches to {{name}}!",
-      "bulkAssignPartial": "Assigned {{success}} matches. Failed to assign {{fail}} matches.",
-      "assignSuccess": "Referee assigned successfully!",
-      "assignFailed": "Failed to assign referee",
-      "unassignSuccess": "Referee unassigned from match",
-      "unassignFailed": "Failed to unassign referee",
-      "loading": "Loading matches list..."
+      "bulkAssignPartial": "Assigned {{success}} matches. Failed to assign {{fail}} matches."
     }
   },
   "referee": {
@@ -163,6 +150,9 @@
       "notStarted": "Not Started"
     },
     "actions": {
+      "openScoreBoard": "Open Score Board",
+      "startMatch": "Start Match",
+      "resumeMatch": "Resume Match",
       "startGame": "Start game",
       "undo": "Undo",
       "confirm": "Confirm"
@@ -182,7 +172,47 @@
       "reset": "Reset",
       "undo": "Undo",
       "savingResult": "Saving result...",
-      "confirmResult": "Confirm & Save Result"
+      "confirmResult": "Confirm & Save Result",
+      "serving": "Serving",
+      "receiving": "Receiving",
+      "targetScore": "Target Score",
+      "winnerIs": "Winner: {{name}}",
+      "gameOverTitle": "Game Over",
+      "errorMessage": "Cannot update score",
+      "doublesHelp": "Call Score: Serving score {{servingScore}} - Receiving score {{receivingScore}} - Server number {{serverNumber}}. {{activeServerName}} is serving.",
+      "singlesHelp": "Call Score: Serving score {{servingScore}} - Receiving score {{receivingScore}}. {{activeServerName}} is serving.",
+      "timeoutTechnical": "Technical Timeout",
+      "techTimeout": "Technical Timeout",
+      "timeoutTeam": "Timeout {{name}}",
+      "endTimeoutBtn": "Resume Match",
+      "server2Consequence": "Server 2",
+      "sideOutConsequence": "Side Out",
+      "gainPoint": "+1",
+      "matchFinishedGoBack": "Match Finished. Go Back",
+      "matchNotStarted": "Match not started",
+      "matchNotStartedDesc": "Please wait for the referee to prepare and click the start match button at the court.",
+      "doubles": "Doubles",
+      "singles": "Singles",
+      "set": "Set",
+      "setNumber": "Set {{number}}",
+      "tossFlow": "Toss Flow",
+      "tossFlowDesc": "Simulate a random toss or select a team that won the toss.",
+      "tossFlipping": "Flipping...",
+      "tossRandom": "Random Toss",
+      "teamWonToss": "Team {{team}} Won",
+      "quickSelect": "Quick Select",
+      "quickSelectDesc": "Directly select the first serving team.",
+      "teamServeFirst": "Team {{team}} Serve First",
+      "tossWinnerResult": "Result: Team {{name}} won the toss!",
+      "tossWinnerManual": "Team {{name}} won the toss!",
+      "tossServeChoice": "Serve",
+      "tossReceiveChoice": "Receive",
+      "firstServingTeam": "First serving team: ",
+      "startingMatch": "STARTING MATCH...",
+      "confirmAndStartMatch": "CONFIRM & START MATCH",
+      "startMatchSuccess": "Match started successfully!",
+      "startMatchError": "Cannot start the match",
+      "startMatchConnectionError": "Connection error while starting the match"
     }
   }
 }

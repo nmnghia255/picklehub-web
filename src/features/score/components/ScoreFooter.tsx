@@ -77,14 +77,15 @@ export function ScoreFooter({
               <AlertDialogAction
                 type="button"
                 variant="destructive"
-                onClick={applyReset}
+                onClick={() => {
+                  void applyReset(isMatchServiceMatch, matchId)
+                }}
               >
                 {t("referee.tracker.reset")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-
         <Button
           type="button"
           variant="outline"
@@ -102,11 +103,11 @@ export function ScoreFooter({
             <Button
               type="button"
               className="h-14 w-full rounded-xl bg-emerald-600 text-lg font-bold text-white shadow-md transition-all duration-200 hover:bg-emerald-700"
-              onClick={() =>
-                router.push(`/tournaments/${tournamentId}?tab=referee`)
-              }
+              onClick={() => router.push(`/tournaments/${tournamentId}`)}
             >
-              {t("referee.tracker.matchFinishedGoBack")}
+              {t("referee.tracker.matchFinishedGoBack", {
+                defaultValue: "Match Finished. Go Back",
+              })}
             </Button>
           ) : (
             <Button
@@ -116,8 +117,12 @@ export function ScoreFooter({
               disabled={isSaving}
             >
               {isSaving
-                ? t("referee.tracker.savingResult")
-                : t("referee.tracker.confirmResult")}
+                ? t("referee.tracker.savingResult", {
+                    defaultValue: "Saving...",
+                  })
+                : t("referee.tracker.confirmResult", {
+                    defaultValue: "Confirm & Save Result",
+                  })}
             </Button>
           )}
         </div>

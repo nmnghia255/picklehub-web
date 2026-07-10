@@ -47,9 +47,6 @@
     "approveSuccess": "Approved registration for {{name}}",
     "rejectSuccess": "Rejected registration for {{name}}",
     "approveError": "Failed to approve registration",
-    "rejectError": "Failed to reject registration",
-    "noRegistrations": "No registrations found",
-    "paymentProof": "Payment Proof",
-    "viewProof": "View Proof"
+    "rejectError": "Failed to reject registration"
   }
 }

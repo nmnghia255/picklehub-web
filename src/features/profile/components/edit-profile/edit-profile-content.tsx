@@ -8,9 +8,8 @@ import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
 import type { LinkedProvider } from "@/features/auth/types"
 import { EditProfileAccountCard } from "@/features/profile/components/edit-profile/edit-profile-account-card"
-import { EditProfileLinkedAccountsCard } from "@/features/profile/components/edit-profile/edit-profile-linked-accounts-card"
+import { EditProfileAccountSettingsCard } from "@/features/profile/components/edit-profile/edit-profile-account-settings-card"
 import { EditProfilePlayerInfoCard } from "@/features/profile/components/edit-profile/edit-profile-player-info-card"
-import { EditProfileSecurityCard } from "@/features/profile/components/edit-profile/edit-profile-security-card"
 import { useProfileEditStore } from "@/features/profile/store/profile-edit-store"
 import type { User } from "@/features/profile/types"
 import { useProfileTranslation } from "@/i18n/use-profile-translation"
@@ -30,7 +29,6 @@ export function EditProfileContent({
   const hasHydrated = useRef(false)
   const hydrateProfile = useProfileEditStore((state) => state.hydrateProfile)
   const user = useProfileEditStore((state) => state.user)
-  const linkedProviders = useProfileEditStore((state) => state.linkedProviders)
   const displayName = useProfileEditStore((state) => state.displayName)
 
   useEffect(() => {
@@ -49,8 +47,6 @@ export function EditProfileContent({
   const displayNameValue =
     displayName || sessionEmail.split("@")[0] || t("unnamedPlayer")
   const profileUser = user ?? initialUser
-  const profileLinkedProviders =
-    linkedProviders.length > 0 ? linkedProviders : initialLinkedProviders
 
   return (
     <PageContainer className="space-y-6">
@@ -74,13 +70,10 @@ export function EditProfileContent({
           displayName={displayNameValue}
           email={sessionEmail}
         />
-        <EditProfileLinkedAccountsCard
-          linkedProviders={profileLinkedProviders}
-        />
+        <EditProfileAccountSettingsCard />
       </div>
 
       <EditProfilePlayerInfoCard user={profileUser} />
-      <EditProfileSecurityCard />
     </PageContainer>
   )
 }

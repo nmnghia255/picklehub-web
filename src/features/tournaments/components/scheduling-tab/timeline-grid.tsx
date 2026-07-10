@@ -5,7 +5,7 @@ import { useState } from "react"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 
 import type { TournamentBooking } from "../../types/booking"
-import type { Match } from "../../types/match"
+import type { TournamentSchedule } from "../../types/schedule"
 import type { CourtInfo } from "../../types/tournament-court"
 import { CourtRow } from "./court-row"
 import { NoCourtsView } from "./no-courts-view"
@@ -14,14 +14,14 @@ import { TimeHeader } from "./time-header"
 interface TimelineGridProps {
   courtsList: CourtInfo[]
   timeSlots: string[]
-  scheduledMatches: Match[]
-  previewMatches?: Match[]
+  scheduledMatches: TournamentSchedule[]
+  previewMatches?: TournamentSchedule[]
   bookings: TournamentBooking[]
   isPreviewMode?: boolean
   onUnschedule: (fixtureId: string) => void
   onUnschedulePreview?: (matchId: string) => void
   onUnassignReferee: (fixtureId: string) => void
-  onAssignRefereeClick: (match: Match) => void
+  onAssignRefereeClick: (match: TournamentSchedule) => void
   onEmptySlotClick?: (
     courtId: string,
     courtName: string,
@@ -90,28 +90,19 @@ export function TimelineGrid({
   }
 
   // Time slot normalizer
+  // Always extract HH:MM directly from the string's time component (before any timezone offset).
+  // Using new Date().getHours() would convert to the browser's local timezone, which can differ
+  // from the venue timezone embedded in the ISO string and cause matches to appear in wrong slots.
   const formatTimeSlot = (timeStr: string | null | undefined): string => {
     if (!timeStr) return ""
     if (timeStr.includes("T")) {
-      if (
-        timeStr.includes("Z") ||
-        timeStr.includes("+") ||
-        (timeStr.includes("-") && timeStr.split("T")[1].includes("-"))
-      ) {
-        try {
-          const d = new Date(timeStr)
-          if (!isNaN(d.getTime())) {
-            return `${String(d.getHours()).padStart(2, "0")}:${String(
-              d.getMinutes()
-            ).padStart(2, "0")}`
-          }
-        } catch (e) {
-          console.error("Error formatting ISO time slot:", e)
-        }
-      }
+      // Extract the time portion after "T", strip any timezone suffix (+HH:MM, -HH:MM, or Z)
       const timePart = timeStr.split("T")[1]
-      const parts = timePart.split(":")
-      return `${parts[0].padStart(2, "0")}:${parts[1].padStart(2, "0")}`
+      const timeOnly = timePart.replace(/([+-]\d{2}:\d{2}|Z).*$/, "")
+      const parts = timeOnly.split(":")
+      if (parts.length >= 2) {
+        return `${parts[0].padStart(2, "0")}:${parts[1].padStart(2, "0")}`
+      }
     }
     if (timeStr.includes(":")) {
       const parts = timeStr.split(":")

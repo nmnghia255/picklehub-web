@@ -24,11 +24,28 @@ export function MatchListTab({ matches }: MatchListTabProps) {
   const { t } = useTournamentTranslation()
   const router = useRouter()
 
+  const accentColor = (status: "live" | "scheduled" | "completed") =>
+    status === "live"
+      ? {
+          avatar: "bg-red-50 text-red-700",
+          badge: "bg-red-600",
+        }
+      : status === "completed"
+        ? {
+            avatar: "bg-emerald-50 text-emerald-700",
+            badge: "bg-emerald-600",
+          }
+        : {
+            avatar: "bg-blue-50 text-blue-700",
+            badge: "bg-blue-600",
+          }
+
   const renderMatchCard = (
     score: Match,
     index: number,
     status: "live" | "scheduled" | "completed"
   ) => {
+    const color = accentColor(status)
     const team1Name =
       typeof score.team1 === "object" && score.team1
         ? score.team1.name
@@ -116,16 +133,26 @@ export function MatchListTab({ matches }: MatchListTabProps) {
               }
             : undefined
         }
-        className={`rounded-lg border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 ${
-          isLive
-            ? "cursor-pointer hover:border-red-200 hover:bg-gray-50/80"
-            : "hover:border-emerald-100"
+        className={`rounded-lg border bg-white p-5 shadow-sm transition-all duration-300 ${
+          status === "live"
+            ? "cursor-pointer border-red-100 hover:border-red-200 hover:bg-red-50/20"
+            : status === "completed"
+              ? "border-emerald-100 hover:border-emerald-200"
+              : "border-blue-100 hover:border-blue-200 hover:bg-blue-50/20"
         }`}
       >
         {/* Match Header */}
         <div className="mb-3 flex items-center justify-between border-b border-gray-50 pb-2">
           <div className="flex items-center gap-2">
-            <Badge className="bg-emerald-600 font-bold text-white">
+            <Badge
+              className={
+                status === "live"
+                  ? "bg-red-600 font-bold text-white"
+                  : status === "completed"
+                    ? "border-emerald-200 bg-emerald-50 font-bold text-emerald-700"
+                    : "border-blue-200 bg-blue-50 font-bold text-blue-700"
+              }
+            >
               {courtName}
             </Badge>
             <span className="ml-2.5 text-xs font-bold tracking-wider text-gray-500 uppercase">
@@ -145,7 +172,7 @@ export function MatchListTab({ matches }: MatchListTabProps) {
             </Badge>
           )}
           {status === "scheduled" && (
-            <span className="text-xs font-semibold text-gray-500">
+            <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
               {timeStr}
             </span>
           )}
@@ -162,7 +189,9 @@ export function MatchListTab({ matches }: MatchListTabProps) {
                     key={i}
                     className="h-8 w-8 border-2 border-white ring-1 ring-gray-100"
                   >
-                    <AvatarFallback className="bg-emerald-50 text-[10px] font-bold text-emerald-700">
+                    <AvatarFallback
+                      className={`${color.avatar} text-[10px] font-bold`}
+                    >
                       {name.trim().substring(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -196,7 +225,7 @@ export function MatchListTab({ matches }: MatchListTabProps) {
                           ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
                           : status === "live"
                             ? "border border-red-200 bg-red-50 text-red-700"
-                            : "border-gray-150 border bg-gray-50 text-gray-400"
+                            : "border-gray-150 border bg-gray-50 text-gray-600"
                       }`}
                     >
                       {set.s1}
@@ -220,7 +249,9 @@ export function MatchListTab({ matches }: MatchListTabProps) {
                     key={i}
                     className="h-8 w-8 border-2 border-white ring-1 ring-gray-100"
                   >
-                    <AvatarFallback className="bg-emerald-50 text-[10px] font-bold text-emerald-700">
+                    <AvatarFallback
+                      className={`${color.avatar} text-[10px] font-bold`}
+                    >
                       {name.trim().substring(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -254,7 +285,7 @@ export function MatchListTab({ matches }: MatchListTabProps) {
                           ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
                           : status === "live"
                             ? "border border-red-200 bg-red-50 text-red-700"
-                            : "border-gray-150 border bg-gray-50 text-gray-400"
+                            : "border-gray-150 border bg-gray-50 text-gray-600"
                       }`}
                     >
                       {set.s2}
@@ -327,7 +358,7 @@ export function MatchListTab({ matches }: MatchListTabProps) {
           className="flex cursor-pointer items-center justify-between p-5 transition-colors select-none hover:bg-gray-50/50"
         >
           <div className="flex items-center gap-2">
-            <CalendarDays className="h-5 w-5 text-emerald-600" />
+            <CalendarDays className="h-5 w-5 text-blue-600" />
             <h3 className="text-xl font-bold text-gray-900">
               {t("public.upcomingMatches", {
                 defaultValue: "Upcoming Matches",

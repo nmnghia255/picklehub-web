@@ -119,7 +119,21 @@ Hệ thống xử lý việc gán sân và cập nhật trạng thái vòng Knoc
    - Ngay khi trận đấu có đủ cả 2 đội hội tụ (cả `team1Id` và `team2Id` đều khác null), mã nguồn Backend tự động chuyển đổi trạng thái trận đấu đó từ `pending` sang `scheduled`.
 3. **Gán sân và Trọng tài**: 
    - Lúc này, trận đấu có status `scheduled` đã có đủ 2 đội và sẵn sàng để BTC thực hiện gán sân và gán trọng tài (thủ công hoặc chạy lập lịch auto-schedule preview/confirm cho vòng KO).
-   - Sau khi gán xong, BTC bấm "Dispatch" để chuyển trận sang `ready`, sẵn sàng cho trọng tài vào điều khiển trận đấu.
+    - Sau khi gán xong, BTC bấm "Dispatch" để chuyển trận sang `ready`, sẵn sàng cho trọng tài vào điều khiển trận đấu.
+
+### D. Cơ chế Đồng bộ Trạng thái & Điểm số (Status & Score Reconcile)
+
+Hệ thống đồng bộ hai chiều kết quả từ `match-service` về `tournament-service` theo các quy tắc sau:
+
+1. **Vòng đời trạng thái trận đấu**:
+   * Khi trọng tài bấm Bắt đầu trận đấu (`LIVE` trên `match-service`), `tournament-service` sẽ lắng nghe sự kiện đồng bộ và chuyển trạng thái cục bộ của trận đấu tương ứng sang **`in_progress`** (Đang thi đấu).
+   * Khi trận đấu kết thúc chờ xác nhận kết quả (`PENDING_CONFIRM` trên `match-service`), trạng thái tại `tournament-service` vẫn giữ là **`in_progress`**.
+   * Khi kết quả được ký xác nhận chính thức bởi trọng tài hoặc cả 2 đội (`CONFIRMED` trên `match-service`), trận đấu cục bộ tại `tournament-service` chuyển sang **`completed`** (Hoàn thành) và tự động kích hoạt logic tính điểm tiến cấp vòng kế tiếp.
+
+2. **Định dạng tỉ số chi tiết từng Set (Multi-set Scores)**:
+   * Thay vì chỉ lưu số set thắng chung cuộc (ví dụ: `2-1`), tỉ số đồng bộ về `tournament-service` được định dạng thành chuỗi cách nhau bởi dấu phẩy thể hiện chi tiết từng set đấu.
+   * *Cấu trúc*: `"{set1_scoreA}-{set1_scoreB}, {set2_scoreA}-{set2_scoreB}, ..."`
+   * *Ví dụ thực tế*: Trận đấu kết thúc với các set `11-5, 9-11, 11-8` sẽ được lưu chính xác là chuỗi `"11-5, 9-11, 11-8"`. Chuỗi này phục vụ trực tiếp cho việc render bảng điểm chi tiết của Frontend và tính toán chỉ số phụ hiệu số điểm.
 
 ---
 
@@ -211,4 +225,140 @@ socket.emit('join-match', { matchId: "uuid-match" });
 *   Khi một set kết thúc (hệ thống tự động phát hiện khi có đội đạt 11 điểm và dẫn 2 điểm cách biệt, phản ánh qua mảng tỷ số set gửi về trong WebSocket, ví dụ: `sets: [[11, 9]]`), Frontend cần hiển thị màn hình chuyển tiếp set đấu (Set Break/Next Set screen).
 *   Khi loạt giao bóng của set tiếp theo bắt đầu, Frontend cần tự động tăng tham số `setId` lên `2` khi gửi sự kiện `score-point`.
 *   `setId` hợp lệ phải là `1`, `2` hoặc `3`. Gửi `setId` ngoài khoảng này sẽ được server từ chối với lỗi tương ứng.
+
+### D. Hướng dẫn dành cho Người tham gia / Khán giả (Spectator & Participant Real-time View)
+
+Khác với trọng tài điều hành trận đấu cần quyền ghi điểm và phải có Token xác thực, hệ thống Picklehub cho phép bất kỳ người dùng, khán giả hoặc vận động viên nào kết nối và theo dõi Livescore trực tiếp hoàn toàn miễn phí mà không cần lớp xác thực của trọng tài.
+
+#### 1. Kết nối WebSocket không cần xác thực (Public Connection)
+Khán giả chỉ cần kết nối trực tiếp đến namespace `/matches` của Livescore Gateway. Frontend khởi tạo kết nối Socket.io công khai như sau:
+```javascript
+const socket = io("https://api.picklehub.vn/matches", {
+  transports: ['websocket'],
+});
+```
+> [!NOTE]
+> Khán giả không cần đính kèm JWT Token trong object `auth` khi kết nối. Thiết lập kết nối này là hoàn toàn công khai (Public).
+
+#### 2. Đăng ký nhận cập nhật Trận đấu (Subscribing to Match Updates)
+Sau khi kết nối WebSocket thành công, Frontend phát sự kiện `join-match` chứa UUID của trận đấu muốn theo dõi:
+```javascript
+socket.emit('join-match', { matchId: "uuid-match-can-xem" });
+```
+Hành động này sẽ thêm socket client của khán giả vào phòng WebSocket có định dạng `match_<matchId>` trên Backend để nhận các gói tin broadcast điểm số thời gian thực.
+
+Khi không còn nhu cầu theo dõi trận đấu đó nữa (ví dụ: chuyển trang hoặc tắt tab/đóng modal), Frontend cần thực hiện hủy đăng ký để giải phóng tài nguyên mạng:
+```javascript
+socket.emit('leave-match', { matchId: "uuid-match-can-xem" });
+```
+
+#### 3. Xử lý Sự kiện thời gian thực (Listening to Live Score Events)
+Frontend lắng nghe sự kiện `match-event` để cập nhật giao diện bảng điểm cho khán giả:
+```javascript
+socket.on('match-event', (data) => {
+  // data có cấu trúc chi tiết như được đặc tả ở Mục 5 (WebSocket Payloads)
+  const { event, score, status } = data;
+  
+  // 1. Cập nhật tỷ số tổng và tỷ số set
+  updateUI({
+    scoreA: score.scoreA,
+    scoreB: score.scoreB,
+    sets: score.sets, // Mảng hai chiều biểu diễn tỷ số các set, ví dụ: [[11, 8], [4, 5]]
+  });
+
+  // 2. Cập nhật chỉ số giao bóng (nhấp nháy vị trí giao bóng ⚡)
+  showServingIndicator({
+    servingTeam: score.servingTeam, // "TEAM_A" | "TEAM_B"
+    servingPlayerId: score.servingPlayerId, // UUID VĐV giao bóng
+    serverNumber: score.serverNumber, // 1 | 2 (Lượt giao bóng 1 hay 2 - Đánh đôi)
+  });
+
+  // 3. Xử lý trạng thái kết thúc trận đấu hoặc set đấu
+  if (event === 'match-completed' || status === 'CONFIRMED') {
+     showMatchEndedModal(score);
+  }
+});
+```
+
+#### 4. Khôi phục Trạng thái khi tải lại trang (State Hydration on Initial Load)
+Vì kết nối WebSocket là bất đồng bộ và chỉ phát đi gói tin khi có biến động điểm số mới (loạt bóng kết thúc), khi khán giả truy cập giao diện Livescore lần đầu tiên, Frontend **không được** đợi sự kiện WebSocket đầu tiên để vẽ màn hình. Thay vào đó, Frontend cần thực hiện đồng thời:
+1. Gọi API REST công khai của `match-service` để lấy dữ liệu hiện tại của trận đấu:
+   * **Endpoint**: `GET /api/matches/:matchId`
+   * Cập nhật ngay điểm số, tên VĐV, và vị trí đứng lúc ban đầu lên UI.
+2. Thiết lập kết nối WebSocket, gửi `join-match` như hướng dẫn trên để bắt đầu nhận các điểm số tiếp theo.
+
+
+
+## 8. Các REST APIs dành cho Trọng tài (Referee REST APIs)
+
+Song song với cổng kết nối thời gian thực WebSocket, trọng tài sử dụng các REST API sau để điều khiển vòng đời trận đấu:
+
+### A. API Bắt đầu Trận đấu (Start Match)
+*   **Endpoint**: `PATCH /api/matches/:id/start`
+*   **Quyền hạn**: Trọng tài chính được gán cho trận đấu (hoặc người tạo giải đấu/buổi chơi).
+*   **Headers**: `Authorization: Bearer <referee_jwt_token>`
+*   **Request Body**:
+    ```json
+    {
+      "firstServingPlayerId": "44444444-4444-4444-8444-444444444444" 
+    }
+    ```
+    *   `firstServingPlayerId` *(string - UUID, optional)*: UUID của VĐV giao bóng trước ( right-court player của đội thắng tung đồng xu).
+    *   Nếu bỏ trống, hệ thống mặc định Đội A giao trước (`teamA[0]`).
+*   **Mô tả**: Chuyển trạng thái trận đấu từ `scheduled` sang `LIVE` và ghi nhận thời gian bắt đầu thực tế (`startedAt`).
+
+### B. API Xác nhận Kết quả / Kết thúc Trận đấu (Confirm Match)
+*   **Endpoint**: `PATCH /api/matches/:id/confirm`
+*   **Quyền hạn**: Trọng tài chính được gán cho trận đấu (hoặc người tạo giải đấu/buổi chơi).
+*   **Headers**: `Authorization: Bearer <referee_jwt_token>`
+*   **Request Body**:
+    ```json
+    {
+      "winner": "TEAM_A",
+      "scoreA": 22,
+      "scoreB": 17,
+      "sets": [[11, 8], [11, 9]]
+    }
+    ```
+    *   `winner` *(string - "TEAM_A" | "TEAM_B", optional)*: Đội thắng cuộc. Nếu bỏ qua, Backend tự động tính toán dựa theo điểm số các Set.
+    *   `scoreA` / `scoreB` *(number, optional)*: Tổng điểm số ghi nhận.
+    *   `sets` *(array, optional)*: Mảng tỷ số chi tiết của các set đấu.
+*   **Mô tả**: Xác nhận điểm số chung cuộc, cập nhật trạng thái trận đấu thành `CONFIRMED`, ghi nhận thời gian kết thúc (`finishedAt`) và tự động kích hoạt callback đồng bộ kết quả sang `tournament-service`.
+
+---
+
+## 9. Khóa Trạng Thái & Chặn Hoàn Tác (State Locking & Block Undo)
+
+Để bảo đảm tính trung thực và toàn vẹn của kết quả trận đấu sau khi đã kết thúc hoặc bị hủy:
+1. **Chặn Undo cứng ở Backend**: Nếu một trận đấu đã có trạng thái `CONFIRMED` hoặc `CANCELLED`, mọi gói tin gửi qua WebSocket (`undo-point`) hoặc cuộc gọi REST API hoàn tác điểm số sẽ bị chặn ngay lập tức. Hệ thống ném ra lỗi `400 Bad Request` với message `"Cannot undo points for a finished or cancelled match."`.
+2. **Khóa Client UX**: Giao diện Livescore của trọng tài bắt buộc phải ẩn hoặc vô hiệu hóa (disabled) nút "Hoàn tác (Undo)" ngay khi trạng thái trận đấu chuyển sang đã hoàn thành.
+
+---
+
+## 10. Ghi Nhận Kết Quả Thủ Công Từ Admin (Manual Result Override)
+
+Trong trường hợp xảy ra tranh chấp hoặc sai sót điểm số và Ban Tổ Chức (BTC) bắt buộc phải cập nhật tỷ số đè bằng tay từ bảng điều hành giải đấu (`POST /:tournamentId/fixtures/:fixtureId/result`):
+* **REST API đồng bộ đè kết quả**: `tournament-service` sẽ gọi API bảo mật nội bộ `PATCH /api/matches/internal/:id/override-result` sang `match-service`.
+* **Xử lý ở Match Service**: `match-service` sẽ ghi đè trực tiếp điểm số các set thi đấu, xác định lại đội chiến thắng, và chuyển trạng thái trận đấu thành `CONFIRMED` mà không cần đi qua tiến trình chấm điểm thông thường. Trận đấu sau đó cũng sẽ được khóa cứng trạng thái.
+
+---
+
+## 11. Hủy Lịch Thi Đấu & Đồng Bộ (Schedule Unsync)
+
+Khi BTC thực hiện thao tác gỡ trận đấu khỏi lịch (unlink) hoặc hủy đặt sân (cancel booking):
+* **Cơ chế gọi chéo**: `tournament-service` sẽ gọi API `POST /api/matches/internal/fixtures/:id/schedule-unsync` sang `match-service` để gỡ bỏ hoàn toàn thông tin xếp lịch thi đấu.
+* **Quy tắc Reset**: Vì cột `scheduledAt` trong cơ sở dữ liệu `match-service` có ràng buộc `NOT NULL`, hệ thống sử dụng các mốc giá trị mặc định để biểu diễn trạng thái "không xếp lịch":
+  - Reset mốc thời gian thi đấu `scheduledAt` về Unix Epoch: `1970-01-01T00:00:00.000Z`.
+  - Reset ID sân thi đấu `courtId` về Nil UUID: `00000000-0000-0000-0000-000000000000`.
+* **Nhận diện phía Client**: Livescore Client của trọng tài khi thấy mốc thời gian 1970 hoặc sân đấu là Nil UUID sẽ hiểu trận đấu này tạm thời chưa được xếp sân và không hiển thị trên danh sách thi đấu tại sân cũ.
+
+---
+
+## 12. Đồng Bộ Bất Đồng Bộ Qua BullMQ & Redis (Reliable Async Sync)
+
+Để tăng độ tin cậy và khả năng chịu lỗi của hệ thống khi đồng bộ dữ liệu điểm số từ `match-service` về `tournament-service`:
+1. **Thay thế HTTP trực tiếp**: Thay vì gọi HTTP POST đồng bộ trực tiếp (`sync-by-uuid`) khi có thay đổi điểm số, `match-service` sẽ đóng gói dữ liệu và đẩy vào hàng đợi tin nhắn BullMQ có tên là `match-sync` chạy trên Redis.
+2. **Xử lý bất đồng bộ (Asynchronous Worker)**: Worker `MatchSyncProcessor` sẽ chạy ngầm, lấy tin nhắn ra và thực hiện cuộc gọi REST API sang `tournament-service` để cập nhật điểm.
+3. **Cơ chế Thử Lại (Retry Policy)**: Nếu cuộc gọi bị lỗi (ví dụ: `tournament-service` tạm thời bị sập hoặc nghẽn mạng), BullMQ tự động kích hoạt cơ chế thử lại lên tới **3 lần** với thuật toán giãn cách thời gian lũy thừa (exponential backoff, giãn cách bắt đầu từ `1000ms`), đảm bảo không bị thất thoát dữ liệu kết quả thi đấu.
+
 

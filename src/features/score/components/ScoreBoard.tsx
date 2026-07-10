@@ -2,13 +2,6 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 import { cn } from "@/lib/utils"
 
@@ -28,10 +21,11 @@ export function ScoreBoard() {
     sets,
     isDoubles,
     gameTarget,
-    setGameTarget,
     activeServer,
     playerNames,
     scoreCall,
+    setsToWin,
+    currentSetId,
   } = useScoreStore()
 
   const servingScore = servingTeam === "A" ? teamAScore : teamBScore
@@ -46,11 +40,11 @@ export function ScoreBoard() {
   const isLeftServing = servingTeam === (isSwappedSides ? "B" : "A")
   const isRightServing = servingTeam === (isSwappedSides ? "A" : "B")
 
-  const leftTeamColor = isSwappedSides ? TEAM_COLOR.B : TEAM_COLOR.A
-  const rightTeamColor = isSwappedSides ? TEAM_COLOR.A : TEAM_COLOR.B
+  const leftTeamColor = TEAM_COLOR.A
+  const rightTeamColor = TEAM_COLOR.B
 
   return (
-    <Card className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xs">
+    <Card className="overflow-hidden rounded-2xl border border-gray-200 bg-white py-0 shadow-xs">
       <CardContent className="flex flex-col items-center gap-4 p-6">
         <div className="flex w-full items-center justify-between border-b pb-4 text-xs font-semibold text-muted-foreground">
           <div className="flex items-center gap-2">
@@ -58,30 +52,45 @@ export function ScoreBoard() {
               variant="secondary"
               className="border-emerald-100 bg-emerald-50 px-2.5 py-0.5 font-bold text-emerald-800 hover:bg-emerald-50/80"
             >
-              {isDoubles ? "Doubles" : "Singles"}
+              {isDoubles
+                ? t("referee.tracker.doubles", { defaultValue: "Doubles" })
+                : t("referee.tracker.singles", { defaultValue: "Singles" })}
+            </Badge>
+            <Badge
+              variant="secondary"
+              className="border-blue-100 bg-blue-50 px-2.5 py-0.5 font-bold text-blue-800 hover:bg-blue-50/80"
+            >
+              {setsToWin === 1
+                ? "BO1"
+                : setsToWin === 2
+                  ? "BO3"
+                  : setsToWin === 3
+                    ? "BO5"
+                    : `Best of ${setsToWin * 2 - 1}`}
             </Badge>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-xs font-bold text-gray-600 dark:text-zinc-400">
+            <span>{t("referee.tracker.set", { defaultValue: "Set" })}:</span>
+            <Badge
+              variant="outline"
+              className="h-6 border-gray-300 bg-gray-50 px-2 font-extrabold text-gray-800"
+            >
+              {currentSetId}
+            </Badge>
+
             <span>
               {t("referee.tracker.targetScore", {
-                defaultValue: "Target score",
+                defaultValue: "Target Score",
               })}
               :
             </span>
-            <Select
-              value={String(gameTarget)}
-              onValueChange={(val) => setGameTarget(Number(val))}
+            <Badge
+              variant="outline"
+              className="h-6 border-gray-300 bg-gray-50 px-2 font-extrabold text-gray-800"
             >
-              <SelectTrigger className="h-7 w-20 border-gray-200 bg-white text-xs">
-                <SelectValue placeholder="11" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="11">11</SelectItem>
-                <SelectItem value="15">15</SelectItem>
-                <SelectItem value="21">21</SelectItem>
-              </SelectContent>
-            </Select>
+              {gameTarget}
+            </Badge>
           </div>
         </div>
 
@@ -94,7 +103,7 @@ export function ScoreBoard() {
               )}
             >
               {leftTeamName}
-              {isLeftServing && " 🎾"}
+              {isLeftServing && " ♦️"}
             </span>
             <span
               className={cn(
@@ -140,7 +149,7 @@ export function ScoreBoard() {
           <div className="w-full rounded-2xl border border-amber-200 bg-amber-50/50 p-4 shadow-xs transition-all dark:border-amber-900/40 dark:bg-amber-950/10">
             <div className="text-xs font-black tracking-widest text-amber-800 uppercase dark:text-amber-400">
               {t("referee.tracker.scoreCallFormat", {
-                defaultValue: "Score call",
+                defaultValue: "Score Call",
               })}
             </div>
             <div className="mt-1 font-mono text-4xl font-extrabold tracking-wider text-amber-950 dark:text-amber-200">
@@ -151,20 +160,20 @@ export function ScoreBoard() {
             </div>
           </div>
 
-          <p className="mt-1 max-w-md text-xs text-gray-500">
+          <p className="mt-1 w-full text-xs text-gray-500">
             {isDoubles
               ? t("referee.tracker.doublesHelp", {
-                  defaultValue: `Call: serving score (${servingScore}) - receiving score (${receivingScore}) - server (${serverNumber}). ${activeServerName} is serving now.`,
-                  serving: servingScore,
-                  receiving: receivingScore,
-                  server: serverNumber,
-                  name: activeServerName,
+                  defaultValue: `Call Score: Serving score {{servingScore}} - Receiving score {{receivingScore}} - Server number {{serverNumber}}. {{activeServerName}} is serving.`,
+                  servingScore,
+                  receivingScore,
+                  serverNumber,
+                  activeServerName,
                 })
               : t("referee.tracker.singlesHelp", {
-                  defaultValue: `Call: serving score (${servingScore}) - receiving score (${receivingScore}). ${activeServerName} is serving now.`,
-                  serving: servingScore,
-                  receiving: receivingScore,
-                  name: activeServerName,
+                  defaultValue: `Call Score: Serving score {{servingScore}} - Receiving score {{receivingScore}}. {{activeServerName}} is serving.`,
+                  servingScore,
+                  receivingScore,
+                  activeServerName,
                 })}
           </p>
         </div>
@@ -176,7 +185,11 @@ export function ScoreBoard() {
                 key={idx}
                 className="rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1"
               >
-                Set {idx + 1}:{" "}
+                {t("referee.tracker.setNumber", {
+                  number: idx + 1,
+                  defaultValue: `Set ${idx + 1}`,
+                })}
+                :{" "}
                 <span className="font-bold text-foreground">
                   {setScore[0]} – {setScore[1]}
                 </span>

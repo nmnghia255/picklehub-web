@@ -7,6 +7,8 @@
     "deleteConfirmTitle": "Delete Bracket",
     "deleteSuccess": "Bracket deleted successfully!",
     "deleteError": "Failed to delete bracket",
+    "lockConfirmTitle": "Lock Matchups",
+    "lockConfirmDesc": "Are you sure you want to lock the bracket matchups? Once locked, matches will be official and you will not be able to edit team positions anymore.",
     "dialog": {
       "cancel": "Cancel",
       "delete": "Delete",
@@ -28,7 +30,8 @@
       "quickActions": "Quick Actions",
       "generateBracket": "Generate Bracket",
       "deleteBracket": "Delete Bracket",
-      "lockBracket": "Lock Bracket",
+      "lockBracket": "Lock Matchups",
+      "lockedStatus": "Locked (Official Matches)",
       "exportPdf": "Export PDF",
       "viewControls": "View Controls",
       "zoomOut": "Zoom Out",
@@ -40,8 +43,7 @@
         "inProgress": "In Progress",
         "remaining": "Remaining"
       },
-      "refresh": "Refresh",
-      "lockedStatus": "Locked (Official Matches)"
+      "refresh": "Refresh"
     },
     "toolbar": {
       "searchPlaceholder": "Search matches...",
@@ -70,7 +72,8 @@
         "ready": "Ready",
         "in_progress": "In Progress",
         "completed": "Completed",
-        "walkover": "Walkover"
+        "walkover": "Walkover",
+        "pending": "Pending"
       },
       "rounds": {
         "Round 1": "Round 1",
@@ -116,8 +119,6 @@
       "editSuccess": "Matchup updated successfully!",
       "editError": "Failed to update matchup"
     },
-    "lockConfirmTitle": "Lock Matchups",
-    "lockConfirmDesc": "Are you sure you want to lock the bracket matchups? Once locked, matches will be official and you will not be able to edit team positions anymore.",
     "lockSuccess": "Bracket locked successfully!",
     "lockError": "Failed to lock bracket"
   }
