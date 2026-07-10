@@ -1,0 +1,10 @@
+{
+  "config": {
+    "setsToWin": "Số set thắng để thắng trận",
+    "goalScore": "Điểm mục tiêu mỗi set",
+    "bo1": "1 set (BO1)",
+    "bo3": "Thắng 2 set (BO3)",
+    "bo5": "Thắng 3 set (BO5)",
+    "points": "{{count}} điểm"
+  }
+}

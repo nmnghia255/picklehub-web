@@ -3,7 +3,7 @@
 import { MapPin } from "lucide-react"
 
 import type { TournamentBooking } from "../../types/booking"
-import type { Match } from "../../types/match"
+import type { TournamentSchedule } from "../../types/schedule"
 import type { CourtInfo } from "../../types/tournament-court"
 import { EmptySlot } from "./empty-slot"
 import { MatchCard } from "./match-card"
@@ -12,8 +12,8 @@ interface CourtRowProps {
   courtObj: CourtInfo
   timeSlots: string[]
   bookings: TournamentBooking[]
-  scheduledMatches: Match[]
-  previewMatches: Match[]
+  scheduledMatches: TournamentSchedule[]
+  previewMatches: TournamentSchedule[]
   isPreviewMode: boolean
   activeDragCell: { courtId: string; time: string } | null
   onDragStart: (
@@ -27,7 +27,7 @@ interface CourtRowProps {
   onDrop: (e: React.DragEvent, courtId: string, time: string) => void
   onUnschedule: (fixtureId: string) => void
   onUnassignReferee: (fixtureId: string) => void
-  onAssignRefereeClick: (match: Match) => void
+  onAssignRefereeClick: (match: TournamentSchedule) => void
   onEmptySlotClick?: (
     courtId: string,
     courtName: string,
@@ -101,7 +101,9 @@ export function CourtRow({
           const activeMatch = (match ||
             (previewMatch
               ? { ...previewMatch, isPreview: true }
-              : undefined)) as (Match & { isPreview?: boolean }) | undefined
+              : undefined)) as
+            | (TournamentSchedule & { isPreview?: boolean })
+            | undefined
 
           if (activeMatch) {
             return (

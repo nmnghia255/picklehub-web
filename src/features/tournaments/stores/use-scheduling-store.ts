@@ -13,62 +13,36 @@ import {
   unlinkBookingItemFromFixtureAction,
 } from "../actions/schedule-actions"
 import type { BookingItemResponse, TournamentBooking } from "../types/booking"
-import type { Match, MatchWarning } from "../types/match"
 import type {
   AutoScheduleConfigDto,
   PreviewAssignment,
+  TournamentSchedule,
 } from "../types/schedule"
 import type { TournamentCenter } from "../types/tournament-center"
 import type { CourtInfo, TournamentCourt } from "../types/tournament-court"
 import type { TournamentEvent } from "../types/tournament-event"
 
-interface FixtureRawData {
+// Raw API data for a fixture — all fields optional since the API shape may vary
+type FixtureRawData = Partial<Omit<TournamentSchedule, "team1" | "team2">> & {
   id: number | string
   eventId?: number | null
-  event?: string | null
-  round?: string | null
-  team1?: { name: string } | string | null
-  team2?: { name: string } | string | null
-  winner?: string | number | null
-  score?: string | null
-  status?: string | null
-  court?: string | null
-  courtId?: string | null
-  courtStatus?: string | null
-  time?: string | null
+  team1?: TournamentSchedule["team1"] | string | null
+  team2?: TournamentSchedule["team2"] | string | null
   startTime?: string | null
-  duration?: number | null
-  priority?: string | null
-  refereeId?: string | null
-  refereeName?: string | null
+  endTime?: string | null
   bookingId?: string | number | null
-  bookingItemId?: string | null
-  warnings?: MatchWarning[] | null
 }
 
 // Helper function to compute stable arrays from state
 const computeDerivations = (
-  fixtures: Match[],
+  fixtures: TournamentSchedule[],
   selectedEventId: string,
   selectedCenterId: string,
   selectedDate: string,
   bookings: TournamentBooking[]
 ) => {
-  const unscheduledMatches = fixtures.filter(
-    (m) =>
-      !m.court &&
-      (!selectedEventId ||
-        selectedEventId === "all" ||
-        m.eventId?.toString() === selectedEventId)
-  )
-
-  const scheduledMatches = fixtures.filter(
-    (m) =>
-      m.court &&
-      (!selectedEventId ||
-        selectedEventId === "all" ||
-        m.eventId?.toString() === selectedEventId)
-  )
+  const unscheduledMatches = fixtures.filter((m) => !m.court)
+  const scheduledMatches = fixtures.filter((m) => !!m.court)
 
   // Filter bookings for the selected center and selected date that are active (not CANCELLED or EXPIRED)
   const centerBookings = bookings.filter(
@@ -100,7 +74,7 @@ const computeDerivations = (
 
 interface SchedulingState {
   tournamentId: number | null
-  fixtures: Match[]
+  fixtures: TournamentSchedule[]
   bookings: TournamentBooking[]
   centers: TournamentCenter[]
   availableCourts: TournamentCourt[]
@@ -111,16 +85,16 @@ interface SchedulingState {
   selectedCenterId: string
 
   // Cached derivations
-  unscheduledMatches: Match[]
-  scheduledMatches: Match[]
+  unscheduledMatches: TournamentSchedule[]
+  scheduledMatches: TournamentSchedule[]
   courtsList: CourtInfo[]
 
   // Modals state
   showAutoSchedule: boolean
   showAssignReferee: boolean
-  selectedMatchForReferee: Match | null
+  selectedMatchForReferee: TournamentSchedule | null
   showManualSchedule: boolean
-  selectedMatchForManual: Match | null
+  selectedMatchForManual: TournamentSchedule | null
 
   // Setters
   setTournamentId: (id: number | null) => void
@@ -130,9 +104,9 @@ interface SchedulingState {
   setSelectedCenterId: (centerId: string) => void
   setShowAutoSchedule: (show: boolean) => void
   setShowAssignReferee: (show: boolean) => void
-  setSelectedMatchForReferee: (match: Match | null) => void
+  setSelectedMatchForReferee: (match: TournamentSchedule | null) => void
   setShowManualSchedule: (show: boolean) => void
-  setSelectedMatchForManual: (match: Match | null) => void
+  setSelectedMatchForManual: (match: TournamentSchedule | null) => void
 
   // Preview state
   autoScheduleConfig: AutoScheduleConfigDto | null
@@ -398,9 +372,16 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
         }
       }
 
-      const mappedMatches: Match[] = rawFixtures.map((f) => {
-        let startTime = f.startTime || undefined
-        let courtName = f.court || undefined
+      const mappedMatches: TournamentSchedule[] = rawFixtures.map((f) => {
+        let startTime = f.startTime ?? undefined
+        let courtName = f.court || ""
+
+        if (startTime && !startTime.includes("T")) {
+          const matchDate = f.date || selectedDate
+          if (matchDate) {
+            startTime = `${matchDate}T${startTime}`
+          }
+        }
 
         if (f.bookingId && f.bookingItemId) {
           const booking = loadedBookings.find(
@@ -409,7 +390,7 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
           if (booking) {
             const item = booking.items?.find((i) => i.id === f.bookingItemId)
             if (item) {
-              if (booking.date && item.startTime) {
+              if (!startTime && booking.date && item.startTime) {
                 startTime = `${booking.date}T${item.startTime}`
               }
               if (item.court?.name) {
@@ -419,46 +400,40 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
           }
         }
 
-        let eventId = f.eventId || 0
-        if (f.event && events && events.length > 0) {
-          const foundEvent = events.find(
-            (e) => e.name.toLowerCase() === f.event?.toLowerCase()
-          )
-          if (foundEvent) {
-            eventId = foundEvent.id
-          }
-        }
+        const team1 =
+          typeof f.team1 === "object" && f.team1
+            ? (f.team1 as TournamentSchedule["team1"])
+            : ({
+                name: (f.team1 as string) || "TBD",
+              } as TournamentSchedule["team1"])
+        const team2 =
+          typeof f.team2 === "object" && f.team2
+            ? (f.team2 as TournamentSchedule["team2"])
+            : ({
+                name: (f.team2 as string) || "TBD",
+              } as TournamentSchedule["team2"])
 
         return {
-          id: f.id,
-          tournamentId: tournamentId,
-          eventId: eventId,
-          event: f.event,
-          round: f.round,
-          team1:
-            typeof f.team1 === "object" && f.team1
-              ? f.team1
-              : { name: (f.team1 as string) || "TBD" },
-          team2:
-            typeof f.team2 === "object" && f.team2
-              ? f.team2
-              : { name: (f.team2 as string) || "TBD" },
-          winner: f.winner,
-          score: f.score,
-          status: f.status || "pending",
+          id: f.id as number,
+          event: f.event ?? "",
+          round: f.round ?? "",
+          team1,
+          team2,
+          winner: (f.winner as string | null) ?? null,
+          score: f.score ?? null,
+          status: (f.status || "pending") as TournamentSchedule["status"],
           court: courtName,
-          courtId: f.courtId,
-          courtStatus: f.courtStatus,
-          time: f.time,
-          startTime: startTime,
-          duration: f.duration || 45,
-          priority: f.priority || "medium",
-          refereeId: f.refereeId,
-          refereeName: f.refereeName,
-          bookingId: f.bookingId ? Number(f.bookingId) : null,
-          bookingItemId: f.bookingItemId,
-          warnings: f.warnings || [],
-        }
+          courtId: f.courtId ?? "",
+          courtStatus: f.courtStatus ?? "",
+          externalMatchId: f.externalMatchId ?? "",
+          bookingId: f.bookingId ? String(f.bookingId) : "",
+          bookingItemId: f.bookingItemId ?? "",
+          refereeId: f.refereeId ?? "",
+          refereeName: f.refereeName ?? "",
+          date: selectedDate,
+          startTime,
+          endTime: f.endTime ?? undefined,
+        } satisfies TournamentSchedule
       })
 
       const derivations = computeDerivations(
@@ -652,6 +627,20 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
       }
     }
 
+    const matchDuration = (() => {
+      const { startTime, endTime } = selectedMatchForManual
+      if (startTime && endTime) {
+        const toMin = (t: string) => {
+          const timePart = t.includes("T") ? t.split("T")[1] : t
+          const [h, m] = timePart.split(":").map(Number)
+          return h * 60 + m
+        }
+        const diff = toMin(endTime) - toMin(startTime)
+        if (diff > 0) return diff
+      }
+      return 15
+    })()
+
     try {
       const res = await linkBookingItemToFixtureAction(
         tournamentId,
@@ -659,7 +648,7 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
         {
           bookingId: foundBookingId,
           bookingItemId: foundBookingItemId,
-          matchDurationMinutes: selectedMatchForManual.duration || 15,
+          matchDurationMinutes: matchDuration,
         }
       )
       if (res.success) {

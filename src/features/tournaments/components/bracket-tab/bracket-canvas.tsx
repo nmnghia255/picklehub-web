@@ -263,7 +263,7 @@ export function BracketCanvas({
                 className="flex w-72 shrink-0 flex-col"
               >
                 <div className="mb-6 rounded border border-emerald-200 bg-emerald-50/50 py-1.5 text-center text-xs font-bold tracking-widest text-emerald-700 uppercase">
-                  {t(`brackets.match.rounds.${finalRound.roundName}`, {
+                  {t(`brackets.match.round.${finalRound.roundName}`, {
                     defaultValue: finalRound.roundName,
                   })}
                 </div>

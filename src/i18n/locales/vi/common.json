@@ -59,6 +59,7 @@
     "switchToDark": "Chuyển sang chế độ tối",
     "profile": "Hồ sơ",
     "settings": "Cài đặt",
+    "account": "Tài khoản",
     "logout": "Đăng xuất",
     "loggingOut": "Đang đăng xuất...",
     "defaultUser": "Người dùng"
@@ -99,5 +100,26 @@
     "delete": "Xóa",
     "confirm": "Xác nhận",
     "actions": "Thao tác"
+  },
+  "settingsPage": {
+    "title": "Cài đặt",
+    "desc": "Chỉnh ngôn ngữ, giao diện và quản lý phiên đăng nhập của bạn ngay tại đây.",
+    "languageTitle": "Ngôn ngữ",
+    "languageDesc": "Chọn ngôn ngữ hiển thị cho giao diện ứng dụng.",
+    "selectLanguagePlaceholder": "Chọn ngôn ngữ",
+    "vietnameseHint": "Giao diện ưu tiên tiếng Việt.",
+    "englishHint": "Giao diện đang sử dụng tiếng Anh.",
+    "themeTitle": "Giao diện",
+    "themeDesc": "Điều chỉnh chế độ sáng, tối hoặc theo thiết bị của bạn.",
+    "selectThemePlaceholder": "Chọn giao diện",
+    "themeDarkHint": "Bạn đang dùng giao diện tối.",
+    "themeLightHint": "Bạn đang dùng giao diện sáng.",
+    "themeSystemHint": "Giao diện sẽ tự theo cài đặt của hệ điều hành.",
+    "themeLightLabel": "Sáng",
+    "themeDarkLabel": "Tối",
+    "themeSystemLabel": "Theo hệ thống",
+    "sessionTitle": "Phiên đăng nhập",
+    "sessionDesc": "Đăng xuất khỏi thiết bị này khi bạn không còn sử dụng nữa.",
+    "logoutBtn": "Đăng xuất"
   }
 }

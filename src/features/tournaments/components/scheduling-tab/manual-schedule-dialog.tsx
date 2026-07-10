@@ -9,14 +9,14 @@ import {
 } from "@/components/ui/dialog"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
-import type { Match } from "../../types/match"
+import type { TournamentSchedule } from "../../types/schedule"
 import type { CourtInfo } from "../../types/tournament-court"
 import { ManualScheduleForm } from "./manual-schedule-form"
 
 interface ManualScheduleDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  selectedMatch: Match | null
+  selectedMatch: TournamentSchedule | null
   courtsList: CourtInfo[]
   timeSlots: string[]
   onSubmit: (courtId: string, timeSlot: string) => void

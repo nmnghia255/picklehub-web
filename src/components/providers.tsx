@@ -13,6 +13,64 @@ import { Toaster } from "sonner"
 
 import { I18nProvider } from "@/components/i18n-provider"
 
+if (typeof window !== "undefined") {
+  let googleVal: unknown = undefined
+  let lastInitTime = 0
+  let lastClientId: string | null = null
+
+  const handler: ProxyHandler<object> = {
+    get(target, prop, receiver) {
+      const val = Reflect.get(target, prop, receiver)
+      if (prop === "accounts" && val && typeof val === "object") {
+        const accountsObj = val as Record<string, unknown>
+        const idObj = accountsObj.id as Record<string, unknown> | undefined
+        if (idObj && typeof idObj.initialize === "function") {
+          const initFn = idObj.initialize as (config: {
+            client_id?: string
+          }) => void
+          const patchedFn = initFn as unknown as { __patched?: boolean }
+          if (!patchedFn.__patched) {
+            const originalInit = initFn
+            idObj.initialize = function (
+              this: unknown,
+              ...args: [{ client_id?: string }]
+            ) {
+              const config = args[0]
+              const now = Date.now()
+              if (
+                config &&
+                config.client_id === lastClientId &&
+                now - lastInitTime < 500
+              ) {
+                return
+              }
+              if (config?.client_id) {
+                lastClientId = config.client_id
+              }
+              lastInitTime = now
+              return originalInit.apply(this, args)
+            }
+            ;(idObj.initialize as unknown as { __patched: boolean }).__patched =
+              true
+          }
+        }
+      }
+      return val
+    },
+  }
+
+  Object.defineProperty(window, "google", {
+    configurable: true,
+    enumerable: true,
+    get() {
+      return googleVal ? new Proxy(googleVal as object, handler) : undefined
+    },
+    set(val) {
+      googleVal = val
+    },
+  })
+}
+
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>

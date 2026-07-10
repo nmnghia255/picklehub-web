@@ -8,12 +8,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
-import type { Match } from "../../types/match"
+import type { TournamentSchedule } from "../../types/schedule"
 
 interface UnscheduledMatchesPanelProps {
-  unscheduledMatches: Match[]
+  unscheduledMatches: TournamentSchedule[]
   isLoading: boolean
-  onMatchClick: (match: Match) => void
+  onMatchClick: (match: TournamentSchedule) => void
   onAutoScheduleClick: () => void
 }
 
@@ -68,14 +68,6 @@ export function UnscheduledMatchesPanel({
               <Card
                 key={match.id}
                 className="cursor-pointer border-l-4 transition-all hover:bg-gray-50 hover:shadow-md"
-                style={{
-                  borderLeftColor:
-                    match.priority === "high"
-                      ? "#ef4444"
-                      : match.priority === "medium"
-                        ? "#f59e0b"
-                        : "#6b7280",
-                }}
                 onClick={() => onMatchClick(match)}
               >
                 <CardContent className="p-4">
@@ -85,17 +77,6 @@ export function UnscheduledMatchesPanel({
                         id: match.id,
                         defaultValue: `ID: ${match.id}`,
                       })}
-                    </Badge>
-                    <Badge
-                      className={
-                        match.priority === "high"
-                          ? "bg-red-100 text-red-700 hover:bg-red-100"
-                          : match.priority === "medium"
-                            ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-100"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-100"
-                      }
-                    >
-                      {match.priority}
                     </Badge>
                   </div>
 
@@ -110,13 +91,6 @@ export function UnscheduledMatchesPanel({
                     <Badge variant="outline" className="text-xs">
                       {match.round}
                     </Badge>
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      {t("scheduling.match.duration", {
-                        duration: match.duration || 45,
-                        defaultValue: `${match.duration || 45} min`,
-                      })}
-                    </div>
                   </div>
                 </CardContent>
               </Card>

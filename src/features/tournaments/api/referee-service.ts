@@ -3,6 +3,7 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 import type {
   AcceptInvitationResponseDto,
   AssignedReferee,
+  AssignRefereesResponseDto,
   InviteRefereeDto,
   InviteRefereeResponseDto,
   JoinTournamentResponseDto,
@@ -133,7 +134,7 @@ export const TournamentRefereeService = {
   // Retrieves all matches assigned to the currently logged-in referee in this tournament.
   listMyMatches: async (tournamentId: string) => {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get<ApiResponse<AssignedReferee[]>>(
+    const response = await axios.get<ApiResponse<AssignRefereesResponseDto>>(
       `/api/tournaments/${tournamentId}/referees/my-assignments`
     )
     return unwrapApiResponse(response.data)

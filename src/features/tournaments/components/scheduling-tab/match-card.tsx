@@ -12,10 +12,13 @@ import {
 } from "@/components/ui/tooltip"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
-import type { Match } from "../../types/match"
+import type { TournamentSchedule } from "../../types/schedule"
 
 interface MatchCardProps {
-  activeMatch: Match & { isPreview?: boolean; isOtherEvent?: boolean }
+  activeMatch: TournamentSchedule & {
+    isPreview?: boolean
+    isOtherEvent?: boolean
+  }
   isPreviewMode: boolean
   matchWidth: number
   onDragStart: (
@@ -25,7 +28,7 @@ interface MatchCardProps {
   ) => void
   onUnschedule: (fixtureId: string) => void
   onUnassignReferee: (fixtureId: string) => void
-  onAssignRefereeClick: (match: Match) => void
+  onAssignRefereeClick: (match: TournamentSchedule) => void
   formatTimeSlot: (timeStr: string | null | undefined) => string
 }
 
@@ -65,7 +68,18 @@ export function MatchCard({
               }
               onDragStart={(e) => {
                 if (!activeMatch.isOtherEvent) {
-                  onDragStart(e, activeMatch.id, activeMatch.duration || 45)
+                  // Compute duration from startTime/endTime; fall back to 45
+                  const toMin = (t: string) => {
+                    const part = t.includes("T") ? t.split("T")[1] : t
+                    const [h, m] = part.split(":").map(Number)
+                    return h * 60 + m
+                  }
+                  const dur =
+                    activeMatch.startTime && activeMatch.endTime
+                      ? toMin(activeMatch.endTime) -
+                        toMin(activeMatch.startTime)
+                      : 45
+                  onDragStart(e, activeMatch.id, dur > 0 ? dur : 45)
                 }
               }}
               className={`absolute inset-y-1 left-0.5 border-2 p-2 shadow-sm transition-all ${

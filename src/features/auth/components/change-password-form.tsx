@@ -12,7 +12,13 @@ import { cn } from "@/lib/utils"
 
 import { type ChangePasswordFormData, changePasswordSchema } from "../schemas"
 
-export function ChangePasswordForm({ className }: { className?: string }) {
+export function ChangePasswordForm({
+  className,
+  hideHeader = false,
+}: {
+  className?: string
+  hideHeader?: boolean
+}) {
   const [state, formAction, isPending] = useActionState(
     changePasswordAction,
     {}
@@ -38,12 +44,14 @@ export function ChangePasswordForm({ className }: { className?: string }) {
   return (
     <form className={cn("flex flex-col gap-6", className)} onSubmit={onSubmit}>
       <FieldGroup>
-        <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-2xl font-bold">Đổi mật khẩu</h1>
-          <p className="text-sm text-balance text-muted-foreground">
-            Cập nhật mật khẩu để bảo vệ tài khoản của bạn.
-          </p>
-        </div>
+        {!hideHeader && (
+          <div className="flex flex-col items-center gap-1 text-center">
+            <h1 className="text-2xl font-bold">Đổi mật khẩu</h1>
+            <p className="text-sm text-balance text-muted-foreground">
+              Cập nhật mật khẩu để bảo vệ tài khoản của bạn.
+            </p>
+          </div>
+        )}
 
         <Field>
           <FieldLabel htmlFor="currentPassword">Mật khẩu hiện tại</FieldLabel>

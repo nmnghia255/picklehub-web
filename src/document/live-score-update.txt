@@ -1,0 +1,87 @@
+# Cẩm Nang Tích Hợp Frontend: Thể Thức Thi Đấu Linh Hoạt & Xác Nhận Tỉ Số
+
+Tài liệu này hướng dẫn các nhà phát triển Frontend cập nhật logic ứng dụng (Web/App) để hỗ trợ các thay đổi mới nhất trong `match-service` liên quan đến:
+1. **Thể thức thi đấu linh hoạt** (`bestOfSets` và `pointsToWin`).
+2. **Trạng thái trung gian** `PENDING_CONFIRM` sau khi kết thúc livescore.
+3. **Quy trình xác nhận tỉ số chính thức**.
+4. **Loại bỏ hiển thị các set đấu trống (`0-0` thừa)**.
+
+---
+
+## 1. Cập nhật Model & Đọc Thông tin Trận đấu
+Khi lấy thông tin chi tiết của một trận đấu (qua API `GET /matches/:id` hoặc WebSocket payload), đối tượng `Match` hiện tại có thêm 2 thuộc tính cấu hình thể thức:
+
+*   **`bestOfSets`** (`number`): Số set đấu tối đa của trận (Giá trị hợp lệ: `1`, `3`, hoặc `5`, mặc định là `3`).
+*   **`pointsToWin`** (`number`): Số điểm tối thiểu để thắng một set đấu (Giá trị hợp lệ: `11`, `15`, hoặc `21`, mặc định là `11`).
+
+### Logic Tính toán của Frontend:
+*   **Số set thắng cần thiết để thắng trận đấu**:
+    $$\text{setsNeededToWin} = \text{Math.ceil}(\text{bestOfSets} / 2)$$
+    *   *Ví dụ*:
+        *   `bestOfSets = 1` $\rightarrow$ Thắng trước 1 set là thắng trận.
+        *   `bestOfSets = 3` $\rightarrow$ Thắng trước 2 set là thắng trận.
+        *   `bestOfSets = 5` $\rightarrow$ Thắng trước 3 set là thắng trận.
+
+---
+
+## 2. Thay đổi Luồng Ghi điểm (Livescore qua WebSockets)
+
+### A. Gửi điểm số (`score-point`)
+Trọng tài gửi điểm số qua sự kiện WebSocket `score-point`. Frontend cần kiểm tra ràng buộc động của `setId`:
+*   `setId` gửi đi phải là số nguyên nằm trong khoảng: `1 <= setId <= bestOfSets`.
+*   *Lưu ý*: Không được hardcode giới hạn là 3 nữa. Trận đấu chạm 5 set sẽ cho phép `setId` lên tới 5.
+
+```javascript
+// Gửi điểm số cho Set 4 (trong thể thức Best of 5)
+socket.emit('score-point', {
+  matchId: "e0000002-e000-4000-8000-000000000000",
+  setId: 4,
+  scoringTeam: "TEAM_A"
+});
+```
+
+### B. Nhận sự kiện Kết thúc Livescore (`match-completed`)
+Khi một đội đạt đủ số set thắng cần thiết (`setsNeededToWin`), backend của `match-service` tự động:
+1. Đóng luồng livescore ghi điểm (chặn ghi điểm tiếp theo).
+2. Chuyển trạng thái trận đấu từ `LIVE` sang **`PENDING_CONFIRM`**.
+3. Broadcast qua WebSocket sự kiện **`match-completed`** (chứ không phải `point-scored` như bình thường).
+
+**Frontend Cần xử lý**:
+*   Khi nhận được tin nhắn WebSocket có `event: "match-completed"`:
+    *   Hiển thị màn hình chúc mừng đội thắng cuộc tạm thời.
+    *   Hiển thị giao diện **Xác nhận kết quả** dành cho Trọng tài (hoặc 2 đội đối với các trận tự quản lý).
+    *   **Trạng thái hiển thị**: Hiện chữ `Chờ xác nhận` (Pending Confirmation) thay vì `Đã kết thúc` (Confirmed).
+
+---
+
+## 3. Quy trình Xác nhận Kết quả (Confirm Match)
+
+Trận đấu ở trạng thái `PENDING_CONFIRM` sẽ chưa được đồng bộ kết quả sang giải đấu (`tournament-service`) và chưa được tính điểm xếp hạng bảng đấu. Để hoàn tất trận đấu (đưa trạng thái lên `CONFIRMED`), Frontend cần điều hướng người dùng thực hiện:
+
+### A. Dành cho Trọng tài (Các trận có Trọng tài)
+Trọng tài bấm nút **"Xác nhận kết quả"** trên màn hình sau khi kiểm tra lại tỉ số. Frontend gửi request:
+*   **Method**: `PATCH`
+*   **URL**: `/matches/:id/confirm`
+*   **Headers**: `Authorization: Bearer <JWT_Token_Của_Trọng_Tài>`
+*   **Payload**: Rỗng hoặc có thể ghi đè lại tỉ số nếu có tranh chấp:
+    ```json
+    {
+      "scoreA": 2,
+      "scoreB": 1,
+      "winner": "TEAM_A"
+    }
+    ```
+
+### B. Dành cho VĐV Tự quản lý (Các trận Social/Practice không Trọng tài)
+*   **Đội A (hoặc Đội B)**: Đại diện đội A vào xác nhận tỷ số trước $\rightarrow$ Trạng thái chuyển sang `PENDING_CONFIRM`.
+*   **Đội B (hoặc Đội A)**: Đại diện đội đối thủ vào bấm đồng ý tỷ số $\rightarrow$ Gọi API `/confirm` $\rightarrow$ Trạng thái chuyển sang `CONFIRMED`.
+
+---
+
+## 4. Hiển thị Tỷ số Thực tế (Không hiển thị các Set trống)
+
+Backend đã nâng cấp cơ chế lưu trữ điểm số. Mảng `sets` trả về từ Backend chỉ chứa các set đấu **thực sự diễn ra**.
+*   *Ví dụ*: Thể thức Best of 3, Đội A thắng liên tiếp 2 set đầu với tỉ số 11-5, 11-8. Trận đấu kết thúc sớm mà không cần đánh set 3.
+    *   **Tỉ số sets nhận từ API/WebSocket**: `sets: [[11, 5], [11, 8]]` (chỉ có 2 phần tử).
+    *   **Frontend Cần tránh**: Không được tự động render ô trống thứ 3 là `0 - 0`. Hãy lặp và render động theo độ dài thực tế của mảng `sets` nhận được.
+    *   **Chuỗi hiển thị tỷ số**: Chuyển đổi thành dạng `"11-5, 11-8"` thay vì `"11-5, 11-8, 0-0"`.

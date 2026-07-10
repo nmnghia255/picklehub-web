@@ -46,6 +46,7 @@
     "switchToDark": "Switch to dark mode",
     "profile": "Profile",
     "settings": "Settings",
+    "account": "Account",
     "logout": "Log out",
     "loggingOut": "Logging out...",
     "defaultUser": "User"
@@ -86,5 +87,26 @@
     "delete": "Delete",
     "confirm": "Confirm",
     "actions": "Actions"
+  },
+  "settingsPage": {
+    "title": "Settings",
+    "desc": "Adjust your language, appearance, and manage your login session here.",
+    "languageTitle": "Language",
+    "languageDesc": "Select the display language for the application interface.",
+    "selectLanguagePlaceholder": "Select language",
+    "vietnameseHint": "Interface is set to Vietnamese.",
+    "englishHint": "Interface is set to English.",
+    "themeTitle": "Appearance",
+    "themeDesc": "Adjust light, dark, or device-matching mode.",
+    "selectThemePlaceholder": "Select appearance",
+    "themeDarkHint": "You are using the dark theme.",
+    "themeLightHint": "You are using the light theme.",
+    "themeSystemHint": "Interface will match your system settings automatically.",
+    "themeLightLabel": "Light",
+    "themeDarkLabel": "Dark",
+    "themeSystemLabel": "System",
+    "sessionTitle": "Login Session",
+    "sessionDesc": "Log out of this device when you are no longer using it.",
+    "logoutBtn": "Log Out"
   }
 }

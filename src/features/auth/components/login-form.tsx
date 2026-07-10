@@ -106,7 +106,7 @@ export function LoginForm({ className }: { className?: string }) {
 
         <Field>
           <GoogleAuthButton text="signin_with" />
-          <FacebookAuthButton title="Đăng nhập với Facebook" />
+          <FacebookAuthButton title="Sign in with Facebook" />
           <FieldDescription className="text-center">
             Bạn chưa có tài khoản?{" "}
             <Link href="/register" className="underline underline-offset-4">

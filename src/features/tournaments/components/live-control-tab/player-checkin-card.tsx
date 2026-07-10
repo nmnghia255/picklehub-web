@@ -76,7 +76,7 @@ export function PlayerCheckinCard({
 
   return (
     <Card className="gap-0 border-gray-200 shadow-sm lg:col-span-2">
-      <CardHeader className="border-b pb-4">
+      <CardHeader className="border-b pb-0">
         <CardTitle className="text-base font-bold text-gray-800">
           {t("liveControl.checkin.title", {
             defaultValue: "Desk Player Check-In",

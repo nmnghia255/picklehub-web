@@ -27,6 +27,7 @@ import type {
   RegistrationRequest,
   RegistrationResponse,
 } from "../../../types/registration"
+import type { TournamentSchedule } from "../../../types/schedule"
 import type { Tournament } from "../../../types/tournament"
 import type { TournamentEvent } from "../../../types/tournament-event"
 
@@ -36,7 +37,7 @@ interface EventDetailClientProps {
   prizes: TournamentPrize[]
   registrations: RegistrationResponse[]
   currentUser: User
-  initialMatches: Match[]
+  initialMatches: TournamentSchedule[]
   initialTeams?: Team[]
 }
 
@@ -102,17 +103,17 @@ export function EventDetailClient({
   })
 
   // Robust check to extract array of matches
-  let rawMatches: Match[] = []
+  let rawMatches: TournamentSchedule[] = []
   if (Array.isArray(initialMatches)) {
     rawMatches = initialMatches
   } else if (initialMatches && typeof initialMatches === "object") {
     const obj = initialMatches as Record<string, unknown>
     if ("fixtures" in obj && Array.isArray(obj.fixtures)) {
-      rawMatches = obj.fixtures as Match[]
+      rawMatches = obj.fixtures as TournamentSchedule[]
     } else if ("data" in obj && Array.isArray(obj.data)) {
-      rawMatches = obj.data as Match[]
+      rawMatches = obj.data as TournamentSchedule[]
     } else if ("matches" in obj && Array.isArray(obj.matches)) {
-      rawMatches = obj.matches as Match[]
+      rawMatches = obj.matches as TournamentSchedule[]
     }
   }
 
@@ -129,6 +130,7 @@ export function EventDetailClient({
           typeof m.team2 === "object" && m.team2
             ? m.team2
             : { name: String(m.team2 || "TBD") },
+        bookingId: m.bookingId ? Number(m.bookingId) : null,
       } as Match
     })
     .filter((m) => m.eventId === event.id || m.event === event.name)

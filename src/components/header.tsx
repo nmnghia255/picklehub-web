@@ -1,5 +1,6 @@
 "use client"
 
+import { useQueryClient } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import {
   BellRing,
@@ -10,6 +11,7 @@ import {
   Settings,
   Sun,
   User,
+  UserCog,
   XCircle,
 } from "lucide-react"
 import Link from "next/link"
@@ -30,7 +32,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useQueryClient } from "@tanstack/react-query"
 import { notificationFeedAtom } from "@/features/feed/store/feed-store"
 import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import type { SessionUser } from "@/lib/session"
@@ -325,6 +326,12 @@ export function Header({ user }: HeaderProps) {
               <Link href="/settings">
                 <Settings className="size-4" />
                 <span>{t("header.settings")}</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/account">
+                <UserCog className="size-4" />
+                <span>{t("header.account")}</span>
               </Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>

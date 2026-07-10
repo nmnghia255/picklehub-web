@@ -1,3 +1,4 @@
+import { format } from "date-fns"
 import { Clock, MapPin, Play } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -13,10 +14,10 @@ import type { AssignedReferee } from "../../../types/referee"
 
 interface RefereeTabProps {
   assignments: AssignedReferee[]
-  onRefresh?: () => void
+  tournamentId: number
 }
 
-export function RefereeTab({ assignments }: RefereeTabProps) {
+export function RefereeTab({ assignments, tournamentId }: RefereeTabProps) {
   const { t } = useTournamentTranslation()
   const router = useRouter()
   const [teamMap, setTeamMap] = useState<Record<string, Team>>({})
@@ -68,7 +69,8 @@ export function RefereeTab({ assignments }: RefereeTabProps) {
               const courtName = match.court?.name || `Court ${(index % 4) + 1}`
               const timeStr = match.time || "TBD"
               const eventName = match.event?.name || "Event"
-              const isCompleted = match.status === "completed"
+              const isCompleted =
+                match.status === "completed" || match.status === "walkover"
 
               const team1Obj = teamMap[String(match.team1Id)]
               const team2Obj = teamMap[String(match.team2Id)]
@@ -109,20 +111,36 @@ export function RefereeTab({ assignments }: RefereeTabProps) {
                             ? "bg-gray-100 text-gray-700"
                             : match.status === "in_progress"
                               ? "animate-pulse bg-blue-100 text-blue-700"
-                              : "bg-yellow-100 text-yellow-700"
+                              : match.status === "ready"
+                                ? "border border-emerald-200 bg-emerald-100 text-emerald-700"
+                                : match.status === "pending"
+                                  ? "bg-amber-100 text-amber-700"
+                                  : "bg-yellow-100 text-yellow-700"
                         }`}
                       >
-                        {isCompleted
-                          ? t("public.liveScores.final", {
-                              defaultValue: "Final",
+                        {match.status === "completed"
+                          ? t("referee.statuses.completed", {
+                              defaultValue: "completed",
                             })
-                          : match.status === "in_progress"
-                            ? t("public.liveScores.live", {
-                                defaultValue: "Live",
+                          : match.status === "walkover"
+                            ? t("referee.statuses.walkover", {
+                                defaultValue: "Walkover",
                               })
-                            : t("scheduling.status.scheduled", {
-                                defaultValue: "Scheduled",
-                              })}
+                            : match.status === "in_progress"
+                              ? t("referee.statuses.in_progress", {
+                                  defaultValue: "Live",
+                                })
+                              : match.status === "ready"
+                                ? t("referee.statuses.ready", {
+                                    defaultValue: "Ready",
+                                  })
+                                : match.status === "pending"
+                                  ? t("referee.statuses.pending", {
+                                      defaultValue: "Pending",
+                                    })
+                                  : t("referee.statuses.scheduled", {
+                                      defaultValue: "Scheduled",
+                                    })}
                       </Badge>
                     </div>
                     <h4 className="flex items-center gap-2 text-lg font-bold text-gray-900">
@@ -139,7 +157,7 @@ export function RefereeTab({ assignments }: RefereeTabProps) {
                       </span>
                       <span className="flex items-center gap-1">
                         <Clock className="h-4 w-4 text-emerald-600" />
-                        {timeStr}
+                        {format(new Date(timeStr), "HH:mm, dd/MM/yyyy")}
                       </span>
                     </div>
                   </div>
@@ -156,21 +174,31 @@ export function RefereeTab({ assignments }: RefereeTabProps) {
                       </div>
                     ) : (
                       <Button
+                        disabled={
+                          match.status !== "ready" &&
+                          match.status !== "in_progress"
+                        }
                         onClick={() => {
-                          const targetMatchId =
-                            match.externalMatchId || match.id
                           router.push(
-                            `/score?matchId=${targetMatchId}&tournamentId=${match.tournamentId}&team1=${encodeURIComponent(
+                            `/score?matchId=${match.externalMatchId}&tournamentId=${tournamentId}&team1=${encodeURIComponent(
                               team1Name
                             )}&team2=${encodeURIComponent(team2Name)}`
                           )
                         }}
-                        className="bg-emerald-600 font-bold text-white hover:bg-emerald-700"
+                        className="bg-emerald-600 font-bold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <Play className="mr-1.5 h-4 w-4 fill-white" />
-                        {t("referee.actions.startGame", {
-                          defaultValue: "Start game",
-                        })}
+                        {match.status === "in_progress"
+                          ? t("referee.actions.resumeMatch", {
+                              defaultValue: "Resume Match",
+                            })
+                          : match.status === "ready"
+                            ? t("referee.actions.startMatch", {
+                                defaultValue: "Start Match",
+                              })
+                            : t("referee.actions.openScoreBoard", {
+                                defaultValue: "Open Score Board",
+                              })}
                       </Button>
                     )}
                   </div>

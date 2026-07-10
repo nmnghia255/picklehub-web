@@ -232,7 +232,7 @@ export async function changePasswordAction(
   try {
     const client = await getAuthenticatedAxios()
     await client.post("/api/auth/change-password", {
-      currentPassword: parsed.data.currentPassword,
+      oldPassword: parsed.data.currentPassword,
       newPassword: parsed.data.newPassword,
     })
     return { success: true, message: "Đổi mật khẩu thành công." }

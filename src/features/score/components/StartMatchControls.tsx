@@ -1,10 +1,18 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
-import { startMatchAction } from "@/features/tournaments/actions/referee-actions"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { startMatchAction } from "@/features/matches/actions"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
 import { useScoreStore } from "../stores/use-score-store"
@@ -14,7 +22,9 @@ interface StartMatchControlsProps {
 }
 
 export function StartMatchControls({ matchId }: StartMatchControlsProps) {
-  const { t } = useTournamentTranslation()
+  const { t: tTournament } = useTournamentTranslation()
+  const t = tTournament
+  const { t: tScore } = useTranslation("score")
   const {
     teamAName,
     teamBName,
@@ -22,6 +32,10 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
     setServingTeam,
     setServerNumber,
     setActiveServer,
+    gameTarget,
+    setGameTarget,
+    setsToWin,
+    setSetsToWin,
   } = useScoreStore()
 
   // Coin Toss Wizard State
@@ -35,13 +49,22 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
     setIsFlipping(true)
     setTossWinner(null)
     setTossChoice(null)
-    setFlipResultText("Đang xoay đồng xu...")
+    setFlipResultText(
+      t("referee.tracker.tossFlipping", {
+        defaultValue: "Đang xoay đồng xu...",
+      })
+    )
 
     setTimeout(() => {
       const winner = Math.random() < 0.5 ? "A" : "B"
       const winnerName = winner === "A" ? teamAName : teamBName
       setTossWinner(winner)
-      setFlipResultText(`Kết quả: Đội ${winnerName} thắng tung đồng xu!`)
+      setFlipResultText(
+        t("referee.tracker.tossWinnerResult", {
+          defaultValue: `Kết quả: Đội ${winnerName} thắng tung đồng xu!`,
+          name: winnerName,
+        })
+      )
       setIsFlipping(false)
     }, 1200)
   }
@@ -49,7 +72,12 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
   const handleManualToss = (winner: "A" | "B") => {
     setTossWinner(winner)
     const winnerName = winner === "A" ? teamAName : teamBName
-    setFlipResultText(`Đội ${winnerName} thắng tung đồng xu!`)
+    setFlipResultText(
+      t("referee.tracker.tossWinnerManual", {
+        defaultValue: `Đội ${winnerName} thắng tung đồng xu!`,
+        name: winnerName,
+      })
+    )
     setTossChoice(null)
   }
 
@@ -72,22 +100,35 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
     setIsStarting(true)
     try {
       const res = await startMatchAction(matchId, {
-        firstServingPlayerId: firstServingPlayerId || undefined,
+        firstServingPlayerId: firstServingPlayerId,
       })
 
       if (res.success) {
-        toast.success("Khởi động trận đấu thành công!")
+        toast.success(
+          t("referee.tracker.startMatchSuccess", {
+            defaultValue: "Khởi động trận đấu thành công!",
+          })
+        )
         setMatchStatus("LIVE")
         setServingTeam(startingTeam)
         const doubles = useScoreStore.getState().isDoubles
         setServerNumber(doubles ? 2 : 1)
         setActiveServer(startingTeam === "A" ? "A1" : "B1")
       } else {
-        toast.error(res.error || "Không thể khởi động trận đấu")
+        toast.error(
+          res.error ||
+            t("referee.tracker.startMatchError", {
+              defaultValue: "Không thể khởi động trận đấu",
+            })
+        )
       }
     } catch (err) {
       console.error("Failed to start match:", err)
-      toast.error("Lỗi kết nối khi khởi động trận đấu")
+      toast.error(
+        t("referee.tracker.startMatchConnectionError", {
+          defaultValue: "Lỗi kết nối khi khởi động trận đấu",
+        })
+      )
     } finally {
       setIsStarting(false)
     }
@@ -118,6 +159,72 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
         </p>
       </div>
 
+      {/* Set Settings Configuration */}
+      <div className="border-gray-150 grid gap-4 rounded-xl border bg-gray-50/40 p-4 sm:grid-cols-2 dark:border-zinc-800 dark:bg-zinc-950/20">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-black tracking-wider text-muted-foreground uppercase">
+            {tScore("config.setsToWin", {
+              defaultValue: "Số set thắng để thắng trận",
+            })}
+          </label>
+          <Select
+            value={String(setsToWin)}
+            onValueChange={(val) => setSetsToWin(Number(val))}
+          >
+            <SelectTrigger className="h-10 border-gray-200 bg-white text-xs font-bold dark:border-zinc-800 dark:bg-zinc-900">
+              <SelectValue placeholder="2" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">
+                {tScore("config.bo1", { defaultValue: "1 set (BO1)" })}
+              </SelectItem>
+              <SelectItem value="2">
+                {tScore("config.bo3", { defaultValue: "Thắng 2 set (BO3)" })}
+              </SelectItem>
+              <SelectItem value="3">
+                {tScore("config.bo5", { defaultValue: "Thắng 3 set (BO5)" })}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-black tracking-wider text-muted-foreground uppercase">
+            {tScore("config.goalScore", {
+              defaultValue: "Điểm mục tiêu mỗi set",
+            })}
+          </label>
+          <Select
+            value={String(gameTarget)}
+            onValueChange={(val) => setGameTarget(Number(val))}
+          >
+            <SelectTrigger className="h-10 border-gray-200 bg-white text-xs font-bold dark:border-zinc-800 dark:bg-zinc-900">
+              <SelectValue placeholder="11" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="11">
+                {tScore("config.points", {
+                  defaultValue: "11 điểm",
+                  count: 11,
+                })}
+              </SelectItem>
+              <SelectItem value="15">
+                {tScore("config.points", {
+                  defaultValue: "15 điểm",
+                  count: 15,
+                })}
+              </SelectItem>
+              <SelectItem value="21">
+                {tScore("config.points", {
+                  defaultValue: "21 điểm",
+                  count: 21,
+                })}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2">
         {/* Toss Method */}
         <div className="flex flex-col justify-between gap-4 rounded-xl border border-dashed border-gray-200 bg-gray-50/50 p-4 dark:border-zinc-800 dark:bg-zinc-950/20">
@@ -143,7 +250,9 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
               disabled={isFlipping}
               className="h-9 w-full bg-emerald-600 text-xs font-bold text-white hover:bg-emerald-700"
             >
-              {isFlipping ? "🪙 Đang tung..." : "🪙 Tung đồng xu ngẫu nhiên"}
+              {isFlipping
+                ? `🪙 ${t("referee.tracker.tossFlipping", { defaultValue: "Đang tung..." })}`
+                : `🪙 ${t("referee.tracker.tossRandom", { defaultValue: "Tung đồng xu ngẫu nhiên" })}`}
             </Button>
 
             <div className="flex gap-2">
@@ -153,7 +262,11 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
                 onClick={() => handleManualToss("A")}
                 className="h-9 flex-1 text-xs font-semibold"
               >
-                🏆 Đội A thắng
+                🏆{" "}
+                {t("referee.tracker.teamWonToss", {
+                  team: "A",
+                  defaultValue: "Đội A thắng",
+                })}
               </Button>
               <Button
                 type="button"
@@ -161,7 +274,11 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
                 onClick={() => handleManualToss("B")}
                 className="h-9 flex-1 text-xs font-semibold"
               >
-                🏆 Đội B thắng
+                🏆{" "}
+                {t("referee.tracker.teamWonToss", {
+                  team: "B",
+                  defaultValue: "Đội B thắng",
+                })}
               </Button>
             </div>
           </div>
@@ -189,11 +306,20 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
               onClick={() => {
                 setTossWinner("A")
                 setTossChoice("serve")
-                setFlipResultText("Chỉ định Đội A giao bóng trước.")
+                setFlipResultText(
+                  t("referee.tracker.teamServeFirst", {
+                    team: "A",
+                    defaultValue: "Chỉ định Đội A giao bóng trước.",
+                  })
+                )
               }}
               className="h-9 flex-1 border border-blue-200 bg-blue-50 text-xs font-bold text-blue-800 hover:bg-blue-100 dark:border-blue-900/50 dark:bg-blue-950/20 dark:text-blue-300"
             >
-              🎾 Đội A giao trước
+              🎾{" "}
+              {t("referee.tracker.teamServeFirst", {
+                team: "A",
+                defaultValue: "Đội A giao trước",
+              })}
             </Button>
             <Button
               type="button"
@@ -201,11 +327,20 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
               onClick={() => {
                 setTossWinner("B")
                 setTossChoice("serve")
-                setFlipResultText("Chỉ định Đội B giao bóng trước.")
+                setFlipResultText(
+                  t("referee.tracker.teamServeFirst", {
+                    team: "B",
+                    defaultValue: "Chỉ định Đội B giao bóng trước.",
+                  })
+                )
               }}
               className="h-9 flex-1 border border-emerald-200 bg-emerald-50 text-xs font-bold text-emerald-800 hover:bg-emerald-100 dark:border-emerald-900/50 dark:bg-emerald-950/20 dark:text-emerald-300"
             >
-              🎾 Đội B giao trước
+              🎾{" "}
+              {t("referee.tracker.teamServeFirst", {
+                team: "B",
+                defaultValue: "Đội B giao trước",
+              })}
             </Button>
           </div>
         </div>
@@ -226,7 +361,9 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
                 onClick={() => setTossChoice("serve")}
                 className="bg-white text-xs font-bold"
               >
-                🎾 Giao bóng trước (Serve)
+                {t("referee.tracker.tossServeChoice", {
+                  defaultValue: "🎾 Giao bóng trước (Serve)",
+                })}
               </Button>
               <Button
                 type="button"
@@ -234,14 +371,18 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
                 onClick={() => setTossChoice("receive")}
                 className="bg-white text-xs font-bold"
               >
-                🛡️ Nhận bóng trước (Receive)
+                {t("referee.tracker.tossReceiveChoice", {
+                  defaultValue: "🛡️ Nhận bóng trước (Receive)",
+                })}
               </Button>
             </div>
           )}
 
           {startingServingTeam && (
             <div className="mt-2 text-xs font-bold text-gray-800 dark:text-zinc-200">
-              👉 Đội giao bóng đầu tiên:{" "}
+              {t("referee.tracker.firstServingTeam", {
+                defaultValue: "👉 Đội giao bóng đầu tiên: ",
+              })}
               <span className="animate-pulse font-extrabold text-emerald-600 uppercase dark:text-emerald-400">
                 {startingServingTeam === "A" ? teamAName : teamBName}
               </span>
@@ -259,8 +400,12 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
           className="h-12 w-full rounded-xl bg-emerald-600 text-sm font-extrabold text-white shadow-md transition-all hover:bg-emerald-700 active:scale-[0.99] disabled:pointer-events-none disabled:opacity-50"
         >
           {isStarting
-            ? "ĐANG BẮT ĐẦU TRẬN ĐẤU..."
-            : "🚀 XÁC NHẬN & BẮT ĐẦU TRẬN ĐẤU"}
+            ? t("referee.tracker.startingMatch", {
+                defaultValue: "ĐANG BẮT ĐẦU TRẬN ĐẤU...",
+              })
+            : t("referee.tracker.confirmAndStartMatch", {
+                defaultValue: "🚀 XÁC NHẬN & BẮT ĐẦU TRẬN ĐẤU",
+              })}
         </Button>
       </div>
     </div>

@@ -85,6 +85,16 @@
     "saveBtn": "Save Info",
     "account": "Account",
     "accountDesc": "Basic information for your profile.",
+    "accountSettings": "Account Settings",
+    "accountSettingsDesc": "Manage linked accounts (Google, Facebook), change your password, or log out.",
+    "manageAccount": "Manage Account",
+    "back": "Back",
+    "accountPageDesc": "Configure security settings, change your password, and manage social account links.",
+    "changePasswordIntro": "Change your password regularly to enhance account security.",
+    "changePasswordDesc": "Enter your current password and new password to update account security.",
+    "cancel": "Cancel",
+    "logoutDesc": "Log out of your current session.",
+    "logoutBtn": "Log Out Account",
     "security": "Security",
     "securityDesc": "Update password or log out.",
     "changePassword": "Change Password",
@@ -94,6 +104,7 @@
     "linked": "Linked",
     "notLinked": "Not linked",
     "linkedAt": "Linked at {{date}}",
-    "noLinked": "No linked accounts yet."
+    "noLinked": "No linked accounts yet.",
+    "continueWithFacebook": "Continue with Facebook"
   }
 }

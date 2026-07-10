@@ -1,5 +1,6 @@
 "use client"
 
+import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 import { cn } from "@/lib/utils"
 
 import { TEAM_COLOR } from "../constants/team-constants"
@@ -20,31 +21,27 @@ export function CourtSlot({
   isServing,
   isReceiving = false,
 }: CourtSlotProps) {
+  const { t } = useTournamentTranslation()
   const teamColor = TEAM_COLOR[team]
 
   if (!playerName) {
     return <div className="min-w-30 p-4" />
   }
 
+  const badgeColor =
+    team === "A"
+      ? "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300"
+      : "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+
   return (
     <div
       data-team={team}
-      className={cn(
-        "group/player relative flex min-w-32 flex-col items-center gap-2 rounded-xl border border-transparent bg-white/95 p-3 shadow-sm ring-2 ring-transparent transition-all dark:bg-zinc-900/95",
-        isServing
-          ? "border-emerald-500 shadow-md ring-2 ring-emerald-500/20"
-          : null,
-        isReceiving ? "border-blue-500 shadow-md ring-2 ring-blue-500/20" : null
-      )}
+      className="group/player relative flex min-w-32 flex-col items-center gap-2 rounded-xl border border-transparent bg-white/95 p-3 shadow-sm ring-2 ring-transparent transition-all dark:bg-zinc-900/95"
     >
       <div
         className={cn(
           "flex size-10 items-center justify-center rounded-full text-sm font-bold shadow-xs",
-          isServing
-            ? "bg-emerald-600 text-white"
-            : isReceiving
-              ? "bg-blue-600 text-white"
-              : teamColor.chip
+          teamColor.chip
         )}
       >
         {label}
@@ -56,13 +53,23 @@ export function CourtSlot({
 
       <div className="mt-1 flex gap-1">
         {isServing && (
-          <span className="rounded-sm bg-emerald-100 px-1.5 py-0.5 text-[9px] font-extrabold tracking-wide text-emerald-800 uppercase dark:bg-emerald-950 dark:text-emerald-300">
-            Giao
+          <span
+            className={cn(
+              "rounded-sm px-1.5 py-0.5 text-[9px] font-extrabold tracking-wide uppercase",
+              badgeColor
+            )}
+          >
+            {t("referee.tracker.serving", { defaultValue: "Giao" })}
           </span>
         )}
         {isReceiving && (
-          <span className="rounded-sm bg-blue-100 px-1.5 py-0.5 text-[9px] font-extrabold tracking-wide text-blue-800 uppercase dark:bg-blue-950 dark:text-blue-300">
-            Nhận
+          <span
+            className={cn(
+              "rounded-sm px-1.5 py-0.5 text-[9px] font-extrabold tracking-wide uppercase",
+              badgeColor
+            )}
+          >
+            {t("referee.tracker.receiving", { defaultValue: "Nhận" })}
           </span>
         )}
       </div>

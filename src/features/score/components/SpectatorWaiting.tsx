@@ -10,13 +10,13 @@ export function SpectatorWaiting() {
       <div className="animate-pulse text-5xl">⏳</div>
       <h3 className="text-lg font-black tracking-widest text-neutral-600 uppercase dark:text-neutral-400">
         {t("referee.tracker.matchNotStarted", {
-          defaultValue: "Trận đấu chưa bắt đầu",
+          defaultValue: "Match not started",
         })}
       </h3>
       <p className="max-w-xs text-xs text-muted-foreground">
         {t("referee.tracker.matchNotStartedDesc", {
           defaultValue:
-            "Vui lòng chờ trọng tài chuẩn bị và bấm nút khởi động trận đấu tại sân.",
+            "Please wait for the referee to prepare and click the start match button at the court.",
         })}
       </p>
     </div>

@@ -1,0 +1,10 @@
+{
+  "config": {
+    "setsToWin": "Sets to win the match",
+    "goalScore": "Goal score per set",
+    "bo1": "1 set (BO1)",
+    "bo3": "Best of 3 (BO3)",
+    "bo5": "Best of 5 (BO5)",
+    "points": "{{count}} points"
+  }
+}
