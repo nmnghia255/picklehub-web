@@ -40,6 +40,10 @@
     "totalCredits": "Total Credits",
     "liveMock": "Live mock"
   },
+  "sportCenterCard": {
+    "coverAlt": "{{name}} cover image",
+    "logoAlt": "{{name}} logo"
+  },
   "empty": {
     "noCreditsTitle": "No credits found",
     "noCreditsDescription": "Credits generated from cancelled bookings will appear here.",
@@ -100,36 +104,427 @@
     "noCreditSelected": "No credit selected."
   },
   "status": {
-    "playSessions": "Play Sessions",
-    "addPlaySession": "Add Session",
-    "sessionTitle": "Session Title",
-    "sessionLabel": "Session",
-    "sessionTitlePlaceholder": "e.g., Morning Session - Courts 1 & 2",
-    "maxSlots": "Max Slots",
-    "status": "Status",
-    "privateEvent": "Private Event",
-    "autoApproveJoinRequests": "Auto-approve Join Requests",
-    "deleteSocial": "Delete Social",
-    "confirmDeleteSocial": "Are you sure you want to delete this social?",
-    "paymentCodePlaceholder": "e.g., Venmo code, reference number",
-    "paymentInstructionsPlaceholder": "e.g., Venmo @username or Cash at venue",
-    "validationEndAfterStart": "End time must be after start time.",
-    "addPlaySessionsHint": "Add play sessions to organize your social into specific time slots and courts.",
-    "createSuccess": "Social created successfully!",
-    "updateSuccess": "Social updated successfully!",
-    "save": "Save Social",
-    "create": "Create Social",
-    "update": "Update Social",
-    "ACTIVE": "Đang hoạt động",
-    "PARTIALLY_USED": "Đã dùng một phần",
-    "USED": "Đã dùng",
-    "EXPIRED": "Đã hết hạn"
+    "ACTIVE": "Active",
+    "PARTIALLY_USED": "Partially used",
+    "USED": "Used",
+    "EXPIRED": "Expired"
   },
   "reasons": {
-    "CUSTOMER_CANCELLED": "Khách hàng hủy",
-    "OWNER_CANCELLED": "Chủ sân hủy",
-    "WEATHER": "Thời tiết",
-    "MAINTENANCE": "Bảo trì",
-    "OTHER": "Khác"
+    "CUSTOMER_CANCELLED": "Cancelled by customer",
+    "OWNER_CANCELLED": "Cancelled by owner",
+    "WEATHER": "Weather",
+    "MAINTENANCE": "Maintenance",
+    "OTHER": "Other"
+  },
+  "common": {
+    "all": "All",
+    "back": "Back",
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "customer": "Customer",
+    "delete": "Delete",
+    "emailNotUpdated": "Email not updated",
+    "loading": "Loading...",
+    "no": "No",
+    "noNote": "No note",
+    "noReason": "No reason provided",
+    "notAvailable": "Unavailable",
+    "notUpdated": "Not updated",
+    "phoneNotUpdated": "Phone number not updated",
+    "reset": "Reset",
+    "search": "Search",
+    "yes": "Yes",
+    "active": "Active",
+    "inactive": "Inactive",
+    "next": "Next",
+    "previous": "Previous",
+    "noImage": "No image available",
+    "noReviews": "No reviews yet"
+  },
+  "bookingList": {
+    "filters": {
+      "title": "Filters",
+      "createdAtLabel": "Created date",
+      "datePlaceholder": "Choose a date",
+      "centerLabel": "Sport center",
+      "statusLabel": "Status",
+      "allStatuses": "All statuses",
+      "reset": "Reset"
+    },
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "cancelled": "Cancelled",
+      "completed": "Completed"
+    },
+    "card": {
+      "court": "Court",
+      "phone": "Phone number",
+      "timeRange": "Time slot",
+      "createdAt": "Created at",
+      "totalPrice": "Total amount",
+      "note": "Note",
+      "confirm": "Confirm",
+      "cancelBooking": "Cancel booking",
+      "noActions": "No management actions are available.",
+      "viewDetails": "View details",
+      "tapToViewDetails": "Tap to view the full booking information."
+    },
+    "dialog": {
+      "title": "Cancellation reason",
+      "description": "Please enter a cancellation reason.",
+      "placeholder": "Cancellation reason...",
+      "close": "Close",
+      "confirm": "Confirm cancellation"
+    },
+    "detail": {
+      "title": "Booking details",
+      "description": "Full information for this booking, including schedule, services, and products.",
+      "infoTitle": "Booking information",
+      "bookingCode": "Booking code",
+      "startTime": "Start time",
+      "bookingDate": "Booking date",
+      "note": "Note",
+      "customerTitle": "Customer information",
+      "customerName": "Name",
+      "customerPhone": "Phone number",
+      "paymentTitle": "Payment information",
+      "totalPrice": "Total amount",
+      "remainingBalance": "Remaining balance",
+      "appliedCredit": "Applied credit",
+      "createdAt": "Created at",
+      "paymentProof": "Payment proof",
+      "paymentProofAlt": "Payment proof image",
+      "notPaid": "Not paid",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "close": "Close",
+      "scheduleTitle": "Schedule and services",
+      "courtsTitle": "Courts",
+      "noCourts": "No court has been recorded.",
+      "servicesTitle": "Services and products",
+      "services": "Services",
+      "service": "Service",
+      "products": "Products",
+      "product": "Product",
+      "quantity": "Quantity",
+      "unitPrice": "Unit price",
+      "noServices": "No services.",
+      "noProducts": "No products.",
+      "summaryTitle": "Booking summary",
+      "totalCourtPrice": "Court total",
+      "totalServicePrice": "Service total",
+      "totalProductPrice": "Product total",
+      "totalTimeSlots": "Time slots",
+      "cancellationTitle": "Cancellation details",
+      "cancelledAt": "Cancelled at",
+      "cancelReason": "Cancellation reason",
+      "payment": "Payment",
+      "paymentProofUploadedAt": "Payment proof uploaded at"
+    },
+    "errors": {
+      "loadFailed": "Failed to load bookings.",
+      "confirmFailed": "Failed to confirm booking",
+      "cancelFailed": "Failed to cancel booking"
+    }
+  },
+  "customer": {
+    "detail": {
+      "page": {
+        "badge": "Customer details",
+        "loading": "Loading customer",
+        "subtitle": "A dedicated customer overview for quick access to profile, statistics, and recent activity.",
+        "notFoundTitle": "Customer not found",
+        "notFoundDescription": "The customer ID is missing or invalid in the URL.",
+        "loadErrorTitle": "Could not load customer details",
+        "loadError": "Could not load customer details.",
+        "retry": "Try again"
+      },
+      "basicInfoTitle": "Basic information",
+      "fullName": "Full name",
+      "phoneNumber": "Phone number",
+      "cancelledRefundAmount": "Cancelled refund credit",
+      "recentBookingsTitle": "Recent booking history",
+      "noRecentBookings": "No recent bookings.",
+      "appliedCredit": "Applied credit",
+      "remainingBalance": "Remaining balance",
+      "byCenterTitle": "By center",
+      "noCenterStats": "No center statistics yet.",
+      "centerCode": "Center code",
+      "visitCount": "{{count}} visits",
+      "spend": "Spend",
+      "creditBalance": "Credit balance",
+      "lastVisit": "Last visit",
+      "firstVisit": "First visit",
+      "visitCountLabel": "Visit count",
+      "stats": {
+        "totalCustomers": "Total customers",
+        "visibleCustomers": "Showing {{count}} customers",
+        "visits": "Visits",
+        "currentPageVisits": "On the current page",
+        "totalSpend": "Total spend",
+        "totalSpendDescription": "Across the visible customers",
+        "creditBalance": "Credit balance",
+        "creditBalanceDescription": "On the current page"
+      },
+      "selector": {
+        "allCenters": "All centers",
+        "loadingCenters": "Loading centers...",
+        "noCenters": "No centers available"
+      }
+    }
+  },
+  "courts": {
+    "page": {
+      "badge": "Court management",
+      "title": "Courts schedule",
+      "subtitle": "Manage court bookings, quick reservations, and the daily schedule."
+    },
+    "filters": {
+      "title": "Filters",
+      "datePlaceholder": "Choose a date",
+      "allCourts": "All courts",
+      "selectedCourt": "Choose a court",
+      "loadingCenters": "Loading centers...",
+      "noCourts": "No courts available",
+      "legendBooked": "Booked",
+      "legendPending": "Pending",
+      "legendAvailable": "Available",
+      "legendCancelled": "Cancelled"
+    },
+    "quickBooking": {
+      "title": "Quick booking",
+      "courtTime": "at",
+      "playerName": "Player name",
+      "phone": "Phone number",
+      "note": "Note",
+      "playerNamePlaceholder": "Enter player name",
+      "phonePlaceholder": "Enter phone number",
+      "notePlaceholder": "Enter a note for this court booking",
+      "cancel": "Cancel",
+      "confirm": "Confirm booking",
+      "errorCreateBooking": "Could not create the booking."
+    },
+    "selector": {
+      "selectedCenter": "Select a center",
+      "loadingCenters": "Loading...",
+      "noCenters": "No centers available"
+    },
+    "noCenterSelected": "Select a center you manage to view the schedule and bookings.",
+    "detail": {
+      "title": "Booking details",
+      "timeAt": "at",
+      "playerName": "Player name",
+      "contact": "Contact",
+      "noPhone": "No phone number available",
+      "noCourtName": "No court name",
+      "status": "Status",
+      "rebook": "Book new player",
+      "cancelConfirmTitle": "Confirm cancellation",
+      "cancelConfirmDescription": "Are you sure you want to cancel this court booking?"
+    }
+  },
+  "revenue": {
+    "filters": {
+      "title": "Filters",
+      "7d": "7 days",
+      "30d": "30 days",
+      "this-month": "This month",
+      "reset": "Reset",
+      "fromDate": "From date",
+      "toDate": "To date",
+      "center": "Sport center",
+      "allCenters": "All centers",
+      "singleCenter": "1 center",
+      "multipleCenters": "{{count}} centers",
+      "noCenters": "No centers available",
+      "noAddress": "No address",
+      "multiCenterNote": "Filtering is limited to one center, but the page shows the combined total.",
+      "status": "Status",
+      "method": "Method",
+      "show": "Show",
+      "limitPlaceholder": "20",
+      "limit20": "20 rows",
+      "limit50": "50 rows",
+      "limit100": "100 rows"
+    },
+    "status": {
+      "pendingReview": "Pending review",
+      "settled": "Settled",
+      "rejected": "Rejected",
+      "voided": "Voided"
+    },
+    "method": {
+      "bankTransfer": "Bank transfer",
+      "cash": "Cash"
+    },
+    "summary": {
+      "settledRevenue": "Settled revenue",
+      "pendingRevenue": "Pending revenue",
+      "settledTransactions": "Settled transactions",
+      "pendingTransactions": "Pending transactions"
+    },
+    "empty": {
+      "summary": "No revenue summary data.",
+      "cancellations": "No cancellation/refund data.",
+      "transactions": "No matching transactions.",
+      "dailyChart": "No revenue chart data."
+    },
+    "page": {
+      "badge": "Revenue report",
+      "title": "Revenue",
+      "subtitle": "Track revenue, transactions, and cancellation/refund rates over time.",
+      "refresh": "Refresh",
+      "exportCsv": "Export CSV",
+      "exporting": "Exporting..."
+    },
+    "toast": {
+      "errorTitle": "Could not load revenue report",
+      "errorDescription": "Could not load revenue data.",
+      "exportErrorTitle": "Could not export CSV",
+      "exportErrorDescription": "The temporary CSV is not ready yet or was rate limited.",
+      "successTitle": "CSV report created",
+      "successDescription": "The file is downloading in your browser."
+    },
+    "tabs": {
+      "summary": "Summary",
+      "transactions": "Transactions",
+      "cancellations": "Cancellations / Refunds"
+    },
+    "cancellations": {
+      "cancelledBookings": "Cancelled bookings",
+      "cancelledRevenue": "Cancelled revenue",
+      "refundedCredit": "Refunded credit"
+    },
+    "dailyChart": {
+      "title": "Daily revenue chart",
+      "grossRevenue": "Gross revenue for this period",
+      "settledRevenue": "Settled revenue"
+    },
+    "transactions": {
+      "id": "Transaction ID",
+      "center": "Center",
+      "paidAt": "Payment date",
+      "status": "Status",
+      "total": "Total amount",
+      "fee": "Fee",
+      "showing": "Showing {{start}}-{{end}} / {{total}}"
+    }
+  },
+  "inventory": {
+    "page": {
+      "badge": "Inventory management",
+      "title": "Services & products",
+      "subtitle": "Manage services and products by sport center."
+    },
+    "center": {
+      "loading": "Loading...",
+      "noCenters": "No centers available",
+      "selected": "Select a center"
+    },
+    "toast": {
+      "deleteServiceSuccess": "Service deleted successfully.",
+      "deleteProductSuccess": "Product deleted successfully.",
+      "deleteServiceError": "Failed to delete service.",
+      "deleteProductError": "Failed to delete product.",
+      "loadError": "Could not load services and products.",
+      "createServiceError": "Failed to add service.",
+      "updateServiceError": "Failed to update service.",
+      "createProductError": "Failed to add product.",
+      "updateProductError": "Failed to update product."
+    },
+    "filters": {
+      "searchTitle": "Search",
+      "searchServicePlaceholder": "Search services",
+      "searchProductPlaceholder": "Search products",
+      "typeTitle": "Type",
+      "typeAll": "All types",
+      "statusTitle": "Status",
+      "statusAll": "All",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "createService": "Add service",
+      "createProduct": "Add product"
+    },
+    "form": {
+      "createServiceTitle": "Add service",
+      "createProductTitle": "Add product",
+      "editServiceTitle": "Edit service",
+      "editProductTitle": "Edit product",
+      "description": "Fill in the details below.",
+      "nameLabel": "Name",
+      "namePlaceholderService": "e.g. Racket stringing",
+      "namePlaceholderProduct": "e.g. Pocari Sweat 500ml",
+      "typeLabel": "Type",
+      "priceLabel": "Price (VND)",
+      "unitLabel": "Display unit",
+      "unitPlaceholderService": "e.g. VND / 3h",
+      "unitPlaceholderProduct": "e.g. VND / bottle",
+      "stockLabel": "Stock",
+      "stockPlaceholder": "e.g. 100",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Short description...",
+      "imageLabel": "Product image",
+      "imageHint": "PNG, JPEG, JPG ? up to 5MB",
+      "uploading": "Uploading...",
+      "uploadImage": "Upload image",
+      "activeTitle": "Active",
+      "activeDescription": "Turn off to hide or pause this item.",
+      "cancel": "Cancel",
+      "create": "Create",
+      "save": "Save changes",
+      "invalidImage": "Please choose an image file (png, jpeg, jpg).",
+      "imageTooLarge": "Image exceeds the 5MB limit.",
+      "uploadSuccess": "Image uploaded successfully.",
+      "uploadError": "Could not upload the image. Please try again.",
+      "nameRequired": "Please enter a name.",
+      "priceInvalid": "Price is invalid.",
+      "stockInvalid": "Stock is invalid.",
+      "createdService": "Service added successfully.",
+      "createdProduct": "Product added successfully.",
+      "updatedService": "Service updated successfully.",
+      "updatedProduct": "Product updated successfully."
+    },
+    "deleteDialog": {
+      "title": "Confirm deletion",
+      "description": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleting": "Deleting..."
+    },
+    "detail": {
+      "serviceDescription": "Service details",
+      "productDescription": "Product details",
+      "type": "Type",
+      "price": "Price",
+      "unit": "Unit",
+      "stock": "Stock",
+      "description": "Description",
+      "createdAt": "Created at",
+      "updatedAt": "Last updated",
+      "edit": "Edit",
+      "empty": "No item selected."
+    },
+    "table": {
+      "image": "Image",
+      "name": "Name",
+      "type": "Type",
+      "price": "Price",
+      "stock": "Stock",
+      "status": "Status",
+      "actions": "Actions",
+      "noProducts": "No products yet",
+      "noServices": "No services yet",
+      "emptyDescription": "No items match the current filters."
+    }
+  },
+  "servicesProducts": {
+    "page": {
+      "product": "Products",
+      "service": "Services",
+      "activeCount_one": "{{count}} active",
+      "activeCount_other": "{{count}} active"
+    }
   }
 }

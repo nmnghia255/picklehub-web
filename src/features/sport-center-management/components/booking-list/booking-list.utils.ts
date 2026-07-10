@@ -2,17 +2,6 @@ import type { Booking, BookingStatus } from "../../types/booking"
 
 export type BookingCreatedAtFilter = "all" | `${number}-${number}-${number}`
 
-export const bookingStatusOptions: Array<{
-  value: "all" | BookingStatus
-  label: string
-}> = [
-  { value: "all", label: "Tất cả trạng thái" },
-  { value: "PENDING", label: getBookingStatusLabel("PENDING") },
-  { value: "CONFIRMED", label: getBookingStatusLabel("CONFIRMED") },
-  { value: "CANCELLED", label: getBookingStatusLabel("CANCELLED") },
-  { value: "COMPLETED", label: getBookingStatusLabel("COMPLETED") },
-]
-
 function parseLocalDateTime(value: string | undefined | null): Date | null {
   if (!value) return null
 
@@ -83,29 +72,16 @@ export function formatCurrency(value?: number | null) {
 
 export function getBookingDisplayNote(booking: Booking) {
   const note = booking.note?.trim() ?? ""
-  if (!note) {
-    return "Không có ghi chú"
-  }
+  if (!note) return ""
 
   const prefix = `${booking.playerName} | `
   if (note.startsWith(prefix)) {
-    return note.slice(prefix.length).trim() || "Không có ghi chú"
+    return note.slice(prefix.length).trim()
   }
 
   return note
 }
 
 export function getBookingStatusLabel(status: BookingStatus | string) {
-  switch (status) {
-    case "PENDING":
-      return "Chờ xác nhận"
-    case "CONFIRMED":
-      return "Đã xác nhận"
-    case "CANCELLED":
-      return "Đã hủy"
-    case "COMPLETED":
-      return "Hoàn thành"
-    default:
-      return status
-  }
+  return status
 }

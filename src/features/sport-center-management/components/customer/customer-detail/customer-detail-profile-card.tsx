@@ -5,6 +5,7 @@ import { CalendarDays, UserRound } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import type { CustomerDetailResponse } from "@/features/sport-center-management/types/customer"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import { formatDateTimeLong } from "../customer.utils"
 
@@ -15,6 +16,7 @@ interface CustomerDetailProfileCardProps {
 export function CustomerDetailProfileCard({
   detail,
 }: CustomerDetailProfileCardProps) {
+  const { t } = useSportCenterManagementTranslation()
   const customer = detail.customer
 
   return (
@@ -23,7 +25,7 @@ export function CustomerDetailProfileCard({
         <Avatar className="size-16 shadow-sm ring-4 ring-background">
           <AvatarImage
             src={customer.avatarUrl ?? undefined}
-            alt={customer.name ?? "Customer"}
+            alt={customer.name ?? t("common.customer")}
           />
           <AvatarFallback className="bg-sky-100 text-base font-semibold text-sky-700">
             {getInitials(customer.name)}
@@ -35,16 +37,17 @@ export function CustomerDetailProfileCard({
             {customer.name}
           </p>
           <p className="truncate text-base text-muted-foreground">
-            {customer.email || "Chưa cập nhật email"}
+            {customer.email || t("common.emailNotUpdated")}
           </p>
           <div className="flex flex-wrap gap-2 pt-1 text-base text-muted-foreground">
             <span className="inline-flex items-center gap-1 rounded-full border bg-background/80 px-3 py-1 shadow-sm">
               <UserRound className="size-3.5 text-sky-500" />
-              {customer.phoneNumber || "Chưa cập nhật số điện thoại"}
+              {customer.phoneNumber || t("common.phoneNotUpdated")}
             </span>
             <span className="inline-flex items-center gap-1 rounded-full border bg-background/80 px-3 py-1 shadow-sm">
               <CalendarDays className="size-3.5 text-emerald-500" />
-              Lần đầu: {formatDateTimeLong(detail.summary.firstVisitAt)}
+              {t("customer.detail.firstVisit")}:{" "}
+              {formatDateTimeLong(detail.summary.firstVisitAt)}
             </span>
           </div>
         </div>

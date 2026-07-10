@@ -56,6 +56,9 @@
       "extensibleTitle": "Mô hình chi phí mở rộng:",
       "extensibleDescription": "Hiện tại chỉ có chi phí đặt sân, nhưng bố cục này có thể mở rộng cho các loại chi phí khác mà không cần thay đổi cấu trúc dashboard."
     },
+    "hero": {
+      "imageAlt": "Biểu tượng pickleball"
+    },
     "summary": {
       "totalExpense": "Tổng chi phí",
       "extraExpense": "Chi phí phát sinh",
@@ -97,7 +100,9 @@
       "onlyConfirmedPlayers": "Chỉ các người chơi đã xác nhận được dùng trong phép tính.",
       "calculate": "Tính toán",
       "costPerParticipant": "Chi phí mỗi người",
-      "equation": "{{total}} ÷ {{count}}"
+      "equation": "{{total}} ÷ {{count}}",
+      "extraExpense": "Chí pí phát sinh",
+      "extraExpenseDescription": "Các chi phí bổ sung như nước uống, bóng"
     },
     "tracking": {
       "title": "Theo dõi thanh toán của người tham gia",
@@ -141,6 +146,7 @@
       "creditPrefix": "Dư: ",
       "viewReceipt": "Xem hóa đơn",
       "paymentProof": "Minh chứng thanh toán",
+      "paymentProofDescription": "Hình ảnh minh chứng thanh toán bạn đã gửi",
       "viewFullImage": "Xem ảnh đầy đủ",
       "noReceiptImage": "Chưa tải lên ảnh minh chứng",
       "verifyPaymentDialog": {
@@ -208,7 +214,8 @@
       "collectionProgress": "Tiến độ thu tiền",
       "edit": "Chỉnh sửa thông tin thanh toán",
       "copied": "Đã sao chép",
-      "copyAccountNumber": "Sao chép số tài khoản"
+      "copyAccountNumber": "Sao chép số tài khoản",
+      "accountName": "Tên tài khoản"
     },
     "timeline": {
       "title": "Dòng thời gian tài chính",
@@ -300,6 +307,18 @@
       "confirm": "Xác nhận hoàn tiền",
       "success": "Đã xử lý hoàn tiền thành công",
       "error": "Không thể xử lý hoàn tiền"
+    },
+    "verifyPaymentDialog": {
+      "amountLabel": "Số tiền đã thanh toán (VND)",
+      "amountPlaceholder": "ví dụ: 50.000",
+      "approve": "Phê duyệt",
+      "cancel": "Hủy",
+      "description": "Xem lại biên lai thanh toán đã tải lên và cập nật trạng thái.",
+      "error": "Xác minh thanh toán thất bại",
+      "noReceipt": "Chưa tải lên ảnh biên lai",
+      "reject": "Từ chối",
+      "success": "Xác minh thanh toán thành công",
+      "title": "Xác minh thanh toán"
     }
   },
   "payment": {
@@ -309,6 +328,7 @@
     "joinedSessions": "Phiên đã tham gia",
     "uploadSuccessTitle": "Ảnh minh chứng đã được tải lên thành công",
     "uploadSuccessDescription": "Ảnh minh chứng thanh toán của bạn đã được gửi đến người tổ chức. Họ sẽ kiểm tra và xác nhận thanh toán của bạn.",
+    "submitError": "Không thể gửi minh chứng thanh toán.",
     "joinedSessionsDescription": "Danh sách các phiên bạn đã tham gia",
     "description": "Xem lại chi phí đặt sân, tính phần chia cho người tham gia, theo dõi thanh toán và giữ sự kiện luôn gọn gàng về tài chính.",
     "checkInfoBeforeConfirm": "Kiểm tra lại thông tin đặt sân, sau đó xác nhận để tạo booking.",
@@ -321,7 +341,12 @@
     "selectFile": "Chọn file ảnh",
     "clickToUpload": "Nhấp để tải lên",
     "clickToUploadDescription": "PNG, JPG hoặc JPEG dưới 5MB",
-    "tab": "Thanh toán"
+    "tab": "Thanh toán",
+    "uploadAnother": "Tải lên ảnh khác",
+    "statusConfirmed": "Đã thanh toán",
+    "statusPaidPendingConfirmation": "Đã thanh toán, chờ xác nhận",
+    "statusUnpaid": "Chưa thanh toán",
+    "previewAlt": "Ảnh xem trước minh chứng đã chọn"
   },
   "statistics": {
     "tab": "Thống kê",
@@ -458,7 +483,8 @@
       "successConfirm": "Xác nhận thành công!",
       "confirmError": "Đã xảy ra lỗi khi xác nhận. Vui lòng thử lại sau.",
       "incompleteWarningTitle": "Trận đấu chưa hoàn chỉnh",
-      "incompleteWarningDescription": "Có các trận đấu chưa hoàn tất ở Lượt trận: {{sessions}}. Bạn có chắc chắn muốn tiếp tục không?"
+      "incompleteWarningDescription": "Có các trận đấu chưa hoàn tất ở Lượt trận: {{sessions}}. Bạn có chắc chắn muốn tiếp tục không?",
+      "playerAlreadyInSession": "Cầu thủ này đã có trong phiên chơi hiện tại. Không thể thêm vào trận khác trong cùng phiên."
     },
     "controlPanel": {
       "title": "Cấu hình trận đấu",
@@ -516,6 +542,9 @@
       "matchesCount_one": "{{count}} trận",
       "matchesCount_other": "{{count}} trận",
       "noPlayers": "Chưa có người chơi để hiển thị thống kê."
+    },
+    "player": {
+      "removeAria": "Xóa {{name}}"
     }
   }
 }

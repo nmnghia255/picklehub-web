@@ -25,15 +25,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { BookingStatus } from "../../types/booking"
 import { SportCenterSelector } from "../courts-management/sport-center-selector"
 import type { BookingCreatedAtFilter } from "./booking-list.utils"
-import {
-  bookingStatusOptions,
-  formatBookingDate,
-  getBookingStatusLabel,
-} from "./booking-list.utils"
+import { formatBookingDate } from "./booking-list.utils"
 
 interface BookingFiltersProps {
   createdAtFilter: BookingCreatedAtFilter
@@ -50,22 +47,35 @@ export function BookingFilters({
   onStatusFilterChange,
   onResetFilters,
 }: BookingFiltersProps) {
+  const { t } = useSportCenterManagementTranslation()
   const createdAtInputId = "booking-created-at-filter"
   const [open, setOpen] = useState(false)
   const selectedDate =
     createdAtFilter === "all" ? undefined : new Date(createdAtFilter)
+  const bookingStatusOptions: Array<{
+    value: "all" | BookingStatus
+    label: string
+  }> = [
+    { value: "all", label: t("bookingList.filters.allStatuses") },
+    { value: "PENDING", label: t("bookingList.status.pending") },
+    { value: "CONFIRMED", label: t("bookingList.status.confirmed") },
+    { value: "CANCELLED", label: t("bookingList.status.cancelled") },
+    { value: "COMPLETED", label: t("bookingList.status.completed") },
+  ]
 
   return (
     <section className="space-y-4 rounded-3xl border bg-card/60 p-4 shadow-sm">
       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
         <Filter className="size-4" />
-        <span>Bộ lọc</span>
+        <span>{t("bookingList.filters.title")}</span>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-[minmax(200px,1.3fr)_auto_auto_auto]">
         {/* Date filter */}
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">Ngày tạo</p>
+          <p className="text-xs font-medium text-muted-foreground">
+            {t("bookingList.filters.createdAtLabel")}
+          </p>
           <DropdownMenu>
             <DropdownMenuTrigger asChild className="w-full">
               <Button variant="outline" className="flex items-center gap-2">
@@ -73,7 +83,7 @@ export function BookingFilters({
 
                 <span className="text-sm">
                   {createdAtFilter === "all"
-                    ? "Chọn ngày"
+                    ? t("bookingList.filters.datePlaceholder")
                     : formatBookingDate(createdAtFilter)}
                 </span>
 
@@ -105,7 +115,7 @@ export function BookingFilters({
                   size="sm"
                   onClick={() => onCreatedAtFilterChange("all")}
                 >
-                  Đặt lại
+                  {t("bookingList.filters.reset")}
                 </Button>
               </div>
             </DropdownMenuContent>
@@ -114,14 +124,16 @@ export function BookingFilters({
 
         {/* Sport center filter */}
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">Trung tâm</p>
+          <p className="text-xs font-medium text-muted-foreground">
+            {t("bookingList.filters.centerLabel")}
+          </p>
           <SportCenterSelector />
         </div>
 
         {/* Status filter */}
         <div className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground">
-            Trạng thái
+            {t("bookingList.filters.statusLabel")}
           </p>
 
           <DropdownMenu>
@@ -129,8 +141,8 @@ export function BookingFilters({
               <Button variant="outline" className="flex items-center gap-2">
                 <span>
                   {statusFilter === "all"
-                    ? "Tất cả trạng thái"
-                    : getBookingStatusLabel(statusFilter)}
+                    ? t("bookingList.filters.allStatuses")
+                    : t(`bookingList.status.${statusFilter.toLowerCase()}`)}
                 </span>
 
                 <ChevronDown className="h-4 w-4" />
@@ -145,9 +157,7 @@ export function BookingFilters({
                     onStatusFilterChange(option.value as "all" | BookingStatus)
                   }
                 >
-                  {option.value === "all"
-                    ? option.label
-                    : getBookingStatusLabel(option.value)}
+                  {option.label}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -158,7 +168,7 @@ export function BookingFilters({
         <div className="flex items-end gap-2">
           <Button variant="outline" onClick={onResetFilters}>
             <FilterX className="size-4" />
-            <span className="ml-2">Đặt lại</span>
+            <span className="ml-2">{t("bookingList.filters.reset")}</span>
           </Button>
         </div>
       </div>

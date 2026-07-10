@@ -88,24 +88,17 @@ export function EventSelectionDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CalendarDays className="h-5 w-5 text-emerald-600" />
-            {t("booking.eventDialog.title", {
-              defaultValue: "Select Event to Book Courts For",
-            })}
+            {t("booking.eventDialog.title")}
           </DialogTitle>
           <DialogDescription>
-            {t("booking.eventDialog.description", {
-              defaultValue:
-                "Choose the tournament event you are booking courts for. The booking page will show the minimum courts required based on the event participants.",
-            })}
+            {t("booking.eventDialog.description")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3 py-2" ref={eventContainerRef}>
           <div className="space-y-2">
             <Label className="mb-3">
-              {t("booking.eventDialog.eventLabel", {
-                defaultValue: "Tournament Event",
-              })}
+              {t("booking.eventDialog.eventLabel")}
             </Label>
             <Combobox
               disabled={isGeneralBooking}
@@ -121,9 +114,7 @@ export function EventSelectionDialog({
             >
               <ComboboxInput
                 disabled={isGeneralBooking}
-                placeholder={t("booking.eventDialog.selectPlaceholder", {
-                  defaultValue: "Search and select an event...",
-                })}
+                placeholder={t("booking.eventDialog.selectPlaceholder")}
                 className="mt-1.5 w-full bg-white"
                 showClear
               />
@@ -132,15 +123,9 @@ export function EventSelectionDialog({
                   {filteredEvents.length === 0 ? (
                     <ComboboxEmpty className="p-4 text-center text-xs text-gray-500">
                       {events.length === 0
-                        ? t("booking.eventDialog.noEvents", {
-                            defaultValue:
-                              "No events found for this tournament.",
-                          })
+                        ? t("booking.eventDialog.noEvents")
                         : events.every((ev) => ev.totalMatches == null)
-                          ? t("booking.eventDialog.noGroupStage", {
-                              defaultValue:
-                                "No events have a group stage set up yet. Please create a group stage first.",
-                            })
+                          ? t("booking.eventDialog.noGroupStage")
                           : t("booking.form.noMatchesFound")}
                     </ComboboxEmpty>
                   ) : (
@@ -176,9 +161,7 @@ export function EventSelectionDialog({
                               <span className="font-medium text-emerald-600">
                                 {!isExact && "~"}
                                 {totalMatches}{" "}
-                                {t("booking.eventDialog.matchesLabel", {
-                                  defaultValue: "matches",
-                                })}
+                                {t("booking.eventDialog.matchesLabel")}
                               </span>
                             </div>
                           </div>
@@ -207,10 +190,7 @@ export function EventSelectionDialog({
               htmlFor="general-booking"
               className="cursor-pointer text-xs font-semibold text-gray-700 select-none"
             >
-              {t("booking.eventDialog.generalBookingLabel", {
-                defaultValue:
-                  "Book without linking to a specific event (General / Additional booking)",
-              })}
+              {t("booking.eventDialog.generalBookingLabel")}
             </Label>
           </div>
 
@@ -221,11 +201,9 @@ export function EventSelectionDialog({
                 const participantCount = ev?.participants ?? 0
                 const totalMatches =
                   ev?.totalMatches ?? Math.max(0, participantCount - 1)
-                const isExact = ev?.totalMatches !== undefined
                 return (
                   <span>
                     {t("booking.eventDialog.requirementHint", {
-                      defaultValue: `You will need to book at least ${isExact ? "" : "~"}${totalMatches} court slot(s) to cover all matches in this event.`,
                       count: totalMatches,
                     })}
                   </span>
@@ -244,9 +222,7 @@ export function EventSelectionDialog({
             disabled={!isGeneralBooking && !selectedEventId}
             className="bg-emerald-600 text-white hover:bg-emerald-700"
           >
-            {t("booking.eventDialog.confirmBtn", {
-              defaultValue: "Continue to Booking",
-            })}
+            {t("booking.eventDialog.confirmBtn")}
           </Button>
         </DialogFooter>
       </DialogContent>

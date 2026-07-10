@@ -78,19 +78,16 @@ export default function BookingSummaryFooter() {
             <span>
               {t("booking.page.eventContext", {
                 name: selectedEvent.name,
-                defaultValue: `Event: ${selectedEvent.name}`,
               })}{" "}
               —{" "}
               {t("booking.page.matchRequirement", {
                 count: totalMatchesRequired,
-                defaultValue: `Minimum ${totalMatchesRequired} court slot(s) required for all matches`,
               })}
               {!hasEnoughSlots && (
                 <span className="ml-1 font-semibold">
                   (
                   {t("booking.page.slotsRemaining", {
                     count: totalMatchesRequired - totalSlotsCount,
-                    defaultValue: `${totalMatchesRequired - totalSlotsCount} more needed`,
                   })}
                   )
                 </span>
@@ -109,10 +106,7 @@ export default function BookingSummaryFooter() {
             </span>
             <span className="mx-2 text-gray-300">|</span>
             <span className="font-bold text-emerald-600">
-              {t("booking.page.slotsCount", {
-                count: totalSlotsCount,
-                defaultValue: `${totalSlotsCount} slots`,
-              })}
+              {t("booking.page.slotsCount", { count: totalSlotsCount })}
             </span>
           </div>
 
@@ -124,7 +118,7 @@ export default function BookingSummaryFooter() {
                 className="h-7 px-2 text-sm font-bold text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
                 disabled={totalSlotsCount === 0}
               >
-                {t("booking.page.details", { defaultValue: "Details" })}
+                {t("booking.page.details")}
               </Button>
             </PopoverTrigger>
             <PopoverContent
@@ -134,9 +128,7 @@ export default function BookingSummaryFooter() {
               sideOffset={8}
             >
               <h4 className="mb-2 border-b pb-1.5 text-sm font-bold text-gray-800">
-                {t("booking.page.selectedSlotsHeader", {
-                  defaultValue: "Selected Slots",
-                })}
+                {t("booking.page.selectedSlotsHeader")}
               </h4>
               <div className="max-h-56 space-y-3 overflow-y-auto pr-1 text-xs">
                 {dateEntries.map(({ dateKey, courts }) => (
@@ -150,7 +142,7 @@ export default function BookingSummaryFooter() {
                           courtAvailability?.courts.find(
                             (c) => c.courtId === courtId
                           )?.courtName ||
-                          `${t("booking.grid.courtHeader", { defaultValue: "Court" })} ${courtId}`
+                          `${t("booking.grid.courtHeader")} ${courtId}`
                         return (
                           <div
                             key={courtId}
@@ -177,7 +169,7 @@ export default function BookingSummaryFooter() {
         <div className="flex shrink-0 items-center gap-6">
           <div className="text-right">
             <p className="text-sm font-medium text-gray-500">
-              {t("booking.page.totalPrice", { defaultValue: "Total Price" })}
+              {t("booking.page.totalPrice")}
             </p>
             <p className="text-base font-extrabold text-emerald-700">
               {totalPrice.toLocaleString()} VND
@@ -191,12 +183,12 @@ export default function BookingSummaryFooter() {
             title={
               !hasEnoughSlots
                 ? t("booking.page.notEnoughSlotsTooltip", {
-                    defaultValue: `Select at least ${totalMatchesRequired} slots to book`,
+                    count: totalMatchesRequired,
                   })
                 : undefined
             }
           >
-            {t("booking.page.confirmBtn", { defaultValue: "Book Slots" })}
+            {t("booking.page.confirmBtn")}
           </Button>
         </div>
       </div>

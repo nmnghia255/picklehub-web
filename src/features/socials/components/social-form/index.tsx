@@ -214,11 +214,7 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
       }
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : t("form.submitError", {
-              defaultValue: "Failed to save social event.",
-            })
+        error instanceof Error ? error.message : t("form.submitError")
       )
     } finally {
       setIsSubmitting(false)
@@ -234,11 +230,7 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
         router.push("/socials/me")
       } catch (error) {
         toast.error(
-          error instanceof Error
-            ? error.message
-            : t("form.deleteError", {
-                defaultValue: "Failed to delete social event.",
-              })
+          error instanceof Error ? error.message : t("form.deleteError")
         )
       } finally {
         setIsSubmitting(false)

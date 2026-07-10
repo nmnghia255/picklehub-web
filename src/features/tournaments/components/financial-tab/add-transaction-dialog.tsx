@@ -237,7 +237,7 @@ export function AddTransactionDialog({
                 type="text"
                 value={amountStr}
                 onChange={(e) => handleAmountChange(e.target.value)}
-                placeholder="0"
+                placeholder={t("financials.transactions.amountPlaceholder")}
                 className="pr-12 text-left font-medium"
                 disabled={isSubmitting}
               />

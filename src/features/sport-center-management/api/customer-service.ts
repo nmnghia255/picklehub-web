@@ -1,3 +1,6 @@
+import enManagement from "@/i18n/locales/en/sport-center-management.json"
+import viManagement from "@/i18n/locales/vi/sport-center-management.json"
+
 import type { CustomerListResponse } from "../types/customer"
 import type { CustomerDetailResponse } from "../types/customer"
 
@@ -17,6 +20,12 @@ type ListCustomersParams = {
   maxSpend?: number | null
   limit: number
   offset: number
+}
+
+function getManagementLocale() {
+  const language =
+    typeof navigator !== "undefined" ? (navigator.language ?? "") : ""
+  return language.toLowerCase().startsWith("vi") ? viManagement : enManagement
 }
 
 function normalizeListCustomersPayload(payload: unknown): CustomerListResponse {
@@ -152,13 +161,14 @@ export const CustomerService = {
       | { data?: unknown }
 
     if (!response.ok) {
+      const management = getManagementLocale()
       const message =
         payload &&
         typeof payload === "object" &&
         "message" in payload &&
         typeof (payload as ErrorPayload).message === "string"
           ? (payload as ErrorPayload).message
-          : "Không thể tải danh sách khách hàng"
+          : management.customer.detail.page.loadError
 
       throw new Error(message)
     }
@@ -181,13 +191,14 @@ export const CustomerService = {
       | { data?: unknown }
 
     if (!response.ok) {
+      const management = getManagementLocale()
       const message =
         payload &&
         typeof payload === "object" &&
         "message" in payload &&
         typeof (payload as ErrorPayload).message === "string"
           ? (payload as ErrorPayload).message
-          : "Không thể tải chi tiết khách hàng"
+          : management.customer.detail.page.loadError
 
       throw new Error(message)
     }

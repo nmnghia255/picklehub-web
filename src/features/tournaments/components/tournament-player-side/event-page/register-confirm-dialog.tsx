@@ -71,7 +71,12 @@ export function RegisterConfirmDialog({
           if (res.success && res.data) {
             setFriends(res.data)
           } else {
-            toast.error(res.error || "Failed to load friends list")
+            toast.error(
+              res.error ||
+                t("eventDetail.loadFriendsError", {
+                  defaultValue: "Failed to load friends list",
+                })
+            )
           }
           setIsLoadingFriends(false)
         })
@@ -87,7 +92,12 @@ export function RegisterConfirmDialog({
         if (res.success && res.data) {
           setPartnerProfile(res.data)
         } else {
-          toast.error(res.error || "Failed to load partner details")
+          toast.error(
+            res.error ||
+              t("eventDetail.loadPartnerError", {
+                defaultValue: "Failed to load partner details",
+              })
+          )
           setPartnerProfile(null)
         }
         setIsLoadingPartner(false)

@@ -1,4 +1,7 @@
-import i18n from "@/i18n/client"
+import { headers } from "next/headers"
+
+import enCommon from "@/i18n/locales/en/common.json"
+import viCommon from "@/i18n/locales/vi/common.json"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type { FriendUser } from "../types"
@@ -34,6 +37,11 @@ interface GlobalUserSearchApiItem {
 
 type UnknownPayload = unknown
 
+function getCommonLocale() {
+  const acceptLanguage = headers().get("accept-language") ?? ""
+  return acceptLanguage.toLowerCase().startsWith("vi") ? viCommon : enCommon
+}
+
 function createAvatarUrl(seed: string) {
   return `https://i.pravatar.cc/160?u=${encodeURIComponent(seed)}`
 }
@@ -47,6 +55,7 @@ function toDisplayName(name: string | null | undefined, email: string) {
 }
 
 function mapSearchUser(item: GlobalUserSearchApiItem): FriendUser {
+  const common = getCommonLocale()
   const displayName = toDisplayName(item.name, item.email)
 
   return {
@@ -55,15 +64,16 @@ function mapSearchUser(item: GlobalUserSearchApiItem): FriendUser {
     fullName: displayName,
     avatarUrl: createAvatarUrl(item.id),
     bio: item.isFriend
-      ? i18n.t("friends.service.friendBio")
-      : i18n.t("friends.service.userBio"),
+      ? common.friends.service.friendBio
+      : common.friends.service.userBio,
     level: "Beginner",
-    location: i18n.t("friends.service.location"),
+    location: common.friends.service.location,
     mutualFriends: item.mutualFriendsCount,
   }
 }
 
 function mapFriendship(item: FriendshipApiItem): FriendUser {
+  const common = getCommonLocale()
   const email = item.friend?.email ?? `${item.friendId}@unknown.local`
   const displayName = toDisplayName(item.friend?.name, email)
 
@@ -72,12 +82,12 @@ function mapFriendship(item: FriendshipApiItem): FriendUser {
     username: getUsernameFromEmail(email),
     fullName: displayName,
     avatarUrl: createAvatarUrl(item.friendId),
-    bio: i18n.t("friends.service.friendBio"),
+    bio: common.friends.service.friendBio,
     level: "Intermediate",
-    location: i18n.t("friends.service.location"),
+    location: common.friends.service.location,
     mutualFriends: item.mutualFriendsCount,
     becameFriendAt: item.createdAt,
-    friendshipSinceLabel: i18n.t("friends.service.loading"),
+    friendshipSinceLabel: common.friends.service.loading,
   }
 }
 
@@ -85,6 +95,7 @@ function mapRequest(
   item: FriendRequestApiItem,
   direction: "sent" | "received"
 ): FriendUser {
+  const common = getCommonLocale()
   const counterpart = direction === "sent" ? item.receiver : item.sender
   const counterpartId = direction === "sent" ? item.receiverId : item.senderId
   const email = counterpart?.email ?? `${counterpartId}@unknown.local`
@@ -98,13 +109,13 @@ function mapRequest(
     avatarUrl: createAvatarUrl(counterpartId),
     bio:
       direction === "sent"
-        ? i18n.t("friends.service.requestSentBio")
-        : i18n.t("friends.service.requestReceivedBio"),
+        ? common.friends.service.requestSentBio
+        : common.friends.service.requestReceivedBio,
     level: "Beginner",
-    location: i18n.t("friends.service.location"),
+    location: common.friends.service.location,
     mutualFriends: item.mutualFriendsCount,
     invitedAt: item.createdAt,
-    inviteSource: i18n.t("friends.service.inviteSource"),
+    inviteSource: common.friends.service.inviteSource,
   }
 }
 

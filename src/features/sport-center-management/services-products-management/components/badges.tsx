@@ -1,12 +1,14 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 import { cn } from "@/lib/utils"
 
 import type { InventoryKind } from "../store/services-products-store"
 import { getProductTypeLabel, getServiceTypeLabel } from "../types"
 
 export function ActiveBadge({ isActive }: { isActive: boolean }) {
+  const { t } = useSportCenterManagementTranslation()
   return (
     <Badge
       variant="outline"
@@ -16,7 +18,7 @@ export function ActiveBadge({ isActive }: { isActive: boolean }) {
           : "border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
       )}
     >
-      {isActive ? "Đang hoạt động" : "Tạm ngưng"}
+      {isActive ? t("common.active") : t("common.inactive")}
     </Badge>
   )
 }

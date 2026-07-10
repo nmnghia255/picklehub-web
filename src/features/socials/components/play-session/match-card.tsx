@@ -36,12 +36,12 @@ export default function MatchCard({
     setIsStarting(true)
     try {
       await startMatchAction(match.id)
-      toast.success(t("matches.startSuccess") || "Match started successfully!")
+      toast.success(t("matches.startSuccess"))
       router.refresh()
     } catch (error) {
       console.error("Error starting match:", error)
       const message = error instanceof Error ? error.message : ""
-      toast.error(message || t("matches.startError") || "Failed to start match")
+      toast.error(message || t("matches.startError"))
     } finally {
       setIsStarting(false)
     }

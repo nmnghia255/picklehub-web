@@ -1,10 +1,19 @@
 "use server"
 
+import { headers } from "next/headers"
+
 import type {
   FeedNotification,
   FeedNotificationType,
 } from "@/features/feed/types"
+import enCommon from "@/i18n/locales/en/common.json"
+import viCommon from "@/i18n/locales/vi/common.json"
 import { getAuthenticatedAxios } from "@/lib/server-api"
+
+function getCommonLocale() {
+  const acceptLanguage = headers().get("accept-language") ?? ""
+  return acceptLanguage.toLowerCase().startsWith("vi") ? viCommon : enCommon
+}
 
 /**
  * Fetch notifications for the current user from the backend notification service
@@ -12,6 +21,7 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
  */
 export async function fetchMyNotifications(): Promise<FeedNotification[]> {
   try {
+    const common = getCommonLocale()
     const axios = await getAuthenticatedAxios()
     const res = await axios.get("/api/notification")
 
@@ -51,9 +61,13 @@ export async function fetchMyNotifications(): Promise<FeedNotification[]> {
             | string
             | undefined,
           section,
-          title: (it["title"] ?? it["subject"] ?? "Notification") as string,
+          title: (it["title"] ??
+            it["subject"] ??
+            common.notifications.defaults.title) as string,
           description: (it["message"] ?? it["description"] ?? "") as string,
-          actor: (it["actorName"] ?? it["sender"] ?? "System") as string,
+          actor: (it["actorName"] ??
+            it["sender"] ??
+            common.notifications.defaults.actor) as string,
           timeLabel: new Date(
             (it["createdAt"] ?? it["sentAt"] ?? Date.now()) as string | number
           ).toLocaleString(),

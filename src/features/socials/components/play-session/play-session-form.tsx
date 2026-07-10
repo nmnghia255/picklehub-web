@@ -111,7 +111,9 @@ export function PlaySessionForm({
     return {
       value: b.id,
       label: `${b.center?.name || t("sessionForm.defaultCourt")} - ${new Date(b.date).toLocaleDateString(i18n.language === "vi" ? "vi-VN" : "en-US")}`,
-      description: t("sessionForm.timeLabel", { time: timeString || "—" }),
+      description: t("sessionForm.timeLabel", {
+        time: timeString || t("common.na"),
+      }),
     }
   })
 
@@ -337,7 +339,7 @@ export function PlaySessionForm({
                         <div className="relative flex items-center">
                           <Input
                             type="text"
-                            placeholder="0"
+                            placeholder={t("sessionForm.feePlaceholder")}
                             value={displayValue}
                             onChange={(e) => {
                               const rawValue = e.target.value.replace(/\D/g, "")
@@ -362,7 +364,11 @@ export function PlaySessionForm({
                   <FormItem>
                     <FormLabel>{t("sessionForm.maxSlotLabel")}</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="10" {...field} />
+                      <Input
+                        type="number"
+                        placeholder={t("sessionForm.maxSlotPlaceholder")}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

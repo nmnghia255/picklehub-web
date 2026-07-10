@@ -36,6 +36,12 @@
       "item2": "Kéo thả các đội để điều chỉnh thứ tự thủ công",
       "item3": "Khóa từng hạt giống để tránh thay đổi khi tự động xếp",
       "item4": "Nhấn \"Khóa hạt giống\" khi hoàn tất để ngăn chặn sửa đổi"
+    },
+    "errors": {
+      "loadFailed": "Tải dữ liệu hạt giống thất bại",
+      "generateFailed": "Tạo hạt giống thất bại",
+      "lockFailed": "Khóa hạt giống thất bại",
+      "reorderFailed": "Lưu thứ tự hạt giống thất bại"
     }
   }
 }

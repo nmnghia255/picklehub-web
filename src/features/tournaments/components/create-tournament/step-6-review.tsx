@@ -267,7 +267,7 @@ export function Step6Review() {
               >
                 <Image
                   src={formValues.paymentQrUrl}
-                  alt="QR Code"
+                  alt={t("common.previewImageAlt")}
                   fill
                   sizes="128px"
                   className="object-contain"

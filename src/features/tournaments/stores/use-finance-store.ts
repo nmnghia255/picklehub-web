@@ -70,7 +70,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   deleteTransaction: async (transactionId) => {
     const { tournamentId } = get()
     if (!tournamentId) {
-      return { success: false, error: "Tournament ID not set" }
+      return { success: false, error: "" }
     }
 
     try {
@@ -92,22 +92,17 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         }
         return { success: true }
       }
-      return {
-        success: false,
-        error: res.error || "Failed to delete transaction",
-      }
+      return { success: false, error: res.error || "" }
     } catch (err: unknown) {
       console.error(err)
-      const errorMsg =
-        err instanceof Error ? err.message : "An error occurred while deleting"
-      return { success: false, error: errorMsg }
+      return { success: false, error: "" }
     }
   },
 
   exportReport: async (format) => {
     const { tournamentId } = get()
     if (!tournamentId) {
-      return { success: false, error: "Tournament ID not set" }
+      return { success: false, error: "" }
     }
 
     set({ isExporting: true })
@@ -116,12 +111,10 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       if (res.success && res.base64) {
         return { success: true, base64: res.base64 }
       }
-      return { success: false, error: res.error || "Failed to export report" }
+      return { success: false, error: res.error || "" }
     } catch (err: unknown) {
       console.error(err)
-      const errorMsg =
-        err instanceof Error ? err.message : "An error occurred while exporting"
-      return { success: false, error: errorMsg }
+      return { success: false, error: "" }
     } finally {
       set({ isExporting: false })
     }

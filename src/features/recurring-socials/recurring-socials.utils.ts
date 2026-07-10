@@ -1,34 +1,21 @@
-import type {
+﻿import type {
   DayOfWeek,
   RecurringSocialFormData,
   SchedulePreview,
 } from "./recurring-socials.types"
 
+type Translator = (key: string, options?: Record<string, unknown>) => string
+
 export function generateSchedulePreview(
-  formData: RecurringSocialFormData
+  formData: RecurringSocialFormData,
+  locale = "vi-VN"
 ): SchedulePreview[] {
   const schedules: SchedulePreview[] = []
   const startDate = new Date(formData.startDate)
   const endDate = new Date(formData.endDate)
-
-  const dayNames = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ]
-  const dayNamesVi = [
-    "Chủ nhật",
-    "Thứ 2",
-    "Thứ 3",
-    "Thứ 4",
-    "Thứ 5",
-    "Thứ 6",
-    "Thứ 7",
-  ]
+  const weekdayFormatter = new Intl.DateTimeFormat(locale, {
+    weekday: "long",
+  })
 
   if (formData.recurrenceType === "weekly" && formData.daysOfWeek) {
     const dayIndexMap: { [key in DayOfWeek]: number } = {
@@ -51,7 +38,7 @@ export function generateSchedulePreview(
       if (dayIndices.includes(dayIndex)) {
         schedules.push({
           date: formatDateISO(currentDate),
-          dayName: dayNamesVi[dayIndex],
+          dayName: weekdayFormatter.format(currentDate),
           startTime: formData.startTime,
           endTime: formData.endTime,
           courts: formData.selectedCourts.length,
@@ -66,7 +53,7 @@ export function generateSchedulePreview(
       if (currentDate.getDate() === formData.dayOfMonth) {
         schedules.push({
           date: formatDateISO(currentDate),
-          dayName: dayNamesVi[currentDate.getDay()],
+          dayName: weekdayFormatter.format(currentDate),
           startTime: formData.startTime,
           endTime: formData.endTime,
           courts: formData.selectedCourts.length,
@@ -85,7 +72,7 @@ export function generateSchedulePreview(
       ) {
         schedules.push({
           date: formatDateISO(currentDate),
-          dayName: dayNamesVi[currentDate.getDay()],
+          dayName: weekdayFormatter.format(currentDate),
           startTime: formData.startTime,
           endTime: formData.endTime,
           courts: formData.selectedCourts.length,
@@ -96,7 +83,7 @@ export function generateSchedulePreview(
     }
   }
 
-  return schedules.slice(0, 10) // Limit to first 10 for preview
+  return schedules.slice(0, 10)
 }
 
 export function formatDateISO(date: Date): string {
@@ -107,8 +94,15 @@ export function formatDateISO(date: Date): string {
 }
 
 export function formatDateDisplay(dateStr: string): string {
+  return formatDateDisplayWithLocale(dateStr, "vi-VN")
+}
+
+export function formatDateDisplayWithLocale(
+  dateStr: string,
+  locale: string
+): string {
   const date = new Date(dateStr)
-  return date.toLocaleDateString("vi-VN", {
+  return date.toLocaleDateString(locale, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -117,16 +111,29 @@ export function formatDateDisplay(dateStr: string): string {
 
 export function formatDateRangeDisplay(
   startDate: string,
-  endDate: string
+  endDate: string,
+  locale = "vi-VN"
 ): string {
-  return `${formatDateDisplay(startDate)} - ${formatDateDisplay(endDate)}`
+  return `${formatDateDisplayWithLocale(startDate, locale)} - ${formatDateDisplayWithLocale(endDate, locale)}`
 }
 
-export function getRecurrenceTypeLabel(type: string): string {
+export function getRecurrenceTypeLabel(type: string, t?: Translator): string {
+  if (t) {
+    const key =
+      type === "weekly"
+        ? "recurringSocials.form.recurrenceTypes.weekly"
+        : type === "monthly"
+          ? "recurringSocials.form.recurrenceTypes.monthly"
+          : type === "quarterly"
+            ? "recurringSocials.form.recurrenceTypes.quarterly"
+            : ""
+    return key ? t(key) : type
+  }
+
   const labels: { [key: string]: string } = {
-    weekly: "Hàng tuần",
-    monthly: "Hàng tháng",
-    quarterly: "Hàng quý",
+    weekly: "Weekly",
+    monthly: "Monthly",
+    quarterly: "Quarterly",
   }
   return labels[type] || type
 }
@@ -141,13 +148,33 @@ export function getStatusBadgeColor(status: string): string {
   return colors[status] || colors.expired
 }
 
-export function getStatusLabel(status: string): string {
+export function getStatusLabel(status: string, t?: Translator): string {
+  if (t) {
+    const key =
+      status === "active"
+        ? "recurringSocials.list.statuses.active"
+        : status === "paused"
+          ? "recurringSocials.list.statuses.paused"
+          : status === "expired"
+            ? "recurringSocials.list.statuses.expired"
+            : ""
+    return key ? t(key) : status
+  }
+
   const labels: { [key: string]: string } = {
-    active: "Đang hoạt động",
-    paused: "Tạm dừng",
-    expired: "Hết hạn",
+    active: "Active",
+    paused: "Paused",
+    expired: "Expired",
   }
   return labels[status] || status
+}
+
+export function getLocalizedText(
+  value: string,
+  t?: Translator,
+  key?: string
+): string {
+  return t && key ? t(key) : value
 }
 
 export function calculateTotalSchedules(schedules: SchedulePreview[]): number {
@@ -167,30 +194,71 @@ export function getRecurrenceDescription(
   type: string,
   daysOfWeek?: string[],
   dayOfMonth?: number,
-  monthPosition?: string
+  monthPosition?: string,
+  t?: Translator
 ): string {
   if (type === "weekly" && daysOfWeek) {
-    const dayLabels = daysOfWeek.map((d) => getDayLabel(d)).join(", ")
-    return `Mỗi ${dayLabels}`
+    const dayLabels = daysOfWeek.map((d) => getDayLabel(d, t)).join(", ")
+    return t
+      ? t("recurringSocials.utils.weeklyDescription", { days: dayLabels })
+      : `Every ${dayLabels}`
   }
   if (type === "monthly" && dayOfMonth) {
-    return `Ngày ${dayOfMonth} hàng tháng`
+    return t
+      ? t("recurringSocials.utils.monthlyDescription", { dayOfMonth })
+      : `Day ${dayOfMonth} each month`
   }
   if (type === "quarterly") {
-    return "Hàng quý"
+    return t
+      ? t("recurringSocials.form.recurrenceTypes.quarterly")
+      : "Quarterly"
   }
   return ""
 }
 
-function getDayLabel(day: string): string {
+function getDayLabel(day: string, t?: Translator): string {
+  if (t) {
+    return t(`recurringSocials.form.weekdays.${day}`)
+  }
+
   const labels: { [key: string]: string } = {
-    monday: "thứ 2",
-    tuesday: "thứ 3",
-    wednesday: "thứ 4",
-    thursday: "thứ 5",
-    friday: "thứ 6",
-    saturday: "thứ 7",
-    sunday: "chủ nhật",
+    monday: "Monday",
+    tuesday: "Tuesday",
+    wednesday: "Wednesday",
+    thursday: "Thursday",
+    friday: "Friday",
+    saturday: "Saturday",
+    sunday: "Sunday",
   }
   return labels[day] || day
+}
+
+export function getSocialTypeLabel(type: string, t?: Translator): string {
+  if (t) {
+    const key =
+      type === "beginner"
+        ? "recurringSocials.form.socialTypes.beginner"
+        : type === "intermediate"
+          ? "recurringSocials.form.socialTypes.intermediate"
+          : type === "advanced"
+            ? "recurringSocials.form.socialTypes.advanced"
+            : type === "competitive"
+              ? "recurringSocials.form.socialTypes.competitive"
+              : type === "league"
+                ? "recurringSocials.form.socialTypes.league"
+                : type === "social"
+                  ? "recurringSocials.form.socialTypes.social"
+                  : ""
+    return key ? t(key) : type
+  }
+
+  const labels: { [key: string]: string } = {
+    beginner: "Beginner",
+    intermediate: "Intermediate",
+    advanced: "Advanced",
+    competitive: "Competitive",
+    league: "League",
+    social: "Social",
+  }
+  return labels[type] || type
 }

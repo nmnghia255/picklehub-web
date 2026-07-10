@@ -6,9 +6,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { SportCenter } from "@/features/sport-center-management/types/sport-center"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
+  const { t } = useSportCenterManagementTranslation()
   const coverImage = sportCenter.images[0]
   const initials = sportCenter.name
     .split(" ")
@@ -17,11 +19,11 @@ export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
     .join("")
     .toUpperCase()
   const statusLabel =
-    sportCenter.status === "ACTIVE" ? "Đang hoạt động" : "Tạm ngưng"
+    sportCenter.status === "ACTIVE" ? t("common.active") : t("common.inactive")
   const ratingLabel =
     sportCenter.reviewCount > 0
       ? sportCenter.averageRating.toFixed(1)
-      : "Chưa có đánh giá"
+      : t("common.noReviews")
 
   return (
     <Link href={`/sport-center/${sportCenter.id}`}>
@@ -31,7 +33,7 @@ export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
             {coverImage ? (
               <FallbackImage
                 src={coverImage}
-                alt={`${sportCenter.name} cover`}
+                alt={t("sportCenterCard.coverAlt", { name: sportCenter.name })}
                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
             ) : (
@@ -40,7 +42,7 @@ export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
                   <Building2 className="size-7 text-primary" />
                 </div>
                 <span className="text-sm font-medium">
-                  Chưa có ảnh đại diện
+                  {t("common.noImage")}
                 </span>
               </div>
             )}
@@ -71,7 +73,7 @@ export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
               <Avatar size="lg" className="border">
                 <AvatarImage
                   src={coverImage}
-                  alt={`${sportCenter.name} logo`}
+                  alt={t("sportCenterCard.logoAlt", { name: sportCenter.name })}
                 />
                 <AvatarFallback>{initials}</AvatarFallback>
               </Avatar>

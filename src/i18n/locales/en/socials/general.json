@@ -18,6 +18,7 @@
     "clearFilters": "Clear Filters",
     "submitting": "Submitting...",
     "loading": "Loading...",
+    "confirm": "Confirm",
     "cancel": "Cancel",
     "proceed": "Proceed",
     "currency": "VND",
@@ -39,17 +40,22 @@
     "social": "Social",
     "tournament": "Tournament",
     "training": "Training",
-    "any": "Bất kỳ",
-    "mixed_only": "Nam & Nữ",
-    "minimumLevel": "Trình độ tối thiểu",
-    "maximumLevel": "Trình độ tối đa",
-    "hasAvailableSlots": "Chỗ trống",
-    "status": "Trạng thái",
-    "genderPolicy": "Giới tính",
-    "ageGroup": "Nhóm tuổi",
-    "format": "Hình thức",
-    "upcoming": "Sắp diễn ra",
-    "singles": "Đơn"
+    "any": "Any",
+    "mixed_only": "Mixed",
+    "minimumLevel": "Minimum skill level",
+    "maximumLevel": "Maximum skill level",
+    "hasAvailableSlots": "Available slots",
+    "status": "Status",
+    "genderPolicy": "Gender policy",
+    "ageGroup": "Age group",
+    "format": "Format",
+    "upcoming": "Upcoming",
+    "singles": "Singles",
+    "mixedOnly": "Mixed",
+    "history": "History",
+    "host": "Host",
+    "player": "Player",
+    "role": "Role"
   },
   "badges": {
     "hosting": "You're hosting",
@@ -85,6 +91,9 @@
     "available": "Available",
     "leaving": "Leaving...",
     "publishing": "Publishing...",
+    "noData": "No social details available.",
+    "completeError": "Failed to complete social",
+    "publishError": "Failed to publish social",
     "publishSocial": "Publish Event",
     "viewDetails": "View Details",
     "publishConfirmTitle": "Publish Event",
@@ -92,9 +101,251 @@
     "publishValidation": {
       "noSessions": "You must create at least one play session before publishing.",
       "noPayment": "Please set up payment information (Bank name, account name, account number) before publishing."
-    }
+    },
+    "completeSocial": "Complete social",
+    "completeSuccess": "Social completed successfully",
+    "completing": "Completing...",
+    "publishSuccess": "Social published successfully"
   },
   "hero": {
-    "privateEvent": "Private Event"
+    "privateEvent": "Private Event",
+    "imageAlt": "Pickleball"
+  },
+  "recurringSocials": {
+    "courts": {
+      "tanPhu1": "Court 1 - Tan Phu",
+      "tanPhu2": "Court 2 - Tan Phu",
+      "tanPhu3": "Court 3 - Tan Phu",
+      "quan7_1": "Court 1 - District 7",
+      "quan7_2": "Court 2 - District 7",
+      "bienHoa1": "Court 1 - Bien Hoa"
+    },
+    "page": {
+      "title": "Recurring Socials",
+      "subtitle": "Set up recurring social sessions for the club",
+      "tabs": {
+        "list": "List",
+        "create": "Create new"
+      },
+      "createTitle": "Create New Recurring Social",
+      "createDescription": "Fill in the details below to create a recurring social schedule"
+    },
+    "toast": {
+      "successTitle": "Success",
+      "created": "Created {{count}} recurring social sessions",
+      "paused": "{{action}} recurring social: {{name}}",
+      "deleted": "Deleted recurring social: {{name}}",
+      "infoTitle": "Notice",
+      "editSoon": "Editing will be available in the next release",
+      "viewDetails": "Type: {{type}} | Status: {{status}}",
+      "createFailed": "Failed to create recurring social. Please try again."
+    },
+    "list": {
+      "emptyTitle": "No recurring socials yet",
+      "emptyDescription": "Create a new recurring social to get started",
+      "title": "Recurring Socials",
+      "description": "Manage recurring socials you have created",
+      "searchPlaceholder": "Search by social name...",
+      "statusFilterPlaceholder": "Filter by status",
+      "foundCount": "Found {{count}} socials",
+      "statuses": {
+        "all": "All statuses",
+        "active": "Active",
+        "paused": "Paused",
+        "expired": "Expired"
+      },
+      "table": {
+        "name": "Social Name",
+        "recurrenceType": "Recurrence Type",
+        "time": "Time",
+        "courts": "Courts",
+        "capacity": "Capacity",
+        "status": "Status",
+        "createdAt": "Created At",
+        "actions": "Actions"
+      },
+      "actions": {
+        "view": "View details",
+        "edit": "Edit",
+        "pause": "Pause",
+        "activate": "Activate",
+        "delete": "Delete"
+      },
+      "searchEmpty": "No socials match your search"
+    },
+    "form": {
+      "basicInfoTitle": "Basic information",
+      "basicInfoDescription": "Enter the basic details for this recurring social",
+      "nameLabel": "Social name",
+      "namePlaceholder": "e.g. Saturday Morning Social",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe this session in detail...",
+      "socialTypeLabel": "Social type",
+      "socialTypePlaceholder": "Choose a social type",
+      "socialTypes": {
+        "beginner": "Beginner",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced",
+        "competitive": "Competitive",
+        "league": "League",
+        "social": "Social"
+      },
+      "skillLevelLabel": "Skill level",
+      "skillLevelPlaceholder": "Choose a skill level",
+      "skillLevels": {
+        "level_25": "2.5",
+        "level_30": "3.0",
+        "level_30_35": "3.0 - 3.5",
+        "level_35": "3.5",
+        "level_35_40": "3.5 - 4.0",
+        "level_40": "4.0",
+        "level_40_plus": "4.0+",
+        "mixed": "Mixed"
+      },
+      "timeTitle": "Play time",
+      "timeDescription": "Choose start and end times",
+      "startTimeLabel": "Start time",
+      "endTimeLabel": "End time",
+      "recurrenceTitle": "Recurrence type",
+      "recurrenceDescription": "Choose how often this social repeats",
+      "recurrenceLabel": "Recurring schedule",
+      "recurrencePlaceholder": "Choose recurrence type",
+      "recurrenceTypes": {
+        "weekly": "Weekly",
+        "monthly": "Monthly",
+        "quarterly": "Quarterly"
+      },
+      "weekdaysLabel": "Choose days of the week",
+      "weekdays": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+      },
+      "monthDayLabel": "Choose day of month",
+      "monthDayPlaceholder": "e.g. 15",
+      "monthDayDescription": "Enter a day number (1-31)",
+      "monthPositionLabel": "Or choose a position in the month",
+      "monthPositionPlaceholder": "e.g. first Saturday of the month",
+      "monthPositions": {
+        "first": "First",
+        "second": "Second",
+        "third": "Third",
+        "fourth": "Fourth",
+        "last": "Last"
+      },
+      "quarterLabel": "Choose quarter",
+      "quarterPlaceholder": "Choose a quarter",
+      "quarterDayLabel": "Quarter event day",
+      "quarterDayPlaceholder": "e.g. 20",
+      "quarterDayDescription": "Enter a day number (1-31)",
+      "quarters": {
+        "q1": "Q1 (Jan-Mar)",
+        "q2": "Q2 (Apr-Jun)",
+        "q3": "Q3 (Jul-Sep)",
+        "q4": "Q4 (Oct-Dec)"
+      },
+      "dateRangeTitle": "Effective period",
+      "dateRangeDescription": "Choose start and end dates",
+      "startDateLabel": "Start date",
+      "endDateLabel": "End date",
+      "courtsTitle": "Select courts",
+      "courtsDescription": "Choose the courts that will be used",
+      "courtLabel": "Court",
+      "courtCapacity": "Capacity: {{count}} players",
+      "courtSummaryTitle": "Court summary",
+      "courtSummaryTotal": "Total courts: {{count}}",
+      "courtSummaryCapacity": "Estimated capacity: {{count}} players",
+      "capacityTitle": "Participant limits",
+      "capacityDescription": "Configure the number of participants per session",
+      "maxParticipantsLabel": "Max for all socials",
+      "maxParticipantsDescription": "Total across all courts",
+      "maxPerCourtLabel": "Max per court",
+      "maxPerCourtDescription": "Primary players",
+      "maxWaitlistLabel": "Max waitlist",
+      "maxWaitlistDescription": "Waiting list",
+      "costTitle": "Costs",
+      "costDescription": "Configure participation and court rental fees",
+      "feeLabel": "Participation fee (VND)",
+      "feePlaceholder": "e.g. 150000",
+      "feeDescription": "Fee per person",
+      "courtRentFeeLabel": "Court rental fee (VND)",
+      "courtRentFeePlaceholder": "e.g. 200000",
+      "courtRentFeeDescription": "Total court cost per session",
+      "costNoteLabel": "Cost note",
+      "costNotePlaceholder": "e.g. Includes light drinks, new balls...",
+      "submitButton": "Continue: Confirm creation",
+      "validation": {
+        "nameMin": "Social name must be at least 3 characters long",
+        "descriptionMin": "Description must be at least 10 characters long",
+        "selectSocialType": "Please select a social type",
+        "selectSkillLevel": "Please select a skill level",
+        "selectStartTime": "Please select a start time",
+        "selectEndTime": "Please select an end time",
+        "selectStartDate": "Please select a start date",
+        "selectEndDate": "Please select an end date",
+        "selectCourt": "Please select at least 1 court",
+        "minParticipants": "Minimum 4 players",
+        "maxParticipants": "Maximum 256 players",
+        "minPerCourt": "Minimum 2 players/court",
+        "maxPerCourt": "Maximum 20 players/court",
+        "nonNegative": "Must be zero or greater",
+        "maxWaitlist": "Maximum 100 players"
+      }
+    },
+    "preview": {
+      "title": "Preview of the social schedule to be created",
+      "description": "List of recurring social sessions that will be generated",
+      "totalSocials": "Total socials",
+      "recurrenceType": "Recurrence type",
+      "dateRange": "Date range",
+      "timeRange": "Time range",
+      "table": {
+        "date": "Date",
+        "day": "Day",
+        "time": "Time",
+        "courts": "Courts",
+        "capacity": "Capacity"
+      },
+      "timeRangeValue": "Time: {{start}} - {{end}}",
+      "infoMessage": "Showing the first {{count}} sessions. Press \"Continue\" to confirm creation for all."
+    },
+    "confirm": {
+      "title": "Confirm recurring social creation",
+      "description": "Please review the information before creating",
+      "socialName": "Social name",
+      "totalSocials": "Total socials to create",
+      "dateRange": "Date range",
+      "timeRange": "Time range",
+      "courtsCount": "Number of courts",
+      "estimatedCapacity": "Estimated capacity",
+      "selectedCourts": "Selected courts:",
+      "firstSessions": "First 5 sessions:",
+      "costTitle": "Costs:",
+      "participationFee": "Participation fee: {{value}}/person",
+      "courtRentFee": "Court rental fee: {{value}}/session",
+      "costNote": "Note: {{note}}",
+      "warning": "This action will create {{count}} social sessions. You can edit or delete each session later.",
+      "cancelButton": "Cancel",
+      "confirmButton": "Confirm creation"
+    },
+    "utils": {
+      "weeklyDescription": "Every {{days}}",
+      "monthlyDescription": "Day {{dayOfMonth}} each month"
+    },
+    "common": {
+      "peopleCount": "{{count}} people"
+    },
+    "mock": {
+      "socials": {
+        "saturdayMorningSocial": "Saturday Morning Social",
+        "midWeekEveningSocial": "Mid-Week Evening Social",
+        "monthlyChampionship": "Monthly Championship",
+        "quarterlyLeague": "Quarterly League"
+      }
+    }
   }
 }

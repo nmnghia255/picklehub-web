@@ -120,9 +120,7 @@ export function SocialFormScheduleCard({
       <CardContent className="space-y-5 p-6">
         <h2 className="text-lg font-semibold">{t("form.schedule")}</h2>
         <div className="space-y-4">
-          <Field
-            label={t("playSessionOverview.date", { defaultValue: "Date" })}
-          >
+          <Field label={t("playSessionOverview.date")}>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -137,9 +135,7 @@ export function SocialFormScheduleCard({
                   {dateValue ? (
                     format(dateValue, "PPP", { locale: dateLocale })
                   ) : (
-                    <span>
-                      {t("form.pickDate", { defaultValue: "Pick a date" })}
-                    </span>
+                    <span>{t("form.pickDate")}</span>
                   )}
                 </Button>
               </PopoverTrigger>

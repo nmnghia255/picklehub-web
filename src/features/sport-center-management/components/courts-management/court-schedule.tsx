@@ -2,6 +2,8 @@
 
 import { useEffect } from "react"
 
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
+
 import { useCourtScheduleStore } from "../../stores/court-schedule-store"
 import type { Booking } from "../../types/booking"
 import { BookingDetailModal } from "./booking-modal"
@@ -33,6 +35,7 @@ function generateTimeSlots(
 }
 
 export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
+  const { t } = useSportCenterManagementTranslation()
   const {
     courts,
     bookings,
@@ -63,7 +66,7 @@ export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
     return (
       <div className="rounded-md border border-border bg-background p-6 text-center">
         <p className="text-sm text-muted-foreground">
-          Vui lòng chọn trung tâm bạn quản lý để xem lịch và đặt sân.
+          {t("courts.noCenterSelected")}
         </p>
       </div>
     )

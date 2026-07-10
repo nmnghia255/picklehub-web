@@ -184,22 +184,14 @@ export function TournamentList({
           {mode === "management" ? (
             <Select value={role} onValueChange={(val) => setRole(val)}>
               <SelectTrigger className="h-12! w-64 bg-white dark:bg-zinc-900">
-                <SelectValue
-                  placeholder={t("list.roles.all", {
-                    defaultValue: "All Roles",
-                  })}
-                />
+                <SelectValue placeholder={t("list.roles.all")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">
-                  {t("list.roles.all", { defaultValue: "All Roles" })}
-                </SelectItem>
+                <SelectItem value="all">{t("list.roles.all")}</SelectItem>
                 <SelectItem value="organizer">
-                  {t("list.roles.organizer", { defaultValue: "Organizer" })}
+                  {t("list.roles.organizer")}
                 </SelectItem>
-                <SelectItem value="player">
-                  {t("list.roles.player", { defaultValue: "Player" })}
-                </SelectItem>
+                <SelectItem value="player">{t("list.roles.player")}</SelectItem>
               </SelectContent>
             </Select>
           ) : (
@@ -258,14 +250,10 @@ export function TournamentList({
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <Search className="mb-4 h-12 w-12 text-gray-400 dark:text-zinc-600" />
             <h3 className="mb-1 text-lg font-medium text-gray-900 dark:text-zinc-100">
-              {t("list.noResultsTitle", {
-                defaultValue: "No tournaments found",
-              })}
+              {t("list.noResultsTitle")}
             </h3>
             <p className="text-sm text-gray-500 dark:text-zinc-400">
-              {t("list.noResultsDescription", {
-                defaultValue: "Try adjusting your search or status filter.",
-              })}
+              {t("list.noResultsDescription")}
             </p>
           </div>
         ) : (

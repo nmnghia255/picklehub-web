@@ -9,7 +9,8 @@
     "deleteError": "Không thể xóa sơ đồ thi đấu",
     "dialog": {
       "cancel": "Hủy",
-      "delete": "Xóa"
+      "delete": "Xóa",
+      "lock": "Khóa"
     },
     "sidebar": {
       "selectEvent": "Chọn nội dung thi đấu",
@@ -39,7 +40,8 @@
         "completed": "Đã hoàn thành",
         "inProgress": "Đang diễn ra",
         "remaining": "Còn lại"
-      }
+      },
+      "lockedStatus": "Đã khóa (Trạn chính thức)"
     },
     "toolbar": {
       "searchPlaceholder": "Tìm kiếm trận đấu...",
@@ -103,7 +105,20 @@
         "reassignCourt": "Đổi sân thi đấu",
         "updateScore": "Cập nhật tỷ số",
         "markWalkover": "Xử thua cuộc / Bỏ cuộc"
-      }
-    }
+      },
+      "edit": {
+        "title": "Chỉnh sửa cặp đấu",
+        "team1": "Đội 1",
+        "team2": "Đội 2",
+        "save": "Lưu cặp đấu",
+        "cancel": "Hủy"
+      },
+      "editSuccess": "Cập nhật cặp đấu thành công!",
+      "editError": "Cập nhật cặp đấu thất bại"
+    },
+    "lockConfirmTitle": "Khóa các cặp đấu",
+    "lockConfirmDesc": "Bạn có chắc chắn muốn khóa các cặp đấu của sơ đồ thi đấu không? Sau khi khóa, các trạn sẽ được xem là chính thức và bạn sẽ không thể chỉnh sửa vị trí đội nữa.",
+    "lockSuccess": "Khóa sơ đồ thi đấu thành công!",
+    "lockError": "Khóa sơ đồ thi đấu thất bại"
   }
 }

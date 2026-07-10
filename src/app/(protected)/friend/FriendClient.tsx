@@ -33,6 +33,22 @@ import {
 
 type UsersByTab = Record<TabKey, FriendUser[]>
 
+function getFriendLevelLabel(
+  level: FriendUser["level"],
+  t: (key: string) => string
+) {
+  switch (level) {
+    case "Beginner":
+      return t("friends.service.levelBeginner")
+    case "Intermediate":
+      return t("friends.service.levelIntermediate")
+    case "Advanced":
+      return t("friends.service.levelAdvanced")
+    default:
+      return level
+  }
+}
+
 export default function FriendClient({
   initialUsersByTab,
 }: {
@@ -158,7 +174,7 @@ export default function FriendClient({
             id: requestId,
             counterpartId: user.id,
             invitedAt: new Date().toISOString(),
-            inviteSource: "Web",
+            inviteSource: t("friends.service.inviteSource"),
             bio: t("friends.optimistic.requestSent"),
           },
           ...prev.sent,
@@ -365,7 +381,9 @@ export default function FriendClient({
                             @{user.username}
                           </p>
                           <div className="mt-2 flex flex-wrap gap-2">
-                            <Badge variant="secondary">{user.level}</Badge>
+                            <Badge variant="secondary">
+                              {getFriendLevelLabel(user.level, t)}
+                            </Badge>
                             <Badge variant="outline">{user.location}</Badge>
                             <Badge variant="ghost">
                               {t("friends.badge.mutualFriends", {
@@ -524,7 +542,9 @@ export default function FriendClient({
                   </p>
                   <p className="mt-2 text-sm">{selectedUser.bio}</p>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <Badge variant="secondary">{selectedUser.level}</Badge>
+                    <Badge variant="secondary">
+                      {getFriendLevelLabel(selectedUser.level, t)}
+                    </Badge>
                     <Badge variant="outline">{selectedUser.location}</Badge>
                     <Badge variant="ghost">
                       {t("friends.badge.mutualFriends", {

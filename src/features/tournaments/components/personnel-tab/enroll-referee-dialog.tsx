@@ -71,7 +71,12 @@ export function EnrollRefereeDialog({
               defaultValue: "User profile not found. Please verify the ID.",
             })
         )
-        toast.error(res.error || "User profile not found")
+        toast.error(
+          res.error ||
+            t("personnel.enrollDialog.profileNotFound", {
+              defaultValue: "User profile not found. Please verify the ID.",
+            })
+        )
       }
     } catch (err) {
       setFetchError(
@@ -79,7 +84,11 @@ export function EnrollRefereeDialog({
           defaultValue: "Failed to fetch user profile.",
         })
       )
-      toast.error("Failed to verify user ID")
+      toast.error(
+        t("personnel.enrollDialog.fetchFailed", {
+          defaultValue: "Failed to fetch user profile.",
+        })
+      )
     } finally {
       setIsFetching(false)
     }

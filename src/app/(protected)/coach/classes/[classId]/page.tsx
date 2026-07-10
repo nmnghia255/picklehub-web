@@ -435,24 +435,28 @@ export default function CoachClassDetailPage() {
         },
       },
       {
-        onSuccess: () => toast.success("Cập nhật lớp học thành công"),
+        onSuccess: () => toast.success(t("coach.classes.detail.updateSuccess")),
         onError: (err: Error) =>
-          toast.error(err.message || "Cập nhật thất bại"),
+          toast.error(err.message || t("coach.classes.detail.updateError")),
       }
     )
   }
 
   const handlePublish = () => {
     publishClass.mutate(classId, {
-      onSuccess: () => toast.success("Đã đăng lớp học"),
-      onError: (err: Error) => toast.error(err.message || "Đăng lớp thất bại"),
+      onSuccess: () =>
+        toast.success(t("coach.classes.detail.publishClassSuccess")),
+      onError: (err: Error) =>
+        toast.error(err.message || t("coach.classes.detail.publishClassError")),
     })
   }
 
   const handleCancel = () => {
     cancelClass.mutate(classId, {
-      onSuccess: () => toast.success("Đã hủy lớp học"),
-      onError: (err: Error) => toast.error(err.message || "Hủy lớp thất bại"),
+      onSuccess: () =>
+        toast.success(t("coach.classes.detail.cancelClassSuccess")),
+      onError: (err: Error) =>
+        toast.error(err.message || t("coach.classes.detail.cancelClassError")),
     })
   }
 

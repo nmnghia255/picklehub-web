@@ -2,6 +2,7 @@
 
 import { ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 
@@ -11,6 +12,7 @@ interface BackNavigationProps {
 
 export function BackNavigation({ fallbackPath }: BackNavigationProps) {
   const router = useRouter()
+  const { t } = useTranslation("common")
 
   const handleBack = () => {
     if (window.history.length > 1) {
@@ -23,7 +25,7 @@ export function BackNavigation({ fallbackPath }: BackNavigationProps) {
   return (
     <Button variant="outline" size="sm" onClick={handleBack} className="gap-2">
       <ArrowLeft className="h-4 w-4" />
-      Quay lại
+      {t("back")}
     </Button>
   )
 }

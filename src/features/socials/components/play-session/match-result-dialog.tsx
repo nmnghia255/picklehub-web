@@ -173,7 +173,7 @@ export function MatchResultDialog({
   // Add a new set row
   const addSet = () => {
     if (sets.length >= 5) {
-      toast.warning(t("matches.maxSetsLimit") || "Cannot add more than 5 sets")
+      toast.warning(t("matches.maxSetsLimit"))
       return
     }
     const nextSets = [...sets, [0, 0] as [number, number]]
@@ -203,9 +203,7 @@ export function MatchResultDialog({
 
     try {
       await confirmMatchResultAction(match.id, payload)
-      toast.success(
-        t("matches.submitSuccess") || "Match result saved successfully!"
-      )
+      toast.success(t("matches.submitSuccess"))
 
       if (onSuccess) {
         onSuccess(payload)
@@ -224,12 +222,9 @@ export function MatchResultDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>
-            {t("matches.matchResultTitle") || "Cập nhật kết quả trận đấu"}
-          </DialogTitle>
+          <DialogTitle>{t("matches.matchResultTitle")}</DialogTitle>
           <DialogDescription>
-            {t("matches.resultDialogDescription") ||
-              "Nhập tỷ số các set đấu để ghi nhận kết quả trận đấu."}
+            {t("matches.resultDialogDescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -257,7 +252,7 @@ export function MatchResultDialog({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-semibold">
-                {t("matches.sets") || "Các set đấu"}
+                {t("matches.sets")}
               </Label>
               <Button
                 variant="outline"
@@ -267,7 +262,7 @@ export function MatchResultDialog({
                 className="h-8 gap-1"
               >
                 <Plus className="size-3.5" />
-                {t("matches.addSet") || "Thêm set"}
+                {t("matches.addSet")}
               </Button>
             </div>
 
@@ -278,8 +273,7 @@ export function MatchResultDialog({
                   className="flex items-center gap-3 rounded-lg border bg-background/50 p-3 transition-colors hover:bg-background/80"
                 >
                   <span className="min-w-14 text-xs font-medium text-muted-foreground">
-                    {t("matches.setNumber", { number: idx + 1 }) ||
-                      `Set ${idx + 1}`}
+                    {t("matches.setNumber", { number: idx + 1 })}
                   </span>
                   <div className="grid flex-1 grid-cols-2 gap-4">
                     <div className="flex items-center gap-2">
@@ -330,11 +324,10 @@ export function MatchResultDialog({
           <div className="flex items-center justify-between rounded-lg border bg-muted/20 p-3">
             <div className="space-y-0.5">
               <Label htmlFor="auto-calc" className="text-sm font-semibold">
-                {t("matches.autoCalculate") || "Tự động tính kết quả"}
+                {t("matches.autoCalculate")}
               </Label>
               <p className="text-[11px] text-muted-foreground">
-                {t("matches.autoCalculateDescription") ||
-                  "Tự động quyết định đội thắng và điểm số từ kết quả set đấu."}
+                {t("matches.autoCalculateDescription")}
               </p>
             </div>
             <Switch
@@ -348,7 +341,7 @@ export function MatchResultDialog({
           <div className="grid grid-cols-2 gap-4 rounded-xl border bg-background p-4">
             <div className="col-span-2">
               <Label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                {t("matches.winner") || "Đội thắng"}
+                {t("matches.winner")}
               </Label>
               <NativeSelect
                 size="default"
@@ -364,7 +357,7 @@ export function MatchResultDialog({
                   {t("matches.teamBRed")}
                 </NativeSelectOption>
                 <NativeSelectOption value="DRAW">
-                  {t("matches.draw") || "Draw"}
+                  {t("matches.draw")}
                 </NativeSelectOption>
               </NativeSelect>
             </div>
@@ -374,7 +367,7 @@ export function MatchResultDialog({
                 htmlFor="score-a"
                 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase"
               >
-                {t("matches.scoreA") || "Điểm đội A"}
+                {t("matches.scoreA")}
               </Label>
               <Input
                 id="score-a"
@@ -399,7 +392,7 @@ export function MatchResultDialog({
                 htmlFor="score-b"
                 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase"
               >
-                {t("matches.scoreB") || "Điểm đội B"}
+                {t("matches.scoreB")}
               </Label>
               <Input
                 id="score-b"
@@ -427,11 +420,11 @@ export function MatchResultDialog({
             onClick={() => onOpenChange(false)}
             disabled={isPending}
           >
-            {t("expenses.expenseDialog.cancel") || "Hủy"}
+            {t("expenses.expenseDialog.cancel")}
           </Button>
           <Button onClick={handleSave} disabled={isPending}>
             {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-            {t("matches.saveResult") || "Lưu kết quả"}
+            {t("matches.saveResult")}
           </Button>
         </DialogFooter>
       </DialogContent>

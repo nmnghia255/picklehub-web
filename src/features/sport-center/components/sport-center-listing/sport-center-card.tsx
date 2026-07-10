@@ -8,8 +8,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
 import { useSportCenterStore } from "@/features/sport-center/stores/sport-center-store"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
+  const { t } = useSportCenterTranslation()
   const setSportCenter = useSportCenterStore((s) => s.setSportCenter)
 
   return (
@@ -21,7 +23,7 @@ export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
         <div className="relative h-44 w-full overflow-hidden">
           <FallbackImage
             src={sportCenter.images[0]}
-            alt={`${sportCenter.name} cover`}
+            alt={t("listing.coverAlt", { name: sportCenter.name })}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
           {sportCenter.isFavourite ? (
@@ -36,7 +38,7 @@ export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
             <Avatar size="lg" className="border">
               <AvatarImage
                 src={sportCenter.images[0]}
-                alt={`${sportCenter.name} logo`}
+                alt={t("listing.logoAlt", { name: sportCenter.name })}
                 className="transition-transform duration-200 group-hover:scale-105"
               />
               <AvatarFallback className="bg-slate-200 text-base font-semibold text-slate-700">

@@ -10,11 +10,9 @@ export async function getSponsorsAction(tournamentId: string) {
     const data = await TournamentSponsorService.getSponsors(tournamentId)
     return { success: true, data }
   } catch (error: unknown) {
-    let errorMessage = "Failed to load sponsors"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false, error: errorMessage }
   }
@@ -32,11 +30,9 @@ export async function addSponsorAction(
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to add sponsor:", error)
-    let errorMessage = "Failed to add sponsor"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false, error: errorMessage }
   }
@@ -48,11 +44,9 @@ export async function deleteSponsorAction(id: string, tournamentId: string) {
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to delete sponsor:", error)
-    let errorMessage = "Failed to delete sponsor"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false, error: errorMessage }
   }

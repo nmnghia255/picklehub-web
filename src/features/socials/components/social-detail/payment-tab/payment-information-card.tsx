@@ -68,9 +68,7 @@ export function PaymentInformationCard({
             {accountName && (
               <div className="rounded-2xl border border-primary/10 bg-primary/5 p-4">
                 <p className="text-sm font-medium text-muted-foreground">
-                  {t("expenses.paymentInfo.accountName", {
-                    defaultValue: "Account Name",
-                  })}
+                  {t("expenses.paymentInfo.accountName")}
                 </p>
                 <p className="mt-2 text-base font-semibold text-foreground">
                   {accountName}
@@ -84,7 +82,7 @@ export function PaymentInformationCard({
               {qrUrl ? (
                 <img
                   src={qrUrl}
-                  alt="Payment QR"
+                  alt={t("expenses.paymentInfo.qrPreviewLabel")}
                   className="h-full w-full rounded-xl object-cover"
                 />
               ) : (

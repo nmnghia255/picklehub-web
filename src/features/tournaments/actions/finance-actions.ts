@@ -12,11 +12,9 @@ export async function getFinanceTransactionsAction(tournamentId: string) {
     return { success: true as const, data }
   } catch (error: unknown) {
     console.error("Failed to get finance transactions:", error)
-    let errorMessage = "Failed to load transactions"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false as const, error: errorMessage }
   }
@@ -28,11 +26,9 @@ export async function getFinanceSummaryAction(tournamentId: string) {
     return { success: true as const, data }
   } catch (error: unknown) {
     console.error("Failed to get finance summary:", error)
-    let errorMessage = "Failed to load finance summary"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false as const, error: errorMessage }
   }
@@ -52,21 +48,19 @@ export async function exportFinanceReportAction(
     return { success: true as const, base64 }
   } catch (error: unknown) {
     console.error("Failed to export finance report:", error)
-    let errorMessage = "Failed to export report"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
       if (error.response?.data instanceof ArrayBuffer) {
         try {
           const decoded = Buffer.from(error.response.data).toString("utf-8")
           const parsed = JSON.parse(decoded)
-          errorMessage = parsed.message || errorMessage
+          errorMessage = parsed.message || ""
         } catch {
-          // Ignore parsing error, keep fallback
+          // Ignore parsing error, keep backend-safe fallback
         }
       } else {
-        errorMessage = error.response?.data?.message || error.message
+        errorMessage = error.response?.data?.message || ""
       }
-    } else if (error instanceof Error) {
-      errorMessage = error.message
     }
     return { success: false as const, error: errorMessage }
   }
@@ -84,11 +78,9 @@ export async function createFinanceTransactionAction(
     return { success: true as const, data }
   } catch (error: unknown) {
     console.error("Failed to create finance transaction:", error)
-    let errorMessage = "Failed to create transaction"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false as const, error: errorMessage }
   }
@@ -106,11 +98,9 @@ export async function deleteFinanceTransactionAction(
     return { success: true as const }
   } catch (error: unknown) {
     console.error("Failed to delete finance transaction:", error)
-    let errorMessage = "Failed to delete transaction"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false as const, error: errorMessage }
   }

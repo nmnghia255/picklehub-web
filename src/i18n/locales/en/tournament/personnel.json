@@ -26,7 +26,10 @@
       "unenrollTitle": "Unenroll Referee?",
       "unenrollDesc": "Are you sure you want to remove {{name}} from the roster? This action cannot be undone and will fail if the referee is currently assigned to any matches.",
       "unenrollConfirm": "Unenroll Referee",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "loading": "Loading referees roster...",
+      "unenrollSuccess": "Referee unenrolled from tournament",
+      "unenrollFailed": "Failed to unenroll referee. Make sure they have no active assignments."
     },
     "enrollDialog": {
       "title": "Enroll New Referee",
@@ -41,7 +44,14 @@
       "emailPlaceholder": "e.g. john.doe@referee.com",
       "phoneLabel": "Phone Number (Optional)",
       "phonePlaceholder": "e.g. +1234567890",
-      "submitBtn": "Enroll Referee"
+      "submitBtn": "Enroll Referee",
+      "verifyBtn": "Verify",
+      "verifyFirst": "Please verify the referee ID first",
+      "verifiedStatus": "Profile verified and ready to be enrolled",
+      "profileNotFound": "User profile not found. Please verify the ID.",
+      "fetchFailed": "Failed to fetch user profile.",
+      "successToast": "Referee enrolled successfully!",
+      "failToast": "Failed to enroll referee"
     },
     "assignments": {
       "searchPlaceholder": "Search match, round, team or referee...",
@@ -56,7 +66,13 @@
       "refereeLabel": "Assigned Referee",
       "unassigned": "Unassigned",
       "reassignPlaceholder": "Reassign",
-      "assignPlaceholder": "Assign Referee"
+      "assignPlaceholder": "Assign Referee",
+      "loading": "Loading matches list...",
+      "noReferees": "No referees enrolled",
+      "assignSuccess": "Referee assigned successfully!",
+      "assignFailed": "Failed to assign referee",
+      "unassignSuccess": "Referee unassigned from match",
+      "unassignFailed": "Failed to unassign referee"
     }
   },
   "referee": {

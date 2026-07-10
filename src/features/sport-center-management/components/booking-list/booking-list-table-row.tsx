@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge"
 import { TableCell, TableRow } from "@/components/ui/table"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 import { cn } from "@/lib/utils"
 import { formatDateTime, getDateOnly } from "@/utils/time-helper"
 
@@ -28,6 +29,7 @@ export function BookingListTableRow({
   onConfirmBooking,
   onCancelBooking,
 }: BookingListTableRowProps) {
+  const { t } = useSportCenterManagementTranslation()
   return (
     <TableRow
       className={cn(
@@ -46,7 +48,7 @@ export function BookingListTableRow({
       <TableCell className="w-[14%]">
         <div className="space-y-1">
           <p className="text-medium truncate text-foreground">
-            {booking.phoneNumber || "Chưa cập nhật"}
+            {booking.phoneNumber || t("common.notUpdated")}
           </p>
         </div>
       </TableCell>

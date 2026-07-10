@@ -75,11 +75,7 @@ export function VerifyPaymentDialog({
       onOpenChange(false)
     },
     onError: (error) => {
-      toast.error(
-        error.message ||
-          t("expenses.verifyPaymentDialog.error") ||
-          "Failed to verify payment"
-      )
+      toast.error(error.message || t("expenses.verifyPaymentDialog.error"))
     },
   })
 

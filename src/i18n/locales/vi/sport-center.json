@@ -14,7 +14,9 @@
     "next": "Sau",
     "page": "Trang {{page}}",
     "emptyTitle": "Không tìm thấy kết quả phù hợp",
-    "emptyDescription": "Bạn có thể thay đổi từ khóa hoặc bộ lọc để có kết quả như ý nhé."
+    "emptyDescription": "Bạn có thể thay đổi từ khóa hoặc bộ lọc để có kết quả như ý nhé.",
+    "coverAlt": "{{name}} ?nh b?a",
+    "logoAlt": "{{name}} logo"
   },
   "detail": {
     "tabs": {
@@ -89,7 +91,12 @@
       "commentPlaceholder": "Hãy kể ngắn gọn về chất lượng sân, dịch vụ, vệ sinh, hoặc điều bạn thích nhất.",
       "submitting": "Đang gửi...",
       "submitBtn": "Gửi đánh giá"
-    }
+    },
+    "favoriteAdded": "Đã thêm vào danh sách yêu thích.",
+    "favoriteRemoved": "Đã xóa khỏi danh sách yêu thích.",
+    "favoriteError": "Không thể cập nhật trạng thái yêu thích.",
+    "favoriteMissing": "Không tìm thấy mã sân.",
+    "logoAlt": "{{name}} logo"
   },
   "booking": {
     "title": "Đặt sân",
@@ -173,7 +180,18 @@
       "checkInfoBeforeConfirm": "Kiểm tra lại thông tin đặt sân, sau đó xác nhận để tạo booking.",
       "uploadingProof": "Đang tải ảnh minh chứng...",
       "loading": "Đang tải...",
-      "confirm": "Xác nhận"
+      "confirm": "Xác nhận",
+      "errorLoadBooking": "Không thể tải thông tin đặt sân.",
+      "errorLoadCredit": "Không thể tải số dư credit.",
+      "errorUploadImage": "Không thể tải được ảnh.",
+      "errorMissingBookingId": "Không tìm thấy mã đặt sân để tải lên minh chứng.",
+      "creditComplete": "Đã hoàn tất booking bằng credit.",
+      "errorUploadProof": "Vui lòng tải lên ảnh minh chứng thanh toán.",
+      "uploadSuccess": "Đã tải lên minh chứng thanh toán thành công.",
+      "errorSubmitProof": "Không thể tải lên minh chứng thanh toán.",
+      "totalPayment": "Tổng thanh toán",
+      "creditBalance": "Số dư credit",
+      "errorShort": "Không tải được"
     },
     "history": {
       "pageTitle": "Lịch sử đặt sân",
@@ -216,6 +234,7 @@
     },
     "summary": {
       "noDate": "Chưa chọn ngày",
+      "defaultPlayerName": "Khách vãng lai",
       "totalCostTitle": "Tổng chi phí",
       "bookingDate": "Ngày đặt",
       "courtAndTime": "Sân & Khung giờ",
@@ -233,6 +252,8 @@
       "defaultCenterName": "Sân pickleball",
       "errorNoCenterId": "Không tìm thấy mã sân.",
       "errorCreateBooking": "Không thể tạo booking.",
+      "errorSelectDate": "Vui lòng chọn ngày đặt sân.",
+      "errorSelectCourts": "Vui lòng chọn ít nhất một sân và khung giờ.",
       "successSubmit": "Đã gửi yêu cầu đặt sân thành công.",
       "confirmAndPayBtn": "Xác nhận và chuyển sang thanh toán",
       "emptyStateTitle": "Không thể tải dữ liệu",

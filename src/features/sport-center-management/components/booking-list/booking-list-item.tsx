@@ -3,6 +3,7 @@
 import { Clock3, Loader2, MapPinned, Phone, ReceiptText } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { Booking } from "../../types/booking"
 import {
@@ -37,6 +38,7 @@ export function BookingListItem({
   onOpenDetail,
   pendingAction,
 }: BookingListItemProps) {
+  const { t } = useSportCenterManagementTranslation()
   const phone = booking.phoneNumber || "—"
   const isBusy = Boolean(
     pendingAction && pendingAction.bookingId === booking.id
@@ -45,10 +47,10 @@ export function BookingListItem({
   const showCancelAction =
     booking.status === "PENDING" || booking.status === "CONFIRMED"
   const firstBookingItem = booking.bookingItems?.[0]
-  const courtName = firstBookingItem?.court?.name ?? "Sân"
+  const courtName = firstBookingItem?.court?.name ?? t("common.notAvailable")
   const timeRange = firstBookingItem
     ? `${firstBookingItem.startTime} - ${firstBookingItem.endTime}`
-    : "—"
+    : t("common.notAvailable")
 
   return (
     <li className="p-4 sm:p-5">
@@ -67,7 +69,7 @@ export function BookingListItem({
                 {courtName} · {formatBookingDate(booking.date)}
               </p>
               <p className="text-sm text-muted-foreground">
-                Nhấn để xem thông tin đầy đủ
+                {t("bookingList.card.tapToViewDetails")}
               </p>
             </div>
 
@@ -78,7 +80,7 @@ export function BookingListItem({
             <div className="rounded-xl border bg-muted/30 p-3">
               <div className="mb-1 flex items-center gap-2 text-xs tracking-wide text-muted-foreground uppercase">
                 <Phone className="size-3.5" />
-                Số điện thoại
+                {t("bookingList.card.phone")}
               </div>
               <div className="text-sm font-medium">{phone}</div>
             </div>
@@ -86,7 +88,7 @@ export function BookingListItem({
             <div className="rounded-xl border bg-muted/30 p-3">
               <div className="mb-1 flex items-center gap-2 text-xs tracking-wide text-muted-foreground uppercase">
                 <Clock3 className="size-3.5" />
-                Khung giờ
+                {t("bookingList.card.timeRange")}
               </div>
               <div className="text-sm font-medium">{timeRange}</div>
             </div>
@@ -94,7 +96,7 @@ export function BookingListItem({
             <div className="rounded-xl border bg-muted/30 p-3">
               <div className="mb-1 flex items-center gap-2 text-xs tracking-wide text-muted-foreground uppercase">
                 <MapPinned className="size-3.5" />
-                Ngày tạo
+                {t("bookingList.card.createdAt")}
               </div>
               <div className="text-sm font-medium">
                 {formatBookingCreatedAt(booking.createdAt)}
@@ -104,7 +106,7 @@ export function BookingListItem({
             <div className="rounded-xl border bg-muted/30 p-3">
               <div className="mb-1 flex items-center gap-2 text-xs tracking-wide text-muted-foreground uppercase">
                 <ReceiptText className="size-3.5" />
-                Tổng tiền
+                {t("bookingList.card.totalPrice")}
               </div>
               <div className="text-sm font-medium">
                 {formatCurrency(booking.totalPrice)}
@@ -126,7 +128,7 @@ export function BookingListItem({
               {isPendingAction(pendingAction, booking.id, "confirm") && (
                 <Loader2 className="size-4 animate-spin" />
               )}
-              Xác nhận
+              {t("bookingList.card.confirm")}
             </Button>
           )}
 
@@ -143,13 +145,13 @@ export function BookingListItem({
               {isPendingAction(pendingAction, booking.id, "cancel") && (
                 <Loader2 className="size-4 animate-spin" />
               )}
-              Hủy đặt sân
+              {t("bookingList.card.cancelBooking")}
             </Button>
           )}
 
           {!showConfirmAction && !showCancelAction && (
             <div className="text-sm text-muted-foreground">
-              Trạng thái này không có thao tác quản lý.
+              {t("bookingList.card.noActions")}
             </div>
           )}
         </div>

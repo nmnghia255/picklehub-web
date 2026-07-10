@@ -17,11 +17,9 @@ export async function generateSeedsEventAction(
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to generate seeds:", error)
-    let errorMessage = "Failed to generate seeds"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false, error: errorMessage }
   }
@@ -85,11 +83,9 @@ export async function lockSeedsEventAction(
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to lock seeding:", error)
-    let errorMessage = "Failed to lock seeding"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false, error: errorMessage }
   }

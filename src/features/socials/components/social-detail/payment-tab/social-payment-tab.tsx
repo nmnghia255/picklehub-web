@@ -37,19 +37,19 @@ export default function SocialPaymentTab({
 
     if (status === "CONFIRMED") {
       return {
-        text: "Đã thanh toán",
+        text: t("payment.statusConfirmed"),
         tone: getPaymentStatusTone("PAID"),
       }
     }
     if (paymentStatus === "PAID") {
       return {
-        text: "Đã thanh toán nhưng chờ xác nhận",
+        text: t("payment.statusPaidPendingConfirmation"),
         tone: getPaymentStatusTone("partially_paid"),
       }
     }
     if (paymentStatus === "UNPAID") {
       return {
-        text: "Chưa thanh toán",
+        text: t("payment.statusUnpaid"),
         tone: getPaymentStatusTone("UNPAID"),
       }
     }

@@ -2,6 +2,7 @@
 
 import { Check, ChevronsUpDown, X } from "lucide-react"
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -38,9 +39,12 @@ export function MultiSelect({
   options,
   selected,
   onSelectionChange,
-  placeholder = "Select items...",
-  emptyMessage = "No items found.",
+  placeholder,
+  emptyMessage,
 }: MultiSelectProps) {
+  const { t } = useTranslation("common")
+  const resolvedPlaceholder = placeholder ?? t("multiSelect.placeholder")
+  const resolvedEmptyMessage = emptyMessage ?? t("multiSelect.emptyMessage")
   const [open, setOpen] = React.useState(false)
 
   const handleToggle = (value: string) => {
@@ -69,7 +73,7 @@ export function MultiSelect({
           className="w-full justify-between"
         >
           {selected.length === 0 ? (
-            <span className="text-muted-foreground">{placeholder}</span>
+            <span className="text-muted-foreground">{resolvedPlaceholder}</span>
           ) : (
             <div className="flex flex-wrap gap-1">
               {selectedItems.slice(0, 2).map((opt) => (
@@ -92,8 +96,8 @@ export function MultiSelect({
         align="start"
       >
         <Command>
-          <CommandInput placeholder={placeholder} />
-          <CommandEmpty>{emptyMessage}</CommandEmpty>
+          <CommandInput placeholder={resolvedPlaceholder} />
+          <CommandEmpty>{resolvedEmptyMessage}</CommandEmpty>
           <CommandList>
             <CommandGroup>
               {options.map((option) => (

@@ -9,7 +9,8 @@
     "deleteError": "Failed to delete bracket",
     "dialog": {
       "cancel": "Cancel",
-      "delete": "Delete"
+      "delete": "Delete",
+      "lock": "Lock"
     },
     "sidebar": {
       "selectEvent": "Select Event",
@@ -39,7 +40,8 @@
         "inProgress": "In Progress",
         "remaining": "Remaining"
       },
-      "refresh": "Refresh"
+      "refresh": "Refresh",
+      "lockedStatus": "Locked (Official Matches)"
     },
     "toolbar": {
       "searchPlaceholder": "Search matches...",
@@ -103,7 +105,20 @@
         "reassignCourt": "Reassign Court",
         "updateScore": "Update Score",
         "markWalkover": "Mark Walkover / Forfeit"
-      }
-    }
+      },
+      "edit": {
+        "title": "Edit Matchup",
+        "team1": "Team 1",
+        "team2": "Team 2",
+        "save": "Save Matchup",
+        "cancel": "Cancel"
+      },
+      "editSuccess": "Matchup updated successfully!",
+      "editError": "Failed to update matchup"
+    },
+    "lockConfirmTitle": "Lock Matchups",
+    "lockConfirmDesc": "Are you sure you want to lock the bracket matchups? Once locked, matches will be official and you will not be able to edit team positions anymore.",
+    "lockSuccess": "Bracket locked successfully!",
+    "lockError": "Failed to lock bracket"
   }
 }

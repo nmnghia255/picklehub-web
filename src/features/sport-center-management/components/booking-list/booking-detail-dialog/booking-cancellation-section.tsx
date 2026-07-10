@@ -2,6 +2,8 @@
 
 import { Calendar, CreditCard, ShieldX } from "lucide-react"
 
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
+
 import type { Booking } from "../../../types/booking"
 import { formatBookingCreatedAt } from "../booking-list.utils"
 import { BookingDetailField } from "./booking-detail-field"
@@ -12,41 +14,42 @@ interface Props {
 }
 
 export function BookingCancellationSection({ booking, displayNote }: Props) {
+  const { t } = useSportCenterManagementTranslation()
   return (
     <section className="space-y-4 rounded-3xl border bg-card p-4 shadow-sm">
       <div className="text-md flex items-center gap-2 font-semibold">
         <ShieldX className="size-5 text-rose-500" />
-        Thông tin hủy
+        {t("bookingList.detail.cancellationTitle")}
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <BookingDetailField
-          label="Ngày hủy"
+          label={t("bookingList.detail.cancelledAt")}
           value={
             booking.cancelledAt
               ? formatBookingCreatedAt(booking.cancelledAt)
-              : "Chưa cập nhật"
+              : t("common.notUpdated")
           }
           icon={Calendar}
           toneClassName="text-rose-500"
         />
         <BookingDetailField
-          label="Lý do hủy"
-          value={booking.cancelReason ?? "Không có lý do"}
+          label={t("bookingList.detail.cancelReason")}
+          value={booking.cancelReason ?? t("common.noReason")}
           icon={ShieldX}
           toneClassName="text-rose-500"
         />
         <BookingDetailField
-          label="Thanh toán"
-          value={booking.paymentProofUrl ? "Có" : "Không"}
+          label={t("bookingList.detail.payment")}
+          value={booking.paymentProofUrl ? t("common.yes") : t("common.no")}
           icon={CreditCard}
           toneClassName="text-rose-500"
         />
         <BookingDetailField
-          label="Ngày tải lên minh chứng thanh toán"
+          label={t("bookingList.detail.paymentProofUploadedAt")}
           value={
             booking.paymentProofUploadedAt
               ? formatBookingCreatedAt(booking.paymentProofUploadedAt)
-              : "Chưa cập nhật"
+              : t("common.notUpdated")
           }
           icon={Calendar}
           toneClassName="text-rose-500"

@@ -208,7 +208,7 @@ export const FiltersDrawer: React.FC<FiltersDrawerProps> = ({
 
           <DrawerFooter className="flex-row gap-3 pt-2 pb-6">
             <Button className="flex-1" onClick={onApply}>
-              {t("filters.apply", { defaultValue: "Áp dụng" })}
+              {t("filters.apply")}
             </Button>
             <Button
               className="flex-1"

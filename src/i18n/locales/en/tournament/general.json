@@ -18,8 +18,14 @@
       "sponsors": "Sponsors",
       "public": "Public View",
       "payment": "Payment",
-      "personnel": "Personnel"
+      "personnel": "Personnel",
+      "more": "More"
     }
+  },
+  "common": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "deleting": "Deleting..."
   },
   "list": {
     "title": "Tournaments",
@@ -107,6 +113,8 @@
     "score": "Score",
     "tracker": {
       "loading": "Loading scoreboard...",
+      "teamADefault": "Team A",
+      "teamBDefault": "Team B",
       "servingTurn": "Serving turn",
       "serverBadge": "Server {{number}}",
       "scoreCallFormat": "Score call: ",

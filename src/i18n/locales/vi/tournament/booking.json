@@ -33,7 +33,9 @@
       "startPlaceholder": "Bắt đầu",
       "endPlaceholder": "Kết thúc",
       "addSlotSection": "Thêm Lượt đặt Sân & Khung giờ",
-      "noMatchesFound": "Không tìm thấy trung tâm thể thao phù hợp"
+      "noMatchesFound": "Không tìm thấy trung tâm thể thao phù hợp",
+      "phonePlaceholder": "vd: 0912345678",
+      "playerNamePlaceholder": "vd: Nguyễn Văn An"
     },
     "venuesCard": {
       "title": "Địa điểm đã Liên kết",
@@ -108,7 +110,9 @@
       "selectedDate": "Ngày đã đặt",
       "selectDates": "Chọn ngày",
       "selectedDatesCount": "Đã chọn {{count}} ngày",
-      "tournamentDates": "Thời gian giải: {{start}} - {{end}}"
+      "tournamentDates": "Thời gian giải: {{start}} - {{end}}",
+      "removeDate": "Xóa ngày",
+      "paymentQrAlt": "M? QR thanh to?n c?a trung t?m th? thao"
     },
     "grid": {
       "title": "Chọn Khung giờ trống",
@@ -149,9 +153,14 @@
       "syncSuccess": "Đã đồng bộ trạng thái đặt sân!",
       "cancelSuccess": "Hủy lượt đặt sân thành công!",
       "createSuccess": "Tạo lượt đặt sân thành công!",
+      "loadDataFailed": "Không thể tải dữ liệu đặt sân",
       "loadCentersFailed": "Không thể tải danh sách trung tâm của giải đấu",
       "loadBookingsFailed": "Không thể tải danh sách đặt sân",
       "loadAvailableFailed": "Không thể tải danh sách trung tâm khả dụng",
+      "associateCenterFailed": "Không thể liên kết trung tâm",
+      "removeCenterFailed": "Không thể xóa liên kết trung tâm",
+      "syncFailed": "Không thể đồng bộ lượt đặt sân",
+      "cancelFailed": "Không thể hủy lượt đặt sân",
       "selectCenterError": "Vui lòng chọn trung tâm để liên kết",
       "timeOrderError": "Giờ bắt đầu phải trước giờ kết thúc",
       "fillFormError": "Vui lòng điền đầy đủ trung tâm, ngày, tên và số điện thoại",
@@ -164,6 +173,10 @@
       "noPaymentProof": "Vui lòng chọn ảnh minh chứng thanh toán",
       "missingBookingId": "Thiếu mã đặt sân",
       "uploadFailedButReserved": "Đặt sân thành công, nhưng tải lên minh chứng thất bại. Vui lòng gửi minh chứng trong lịch sử đặt sân."
+    },
+    "detailDialog": {
+      "title": "Chi tiết đặt sân",
+      "slotsTitle": "Danh sách sân và khung giờ đã đặt"
     }
   }
 }

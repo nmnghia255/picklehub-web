@@ -75,9 +75,7 @@ export function ExpenseSummaryGrid({
         icon={Users}
       />
       <ExpenseStatCard
-        label={t("expenses.summary.extraExpense", {
-          defaultValue: "Extra Expense",
-        })}
+        label={t("expenses.summary.extraExpense")}
         value={formatCurrencyVnd(extraExpense)}
         iconClassName="flex size-9 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 lg:size-10"
         icon={CircleDollarSign}

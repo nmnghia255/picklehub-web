@@ -17,11 +17,9 @@ export async function enrollRefereeAction(
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to enroll referee:", error)
-    let errorMessage = "Failed to enroll referee"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false, error: errorMessage }
   }
@@ -52,11 +50,9 @@ export async function unenrollRefereeAction(
     return { success: true }
   } catch (error: unknown) {
     console.error("Failed to unenroll referee:", error)
-    let errorMessage = "Failed to unenroll referee"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false, error: errorMessage }
   }
@@ -120,11 +116,9 @@ export async function assignRefereeToMatchAction(
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to assign referee:", error)
-    let errorMessage = "Failed to assign referee"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false, error: errorMessage }
   }
@@ -142,11 +136,9 @@ export async function unassignRefereeFromMatchAction(
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to unassign referee:", error)
-    let errorMessage = "Failed to unassign referee"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false, error: errorMessage }
   }

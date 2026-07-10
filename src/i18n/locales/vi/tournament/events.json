@@ -67,7 +67,8 @@
       "submitPrize": "Lưu",
       "deleteConfirm": "Bạn có chắc chắn muốn xóa sự kiện này?",
       "deleteSuccess": "Sự kiện đã được xóa thành công",
-      "deleteError": "Không thể xóa sự kiện. Vui lòng thử lại."
+      "deleteError": "Không thể xóa sự kiện. Vui lòng thử lại.",
+      "editDescription": "Chỉnh sửa thông tin của sự kiện giải đấu này."
     },
     "updateSuccess": "Sự kiện đã được cập nhật thành công",
     "updateError": "Không thể cập nhật sự kiện. Vui lòng thử lại.",
@@ -97,7 +98,11 @@
       "selectTeam": "Chọn Đội Thắng Cuộc",
       "success": "Đã trao giải thưởng thành công!",
       "error": "Trao giải thưởng thất bại"
-    }
+    },
+    "noEvents": "Không tìm thấy sự kiện nào",
+    "noEventsFound": "Không tìm thấy sự kiện nào cho giải đấu này",
+    "deleteSuccess": "Sự kiện đã được xóa thành công!",
+    "deleteError": "Không thể xóa sự kiện. Vui lòng thử lại."
   },
   "eventDetail": {
     "backToTournament": "Quay lại",
@@ -153,6 +158,8 @@
     "player1": "Người chơi 1 (Bạn)",
     "player2": "Người chơi 2 (Bạn đồng hành)",
     "loadingFriends": "Đang tải danh sách bạn bè...",
+    "loadFriendsError": "Không thể tải danh sách bạn bè",
+    "loadPartnerError": "Không thể tải thông tin bạn đồng hành",
     "noFriendsFound": "Không tìm thấy bạn bè nào. Vui lòng kết bạn để đăng ký sự kiện đánh đôi.",
     "selectPartnerPlaceholder": "Chọn bạn đồng hành",
     "partnerRequiredNotice": "Vui lòng chọn bạn đồng hành để hoàn tất đăng ký.",

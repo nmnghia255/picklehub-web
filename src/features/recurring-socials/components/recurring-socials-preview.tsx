@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 
@@ -18,11 +18,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useRecurringSocialsTranslation } from "@/i18n/use-recurring-socials-translation"
 
 import type { RecurringSocialFormData } from "../recurring-socials.types"
 import { SchedulePreview } from "../recurring-socials.types"
 import {
-  formatDateDisplay,
+  formatDateDisplayWithLocale,
   formatDateRangeDisplay,
   generateSchedulePreview,
   getRecurrenceTypeLabel,
@@ -30,12 +31,15 @@ import {
 
 interface RecurringSocialsPreviewProps {
   formData: RecurringSocialFormData
+  locale?: string
 }
 
 export function RecurringSocialsPreview({
   formData,
+  locale = "vi-VN",
 }: RecurringSocialsPreviewProps) {
-  const schedules = generateSchedulePreview(formData)
+  const { t } = useRecurringSocialsTranslation()
+  const schedules = generateSchedulePreview(formData, locale)
 
   if (schedules.length === 0) {
     return null
@@ -44,17 +48,16 @@ export function RecurringSocialsPreview({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Tóm tắt lịch social sẽ được tạo</CardTitle>
+        <CardTitle>{t("recurringSocials.preview.title")}</CardTitle>
         <CardDescription>
-          Danh sách các buổi social tự động sẽ được tạo
+          {t("recurringSocials.preview.description")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Summary Stats */}
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/50">
             <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-              Tổng số social
+              {t("recurringSocials.preview.totalSocials")}
             </p>
             <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">
               {schedules.length}
@@ -63,49 +66,62 @@ export function RecurringSocialsPreview({
 
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/50">
             <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-              Kiểu lặp
+              {t("recurringSocials.preview.recurrenceType")}
             </p>
             <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">
               <Badge variant="outline">
-                {getRecurrenceTypeLabel(formData.recurrenceType)}
+                {getRecurrenceTypeLabel(formData.recurrenceType, t)}
               </Badge>
             </p>
           </div>
 
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/50">
             <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-              Khoảng thời gian
+              {t("recurringSocials.preview.dateRange")}
             </p>
             <p className="mt-2 text-sm font-bold text-slate-900 dark:text-slate-100">
-              {formatDateRangeDisplay(formData.startDate, formData.endDate)}
+              {formatDateRangeDisplay(
+                formData.startDate,
+                formData.endDate,
+                locale
+              )}
             </p>
           </div>
         </div>
 
-        {/* Time Range */}
         <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950">
           <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-            ⏰ {formData.startTime} - {formData.endTime}
+            {t("recurringSocials.preview.timeRangeValue", {
+              start: formData.startTime,
+              end: formData.endTime,
+            })}
           </p>
         </div>
 
-        {/* Schedule Table */}
         <div className="overflow-hidden rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Ngày</TableHead>
-                <TableHead>Thứ</TableHead>
-                <TableHead>Giờ</TableHead>
-                <TableHead className="text-right">Sân</TableHead>
-                <TableHead className="text-right">Sức chứa</TableHead>
+                <TableHead>
+                  {t("recurringSocials.preview.table.date")}
+                </TableHead>
+                <TableHead>{t("recurringSocials.preview.table.day")}</TableHead>
+                <TableHead>
+                  {t("recurringSocials.preview.table.time")}
+                </TableHead>
+                <TableHead className="text-right">
+                  {t("recurringSocials.preview.table.courts")}
+                </TableHead>
+                <TableHead className="text-right">
+                  {t("recurringSocials.preview.table.capacity")}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {schedules.map((schedule, idx) => (
                 <TableRow key={idx}>
                   <TableCell className="font-medium">
-                    {formatDateDisplay(schedule.date)}
+                    {formatDateDisplayWithLocale(schedule.date, locale)}
                   </TableCell>
                   <TableCell>{schedule.dayName}</TableCell>
                   <TableCell className="text-sm">
@@ -116,7 +132,9 @@ export function RecurringSocialsPreview({
                   </TableCell>
                   <TableCell className="text-right">
                     <Badge variant="secondary">
-                      {schedule.totalCapacity} người
+                      {t("recurringSocials.common.peopleCount", {
+                        count: schedule.totalCapacity,
+                      })}
                     </Badge>
                   </TableCell>
                 </TableRow>
@@ -125,11 +143,11 @@ export function RecurringSocialsPreview({
           </Table>
         </div>
 
-        {/* Info Message */}
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950">
           <p className="text-sm text-amber-900 dark:text-amber-100">
-            💡 Hiển thị {Math.min(10, schedules.length)} buổi đầu tiên. Nhấn{" "}
-            {'"'}Tiếp theo{'"'} để xác nhận tạo tất cả.
+            {t("recurringSocials.preview.infoMessage", {
+              count: Math.min(10, schedules.length),
+            })}
           </p>
         </div>
       </CardContent>

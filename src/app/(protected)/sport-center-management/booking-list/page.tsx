@@ -18,6 +18,7 @@ import { sortBookingsByNewest } from "@/features/sport-center-management/compone
 import { useBookingListStore } from "@/features/sport-center-management/stores/booking-list-store"
 import { useCourtScheduleStore } from "@/features/sport-center-management/stores/court-schedule-store"
 import type { Booking } from "@/features/sport-center-management/types/booking"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 const PAGE_SIZE = 20
 
@@ -55,6 +56,7 @@ function BookingListPageContent({
   createdAtFilter: BookingCreatedAtFilter
   statusFilter: "all" | Booking["status"]
 }) {
+  const { t } = useSportCenterManagementTranslation()
   const bookings = useBookingListStore((state) => state.bookings)
   const setBookings = useBookingListStore((state) => state.setBookings)
   const setIsLoadingBookings = useBookingListStore(
@@ -109,7 +111,7 @@ function BookingListPageContent({
         setLoadError(
           error instanceof Error
             ? error.message
-            : "Không thể tải danh sách đặt sân"
+            : t("bookingList.empty.loadErrorTitle")
         )
       } finally {
         if (active) {

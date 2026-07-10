@@ -45,7 +45,12 @@ export function Sponsors({ tournamentId }: SponsorsProps) {
         if (res.success && res.data) {
           setSponsors(res.data)
         } else {
-          toast.error(res.error || "Failed to load sponsors")
+          toast.error(
+            res.error ||
+              t("sponsors.loadError", {
+                defaultValue: "Failed to load sponsors",
+              })
+          )
         }
         setIsLoading(false)
       })
@@ -92,7 +97,12 @@ export function Sponsors({ tournamentId }: SponsorsProps) {
       setSponsors((prev) => [...prev, res.data])
       setIsCreateOpen(false)
     } else {
-      toast.error(res.error || "Failed to add sponsor")
+      toast.error(
+        res.error ||
+          t("sponsors.addError", {
+            defaultValue: "Failed to add sponsor",
+          })
+      )
     }
   }
 
@@ -107,11 +117,20 @@ export function Sponsors({ tournamentId }: SponsorsProps) {
         )
         setSponsors((prev) => prev.filter((s) => s.id !== id))
       } else {
-        toast.error(res.error || "Failed to delete sponsor")
+        toast.error(
+          res.error ||
+            t("sponsors.deleteError", {
+              defaultValue: "Failed to delete sponsor",
+            })
+        )
       }
     } catch (error) {
       console.error("Failed to delete sponsor:", error)
-      toast.error("Failed to delete sponsor")
+      toast.error(
+        t("sponsors.deleteError", {
+          defaultValue: "Failed to delete sponsor",
+        })
+      )
     }
   }
 

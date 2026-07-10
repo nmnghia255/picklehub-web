@@ -43,7 +43,11 @@
     "sessionTitle": "Session Title",
     "sessionLabel": "Session",
     "sessionTitlePlaceholder": "e.g., Morning Session - Courts 1 & 2",
+    "locationLabel": "Location",
+    "locationPlaceholder": "Sports Center ABC, 123 Main St",
     "maxSlots": "Max Slots",
+    "feePlaceholder": "0",
+    "maxSlotPlaceholder": "10",
     "status": "Status",
     "privateEvent": "Private Event",
     "autoApproveJoinRequests": "Auto-approve Join Requests",
@@ -58,6 +62,8 @@
     "addPlaySessionsHint": "Add play sessions to organize your social into specific time slots and courts.",
     "createSuccess": "Social created successfully!",
     "updateSuccess": "Social updated successfully!",
+    "submitError": "Failed to save social",
+    "deleteError": "Failed to delete social",
     "save": "Save Social",
     "create": "Create Social",
     "update": "Update Social",
@@ -91,7 +97,8 @@
       "startTimeRequired": "Please select the date and start time",
       "endTimeRequired": "Please select the end time",
       "maxSlotsRequired": "Maximum participants must be at least 1"
-    }
+    },
+    "pickDate": "Choose a date"
   },
   "sessionForm": {
     "createTitle": "Create Play Session",
@@ -156,7 +163,7 @@
     "createSession": "Create Session",
     "hours_one": "{{count}} hour",
     "hours_other": "{{count}} hours",
-    "noSessionsDescription": "Hãy tạo một phiên chơi mới.",
+    "noSessionsDescription": "Create a new play session.",
     "startSession": "Start Session",
     "completeSession": "Complete Session",
     "startSuccess": "Play session started successfully",
@@ -166,6 +173,11 @@
     "joinSuccess": "Successfully joined the play session",
     "joinError": "Failed to join the play session",
     "leaveSuccess": "Successfully left the play session",
-    "leaveError": "Failed to leave the play session"
+    "leaveError": "Failed to leave the play session",
+    "backToSocials": "Back",
+    "joining": "Joining...",
+    "leaving": "Leaving...",
+    "notFoundTitle": "Play session not found",
+    "notFoundDescription": "The play session you are looking for does not exist."
   }
 }

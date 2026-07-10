@@ -4,6 +4,7 @@ import { useState } from "react"
 
 import { Pagination } from "@/components/common/pagination"
 import { cancelBookingAction } from "@/features/sport-center-management/actions/booking-actions"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { Booking } from "../../types/booking"
 import { BookingDetailDialog } from "./booking-detail-dialog/booking-detail-dialog"
@@ -50,6 +51,7 @@ export function BookingListResults({
   onNextPage,
   pendingAction,
 }: BookingListResultsProps) {
+  const { t } = useSportCenterManagementTranslation()
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [cancelTarget, setCancelTarget] = useState<Booking | null>(null)
 
@@ -60,9 +62,9 @@ export function BookingListResults({
   if (loadError) {
     return (
       <BookingEmptyState
-        title="Không thể tải danh sách đặt sân"
+        title={t("bookingList.empty.loadErrorTitle")}
         description={loadError}
-        actionLabel="Thử lại"
+        actionLabel={t("bookingList.empty.loadErrorAction")}
         onAction={onRetry}
       />
     )
@@ -72,9 +74,9 @@ export function BookingListResults({
     if (hasActiveFilters) {
       return (
         <BookingEmptyState
-          title="Không có kết quả phù hợp"
-          description="Hãy thử thay đổi bộ lọc ngày tạo hoặc trạng thái để xem các lượt đặt khác."
-          actionLabel="Xóa bộ lọc"
+          title={t("bookingList.empty.noResultsTitle")}
+          description={t("bookingList.empty.noResultsDescription")}
+          actionLabel={t("bookingList.empty.reset")}
           onAction={onResetFilters}
         />
       )
@@ -82,9 +84,9 @@ export function BookingListResults({
 
     return (
       <BookingEmptyState
-        title="Chưa có lượt đặt nào"
-        description="Khi người chơi tạo lượt đặt mới, chúng sẽ xuất hiện ở đây để bạn theo dõi và xử lý."
-        actionLabel="Làm mới"
+        title={t("bookingList.empty.noBookingsTitle")}
+        description={t("bookingList.empty.noBookingsDescription")}
+        actionLabel={t("bookingList.empty.refresh")}
         onAction={onRetry}
       />
     )

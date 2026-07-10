@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import { useCourtScheduleStore } from "../../stores/court-schedule-store"
 
@@ -22,6 +23,7 @@ export function QuickBookingModal({
   onClose,
   onCreate,
 }: QuickBookingModalProps) {
+  const { t } = useSportCenterManagementTranslation()
   const quickBookingSlot = useCourtScheduleStore(
     (state) => state.quickBookingSlot
   )
@@ -81,7 +83,7 @@ export function QuickBookingModal({
     >
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Đặt sân nhanh</DialogTitle>
+          <DialogTitle>{t("courts.quickBooking.title")}</DialogTitle>
         </DialogHeader>
 
         <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
@@ -89,7 +91,7 @@ export function QuickBookingModal({
             <span className="text-emerald-900">
               {quickBookingSlot.courtName}
             </span>{" "}
-            lúc{" "}
+            {t("courts.quickBooking.courtTime")}{" "}
             <span className="text-emerald-900">{quickBookingSlot.time}</span>
           </p>
         </div>
@@ -98,7 +100,7 @@ export function QuickBookingModal({
           {/* Player Name */}
           <div>
             <label className="mb-2 block text-sm text-muted-foreground">
-              Tên người chơi
+              {t("courts.quickBooking.playerName")}
             </label>
             <div className="relative">
               <User className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
@@ -106,7 +108,7 @@ export function QuickBookingModal({
                 type="text"
                 value={quickBookingPlayerName}
                 onChange={(e) => setQuickBookingPlayerName(e.target.value)}
-                placeholder="Nhập tên người chơi"
+                placeholder={t("courts.quickBooking.playerNamePlaceholder")}
                 className="bg-input-background w-full rounded-lg border border-border py-2 pr-4 pl-10 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 required
               />
@@ -115,7 +117,7 @@ export function QuickBookingModal({
           {/* Phone number */}
           <div>
             <label className="mb-2 block text-sm text-muted-foreground">
-              Số điện thoại
+              {t("courts.quickBooking.phone")}
             </label>
             <div className="relative">
               <Phone className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
@@ -123,7 +125,7 @@ export function QuickBookingModal({
                 type="text"
                 value={quickBookingPhone}
                 onChange={(e) => setQuickBookingPhone(e.target.value)}
-                placeholder="Nhập số điện thoại"
+                placeholder={t("courts.quickBooking.phonePlaceholder")}
                 className="bg-input-background w-full rounded-lg border border-border py-2 pr-4 pl-10 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 required
               />
@@ -132,13 +134,13 @@ export function QuickBookingModal({
 
           <div>
             <label className="mb-2 block text-sm text-muted-foreground">
-              Ghi chú
+              {t("courts.quickBooking.note")}
             </label>
             <div className="relative">
               <textarea
                 value={quickBookingNote}
                 onChange={(e) => setQuickBookingNote(e.target.value)}
-                placeholder="Nhập ghi chú cho lượt đặt sân"
+                placeholder={t("courts.quickBooking.notePlaceholder")}
                 rows={3}
                 className="bg-input-background w-full rounded-lg border border-border px-4 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 required
@@ -153,13 +155,13 @@ export function QuickBookingModal({
               variant="outline"
               className="flex-1 sm:flex-none"
             >
-              Hủy
+              {t("courts.quickBooking.cancel")}
             </Button>
             <Button
               type="submit"
               className="flex-1 bg-linear-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 sm:flex-none"
             >
-              Xác nhận đặt sân
+              {t("courts.quickBooking.confirm")}
             </Button>
           </DialogFooter>
         </form>

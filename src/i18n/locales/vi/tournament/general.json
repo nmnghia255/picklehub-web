@@ -18,8 +18,14 @@
       "sponsors": "Nhà tài trợ",
       "public": "Chế độ xem công khai",
       "payment": "Thanh toán",
-      "personnel": "Nhân sự"
+      "personnel": "Nhân sự",
+      "more": "Thêm"
     }
+  },
+  "common": {
+    "loading": "Đang tải...",
+    "saving": "Đang lưu...",
+    "deleting": "Đang xóa..."
   },
   "list": {
     "title": "Các Giải đấu",
@@ -107,6 +113,8 @@
     "score": "Tỉ số",
     "tracker": {
       "loading": "Đang tải bảng ghi điểm...",
+      "teamADefault": "Đội A",
+      "teamBDefault": "Đội B",
       "servingTurn": "Lượt giao bóng",
       "serverBadge": "Lượt giao {{number}}",
       "scoreCallFormat": "Cách gọi tỷ số: ",

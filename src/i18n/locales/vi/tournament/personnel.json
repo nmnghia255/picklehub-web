@@ -26,7 +26,10 @@
       "unenrollTitle": "Xóa Trọng tài?",
       "unenrollDesc": "Bạn có chắc chắn muốn xóa {{name}} khỏi danh sách? Hành động này không thể hoàn tác và sẽ thất bại nếu trọng tài này đang được phân công cho bất kỳ trận đấu nào.",
       "unenrollConfirm": "Xóa Trọng tài",
-      "cancel": "Hủy"
+      "cancel": "Hủy",
+      "loading": "Đang tải danh sách trọng tài...",
+      "unenrollSuccess": "Đã xóa trọng tài khỏi giải đấu",
+      "unenrollFailed": "Không thể xóa trọng tài. Hãy chắc chắn họ không còn được phân công nào."
     },
     "enrollDialog": {
       "title": "Thêm Trọng tài Mới",
@@ -41,7 +44,14 @@
       "emailPlaceholder": "nguyenvanan@email.com",
       "phoneLabel": "Số Điện thoại",
       "phonePlaceholder": "+84987654321",
-      "submitBtn": "Thêm Trọng tài"
+      "submitBtn": "Thêm Trọng tài",
+      "verifyBtn": "Xác thực",
+      "verifyFirst": "Vui lòng xác thực mã trọng tài trước",
+      "verifiedStatus": "Hồ sơ đã được xác thực và sẵn sàng ghi danh",
+      "profileNotFound": "Không tìm thấy hồ sơ người dùng. Vui lòng kiểm tra lại mã.",
+      "fetchFailed": "Không thể tải hồ sơ người dùng.",
+      "successToast": "Thêm trọng tài thành công!",
+      "failToast": "Thêm trọng tài thất bại"
     },
     "assignments": {
       "searchPlaceholder": "Tìm trận đấu, vòng đấu, đội hoặc trọng tài...",
@@ -56,7 +66,13 @@
       "refereeLabel": "Trọng tài phân công",
       "unassigned": "Chưa phân công",
       "reassignPlaceholder": "Đổi trọng tài",
-      "assignPlaceholder": "Phân công Trọng tài"
+      "assignPlaceholder": "Phân công Trọng tài",
+      "loading": "Đang tải danh sách trạn đấu...",
+      "noReferees": "Chưa có trọng tài nào được ghi danh",
+      "assignSuccess": "Phân công trọng tài thành công!",
+      "assignFailed": "Phân công trọng tài thất bại",
+      "unassignSuccess": "Đã hủy phân công trọng tài khỏi trạn đấu",
+      "unassignFailed": "Hủy phân công trọng tài thất bại"
     }
   },
   "referee": {

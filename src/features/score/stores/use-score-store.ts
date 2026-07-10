@@ -41,6 +41,8 @@ interface ScoreActions {
   initialize: (params: {
     team1?: string | null
     team2?: string | null
+    defaultTeam1Label: string
+    defaultTeam2Label: string
     isMatchServiceMatch: boolean
   }) => void
   setTeamNames: (teamA: string, teamB: string) => void
@@ -88,8 +90,8 @@ const getPlayers = (teamStr: string | null, defaultPrefix: string) => {
 
 export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
   // Initial state
-  teamAName: "Đội A",
-  teamBName: "Đội B",
+  teamAName: "",
+  teamBName: "",
   playerNames: {
     A1: "A1",
     A2: "A2",
@@ -114,13 +116,19 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
   socket: null,
 
   // Actions
-  initialize: ({ team1, team2, isMatchServiceMatch }) => {
+  initialize: ({
+    team1,
+    team2,
+    defaultTeam1Label,
+    defaultTeam2Label,
+    isMatchServiceMatch,
+  }) => {
     const [initialA1, initialA2] = getPlayers(team1 || null, "A")
     const [initialB1, initialB2] = getPlayers(team2 || null, "B")
 
     set({
-      teamAName: team1 || "Đội A",
-      teamBName: team2 || "Đội B",
+      teamAName: team1 || defaultTeam1Label,
+      teamBName: team2 || defaultTeam2Label,
       playerNames: {
         A1: initialA1,
         A2: initialA2,

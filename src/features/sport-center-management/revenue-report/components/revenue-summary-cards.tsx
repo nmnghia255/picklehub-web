@@ -3,6 +3,7 @@
 import { BadgeDollarSign, Clock9, ReceiptText, WalletCards } from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { RevenueSummary } from "../types"
 import { formatCurrencyVnd } from "../utils/format"
@@ -11,25 +12,25 @@ import { RevenueEmptyState } from "./revenue-empty-state"
 const CARD_CONFIG = [
   {
     key: "totalSettledRevenue",
-    label: "Doanh thu đã quyết toán",
+    labelKey: "revenue.summary.settledRevenue",
     icon: BadgeDollarSign,
     tone: "text-emerald-600",
   },
   {
     key: "totalPendingRevenue",
-    label: "Doanh thu chờ duyệt",
+    labelKey: "revenue.summary.pendingRevenue",
     icon: Clock9,
     tone: "text-amber-600",
   },
   {
     key: "settledTransactionCount",
-    label: "Giao dịch đã quyết toán",
+    labelKey: "revenue.summary.settledTransactions",
     icon: WalletCards,
     tone: "text-sky-600",
   },
   {
     key: "pendingTransactionCount",
-    label: "Giao dịch chờ duyệt",
+    labelKey: "revenue.summary.pendingTransactions",
     icon: ReceiptText,
     tone: "text-orange-600",
   },
@@ -42,8 +43,9 @@ export function RevenueSummaryCards({
   summary: RevenueSummary | null
   loading: boolean
 }) {
+  const { t } = useSportCenterManagementTranslation()
   if (!summary && !loading) {
-    return <RevenueEmptyState title="Chưa có dữ liệu doanh thu tổng quan" />
+    return <RevenueEmptyState title={t("revenue.empty.summary")} />
   }
 
   return (
@@ -69,7 +71,9 @@ export function RevenueSummaryCards({
                 </div>
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">{card.label}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t(card.labelKey)}
+                </p>
                 <p className="text-2xl font-semibold tracking-tight">{value}</p>
               </div>
             </CardContent>

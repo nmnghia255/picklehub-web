@@ -5,6 +5,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 interface Props {
   open: boolean
@@ -18,14 +19,18 @@ interface Props {
 export function CancelReasonDialog({
   open,
   onOpenChange,
-  title = "Lý do hủy",
-  description = "Vui lòng nhập lý do hủy.",
-  submitLabel = "Xác nhận hủy",
+  title,
+  description,
+  submitLabel,
   onSubmit,
 }: Props) {
+  const { t } = useSportCenterManagementTranslation()
   const [reason, setReason] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const dialogTitle = title ?? t("bookingList.dialog.title")
+  const dialogDescription = description ?? t("bookingList.dialog.description")
+  const dialogSubmitLabel = submitLabel ?? t("bookingList.dialog.confirm")
 
   const handleClose = () => {
     setReason("")
@@ -51,12 +56,12 @@ export function CancelReasonDialog({
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
       <DialogContent className="max-w-lg">
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">{title}</h3>
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <h3 className="text-lg font-semibold">{dialogTitle}</h3>
+          <p className="text-sm text-muted-foreground">{dialogDescription}</p>
           <Textarea
             value={reason}
             onChange={(e) => setReason((e.target as HTMLTextAreaElement).value)}
-            placeholder="Lý do hủy..."
+            placeholder={t("bookingList.dialog.placeholder")}
             rows={4}
           />
 
@@ -68,14 +73,14 @@ export function CancelReasonDialog({
               onClick={handleClose}
               disabled={isSubmitting}
             >
-              Đóng
+              {t("bookingList.dialog.close")}
             </Button>
             <Button
               onClick={handleSubmit}
               variant="destructive"
               disabled={isSubmitting}
             >
-              {submitLabel}
+              {dialogSubmitLabel}
             </Button>
           </div>
         </div>

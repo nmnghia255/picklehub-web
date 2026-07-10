@@ -1,5 +1,6 @@
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
+
 import type { BookingStatus } from "../../types/booking"
-import { getBookingStatusLabel } from "./booking-list.utils"
 
 const statusStyles: Record<BookingStatus, string> = {
   PENDING:
@@ -13,11 +14,14 @@ const statusStyles: Record<BookingStatus, string> = {
 }
 
 export function BookingStatusBadge({ status }: { status: BookingStatus }) {
+  const { t } = useSportCenterManagementTranslation()
+  const labelKey = `bookingList.status.${status.toLowerCase()}`
+
   return (
     <span
       className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium ${statusStyles[status]}`}
     >
-      {getBookingStatusLabel(status)}
+      {t(labelKey)}
     </span>
   )
 }

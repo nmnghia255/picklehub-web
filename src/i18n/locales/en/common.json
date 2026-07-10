@@ -1,11 +1,6 @@
 {
   "brand": "PickleHub",
-  "create": "Create",
-  "createError": "Creation failed",
-  "createSuccess": "Created successfully",
   "delete": "Delete",
-  "deleteError": "Deletion failed",
-  "deleteSuccess": "Deleted successfully",
   "settings": {
     "title": "Settings",
     "description": "Adjust language, appearance, and sign out from this device.",
@@ -178,6 +173,16 @@
     "mobileTitle": "Sidebar",
     "mobileDescription": "Displays the mobile sidebar.",
     "toggle": "Toggle sidebar"
+  },
+  "previewImageAlt": "Preview image",
+  "logoAlt": "PickleHub logo",
+  "commandPalette": {
+    "title": "Command Palette",
+    "description": "Search for a command to run..."
+  },
+  "multiSelect": {
+    "placeholder": "Select items...",
+    "emptyMessage": "No items found."
   },
   "header": {
     "notifications": "Notifications",
@@ -697,9 +702,9 @@
         "statistics": "Statistics",
         "enrolled": "Enrolled",
         "tuition": "Tuition",
-      "location": "Location",
-      "locationPlaceholder": "e.g. PickleHub District 1",
-      "notSet": "Not set",
+        "location": "Location",
+        "locationPlaceholder": "e.g. PickleHub District 1",
+        "notSet": "Not set",
         "className": "Class name",
         "level": "Level",
         "capacity": "Capacity",
@@ -1574,7 +1579,10 @@
       "loading": "Loading...",
       "requestSentBio": "Friend request sent",
       "requestReceivedBio": "Friend request received",
-      "inviteSource": "Friend service"
+      "inviteSource": "Friend service",
+      "levelBeginner": "Beginner",
+      "levelIntermediate": "Intermediate",
+      "levelAdvanced": "Advanced"
     }
   },
   "equipment": {
@@ -1782,10 +1790,5 @@
   "spinner": {
     "loading": "Loading"
   },
-  "saveError": "Save failed",
-  "saveSuccess": "Saved successfully",
-  "saving": "Saving...",
-  "update": "Update",
-  "updateError": "Update failed",
-  "updateSuccess": "Updated successfully"
+  "saving": "Saving..."
 }

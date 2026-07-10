@@ -4,6 +4,7 @@ import { TableCell, TableRow } from "@/components/ui/table"
 import { formatCurrency } from "@/features/sport-center-management/components/booking-list/booking-list.utils"
 import { BookingStatusBadge } from "@/features/sport-center-management/components/booking-list/booking-status-badge"
 import type { CustomerListItem } from "@/features/sport-center-management/types/customer"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 import { cn } from "@/lib/utils"
 
 import { formatDateTimeLong, formatVisitBreakdown } from "./customer.utils"
@@ -17,6 +18,7 @@ export function CustomerManagementTableRow({
   customer,
   onSelect,
 }: CustomerManagementTableRowProps) {
+  const { t } = useSportCenterManagementTranslation()
   const { summary, latestBooking } = customer
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTableRowElement>) => {
@@ -48,17 +50,18 @@ export function CustomerManagementTableRow({
 
       <TableCell className="w-[16%] whitespace-normal">
         <p className="font-medium text-foreground">
-          {customer.customer.phoneNumber || "Chưa cập nhật"}
+          {customer.customer.phoneNumber || t("common.phoneNotUpdated")}
         </p>
       </TableCell>
 
       <TableCell className="w-[20%] whitespace-normal">
         <div className="space-y-1">
           <p className="font-medium text-foreground">
-            {summary.visitCount} lượt
+            {t("customer.detail.visitCount", { count: summary.visitCount })}
           </p>
           <p className="text-xs text-muted-foreground">
-            Lần cuối: {formatDateTimeLong(summary.lastVisitAt)}
+            {t("customer.detail.lastVisit")}:{" "}
+            {formatDateTimeLong(summary.lastVisitAt)}
           </p>
         </div>
       </TableCell>
@@ -66,11 +69,15 @@ export function CustomerManagementTableRow({
       <TableCell className="w-[18%] whitespace-normal">
         <div className="space-y-2">
           <p className="font-medium text-foreground">
-            Tổng: {summary.visitCount}
+            {t("customer.detail.visitCountLabel")}: {summary.visitCount}
           </p>
           <div className="flex flex-wrap gap-1">
             <p className="text-sm text-muted-foreground">
-              {formatVisitBreakdown(summary)}
+              {formatVisitBreakdown(summary, {
+                completed: t("bookingList.status.completed"),
+                pending: t("bookingList.status.pending"),
+                cancelled: t("bookingList.status.cancelled"),
+              })}
             </p>
           </div>
         </div>
@@ -82,7 +89,8 @@ export function CustomerManagementTableRow({
             {formatCurrency(summary.totalSpend)}
           </p>
           <p className="text-sm text-muted-foreground">
-            Số dư: {formatCurrency(summary.creditBalance)}
+            {t("customer.detail.creditBalance")}:{" "}
+            {formatCurrency(summary.creditBalance)}
           </p>
         </div>
       </TableCell>
@@ -98,7 +106,7 @@ export function CustomerManagementTableRow({
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Chưa có đặt sân gần nhất
+            {t("customer.detail.noRecentBookings")}
           </p>
         )}
       </TableCell>

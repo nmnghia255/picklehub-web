@@ -20,9 +20,8 @@ export function EmptyState({ variant = "sport-center" }: EmptyStateProps) {
           description: t("listing.emptyDescription"),
         }
       : {
-          title: "Chưa có sân đã đặt",
-          description:
-            "Bạn chưa đánh dấu sân nào vào danh sách đã đặt. Hãy chọn một sân để theo dõi nhanh tại đây.",
+          title: t("booking.history.noBookings"),
+          description: t("booking.history.noBookingsDesc"),
         }
 
   return (

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { Plus } from "lucide-react"
 import React, { useState } from "react"
@@ -7,13 +7,13 @@ import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
+import { useRecurringSocialsTranslation } from "@/i18n/use-recurring-socials-translation"
 
 import { MOCK_RECURRING_SOCIALS } from "../recurring-socials.mock"
 import type {
@@ -21,6 +21,11 @@ import type {
   RecurringSocialTemplate,
   SchedulePreview,
 } from "../recurring-socials.types"
+import {
+  getLocalizedText,
+  getSocialTypeLabel,
+  getStatusLabel,
+} from "../recurring-socials.utils"
 import { RecurringSocialsForm } from "./recurring-socials-form"
 import { RecurringSocialsList } from "./recurring-socials-list"
 
@@ -30,11 +35,11 @@ export function RecurringSocialsPage() {
     MOCK_RECURRING_SOCIALS
   )
   const { toast } = useToast()
+  const { t } = useRecurringSocialsTranslation()
 
   const handleCreateSocial = (
     data: RecurringSocialFormData & { schedulePreview?: SchedulePreview[] }
   ) => {
-    // Mock: thêm social mới vào danh sách
     const newSocial: RecurringSocialTemplate = {
       id: `rs-${Date.now()}`,
       name: data.name,
@@ -66,12 +71,17 @@ export function RecurringSocialsPage() {
     setActiveTab("list")
 
     toast({
-      title: "Thành công",
-      description: `Đã tạo ${data.schedulePreview?.length || 0} buổi social tự động`,
+      title: t("recurringSocials.toast.successTitle"),
+      description: t("recurringSocials.toast.created", {
+        count: data.schedulePreview?.length || 0,
+      }),
     })
   }
 
   const handlePauseSocial = (id: string) => {
+    const social = socials.find((s) => s.id === id)
+    const willPause = social?.status === "active"
+
     setSocials(
       socials.map((s) =>
         s.id === id
@@ -80,10 +90,14 @@ export function RecurringSocialsPage() {
       )
     )
 
-    const social = socials.find((s) => s.id === id)
     toast({
-      title: "Thành công",
-      description: `${social?.status === "active" ? "Tạm dừng" : "Kích hoạt"} social: ${social?.name}`,
+      title: t("recurringSocials.toast.successTitle"),
+      description: t("recurringSocials.toast.paused", {
+        action: willPause
+          ? t("recurringSocials.list.actions.pause")
+          : t("recurringSocials.list.actions.activate"),
+        name: getLocalizedText(social?.name ?? "", t, social?.nameKey),
+      }),
     })
   }
 
@@ -92,60 +106,60 @@ export function RecurringSocialsPage() {
     setSocials(socials.filter((s) => s.id !== id))
 
     toast({
-      title: "Thành công",
-      description: `Đã xóa social: ${social?.name}`,
+      title: t("recurringSocials.toast.successTitle"),
+      description: t("recurringSocials.toast.deleted", {
+        name: getLocalizedText(social?.name ?? "", t, social?.nameKey),
+      }),
       variant: "destructive",
     })
   }
 
-  const handleEditSocial = (social: RecurringSocialTemplate) => {
+  const handleEditSocial = () => {
     toast({
-      title: "Thông báo",
-      description:
-        "Chức năng chỉnh sửa sẽ được cập nhật trong phiên bản tiếp theo",
+      title: t("recurringSocials.toast.infoTitle"),
+      description: t("recurringSocials.toast.editSoon"),
     })
   }
 
   const handleViewSocial = (social: RecurringSocialTemplate) => {
     toast({
-      title: social.name,
-      description: `Loại: ${social.socialType} | Trạng thái: ${social.status}`,
+      title: getLocalizedText(social.name, t, social.nameKey),
+      description: t("recurringSocials.toast.viewDetails", {
+        type: getSocialTypeLabel(social.socialType, t),
+        status: getStatusLabel(social.status, t),
+      }),
     })
   }
 
   return (
     <PageContainer>
       <div className="space-y-6">
-        {/* Header */}
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-            Tự động tạo Social
+            {t("recurringSocials.page.title")}
           </h1>
           <p className="text-slate-600 dark:text-slate-400">
-            Thiết lập lịch social định kỳ tự động cho hệ thống quản lý
-            Pickleball Social
+            {t("recurringSocials.page.subtitle")}
           </p>
         </div>
 
-        {/* Tabs */}
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as "create" | "list")}
         >
           <TabsList className="grid w-full grid-cols-2 sm:w-auto">
             <TabsTrigger value="list" className="gap-2">
-              Danh sách
+              {t("recurringSocials.page.tabs.list")}
               <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-semibold text-slate-900 dark:bg-slate-700 dark:text-slate-100">
                 {socials.length}
               </span>
             </TabsTrigger>
             <TabsTrigger value="create" className="gap-2">
               <Plus className="size-4" />
-              Tạo mới
+              {t("recurringSocials.page.tabs.create")}
             </TabsTrigger>
           </TabsList>
 
-          {/* List Tab */}
           <TabsContent value="list" className="space-y-6">
             <RecurringSocialsList
               socials={socials}
@@ -156,13 +170,12 @@ export function RecurringSocialsPage() {
             />
           </TabsContent>
 
-          {/* Create Tab */}
           <TabsContent value="create" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Tạo Social Tự động Mới</CardTitle>
+                <CardTitle>{t("recurringSocials.page.createTitle")}</CardTitle>
                 <CardDescription>
-                  Điền vào các thông tin dưới đây để tạo một lịch social tự động
+                  {t("recurringSocials.page.createDescription")}
                 </CardDescription>
               </CardHeader>
             </Card>

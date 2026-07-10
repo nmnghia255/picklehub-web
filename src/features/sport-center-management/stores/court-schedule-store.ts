@@ -2,12 +2,21 @@
 
 import { create } from "zustand"
 
+import enManagement from "@/i18n/locales/en/sport-center-management.json"
+import viManagement from "@/i18n/locales/vi/sport-center-management.json"
+
 import { createBookingAction } from "../actions/create-booking-action"
 import { listOwnerSportCentersAction } from "../actions/sport-center-actions"
 import type { Booking, BookingSlot, BookingStatus } from "../types/booking"
 import type { Court } from "../types/court"
 import type { SportCenter } from "../types/sport-center"
 // booking actions implemented locally to avoid missing module and to use client fetch
+
+function getManagementLocale() {
+  const language =
+    typeof navigator !== "undefined" ? (navigator.language ?? "") : ""
+  return language.toLowerCase().startsWith("vi") ? viManagement : enManagement
+}
 
 export async function fetchBookingsAction(set: SetState, get: GetState) {
   const { centerId, date, courtFilter } = get()
@@ -151,9 +160,13 @@ export function buildBookingKey(court: string, time: string) {
 
 export function mapBookings(items: Booking[]) {
   if (!items || items.length === 0) return {}
+  const management = getManagementLocale()
   return items.reduce<Record<string, Booking>>((accumulator, booking) => {
     const item = booking.bookingItems?.[0]
-    const courtName = item?.court?.name ?? booking.center?.name ?? "Sân"
+    const courtName =
+      item?.court?.name ??
+      booking.center?.name ??
+      management.courts.detail.noCourtName
     const time = item?.startTime ?? booking.createdAt
     accumulator[buildBookingKey(courtName, time)] = booking
     return accumulator

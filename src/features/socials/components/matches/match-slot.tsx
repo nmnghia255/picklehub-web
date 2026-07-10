@@ -60,6 +60,9 @@ export function MatchSlot({
         player={player}
         skillLevelLabel={skillLevelLabel(player.skillLevel)}
         skillLevelColor={skillLevelColor(player.skillLevel)}
+        removeAriaLabel={t("matches.player.removeAria", {
+          name: player.name,
+        })}
         onRemove={() => onPlayerRemove(matchId, player.id)}
         onDragStart={() => onDragStart(player.id)}
         onDragEnd={onDragEnd}

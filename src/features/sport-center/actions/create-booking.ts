@@ -1,10 +1,14 @@
 "use server"
 
+import { headers } from "next/headers"
+
 import { BookingService } from "@/features/sport-center/api/booking-service"
 import type {
   BookingResponse,
   CreateBookingRequest,
 } from "@/features/sport-center/types/booking"
+import enSportCenter from "@/i18n/locales/en/sport-center.json"
+import viSportCenter from "@/i18n/locales/vi/sport-center.json"
 
 export type CreateSportCenterBookingsPayload = {
   centerId: string
@@ -18,13 +22,22 @@ export type CreateSportCenterBookingsState = {
   booking?: BookingResponse
 }
 
+function getSportCenterLocale() {
+  const acceptLanguage = headers().get("accept-language") ?? ""
+  return acceptLanguage.toLowerCase().startsWith("vi")
+    ? viSportCenter
+    : enSportCenter
+}
+
 export async function createSportCenterBookingsAction(
   payload: CreateSportCenterBookingsPayload
 ): Promise<CreateSportCenterBookingsState> {
+  const sportCenter = getSportCenterLocale()
+
   if (!payload.centerId) {
     return {
       success: false,
-      error: "Không tìm thấy mã sân. Vui lòng tải lại trang và thử lại.",
+      error: sportCenter.booking.confirmation.errorNoCenterId,
     }
   }
 
@@ -37,7 +50,7 @@ export async function createSportCenterBookingsAction(
   if (totalItems === 0) {
     return {
       success: false,
-      error: "Vui lòng chọn ít nhất một sân và khung giờ để đặt.",
+      error: sportCenter.booking.confirmation.errorSelectCourts,
     }
   }
 
@@ -52,7 +65,7 @@ export async function createSportCenterBookingsAction(
 
     return {
       success: true,
-      message: "Đã gửi yêu cầu đặt sân thành công.",
+      message: sportCenter.booking.confirmation.successSubmit,
       booking,
     }
   } catch (error) {
@@ -61,7 +74,7 @@ export async function createSportCenterBookingsAction(
       error:
         error instanceof Error
           ? error.message
-          : "Không thể gửi yêu cầu đặt sân.",
+          : sportCenter.booking.confirmation.errorCreateBooking,
     }
   }
 }

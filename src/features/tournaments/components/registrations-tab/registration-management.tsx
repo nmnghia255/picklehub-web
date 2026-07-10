@@ -51,11 +51,20 @@ export function RegistrationManagement({
       if (res.success && res.data) {
         setRegistrations(res.data)
       } else {
-        toast.error(res.error || "Failed to fetch registrations")
+        toast.error(
+          res.error ||
+            t("registrations.loadError", {
+              defaultValue: "Failed to fetch registrations",
+            })
+        )
       }
     } catch (err) {
       console.error("Failed to load registrations:", err)
-      toast.error("Failed to load registrations")
+      toast.error(
+        t("registrations.loadError", {
+          defaultValue: "Failed to load registrations",
+        })
+      )
     } finally {
       setIsLoading(false)
     }
@@ -84,11 +93,20 @@ export function RegistrationManagement({
         )
         fetchRegistrations()
       } else {
-        toast.error(res.error || "Failed to approve registration")
+        toast.error(
+          res.error ||
+            t("registrations.approveError", {
+              defaultValue: "Failed to approve registration",
+            })
+        )
       }
     } catch (error) {
       console.error("Approve error:", error)
-      toast.error("Failed to approve registration")
+      toast.error(
+        t("registrations.approveError", {
+          defaultValue: "Failed to approve registration",
+        })
+      )
     }
   }
 
@@ -108,11 +126,20 @@ export function RegistrationManagement({
         )
         fetchRegistrations()
       } else {
-        toast.error(res.error || "Failed to reject registration")
+        toast.error(
+          res.error ||
+            t("registrations.rejectError", {
+              defaultValue: "Failed to reject registration",
+            })
+        )
       }
     } catch (error) {
       console.error("Reject error:", error)
-      toast.error("Failed to reject registration")
+      toast.error(
+        t("registrations.rejectError", {
+          defaultValue: "Failed to reject registration",
+        })
+      )
     }
   }
 

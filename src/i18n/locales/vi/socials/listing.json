@@ -22,6 +22,7 @@
   },
   "filters": {
     "title": "Bộ lọc",
+    "apply": "Áp dụng",
     "selectStatus": "Chọn trạng thái",
     "selectGenderPolicy": "Chọn giới tính",
     "selectAgeGroup": "Chọn nhóm tuổi",
@@ -35,12 +36,14 @@
     "upcomingOptions": {
       "all": "Tất cả",
       "yes": "Có",
-      "no": "Không"
+      "no": "Không",
+      "notYet": "Chọn"
     },
     "hasAvailableSlotsOptions": {
       "all": "Tất cả",
       "yes": "Còn chỗ trống",
-      "no": "Không còn chỗ trống"
+      "no": "Không còn chỗ trống",
+      "notYet": "Chọn"
     },
     "levelOptions": {
       "1": "1 - Mới bắt đầu",
@@ -48,7 +51,12 @@
       "3": "3 - Trung cấp",
       "4": "4 - Nâng cao",
       "5": "5 - Chuyên nghiệp",
-      "all": "Tất cả"
-    }
+      "all": "Tất cả",
+      "notYet": "Chọn"
+    },
+    "status": "Trạng thái",
+    "genderPolicy": "Giới tính",
+    "ageGroup": "Nhóm tuổi",
+    "format": "Hình thức"
   }
 }

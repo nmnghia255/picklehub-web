@@ -363,7 +363,7 @@ export function MatchAssignments({ events }: MatchAssignmentsProps) {
                             size="icon"
                             className="h-9 w-9 rounded-lg border border-gray-200 bg-white text-gray-400 hover:bg-red-50 hover:text-red-600"
                             onClick={() => handleUnassignReferee(match.id)}
-                            title="Unassign Referee"
+                            title={t("personnel.assignments.unassignReferee")}
                           >
                             <UserMinus className="h-4 w-4" />
                           </Button>

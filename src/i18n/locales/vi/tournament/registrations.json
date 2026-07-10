@@ -41,6 +41,14 @@
       "noRegistrations": "Không tìm thấy lượt đăng ký nào",
       "paymentProof": "Minh chứng thanh toán",
       "viewProof": "Xem minh chứng"
-    }
+    },
+    "approveSuccess": "Đã phê duyệt đăng ký cho {{name}}",
+    "rejectSuccess": "Đã từ chối đăng ký cho {{name}}",
+    "noRegistrations": "Không tìm thấy lượt đăng ký nào",
+    "paymentProof": "Minh chứng thanh toán",
+    "viewProof": "Xem minh chứng",
+    "loadError": "Không thể tải danh sách đăng ký",
+    "approveError": "Không thể duyệt đăng ký",
+    "rejectError": "Không thể từ chối đăng ký"
   }
 }

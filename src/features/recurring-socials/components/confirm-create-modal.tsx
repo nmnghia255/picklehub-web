@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 
@@ -21,6 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useRecurringSocialsTranslation } from "@/i18n/use-recurring-socials-translation"
 
 import type {
   RecurringSocialFormData,
@@ -28,7 +29,7 @@ import type {
 } from "../recurring-socials.types"
 import {
   formatCurrency,
-  formatDateDisplay,
+  formatDateDisplayWithLocale,
   formatDateRangeDisplay,
 } from "../recurring-socials.utils"
 
@@ -36,6 +37,7 @@ interface ConfirmCreateModalProps {
   scheduleCount: number
   schedules: SchedulePreview[]
   formData: RecurringSocialFormData
+  locale?: string
   onConfirm: () => void
   onCancel: () => void
 }
@@ -44,27 +46,29 @@ export function ConfirmCreateModal({
   scheduleCount,
   schedules,
   formData,
+  locale = "vi-VN",
   onConfirm,
   onCancel,
 }: ConfirmCreateModalProps) {
+  const { t } = useRecurringSocialsTranslation()
+
   return (
     <AlertDialog open={true} onOpenChange={onCancel}>
       <AlertDialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-xl">
-            Xác nhận tạo social tự động
+            {t("recurringSocials.confirm.title")}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Vui lòng kiểm tra lại thông tin trước khi tạo
+            {t("recurringSocials.confirm.description")}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Summary Info */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/50">
               <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                Tên social
+                {t("recurringSocials.confirm.socialName")}
               </p>
               <p className="mt-2 text-lg font-bold text-slate-900 dark:text-slate-100">
                 {formData.name}
@@ -73,7 +77,7 @@ export function ConfirmCreateModal({
 
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/50">
               <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                Tổng số social sẽ tạo
+                {t("recurringSocials.confirm.totalSocials")}
               </p>
               <p className="mt-2 text-lg font-bold text-slate-900 dark:text-slate-100">
                 <Badge>{scheduleCount}</Badge>
@@ -82,16 +86,20 @@ export function ConfirmCreateModal({
 
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/50">
               <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                Khoảng thời gian
+                {t("recurringSocials.confirm.dateRange")}
               </p>
               <p className="mt-2 text-sm font-bold text-slate-900 dark:text-slate-100">
-                {formatDateRangeDisplay(formData.startDate, formData.endDate)}
+                {formatDateRangeDisplay(
+                  formData.startDate,
+                  formData.endDate,
+                  locale
+                )}
               </p>
             </div>
 
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/50">
               <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                Khung giờ
+                {t("recurringSocials.confirm.timeRange")}
               </p>
               <p className="mt-2 text-lg font-bold text-slate-900 dark:text-slate-100">
                 {formData.startTime} - {formData.endTime}
@@ -100,7 +108,7 @@ export function ConfirmCreateModal({
 
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/50">
               <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                Số sân
+                {t("recurringSocials.confirm.courtsCount")}
               </p>
               <p className="mt-2 text-lg font-bold text-slate-900 dark:text-slate-100">
                 {formData.selectedCourts.length}
@@ -109,55 +117,65 @@ export function ConfirmCreateModal({
 
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/50">
               <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                Sức chứa dự kiến
+                {t("recurringSocials.confirm.estimatedCapacity")}
               </p>
               <p className="mt-2 text-lg font-bold text-slate-900 dark:text-slate-100">
                 <Badge variant="secondary">
-                  {formData.selectedCourts.length * formData.maxPerCourt} người
+                  {t("recurringSocials.common.peopleCount", {
+                    count:
+                      formData.selectedCourts.length * formData.maxPerCourt,
+                  })}
                 </Badge>
               </p>
             </div>
           </div>
 
-          {/* Court List */}
           <div className="space-y-2">
             <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-              Sân được chọn:
+              {t("recurringSocials.confirm.selectedCourts")}
             </p>
             <div className="flex flex-wrap gap-2">
               {formData.selectedCourts.map((court) => (
                 <Badge key={court.id} variant="outline">
-                  {court.name}
+                  {court.labelKey ? t(court.labelKey) : court.name}
                 </Badge>
               ))}
             </div>
           </div>
 
-          {/* First 5 Schedule Preview */}
           <div className="space-y-2">
             <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-              Danh sách 5 buổi đầu tiên:
+              {t("recurringSocials.confirm.firstSessions")}
             </p>
             <div className="overflow-hidden rounded-lg border">
               <Table className="text-sm">
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Ngày</TableHead>
-                    <TableHead>Giờ</TableHead>
-                    <TableHead className="text-right">Sức chứa</TableHead>
+                    <TableHead>
+                      {t("recurringSocials.preview.table.date")}
+                    </TableHead>
+                    <TableHead>
+                      {t("recurringSocials.preview.table.time")}
+                    </TableHead>
+                    <TableHead className="text-right">
+                      {t("recurringSocials.preview.table.capacity")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {schedules.slice(0, 5).map((schedule, idx) => (
                     <TableRow key={idx}>
                       <TableCell>
-                        {formatDateDisplay(schedule.date)} - {schedule.dayName}
+                        {formatDateDisplayWithLocale(schedule.date, locale)} -{" "}
+                        {schedule.dayName}
                       </TableCell>
                       <TableCell>
                         {schedule.startTime} - {schedule.endTime}
                       </TableCell>
                       <TableCell className="text-right">
-                        {schedule.totalCapacity} người
+                        {t("recurringSocials.common.peopleCount", {
+                          count: schedule.totalCapacity,
+                        })}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -166,34 +184,47 @@ export function ConfirmCreateModal({
             </div>
           </div>
 
-          {/* Cost Info */}
           <div className="space-y-2 rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950">
             <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
-              💰 Chi phí:
+              {t("recurringSocials.confirm.costTitle")}
             </p>
             <div className="space-y-1 text-sm text-emerald-800 dark:text-emerald-200">
-              <p>• Giá tham gia: {formatCurrency(formData.fee)}/người</p>
-              <p>• Chi phí sân: {formatCurrency(formData.courtRentFee)}/buổi</p>
-              {formData.costNote && <p>• Ghi chú: {formData.costNote}</p>}
+              <p>
+                {t("recurringSocials.confirm.participationFee", {
+                  value: formatCurrency(formData.fee),
+                })}
+              </p>
+              <p>
+                {t("recurringSocials.confirm.courtRentFee", {
+                  value: formatCurrency(formData.courtRentFee),
+                })}
+              </p>
+              {formData.costNote && (
+                <p>
+                  {t("recurringSocials.confirm.costNote", {
+                    note: formData.costNote,
+                  })}
+                </p>
+              )}
             </div>
           </div>
 
-          {/* Warning Message */}
           <div className="rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-950">
             <p className="text-sm text-orange-900 dark:text-orange-100">
-              ⚠️ Hành động này sẽ tạo {scheduleCount} buổi social. Bạn có thể
-              chỉnh sửa hoặc xóa từng buổi sau đó.
+              {t("recurringSocials.confirm.warning", { count: scheduleCount })}
             </p>
           </div>
         </div>
 
         <AlertDialogFooter>
-          <AlertDialogCancel>Hủy</AlertDialogCancel>
+          <AlertDialogCancel>
+            {t("recurringSocials.confirm.cancelButton")}
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             className="bg-green-600 hover:bg-green-700"
           >
-            Xác nhận tạo
+            {t("recurringSocials.confirm.confirmButton")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

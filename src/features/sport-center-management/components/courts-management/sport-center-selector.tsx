@@ -10,10 +10,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import { useCourtScheduleStore } from "../../stores/court-schedule-store"
 
 export function SportCenterSelector() {
+  const { t } = useSportCenterManagementTranslation()
   const sportCenters = useCourtScheduleStore((state) => state.sportCenters)
   const centerId = useCourtScheduleStore((state) => state.centerId)
   const loadingSportCenters = useCourtScheduleStore(
@@ -32,7 +34,8 @@ export function SportCenterSelector() {
   }, [])
 
   const selectedCenter = sportCenters.find((c) => c.id === centerId)
-  const displayName = selectedCenter?.name ?? "Chọn sân"
+  const displayName =
+    selectedCenter?.name ?? t("courts.selector.selectedCenter")
 
   return (
     <DropdownMenu>
@@ -50,11 +53,11 @@ export function SportCenterSelector() {
       <DropdownMenuContent align="end" className="w-56">
         {loadingSportCenters ? (
           <div className="px-2 py-1.5 text-sm text-muted-foreground">
-            Đang tải...
+            {t("courts.selector.loadingCenters")}
           </div>
         ) : sportCenters.length === 0 ? (
           <div className="px-2 py-1.5 text-sm text-muted-foreground">
-            Không có sân nào
+            {t("courts.selector.noCenters")}
           </div>
         ) : (
           sportCenters.map((center) => (

@@ -124,17 +124,7 @@
     }
   },
   "saving": "Đang lưu...",
-  "saveSuccess": "Lưu thành công",
-  "saveError": "Lưu thất bại",
-  "create": "Tạo",
-  "createSuccess": "Tạo thành công",
-  "createError": "Tạo thất bại",
-  "update": "Cập nhật",
-  "updateSuccess": "Cập nhật thành công",
-  "updateError": "Cập nhật thất bại",
   "delete": "Xóa",
-  "deleteSuccess": "Xóa thành công",
-  "deleteError": "Xóa thất bại",
   "loading": "Đang tải...",
   "dialog": {
     "close": "Đóng"
@@ -184,6 +174,16 @@
     "mobileTitle": "Thanh bên",
     "mobileDescription": "Hiển thị thanh bên trên thiết bị di động.",
     "toggle": "Chuyển thanh bên"
+  },
+  "previewImageAlt": "Ảnh xem trước",
+  "logoAlt": "Logo PickleHub",
+  "commandPalette": {
+    "title": "Bảng lệnh",
+    "description": "Tìm kiếm lệnh để chạy..."
+  },
+  "multiSelect": {
+    "placeholder": "Chọn mục...",
+    "emptyMessage": "Không tìm thấy mục nào."
   },
   "header": {
     "notifications": "Thông báo",
@@ -1580,7 +1580,10 @@
       "loading": "Đang tải...",
       "requestSentBio": "Lời mời kết bạn đã gửi",
       "requestReceivedBio": "Lời mời kết bạn đã nhận",
-      "inviteSource": "Dịch vụ bạn bè"
+      "inviteSource": "Dịch vụ bạn bè",
+      "levelBeginner": "Cơ bản",
+      "levelIntermediate": "Trung cấp",
+      "levelAdvanced": "Nâng cao"
     }
   },
   "equipment": {

@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 import { cn } from "@/lib/utils"
 
 import type {
@@ -20,21 +21,6 @@ import type {
 } from "../types"
 import { formatCurrencyVnd, formatDate } from "../utils/format"
 import { RevenueEmptyState } from "./revenue-empty-state"
-
-function resolveStatusLabel(status: RevenueTransaction["status"]) {
-  switch (status) {
-    case "SETTLED":
-      return "Đã quyết toán"
-    case "PENDING_REVIEW":
-      return "Chờ duyệt"
-    case "REJECTED":
-      return "Bị từ chối"
-    case "VOIDED":
-      return "Đã hủy"
-    default:
-      return status
-  }
-}
 
 function resolveStatusTone(status: RevenueTransaction["status"]) {
   switch (status) {
@@ -81,8 +67,23 @@ export function RevenueTransactionsTable({
   onRowClick: (transaction: RevenueTransaction) => void
   onOffsetChange: (nextOffset: number) => void
 }) {
+  const { t } = useSportCenterManagementTranslation()
+  const resolveStatusLabel = (status: RevenueTransaction["status"]) => {
+    switch (status) {
+      case "SETTLED":
+        return t("revenue.status.settled")
+      case "PENDING_REVIEW":
+        return t("revenue.status.pendingReview")
+      case "REJECTED":
+        return t("revenue.status.rejected")
+      case "VOIDED":
+        return t("revenue.status.voided")
+      default:
+        return status
+    }
+  }
   if (transactions.length === 0 && !loading) {
-    return <RevenueEmptyState title="Chưa có giao dịch phù hợp" />
+    return <RevenueEmptyState title={t("revenue.empty.transactions")} />
   }
 
   const total = pagination?.total ?? transactions.length
@@ -97,12 +98,16 @@ export function RevenueTransactionsTable({
         <Table className="table-auto">
           <TableHeader className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/85">
             <TableRow>
-              <TableHead>Mã giao dịch</TableHead>
-              <TableHead>Trung tâm</TableHead>
-              <TableHead>Ngày thanh toán</TableHead>
-              <TableHead>Trạng thái</TableHead>
-              <TableHead className="text-right">Tổng tiền</TableHead>
-              <TableHead className="text-right">Phí</TableHead>
+              <TableHead>{t("revenue.transactions.id")}</TableHead>
+              <TableHead>{t("revenue.transactions.center")}</TableHead>
+              <TableHead>{t("revenue.transactions.paidAt")}</TableHead>
+              <TableHead>{t("revenue.transactions.status")}</TableHead>
+              <TableHead className="text-right">
+                {t("revenue.transactions.total")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("revenue.transactions.fee")}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -154,9 +159,7 @@ export function RevenueTransactionsTable({
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-card/60 px-4 py-3 text-sm text-muted-foreground">
-        <span>
-          Hiển thị {start}-{end} / {total}
-        </span>
+        <span>{t("revenue.transactions.showing", { start, end, total })}</span>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -165,7 +168,7 @@ export function RevenueTransactionsTable({
             disabled={!canPrev}
           >
             <ChevronLeft className="size-4" />
-            Trước
+            {t("common.previous")}
           </Button>
           <Button
             variant="outline"
@@ -173,7 +176,7 @@ export function RevenueTransactionsTable({
             onClick={() => onOffsetChange(offset + limit)}
             disabled={!canNext}
           >
-            Sau
+            {t("common.next")}
             <ChevronRight className="size-4" />
           </Button>
         </div>

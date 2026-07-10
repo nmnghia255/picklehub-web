@@ -1,6 +1,7 @@
 "use server"
 
 import axios from "axios"
+import { headers } from "next/headers"
 
 import { BookingService } from "@/features/sport-center/api/booking-service"
 import type {
@@ -9,6 +10,8 @@ import type {
 } from "@/features/sport-center/types/booking"
 import type { Product } from "@/features/sport-center/types/product"
 import type { Service } from "@/features/sport-center/types/service"
+import enSportCenter from "@/i18n/locales/en/sport-center.json"
+import viSportCenter from "@/i18n/locales/vi/sport-center.json"
 import { getSession } from "@/lib/session"
 
 type SelectedCourts = Record<string, string[]>
@@ -34,9 +37,17 @@ export type SubmitBookingState = {
   booking?: BookingResponse | BookingResponse[]
 }
 
+function getSportCenterLocale() {
+  const acceptLanguage = headers().get("accept-language") ?? ""
+  return acceptLanguage.toLowerCase().startsWith("vi")
+    ? viSportCenter
+    : enSportCenter
+}
+
 async function buildBookingRequest(
   payload: SubmitBookingPayload
 ): Promise<CreateBookingRequest> {
+  const sportCenter = getSportCenterLocale()
   const serviceItems = payload.serviceItems
     .filter((service) => payload.selectedServices[service.id])
     .map((service) => ({ serviceId: service.id, quantity: 1 }))
@@ -50,7 +61,8 @@ async function buildBookingRequest(
 
   const session = await getSession()
   const sessionUser = session.user
-  const playerName = sessionUser?.name ?? "Khách vãng lai"
+  const playerName =
+    sessionUser?.name ?? sportCenter.booking.summary.defaultPlayerName
   const phoneNumber = sessionUser?.phoneNumber ?? "0123456789"
   const selectedDate = payload.selectedDate
   let formattedDate = ""
@@ -98,17 +110,19 @@ async function buildBookingRequest(
 export async function submitBookingsAction(
   payload: SubmitBookingPayload
 ): Promise<SubmitBookingState> {
+  const sportCenter = getSportCenterLocale()
+
   if (!payload.centerId) {
     return {
       success: false,
-      error: "Không tìm thấy mã sân. Vui lòng tải lại trang và thử lại.",
+      error: sportCenter.booking.confirmation.errorNoCenterId,
     }
   }
 
   if (!payload.selectedDate) {
     return {
       success: false,
-      error: "Vui lòng chọn ngày đặt sân.",
+      error: sportCenter.booking.confirmation.errorSelectDate,
     }
   }
 
@@ -117,7 +131,7 @@ export async function submitBookingsAction(
   if (bookingRequest.bookings[0].items.length === 0) {
     return {
       success: false,
-      error: "Vui lòng chọn ít nhất một sân và khung giờ.",
+      error: sportCenter.booking.confirmation.errorSelectCourts,
     }
   }
 
@@ -129,7 +143,7 @@ export async function submitBookingsAction(
 
     return {
       success: true,
-      message: "Đã gửi yêu cầu đặt sân thành công.",
+      message: sportCenter.booking.confirmation.successSubmit,
       booking,
     }
   } catch (error) {
@@ -142,7 +156,7 @@ export async function submitBookingsAction(
           error.response?.data?.message ||
           error.response?.data?.error ||
           error.message ||
-          "Không thể gửi yêu cầu đặt sân.",
+          sportCenter.booking.confirmation.errorCreateBooking,
       }
     }
     return {
@@ -150,7 +164,7 @@ export async function submitBookingsAction(
       error:
         error instanceof Error
           ? error.message
-          : "Không thể gửi yêu cầu đặt sân.",
+          : sportCenter.booking.confirmation.errorCreateBooking,
     }
   }
 }

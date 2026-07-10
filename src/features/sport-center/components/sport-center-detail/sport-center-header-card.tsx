@@ -57,7 +57,7 @@ export function SportCenterHeaderCard({
           <div className="flex items-start gap-4">
             <FallbackImage
               src={sportCenter.images[0]}
-              alt={`${sportCenter.name} logo`}
+              alt={t("detail.logoAlt", { name: sportCenter.name })}
               className="size-20 rounded-full border-4 border-background object-cover shadow-sm"
             />
             <div className="space-y-2">

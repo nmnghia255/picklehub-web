@@ -11,8 +11,7 @@ export async function createSocialPlaySessionAction(
     const session = await PlaySessionService.createPlaySession(socialId, input)
     return { success: true, data: session }
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Lỗi khi tạo buổi chơi"
+    const errorMessage = error instanceof Error ? error.message : ""
     return { success: false, error: errorMessage }
   }
 }
@@ -41,8 +40,7 @@ export async function updateSocialPlaySessionAction(
     )
     return { success: true, data: session }
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Lỗi khi cập nhật buổi chơi"
+    const errorMessage = error instanceof Error ? error.message : ""
     return { success: false, error: errorMessage }
   }
 }

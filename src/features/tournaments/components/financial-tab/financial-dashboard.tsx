@@ -59,11 +59,20 @@ export function FinancialDashboard({ tournamentId }: FinancialDashboardProps) {
           })
         )
       } else {
-        toast.error(res.error || "Failed to export report")
+        toast.error(
+          res.error ||
+            t("financials.exportError", {
+              defaultValue: "Failed to export report",
+            })
+        )
       }
     } catch (err) {
       console.error(err)
-      toast.error("Failed to export report")
+      toast.error(
+        t("financials.exportError", {
+          defaultValue: "Failed to export report",
+        })
+      )
     }
   }
 

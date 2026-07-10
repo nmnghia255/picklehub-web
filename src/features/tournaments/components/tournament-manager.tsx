@@ -61,34 +61,21 @@ const tabMetadata: Record<
   string,
   {
     labelKey: string
-    defaultValue?: string
     icon: React.ComponentType<{ className?: string }>
   }
 > = {
   dashboard: { labelKey: "manager.tabs.dashboard", icon: LayoutDashboard },
   events: { labelKey: "manager.tabs.events", icon: Calendar },
   seeding: { labelKey: "manager.tabs.seeding", icon: ListOrdered },
-  bookings: {
-    labelKey: "manager.tabs.booking",
-    defaultValue: "Venue Bookings",
-    icon: Building,
-  },
+  bookings: { labelKey: "manager.tabs.booking", icon: Building },
   registrations: { labelKey: "manager.tabs.registrations", icon: Users },
-  groups: {
-    labelKey: "manager.tabs.groups",
-    defaultValue: "Group & Bracket",
-    icon: Grid,
-  },
+  groups: { labelKey: "manager.tabs.groups", icon: Grid },
   schedule: { labelKey: "manager.tabs.schedule", icon: CalendarClock },
   live: { labelKey: "manager.tabs.live", icon: Activity },
   financials: { labelKey: "manager.tabs.financials", icon: DollarSign },
   payment: { labelKey: "manager.tabs.payment", icon: CreditCard },
   sponsors: { labelKey: "manager.tabs.sponsors", icon: Heart },
-  personnel: {
-    labelKey: "manager.tabs.personnel",
-    defaultValue: "Personnel",
-    icon: Shield,
-  },
+  personnel: { labelKey: "manager.tabs.personnel", icon: Shield },
 }
 
 export function TournamentManager({
@@ -243,11 +230,7 @@ export function TournamentManager({
                     className="relative flex items-center gap-2 rounded-none border-b-2 border-transparent px-2 py-3 text-sm font-medium text-gray-600 data-[state=active]:border-emerald-600 data-[state=active]:text-emerald-600 data-[state=active]:shadow-none dark:text-zinc-400 dark:data-[state=active]:text-emerald-400"
                   >
                     <Icon className="h-4 w-4" />
-                    {metadata.defaultValue
-                      ? t(metadata.labelKey, {
-                          defaultValue: metadata.defaultValue,
-                        })
-                      : t(metadata.labelKey)}
+                    {t(metadata.labelKey)}
                   </TabsTrigger>
                 )
               })}
@@ -257,9 +240,7 @@ export function TournamentManager({
                   <DropdownMenuTrigger asChild>
                     <button className="relative flex cursor-pointer items-center gap-2 rounded-none border-b-2 border-transparent px-2 py-3 text-sm font-medium text-gray-600 hover:text-emerald-600 focus:outline-hidden dark:text-zinc-400 dark:hover:text-emerald-400">
                       <MoreHorizontal className="h-4 w-4" />
-                      <span>
-                        {t("manager.tabs.more", { defaultValue: "Thêm" })}
-                      </span>
+                      <span>{t("manager.tabs.more")}</span>
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="z-50 w-48 rounded-md border border-gray-200 bg-white p-1 shadow-md dark:border-zinc-800 dark:bg-zinc-900">
@@ -274,11 +255,7 @@ export function TournamentManager({
                           className="flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-emerald-600 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-emerald-400"
                         >
                           <Icon className="h-4 w-4" />
-                          {metadata.defaultValue
-                            ? t(metadata.labelKey, {
-                                defaultValue: metadata.defaultValue,
-                              })
-                            : t(metadata.labelKey)}
+                          {t(metadata.labelKey)}
                         </DropdownMenuItem>
                       )
                     })}
@@ -359,9 +336,7 @@ export function TournamentManager({
                         : "text-gray-600 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-200"
                     )}
                   >
-                    {t("groupStage.stageSwitcher.group", {
-                      defaultValue: "Group Stage",
-                    })}
+                    {t("groupStage.stageSwitcher.group")}
                   </button>
                   <button
                     onClick={() => setActiveStage("knockout")}
@@ -372,9 +347,7 @@ export function TournamentManager({
                         : "text-gray-600 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-200"
                     )}
                   >
-                    {t("groupStage.stageSwitcher.knockout", {
-                      defaultValue: "Knockout Stage",
-                    })}
+                    {t("groupStage.stageSwitcher.knockout")}
                   </button>
                 </div>
 
@@ -382,10 +355,7 @@ export function TournamentManager({
                 {events.length > 0 && (
                   <div className="flex items-center gap-3">
                     <span className="text-sm font-semibold text-gray-500 dark:text-zinc-400">
-                      {t("seeding.selectEvent", {
-                        defaultValue: "Select Event",
-                      })}
-                      :
+                      {t("seeding.selectEvent")}:
                     </span>
                     <div className="w-full sm:w-[240px]">
                       <Select
@@ -393,11 +363,7 @@ export function TournamentManager({
                         onValueChange={(val) => setSelectedEventId(Number(val))}
                       >
                         <SelectTrigger className="w-full bg-white dark:bg-zinc-900">
-                          <SelectValue
-                            placeholder={t("seeding.chooseEvent", {
-                              defaultValue: "Choose an event",
-                            })}
-                          />
+                          <SelectValue placeholder={t("seeding.chooseEvent")} />
                         </SelectTrigger>
                         <SelectContent>
                           {events.map((event) => (

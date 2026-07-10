@@ -45,7 +45,15 @@
       "statusUpdated": "Cập nhật trạng thái giải đấu thành công.",
       "failedUpdate": "Cập nhật trạng thái giải đấu thất bại.",
       "errorOccurred": "Đã xảy ra lỗi khi cập nhật trạng thái."
-    }
+    },
+    "noEvents": "Chưa có sự kiện nào được thêm vào giải đấu này.",
+    "close": "Đóng",
+    "createPoster": "Tạo Poster",
+    "downloadPoster": "Tải xuống",
+    "generatingPoster": "Đang tạo poster...",
+    "posterTitle": "Poster Quảng cáo giải đấu",
+    "posterError": "Không thể tạo poster giải đấu",
+    "posterUnexpectedError": "Đã xảy ra lỗi không mong muốn khi tạo poster"
   },
   "financials": {
     "title": "Tài chính",
@@ -86,6 +94,7 @@
       "fieldDesc": "Mô tả",
       "fieldType": "Loại",
       "fieldAmount": "Số tiền",
+      "amountPlaceholder": "0",
       "fieldStatus": "Trạng thái",
       "cancel": "Hủy",
       "submit": "Lưu giao dịch",
@@ -98,7 +107,8 @@
       "descPlaceholder": "vd: Lương trọng tài, Mua bóng giải đấu",
       "validationDesc": "Vui lòng nhập mô tả",
       "validationAmount": "Vui lòng nhập số tiền hợp lệ lớn hơn 0"
-    }
+    },
+    "exportError": "Không thể xuất báo cáo"
   },
   "sponsors": {
     "title": "Quản lý Nhà tài trợ",
@@ -127,7 +137,10 @@
       "submit": "Thêm tài trợ",
       "validationName": "Vui lòng nhập tên nhà tài trợ",
       "validationPrice": "Vui lòng nhập mức tài trợ hợp lệ lớn hơn 0",
-      "validationWebsiteUrl": "Vui lòng nhập đường dẫn hợp lệ (bắt đầu bằng http:// hoặc https://)"
+      "validationWebsiteUrl": "Vui lòng nhập đường dẫn hợp lệ (bắt đầu bằng http:// hoặc https://)",
+      "loading": "Đang tải...",
+      "paymentQrUploaded": "Đã tải mã QR lên thành công!",
+      "paymentQrUploadFailed": "Không thể tải ảnh mã QR lên."
     },
     "stats": {
       "totalContributions": "Tổng nguồn vốn",
@@ -140,7 +153,10 @@
     "rank3": "Nhà tài trợ #3",
     "website": "Trang web",
     "deleteTitle": "Xóa nhà tài trợ",
-    "delete": "Xóa"
+    "delete": "Xóa",
+    "loadError": "Không thể tải danh sách nhà tài trợ.",
+    "addError": "Không thể thêm nhà tài trợ.",
+    "deleteError": "Không thể xóa nhà tài trợ."
   },
   "paymentTab": {
     "title": "Cài đặt thanh toán",

@@ -21,6 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import { useCourtScheduleStore } from "../../stores/court-schedule-store"
 import type { Booking } from "../../types/booking"
@@ -39,6 +40,7 @@ export function BookingDetailModal({
   onCancel,
   onBookNew,
 }: BookingDetailModalProps) {
+  const { t } = useSportCenterManagementTranslation()
   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false)
 
   const selectedSlot = useCourtScheduleStore((state) => state.selectedSlot)
@@ -54,20 +56,21 @@ export function BookingDetailModal({
     <Dialog open={Boolean(booking)} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Chi tiết đặt sân</DialogTitle>
+          <DialogTitle>{t("courts.detail.title")}</DialogTitle>
         </DialogHeader>
 
         <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
           <p className="text-sm text-emerald-700">
             <span className="text-emerald-900">{selectedSlot?.courtName}</span>{" "}
-            lúc <span className="text-emerald-900">{selectedSlot?.time}</span>
+            {t("courts.detail.timeAt")}{" "}
+            <span className="text-emerald-900">{selectedSlot?.time}</span>
           </p>
         </div>
 
         <div className="grid grid-cols-2 space-y-4 sm:grid-cols-2">
           <div>
             <label className="mb-1 block text-sm text-muted-foreground">
-              Tên người chơi
+              {t("courts.detail.playerName")}
             </label>
             <div className="flex items-center gap-2 text-foreground">
               <User className="h-4 w-4 text-muted-foreground" />
@@ -77,13 +80,13 @@ export function BookingDetailModal({
 
           <div>
             <label className="mb-1 flex items-center gap-1 text-sm text-muted-foreground">
-              Liên hệ
+              {t("courts.detail.contact")}
             </label>
             <div className="flex items-center gap-2 text-foreground">
               <Phone className="h-4 w-4 text-muted-foreground" />
               <p>
                 {formatPhoneNumber(booking.center.phone) ||
-                  "Chưa có số điện thoại"}
+                  t("courts.detail.noPhone")}
               </p>
             </div>
           </div>
@@ -91,7 +94,7 @@ export function BookingDetailModal({
 
         <div>
           <label className="mb-1 block text-sm text-muted-foreground">
-            Trạng thái
+            {t("courts.detail.status")}
           </label>
           <span
             className={`inline-flex rounded-full px-3 py-1 text-sm ${getStatusColor(booking)}`}
@@ -107,14 +110,14 @@ export function BookingDetailModal({
               variant="outline"
               className="flex-1 sm:flex-none"
             >
-              Đóng
+              {t("common.close")}
             </Button>
             <Button
               onClick={() => setIsCancelConfirmOpen(true)}
               variant="destructive"
               className="flex-1 sm:flex-none"
             >
-              Hủy đặt sân
+              {t("bookingList.card.cancelBooking")}
             </Button>
           </DialogFooter>
         ) : (
@@ -124,13 +127,13 @@ export function BookingDetailModal({
               variant="outline"
               className="flex-1 sm:flex-none"
             >
-              Đóng
+              {t("common.close")}
             </Button>
             <Button
               onClick={() => onBookNew(booking)}
               className="flex-1 sm:flex-none"
             >
-              Đặt người chơi mới
+              {t("courts.detail.rebook")}
             </Button>
           </DialogFooter>
         )}
@@ -142,18 +145,20 @@ export function BookingDetailModal({
       >
         <AlertDialogContent size="sm">
           <AlertDialogHeader>
-            <AlertDialogTitle>Xác nhận hủy đặt sân</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("courts.detail.cancelConfirmTitle")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn hủy lượt đặt sân này không?
+              {t("courts.detail.cancelConfirmDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Không</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.no")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={handleCancelConfirm}
             >
-              Hủy đặt sân
+              {t("bookingList.card.cancelBooking")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

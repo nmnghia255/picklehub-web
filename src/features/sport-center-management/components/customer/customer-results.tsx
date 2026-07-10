@@ -1,4 +1,5 @@
 import type { CustomerListItem } from "@/features/sport-center-management/types/customer"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import { CustomerEmptyState } from "./customer-empty-state"
 import {
@@ -33,6 +34,7 @@ export function CustomerManagementResults({
   onNextPage,
   onCustomerSelect,
 }: CustomerManagementResultsProps) {
+  const { t } = useSportCenterManagementTranslation()
   if (isPageLoading) {
     return <CustomerManagementSkeleton />
   }
@@ -40,9 +42,9 @@ export function CustomerManagementResults({
   if (loadError) {
     return (
       <CustomerEmptyState
-        title="Không thể tải danh sách khách hàng"
+        title={t("customer.empty.loadErrorTitle")}
         description={loadError}
-        actionLabel="Thử lại"
+        actionLabel={t("customer.empty.loadErrorAction")}
         onAction={onRefreshCustomers}
       />
     )
@@ -53,15 +55,19 @@ export function CustomerManagementResults({
       <CustomerEmptyState
         title={
           hasActiveFilters
-            ? "Không có kết quả phù hợp"
-            : "Chưa có khách hàng nào"
+            ? t("customer.empty.noResultsTitle")
+            : t("customer.empty.noCustomersTitle")
         }
         description={
           hasActiveFilters
-            ? "Hãy thử đổi từ khóa tìm kiếm để xem các khách hàng khác."
-            : "Khi sân có khách đặt và ghé thăm, danh sách sẽ xuất hiện ở đây."
+            ? t("customer.empty.noResultsDescription")
+            : t("customer.empty.noCustomersDescription")
         }
-        actionLabel={hasActiveFilters ? "Xóa lọc" : "Làm mới"}
+        actionLabel={
+          hasActiveFilters
+            ? t("bookingList.empty.reset")
+            : t("customer.empty.refresh")
+        }
         onAction={hasActiveFilters ? onResetFilters : onRefreshCustomers}
       />
     )

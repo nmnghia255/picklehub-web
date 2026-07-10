@@ -114,6 +114,7 @@ function isActivePath(pathname: string, href: string) {
 function SidebarLogo() {
   const { state } = useSidebar()
   const { resolvedTheme } = useTheme()
+  const { t } = useTranslation("common")
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -142,7 +143,7 @@ function SidebarLogo() {
       >
         <img
           src={isDark ? "/logo-dark.png" : "/logo-light.png"}
-          alt="PickleHub Logo"
+          alt={t("logoAlt")}
           className="h-full w-full object-cover"
         />
       </div>

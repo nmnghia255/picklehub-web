@@ -21,7 +21,8 @@
         "all": "Tất Cả Nội Dung"
       },
       "centers": {
-        "placeholder": "Chọn sân"
+        "placeholder": "Chọn sân",
+        "noCenters": "Không có trung tâm nào được liên kết"
       },
       "reloadBtn": "Tải Lại Lịch Trình",
       "autoScheduleBtn": "Tự động xếp lịch",
@@ -160,7 +161,12 @@
       "loadFixturesFailed": "Không thể tải danh sách trận đấu",
       "loadFixturesError": "Có lỗi xảy ra khi tải danh sách trận đấu của giải đấu",
       "noBookingItemAtSlot": "Không có lịch đặt sân nào khớp với khung giờ này.",
-      "previewMoveSuccess": "Đã cập nhật phân bổ xem trước!"
+      "previewMoveSuccess": "Đã cập nhật phân bổ xem trước!",
+      "noActiveAutoScheduleConfig": "Không có cấu hình xếp lịch tự động nào đang hoạt động.",
+      "executeUnexpectedError": "Không thể thực hiện xếp lịch tự động do lỗi không mong đợi."
+    },
+    "status": {
+      "scheduled": "Đã lên lịch"
     }
   }
 }

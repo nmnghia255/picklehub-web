@@ -19,15 +19,16 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 // import type { SportCenter } from "@/features/sport-center-management/api/sport-center-service"
 import type { RevenueFilters } from "../store/revenue-store"
 import type { RevenueMethod, RevenueStatus } from "../types"
 
 const PRESETS = [
-  { key: "7d", label: "7 ngày" },
-  { key: "30d", label: "30 ngày" },
-  { key: "this-month", label: "Tháng này" },
+  { key: "7d", labelKey: "revenue.filters.7d" },
+  { key: "30d", labelKey: "revenue.filters.30d" },
+  { key: "this-month", labelKey: "revenue.filters.this-month" },
 ] as const
 
 export function RevenueFiltersBar({
@@ -53,20 +54,23 @@ export function RevenueFiltersBar({
   onLimitChange: (limit: number) => void
   onReset: () => void
 }) {
+  const { t } = useSportCenterManagementTranslation()
   const selectedCenterLabel = (() => {
-    if (filters.centerIds.length === 0) return "Tất cả trung tâm"
+    if (filters.centerIds.length === 0) return t("revenue.filters.allCenters")
     if (filters.centerIds.length === 1) {
       const center = centers.find((item) => item.id === filters.centerIds[0])
-      return center?.name ?? "1 trung tâm"
+      return center?.name ?? t("revenue.filters.singleCenter")
     }
-    return `${filters.centerIds.length} trung tâm`
+    return t("revenue.filters.multipleCenters", {
+      count: filters.centerIds.length,
+    })
   })()
 
   return (
     <section className="space-y-4 rounded-3xl border bg-card/60 p-4 shadow-sm">
       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
         <Filter className="size-4" />
-        <span>Bộ lọc chung</span>
+        <span>{t("revenue.filters.title")}</span>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -77,17 +81,19 @@ export function RevenueFiltersBar({
             size="sm"
             onClick={() => onPreset(preset.key)}
           >
-            {preset.label}
+            {t(preset.labelKey)}
           </Button>
         ))}
         <Button variant="ghost" size="sm" onClick={onReset}>
-          Đặt lại
+          {t("revenue.filters.reset")}
         </Button>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-6">
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">Từ ngày</p>
+          <p className="text-xs font-medium text-muted-foreground">
+            {t("revenue.filters.fromDate")}
+          </p>
           <div className="relative">
             <CalendarDays className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -100,7 +106,9 @@ export function RevenueFiltersBar({
         </div>
 
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">Đến ngày</p>
+          <p className="text-xs font-medium text-muted-foreground">
+            {t("revenue.filters.toDate")}
+          </p>
           <div className="relative">
             <CalendarDays className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -113,7 +121,9 @@ export function RevenueFiltersBar({
         </div>
 
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">Trung tâm</p>
+          <p className="text-xs font-medium text-muted-foreground">
+            {t("revenue.filters.center")}
+          </p>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -133,12 +143,12 @@ export function RevenueFiltersBar({
                 checked={filters.centerIds.length === 0}
                 onCheckedChange={() => onCenterToggle("all")}
               >
-                Tất cả trung tâm
+                {t("revenue.filters.allCenters")}
               </DropdownMenuCheckboxItem>
               <DropdownMenuSeparator />
               {centers.length === 0 ? (
                 <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                  Không có trung tâm nào
+                  {t("revenue.filters.noCenters")}
                 </div>
               ) : (
                 centers.map((center) => (
@@ -152,7 +162,7 @@ export function RevenueFiltersBar({
                         {center.name}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {center.address ?? "Không có địa chỉ"}
+                        {center.address ?? t("revenue.filters.noAddress")}
                       </span>
                     </div>
                   </DropdownMenuCheckboxItem>
@@ -162,14 +172,14 @@ export function RevenueFiltersBar({
           </DropdownMenu>
           {filters.centerIds.length > 1 ? (
             <p className="text-xs text-muted-foreground">
-              API chỉ hỗ trợ lọc 1 trung tâm, hiển thị tổng hợp tất cả.
+              {t("revenue.filters.multiCenterNote")}
             </p>
           ) : null}
         </div>
 
         <div className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground">
-            Trạng thái
+            {t("revenue.filters.status")}
           </p>
           <Select
             value={filters.status}
@@ -178,21 +188,29 @@ export function RevenueFiltersBar({
             }
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Tất cả" />
+              <SelectValue placeholder={t("common.all")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tất cả</SelectItem>
-              <SelectItem value="PENDING_REVIEW">Chờ duyệt</SelectItem>
-              <SelectItem value="SETTLED">Đã quyết toán</SelectItem>
-              <SelectItem value="REJECTED">Bị từ chối</SelectItem>
-              <SelectItem value="VOIDED">Đã hủy</SelectItem>
+              <SelectItem value="all">{t("common.all")}</SelectItem>
+              <SelectItem value="PENDING_REVIEW">
+                {t("revenue.status.pendingReview")}
+              </SelectItem>
+              <SelectItem value="SETTLED">
+                {t("revenue.status.settled")}
+              </SelectItem>
+              <SelectItem value="REJECTED">
+                {t("revenue.status.rejected")}
+              </SelectItem>
+              <SelectItem value="VOIDED">
+                {t("revenue.status.voided")}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground">
-            Phương thức
+            {t("revenue.filters.method")}
           </p>
           <Select
             value={filters.method}
@@ -201,29 +219,37 @@ export function RevenueFiltersBar({
             }
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Tất cả" />
+              <SelectValue placeholder={t("common.all")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tất cả</SelectItem>
-              <SelectItem value="BANK_TRANSFER">Chuyển khoản</SelectItem>
-              <SelectItem value="CASH">Tiền mặt</SelectItem>
+              <SelectItem value="all">{t("common.all")}</SelectItem>
+              <SelectItem value="BANK_TRANSFER">
+                {t("revenue.method.bankTransfer")}
+              </SelectItem>
+              <SelectItem value="CASH">{t("revenue.method.cash")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">Hiển thị</p>
+          <p className="text-xs font-medium text-muted-foreground">
+            {t("revenue.filters.show")}
+          </p>
           <Select
             value={String(filters.limit)}
             onValueChange={(value) => onLimitChange(Number(value))}
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="20" />
+              <SelectValue
+                placeholder={t("revenue.filters.limitPlaceholder")}
+              />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="20">20 dòng</SelectItem>
-              <SelectItem value="50">50 dòng</SelectItem>
-              <SelectItem value="100">100 dòng</SelectItem>
+              <SelectItem value="20">{t("revenue.filters.limit20")}</SelectItem>
+              <SelectItem value="50">{t("revenue.filters.limit50")}</SelectItem>
+              <SelectItem value="100">
+                {t("revenue.filters.limit100")}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>

@@ -73,17 +73,13 @@ export function ExpenseBreakdownCard({
 
           <div className="rounded-2xl border border-primary/15 bg-primary/5 p-5 shadow-sm">
             <p className="text-sm text-muted-foreground">
-              {t("expenses.breakdown.extraExpense", {
-                defaultValue: "Extra Expense",
-              })}
+              {t("expenses.breakdown.extraExpense")}
             </p>
             <p className="mt-3 text-2xl font-semibold text-primary">
               {formatCurrencyVnd(extraExpense)}
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
-              {t("expenses.breakdown.extraExpenseDescription", {
-                defaultValue: "Additional expenses like water, balls",
-              })}
+              {t("expenses.breakdown.extraExpenseDescription")}
             </p>
           </div>
         </div>

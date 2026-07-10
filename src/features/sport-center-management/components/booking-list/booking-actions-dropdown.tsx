@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { Booking } from "../../types/booking"
 
@@ -26,6 +27,7 @@ export function BookingActionsDropdown({
   onConfirm,
   onCancel,
 }: BookingActionsDropdownProps) {
+  const { t } = useSportCenterManagementTranslation()
   const showConfirmAction = booking.status === "PENDING"
   const showCancelAction =
     booking.status === "PENDING" || booking.status === "CONFIRMED"
@@ -44,13 +46,13 @@ export function BookingActionsDropdown({
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuItem onClick={() => onView(booking)}>
           <Search className="mr-2 size-4" />
-          Xem chi tiết
+          {t("bookingList.card.viewDetails")}
         </DropdownMenuItem>
         {(showConfirmAction || showCancelAction) && <DropdownMenuSeparator />}
         {showConfirmAction && (
           <DropdownMenuItem onClick={() => onConfirm(booking)}>
             <CheckCircle2 className="mr-2 size-4" />
-            Xác nhận
+            {t("bookingList.card.confirm")}
           </DropdownMenuItem>
         )}
         {showCancelAction && (
@@ -59,7 +61,7 @@ export function BookingActionsDropdown({
             onClick={() => onCancel(booking)}
           >
             <XCircle className="mr-2 size-4" />
-            Hủy đặt sân
+            {t("bookingList.card.cancelBooking")}
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>

@@ -116,14 +116,10 @@ export function ParticipantPaymentTrackingCard({
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <CardTitle className="text-xl">
-                {t("expenses.tracking.title", {
-                  defaultValue: "Payment Tracking",
-                })}
+                {t("expenses.tracking.title")}
               </CardTitle>
               <CardDescription className="mt-1">
-                {t("expenses.tracking.description", {
-                  defaultValue: "Track participant payments and due amounts",
-                })}
+                {t("expenses.tracking.description")}
               </CardDescription>
             </div>
           </div>
@@ -133,9 +129,7 @@ export function ParticipantPaymentTrackingCard({
               <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 className="pl-9"
-                placeholder={t("expenses.tracking.searchPlaceholder", {
-                  defaultValue: "Search participants...",
-                })}
+                placeholder={t("expenses.tracking.searchPlaceholder")}
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
               />
@@ -154,9 +148,7 @@ export function ParticipantPaymentTrackingCard({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">
-                  {t("expenses.tracking.allStatuses", {
-                    defaultValue: "All Statuses",
-                  })}
+                  {t("expenses.tracking.allStatuses")}
                 </SelectItem>
                 <SelectItem value="PAID">
                   {getPaymentStatusLabel("PAID", t)}
@@ -184,29 +176,19 @@ export function ParticipantPaymentTrackingCard({
               <TableHeader className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80">
                 <TableRow>
                   <TableHead className="px-6 py-4">
-                    {t("expenses.tracking.headers.participant", {
-                      defaultValue: "Participant",
-                    })}
+                    {t("expenses.tracking.headers.participant")}
                   </TableHead>
                   <TableHead className="px-6 py-4">
-                    {t("expenses.tracking.headers.totalFee", {
-                      defaultValue: "Total Fee",
-                    })}
+                    {t("expenses.tracking.headers.totalFee")}
                   </TableHead>
                   <TableHead className="px-6 py-4">
-                    {t("expenses.tracking.headers.amountDue", {
-                      defaultValue: "Amount Due",
-                    })}
+                    {t("expenses.tracking.headers.amountDue")}
                   </TableHead>
                   <TableHead className="px-6 py-4 text-center">
-                    {t("expenses.tracking.headers.status", {
-                      defaultValue: "Status",
-                    })}
+                    {t("expenses.tracking.headers.status")}
                   </TableHead>
                   <TableHead className="px-6 py-4 text-right">
-                    {t("expenses.tracking.headers.actions", {
-                      defaultValue: "Actions",
-                    })}
+                    {t("expenses.tracking.headers.actions")}
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -302,16 +284,12 @@ export function ParticipantPaymentTrackingCard({
                               onClick={() => openRecordPayment(row)}
                             >
                               <HandCoins className="mr-2 size-4" />
-                              {t("expenses.tracking.actions.recordCash", {
-                                defaultValue: "Record Cash",
-                              })}
+                              {t("expenses.tracking.actions.recordCash")}
                             </DropdownMenuItem>
                             {row.amountDue < 0 && (
                               <DropdownMenuItem onClick={() => openRefund(row)}>
                                 <Undo className="mr-2 size-4" />
-                                {t("expenses.tracking.actions.issueRefund", {
-                                  defaultValue: "Issue Refund",
-                                })}
+                                {t("expenses.tracking.actions.issueRefund")}
                               </DropdownMenuItem>
                             )}
                           </DropdownMenuContent>
@@ -325,9 +303,7 @@ export function ParticipantPaymentTrackingCard({
                       <div className="mx-auto flex max-w-sm flex-col items-center gap-3 text-muted-foreground">
                         <Search className="size-10 text-muted-foreground/60" />
                         <p className="font-medium text-foreground">
-                          {t("expenses.tracking.emptyTitle", {
-                            defaultValue: "No participants found",
-                          })}
+                          {t("expenses.tracking.emptyTitle")}
                         </p>
                       </div>
                     </TableCell>

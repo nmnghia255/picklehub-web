@@ -530,7 +530,7 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
 
   unscheduleMatch: async (fixtureId) => {
     const { tournamentId, loadSchedule } = get()
-    if (!tournamentId) return { success: false, error: "Missing tournament ID" }
+    if (!tournamentId) return { success: false, error: "" }
 
     try {
       const res = await unlinkBookingItemFromFixtureAction(
@@ -541,20 +541,17 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
         await loadSchedule()
         return { success: true }
       }
-      return {
-        success: false,
-        error: res.error || "Failed to unschedule match",
-      }
+      return { success: false, error: res.error || "" }
     } catch (err) {
       console.error(err)
-      return { success: false, error: "An unexpected error occurred" }
+      return { success: false, error: "" }
     }
   },
 
   assignReferee: async (refereeId) => {
     const { tournamentId, selectedMatchForReferee, loadSchedule } = get()
     if (!tournamentId || !selectedMatchForReferee) {
-      return { success: false, error: "Missing required details" }
+      return { success: false, error: "" }
     }
 
     try {
@@ -568,16 +565,16 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
         await loadSchedule()
         return { success: true }
       }
-      return { success: false, error: res.error || "Failed to assign referee" }
+      return { success: false, error: res.error || "" }
     } catch (err) {
       console.error(err)
-      return { success: false, error: "An unexpected error occurred" }
+      return { success: false, error: "" }
     }
   },
 
   unassignReferee: async (fixtureId) => {
     const { tournamentId, loadSchedule } = get()
-    if (!tournamentId) return { success: false, error: "Missing tournament ID" }
+    if (!tournamentId) return { success: false, error: "" }
 
     try {
       const res = await unassignRefereeFromMatchAction(
@@ -588,13 +585,10 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
         await loadSchedule()
         return { success: true }
       }
-      return {
-        success: false,
-        error: res.error || "Failed to unassign referee",
-      }
+      return { success: false, error: res.error || "" }
     } catch (err) {
       console.error(err)
-      return { success: false, error: "An unexpected error occurred" }
+      return { success: false, error: "" }
     }
   },
 
@@ -608,7 +602,7 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
       loadSchedule,
     } = get()
     if (!tournamentId || !selectedMatchForManual) {
-      return { success: false, error: "Missing required details" }
+      return { success: false, error: "" }
     }
 
     let foundBookingId: number | null = null
@@ -645,11 +639,7 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
     }
 
     if (!foundBookingId || !foundBookingItemId) {
-      return {
-        success: false,
-        error:
-          "No matching active booking slot found for the selected court and time.",
-      }
+      return { success: false, error: "" }
     }
 
     try {
@@ -667,13 +657,10 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
         await loadSchedule()
         return { success: true }
       }
-      return {
-        success: false,
-        error: res.error || "Failed to schedule match",
-      }
+      return { success: false, error: res.error || "" }
     } catch (err) {
       console.error(err)
-      return { success: false, error: "An unexpected error occurred" }
+      return { success: false, error: "" }
     }
   },
 

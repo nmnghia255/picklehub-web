@@ -2,6 +2,9 @@
 
 import { create } from "zustand"
 
+import enManagement from "@/i18n/locales/en/sport-center-management.json"
+import viManagement from "@/i18n/locales/vi/sport-center-management.json"
+
 import { listOwnerSportCentersAction } from "../../actions/sport-center-actions"
 import type { SportCenter } from "../../types/sport-center"
 // import type { SportCenter } from "@/features/sport-center-management/api/sport-center-service"
@@ -27,6 +30,12 @@ import type {
 
 export type InventoryKind = "service" | "product"
 export type StatusFilter = "all" | "active" | "inactive"
+
+function getManagementLocale() {
+  const language =
+    typeof navigator !== "undefined" ? (navigator.language ?? "") : ""
+  return language.toLowerCase().startsWith("vi") ? viManagement : enManagement
+}
 
 function isPermissionError(error: unknown) {
   if (!error || typeof error !== "object") return false
@@ -140,10 +149,11 @@ export const useServicesProductsStore = create<ServicesProductsState>(
         set({ services, permissionDenied: false })
       } catch (error) {
         console.error("[ServicesProducts] fetchServices error:", error)
+        const management = getManagementLocale()
         set({
           services: [],
           permissionDenied: isPermissionError(error),
-          error: "Không thể tải danh sách dịch vụ.",
+          error: management.inventory.toast.loadError,
         })
       } finally {
         set({ loadingServices: false })
@@ -161,10 +171,11 @@ export const useServicesProductsStore = create<ServicesProductsState>(
         set({ products, permissionDenied: false })
       } catch (error) {
         console.error("[ServicesProducts] fetchProducts error:", error)
+        const management = getManagementLocale()
         set({
           products: [],
           permissionDenied: isPermissionError(error),
-          error: "Không thể tải danh sách sản phẩm.",
+          error: management.inventory.toast.loadError,
         })
       } finally {
         set({ loadingProducts: false })
@@ -186,7 +197,8 @@ export const useServicesProductsStore = create<ServicesProductsState>(
         return true
       } catch (error) {
         console.error("[ServicesProducts] createService error:", error)
-        set({ error: "Không thể tạo dịch vụ." })
+        const management = getManagementLocale()
+        set({ error: management.inventory.toast.createServiceError })
         return false
       } finally {
         set({ saving: false })
@@ -204,7 +216,8 @@ export const useServicesProductsStore = create<ServicesProductsState>(
         return true
       } catch (error) {
         console.error("[ServicesProducts] updateService error:", error)
-        set({ error: "Không thể cập nhật dịch vụ." })
+        const management = getManagementLocale()
+        set({ error: management.inventory.toast.updateServiceError })
         return false
       } finally {
         set({ saving: false })
@@ -221,7 +234,8 @@ export const useServicesProductsStore = create<ServicesProductsState>(
         return true
       } catch (error) {
         console.error("[ServicesProducts] deleteService error:", error)
-        set({ error: "Không thể xóa dịch vụ." })
+        const management = getManagementLocale()
+        set({ error: management.inventory.toast.deleteServiceError })
         return false
       }
     },
@@ -237,7 +251,8 @@ export const useServicesProductsStore = create<ServicesProductsState>(
         return true
       } catch (error) {
         console.error("[ServicesProducts] createProduct error:", error)
-        set({ error: "Không thể tạo sản phẩm." })
+        const management = getManagementLocale()
+        set({ error: management.inventory.toast.createProductError })
         return false
       } finally {
         set({ saving: false })
@@ -255,7 +270,8 @@ export const useServicesProductsStore = create<ServicesProductsState>(
         return true
       } catch (error) {
         console.error("[ServicesProducts] updateProduct error:", error)
-        set({ error: "Không thể cập nhật sản phẩm." })
+        const management = getManagementLocale()
+        set({ error: management.inventory.toast.updateProductError })
         return false
       } finally {
         set({ saving: false })
@@ -272,7 +288,8 @@ export const useServicesProductsStore = create<ServicesProductsState>(
         return true
       } catch (error) {
         console.error("[ServicesProducts] deleteProduct error:", error)
-        set({ error: "Không thể xóa sản phẩm." })
+        const management = getManagementLocale()
+        set({ error: management.inventory.toast.deleteProductError })
         return false
       }
     },

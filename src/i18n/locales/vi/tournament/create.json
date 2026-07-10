@@ -95,7 +95,8 @@
         "17th-rest": "Hạng 17-{{capacity}}",
         "33-64th": "Hạng 33-64",
         "33rd-rest": "Hạng 33-{{capacity}}"
-      }
+      },
+      "cashPrizePlaceholder": "vd: 5.000.000"
     },
     "step5": {
       "paymentTitle": "Chi tiết thanh toán",

@@ -14,11 +14,9 @@ export async function getTournamentCentersAction(tournamentId: string) {
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to fetch tournament centers:", error)
-    let errorMessage = "Failed to fetch tournament centers"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false, error: errorMessage }
   }
@@ -36,11 +34,9 @@ export async function addTournamentCenterAction(
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to add tournament center:", error)
-    let errorMessage = "Failed to add tournament center"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false, error: errorMessage }
   }
@@ -58,11 +54,9 @@ export async function removeTournamentCenterAction(
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to remove tournament center:", error)
-    let errorMessage = "Failed to remove tournament center"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false, error: errorMessage }
   }
@@ -74,11 +68,9 @@ export async function getTournamentBookingsAction(tournamentId: number) {
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to fetch tournament bookings:", error)
-    let errorMessage = "Failed to fetch tournament bookings"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false, error: errorMessage }
   }
@@ -96,11 +88,9 @@ export async function createTournamentBookingsAction(
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to create tournament booking:", error)
-    let errorMessage = "Failed to create tournament booking"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false, error: errorMessage }
   }
@@ -112,11 +102,9 @@ export async function syncBookingStatusAction(tournamentId: number) {
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to sync bookings status:", error)
-    let errorMessage = "Failed to sync bookings status"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false, error: errorMessage }
   }
@@ -134,11 +122,9 @@ export async function cancelBookingAction(
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to cancel booking:", error)
-    let errorMessage = "Failed to cancel booking"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false, error: errorMessage }
   }
@@ -150,11 +136,9 @@ export async function listAllSportCentersAction() {
     return { success: true, data: result.data }
   } catch (error: unknown) {
     console.error("Failed to list sport centers:", error)
-    let errorMessage = "Failed to list sport centers"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return { success: false, error: errorMessage }
   }

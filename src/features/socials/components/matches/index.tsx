@@ -147,12 +147,7 @@ export function MatchesCreationContent({
         error instanceof Error
           ? error.message
           : t("matches.creation.generateError")
-      toast.error(
-        message ||
-          t("matches.creation.generateError", {
-            defaultValue: "Failed to generate matches.",
-          })
-      )
+      toast.error(message || t("matches.controlPanel.generateError"))
       console.error(error)
     }
   }

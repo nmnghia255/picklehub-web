@@ -15,9 +15,11 @@ import { useSportCenterStore } from "@/features/sport-center/stores/sport-center
 import type { BookingResponse } from "@/features/sport-center/types/booking"
 import type { Product } from "@/features/sport-center/types/product"
 import type { Service } from "@/features/sport-center/types/service"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 export default function PaymentPage() {
+  const { t } = useSportCenterTranslation()
   const router = useRouter()
   const searchParams = useSearchParams()
   const params = useParams<{ id?: string }>()
@@ -140,7 +142,7 @@ export default function PaymentPage() {
 
     fetch(`/api/bookings/${bookingId}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Không thể tải thông tin đặt sân.")
+        if (!res.ok) throw new Error(t("booking.payment.errorLoadBooking"))
         return res.json() as Promise<
           { data?: BookingResponse } & BookingResponse
         >
@@ -200,7 +202,7 @@ export default function PaymentPage() {
         })
 
         if (!response.ok) {
-          throw new Error("Không thể tải số dư credit.")
+          throw new Error(t("booking.payment.errorLoadCredit"))
         }
 
         const payload = (await response.json()) as {
@@ -220,7 +222,7 @@ export default function PaymentPage() {
           setCreditError(
             error instanceof Error
               ? error.message
-              : "Không thể tải số dư credit."
+              : t("booking.payment.errorLoadCredit")
           )
         }
       } finally {
@@ -252,7 +254,9 @@ export default function PaymentPage() {
       setPaymentProofUrl(uploadedUrl)
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Không thể tải được ảnh."
+        error instanceof Error
+          ? error.message
+          : t("booking.payment.errorUploadImage")
       setSubmitError(message)
       return error
     } finally {
@@ -267,11 +271,11 @@ export default function PaymentPage() {
 
     try {
       if (!bookingId) {
-        throw new Error("Không tìm thấy mã đặt sân để tải lên minh chứng.")
+        throw new Error(t("booking.payment.errorMissingBookingId"))
       }
 
       if (!requiresProof) {
-        setSubmitMessage("Đã hoàn tất booking bằng credit.")
+        setSubmitMessage(t("booking.payment.creditComplete"))
         setHasCompleted(true)
         setTimeout(() => {
           router.push("/sport-center/booking-history")
@@ -280,11 +284,11 @@ export default function PaymentPage() {
       }
 
       if (!paymentProofUrl) {
-        throw new Error("Vui lòng tải lên ảnh minh chứng thanh toán.")
+        throw new Error(t("booking.payment.errorUploadProof"))
       }
       await submitPaymentProofAction(bookingId, paymentProofUrl)
 
-      setSubmitMessage("Đã tải lên minh chứng thanh toán thành công.")
+      setSubmitMessage(t("booking.payment.uploadSuccess"))
       setHasCompleted(true)
       setTimeout(() => {
         router.push("/sport-center/booking-history")
@@ -293,7 +297,7 @@ export default function PaymentPage() {
       const message =
         error instanceof Error
           ? error.message
-          : "Không thể tải lên minh chứng thanh toán."
+          : t("booking.payment.errorSubmitProof")
       setSubmitError(message)
       return error
     } finally {
@@ -324,20 +328,20 @@ export default function PaymentPage() {
             <CardContent className="grid gap-4 p-4 sm:grid-cols-2 sm:items-center">
               <div>
                 <div className="text-sm text-muted-foreground">
-                  Tổng thanh toán
+                  {t("booking.payment.totalPayment")}
                 </div>
                 <div className="text-2xl font-semibold">{totalDisplay}</div>
               </div>
 
               <div className="sm:text-right">
                 <div className="text-sm text-muted-foreground">
-                  Số dư credit
+                  {t("booking.payment.creditBalance")}
                 </div>
                 <div className="text-2xl font-semibold">
                   {creditLoading
-                    ? "Đang tải..."
+                    ? t("booking.payment.loading")
                     : creditError
-                      ? "Không tải được"
+                      ? t("booking.payment.errorShort")
                       : formatCurrencyVnd(creditBalance ?? 0)}
                 </div>
               </div>

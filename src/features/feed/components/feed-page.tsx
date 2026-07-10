@@ -44,15 +44,6 @@ type FeedTypeMeta = {
 
 const sectionOrder: FeedSection[] = ["today", "yesterday", "thisWeek"]
 
-const sectionAliases: Record<string, FeedSection> = {
-  today: "today",
-  "Hôm nay": "today",
-  yesterday: "yesterday",
-  "Hôm qua": "yesterday",
-  thisWeek: "thisWeek",
-  "Tuần này": "thisWeek",
-}
-
 const feedTypeMeta: Record<FeedNotificationType, FeedTypeMeta> = {
   invitation: {
     icon: Users2,
@@ -84,8 +75,20 @@ const feedTypeMeta: Record<FeedNotificationType, FeedTypeMeta> = {
   },
 }
 
-function normalizeSection(section: string): FeedSection {
-  return sectionAliases[section] ?? "today"
+function normalizeSection(
+  section: string,
+  t: (key: string) => string
+): FeedSection {
+  const aliases: Record<string, FeedSection> = {
+    today: "today",
+    [t("feed.sections.today")]: "today",
+    yesterday: "yesterday",
+    [t("feed.sections.yesterday")]: "yesterday",
+    thisWeek: "thisWeek",
+    [t("feed.sections.thisWeek")]: "thisWeek",
+  }
+
+  return aliases[section] ?? "today"
 }
 
 function getSectionLabel(section: string, t: (key: string) => string) {
@@ -136,11 +139,14 @@ function getFilteredNotifications(
   )
 }
 
-function groupNotificationsBySection(notifications: FeedNotification[]) {
+function groupNotificationsBySection(
+  notifications: FeedNotification[],
+  t: (key: string) => string
+) {
   const grouped = new Map<string, FeedNotification[]>()
 
   notifications.forEach((notification) => {
-    const normalizedSection = normalizeSection(notification.section)
+    const normalizedSection = normalizeSection(notification.section, t)
     const items = grouped.get(normalizedSection) ?? []
     items.push(notification)
     grouped.set(normalizedSection, items)
@@ -195,10 +201,10 @@ function FeedNotificationCard({
         ? t("feed.statuses.declined")
         : t("feed.statuses.pending")
   const translatedTags = notification.tags.map((tag) => {
-    if (tag === "Nhóm" || tag === "group") {
+    if (tag === "group") {
       return t("feed.tags.group")
     }
-    if (tag === "Thông báo" || tag === "notification") {
+    if (tag === "notification") {
       return t("feed.tags.notification")
     }
     return tag
@@ -418,7 +424,10 @@ export function FeedPage() {
     notifications,
     activeFilter
   )
-  const groupedNotifications = groupNotificationsBySection(visibleNotifications)
+  const groupedNotifications = groupNotificationsBySection(
+    visibleNotifications,
+    t
+  )
 
   const handleMarkRead = (id: string) => {
     setNotifications((current) =>

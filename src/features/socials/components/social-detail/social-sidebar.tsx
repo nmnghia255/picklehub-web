@@ -54,14 +54,12 @@ export default function SocialSidebar({
     setIsCompleting(true)
     try {
       await updateSocialAction(social.id, { status: "COMPLETED" })
-      toast.success(
-        t("sidebar.completeSuccess", {
-          defaultValue: "Social marked as completed",
-        })
-      )
+      toast.success(t("sidebar.completeSuccess"))
       router.refresh()
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to complete")
+      toast.error(
+        error instanceof Error ? error.message : t("sidebar.completeError")
+      )
     } finally {
       setIsCompleting(false)
     }
@@ -72,12 +70,7 @@ export default function SocialSidebar({
     const hasPlaySessions =
       social.playSessions && social.playSessions.length > 0
     if (!hasPlaySessions) {
-      toast.error(
-        t("sidebar.publishValidation.noSessions", {
-          defaultValue:
-            "You must create at least one play session before publishing.",
-        })
-      )
+      toast.error(t("sidebar.publishValidation.noSessions"))
       return
     }
 
@@ -88,12 +81,7 @@ export default function SocialSidebar({
         social.paymentAccountName &&
         social.paymentAccountNumber)
     if (!hasPaymentSetup) {
-      toast.error(
-        t("sidebar.publishValidation.noPayment", {
-          defaultValue:
-            "Please set up payment information (Bank name, account name, account number) before publishing.",
-        })
-      )
+      toast.error(t("sidebar.publishValidation.noPayment"))
       return
     }
 
@@ -106,14 +94,12 @@ export default function SocialSidebar({
     setIsPublishing(true)
     try {
       await publishSocialAction(social.id)
-      toast.success(
-        t("sidebar.publishSuccess", {
-          defaultValue: "Social published successfully",
-        })
-      )
+      toast.success(t("sidebar.publishSuccess"))
       router.refresh()
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to publish")
+      toast.error(
+        error instanceof Error ? error.message : t("sidebar.publishError")
+      )
     } finally {
       setIsPublishing(false)
     }
@@ -180,7 +166,7 @@ export default function SocialSidebar({
                     ? `${t("common.hours", {
                         count: social.cancellationFreezeHours,
                       })} ${t("common.beforeEvent")}`
-                    : t("common.na", { defaultValue: "N/A" })
+                    : t("common.na")
                 }
               />
               <SettingRow
@@ -198,7 +184,7 @@ export default function SocialSidebar({
               disabled={isPublishing}
             >
               {isPublishing
-                ? t("sidebar.publishing", { defaultValue: "Publishing..." })
+                ? t("sidebar.publishing")
                 : t("sidebar.publishSocial")}
             </Button>
           )}
@@ -211,10 +197,8 @@ export default function SocialSidebar({
               disabled={isCompleting}
             >
               {isCompleting
-                ? t("sidebar.completing", { defaultValue: "Completing..." })
-                : t("sidebar.completeSocial", {
-                    defaultValue: "Complete Social",
-                  })}
+                ? t("sidebar.completing")
+                : t("sidebar.completeSocial")}
             </Button>
           )}
 
@@ -232,23 +216,16 @@ export default function SocialSidebar({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t("sidebar.publishConfirmTitle", {
-                defaultValue: "Publish Event",
-              })}
+              {t("sidebar.publishConfirmTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {t("sidebar.publishConfirmDescription", {
-                defaultValue:
-                  "Are you sure you want to publish this event? Note that you will not be able to make any changes after it is published.",
-              })}
+              {t("sidebar.publishConfirmDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>
-              {t("common.cancel", { defaultValue: "Cancel" })}
-            </AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handlePublish} disabled={isPublishing}>
-              {t("common.confirm", { defaultValue: "Confirm" })}
+              {t("common.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

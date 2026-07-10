@@ -75,12 +75,10 @@ export default function SocialExpenseTab({
             <div className="space-y-3">
               <div>
                 <CardTitle className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                  {t("expenses.title", { defaultValue: "Financial Dashboard" })}
+                  {t("expenses.title")}
                 </CardTitle>
                 <CardDescription className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-                  {t("expenses.subtitle", {
-                    defaultValue: "Monitor event finances and expenses.",
-                  })}
+                  {t("expenses.subtitle")}
                 </CardDescription>
               </div>
             </div>
@@ -94,9 +92,7 @@ export default function SocialExpenseTab({
                 disabled={social?.status !== "DRAFT"}
               >
                 <Calculator className="size-4" />
-                {t("expenses.actions.setPricing", {
-                  defaultValue: "Set Pricing",
-                })}
+                {t("expenses.actions.setPricing")}
               </Button>
             </div>
           </div>
@@ -122,15 +118,12 @@ export default function SocialExpenseTab({
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <TrendingUp className="size-4 text-primary" />
-                {t("expenses.progress.title", {
-                  defaultValue: "Collection Progress",
-                })}
+                {t("expenses.progress.title")}
               </div>
               <Progress value={collectionProgress} className="h-2.5" />
               <p className="text-sm text-muted-foreground">
                 {t("expenses.progress.description", {
                   count: collectionProgress,
-                  defaultValue: `${collectionProgress}% of target collected`,
                 })}
               </p>
             </div>

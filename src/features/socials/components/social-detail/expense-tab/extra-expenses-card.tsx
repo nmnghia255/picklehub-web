@@ -57,22 +57,13 @@ export function ExtraExpensesCard({
   const { mutate: deleteExpense, isPending: isDeleting } = useMutation({
     mutationFn: (expenseId: string) => deleteExpenseAction(socialId, expenseId),
     onSuccess: () => {
-      toast.success(
-        t("expenses.extra.deleteConfirm.success", {
-          defaultValue: "Expense deleted successfully",
-        })
-      )
+      toast.success(t("expenses.extra.deleteConfirm.success"))
       queryClient.invalidateQueries({ queryKey: ["socialExpenses", socialId] })
       queryClient.invalidateQueries({ queryKey: ["financeSummary", socialId] })
       setExpenseToDelete(null)
     },
     onError: (error) => {
-      toast.error(
-        error.message ||
-          t("expenses.extra.deleteConfirm.error", {
-            defaultValue: "Failed to delete expense",
-          })
-      )
+      toast.error(error.message || t("expenses.extra.deleteConfirm.error"))
     },
   })
 
@@ -97,13 +88,10 @@ export function ExtraExpensesCard({
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <CardTitle className="text-xl">
-                {t("expenses.extra.title", { defaultValue: "Extra Expenses" })}
+                {t("expenses.extra.title")}
               </CardTitle>
               <CardDescription className="mt-1">
-                {t("expenses.extra.description", {
-                  defaultValue:
-                    "Additional manual expenses for this event (water, balls, etc.)",
-                })}
+                {t("expenses.extra.description")}
               </CardDescription>
             </div>
             <Button
@@ -113,9 +101,7 @@ export function ExtraExpensesCard({
               disabled={isLocked}
             >
               <Plus className="size-4" />
-              {t("expenses.actions.addExpense", {
-                defaultValue: "Add Expense",
-              })}
+              {t("expenses.actions.addExpense")}
             </Button>
           </div>
         </CardHeader>
@@ -126,24 +112,16 @@ export function ExtraExpensesCard({
               <TableHeader className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80">
                 <TableRow>
                   <TableHead className="px-6 py-4">
-                    {t("expenses.extra.headers.title", {
-                      defaultValue: "Title",
-                    })}
+                    {t("expenses.extra.headers.title")}
                   </TableHead>
                   <TableHead className="px-6 py-4">
-                    {t("expenses.extra.headers.description", {
-                      defaultValue: "Description",
-                    })}
+                    {t("expenses.extra.headers.description")}
                   </TableHead>
                   <TableHead className="px-6 py-4 text-right">
-                    {t("expenses.extra.headers.amount", {
-                      defaultValue: "Amount",
-                    })}
+                    {t("expenses.extra.headers.amount")}
                   </TableHead>
                   <TableHead className="px-6 py-4 text-right">
-                    {t("expenses.extra.headers.actions", {
-                      defaultValue: "Actions",
-                    })}
+                    {t("expenses.extra.headers.actions")}
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -190,9 +168,7 @@ export function ExtraExpensesCard({
                       colSpan={4}
                       className="px-6 py-8 text-center text-muted-foreground"
                     >
-                      {t("expenses.extra.empty", {
-                        defaultValue: "No extra expenses logged.",
-                      })}
+                      {t("expenses.extra.empty")}
                     </TableCell>
                   </TableRow>
                 )}
@@ -216,22 +192,15 @@ export function ExtraExpensesCard({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t("expenses.extra.deleteConfirm.title", {
-                defaultValue: "Are you sure?",
-              })}
+              {t("expenses.extra.deleteConfirm.title")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {t("expenses.extra.deleteConfirm.description", {
-                defaultValue:
-                  "This action cannot be undone. This will permanently delete the expense from the event.",
-              })}
+              {t("expenses.extra.deleteConfirm.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>
-              {t("expenses.extra.deleteConfirm.cancel", {
-                defaultValue: "Cancel",
-              })}
+              {t("expenses.extra.deleteConfirm.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
@@ -244,12 +213,8 @@ export function ExtraExpensesCard({
               }}
             >
               {isDeleting
-                ? t("expenses.extra.deleteConfirm.deleting", {
-                    defaultValue: "Deleting...",
-                  })
-                : t("expenses.extra.deleteConfirm.delete", {
-                    defaultValue: "Delete",
-                  })}
+                ? t("expenses.extra.deleteConfirm.deleting")
+                : t("expenses.extra.deleteConfirm.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

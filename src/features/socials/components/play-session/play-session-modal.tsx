@@ -95,20 +95,22 @@ export function PlaySessionModal({
               onChange={(e) =>
                 setFormData({ ...formData, title: e.target.value })
               }
-              placeholder="e.g., Morning Session - Courts 1 & 2"
+              placeholder={t("sessionForm.titlePlaceholder")}
               required
             />
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="play-session-title">{t("form.location")}</Label>
+            <Label htmlFor="play-session-title">
+              {t("sessionForm.locationLabel")}
+            </Label>
             <Input
               id="play-session-title"
               value={formData.location}
               onChange={(e) =>
                 setFormData({ ...formData, location: e.target.value })
               }
-              placeholder="Sports Center ABC, 123 Main St"
+              placeholder={t("sessionForm.locationPlaceholder")}
               required
             />
           </div>
@@ -152,6 +154,7 @@ export function PlaySessionModal({
               }
               min={0}
               step={0.01}
+              placeholder={t("sessionForm.feePlaceholder")}
               required
             />
           </div>
@@ -171,7 +174,7 @@ export function PlaySessionModal({
           <Label htmlFor="play-session-fee">{t("form.bookings")}</Label>
           <Select>
             <SelectTrigger id="play-session-booking" className="w-full">
-              <SelectValue placeholder={t("form.bookings")} />
+              <SelectValue placeholder={t("sessionForm.bookingPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="court1">{t("courts.court1")}</SelectItem>

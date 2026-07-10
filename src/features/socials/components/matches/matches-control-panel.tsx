@@ -39,7 +39,6 @@ export function MatchesControlPanel({
         t("matches.controlPanel.notEnoughPlayers", {
           requiredPlayers,
           got: players.length,
-          defaultValue: `Need at least ${requiredPlayers} eligible participants for the requested match counts (got ${players.length}).`,
         })
       )
       return
@@ -68,7 +67,6 @@ export function MatchesControlPanel({
           <div className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
             {t("matches.controlPanel.bookedCourts", {
               count: numberOfCourts,
-              defaultValue: `Booked Courts: ${numberOfCourts}`,
             })}
           </div>
         )}
@@ -152,12 +150,8 @@ export function MatchesControlPanel({
         >
           <Sparkles className="h-4 w-4" />
           {isGenerating
-            ? t("matches.controlPanel.generating", {
-                defaultValue: "Generating...",
-              })
-            : t("matches.controlPanel.generate", {
-                defaultValue: "Generate Matches",
-              })}
+            ? t("matches.controlPanel.generating")
+            : t("matches.controlPanel.generate")}
         </Button>
       </div>
 
@@ -165,27 +159,12 @@ export function MatchesControlPanel({
       <Card className="border-sky-200 bg-sky-50 p-4 dark:border-cyan-900/60 dark:bg-slate-950/60">
         <div className="space-y-1 text-sm">
           <p className="font-medium text-sky-900 dark:text-cyan-200">
-            {t("matches.controlPanel.howItWorks", {
-              defaultValue: "How generation works",
-            })}
+            {t("matches.controlPanel.howItWorks")}
           </p>
           <ul className="ml-4 list-disc space-y-1 text-xs text-sky-800 dark:text-slate-300">
-            <li>
-              {t("matches.controlPanel.step1", {
-                defaultValue:
-                  "Specify the exact number of singles and doubles matches.",
-              })}
-            </li>
-            <li>
-              {t("matches.controlPanel.step2", {
-                defaultValue: "Set the duration for this match round.",
-              })}
-            </li>
-            <li>
-              {t("matches.controlPanel.step3", {
-                defaultValue: "Click generate to receive an optimized lineup.",
-              })}
-            </li>
+            <li>{t("matches.controlPanel.step1")}</li>
+            <li>{t("matches.controlPanel.step2")}</li>
+            <li>{t("matches.controlPanel.step3")}</li>
           </ul>
         </div>
       </Card>
