@@ -22,6 +22,7 @@ import {
 import { useSocialsStore } from "@/features/socials/stores/social-listing-store"
 import type { ListSocial as Social } from "@/features/socials/types/social"
 import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
+import { TOURNAMENT_THEME } from "@/features/tournaments/styles/theme"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import { FiltersDrawer } from "./filters-drawer"
@@ -131,16 +132,13 @@ export default function SocialListing({
     })
   }
 
-  const hasNextPage = pagination && pagination.page < pagination.totalPages
-  const hasPrevPage = pagination && pagination.page > 1
-
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8">
       <div className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight">
+        <h1 className={TOURNAMENT_THEME.layout.title}>
           {isMySocials ? t("mySocials.title") : t("listing.title")}
         </h1>
-        <p className="max-w-2xl text-sm text-muted-foreground">
+        <p className={TOURNAMENT_THEME.layout.subtitle}>
           {isMySocials ? t("mySocials.subtitle") : t("listing.subtitle")}
         </p>
       </div>
@@ -160,7 +158,7 @@ export default function SocialListing({
         </div>
         {hasSocialHostPlan && (
           <Button
-            className="h-11 gap-2"
+            className={`h-11 gap-2 ${TOURNAMENT_THEME.button.primary}`}
             onClick={() => router.push("/socials/create")}
           >
             <Plus className="size-4" />
@@ -169,7 +167,7 @@ export default function SocialListing({
         )}
         <Button
           variant="outline"
-          className="h-11 gap-2 md:w-auto"
+          className={`h-11 gap-2 md:w-auto`}
           onClick={() => setFilterDrawerOpen(true)}
         >
           <Filter className="size-4" />
@@ -216,7 +214,7 @@ export default function SocialListing({
             </Empty>
           ) : (
             <>
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className={TOURNAMENT_THEME.layout.grid}>
                 {socials.map((social) => (
                   <SocialCard
                     key={social.id}
@@ -226,12 +224,19 @@ export default function SocialListing({
                 ))}
               </div>
 
-              {pagination && pagination.totalPages > 1 && (
+              {pagination && pagination.totalPages >= 1 && (
                 <div className="mt-8 flex justify-center">
                   <Pagination
                     currentPage={pagination.page}
                     totalPages={pagination.totalPages}
                     onPageChange={handlePageChange}
+                    createHref={(page) => {
+                      const params = new URLSearchParams(
+                        searchParams.toString()
+                      )
+                      params.set("page", page.toString())
+                      return `${pathname}?${params.toString()}`
+                    }}
                     variant="simple"
                   />
                 </div>

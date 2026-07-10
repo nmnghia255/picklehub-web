@@ -1,4 +1,6 @@
 {
+  "loadingScoreboard": "Loading scoreboard...",
+  "loadingTournamentInfo": "Loading tournament information...",
   "manager": {
     "title": "Pickleball Tournament Manager",
     "subtitle": "San Diego Summer Slam 2026",

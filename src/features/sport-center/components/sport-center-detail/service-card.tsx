@@ -1,6 +1,6 @@
 "use client"
 
-import { CalendarClock, Settings2 } from "lucide-react"
+import { Settings2 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -17,7 +17,7 @@ export function ServiceCard({ item }: ServiceCardProps) {
   const isPaused = !item.isActive
 
   return (
-    <Card className="group w-full overflow-hidden border-border/70 bg-background text-foreground shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg">
+    <Card className="group w-full overflow-hidden border-border/70 bg-background py-0 text-foreground shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg">
       <CardContent className="flex h-full flex-col p-0">
         <div className="relative aspect-4/3 overflow-hidden bg-muted">
           {item.imageUrl ? (

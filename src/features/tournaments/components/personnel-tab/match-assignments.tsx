@@ -1,40 +1,22 @@
 "use client"
 
-import {
-  AlertCircle,
-  Clock,
-  Loader2,
-  MapPin,
-  Search,
-  Shield,
-  UserMinus,
-  UserPlus2,
-} from "lucide-react"
+import { AlertCircle } from "lucide-react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
+import { Card, CardDescription, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
+import { getTournamentFixturesWithScheduleAction } from "../../actions/schedule-actions"
 import { usePersonnelStore } from "../../stores/use-personnel-store"
+import type { TournamentSchedule } from "../../types/schedule"
 import type { TournamentEvent } from "../../types/tournament-event"
+import { AssignedMatchesTab } from "./assigned-matches-tab"
+import { RefereeList } from "./referee-list"
+import { RefereeProfileCard } from "./referee-profile-card"
+import { UnassignedMatchesTab } from "./unassigned-matches-tab"
 
 interface MatchAssignmentsProps {
   events: TournamentEvent[]
@@ -51,40 +33,263 @@ export function MatchAssignments({ events }: MatchAssignmentsProps) {
   const setMatchSearch = usePersonnelStore((s) => s.setMatchSearch)
   const selectedEventId = usePersonnelStore((s) => s.selectedEventId)
   const setSelectedEventId = usePersonnelStore((s) => s.setSelectedEventId)
-  const showUnassignedOnly = usePersonnelStore((s) => s.showUnassignedOnly)
-  const setShowUnassignedOnly = usePersonnelStore(
-    (s) => s.setShowUnassignedOnly
+  const fetchMatches = usePersonnelStore((s) => s.fetchMatches)
+  const unassignRefereeAction = usePersonnelStore((s) => s.unassignReferee)
+  const bulkAssignRefereeAction = usePersonnelStore((s) => s.bulkAssignReferee)
+  const tournamentId = usePersonnelStore((s) => s.tournamentId)
+
+  // Local State
+  const [selectedRefereeId, setSelectedRefereeId] = useState<string | null>(
+    null
+  )
+  const [selectedMatchIds, setSelectedMatchIds] = useState<Set<string>>(
+    new Set()
+  )
+  const [isAssigningBulk, setIsAssigningBulk] = useState(false)
+  const [activeTab, setActiveTab] = useState<string>("unassigned")
+  const [scheduleMap, setScheduleMap] = useState<
+    Record<string, TournamentSchedule>
+  >({})
+
+  // Auto-select first referee if none is selected
+  useEffect(() => {
+    if (!selectedRefereeId && referees.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedRefereeId(referees[0].refereeId)
+    }
+  }, [referees, selectedRefereeId])
+
+  // Fetch matches with showUnassignedOnly forced to false so we have all matches
+  useEffect(() => {
+    usePersonnelStore.setState({ showUnassignedOnly: false })
+    void fetchMatches()
+  }, [fetchMatches, selectedEventId])
+
+  // Fetch tournament fixtures schedule
+  useEffect(() => {
+    let active = true
+    if (!tournamentId) return
+
+    const loadSchedule = async () => {
+      try {
+        const params: { eventId?: number } = {}
+        if (selectedEventId && selectedEventId !== "all") {
+          params.eventId = Number(selectedEventId)
+        }
+
+        const res = await getTournamentFixturesWithScheduleAction(
+          Number(tournamentId),
+          params
+        )
+        if (res.success && res.data) {
+          let list: TournamentSchedule[] = []
+          if (Array.isArray(res.data)) {
+            list = res.data
+          } else if (res.data && typeof res.data === "object") {
+            const dataObj = res.data as Record<string, unknown>
+            if ("fixtures" in dataObj && Array.isArray(dataObj.fixtures)) {
+              list = dataObj.fixtures as TournamentSchedule[]
+            } else if ("data" in dataObj && Array.isArray(dataObj.data)) {
+              list = dataObj.data as TournamentSchedule[]
+            }
+          }
+
+          const map: Record<string, TournamentSchedule> = {}
+          list.forEach((item) => {
+            map[String(item.id)] = item
+          })
+          if (active) {
+            setScheduleMap(map)
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load tournament schedule:", err)
+      }
+    }
+
+    void loadSchedule()
+
+    return () => {
+      active = false
+    }
+  }, [tournamentId, selectedEventId])
+
+  const selectedReferee = useMemo(() => {
+    return referees.find((r) => r.refereeId === selectedRefereeId) || null
+  }, [referees, selectedRefereeId])
+
+  const getTeamLabel = useCallback(
+    (matchId: string, teamId: string | null | undefined, isTeam1: boolean) => {
+      if (!teamId) return "TBD"
+      const sched = scheduleMap[String(matchId)]
+      const team = sched ? (isTeam1 ? sched.team1 : sched.team2) : null
+      if (team) {
+        if (team.name) return team.name
+        if (team.player1) {
+          return team.player2
+            ? `${team.player1.name} / ${team.player2.name}`
+            : team.player1.name
+        }
+      }
+      return `Team ${teamId}`
+    },
+    [scheduleMap]
   )
 
-  const assignRefereeAction = usePersonnelStore((s) => s.assignReferee)
-  const unassignRefereeAction = usePersonnelStore((s) => s.unassignReferee)
+  const formatMatchTime = (
+    startTimeStr: string | null | undefined,
+    endTimeStr?: string | null | undefined,
+    durationMinutes?: number | null
+  ) => {
+    if (!startTimeStr) return ""
 
-  // Handlers
-  const handleAssignReferee = async (matchId: string, refereeId: string) => {
-    const referee = referees.find((r) => r.refereeId === refereeId)
-    if (!referee) return
-
-    const res = await assignRefereeAction(
-      matchId,
-      refereeId,
-      referee.refereeName
-    )
-    if (res.success) {
-      toast.success(
-        t("personnel.assignments.assignSuccess", {
-          defaultValue: "Referee assigned successfully!",
-        })
-      )
-    } else {
-      toast.error(
-        res.error ||
-          t("personnel.assignments.assignFailed", {
-            defaultValue: "Failed to assign referee",
+    const cleanTime = (tStr: string) => {
+      if (tStr.includes("T")) {
+        try {
+          const date = new Date(tStr)
+          return date.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
           })
-      )
+        } catch {
+          return tStr
+        }
+      }
+      const parts = tStr.split(":")
+      if (parts.length >= 2) {
+        return `${parts[0].padStart(2, "0")}:${parts[1].padStart(2, "0")}`
+      }
+      return tStr
     }
+
+    const formattedStart = cleanTime(startTimeStr)
+
+    if (endTimeStr) {
+      const formattedEnd = cleanTime(endTimeStr)
+      return `${formattedStart} - ${formattedEnd}`
+    }
+
+    const duration = durationMinutes || 45
+    let startDate: Date | null = null
+    if (startTimeStr.includes("T")) {
+      try {
+        startDate = new Date(startTimeStr)
+      } catch {
+        startDate = null
+      }
+    } else {
+      try {
+        const parts = startTimeStr.split(":")
+        if (parts.length >= 2) {
+          const hours = parseInt(parts[0], 10)
+          const minutes = parseInt(parts[1], 10)
+          startDate = new Date()
+          startDate.setHours(hours, minutes, 0, 0)
+        }
+      } catch {
+        startDate = null
+      }
+    }
+
+    if (!startDate || isNaN(startDate.getTime())) {
+      return formattedStart
+    }
+
+    const endDate = new Date(startDate.getTime() + duration * 60 * 1000)
+    const formattedEnd = endDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })
+
+    return `${formattedStart} - ${formattedEnd}`
   }
 
+  const renderTeamDetails = (
+    matchId: string,
+    teamId: string | null | undefined,
+    isTeam1: boolean
+  ) => {
+    if (!teamId) {
+      return <span className="text-sm font-semibold text-gray-400">TBD</span>
+    }
+    const sched = scheduleMap[String(matchId)]
+    const team = sched ? (isTeam1 ? sched.team1 : sched.team2) : null
+
+    if (!team) {
+      return (
+        <div className="flex flex-col">
+          <span className="text-sm font-semibold text-gray-900">
+            Team {teamId}
+          </span>
+        </div>
+      )
+    }
+
+    const player1Name = team.player1?.name
+    const player2Name = team.player2?.name
+    const seed = team.seed
+    const rating = team.rating
+    const p1Dupr = team.player1?.dupr
+    const p2Dupr = team.player2?.dupr
+
+    const displayName =
+      team.name ||
+      (player2Name ? `${player1Name} / ${player2Name}` : player1Name) ||
+      `Team ${teamId}`
+
+    return (
+      <div className="flex flex-col gap-0.5">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span
+            className="max-w-[180px] truncate text-sm font-semibold text-gray-900"
+            title={displayName}
+          >
+            {displayName}
+          </span>
+          {seed ? (
+            <Badge
+              variant="outline"
+              className="shrink-0 border-amber-200 bg-amber-50/50 px-1 py-0 text-[9px] font-bold text-amber-700"
+            >
+              #{seed}
+            </Badge>
+          ) : null}
+        </div>
+
+        {team.name && (player1Name || player2Name) && (
+          <div
+            className="truncate text-xs text-gray-500"
+            title={
+              player2Name ? `${player1Name} & ${player2Name}` : player1Name
+            }
+          >
+            {player2Name ? `${player1Name} & ${player2Name}` : player1Name}
+          </div>
+        )}
+
+        {rating || p1Dupr || p2Dupr ? (
+          <div className="flex flex-wrap items-center gap-2 text-[10px] font-medium text-gray-400">
+            {rating ? (
+              <span>
+                Rating:{" "}
+                {typeof rating === "number" ? rating.toFixed(2) : rating}
+              </span>
+            ) : null}
+            {(p1Dupr || p2Dupr) && (
+              <span>
+                DUPR: {p1Dupr || "-"}
+                {p2Dupr ? ` / ${p2Dupr}` : ""}
+              </span>
+            )}
+          </div>
+        ) : null}
+      </div>
+    )
+  }
+
+  // Handlers
   const handleUnassignReferee = async (matchId: string) => {
     const res = await unassignRefereeAction(matchId)
     if (res.success) {
@@ -103,320 +308,218 @@ export function MatchAssignments({ events }: MatchAssignmentsProps) {
     }
   }
 
-  // Filter matches on client side based on search query
-  const filteredMatches = matches.filter((m) => {
-    const query = matchSearch.toLowerCase()
-    const refereeMatch = m.refereeName?.toLowerCase().includes(query) || false
-    const team1Match = m.team1Id?.toLowerCase().includes(query) || false
-    const team2Match = m.team2Id?.toLowerCase().includes(query) || false
-    const roundMatch = m.round?.toLowerCase().includes(query) || false
-    const eventMatch = m.event?.name?.toLowerCase().includes(query) || false
-    return refereeMatch || team1Match || team2Match || roundMatch || eventMatch
-  })
+  const toggleMatchSelection = (matchId: string) => {
+    setSelectedMatchIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(matchId)) {
+        next.delete(matchId)
+      } else {
+        next.add(matchId)
+      }
+      return next
+    })
+  }
+
+  const handleBulkAssign = async () => {
+    if (!selectedReferee || selectedMatchIds.size === 0) return
+
+    setIsAssigningBulk(true)
+    const matchIdsArray = Array.from(selectedMatchIds)
+
+    try {
+      const res = await bulkAssignRefereeAction(
+        matchIdsArray,
+        selectedReferee.refereeId
+      )
+      if (res.success) {
+        toast.success(
+          t("personnel.assignments.bulkAssignSuccess", {
+            defaultValue: `Successfully assigned ${matchIdsArray.length} matches to ${selectedReferee.refereeName}!`,
+            count: matchIdsArray.length,
+            name: selectedReferee.refereeName,
+          })
+        )
+      } else {
+        toast.error(
+          res.error ||
+            t("personnel.assignments.bulkAssignFailed", {
+              defaultValue: "Failed to assign matches to referee.",
+            })
+        )
+      }
+    } catch (err) {
+      console.error(err)
+      toast.error("An unexpected error occurred during assignment.")
+    } finally {
+      setIsAssigningBulk(false)
+      setSelectedMatchIds(new Set())
+    }
+  }
+
+  // Filter unassigned matches based on search query and event selection
+  const filteredUnassignedMatches = useMemo(() => {
+    return matches
+      .filter((m) => !m.refereeId || m.refereeId === "")
+      .filter((m) => {
+        const query = matchSearch.toLowerCase()
+        const refereeMatch = m.refereeName
+          ? String(m.refereeName).toLowerCase().includes(query)
+          : false
+        const team1Label = getTeamLabel(m.id, m.team1Id, true).toLowerCase()
+        const team2Label = getTeamLabel(m.id, m.team2Id, false).toLowerCase()
+        const team1Match =
+          team1Label.includes(query) ||
+          (m.team1Id ? String(m.team1Id).toLowerCase().includes(query) : false)
+        const team2Match =
+          team2Label.includes(query) ||
+          (m.team2Id ? String(m.team2Id).toLowerCase().includes(query) : false)
+        const roundMatch = m.round
+          ? String(m.round).toLowerCase().includes(query)
+          : false
+        const eventMatch = m.event?.name
+          ? String(m.event.name).toLowerCase().includes(query)
+          : false
+
+        const matchesSearch =
+          refereeMatch || team1Match || team2Match || roundMatch || eventMatch
+        const matchesEvent =
+          selectedEventId === "all" || String(m.eventId) === selectedEventId
+        return matchesSearch && matchesEvent
+      })
+  }, [matches, matchSearch, selectedEventId, scheduleMap, getTeamLabel])
+
+  // Get current assignments for selected referee
+  const refereeAssignments = useMemo(() => {
+    if (!selectedRefereeId) return []
+    return matches.filter((m) => m.refereeId === selectedRefereeId)
+  }, [matches, selectedRefereeId])
+
+  const allFilteredSelected = useMemo(() => {
+    return (
+      filteredUnassignedMatches.length > 0 &&
+      filteredUnassignedMatches.every((m) => selectedMatchIds.has(m.id))
+    )
+  }, [filteredUnassignedMatches, selectedMatchIds])
+
+  const toggleSelectAll = () => {
+    if (allFilteredSelected) {
+      setSelectedMatchIds((prev) => {
+        const next = new Set(prev)
+        filteredUnassignedMatches.forEach((m) => next.delete(m.id))
+        return next
+      })
+    } else {
+      setSelectedMatchIds((prev) => {
+        const next = new Set(prev)
+        filteredUnassignedMatches.forEach((m) => next.add(m.id))
+        return next
+      })
+    }
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Filtering Panel */}
-      <Card className="border border-gray-200 bg-white shadow-xs">
-        <CardContent className="flex flex-col justify-between gap-4 p-4 md:flex-row md:items-center">
-          <div className="flex flex-1 flex-col gap-3 sm:flex-row">
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute top-2.5 left-3 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder={t("personnel.assignments.searchPlaceholder")}
-                className="bg-white pl-9"
-                value={matchSearch}
-                onChange={(e) => setMatchSearch(e.target.value)}
-              />
-            </div>
-            {/* Event Select */}
-            <div className="w-full sm:w-64">
-              <Select
-                value={selectedEventId}
-                onValueChange={setSelectedEventId}
-              >
-                <SelectTrigger className="bg-white">
-                  <SelectValue
-                    placeholder={t("personnel.assignments.allEvents")}
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">
-                    {t("personnel.assignments.allEvents")}
-                  </SelectItem>
-                  {events.map((evt) => (
-                    <SelectItem key={evt.id} value={evt.id.toString()}>
-                      {evt.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+    <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-3">
+      {/* Left Column: Referees List */}
+      <RefereeList
+        referees={referees}
+        selectedRefereeId={selectedRefereeId}
+        onSelectReferee={(id) => {
+          setSelectedRefereeId(id)
+          setSelectedMatchIds(new Set())
+        }}
+      />
 
-          {/* Unassigned Toggle */}
-          <div className="flex items-center gap-2 rounded-lg border border-emerald-100/50 bg-emerald-50/50 px-3 py-1.5">
-            <Switch
-              id="unassigned-only"
-              checked={showUnassignedOnly}
-              onCheckedChange={setShowUnassignedOnly}
-            />
-            <Label
-              htmlFor="unassigned-only"
-              className="cursor-pointer text-xs font-semibold text-emerald-800"
+      {/* Right Column: Assignment Workspace */}
+      <div className="space-y-6 md:col-span-2">
+        {!selectedReferee ? (
+          <Card className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 bg-white p-12 text-center">
+            <AlertCircle className="mx-auto mb-4 h-12 w-12 text-gray-300" />
+            <CardTitle className="mb-1 text-lg font-medium text-gray-900">
+              {t("personnel.assignments.selectRefereeTitle", {
+                defaultValue: "No Referee Selected",
+              })}
+            </CardTitle>
+            <CardDescription className="max-w-xs">
+              {t("personnel.assignments.selectRefereePrompt", {
+                defaultValue:
+                  "Select a referee from the roster on the left to start managing match assignments.",
+              })}
+            </CardDescription>
+          </Card>
+        ) : (
+          <>
+            {/* Referee Profile Card */}
+            <RefereeProfileCard referee={selectedReferee} />
+
+            {/* Assignments Tabs */}
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
             >
-              {t("personnel.assignments.unassignedOnly")}
-            </Label>
-          </div>
-        </CardContent>
-      </Card>
+              <TabsList className="grid w-full grid-cols-2 bg-gray-100/80 p-0">
+                <TabsTrigger
+                  value="unassigned"
+                  className="py-2 text-xs font-semibold"
+                >
+                  {t("personnel.assignments.assignMatches", {
+                    defaultValue: "Assign Matches",
+                  })}
+                </TabsTrigger>
+                <TabsTrigger
+                  value="assigned"
+                  className="py-2 text-xs font-semibold"
+                >
+                  {t("personnel.assignments.currentAssignments", {
+                    defaultValue: "Current Assignments ({{count}})",
+                    count: refereeAssignments.length,
+                  })}
+                </TabsTrigger>
+              </TabsList>
 
-      {/* Matches List */}
-      {isLoadingMatches ? (
-        <div className="flex h-64 flex-col items-center justify-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-          <p className="text-sm text-gray-500">
-            {t("personnel.assignments.loading", {
-              defaultValue: "Loading matches list...",
-            })}
-          </p>
-        </div>
-      ) : filteredMatches.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 p-12 text-center">
-          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-gray-300" />
-          <CardTitle className="mb-1 text-lg font-medium text-gray-900">
-            {t("personnel.assignments.emptyTitle")}
-          </CardTitle>
-          <CardDescription className="max-w-xs">
-            {t("personnel.assignments.emptyDesc")}
-          </CardDescription>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {filteredMatches.map((match) => {
-            const isAssigned = !!match.refereeId
-            return (
-              <Card
-                key={match.id}
-                className={`overflow-hidden border shadow-xs transition-all duration-200 hover:shadow-sm ${
-                  isAssigned
-                    ? "border-gray-200 bg-white"
-                    : "border-amber-200 bg-amber-50/10"
-                }`}
+              {/* UNASSIGNED TAB */}
+              <TabsContent
+                value="unassigned"
+                className="mt-4 space-y-4 focus:outline-hidden"
               >
-                <div className="flex flex-col items-stretch justify-between lg:flex-row lg:items-center">
-                  {/* Left: Match metadata and fixtures */}
-                  <div className="flex-1 space-y-4 p-5">
-                    {/* Event & Round Badges */}
-                    <div className="flex flex-wrap items-center gap-2 text-xs">
-                      <span className="rounded-sm bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-800">
-                        {match.event?.name ||
-                          t("personnel.assignments.eventLabel")}
-                      </span>
-                      <span className="text-gray-500">|</span>
-                      <span className="rounded-sm bg-gray-100 px-2 py-0.5 font-medium text-gray-700">
-                        {match.round || t("personnel.assignments.roundLabel")}
-                      </span>
-                      {match.court?.name && (
-                        <>
-                          <span className="text-gray-500">|</span>
-                          <span className="flex items-center gap-1 font-medium text-gray-600">
-                            <MapPin className="h-3 w-3 text-red-500" />
-                            {match.court.name}
-                          </span>
-                        </>
-                      )}
-                      {match.time && (
-                        <>
-                          <span className="text-gray-500">|</span>
-                          <span className="flex items-center gap-1 font-medium text-gray-600">
-                            <Clock className="h-3 w-3 text-blue-500" />
-                            {match.time}
-                          </span>
-                        </>
-                      )}
-                      <span className="ml-auto lg:ml-0">
-                        {match.status === "completed" ? (
-                          <Badge className="border-none bg-emerald-100 px-2 py-0 text-[10px] font-medium text-emerald-800">
-                            {t("list.statuses.completed", {
-                              defaultValue: "Completed",
-                            })}
-                          </Badge>
-                        ) : match.status === "in_progress" ? (
-                          <Badge className="animate-pulse border-none bg-blue-100 px-2 py-0 text-[10px] font-medium text-blue-800">
-                            {t("list.statuses.in_progress", {
-                              defaultValue: "In Progress",
-                            })}
-                          </Badge>
-                        ) : (
-                          <Badge
-                            variant="outline"
-                            className="border-gray-300 px-2 py-0 text-[10px] font-medium text-gray-600"
-                          >
-                            {t("scheduling.status.scheduled", {
-                              defaultValue: "Scheduled",
-                            })}
-                          </Badge>
-                        )}
-                      </span>
-                    </div>
+                <UnassignedMatchesTab
+                  events={events}
+                  filteredUnassignedMatches={filteredUnassignedMatches}
+                  selectedMatchIds={selectedMatchIds}
+                  isAssigningBulk={isAssigningBulk}
+                  matchSearch={matchSearch}
+                  setMatchSearch={setMatchSearch}
+                  selectedEventId={selectedEventId}
+                  setSelectedEventId={setSelectedEventId}
+                  allFilteredSelected={allFilteredSelected}
+                  toggleSelectAll={toggleSelectAll}
+                  toggleMatchSelection={toggleMatchSelection}
+                  handleBulkAssign={handleBulkAssign}
+                  isLoadingMatches={isLoadingMatches}
+                  scheduleMap={scheduleMap}
+                  formatMatchTime={formatMatchTime}
+                  renderTeamDetails={renderTeamDetails}
+                />
+              </TabsContent>
 
-                    {/* Team vs Team layout */}
-                    <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-                      <div className="flex items-center gap-6 text-sm font-semibold text-gray-900 md:text-base">
-                        <span className="min-w-[120px]">
-                          {match.team1Id || "TBD Team 1"}
-                        </span>
-                        <span className="rounded-full border border-gray-100 bg-gray-50 px-2 py-1 text-xs font-bold text-gray-400">
-                          {t("personnel.assignments.vs")}
-                        </span>
-                        <span className="min-w-[120px]">
-                          {match.team2Id || "TBD Team 2"}
-                        </span>
-                      </div>
-
-                      {/* Score if finished */}
-                      {match.score && (
-                        <div className="rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-1 font-mono text-sm font-bold text-emerald-600">
-                          {t("personnel.assignments.scoreLabel", {
-                            score: match.score,
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Right: Referee Status and Assignment controls */}
-                  <div className="flex min-w-full items-center justify-between gap-4 border-t border-gray-100 bg-gray-50/50 p-5 lg:min-w-[340px] lg:border-t-0 lg:border-l">
-                    {/* Current Referee view */}
-                    <div className="flex min-w-0 items-center gap-3">
-                      {isAssigned ? (
-                        <>
-                          <Avatar className="h-9 w-9 border border-emerald-200">
-                            <AvatarFallback className="bg-emerald-100 text-xs font-semibold text-emerald-800">
-                              {match.refereeName
-                                ?.substring(0, 2)
-                                .toUpperCase() || "RF"}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0">
-                            <div className="text-xs font-medium text-gray-400">
-                              {t("personnel.assignments.refereeLabel")}
-                            </div>
-                            <div className="truncate text-sm font-semibold text-gray-800">
-                              {match.refereeName}
-                            </div>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-dashed border-amber-300 bg-amber-50 text-amber-600">
-                            <Shield className="h-4.5 w-4.5" />
-                          </div>
-                          <div>
-                            <div className="text-xs font-medium text-gray-400">
-                              {t("personnel.assignments.refereeLabel")}
-                            </div>
-                            <div className="text-sm font-medium text-amber-600">
-                              {t("personnel.assignments.unassigned")}
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Assign Dropdown or Unassign Button */}
-                    <div className="flex shrink-0 items-center gap-2">
-                      {isAssigned ? (
-                        <>
-                          {/* Reassign dropdown select */}
-                          <Select
-                            onValueChange={(refId) =>
-                              handleAssignReferee(match.id, refId)
-                            }
-                            value={match.refereeId}
-                          >
-                            <SelectTrigger className="h-9 w-[120px] bg-white text-xs">
-                              <SelectValue
-                                placeholder={t(
-                                  "personnel.assignments.reassignPlaceholder"
-                                )}
-                              />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {referees.map((ref) => (
-                                <SelectItem
-                                  key={ref.id}
-                                  value={ref.refereeId}
-                                  className="text-xs"
-                                >
-                                  {ref.refereeName} ({ref.workload || 0})
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-
-                          {/* Unassign button */}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-9 w-9 rounded-lg border border-gray-200 bg-white text-gray-400 hover:bg-red-50 hover:text-red-600"
-                            onClick={() => handleUnassignReferee(match.id)}
-                            title={t("personnel.assignments.unassignReferee")}
-                          >
-                            <UserMinus className="h-4 w-4" />
-                          </Button>
-                        </>
-                      ) : (
-                        /* Assign select box */
-                        <Select
-                          onValueChange={(refId) =>
-                            handleAssignReferee(match.id, refId)
-                          }
-                          value=""
-                        >
-                          <SelectTrigger className="h-9 w-[140px] border-none bg-emerald-600 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700">
-                            <UserPlus2 className="mr-1 h-3.5 w-3.5" />
-                            <SelectValue
-                              placeholder={t(
-                                "personnel.assignments.assignPlaceholder"
-                              )}
-                            />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {referees.length === 0 ? (
-                              <SelectItem
-                                value="none"
-                                disabled
-                                className="text-xs text-gray-400"
-                              >
-                                {t("personnel.assignments.noReferees", {
-                                  defaultValue: "No referees enrolled",
-                                })}
-                              </SelectItem>
-                            ) : (
-                              referees.map((ref) => (
-                                <SelectItem
-                                  key={ref.id}
-                                  value={ref.refereeId}
-                                  className="text-xs"
-                                >
-                                  {ref.refereeName} ({ref.workload || 0})
-                                </SelectItem>
-                              ))
-                            )}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            )
-          })}
-        </div>
-      )}
+              {/* CURRENT ASSIGNMENTS TAB */}
+              <TabsContent
+                value="assigned"
+                className="mt-4 space-y-4 focus:outline-hidden"
+              >
+                <AssignedMatchesTab
+                  refereeAssignments={refereeAssignments}
+                  isLoadingMatches={isLoadingMatches}
+                  handleUnassignReferee={handleUnassignReferee}
+                  scheduleMap={scheduleMap}
+                  formatMatchTime={formatMatchTime}
+                  renderTeamDetails={renderTeamDetails}
+                />
+              </TabsContent>
+            </Tabs>
+          </>
+        )}
+      </div>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 {
   "title": "Hồ sơ",
   "editProfile": "Chỉnh sửa hồ sơ",
+  "bookingHistory": "Lịch sử đặt sân",
   "unnamedPlayer": "Người chơi chưa đặt tên",
   "noBio": "Người dùng này chưa cập nhật giới thiệu.",
   "noEmail": "Không có email",
@@ -19,6 +20,7 @@
   "doubles": "Đôi",
   "noDuprLink": "Chưa liên kết DUPR.",
   "registeredSubscriptions": "Gói dịch vụ đã đăng ký",
+  "registerMore": "Đăng ký thêm",
   "noActiveSubTitle": "Chưa đăng ký gói dịch vụ",
   "noActiveSubDesc": "Nâng cấp lên Premium để đặt sân ưu tiên, tạo nhóm và tổ chức giải đấu!",
   "upgradeNow": "Nâng cấp ngay",
@@ -70,6 +72,7 @@
       "dialogDesc": "Bạn có thể tải ảnh từ thiết bị hoặc dùng đường dẫn ảnh công khai.",
       "fileDesc": "Chọn ảnh từ máy của bạn.",
       "urlDesc": "Dán link ảnh công khai từ internet.",
+      "urlLabel": "Đường dẫn ảnh đại diện",
       "placeholder": "https://example.com/avatar.jpg",
       "done": "Xong"
     },

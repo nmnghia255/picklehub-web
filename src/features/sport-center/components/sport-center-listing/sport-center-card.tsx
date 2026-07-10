@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { Clock3, Heart, MapPin } from "lucide-react"
 import Link from "next/link"
@@ -19,7 +19,7 @@ export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
       href={`/sport-center/${sportCenter.id}`}
       onClick={() => setSportCenter(sportCenter)}
     >
-      <Card className="group cursor-pointer overflow-hidden py-0 transition-transform duration-200 ease-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">
+      <Card className="group cursor-pointer gap-0 overflow-hidden py-0 transition-transform duration-200 ease-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">
         <div className="relative h-44 w-full overflow-hidden">
           <FallbackImage
             src={sportCenter.images[0]}
@@ -51,13 +51,18 @@ export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
             </Avatar>
 
             <div className="space-y-1">
-              <h3 className="leading-tight font-semibold">
+              <h3 className="leading-tight font-semibold transition-colors">
                 {sportCenter.name}
               </h3>
 
-              <p className="flex items-start gap-1.5 text-sm text-muted-foreground">
+              <p className="flex w-full items-start gap-1.5 text-sm text-muted-foreground">
                 <MapPin className="mt-0.5 size-4 shrink-0" />
-                <span>{sportCenter.address}</span>
+                <span
+                  className="line-clamp-1 min-w-0 flex-1 transition-all duration-200"
+                  title={sportCenter.address}
+                >
+                  {sportCenter.address}
+                </span>
               </p>
 
               <p className="flex items-center gap-1.5 text-sm text-muted-foreground">

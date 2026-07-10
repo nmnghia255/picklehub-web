@@ -17,7 +17,7 @@ export function ProductCard({ item }: ProductCardProps) {
   const isOutOfStock = !item.isActive || item.stock <= 0
 
   return (
-    <Card className="group w-full overflow-hidden border-border/70 bg-background text-foreground shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg">
+    <Card className="group w-full overflow-hidden border-border/70 bg-background py-0 text-foreground shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg">
       <CardContent className="flex h-full flex-col p-0">
         <div className="relative aspect-4/3 overflow-hidden bg-muted">
           {item.imageUrl ? (

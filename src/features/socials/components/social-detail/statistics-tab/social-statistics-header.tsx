@@ -15,7 +15,7 @@ export function SocialStatisticsHeader() {
 
   return (
     <Card className="overflow-hidden border-primary/10 bg-linear-to-br from-background via-background to-primary/5 shadow-sm">
-      <CardHeader className="border-b border-border/60 bg-muted/20">
+      <CardHeader className="bg-muted/20">
         <div>
           <CardTitle className="text-2xl font-bold tracking-tight sm:text-3xl">
             {t("statistics.title")}

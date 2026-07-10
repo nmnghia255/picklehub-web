@@ -96,6 +96,7 @@ export default async function ProfilePage() {
           subtitleFallbackKey="noEmail"
           avatarUrl={user?.avatarUrl}
           actionHref="/profile/edit-profile"
+          secondaryActionHref="/sport-center/booking-history"
         />
 
         <div className="grid grid-cols-3 gap-6">

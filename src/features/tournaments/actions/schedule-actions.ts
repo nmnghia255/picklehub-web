@@ -73,11 +73,19 @@ export async function unlinkBookingItemFromFixtureAction(
 }
 
 export async function getTournamentFixturesWithScheduleAction(
-  tournamentId: number
+  tournamentId: number,
+  params?: {
+    eventId?: number
+    courtId?: number
+    date?: string
+    status?: string
+  }
 ) {
   try {
-    const data =
-      await TournamentScheduleService.getTournamentFixtures(tournamentId)
+    const data = await TournamentScheduleService.getTournamentFixtures(
+      tournamentId,
+      params
+    )
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to fetch tournament fixtures with schedule:", error)

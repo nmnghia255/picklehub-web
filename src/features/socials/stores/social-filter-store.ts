@@ -32,7 +32,7 @@ export type Filters = {
 const defaultFilters: Filters = {
   order: null,
   page: 1,
-  limit: 10,
+  limit: 9,
   groupId: null,
   status: null,
   search: null,

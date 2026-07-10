@@ -105,7 +105,11 @@ export function OtherTransactionsTable() {
       <CardContent>
         {otherTransactions.length === 0 ? (
           <div className="flex h-32 flex-col items-center justify-center text-gray-500">
-            <p>No other finance transactions found</p>
+            <p>
+              {t("financials.transactions.emptyOther", {
+                defaultValue: "No other finance transactions found",
+              })}
+            </p>
           </div>
         ) : (
           <Table>

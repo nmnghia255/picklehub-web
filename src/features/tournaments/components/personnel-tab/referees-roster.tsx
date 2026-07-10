@@ -2,15 +2,11 @@
 
 import {
   AlertCircle,
-  Calendar,
   Loader2,
-  Mail,
-  Phone,
   Plus,
   RefreshCw,
   Search,
   Shield,
-  Trash2,
   UserCheck,
   UserMinus,
 } from "lucide-react"
@@ -27,8 +23,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -43,6 +37,7 @@ import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 import { usePersonnelStore } from "../../stores/use-personnel-store"
 import type { Referee } from "../../types/referee"
 import { EnrollRefereeDialog } from "./enroll-referee-dialog"
+import { RefereeProfileCard } from "./referee-profile-card"
 
 export function RefereesRoster() {
   const { t } = useTournamentTranslation()
@@ -225,93 +220,11 @@ export function RefereesRoster() {
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filteredReferees.map((referee) => (
-            <Card
+            <RefereeProfileCard
               key={referee.id}
-              className="group gap-0 overflow-hidden border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:border-emerald-300 hover:shadow-md"
-            >
-              <CardHeader className="flex flex-row items-start gap-4 pb-4">
-                <Avatar className="h-14 w-14 rounded-xl border border-gray-100 shadow-xs">
-                  <AvatarImage
-                    src={referee.refereeAvatar}
-                    alt={referee.refereeName}
-                  />
-                  <AvatarFallback className="rounded-xl bg-emerald-50 text-lg font-semibold text-emerald-700">
-                    {referee.refereeName.substring(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="min-w-0 flex-1 space-y-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <CardTitle className="truncate text-base font-semibold text-gray-900">
-                      {referee.refereeName}
-                    </CardTitle>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 shrink-0 rounded-lg text-gray-400 opacity-0 transition-opacity duration-200 group-hover:opacity-100 hover:bg-red-50 hover:text-red-600"
-                      onClick={() => setRefereeToUnenroll(referee)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className="cursor-help border-gray-200 bg-gray-50 px-2 py-0 font-mono text-[10px] text-gray-600"
-                    title={referee.refereeId}
-                  >
-                    {t("personnel.roster.idLabel")}:{" "}
-                    {referee.refereeId.length > 30
-                      ? `${referee.refereeId.substring(0, 16)}...${referee.refereeId.substring(referee.refereeId.length - 12)}`
-                      : referee.refereeId}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4 pt-0">
-                <div className="space-y-2 border-t border-gray-100 pt-3">
-                  <div className="flex items-center gap-2 text-xs text-gray-600">
-                    <Mail className="h-3.5 w-3.5 shrink-0 text-gray-400" />
-                    <span className="truncate">{referee.refereeEmail}</span>
-                  </div>
-                  {referee.phone && (
-                    <div className="flex items-center gap-2 text-xs text-gray-600">
-                      <Phone className="h-3.5 w-3.5 shrink-0 text-gray-400" />
-                      <span>{referee.phone}</span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <Calendar className="h-3.5 w-3.5 shrink-0 text-gray-400" />
-                    <span>
-                      {t("personnel.roster.enrolledDate", {
-                        date: new Date(referee.enrolledAt).toLocaleDateString(
-                          "vi-VN"
-                        ),
-                      })}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Workload Indicator */}
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-gray-500">
-                      {t("personnel.roster.workload")}
-                    </span>
-                    <span className="font-semibold text-emerald-700">
-                      {t("personnel.roster.matchesCount", {
-                        count: referee.workload || 0,
-                      })}
-                    </span>
-                  </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
-                    <div
-                      className="h-full rounded-full bg-emerald-500 transition-all duration-300"
-                      style={{
-                        width: `${Math.min((referee.workload || 0) * 20, 100)}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              referee={referee}
+              onUnenroll={setRefereeToUnenroll}
+            />
           ))}
         </div>
       )}
@@ -339,7 +252,7 @@ export function RefereesRoster() {
               })}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="gap-2 sm:gap-0">
+          <AlertDialogFooter className="gap-2 sm:gap-2">
             <AlertDialogCancel>
               {t("personnel.roster.cancel")}
             </AlertDialogCancel>

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { Button } from "@/components/ui/button"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
@@ -13,43 +13,51 @@ export function CourtControls() {
     setIsA1Right,
     setIsB1Right,
     setIsSwappedSides,
+    isDoubles,
   } = useScoreStore()
 
   return (
-    <div className="flex flex-wrap justify-center gap-3 rounded-xl border bg-muted/30 p-3">
+    <div className="flex flex-wrap justify-center gap-3 rounded-xl border border-gray-200 bg-gray-50/50 p-3">
       <Button
         type="button"
         variant="outline"
         size="sm"
         onClick={() => setIsSwappedSides((prev) => !prev)}
-        className="text-xs font-bold hover:bg-muted"
+        className="border-gray-200 text-xs font-bold hover:bg-muted"
       >
-        🔄 {t("referee.tracker.swapEnds")}
+        🔄 {t("referee.tracker.swapEnds", { defaultValue: "Swap sides" })}
       </Button>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={() => setIsA1Right((prev) => !prev)}
-        className="text-xs font-bold hover:bg-muted"
-      >
-        🔄{" "}
-        {t("referee.tracker.swapPositions", {
-          team: teamAName,
-        })}
-      </Button>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={() => setIsB1Right((prev) => !prev)}
-        className="text-xs font-bold hover:bg-muted"
-      >
-        🔄{" "}
-        {t("referee.tracker.swapPositions", {
-          team: teamBName,
-        })}
-      </Button>
+
+      {isDoubles && (
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsA1Right((prev) => !prev)}
+            className="border-gray-200 text-xs font-bold hover:bg-muted"
+          >
+            🔄{" "}
+            {t("referee.tracker.swapPositions", {
+              team: teamAName,
+              defaultValue: `Swap ${teamAName} positions`,
+            })}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsB1Right((prev) => !prev)}
+            className="border-gray-200 text-xs font-bold hover:bg-muted"
+          >
+            🔄{" "}
+            {t("referee.tracker.swapPositions", {
+              team: teamBName,
+              defaultValue: `Swap ${teamBName} positions`,
+            })}
+          </Button>
+        </>
+      )}
     </div>
   )
 }

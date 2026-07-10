@@ -13,6 +13,8 @@ export function ProfileHeader({
   actionHref,
   actionLabel,
   subtitleFallbackKey,
+  secondaryActionHref,
+  secondaryActionLabel,
 }: {
   name: string
   subtitle: string
@@ -20,6 +22,8 @@ export function ProfileHeader({
   actionHref?: string
   actionLabel?: string
   subtitleFallbackKey?: "noEmail" | "noBio"
+  secondaryActionHref?: string
+  secondaryActionLabel?: string
 }) {
   const { t } = useProfileTranslation()
   const displayName = name || t("unnamedPlayer")
@@ -38,7 +42,7 @@ export function ProfileHeader({
         <Avatar className="size-20 shrink-0 ring-4 ring-background/80">
           <AvatarImage src={avatarUrl ?? undefined} alt={displayName} />
           <AvatarFallback className="bg-linear-to-br from-primary via-primary/90 to-primary/70 text-3xl font-semibold text-primary-foreground">
-            {initials || t("unnamedPlayer").charAt(0)}
+            {initials || displayName.charAt(0)}
           </AvatarFallback>
         </Avatar>
 
@@ -48,11 +52,20 @@ export function ProfileHeader({
           <p className="text-muted-foreground">{displaySubtitle}</p>
         </div>
       </div>
-      {actionHref ? (
-        <Button asChild>
-          <Link href={actionHref}>{actionLabel || t("editProfile")}</Link>
-        </Button>
-      ) : null}
+      <div className="flex items-center gap-2">
+        {secondaryActionHref ? (
+          <Button variant="outline" asChild>
+            <Link href={secondaryActionHref}>
+              {secondaryActionLabel || t("bookingHistory")}
+            </Link>
+          </Button>
+        ) : null}
+        {actionHref ? (
+          <Button asChild>
+            <Link href={actionHref}>{actionLabel || t("editProfile")}</Link>
+          </Button>
+        ) : null}
+      </div>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 {
   "title": "Profile",
   "editProfile": "Edit profile",
+  "bookingHistory": "Booking History",
   "unnamedPlayer": "Unnamed Player",
   "noBio": "This user hasn't updated their bio yet.",
   "noEmail": "No email available",
@@ -19,6 +20,7 @@
   "doubles": "Doubles",
   "noDuprLink": "DUPR not linked.",
   "registeredSubscriptions": "Registered Subscriptions",
+  "registerMore": "Register More",
   "noActiveSubTitle": "No Active Subscription",
   "noActiveSubDesc": "Upgrade to Premium to book priority courts, host groups, and organize tournaments!",
   "upgradeNow": "Upgrade Now",
@@ -70,6 +72,7 @@
       "dialogDesc": "You can upload an image from your device or use a public image URL.",
       "fileDesc": "Choose an image file from your machine.",
       "urlDesc": "Paste a public image link from the internet.",
+      "urlLabel": "Avatar URL",
       "placeholder": "https://example.com/avatar.jpg",
       "done": "Done"
     },

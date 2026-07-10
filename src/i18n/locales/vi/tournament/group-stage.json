@@ -36,6 +36,13 @@
     "stageSwitcher": {
       "group": "Vòng bảng",
       "knockout": "Vòng loại trực tiếp"
-    }
+    },
+    "noScheduledMatches": "Chưa lên lịch trận đấu",
+    "scheduledMatchesTitle": "Lịch trận đấu",
+    "unscheduled": "Chưa xếp lịch",
+    "completed": "Hoàn thành",
+    "scheduled": "Chưa diễn ra",
+    "inProgress": "Đang diễn ra",
+    "ready": "Sẵn sàng"
   }
 }

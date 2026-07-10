@@ -38,3 +38,70 @@ export interface AssignedReferee {
     name: string
   }
 }
+
+export interface InviteRefereeDto {
+  email: string
+}
+
+export interface InviteRefereeResponseDto {
+  id: number
+  email: string
+  token: string
+  tournamentId: number
+  status: string
+  sentAt: string
+  expiresAt: string
+}
+
+export interface RefereeInvitationItemDto {
+  id: number
+  email: string
+  status: "PENDING" | "ACCEPTED" | "REVOKED"
+  expiresAt: string
+  createdAt: string
+  revokedAt?: string | null
+}
+
+export interface RevokeInvitationResponseDto {
+  id: number
+  status: "REVOKED"
+  revokedAt: string
+  success: boolean
+}
+
+export interface RefereeInvitationMetadataDto {
+  id?: number
+  email: string
+  status: string
+  expiresAt?: string
+  tournament: {
+    id: number
+    name: string
+  }
+}
+
+export interface AcceptInvitationResponseDto {
+  accessToken?: string
+  refreshToken?: string
+  expiresIn?: number
+  isNewUser?: boolean
+  tournamentJoined: boolean
+  userId?: {
+    id: string
+    email: string
+    displayName: string
+  }
+  tournament: {
+    id: number
+    name: string
+  }
+}
+
+export interface JoinTournamentResponseDto {
+  message?: string
+  tournamentJoined?: boolean
+  tournament?: {
+    id: number
+    name: string
+  }
+}

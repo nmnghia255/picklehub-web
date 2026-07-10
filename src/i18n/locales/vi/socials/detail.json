@@ -139,7 +139,8 @@
         "actions": "Thao tác",
         "verifyReceipt": "Xác nhận hóa đơn",
         "recordCash": "Ghi nhận tiền mặt",
-        "issueRefund": "Hoàn tiền"
+        "issueRefund": "Hoàn tiền",
+        "openMenu": "Mở menu"
       },
       "unknownUser": "Không rõ",
       "noEmail": "Không có email",

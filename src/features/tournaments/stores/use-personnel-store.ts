@@ -2,22 +2,33 @@ import { create } from "zustand"
 
 import {
   assignRefereeToMatchAction,
+  bulkAssignRefereeAction,
   enrollRefereeAction,
+  inviteRefereeAction,
+  listInvitationsAction,
   listMatchesWithRefereesAction,
   listRefereesAction,
   listUnassignedMatchesAction,
+  revokeInvitationAction,
   unassignRefereeFromMatchAction,
   unenrollRefereeAction,
 } from "../actions/referee-actions"
-import type { AssignedReferee, Referee, RefereeRequest } from "../types/referee"
+import type {
+  AssignedReferee,
+  Referee,
+  RefereeInvitationItemDto,
+  RefereeRequest,
+} from "../types/referee"
 
 interface PersonnelState {
   tournamentId: string | null
   referees: Referee[]
   matches: AssignedReferee[]
+  invitations: RefereeInvitationItemDto[]
   isLoadingReferees: boolean
   isLoadingMatches: boolean
-  activeSubTab: "roster" | "assignments"
+  isLoadingInvitations: boolean
+  activeSubTab: "roster" | "assignments" | "invitations"
   refereeSearch: string
   matchSearch: string
   selectedEventId: string
@@ -25,7 +36,9 @@ interface PersonnelState {
 
   // Setters
   setTournamentId: (tournamentId: string | null) => void
-  setActiveSubTab: (activeSubTab: "roster" | "assignments") => void
+  setActiveSubTab: (
+    activeSubTab: "roster" | "assignments" | "invitations"
+  ) => void
   setRefereeSearch: (refereeSearch: string) => void
   setMatchSearch: (matchSearch: string) => void
   setSelectedEventId: (selectedEventId: string) => void
@@ -34,6 +47,7 @@ interface PersonnelState {
   // Async Actions
   fetchRoster: () => Promise<void>
   fetchMatches: () => Promise<void>
+  fetchInvitations: () => Promise<void>
   enrollReferee: (
     request: RefereeRequest
   ) => Promise<{ success: boolean; error?: string }>
@@ -45,8 +59,18 @@ interface PersonnelState {
     refereeId: string,
     refereeName: string
   ) => Promise<{ success: boolean; error?: string }>
+  bulkAssignReferee: (
+    matchIds: string[],
+    refereeId: string
+  ) => Promise<{ success: boolean; error?: string }>
   unassignReferee: (
     matchId: string
+  ) => Promise<{ success: boolean; error?: string }>
+  inviteReferee: (
+    email: string
+  ) => Promise<{ success: boolean; error?: string }>
+  revokeInvitation: (
+    invitationId: number
   ) => Promise<{ success: boolean; error?: string }>
   reset: () => void
 }
@@ -55,8 +79,10 @@ export const usePersonnelStore = create<PersonnelState>((set, get) => ({
   tournamentId: null,
   referees: [],
   matches: [],
+  invitations: [],
   isLoadingReferees: false,
   isLoadingMatches: false,
+  isLoadingInvitations: false,
   activeSubTab: "roster",
   refereeSearch: "",
   matchSearch: "",
@@ -116,6 +142,25 @@ export const usePersonnelStore = create<PersonnelState>((set, get) => ({
     }
   },
 
+  fetchInvitations: async () => {
+    const { tournamentId } = get()
+    if (!tournamentId) return
+
+    set({ isLoadingInvitations: true })
+    try {
+      const res = await listInvitationsAction(tournamentId)
+      if (res.success && res.data) {
+        set({ invitations: res.data })
+      } else {
+        console.error(res.error || "Failed to load invitations")
+      }
+    } catch (err) {
+      console.error(err)
+    } finally {
+      set({ isLoadingInvitations: false })
+    }
+  },
+
   enrollReferee: async (request) => {
     const { tournamentId, fetchRoster } = get()
     if (!tournamentId) return { success: false, error: "" }
@@ -153,7 +198,7 @@ export const usePersonnelStore = create<PersonnelState>((set, get) => ({
     }
   },
 
-  assignReferee: async (matchId, refereeId, refereeName) => {
+  assignReferee: async (matchId, refereeId) => {
     const { tournamentId, fetchMatches, fetchRoster } = get()
     if (!tournamentId) return { success: false, error: "" }
 
@@ -172,6 +217,31 @@ export const usePersonnelStore = create<PersonnelState>((set, get) => ({
     } catch (err) {
       console.error(err)
       return { success: false, error: "" }
+    }
+  },
+
+  bulkAssignReferee: async (matchIds, refereeId) => {
+    const { tournamentId, fetchMatches, fetchRoster } = get()
+    if (!tournamentId) return { success: false, error: "Missing tournament ID" }
+
+    try {
+      const res = await bulkAssignRefereeAction(
+        tournamentId,
+        matchIds,
+        refereeId
+      )
+      if (res.success) {
+        await fetchMatches()
+        await fetchRoster() // Refresh workloads
+        return { success: true }
+      }
+      return {
+        success: false,
+        error: res.error || "Failed to bulk assign referee",
+      }
+    } catch (err) {
+      console.error(err)
+      return { success: false, error: "An unexpected error occurred" }
     }
   },
 
@@ -196,13 +266,52 @@ export const usePersonnelStore = create<PersonnelState>((set, get) => ({
     }
   },
 
+  inviteReferee: async (email) => {
+    const { tournamentId, fetchInvitations } = get()
+    if (!tournamentId) return { success: false, error: "Missing tournament ID" }
+
+    try {
+      const res = await inviteRefereeAction(tournamentId, { email })
+      if (res.success) {
+        await fetchInvitations()
+        return { success: true }
+      }
+      return { success: false, error: res.error || "Failed to send invitation" }
+    } catch (err) {
+      console.error(err)
+      return { success: false, error: "An unexpected error occurred" }
+    }
+  },
+
+  revokeInvitation: async (invitationId) => {
+    const { tournamentId, fetchInvitations } = get()
+    if (!tournamentId) return { success: false, error: "Missing tournament ID" }
+
+    try {
+      const res = await revokeInvitationAction(tournamentId, invitationId)
+      if (res.success) {
+        await fetchInvitations()
+        return { success: true }
+      }
+      return {
+        success: false,
+        error: res.error || "Failed to revoke invitation",
+      }
+    } catch (err) {
+      console.error(err)
+      return { success: false, error: "An unexpected error occurred" }
+    }
+  },
+
   reset: () =>
     set({
       tournamentId: null,
       referees: [],
       matches: [],
+      invitations: [],
       isLoadingReferees: false,
       isLoadingMatches: false,
+      isLoadingInvitations: false,
       activeSubTab: "roster",
       refereeSearch: "",
       matchSearch: "",

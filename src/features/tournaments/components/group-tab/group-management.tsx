@@ -18,6 +18,7 @@ import type { TournamentEvent } from "../../types/tournament-event"
 import { GroupConfigCard } from "./group-config-card"
 import { GroupDrawCard } from "./group-draw-card"
 import { GroupProgressionCard } from "./group-progression-card"
+import { GroupStageMatches } from "./group-stage-matches"
 import { GroupStandingsGrid } from "./group-standings-grid"
 
 interface GroupManagementProps {
@@ -169,6 +170,13 @@ export function GroupManagement({
             )}
 
             <GroupStandingsGrid isEditable={isEditable} />
+
+            {isHost && selectedEventId && (
+              <GroupStageMatches
+                tournamentId={tournamentId}
+                eventId={Number(selectedEventId)}
+              />
+            )}
           </>
         )}
       </div>

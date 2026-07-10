@@ -1,7 +1,7 @@
 {
   "dashboard": {
     "title": "Tournament Dashboard",
-    "subtitle": "San Diego Summer Slam 2026 • June 15-17, 2026",
+    "subtitle": "San Diego Summer Slam 2026 Ã¢â‚¬Â¢ June 15-17, 2026",
     "registrationProgress": "Registration Progress",
     "full": "Full",
     "tournamentLifecycle": "Tournament Lifecycle",
@@ -106,7 +106,9 @@
       "failedDelete": "Failed to delete transaction",
       "descPlaceholder": "e.g., Referee salaries, Balls purchase",
       "validationDesc": "Please enter a description",
-      "validationAmount": "Please enter a valid amount greater than 0"
+      "validationAmount": "Please enter a valid amount greater than 0",
+      "emptyOther": "No other finance transactions found",
+      "emptyRegistration": "No registration fee transactions found"
     },
     "exportError": "Failed to export report"
   },

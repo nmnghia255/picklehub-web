@@ -37,7 +37,8 @@
       "favorited": "Favorited",
       "favorite": "Favorite",
       "back": "Back",
-      "operatingHours": "Operating hours: {{openTime}} - {{closeTime}}"
+      "operatingHours": "Operating hours: {{openTime}} - {{closeTime}}",
+      "notUpdated": "Not updated"
     },
     "logoAlt": "{{name}} logo",
     "introduction": {
@@ -47,7 +48,8 @@
       "courtsCount_other": "{{count}} courts",
       "indoor": "Indoor",
       "outdoor": "Outdoor",
-      "noCourts": "No court information yet."
+      "noCourts": "No court information yet.",
+      "noDescription": "No description available."
     },
     "images": {
       "imageAlt": "Sports court image {{index}}"

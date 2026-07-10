@@ -2,6 +2,7 @@
 
 import { useAtomValue } from "jotai"
 import {
+  Award,
   BellRing,
   BookOpen,
   Building2,
@@ -9,6 +10,7 @@ import {
   CalendarClock,
   CalendarDays,
   ChevronDown,
+  Handshake,
   House,
   type LucideIcon,
   MapPinned,
@@ -50,28 +52,21 @@ type SidebarItem = {
 const sidebarItems: SidebarItem[] = [
   { titleKey: "home", href: "/home", icon: House },
   { titleKey: "profile", href: "/profile", icon: UserRound },
+  { titleKey: "courts", href: "/sport-center", icon: Building2 },
   { titleKey: "myCalendar", href: "/calendar", icon: CalendarCheck },
-  { titleKey: "sessions", href: "/socials", icon: CalendarDays },
+  { titleKey: "discoverSocial", href: "/socials", icon: CalendarDays },
+  { titleKey: "mySocial", href: "/socials/me", icon: CalendarClock },
   { titleKey: "tournaments", href: "/tournaments", icon: Trophy },
   { titleKey: "groups", href: "/groups", icon: Users },
-  { titleKey: "friends", href: "/friend", icon: Users },
+  { titleKey: "friends", href: "/friend", icon: Handshake },
   {
     titleKey: "tournamentManagement",
     href: "/tournament-management",
-    icon: Trophy,
+    icon: Award,
   },
   { titleKey: "notifications", href: "/feed", icon: BellRing },
   { titleKey: "learner", href: "/learner", icon: BookOpen },
   { titleKey: "coach", href: "/coach", icon: Shield },
-]
-const socialMenuItems = [
-  { titleKey: "sessions", href: "/socials" },
-  { titleKey: "mySessions", href: "/socials/me" },
-]
-
-const sportCenterMenuItems = [
-  { titleKey: "courtList", href: "/sport-center" },
-  { titleKey: "bookingHistory", href: "/sport-center/booking-history" },
 ]
 
 const sportCenterManagementMenuItems = [
@@ -98,8 +93,6 @@ const sportCenterManagementMenuItems = [
   },
 ]
 
-const SOCIAL_MENU_STORAGE_KEY = "isSocialMenuOpen"
-const SPORT_CENTER_MENU_STORAGE_KEY = "isSportCenterMenuOpen"
 const SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY =
   "isSportCenterManagementMenuOpen"
 
@@ -165,67 +158,26 @@ export function AppSidebar() {
   const hasSportCenterManagerPlan = subscriptions.some(
     (sub) => sub.status === "ACTIVE" && sub.plan.type === "SPORT_CENTER_MANAGER"
   )
-  const [isSocialMenuOpen, setIsSocialMenuOpen] = useState(false)
-  const [isSportCenterMenuOpen, setIsSportCenterMenuOpen] = useState(false)
   const [isSportCenterManagementMenuOpen, setIsSportCenterManagementMenuOpen] =
     useState(false)
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsSocialMenuOpen(
-      window.sessionStorage.getItem(SOCIAL_MENU_STORAGE_KEY) === "true"
-    )
-
-    setIsSportCenterMenuOpen(
-      window.sessionStorage.getItem(SPORT_CENTER_MENU_STORAGE_KEY) === "true"
-    )
-
     setIsSportCenterManagementMenuOpen(
       window.sessionStorage.getItem(
         SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY
       ) === "true"
     )
   }, [])
-  const isSocialPath = isActivePath(pathname, "/socials")
-  const isSportCenterPath = isActivePath(pathname, "/sport-center")
   const isSportCenterManagementPath = isActivePath(
     pathname,
     "/sport-center-management"
   )
-  const shouldShowSocialMenu = isSocialPath || isSocialMenuOpen
-  const shouldShowSportCenterMenu = isSportCenterPath || isSportCenterMenuOpen
   const shouldShowSportCenterManagementMenu =
     isSportCenterManagementPath || isSportCenterManagementMenuOpen
   const unreadCount = notifications.filter(
     (notification) => notification.unread
   ).length
-
-  const handleSocialMenuToggle = () => {
-    setIsSocialMenuOpen((prev) => {
-      const next = !prev
-
-      if (typeof window !== "undefined") {
-        window.sessionStorage.setItem(SOCIAL_MENU_STORAGE_KEY, String(next))
-      }
-
-      return next
-    })
-  }
-
-  const handleSportCenterMenuToggle = () => {
-    setIsSportCenterMenuOpen((prev) => {
-      const next = !prev
-
-      if (typeof window !== "undefined") {
-        window.sessionStorage.setItem(
-          SPORT_CENTER_MENU_STORAGE_KEY,
-          String(next)
-        )
-      }
-
-      return next
-    })
-  }
 
   const handleSportCenterManagementMenuToggle = () => {
     setIsSportCenterManagementMenuOpen((prev) => {
@@ -243,22 +195,6 @@ export function AppSidebar() {
   }
 
   const handlePrimaryItemClick = () => {
-    if (isSocialMenuOpen) {
-      setIsSocialMenuOpen(false)
-
-      if (typeof window !== "undefined") {
-        window.sessionStorage.setItem(SOCIAL_MENU_STORAGE_KEY, "false")
-      }
-    }
-
-    if (isSportCenterMenuOpen) {
-      setIsSportCenterMenuOpen(false)
-
-      if (typeof window !== "undefined") {
-        window.sessionStorage.setItem(SPORT_CENTER_MENU_STORAGE_KEY, "false")
-      }
-    }
-
     if (isSportCenterManagementMenuOpen) {
       setIsSportCenterManagementMenuOpen(false)
 
@@ -281,106 +217,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {sidebarItems.slice(0, 2).map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActivePath(pathname, item.href)}
-                    tooltip={t(`sidebar.${item.titleKey}`)}
-                  >
-                    <Link href={item.href} onClick={handlePrimaryItemClick}>
-                      <span className="relative inline-flex items-center justify-center">
-                        <item.icon className="size-4" />
-                      </span>
-                      <span>{t(`sidebar.${item.titleKey}`)}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={shouldShowSportCenterMenu}
-                  tooltip={t("sidebar.courts")}
-                  onClick={handleSportCenterMenuToggle}
-                >
-                  <Building2 className="size-4" />
-                  <span>{t("sidebar.courts")}</span>
-                  <ChevronDown
-                    className={cn(
-                      "ml-auto size-4 transition-transform",
-                      shouldShowSportCenterMenu && "rotate-180"
-                    )}
-                  />
-                </SidebarMenuButton>
-                {shouldShowSportCenterMenu && (
-                  <SidebarMenuSub>
-                    {sportCenterMenuItems.map((item) => (
-                      <SidebarMenuSubItem key={item.href}>
-                        <SidebarMenuSubButton
-                          asChild
-                          isActive={isActivePath(pathname, item.href)}
-                        >
-                          <Link
-                            href={item.href}
-                            onClick={handlePrimaryItemClick}
-                          >
-                            <span>{t(`sidebar.${item.titleKey}`)}</span>
-                          </Link>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                )}
-              </SidebarMenuItem>
-
-              {sidebarItems.slice(2).map((item) => {
-                if (item.href === "/socials") {
-                  return (
-                    <SidebarMenuItem key="socials-menu">
-                      <SidebarMenuButton
-                        isActive={shouldShowSocialMenu}
-                        tooltip={t("sidebar.sessions")}
-                        onClick={handleSocialMenuToggle}
-                      >
-                        <CalendarDays className="size-4" />
-                        <span>{t("sidebar.sessions")}</span>
-                        <ChevronDown
-                          className={cn(
-                            "ml-auto size-4 transition-transform",
-                            shouldShowSocialMenu && "rotate-180"
-                          )}
-                        />
-                      </SidebarMenuButton>
-                      {shouldShowSocialMenu && (
-                        <SidebarMenuSub>
-                          {socialMenuItems.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.href}>
-                              <SidebarMenuSubButton
-                                asChild
-                                isActive={
-                                  subItem.href === "/socials"
-                                    ? pathname === "/socials"
-                                    : isActivePath(pathname, subItem.href)
-                                }
-                              >
-                                <Link
-                                  href={subItem.href}
-                                  onClick={handlePrimaryItemClick}
-                                >
-                                  <span>
-                                    {t(`sidebar.${subItem.titleKey}`)}
-                                  </span>
-                                </Link>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
-                        </SidebarMenuSub>
-                      )}
-                    </SidebarMenuItem>
-                  )
-                }
-
+              {sidebarItems.map((item) => {
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton

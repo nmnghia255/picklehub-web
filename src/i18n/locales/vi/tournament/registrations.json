@@ -23,6 +23,7 @@
       "paid": "Đã thanh toán",
       "pending": "Chờ xử lý"
     },
+    "noRegistrations": "Không tìm thấy lượt đăng ký nào",
     "profile": {
       "title": "Hồ sơ người chơi",
       "description": "Xem thông tin người chơi, trình độ và lịch sử thi đấu",
