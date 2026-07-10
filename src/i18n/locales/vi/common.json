@@ -155,9 +155,12 @@
     "sessions": "Buổi chơi",
     "sessionList": "Danh sách buổi chơi",
     "mySessions": "Buổi chơi của tôi",
+    "discoverSocial": "Khám phá xã hội",
+    "mySocial": "Xã hội của tôi",
     "tournaments": "Giải đấu",
     "groups": "Nhóm",
     "friends": "Bạn bè",
+    "chat": "Trò chuyện",
     "tournamentManagement": "Quản lý giải đấu",
     "notifications": "Thông báo",
     "learner": "Người học",
@@ -174,6 +177,39 @@
     "mobileTitle": "Thanh bên",
     "mobileDescription": "Hiển thị thanh bên trên thiết bị di động.",
     "toggle": "Chuyển thanh bên"
+  },
+  "chat": {
+    "pageTitle": "Trò chuyện",
+    "pageDescription": "Nhắn tin với bạn bè, nhóm và các buổi chơi xã hội.",
+    "conversationList": {
+      "searchPlaceholder": "Tìm cuộc trò chuyện...",
+      "emptyState": "Không tìm thấy cuộc trò chuyện nào."
+    },
+    "emptyState": {
+      "title": "Chọn một cuộc trò chuyện để bắt đầu",
+      "description": "Nhắn tin với bạn bè, nhóm và các buổi chơi xã hội."
+    },
+    "messages": {
+      "groupMembers": "Thành viên nhóm",
+      "socialPrefix": "Buổi chơi xã hội",
+      "fromGroup": "Từ nhóm",
+      "groupOnly": "Chỉ nhóm",
+      "groupPrefix": "Nhóm",
+      "you": "Bạn"
+    },
+    "composer": {
+      "imageButton": "Ảnh",
+      "emojiButton": "Biểu tượng cảm xúc",
+      "messagePlaceholder": "Nhập tin nhắn...",
+      "send": "Gửi"
+    },
+    "relativeTime": {
+      "justNow": "Vừa xong",
+      "minutesAgo": "{{count}} phút trước",
+      "hoursAgo": "{{count}} giờ trước",
+      "yesterday": "Hôm qua",
+      "daysAgo": "{{count}} ngày trước"
+    }
   },
   "previewImageAlt": "Ảnh xem trước",
   "logoAlt": "Logo PickleHub",
@@ -198,6 +234,7 @@
     "switchToLight": "Chuyển sang chế độ sáng",
     "switchToDark": "Chuyển sang chế độ tối",
     "profile": "Hồ sơ",
+    "account": "Tài khoản",
     "settings": "Cài đặt",
     "logout": "Đăng xuất",
     "loggingOut": "Đang đăng xuất...",
@@ -1839,5 +1876,28 @@
   },
   "spinner": {
     "loading": "Đang tải"
+  },
+  "settingsPage": {
+    "title": "Cài đặt",
+    "desc": "Điều chỉnh ngôn ngữ, giao diện và quản lý phiên đăng nhập tại đây.",
+    "languageTitle": "Ngôn ngữ",
+    "languageDesc": "Chọn ngôn ngữ hiển thị cho giao diện ứng dụng.",
+    "selectLanguagePlaceholder": "Chọn ngôn ngữ",
+    "languageOptionVi": "Tiếng Việt",
+    "languageOptionEn": "Tiếng Anh",
+    "vietnameseHint": "Giao diện đang được đặt ở tiếng Việt.",
+    "englishHint": "Giao diện đang được đặt ở tiếng Anh.",
+    "themeTitle": "Giao diện",
+    "themeDesc": "Chọn cách hiển thị giao diện.",
+    "selectThemePlaceholder": "Chọn giao diện",
+    "themeDarkHint": "Đang dùng giao diện tối.",
+    "themeLightHint": "Đang dùng giao diện sáng.",
+    "themeSystemHint": "Đang theo giao diện hệ thống.",
+    "themeLightLabel": "Sáng",
+    "themeDarkLabel": "Tối",
+    "themeSystemLabel": "Hệ thống",
+    "sessionTitle": "Phiên đăng nhập",
+    "sessionDesc": "Quản lý phiên đăng nhập của bạn trên thiết bị này.",
+    "logoutBtn": "Đăng xuất"
   }
 }
