@@ -1,7 +1,6 @@
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
-import { getSportCenterPriceSlots } from "@/features/sport-center/api/sport-center-service"
 import { ProductCard } from "@/features/sport-center/components/sport-center-detail/product-card"
 import { ServiceCard } from "@/features/sport-center/components/sport-center-detail/service-card"
 import type {
@@ -12,7 +11,6 @@ import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 interface ServiceTabProps {
-  sportCenterId: string
   sportCenterName: string
   products: SportCenter["products"]
   services: SportCenter["services"]
@@ -20,7 +18,6 @@ interface ServiceTabProps {
 }
 
 export function ServiceTab({
-  sportCenterId,
   sportCenterName,
   products,
   services,

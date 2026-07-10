@@ -37,17 +37,17 @@ export type SubmitBookingState = {
   booking?: BookingResponse | BookingResponse[]
 }
 
-function getSportCenterLocale() {
-  const acceptLanguage = headers().get("accept-language") ?? ""
+async function getSportCenterLocale() {
+  const acceptLanguage = (await headers()).get("accept-language") ?? ""
   return acceptLanguage.toLowerCase().startsWith("vi")
     ? viSportCenter
     : enSportCenter
 }
 
-async function buildBookingRequest(
+export async function buildBookingRequest(
   payload: SubmitBookingPayload
 ): Promise<CreateBookingRequest> {
-  const sportCenter = getSportCenterLocale()
+  const sportCenter = await getSportCenterLocale()
   const serviceItems = payload.serviceItems
     .filter((service) => payload.selectedServices[service.id])
     .map((service) => ({ serviceId: service.id, quantity: 1 }))
@@ -110,7 +110,7 @@ async function buildBookingRequest(
 export async function submitBookingsAction(
   payload: SubmitBookingPayload
 ): Promise<SubmitBookingState> {
-  const sportCenter = getSportCenterLocale()
+  const sportCenter = await getSportCenterLocale()
 
   if (!payload.centerId) {
     return {

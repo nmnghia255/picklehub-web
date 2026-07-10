@@ -8,8 +8,8 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type { SendGroupFeedNotificationDto } from "../types"
 
-function getCommonLocale() {
-  const acceptLanguage = headers().get("accept-language") ?? ""
+async function getCommonLocale() {
+  const acceptLanguage = (await headers()).get("accept-language") ?? ""
   return acceptLanguage.toLowerCase().startsWith("vi") ? viCommon : enCommon
 }
 
@@ -21,7 +21,7 @@ export async function sendGroupFeedNotificationAction(
   dto: SendGroupFeedNotificationDto
 ): Promise<{ success: boolean; message: string }> {
   try {
-    const common = getCommonLocale()
+    const common = await getCommonLocale()
     const axios = await getAuthenticatedAxios()
     const response = await axios.post(`/api/groups/${dto.groupId}/notify`, {
       title: dto.title,
@@ -35,7 +35,7 @@ export async function sendGroupFeedNotificationAction(
         common.notifications.sender.success.description,
     }
   } catch (error) {
-    const common = getCommonLocale()
+    const common = await getCommonLocale()
     const errorMessage =
       error instanceof Error
         ? error.message

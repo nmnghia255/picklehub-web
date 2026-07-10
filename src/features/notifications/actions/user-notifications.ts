@@ -10,8 +10,8 @@ import enCommon from "@/i18n/locales/en/common.json"
 import viCommon from "@/i18n/locales/vi/common.json"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
-function getCommonLocale() {
-  const acceptLanguage = headers().get("accept-language") ?? ""
+async function getCommonLocale() {
+  const acceptLanguage = (await headers()).get("accept-language") ?? ""
   return acceptLanguage.toLowerCase().startsWith("vi") ? viCommon : enCommon
 }
 
@@ -21,7 +21,7 @@ function getCommonLocale() {
  */
 export async function fetchMyNotifications(): Promise<FeedNotification[]> {
   try {
-    const common = getCommonLocale()
+    const common = await getCommonLocale()
     const axios = await getAuthenticatedAxios()
     const res = await axios.get("/api/notification")
 

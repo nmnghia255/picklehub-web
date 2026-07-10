@@ -5,9 +5,6 @@ import { useEffect, useMemo, useState } from "react"
 
 import { PageContainer } from "@/components/page-container"
 import { Card, CardContent } from "@/components/ui/card"
-import { fetchSportCenterByIdAction } from "@/features/sport-center/actions/fetch-sport-center-by-id"
-import { submitPaymentProofAction } from "@/features/sport-center/actions/submit-payment-proof-action"
-import { uploadImageAction } from "@/features/sport-center/actions/upload-image-action"
 import { BookingConfirmationHeader } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-header"
 import { BookingConfirmationPaymentCard } from "@/features/sport-center/components/payment/payment-card"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
@@ -15,8 +12,15 @@ import { useSportCenterStore } from "@/features/sport-center/stores/sport-center
 import type { BookingResponse } from "@/features/sport-center/types/booking"
 import type { Product } from "@/features/sport-center/types/product"
 import type { Service } from "@/features/sport-center/types/service"
+import type { SportCenter } from "@/features/sport-center/types/sport-center"
 import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
+
+function hasDataProperty(
+  value: SportCenter | { data?: SportCenter }
+): value is { data?: SportCenter } {
+  return "data" in value
+}
 
 export default function PaymentPage() {
   const { t } = useSportCenterTranslation()
@@ -174,9 +178,22 @@ export default function PaymentPage() {
     let isActive = true
     if (!sportCenter || !sportCenter.id) {
       if (centerIdParam) {
-        fetchSportCenterByIdAction(centerIdParam)
-          .then((center) => {
-            if (isActive) setSportCenter(center)
+        fetch(`/api/sport-centers/${centerIdParam}`, {
+          credentials: "include",
+        })
+          .then(async (response) => {
+            if (!response.ok) {
+              throw new Error(t("booking.payment.errorLoadBooking"))
+            }
+            return response.json() as Promise<
+              SportCenter | { data?: SportCenter }
+            >
+          })
+          .then((payload) => {
+            const center = hasDataProperty(payload)
+              ? (payload.data ?? undefined)
+              : payload
+            if (isActive && center) setSportCenter(center)
           })
           .catch((err) => {
             console.error("Failed to load sport center:", err)
@@ -250,7 +267,29 @@ export default function PaymentPage() {
     setIsUploadingProof(true)
 
     try {
-      const uploadedUrl = await uploadImageAction(paymentProofFile)
+      const formData = new FormData()
+      formData.append("file", paymentProofFile, paymentProofFile.name)
+
+      const response = await fetch("/api/coach/media/images", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error(t("booking.payment.errorUploadImage"))
+      }
+
+      const payload = (await response.json()) as {
+        url?: string
+        data?: { url?: string }
+      }
+      const uploadedUrl = payload.data?.url ?? payload.url ?? ""
+
+      if (!uploadedUrl) {
+        throw new Error(t("booking.payment.errorUploadImage"))
+      }
+
       setPaymentProofUrl(uploadedUrl)
     } catch (error) {
       const message =
@@ -286,7 +325,18 @@ export default function PaymentPage() {
       if (!paymentProofUrl) {
         throw new Error(t("booking.payment.errorUploadProof"))
       }
-      await submitPaymentProofAction(bookingId, paymentProofUrl)
+      const response = await fetch(`/api/bookings/${bookingId}/payment-proof`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ paymentProofUrl }),
+      })
+
+      if (!response.ok) {
+        throw new Error(t("booking.payment.errorSubmitProof"))
+      }
 
       setSubmitMessage(t("booking.payment.uploadSuccess"))
       setHasCompleted(true)

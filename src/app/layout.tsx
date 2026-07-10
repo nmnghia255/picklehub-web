@@ -9,9 +9,7 @@ import { META_THEME_COLORS, SITE_INFO } from "@/config/site"
 import { AuthInitializer } from "@/features/auth/components/auth-initializer"
 import { fetchMyNotifications } from "@/features/notifications/actions/user-notifications"
 import { defaultLanguage } from "@/i18n/settings"
-import { fontMono, fontSans } from "@/lib/fonts"
 import { getSession } from "@/lib/session"
-import { cn } from "@/lib/utils"
 
 // Thanks @shadcn-ui, @tailwindcss
 const darkModeScript = String.raw`
@@ -82,11 +80,7 @@ export default async function RootLayout({
   const notifications = session.user ? await fetchMyNotifications() : []
 
   return (
-    <html
-      lang={defaultLanguage}
-      className={cn(fontSans.variable, fontMono.variable)}
-      suppressHydrationWarning
-    >
+    <html lang={defaultLanguage} suppressHydrationWarning>
       <head>
         {/*
           Thanks @tailwindcss. We inject the script via the `<Script/>` tag,

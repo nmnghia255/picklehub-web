@@ -22,8 +22,8 @@ export type CreateSportCenterBookingsState = {
   booking?: BookingResponse
 }
 
-function getSportCenterLocale() {
-  const acceptLanguage = headers().get("accept-language") ?? ""
+async function getSportCenterLocale() {
+  const acceptLanguage = (await headers()).get("accept-language") ?? ""
   return acceptLanguage.toLowerCase().startsWith("vi")
     ? viSportCenter
     : enSportCenter
@@ -32,7 +32,7 @@ function getSportCenterLocale() {
 export async function createSportCenterBookingsAction(
   payload: CreateSportCenterBookingsPayload
 ): Promise<CreateSportCenterBookingsState> {
-  const sportCenter = getSportCenterLocale()
+  const sportCenter = await getSportCenterLocale()
 
   if (!payload.centerId) {
     return {

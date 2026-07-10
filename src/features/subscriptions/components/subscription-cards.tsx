@@ -37,10 +37,6 @@ import {
 } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import {
-  cancelSubscriptionAction,
-  subscribeToPlanAction,
-} from "../actions/subscription-actions"
 import { useSubscriptionTranslation } from "../hooks/use-subscription-translation"
 import type {
   AvailableSubscriptionPlan,
@@ -52,11 +48,22 @@ import type {
 interface SubscriptionCardsProps {
   availablePlans: AvailableSubscriptionPlan[]
   mySubscriptions: Subscription[]
+  onSubscribeToPlan: (planId: string) => Promise<{
+    success?: boolean
+    error?: string
+    paymentUrl?: string
+  }>
+  onCancelSubscription: (subscriptionId: string) => Promise<{
+    success?: boolean
+    error?: string
+  }>
 }
 
 export function SubscriptionCards({
   availablePlans,
   mySubscriptions,
+  onSubscribeToPlan,
+  onCancelSubscription,
 }: SubscriptionCardsProps) {
   const router = useRouter()
   const { t } = useSubscriptionTranslation()
@@ -133,7 +140,7 @@ export function SubscriptionCards({
 
     startTransition(async () => {
       setSubscribingPlan(null)
-      const res = await subscribeToPlanAction(planId)
+      const res = await onSubscribeToPlan(planId)
       if (res.success && res.paymentUrl) {
         toast.success(
           t("redirectingToPayment", {
@@ -163,7 +170,7 @@ export function SubscriptionCards({
 
     startTransition(async () => {
       setCancelingSubscription(null)
-      const res = await cancelSubscriptionAction(subId)
+      const res = await onCancelSubscription(subId)
       if (res.success) {
         toast.success(t("cancelSuccess"))
         router.refresh()

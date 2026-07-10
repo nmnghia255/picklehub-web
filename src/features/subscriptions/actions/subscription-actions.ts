@@ -15,8 +15,8 @@ export interface SubscriptionActionState {
   paymentUrl?: string
 }
 
-function getSubscriptionLocale() {
-  const acceptLanguage = headers().get("accept-language") ?? ""
+async function getSubscriptionLocale() {
+  const acceptLanguage = (await headers()).get("accept-language") ?? ""
   return acceptLanguage.toLowerCase().startsWith("vi")
     ? viSubscriptions
     : enSubscriptions
@@ -25,7 +25,7 @@ function getSubscriptionLocale() {
 export async function subscribeToPlanAction(
   planId: string
 ): Promise<SubscriptionActionState> {
-  const subs = getSubscriptionLocale()
+  const subs = await getSubscriptionLocale()
 
   try {
     const result = await SubscriptionService.subscribeToPlan(planId)
@@ -45,7 +45,7 @@ export async function subscribeToPlanAction(
 export async function cancelSubscriptionAction(
   subscriptionId: string
 ): Promise<SubscriptionActionState> {
-  const subs = getSubscriptionLocale()
+  const subs = await getSubscriptionLocale()
 
   try {
     await SubscriptionService.cancelMySubscription(subscriptionId)

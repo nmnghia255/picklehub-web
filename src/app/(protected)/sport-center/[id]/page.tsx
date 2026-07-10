@@ -79,7 +79,6 @@ export default async function SportCenterInformationPage({
         }
         serviceTab={
           <ServiceTab
-            sportCenterId={id}
             sportCenterName={sportCenter.name}
             products={sportCenter.products}
             services={sportCenter.services}

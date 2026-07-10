@@ -32,8 +32,8 @@ type SearchUsersResult = {
   meta: PaginationMeta
 }
 
-function getCommonLocale() {
-  const acceptLanguage = headers().get("accept-language") ?? ""
+async function getCommonLocale() {
+  const acceptLanguage = (await headers()).get("accept-language") ?? ""
   return acceptLanguage.toLowerCase().startsWith("vi") ? viCommon : enCommon
 }
 
@@ -45,8 +45,10 @@ function getUsernameFromEmail(email: string) {
   return email.split("@")[0] || email
 }
 
-function mapUser(item: GlobalUserSearchApiItem): FriendUser {
-  const common = getCommonLocale()
+function mapUser(
+  item: GlobalUserSearchApiItem,
+  common: typeof enCommon
+): FriendUser {
   const fullName = item.name?.trim() || getUsernameFromEmail(item.email)
 
   return {
@@ -92,6 +94,7 @@ export async function getFindUsers(params?: {
   page?: number
   limit?: number
 }): Promise<SearchUsersResult> {
+  const common = await getCommonLocale()
   const client = await getAuthenticatedAxios()
   const response = await client.get<
     SearchUsersResponse | GlobalUserSearchApiItem[]
@@ -106,7 +109,7 @@ export async function getFindUsers(params?: {
   const { data, meta } = extractResults(response.data)
 
   return {
-    data: data.map(mapUser),
+    data: data.map((item) => mapUser(item, common)),
     meta,
   }
 }

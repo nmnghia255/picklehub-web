@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next"
 
 import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
-import { submitBookingsAction } from "@/features/sport-center/actions/submit-booking-action"
 import { BookingConfirmationBookedSlotsCard } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-booked-slots-card"
 import { BookingConfirmationDetailsCard } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-details-card"
 import { BookingConfirmationEmptyState } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-empty-state"
@@ -19,6 +18,7 @@ import type {
 } from "@/features/sport-center/stores/booking-store"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
 import { useSportCenterStore } from "@/features/sport-center/stores/sport-center-store"
+import type { BookingResponse } from "@/features/sport-center/types/booking"
 import type { BulkCourtAvailability } from "@/features/sport-center/types/court"
 import type { Product } from "@/features/sport-center/types/product"
 import type { Service } from "@/features/sport-center/types/service"
@@ -161,23 +161,37 @@ export default function BookingConfirmationPage() {
     setSubmitError("")
 
     try {
-      const submitted = await submitBookingsAction({
-        centerId: centerId,
-        selectedDate: bookingDraft.selectedDate,
-        selectedCourts: Object.fromEntries(
-          Object.entries(bookingDraft.selectedCourts).map(
-            ([courtId, slots]) => [courtId, Array.from(slots)]
-          )
-        ),
-        selectedServices: bookingDraft.selectedServices,
-        selectedProducts: bookingDraft.selectedProducts,
-        note: bookingDraft.bookingNote,
-        useCredit: useBookingStore.getState().useCredit,
-        serviceItems: bookingDraft.services,
-        productItems: bookingDraft.products,
+      const response = await fetch(`/api/sport-centers/${centerId}/bookings`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          centerId,
+          selectedDate: bookingDraft.selectedDate,
+          selectedCourts: Object.fromEntries(
+            Object.entries(bookingDraft.selectedCourts).map(
+              ([courtId, slots]) => [courtId, Array.from(slots)]
+            )
+          ),
+          selectedServices: bookingDraft.selectedServices,
+          selectedProducts: bookingDraft.selectedProducts,
+          note: bookingDraft.bookingNote,
+          useCredit: useBookingStore.getState().useCredit,
+          serviceItems: bookingDraft.services,
+          productItems: bookingDraft.products,
+        }),
       })
 
-      if (!submitted.success) {
+      const submitted = (await response.json()) as {
+        success?: boolean
+        error?: string
+        message?: string
+        booking?: BookingResponse | BookingResponse[]
+      }
+
+      if (!response.ok || !submitted.success) {
         setSubmitError(
           submitted.error ?? t("booking.confirmation.errorCreateBooking")
         )
@@ -185,9 +199,10 @@ export default function BookingConfirmationPage() {
       }
 
       const bookingData = submitted.booking
-      const bookingId =
-        (Array.isArray(bookingData) ? bookingData[0]?.id : bookingData?.id) ??
-        ""
+      const bookingId = Array.isArray(bookingData)
+        ? (bookingData[0]?.id ?? "")
+        : (bookingData?.id ?? "")
+
       useBookingStore.setState({
         lastBookingId: bookingId || null,
         submitMessage:
@@ -202,6 +217,7 @@ export default function BookingConfirmationPage() {
           ? error.message
           : t("booking.confirmation.errorCreateBooking")
       )
+      return
     } finally {
       setIsSubmitting(false)
     }
