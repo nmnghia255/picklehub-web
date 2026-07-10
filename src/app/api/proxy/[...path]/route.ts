@@ -1,12 +1,12 @@
+import type { NextRequest } from "next/server"
+import { NextResponse } from "next/server"
 import { promisify } from "util"
 import { brotliDecompress, gunzip, inflate } from "zlib"
 
-import type { NextRequest } from "next/server"
-import { NextResponse } from "next/server"
-
 import { getSession } from "@/lib/session"
 
-const API_BASE = process.env.API_GATEWAY_URL || process.env.NEXT_PUBLIC_API_GATEWAY_URL || ""
+const API_BASE =
+  process.env.API_GATEWAY_URL || process.env.NEXT_PUBLIC_API_GATEWAY_URL || ""
 
 const gunzipAsync = promisify(gunzip)
 const inflateAsync = promisify(inflate)

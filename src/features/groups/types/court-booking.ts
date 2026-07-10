@@ -4,6 +4,15 @@ export interface BookingItemSnapshot {
   endTime: string
 }
 
+/** Thông tin activity đang liên kết với court booking */
+export interface LinkedActivitySnapshot {
+  id: string
+  title: string
+  status: string
+  startAt: string
+  endAt: string
+}
+
 export interface GroupCourtBooking {
   id: string
   groupId: string
@@ -24,6 +33,10 @@ export interface GroupCourtBooking {
   startTime: string
   endTime: string
   bookingItemsSnapshot: BookingItemSnapshot[]
+  /** true nếu booking đã được liên kết với một buổi hoạt động */
+  isLinked?: boolean
+  /** Thông tin buổi hoạt động đang liên kết, null nếu chưa liên kết */
+  linkedActivity?: LinkedActivitySnapshot | null
 }
 
 export interface ListGroupCourtBookingsResult {

@@ -83,6 +83,7 @@ export interface ExpenseItem {
   createdBy?: FinanceUserSummary | null
   allocations?: Allocation[]
   guestPayments?: GuestPayment[]
+  activityId?: string | null
 }
 
 export interface UnpaidPayment {
@@ -94,6 +95,8 @@ export interface UnpaidPayment {
   status: DebtStatus
   isGuestPayment?: boolean
   guestName?: string | null
+  guestCount?: number | null
+  guestFee?: number | null
 }
 
 export interface MyDebt {
@@ -138,6 +141,8 @@ export interface UnpaidPaymentItem {
   createdAt: string
   isGuestPayment?: boolean
   guestName?: string | null
+  guestCount?: number | null
+  guestFee?: number | null
 }
 
 export interface GroupDebtItem {

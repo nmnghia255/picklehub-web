@@ -1,4 +1,4 @@
-import type { CoachLevel, ClassStatus, VerificationStatus } from '../coach'
+import type { ClassStatus, CoachLevel, VerificationStatus } from "../coach"
 
 export interface DiscoverClassItemDTO {
   id: string

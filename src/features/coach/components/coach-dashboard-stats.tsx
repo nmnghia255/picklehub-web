@@ -6,13 +6,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-
 import { useSession } from "@/features/auth/hooks/use-session"
+
 import { useCoachLearnerDashboard } from "../hooks/use-coach-queries"
 
 export function CoachDashboardStats() {
   const session = useSession()
-  const { data, isLoading } = useCoachLearnerDashboard({ enabled: !!session?.user })
+  const { data, isLoading } = useCoachLearnerDashboard({
+    enabled: !!session?.user,
+  })
 
   if (isLoading) {
     return (

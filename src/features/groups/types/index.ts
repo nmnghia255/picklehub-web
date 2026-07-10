@@ -38,6 +38,8 @@ export interface Member {
   email: string
   role: string
   joinedAt: string
+  avatarUrl?: string | null
+  guestCount?: number
 }
 
 export interface Equipment {
@@ -164,4 +166,3 @@ export interface InviteLinkResponse {
 }
 
 export * from "./court-booking"
-export * from "./guest-member"

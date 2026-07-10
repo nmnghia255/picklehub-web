@@ -5,6 +5,14 @@ import { useCallback, useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox"
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -15,15 +23,6 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from "@/components/ui/combobox"
-
 import { useRecommendCoach } from "@/features/coach/hooks/use-coach-queries"
 
 interface FriendItem {
@@ -126,9 +125,7 @@ export function LearnerCoachRecommendationDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          Giới thiệu bạn bè
-        </Button>
+        <Button>Giới thiệu bạn bè</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md" ref={dialogRef}>
         <DialogHeader>

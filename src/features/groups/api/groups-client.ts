@@ -9,7 +9,6 @@ import type {
   Member,
 } from "../types"
 import { financeQueryKeys } from "./finance-client"
-import { guestQueryKeys } from "./guests-client"
 
 type QueryParams = Record<string, string | number | boolean | null | undefined>
 
@@ -95,9 +94,11 @@ export async function getGroupClient(groupId: string): Promise<Group> {
 }
 
 export async function getGroupMembersClient(
-  groupId: string
+  groupId: string,
+  params?: { activityId?: string }
 ): Promise<Member[]> {
-  return fetchJson<Member[]>(`/api/groups/${groupId}/members`)
+  const query = params?.activityId ? `?activityId=${params.activityId}` : ""
+  return fetchJson<Member[]>(`/api/groups/${groupId}/members${query}`)
 }
 
 export async function getGroupInvitationsClient(
@@ -150,9 +151,6 @@ export function useGroupInvalidation(groupId: string) {
       queryClient.invalidateQueries({ queryKey: ["group-finance", groupId] }),
       queryClient.invalidateQueries({
         queryKey: ["group-activities", groupId],
-      }),
-      queryClient.invalidateQueries({
-        queryKey: guestQueryKeys.all(groupId),
       }),
     ])
   }, [queryClient, groupId])
@@ -212,6 +210,10 @@ export async function listGroupCourtBookingsClient(
     limit?: number
     fromDate?: string
     toDate?: string
+    /** Lọc theo trạng thái liên kết với activity. true = đã liên kết, false = chưa liên kết */
+    linked?: boolean
+    /** Ẩn các sân có ngày chơi đã qua. Mặc định true khi linked=false */
+    excludePast?: boolean
   } = {}
 ): Promise<ListGroupCourtBookingsResult> {
   const searchParams = toSearchParams(params)
@@ -278,6 +280,39 @@ export async function getMyBookingsClient(
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}))
     throw new Error(payload.message || "Không thể tải danh sách lịch đặt sân.")
+  }
+  return response.json()
+}
+
+export async function checkCancelEligibilityClient(
+  groupId: string,
+  bookingId: string
+): Promise<{ eligibleForRefund: boolean; warningMessage: string }> {
+  const response = await fetch(
+    `/api/groups/${groupId}/court-bookings/${bookingId}/cancel-eligibility`
+  )
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}))
+    throw new Error(
+      payload.message || "Không thể kiểm tra chính sách hủy đặt sân."
+    )
+  }
+  return response.json()
+}
+
+export async function cancelCourtBookingClient(
+  groupId: string,
+  bookingId: string
+): Promise<{ message: string }> {
+  const response = await fetch(
+    `/api/groups/${groupId}/court-bookings/${bookingId}/cancel`,
+    {
+      method: "POST",
+    }
+  )
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}))
+    throw new Error(payload.message || "Không thể thực hiện hủy đặt sân.")
   }
   return response.json()
 }
