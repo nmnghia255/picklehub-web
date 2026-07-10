@@ -141,14 +141,14 @@ function SummaryCard({
   className?: string
 }) {
   return (
-    <Card className={className}>
+    <Card className={`bg-orange-50 ${className}`}>
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className="text-2xl font-bold text-orange-500">{value}</div>
         <p className="mt-1 text-xs text-muted-foreground">{description}</p>
       </CardContent>
     </Card>
@@ -318,6 +318,7 @@ export function GroupFinanceSection({
                 title="Tổng chi tiêu"
                 value={formatCurrency(summary.totalExpense)}
                 description={`Cân đối: ${formatCurrency(summary.netBalance)}`}
+                className=""
               />
               <SummaryCard
                 title="Tổng đã thu"
@@ -406,12 +407,14 @@ export function GroupFinanceSection({
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Thành viên</TableHead>
-                      <TableHead>Số tiền</TableHead>
-                      <TableHead>Ngày gửi</TableHead>
-                      <TableHead>Trạng thái</TableHead>
-                      <TableHead>Chứng từ</TableHead>
-                      <TableHead />
+                      <TableHead style={{ minWidth: "150px", width: "20%" }}>
+                        Thành viên
+                      </TableHead>
+                      <TableHead style={{ width: "10%" }}>Số tiền</TableHead>
+                      <TableHead style={{ width: "10%" }}>Ngày gửi</TableHead>
+                      <TableHead style={{ width: "10%" }}>Trạng thái</TableHead>
+                      <TableHead style={{ width: "10%" }}>Chứng từ</TableHead>
+                      <TableHead style={{ width: "10%" }} />
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -504,11 +507,12 @@ export function GroupFinanceSection({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Khoản chi</TableHead>
-                    <TableHead>Phải đóng</TableHead>
-                    <TableHead>Đã đóng</TableHead>
-                    <TableHead>Còn nợ</TableHead>
-                    <TableHead>Trạng thái</TableHead>
+                    <TableHead style={{ width: "20%" }}>Khoản chi</TableHead>
+                    <TableHead style={{ width: "10%" }}>Phí khách</TableHead>
+                    <TableHead style={{ width: "10%" }}>Phải đóng</TableHead>
+                    <TableHead style={{ width: "10%" }}>Đã đóng</TableHead>
+                    <TableHead style={{ width: "10%" }}>Còn nợ</TableHead>
+                    <TableHead style={{ width: "10%" }}>Trạng thái</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -516,17 +520,40 @@ export function GroupFinanceSection({
                     <TableRow key={item.id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
-                          <span>{item.expenseTitle}</span>
+                          <span className="min-w-0 flex-1 truncate">
+                            {item.expenseTitle}
+                          </span>
                           {item.isGuestPayment && (
                             <Badge
                               variant="outline"
                               className="h-5 text-[10px]"
                             >
-                              Khách: {item.guestName ?? "N/A"} (
-                              {formatCurrency(item.requiredFee)})
+                              Khách: {item.guestName ?? "N/A"}
                             </Badge>
                           )}
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        {item.guestCount && item.guestCount > 0 ? (
+                          <div className="flex flex-row items-baseline gap-0.5">
+                            <span className="text-sm font-semibold">
+                              {formatCurrency(item.guestFee || 0)}
+                            </span>
+                            <span className="text-xs font-semibold text-orange-700 dark:text-orange-400">
+                              ({item.guestCount} khách)
+                            </span>
+                          </div>
+                        ) : item.isGuestPayment ? (
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-xs font-semibold text-orange-700 dark:text-orange-400">
+                              1 khách
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">
+                            —
+                          </span>
+                        )}
                       </TableCell>
                       <TableCell>{formatCurrency(item.requiredFee)}</TableCell>
                       <TableCell className="text-success">
@@ -545,7 +572,7 @@ export function GroupFinanceSection({
                   {!myDebtQuery.data?.unpaidPayments?.length && (
                     <TableRow>
                       <TableCell
-                        colSpan={5}
+                        colSpan={6}
                         className="py-10 text-center text-muted-foreground"
                       >
                         Không có khoản công nợ nào.
@@ -695,33 +722,25 @@ export function GroupFinanceSection({
                         {/* Compact stats row */}
                         <div className="grid grid-cols-2 gap-px border-t bg-border md:grid-cols-4">
                           <div className="bg-card px-4 py-2.5">
-                            <p className="text-[11px] text-muted-foreground">
-                              Phải đóng
-                            </p>
-                            <p className="text-sm font-medium tabular-nums">
+                            <p className="text-sm font-semibold">Phải đóng</p>
+                            <p className="text-sm font-semibold">
                               {formatCurrency(item.totalRequired)}
                             </p>
                           </div>
                           <div className="bg-card px-4 py-2.5">
-                            <p className="text-[11px] text-muted-foreground">
-                              Đã đóng
-                            </p>
-                            <p className="text-success text-sm font-medium tabular-nums">
+                            <p className="text-sm font-semibold">Đã đóng</p>
+                            <p className="text-sm font-semibold">
                               {formatCurrency(item.totalPaid)}
                             </p>
                           </div>
                           <div className="bg-card px-4 py-2.5">
-                            <p className="text-[11px] text-muted-foreground">
-                              Credit dư
-                            </p>
-                            <p className="text-sm font-medium text-primary tabular-nums">
+                            <p className="text-sm font-semibold">Credit dư</p>
+                            <p className="text-sm font-semibold">
                               {formatCurrency(item.creditBalance)}
                             </p>
                           </div>
                           <div className="bg-card px-4 py-2.5">
-                            <p className="text-[11px] text-muted-foreground">
-                              Cân đối
-                            </p>
+                            <p className="text-sm font-semibold">Cân đối</p>
                             <p className="text-sm font-medium tabular-nums">
                               {formatCurrency(item.netBalance)}
                             </p>
@@ -771,6 +790,9 @@ export function GroupFinanceSection({
                                       Tên khoản chi
                                     </TableHead>
                                     <TableHead className="text-xs">
+                                      Phí khách
+                                    </TableHead>
+                                    <TableHead className="text-xs">
                                       Số cần đóng
                                     </TableHead>
                                     <TableHead className="text-xs">
@@ -792,6 +814,7 @@ export function GroupFinanceSection({
                                   item.unpaidPayments.length > 0 ? (
                                     item.unpaidPayments.map((payment) => (
                                       <TableRow key={payment.id}>
+                                        {/* Expense title */}
                                         <TableCell className="text-sm font-medium">
                                           <div className="flex items-center gap-2">
                                             <span>{payment.expenseTitle}</span>
@@ -801,24 +824,52 @@ export function GroupFinanceSection({
                                                 className="h-5 text-[10px]"
                                               >
                                                 Khách:{" "}
-                                                {payment.guestName ?? "N/A"} (
-                                                {formatCurrency(
-                                                  payment.requiredFee
-                                                )}
-                                                )
+                                                {payment.guestName ?? "N/A"}
                                               </Badge>
                                             )}
                                           </div>
                                         </TableCell>
-                                        <TableCell className="text-sm tabular-nums">
+                                        {/* Guest fee */}
+                                        <TableCell>
+                                          {payment.guestCount &&
+                                          payment.guestCount > 0 ? (
+                                            <div className="flex flex-col gap-0.5">
+                                              <span className="text-xs font-semibold text-orange-700 dark:text-orange-400">
+                                                {payment.guestCount} khách
+                                              </span>
+                                              <span className="text-[10px] text-muted-foreground">
+                                                (
+                                                {formatCurrency(
+                                                  payment.guestFee || 0
+                                                )}
+                                                )
+                                              </span>
+                                            </div>
+                                          ) : payment.isGuestPayment ? (
+                                            <div className="flex flex-col gap-0.5">
+                                              <span className="text-xs font-semibold text-orange-700 dark:text-orange-400">
+                                                1 khách
+                                              </span>
+                                            </div>
+                                          ) : (
+                                            <span className="text-xs text-muted-foreground">
+                                              —
+                                            </span>
+                                          )}
+                                        </TableCell>
+                                        {/* Required fee */}
+                                        <TableCell className="text-sm font-semibold">
                                           {formatCurrency(payment.requiredFee)}
                                         </TableCell>
-                                        <TableCell className="text-success text-sm tabular-nums">
+                                        {/* Amount paid */}
+                                        <TableCell className="text-sm font-semibold">
                                           {formatCurrency(payment.amountPaid)}
                                         </TableCell>
-                                        <TableCell className="text-sm font-medium text-destructive tabular-nums">
+                                        {/* Debt */}
+                                        <TableCell className="text-sm font-semibold text-destructive tabular-nums">
                                           {formatCurrency(payment.debt)}
                                         </TableCell>
+                                        {/* Status */}
                                         <TableCell>
                                           <Badge
                                             variant={getDebtStatusVariant(
@@ -836,7 +887,7 @@ export function GroupFinanceSection({
                                   ) : (
                                     <TableRow>
                                       <TableCell
-                                        colSpan={6}
+                                        colSpan={7}
                                         className="py-6 text-center text-sm text-muted-foreground"
                                       >
                                         Không có khoản nợ nào.

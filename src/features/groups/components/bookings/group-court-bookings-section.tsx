@@ -1,6 +1,6 @@
 "use client"
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import {
   AlertTriangle,
   ArrowLeft,
@@ -40,7 +40,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
-import { Spinner } from "@/components/ui/spinner"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import {
@@ -84,41 +83,11 @@ function formatDateTime(value?: string | null) {
   })
 }
 
-function formatTime(value?: string | null) {
-  if (!value) return ""
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return ""
-  return date.toLocaleTimeString("vi-VN", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })
-}
-
-function getBookingStatusLabel(status?: string | null) {
-  const normalized = status?.toUpperCase()
-  if (normalized === "CONFIRMED") return "Đã xác nhận"
-  if (normalized === "COMPLETED") return "Đã hoàn thành"
-  if (normalized === "PENDING") return "Chờ thanh toán"
-  if (normalized === "CANCELLED") return "Đã hủy"
-  return status ?? "-"
-}
-
-function getBookingStatusVariant(status?: string | null) {
-  const normalized = status?.toUpperCase()
-  if (normalized === "CONFIRMED" || normalized === "COMPLETED")
-    return "default" as const
-  if (normalized === "PENDING") return "secondary" as const
-  if (normalized === "CANCELLED") return "destructive" as const
-  return "outline" as const
-}
-
 export function GroupCourtBookingsSection({
   groupId,
-  currentUserId,
   currentUserRole,
   groupStatus,
 }: GroupCourtBookingsSectionProps) {
-  const queryClient = useQueryClient()
   const { invalidateCourtBookings } = useGroupInvalidation(groupId)
 
   const normalizedRole = currentUserRole?.toUpperCase() ?? ""
@@ -323,7 +292,7 @@ export function GroupCourtBookingsSection({
           return (
             <Card
               key={item.id}
-              className="cursor-pointer transition-all hover:bg-muted/10"
+              className="cursor-pointer bg-orange-50 transition-all hover:bg-orange-100"
               onClick={() => handleOpenDetail(item)}
             >
               <CardHeader className="pb-3">
@@ -603,7 +572,7 @@ export function GroupCourtBookingsSection({
 
       {/* Detail Dialog */}
       <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[600px]">
+        <DialogContent className="max-h-[85vh] overflow-y-auto bg-orange-50 sm:max-w-[600px]">
           {selectedBooking && (
             <div>
               <DialogHeader>

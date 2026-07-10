@@ -194,6 +194,19 @@ export async function getGuestRequestsClient(
     guestStatus: "PENDING" | "APPROVED" | "REJECTED" | null
     pendingGuestCount: number | null
     reportedAt: string
+    /** Tên hiển thị của người yêu cầu */
+    name?: string | null
+    /** Email người yêu cầu */
+    email?: string
+    /** Ảnh đại diện người yêu cầu */
+    avatarUrl?: string | null
+    /** Object lồng chứa thông tin người yêu cầu */
+    requester?: {
+      id: string
+      name: string | null
+      email: string
+      avatarUrl: string | null
+    }
   }>
 }> {
   const query = status ? `?status=${status}` : ""
@@ -207,6 +220,15 @@ export async function getGuestRequestsClient(
       guestStatus: "PENDING" | "APPROVED" | "REJECTED" | null
       pendingGuestCount: number | null
       reportedAt: string
+      name?: string | null
+      email?: string
+      avatarUrl?: string | null
+      requester?: {
+        id: string
+        name: string | null
+        email: string
+        avatarUrl: string | null
+      }
     }>
   }>(
     `/api/groups/${groupId}/activities/${activityId}/attendance/guests${query}`

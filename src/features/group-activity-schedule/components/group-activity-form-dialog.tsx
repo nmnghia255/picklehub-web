@@ -116,18 +116,53 @@ export function GroupActivityFormDialog({
   onUpdate,
   isSubmitting = false,
 }: GroupActivityFormDialogProps) {
-  // Query group court bookings
+  // Query sân chưa liên kết (tương lai) để dùng trong dropdown tạo/sửa activity
   const courtBookingsQuery = useQuery({
     queryKey: groupQueryKeys.courtBookings(activeGroupId, {
       page: 1,
       limit: 100,
+      linked: false,
     }),
     queryFn: () =>
-      listGroupCourtBookingsClient(activeGroupId, { page: 1, limit: 100 }),
+      listGroupCourtBookingsClient(activeGroupId, {
+        page: 1,
+        limit: 100,
+        linked: false,
+      }),
     enabled: open && !!activeGroupId,
   })
 
-  const courtBookings = courtBookingsQuery.data?.data || []
+  const courtBookings = useMemo(() => {
+    const unlinked = courtBookingsQuery.data?.data || []
+    // Khi edit, booking hiện tại đã linked=true nên sẽ không có trong list trên.
+    // Nếu activity.courtBooking có sẵn (embedded), build synthetic entry để dropdown hiển thị đúng label.
+    if (editingEvent?.courtBooking && editingEvent.courtBookingId) {
+      const alreadyInList = unlinked.some(
+        (b) => b.id === editingEvent.courtBookingId
+      )
+      if (!alreadyInList) {
+        const snap = editingEvent.courtBooking
+        const syntheticEntry = {
+          id: editingEvent.courtBookingId,
+          bookingId: editingEvent.courtBookingId,
+          groupId: activeGroupId,
+          title: snap.title || "Lịch đặt sân",
+          note: null,
+          createdAt: "",
+          updatedAt: "",
+          centerName: snap.centerName,
+          totalBookingCost: 0,
+          date: snap.date,
+          startTime: snap.startTime,
+          endTime: snap.endTime,
+          bookingItemsSnapshot: [],
+          isLinked: true,
+        } as GroupCourtBooking
+        return [syntheticEntry, ...unlinked]
+      }
+    }
+    return unlinked
+  }, [courtBookingsQuery.data, editingEvent, activeGroupId])
 
   const initialValues = useMemo<EventFormValues>(() => {
     if (editingEvent) {

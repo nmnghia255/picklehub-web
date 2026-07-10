@@ -2,13 +2,22 @@
 "use client"
 
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Loader2, MoreHorizontal, Plus, Send } from "lucide-react"
+import { format } from "date-fns"
+import { vi } from "date-fns/locale/vi"
+import {
+  Calendar as CalendarIcon,
+  Loader2,
+  MoreHorizontal,
+  Plus,
+  Send,
+} from "lucide-react"
 import { useActionState, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import {
   Dialog,
   DialogContent,
@@ -27,6 +36,11 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -38,6 +52,7 @@ import {
   getActivityClient,
   listActivitiesClient,
 } from "@/features/group-activity-schedule/api/activities-client"
+import { cn } from "@/lib/utils"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import {
@@ -52,11 +67,7 @@ import { financeQueryKeys } from "../../api/finance-client"
 import { getGroupMembersClient } from "../../api/groups-client"
 import { useGroupDebts } from "../../hooks/use-group-debts"
 import type { Member } from "../../types"
-import type {
-  ExpenseItem,
-  Transaction,
-  TransactionStatus,
-} from "../../types/finance"
+import type { ExpenseItem, Transaction } from "../../types/finance"
 
 function formatDateOnly(value?: string | null) {
   if (!value) return ""
@@ -328,9 +339,31 @@ function ExpenseForm({
     onDone
   )
 
-  const [selectedMap, setSelectedMap] = useState<Record<string, boolean>>({})
+  const [selectedMap, setSelectedMap] = useState<Record<string, boolean>>(
+    () => {
+      if (mode === "create" && !expense?.activityId) {
+        const init: Record<string, boolean> = {}
+        members.forEach((m) => {
+          init[m.userId] = true
+        })
+        return init
+      }
+      return {}
+    }
+  )
   const [feeMap, setFeeMap] = useState<Record<string, string>>({})
-  const [guestCountMap, setGuestCountMap] = useState<Record<string, string>>({})
+  const [guestCountMap, setGuestCountMap] = useState<Record<string, string>>(
+    () => {
+      if (mode === "create" && !expense?.activityId) {
+        const init: Record<string, string> = {}
+        members.forEach((m) => {
+          init[m.userId] = "0"
+        })
+        return init
+      }
+      return {}
+    }
+  )
   const [guestUnitPriceMap, setGuestUnitPriceMap] = useState<
     Record<string, string>
   >({})
@@ -378,10 +411,31 @@ function ExpenseForm({
         selectedActivityId ? { activityId: selectedActivityId } : undefined
       ),
     enabled: mode === "create",
-    initialData: members,
+    initialData:
+      !selectedActivityId || selectedActivityId === "none"
+        ? members
+        : undefined,
   })
 
-  const resolvedMembers = membersQuery.data || members
+  const resolvedMembers = useMemo(() => {
+    const list = membersQuery.data || members
+    if (mode === "create" && selectedActivityId && activityDetailQuery.data) {
+      const activity = activityDetailQuery.data
+      return list.filter((m) => {
+        const att = activity.attendance?.find(
+          (a) => a.memberId === m.userId || a.member?.userId === m.userId
+        )
+        return !att || att.status !== "ABSENT"
+      })
+    }
+    return list
+  }, [
+    membersQuery.data,
+    members,
+    selectedActivityId,
+    activityDetailQuery.data,
+    mode,
+  ])
 
   // Sync edits from existing expense
   useEffect(() => {
@@ -416,8 +470,9 @@ function ExpenseForm({
 
   // Auto fill checklist, guest count, title, description and date when linked activity details are loaded
   useEffect(() => {
-    if (activityDetailQuery.data && mode === "create") {
+    if (activityDetailQuery.data && membersQuery.data && mode === "create") {
       const activity = activityDetailQuery.data
+      const currentMembers = membersQuery.data
 
       // Auto fill inputs
       setTitle(`Hoạt động: ${activity.title}`)
@@ -435,9 +490,11 @@ function ExpenseForm({
       const newSelected: Record<string, boolean> = {}
       const newGuestCounts: Record<string, string> = {}
 
-      resolvedMembers.forEach((m) => {
+      currentMembers.forEach((m) => {
         const mGuestCount =
-          m.guestCount !== undefined ? String(m.guestCount) : null
+          m.guestCount !== undefined && m.guestCount !== null
+            ? String(m.guestCount)
+            : null
         const att = activity.attendance?.find(
           (a) => a.memberId === m.userId || a.member?.userId === m.userId
         )
@@ -455,7 +512,7 @@ function ExpenseForm({
       setSelectedMap(newSelected)
       setGuestCountMap(newGuestCounts)
     }
-  }, [activityDetailQuery.data, resolvedMembers, mode])
+  }, [activityDetailQuery.data, membersQuery.data, mode])
 
   const allocations = useMemo(
     () =>
@@ -502,9 +559,22 @@ function ExpenseForm({
               ) : (
                 <Select
                   value={selectedActivityId || "none"}
-                  onValueChange={(val) =>
-                    setSelectedActivityId(val === "none" ? "" : val)
-                  }
+                  onValueChange={(val) => {
+                    const nextVal = val === "none" ? "" : val
+                    setSelectedActivityId(nextVal)
+                    if (val === "none") {
+                      const newSelected: Record<string, boolean> = {}
+                      const newGuestCounts: Record<string, string> = {}
+                      resolvedMembers.forEach((m) => {
+                        newSelected[m.userId] = true
+                        newGuestCounts[m.userId] = "0"
+                      })
+                      setSelectedMap(newSelected)
+                      setGuestCountMap(newGuestCounts)
+                      setTitle("")
+                      setDescription("")
+                    }
+                  }}
                 >
                   <SelectTrigger className="h-9 w-full border bg-background text-xs">
                     <SelectValue placeholder="Chọn hoạt động nhóm..." />
@@ -566,15 +636,44 @@ function ExpenseForm({
               />
             </Field>
             <Field>
-              <FieldLabel htmlFor="expense-date">Ngày chi</FieldLabel>
-              <Input
-                id="expense-date"
-                name="expenseDate"
-                type="date"
-                value={expenseDate}
-                onChange={(e) => setExpenseDate(e.target.value)}
-                required
-              />
+              <FieldLabel>Ngày chi</FieldLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className={cn(
+                      "h-9 w-full justify-start text-left text-xs font-normal",
+                      !expenseDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+                    {expenseDate ? (
+                      format(new Date(expenseDate), "dd/MM/yyyy")
+                    ) : (
+                      <span>Chọn ngày chi...</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={expenseDate ? new Date(expenseDate) : undefined}
+                    onSelect={(date) => {
+                      if (date) {
+                        const yyyy = date.getFullYear()
+                        const mm = String(date.getMonth() + 1).padStart(2, "0")
+                        const dd = String(date.getDate()).padStart(2, "0")
+                        setExpenseDate(`${yyyy}-${mm}-${dd}`)
+                      } else {
+                        setExpenseDate("")
+                      }
+                    }}
+                    locale={vi}
+                  />
+                </PopoverContent>
+              </Popover>
+              <input type="hidden" name="expenseDate" value={expenseDate} />
             </Field>
           </div>
 
@@ -610,29 +709,49 @@ function ExpenseForm({
                     </div>
                     {isSelected && (
                       <div className="mt-2 space-y-3 border-t border-dashed pt-2">
-                        {/* Dòng 1: Phí thành viên (không full width) */}
-                        <div className="w-48">
-                          <span className="mb-0.5 block text-[10px] font-medium text-muted-foreground">
-                            Phí thành viên
-                          </span>
-                          <Input
-                            type="number"
-                            placeholder="0"
-                            className="h-8 bg-background text-xs"
-                            value={feeMap[member.userId] ?? ""}
-                            onChange={(e) =>
-                              setFeeMap((prev) => ({
-                                ...prev,
-                                [member.userId]: e.target.value,
-                              }))
-                            }
-                          />
+                        {/* Phí thành viên & Số lượng khách */}
+                        <div className="flex gap-4">
+                          <div className="flex-1">
+                            <span className="mb-0.5 block text-[10px] font-medium text-muted-foreground">
+                              Phí thành viên
+                            </span>
+                            <Input
+                              type="number"
+                              placeholder="0"
+                              className="h-8 bg-background text-xs"
+                              value={feeMap[member.userId] ?? ""}
+                              onChange={(e) =>
+                                setFeeMap((prev) => ({
+                                  ...prev,
+                                  [member.userId]: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <span className="mb-0.5 block text-[10px] font-medium text-muted-foreground">
+                              Số lượng khách đi kèm
+                            </span>
+                            <Input
+                              type="number"
+                              min="0"
+                              placeholder="0"
+                              className="h-8 bg-background text-xs"
+                              value={guestCountMap[member.userId] ?? ""}
+                              onChange={(e) =>
+                                setGuestCountMap((prev) => ({
+                                  ...prev,
+                                  [member.userId]: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
                         </div>
 
-                        {/* Dòng 2: Phí mỗi khách (chỉ hiện khi số khách > 0) */}
+                        {/* Phí mỗi khách (chỉ hiện khi số khách > 0) */}
                         {gCount > 0 && (
-                          <div className="flex items-center gap-2">
-                            <div className="w-48 shrink-0">
+                          <div className="flex items-center gap-3 rounded-md border border-dashed bg-muted/20 p-2.5">
+                            <div className="flex-1">
                               <span className="mb-0.5 block text-[10px] font-medium text-muted-foreground">
                                 Phí mỗi khách
                               </span>
@@ -650,7 +769,7 @@ function ExpenseForm({
                               />
                             </div>
                             <div className="pt-4 text-xs font-medium text-muted-foreground">
-                              * {gCount} khách =
+                              × {gCount} khách =
                             </div>
                             <div className="pt-4 text-xs font-semibold text-foreground">
                               {formatCurrency(gCount * gUnitPrice)}

@@ -18,7 +18,7 @@ import {
   Users,
   X,
 } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { toast } from "sonner"
 
 import {
@@ -70,7 +70,6 @@ import {
   groupQueryKeys,
   listGroupCourtBookingsClient,
 } from "@/features/groups/api/groups-client"
-import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 
 import {
@@ -143,7 +142,6 @@ export function GroupActivityDetailDrawer({
   currentUserId,
   onEdit,
 }: GroupActivityDetailDrawerProps) {
-  const isMobile = useIsMobile()
   const queryClient = useQueryClient()
   const [guestCountInput, setGuestCountInput] = useState("1")
   const [isGuestDialogOpen, setIsGuestDialogOpen] = useState(false)
@@ -186,40 +184,45 @@ export function GroupActivityDetailDrawer({
     enabled: open && !!activityId && !!groupId,
   })
 
-  // Query group court bookings (enable for host linking, or if there is a linked booking to render)
+  // Query group court bookings:
+  // - Khi có courtBooking embedded trong activity response, không cần thiết fetch thêm để hiển thị
+  // - Chỉ fetch khi host cần dropdown chọn sân mới để link (linked=false)
   const courtBookingsQuery = useQuery({
-    queryKey: groupQueryKeys.courtBookings(groupId, { page: 1, limit: 100 }),
+    queryKey: groupQueryKeys.courtBookings(groupId, {
+      page: 1,
+      limit: 100,
+      linked: false,
+    }),
     queryFn: () =>
-      listGroupCourtBookingsClient(groupId, { page: 1, limit: 100 }),
+      listGroupCourtBookingsClient(groupId, {
+        page: 1,
+        limit: 100,
+        linked: false,
+      }),
+    // Chỉ fetch khi host cần dropdown link sân (chưa có sân liên kết)
     enabled:
       open &&
       !!groupId &&
-      (isHost || !!activity?.courtBookingId || !!activity?.bookingId),
+      isHost &&
+      !activity?.courtBookingId &&
+      !activity?.bookingId,
   })
 
-  // Query all guest requests for Host management
+  // Query all guest requests for Host and Member management
   const guestRequestsQuery = useQuery({
     queryKey: ["group-activities", groupId, activityId, "guests"],
     queryFn: () => getGuestRequestsClient(groupId, activityId),
-    enabled: open && isHost && !!groupId && !!activityId,
+    enabled: open && !!groupId && !!activityId,
   })
 
   // Find current user's attendance status
-  const myAttendance = useMemo(() => {
-    if (!activity?.attendance || !currentUserId) return null
-    return (
-      activity.attendance.find(
-        (a) =>
-          a.memberId === currentUserId || a.member?.userId === currentUserId
-      ) || null
-    )
-  }, [activity, currentUserId])
+  const myAttendance = activity?.myAttendance || null
 
   const isAbsent = myAttendance?.status === "ABSENT"
 
   // Check deadline constraints
-  const { canToggleAbsence, isPastDeadline } = useMemo(() => {
-    if (!activity) return { canToggleAbsence: true, isPastDeadline: false }
+  const { canToggleAbsence } = useMemo(() => {
+    if (!activity) return { canToggleAbsence: true }
     const startTime = new Date(activity.startAt)
     const deadlineHours = activity.cancellationDeadlineHours ?? 24
     const cutoffTime = new Date(
@@ -228,12 +231,16 @@ export function GroupActivityDetailDrawer({
     const past = new Date() > cutoffTime
     return {
       canToggleAbsence: !past || isHost,
-      isPastDeadline: past,
     }
   }, [activity, isHost])
 
-  // Find linked court booking details if present
+  // Lấy thông tin booking liên kết:
+  // - Ưu tiên dùng courtBooking embedded từ activity response (không cần fetch)
+  // - Fallback về courtBookingsQuery nếu response cũ chưa có courtBooking
   const linkedBooking = useMemo(() => {
+    if (activity?.courtBooking) {
+      return activity.courtBooking
+    }
     const linkedId = activity?.courtBookingId || activity?.bookingId
     if (!linkedId || !courtBookingsQuery.data?.data) return null
     return (
@@ -241,29 +248,28 @@ export function GroupActivityDetailDrawer({
         (b) => b.id === linkedId || b.bookingId === linkedId
       ) || null
     )
-  }, [activity?.courtBookingId, activity?.bookingId, courtBookingsQuery.data])
+  }, [activity, courtBookingsQuery.data])
 
   // Count participants
-  const {
-    attendingMembers,
-    absentMembers,
-    membersCount,
-    guestsCount,
-    totalParticipants,
-  } = useMemo(() => {
+  const { membersCount, guestsCount, totalParticipants } = useMemo(() => {
     const attendance = activity?.attendance ?? []
     const attending = attendance.filter((a) => a.status !== "ABSENT")
-    const absent = attendance.filter((a) => a.status === "ABSENT")
 
-    const mCount = attending.length
-    const gCount = attending.reduce(
-      (sum, a) => sum + (a.guestStatus === "APPROVED" ? a.guestCount : 0),
-      0
-    )
+    const mCount =
+      activity?.attendingMemberCount !== undefined &&
+      activity?.attendingMemberCount !== null
+        ? activity.attendingMemberCount
+        : attending.length
+    const gCount =
+      activity?.attendingGuestCount !== undefined &&
+      activity?.attendingGuestCount !== null
+        ? activity.attendingGuestCount
+        : attending.reduce(
+            (sum, a) => sum + (a.guestStatus === "APPROVED" ? a.guestCount : 0),
+            0
+          )
 
     return {
-      attendingMembers: attending,
-      absentMembers: absent,
       membersCount: mCount,
       guestsCount: gCount,
       totalParticipants: mCount + gCount,
@@ -595,11 +601,23 @@ export function GroupActivityDetailDrawer({
                 {/* 1. Member Information & Absence Button */}
                 {currentUserId && (
                   <div className="flex w-full min-w-0 items-center justify-between rounded-lg border border-muted/50 bg-muted/20 px-3 py-2">
-                    <div className="mr-2 flex items-center gap-2 truncate text-xs text-muted-foreground">
-                      <User className="size-4 shrink-0 text-muted-foreground" />
-                      <span className="truncate font-medium text-foreground">
-                        Bạn ({myAttendance?.member?.name || "Thành viên"})
-                      </span>
+                    <div className="mr-2 flex flex-col gap-0.5 truncate text-xs text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <User className="size-6 shrink-0 text-muted-foreground" />
+                        <span className="truncate font-medium text-foreground">
+                          Bạn ({myAttendance?.member?.name || "Thành viên"})
+                        </span>
+                      </div>
+                      <div className="pl-8 text-sm font-semibold">
+                        Trạng thái:{" "}
+                        {isAbsent ? (
+                          <span className="text-rose-600">Đã báo vắng ❌</span>
+                        ) : (
+                          <span className="text-emerald-600">
+                            Đang tham gia ✅
+                          </span>
+                        )}
+                      </div>
                     </div>
                     {renderAbsenceButton()}
                   </div>
@@ -891,11 +909,18 @@ export function GroupActivityDetailDrawer({
                     ) : filteredRequests.length > 0 ? (
                       <div className="space-y-2.5">
                         {filteredRequests.map((req) => {
+                          // Ưu tiên name từ requester object (changelog #3), fallback về tìm trong attendance
                           const memberName =
+                            req.requester?.name ||
+                            req.name ||
                             activity?.attendance?.find(
                               (a) => a.memberId === req.memberId
                             )?.member?.name ||
                             `Thành viên (ID: ${req.memberId.slice(0, 8)})`
+                          const requesterAvatarUrl =
+                            req.requester?.avatarUrl || req.avatarUrl || null
+                          const requesterEmail =
+                            req.requester?.email || req.email || ""
                           const hasPendingDraft =
                             req.pendingGuestCount !== null &&
                             req.pendingGuestCount !== undefined
@@ -906,13 +931,28 @@ export function GroupActivityDetailDrawer({
                               className="relative flex w-full flex-col gap-2 rounded-lg border bg-card p-3 text-sm shadow-sm"
                             >
                               <div className="flex min-w-0 items-start justify-between gap-2 pr-6">
-                                <div className="min-w-0">
-                                  <span className="block truncate text-sm font-bold text-foreground">
-                                    👤 {memberName}
-                                  </span>
-                                  <span className="text-xs text-muted-foreground">
-                                    Mời bởi: {memberName}
-                                  </span>
+                                <div className="flex min-w-0 items-center gap-2">
+                                  {requesterAvatarUrl ? (
+                                    <img
+                                      src={requesterAvatarUrl}
+                                      alt={memberName}
+                                      className="size-7 shrink-0 rounded-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
+                                      {memberName.charAt(0).toUpperCase()}
+                                    </div>
+                                  )}
+                                  <div className="min-w-0">
+                                    <span className="block truncate text-sm font-bold text-foreground">
+                                      👤 {memberName}
+                                    </span>
+                                    {requesterEmail && (
+                                      <span className="block truncate text-xs text-muted-foreground">
+                                        {requesterEmail}
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                                 <div className="flex shrink-0 items-center gap-1.5">
                                   {hasPendingDraft ? (
@@ -1120,7 +1160,7 @@ export function GroupActivityDetailDrawer({
                                   <span className="flex items-center gap-1.5 font-medium text-foreground">
                                     {memberName}
                                     {isSelf && (
-                                      <span className="rounded-md bg-primary/10 px-1.5 py-0.25 text-[10px] font-semibold text-primary">
+                                      <span className="rounded-md bg-primary/10 px-1.5 py-px text-[10px] font-semibold text-primary">
                                         Bạn
                                       </span>
                                     )}

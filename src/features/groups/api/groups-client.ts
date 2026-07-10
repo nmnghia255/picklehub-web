@@ -210,6 +210,10 @@ export async function listGroupCourtBookingsClient(
     limit?: number
     fromDate?: string
     toDate?: string
+    /** Lọc theo trạng thái liên kết với activity. true = đã liên kết, false = chưa liên kết */
+    linked?: boolean
+    /** Ẩn các sân có ngày chơi đã qua. Mặc định true khi linked=false */
+    excludePast?: boolean
   } = {}
 ): Promise<ListGroupCourtBookingsResult> {
   const searchParams = toSearchParams(params)

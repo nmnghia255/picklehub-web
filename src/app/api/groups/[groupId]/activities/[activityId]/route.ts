@@ -7,6 +7,8 @@ import {
   updateActivity,
 } from "@/features/group-activity-schedule/api/activities-service"
 
+export const dynamic = "force-dynamic"
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ groupId: string; activityId: string }> }

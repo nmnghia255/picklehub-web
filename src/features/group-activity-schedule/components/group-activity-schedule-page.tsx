@@ -295,6 +295,19 @@ export function GroupActivitySchedulePage({
               )
               .map((event) => {
                 const stats = (() => {
+                  // Ưu tiên dùng fields từ API response (changelog #1)
+                  if (
+                    event.attendingMemberCount !== undefined ||
+                    event.attendingGuestCount !== undefined
+                  ) {
+                    const mCount = event.attendingMemberCount ?? 0
+                    const gCount = event.attendingGuestCount ?? 0
+                    if (gCount > 0) {
+                      return `${mCount} người + ${gCount} khách`
+                    }
+                    return `${mCount} người tham gia`
+                  }
+                  // Fallback: tính từ attendance array (response cũ)
                   const attendance = event.attendance ?? []
                   const attending = attendance.filter(
                     (a) => a.status !== "ABSENT"
@@ -511,6 +524,19 @@ export function GroupActivitySchedulePage({
                     )
                     .map((event) => {
                       const eventStats = (() => {
+                        // Ưu tiên dùng fields từ API response (changelog #1)
+                        if (
+                          event.attendingMemberCount !== undefined ||
+                          event.attendingGuestCount !== undefined
+                        ) {
+                          const mCount = event.attendingMemberCount ?? 0
+                          const gCount = event.attendingGuestCount ?? 0
+                          if (gCount > 0) {
+                            return `${mCount} người + ${gCount} khách`
+                          }
+                          return `${mCount} người tham gia`
+                        }
+                        // Fallback: tính từ attendance array (response cũ)
                         const attendance = event.attendance ?? []
                         const attending = attendance.filter(
                           (a) => a.status !== "ABSENT"

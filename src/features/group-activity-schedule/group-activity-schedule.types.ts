@@ -13,6 +13,16 @@ export type ActivityTypeFilter = ActivityType | "all"
 
 export type AttendanceStatus = "ATTENDING" | "ABSENT"
 
+/** Snapshot thông tin sân được nhúng trực tiếp trong activity response */
+export interface CourtBookingSnapshot {
+  id: string
+  title?: string | null
+  centerName: string
+  date: string
+  startTime: string
+  endTime: string
+}
+
 export interface ActivityAttendance {
   id: string
   activityId: string
@@ -46,6 +56,15 @@ export interface GroupActivity {
   courtBookingId?: string | null
   cancellationDeadlineHours?: number
   attendance?: ActivityAttendance[]
+  myAttendance?: ActivityAttendance | null
+  /** Số thành viên đang tham gia (= tổng thành viên - số người báo vắng ABSENT) */
+  attendingMemberCount?: number
+  /** Tổng số khách đã được duyệt (guestStatus = APPROVED) từ tất cả thành viên */
+  attendingGuestCount?: number
+  /** Thông tin sân liên kết đầy đủ, null nếu chưa liên kết */
+  courtBooking?: CourtBookingSnapshot | null
+  hasExpense?: boolean
+  expense?: { id: string; title: string; totalAmount: number } | null
 }
 
 export interface CreateGroupActivityDto {
