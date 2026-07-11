@@ -46,6 +46,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useSession } from "@/features/auth/hooks/use-session"
 import type { LearnerScheduleItem } from "@/features/coach/types/coach"
 import { useLearnerSchedule } from "@/features/learner/hooks/use-learner-queries"
+import { getTranslationStringArray } from "@/i18n/get-translation-array"
 import { getErrorMessage } from "@/lib/api-client"
 import { cn } from "@/lib/utils"
 
@@ -807,31 +808,24 @@ function CalendarView({
   locale: string
   onItemClick: (item: LearnerScheduleItem) => void
 }) {
-  const { t } = useTranslation("common")
+  const { t, i18n } = useTranslation("common")
   const weeks: Date[][] = []
   for (let i = 0; i < allDays.length; i += 7) {
     weeks.push(allDays.slice(i, i + 7))
   }
 
-  const weekDayLabels = useMemo(() => {
-    const reference = new Date(2024, 0, 1)
-    return Array.from({ length: 7 }, (_, i) =>
-      new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
-        new Date(
-          reference.getFullYear(),
-          reference.getMonth(),
-          reference.getDate() + i
-        )
-      )
-    )
-  }, [locale])
+  const weekDayLabels = getTranslationStringArray(
+    i18n,
+    "common",
+    "learner.schedule.weekDays"
+  )
 
   return (
     <div className="rounded-xl border bg-background shadow-sm">
       <div className="grid grid-cols-7 border-b">
-        {weekDayLabels.map((day) => (
+        {weekDayLabels.map((day, index) => (
           <div
-            key={day}
+            key={`${day}-${index}`}
             className="p-3 text-center text-xs font-semibold text-muted-foreground"
           >
             {day}
