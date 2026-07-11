@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useSession } from "@/features/auth/hooks/use-session"
+import { getTranslationStringArray } from "@/i18n/get-translation-array"
 import { getErrorMessage } from "@/lib/api-client"
 
 import { useCoachSchedule } from "../hooks/use-coach-queries"
@@ -124,7 +125,11 @@ export function CoachWeekSchedule() {
   const { t, i18n } = useTranslation("common")
   const locale = getLocaleCode(i18n.language)
   const session = useSession()
-  const weekDays = t("coach.schedule.weekDays") as unknown as string[]
+  const weekDays = getTranslationStringArray(
+    i18n,
+    "common",
+    "coach.schedule.weekDays"
+  )
   const [viewMode, setViewMode] = useState<ViewMode>("calendar")
   const [currentDate, setCurrentDate] = useState(() => startOfMonth(new Date()))
   const [kind, setKind] = useState("all")

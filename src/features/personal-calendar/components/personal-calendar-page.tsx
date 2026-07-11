@@ -605,7 +605,7 @@ export function PersonalCalendarPage() {
 
       {/* Event detail modal */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-[90vw] animate-in overflow-hidden rounded-xl border border-border bg-card p-0 shadow-2xl duration-200 fade-in sm:max-w-[500px]">
+        <DialogContent className="max-w-[90vw] animate-in overflow-y-auto rounded-xl border border-border bg-card p-0 shadow-2xl duration-200 fade-in sm:max-w-[500px]">
           <div className="relative h-2.5 w-full bg-primary" />
 
           {selectedEvent && (

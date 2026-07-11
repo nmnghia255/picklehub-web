@@ -162,7 +162,7 @@ export const TournamentRefereeService = {
   acceptInvitation: async (token: string) => {
     const axios = await getAuthenticatedAxios()
     const response = await axios.post<ApiResponse<AcceptInvitationResponseDto>>(
-      `/api/tournaments/referees/invitations/${token}/accept`
+      `/api/referee-invitations/${token}/accept`
     )
     return unwrapApiResponse(response.data)
   },
@@ -171,7 +171,7 @@ export const TournamentRefereeService = {
   joinTournament: async (token: string) => {
     const axios = await getAuthenticatedAxios()
     const response = await axios.post<ApiResponse<JoinTournamentResponseDto>>(
-      `/api/tournaments/referees/invitations/${token}/join`
+      `/api/referee-invitations/${token}/join`
     )
     return unwrapApiResponse(response.data)
   },

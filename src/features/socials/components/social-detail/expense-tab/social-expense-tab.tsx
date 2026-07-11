@@ -58,6 +58,8 @@ export default function SocialExpenseTab({
     queryFn: () => listExpensesAction(socialId),
     enabled: !!socialId,
   })
+  const courtBookingRows = Array.isArray(courtBookings) ? courtBookings : []
+  const manualExpenseRows = Array.isArray(manualExpenses) ? manualExpenses : []
 
   const isLoading = isLoadingSummary || isLoadingBookings
 
@@ -104,9 +106,12 @@ export default function SocialExpenseTab({
             totalCourtExpense={summary.totalExpense}
             confirmedParticipants={summary.participants.joinedCount}
             extraExpense={
-              courtBookings
+              courtBookingRows.length > 0
                 ? summary.totalExpense -
-                  courtBookings.reduce((acc, curr) => acc + curr.bookingCost, 0)
+                  courtBookingRows.reduce(
+                    (acc, curr) => acc + curr.bookingCost,
+                    0
+                  )
                 : 0
             }
             paidMembers={summary.paidMembersCount}
@@ -135,15 +140,17 @@ export default function SocialExpenseTab({
       <section className="grid gap-6">
         <div className="space-y-6">
           <CourtBookingExpensesCard
-            expenseRows={courtBookings || []}
+            expenseRows={courtBookingRows}
             totalCourtExpense={
-              courtBookings?.reduce((acc, curr) => acc + curr.bookingCost, 0) ||
-              0
+              courtBookingRows.reduce(
+                (acc, curr) => acc + curr.bookingCost,
+                0
+              ) || 0
             }
           />
           <ExtraExpensesCard
             socialId={socialId}
-            expenses={manualExpenses || []}
+            expenses={manualExpenseRows}
             isLocked={social?.status !== "DRAFT"}
           />
         </div>

@@ -11,7 +11,6 @@ import {
   Settings,
   Sun,
   User,
-  UserCog,
   XCircle,
 } from "lucide-react"
 import Link from "next/link"
@@ -20,6 +19,7 @@ import { useTheme } from "next-themes"
 import { useLayoutEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { LanguageSwitcher } from "@/components/language-switcher"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -274,6 +274,8 @@ export function Header({ user }: HeaderProps) {
         <div className="h-10 w-10" />
       )}
 
+      <LanguageSwitcher />
+
       {/* Profile Avatar Dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -326,12 +328,6 @@ export function Header({ user }: HeaderProps) {
               <Link href="/settings">
                 <Settings className="size-4" />
                 <span>{t("header.settings")}</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/account">
-                <UserCog className="size-4" />
-                <span>{t("header.account")}</span>
               </Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>

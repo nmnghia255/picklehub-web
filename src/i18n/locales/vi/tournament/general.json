@@ -1,4 +1,6 @@
 {
+    "loadingScoreboard": "Đang tải bảng điểm...",
+    "loadingTournamentInfo": "Đang tải thông tin giải đấu...",
     "manager": {
         "title": "Quản lý Giải đấu Pickleball",
         "subtitle": "San Diego Summer Slam 2026",

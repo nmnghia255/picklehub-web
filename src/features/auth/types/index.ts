@@ -128,6 +128,8 @@ export interface LinkedProvider {
   linkedAt: string
 }
 
+export type SocialProvider = "google" | "facebook"
+
 // ============================================
 // Link Google Types
 // ============================================
@@ -197,7 +199,7 @@ export interface ForgotPasswordResponse {
 
 export interface ResetPasswordDto {
   token: string
-  password: string
+  newPassword: string
 }
 
 export type ResetPasswordRequest = ResetPasswordDto

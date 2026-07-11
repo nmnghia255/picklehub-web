@@ -56,6 +56,7 @@ import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useSession } from "@/features/auth/hooks/use-session"
+import { CourtBookingLocationFields } from "@/features/coach/components/court-booking-location-fields"
 import {
   useCoachOpenClasses,
   useCoachPublicProfile,
@@ -77,6 +78,7 @@ import {
   useEnrollInClass,
   useLearnerSchedule,
 } from "@/features/learner/hooks/use-learner-queries"
+import { getTranslationStringArray } from "@/i18n/get-translation-array"
 import { cn } from "@/lib/utils"
 
 function StarRating({ rating }: { rating: number }) {
@@ -763,7 +765,11 @@ function ScheduleTab({ coachId }: { coachId: string }) {
     setCurrentDate(d)
   }
 
-  const weekDays = t("coach.schedule.weekDays") as unknown as string[]
+  const weekDays = getTranslationStringArray(
+    i18n,
+    "common",
+    "coach.schedule.weekDays"
+  )
 
   const weeks: Date[][] = []
   for (let i = 0; i < allDays.length; i += 7) {
@@ -1846,6 +1852,25 @@ function CoachDiscoveryDetailInner({
       toast.error(t("coach.discovery.bookingDateRequired"))
       return
     }
+
+    if (bookingLocationMode === "court" && !bookingCourtBookingId) {
+      toast.error(t("coach.courtBookingSelector.bookingRequired"))
+      return
+    }
+
+    if (bookingLocationMode === "court" && !bookingCourtId) {
+      toast.error(t("coach.courtBookingSelector.courtRequired"))
+      return
+    }
+
+    if (
+      bookingLocationMode === "free-text" &&
+      !bookingLocationDescription.trim()
+    ) {
+      toast.error(t("coach.courtBookingSelector.manualLocationRequired"))
+      return
+    }
+
     const sessionAt = new Date(`${bookingDate}T${bookingTime}:00`).toISOString()
     try {
       const dto =
@@ -1999,66 +2024,17 @@ function CoachDiscoveryDetailInner({
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>{t("coach.discovery.bookingLocationModeLabel")}</Label>
-              <Select
-                value={bookingLocationMode}
-                onValueChange={(value) =>
-                  setBookingLocationMode(value as "free-text" | "court")
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="free-text">
-                    {t("coach.discovery.bookingLocationModeFreeText")}
-                  </SelectItem>
-                  <SelectItem value="court">
-                    {t("coach.discovery.bookingLocationModeCourt")}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {bookingLocationMode === "court" ? (
-              <div className="space-y-4 rounded-lg border bg-muted/30 p-4">
-                <p className="text-xs text-muted-foreground">
-                  {t("coach.discovery.bookingCourtModeHint")}
-                </p>
-                <div className="space-y-2">
-                  <Label>
-                    {t("coach.discovery.bookingCourtBookingIdLabel")}
-                  </Label>
-                  <Input
-                    placeholder={t(
-                      "coach.discovery.bookingCourtBookingIdPlaceholder"
-                    )}
-                    value={bookingCourtBookingId}
-                    onChange={(e) => setBookingCourtBookingId(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t("coach.discovery.bookingCourtIdLabel")}</Label>
-                  <Input
-                    placeholder={t("coach.discovery.bookingCourtIdPlaceholder")}
-                    value={bookingCourtId}
-                    onChange={(e) => setBookingCourtId(e.target.value)}
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <Label>{t("coach.discovery.bookingLocationLabel")}</Label>
-                <Input
-                  placeholder={t("coach.discovery.bookingLocationPlaceholder")}
-                  value={bookingLocationDescription}
-                  onChange={(e) =>
-                    setBookingLocationDescription(e.target.value)
-                  }
-                />
-              </div>
-            )}
+            <CourtBookingLocationFields
+              mode={bookingLocationMode}
+              onModeChange={setBookingLocationMode}
+              courtBookingId={bookingCourtBookingId}
+              onCourtBookingIdChange={setBookingCourtBookingId}
+              courtId={bookingCourtId}
+              onCourtIdChange={setBookingCourtId}
+              locationDescription={bookingLocationDescription}
+              onLocationDescriptionChange={setBookingLocationDescription}
+              disabled={createBooking.isPending}
+            />
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -2103,7 +2079,14 @@ function CoachDiscoveryDetailInner({
             </Button>
             <Button
               onClick={handleCreateBooking}
-              disabled={createBooking.isPending}
+              disabled={
+                createBooking.isPending ||
+                !bookingDate ||
+                !bookingTime ||
+                (bookingLocationMode === "court"
+                  ? !bookingCourtBookingId || !bookingCourtId
+                  : !bookingLocationDescription.trim())
+              }
             >
               {createBooking.isPending
                 ? t("coach.discovery.bookingSubmitting")

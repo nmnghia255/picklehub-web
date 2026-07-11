@@ -294,7 +294,7 @@ export function TournamentDashboard({
 
       {/* Poster Generation Modal */}
       <Dialog open={isPosterModalOpen} onOpenChange={setIsPosterModalOpen}>
-        <DialogContent className="max-w-3xl overflow-hidden rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-950">
+        <DialogContent className="max-w-3xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-950">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-gray-900 dark:text-zinc-100">
               {t("dashboard.posterTitle", {

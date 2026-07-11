@@ -39,6 +39,15 @@ export type ResendVerificationFormData = z.infer<
   typeof resendVerificationSchema
 >
 
+export const forgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .min(1, "auth.validation.emailRequired")
+    .email("auth.validation.emailInvalid"),
+})
+
+export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>
+
 export const setPasswordSchema = z
   .object({
     password: z
@@ -75,6 +84,24 @@ export const changePasswordSchema = z
   })
 
 export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>
+
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().min(1, "auth.validation.tokenRequired"),
+    newPassword: z
+      .string()
+      .min(1, "auth.validation.passwordRequired")
+      .min(8, "auth.validation.passwordMinLength8"),
+    confirmNewPassword: z
+      .string()
+      .min(1, "auth.validation.confirmNewPasswordRequired"),
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: "auth.validation.newPasswordsNotMatch",
+    path: ["confirmNewPassword"],
+  })
+
+export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>
 
 export const magicLinkSchema = z.object({
   email: z

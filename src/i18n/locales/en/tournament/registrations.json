@@ -41,6 +41,8 @@
       "paymentProof": "Payment Proof",
       "viewProof": "View Proof"
     },
+    "paymentProof": "Payment Proof",
+    "viewProof": "View Proof",
     "filterEvent": "Filter Event",
     "filterStatus": "Filter Status",
     "allEvents": "All Events",

@@ -70,7 +70,8 @@
         "ready": "Sẵn sàng",
         "in_progress": "Đang thi đấu",
         "completed": "Hoàn thành",
-        "walkover": "Xử thắng/Thua cuộc"
+        "walkover": "Xử thắng/Thua cuộc",
+        "pending": "Chờ xử lý"
       },
       "rounds": {
         "Round 1": "Vòng 1",

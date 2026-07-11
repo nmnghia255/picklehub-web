@@ -309,7 +309,7 @@ export async function acceptRefereeInvitationAction(
   try {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL || ""
     const response = await axios.post(
-      `${API_BASE_URL}/api/tournaments/referees/invitations/${token}/accept`
+      `${API_BASE_URL}/api/referee-invitations/${token}/accept`
     )
 
     const rawData = response.data

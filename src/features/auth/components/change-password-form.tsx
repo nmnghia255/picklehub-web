@@ -1,9 +1,10 @@
 ﻿"use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { startTransition, useActionState } from "react"
+import { startTransition, useActionState, useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
@@ -17,15 +18,24 @@ import { type ChangePasswordFormData, changePasswordSchema } from "../schemas"
 export function ChangePasswordForm({
   className,
   hideHeader = false,
+  showCancelButton = false,
+  onCancel,
+  onSuccess,
+  cancelLabel,
 }: {
   className?: string
   hideHeader?: boolean
+  showCancelButton?: boolean
+  onCancel?: () => void
+  onSuccess?: () => void
+  cancelLabel?: string
 }) {
   const { t } = useTranslation("common")
   const [state, formAction, isPending] = useActionState(
     changePasswordAction,
     {}
   )
+  const lastErrorRef = useRef<string | null>(null)
 
   const form = useForm<ChangePasswordFormData>({
     resolver: zodResolver(changePasswordSchema),
@@ -35,6 +45,21 @@ export function ChangePasswordForm({
       confirmNewPassword: "",
     },
   })
+
+  useEffect(() => {
+    if (!state.success) return
+
+    toast.success(translateAuthMessage(t, state.message))
+    form.reset()
+    onSuccess?.()
+  }, [form, onSuccess, state.message, state.success, t])
+
+  useEffect(() => {
+    if (!state.error || state.error === lastErrorRef.current) return
+
+    lastErrorRef.current = state.error
+    toast.error(translateAuthMessage(t, state.error))
+  }, [state.error, t])
 
   const onSubmit = form.handleSubmit((data) => {
     const fd = new FormData()
@@ -137,13 +162,26 @@ export function ChangePasswordForm({
           </div>
         )}
 
-        <Field>
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          {showCancelButton && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                form.reset()
+                onCancel?.()
+              }}
+              disabled={isPending}
+            >
+              {cancelLabel || t("dialog.close")}
+            </Button>
+          )}
           <Button type="submit" disabled={isPending}>
             {isPending
               ? t("auth.changePassword.submitting")
               : t("auth.changePassword.submit")}
           </Button>
-        </Field>
+        </div>
       </FieldGroup>
     </form>
   )

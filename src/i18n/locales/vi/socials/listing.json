@@ -1,9 +1,9 @@
 {
     "listing": {
-        "title": "Buổi chơi",
-        "subtitle": "Khám phá các buổi chơi sắp diễn ra, tinh chỉnh bộ lọc và tham gia phiên phù hợp.",
-        "searchPlaceholder": "Tìm buổi chơi...",
-        "createSocial": "Tạo buổi chơi",
+        "title": "Social",
+        "subtitle": "Khám phá các Social sắp diễn ra, tinh chỉnh bộ lọc và tham gia phiên phù hợp.",
+        "searchPlaceholder": "Tìm Social...",
+        "createSocial": "Tạo Social",
         "filters": "Bộ lọc",
         "showingAvailableSlotsOnly": "Đang hiển thị: Chỉ còn chỗ trống",
         "showAllAvailability": "Hiển thị mọi tình trạng chỗ trống",
@@ -11,14 +11,14 @@
         "sessionCount_other": "{{count}} phiên",
         "organizerCount_one": "{{count}} người tổ chức",
         "organizerCount_other": "{{count}} người tổ chức",
-        "noResultsTitle": "Không tìm thấy buổi chơi nào",
+        "noResultsTitle": "Không tìm thấy Social nào",
         "noResultsDescription": "Thử xóa bộ lọc hoặc tìm kiếm một sự kiện khác.",
         "participants": "người tham gia",
         "free": "Miễn phí"
     },
     "mySocials": {
-        "title": "Buổi chơi của tôi",
-        "subtitle": "Danh sách các buổi chơi bạn đã tham gia hoặc tạo"
+        "title": "Social của tôi",
+        "subtitle": "Danh sách các Social bạn đã tham gia hoặc tạo"
     },
     "filters": {
         "title": "Bộ lọc",

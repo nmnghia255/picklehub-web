@@ -1,7 +1,6 @@
 import "@/styles/globals.css"
 
 import type { Metadata, Viewport } from "next"
-import Script from "next/script"
 
 import { FacebookSDKScript } from "@/components/facebook-sdk-script"
 import { Providers } from "@/components/providers"
@@ -10,21 +9,6 @@ import { AuthInitializer } from "@/features/auth/components/auth-initializer"
 import { fetchMyNotifications } from "@/features/notifications/actions/user-notifications"
 import { defaultLanguage } from "@/i18n/settings"
 import { getSession } from "@/lib/session"
-
-// Thanks @shadcn-ui, @tailwindcss
-const darkModeScript = String.raw`
-  try {
-    if (localStorage.theme === 'dark' || ((!('theme' in localStorage) || localStorage.theme === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.querySelector('meta[name="theme-color"]').setAttribute('content', '${META_THEME_COLORS.dark}')
-    }
-  } catch (_) {}
-
-  try {
-    if (/(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
-      document.documentElement.classList.add('os-macos')
-    }
-  } catch (_) {}
-`
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_INFO.url),
@@ -82,15 +66,10 @@ export default async function RootLayout({
   return (
     <html lang={defaultLanguage} suppressHydrationWarning>
       <head>
-        {/*
-          Thanks @tailwindcss. We inject the script via the `<Script/>` tag,
-          since regular `<script>` tags are not executed when rendering in React components.
-         */}
-        <Script src={`data:text/javascript;base64,${btoa(darkModeScript)}`} />
         <FacebookSDKScript />
       </head>
 
-      <body suppressHydrationWarning>
+      <body>
         <Providers>
           <AuthInitializer
             user={session.user ?? null}

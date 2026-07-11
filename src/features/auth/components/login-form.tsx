@@ -73,13 +73,12 @@ export function LoginForm({ className }: { className?: string }) {
             <FieldLabel htmlFor="password">
               {t("auth.login.passwordLabel")}
             </FieldLabel>
-            <button
-              type="button"
+            <Link
+              href="/forgot-password"
               className="ml-auto text-sm underline-offset-4 hover:underline"
-              tabIndex={-1}
             >
               {t("auth.login.forgotPassword")}
-            </button>
+            </Link>
           </div>
           <Input
             id="password"

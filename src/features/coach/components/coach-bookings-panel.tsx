@@ -8,6 +8,7 @@ import {
   Clock,
   DollarSign,
   Image as ImageIcon,
+  MapPin,
   MessageSquare,
   User,
   XCircle,
@@ -41,6 +42,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { useSession } from "@/features/auth/hooks/use-session"
+import { CourtBookingLocationFields } from "@/features/coach/components/court-booking-location-fields"
 import {
   useCancelBookingCoach,
   useCompleteBooking,
@@ -49,6 +51,7 @@ import {
   useRejectBooking,
   useRejectBookingPayment,
   useSettleBookingPayment,
+  useUpdateBookingLocation,
 } from "@/features/coach/hooks/use-coach-queries"
 import type { Booking, PaginationMeta } from "@/features/coach/types/coach"
 import { getErrorMessage } from "@/lib/api-client"
@@ -117,6 +120,7 @@ export function CoachBookingsPanel() {
   const completeBooking = useCompleteBooking()
   const rejectPayment = useRejectBookingPayment()
   const cancelBookingCoach = useCancelBookingCoach()
+  const updateBookingLocation = useUpdateBookingLocation()
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean
     booking: Booking | null
@@ -144,6 +148,21 @@ export function CoachBookingsPanel() {
     booking: Booking | null
     reason: string
   }>({ open: false, booking: null, reason: "" })
+  const [locationDialog, setLocationDialog] = useState<{
+    open: boolean
+    booking: Booking | null
+    mode: "free-text" | "court"
+    courtBookingId: string
+    courtId: string
+    locationDescription: string
+  }>({
+    open: false,
+    booking: null,
+    mode: "free-text",
+    courtBookingId: "",
+    courtId: "",
+    locationDescription: "",
+  })
 
   if (isError) {
     return (
@@ -231,10 +250,71 @@ export function CoachBookingsPanel() {
     )
   }
 
+  function openEditLocationDialog(booking: Booking) {
+    setLocationDialog({
+      open: true,
+      booking,
+      mode: booking.courtBookingId ? "court" : "free-text",
+      courtBookingId: booking.courtBookingId ?? "",
+      courtId: booking.courtId ?? "",
+      locationDescription: booking.locationDescription ?? "",
+    })
+  }
+
+  function handleUpdateBookingLocation() {
+    const booking = locationDialog.booking
+    if (!booking) return
+
+    if (locationDialog.mode === "court") {
+      if (!locationDialog.courtBookingId) {
+        toast.error(t("coach.courtBookingSelector.bookingRequired"))
+        return
+      }
+      if (!locationDialog.courtId) {
+        toast.error(t("coach.courtBookingSelector.courtRequired"))
+        return
+      }
+    } else if (!locationDialog.locationDescription.trim()) {
+      toast.error(t("coach.courtBookingSelector.manualLocationRequired"))
+      return
+    }
+
+    updateBookingLocation.mutate(
+      {
+        bookingId: booking.id,
+        dto:
+          locationDialog.mode === "court"
+            ? {
+                courtBookingId: locationDialog.courtBookingId || undefined,
+                courtId: locationDialog.courtId || undefined,
+              }
+            : {
+                locationDescription:
+                  locationDialog.locationDescription || undefined,
+              },
+      },
+      {
+        onSuccess: () => {
+          toast.success(t("coach.bookings.updateLocationSuccess"))
+          setLocationDialog({
+            open: false,
+            booking: null,
+            mode: "free-text",
+            courtBookingId: "",
+            courtId: "",
+            locationDescription: "",
+          })
+        },
+        onError: (err: Error) =>
+          toast.error(err.message || t("coach.bookings.updateLocationError")),
+      }
+    )
+  }
+
   function renderActions(booking: Booking) {
     if (booking.status === "PENDING_CONFIRMATION") {
       return (
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             size="sm"
             onClick={() => setConfirmDialog({ open: true, booking, note: "" })}
@@ -254,6 +334,13 @@ export function CoachBookingsPanel() {
             }
           >
             <XCircle /> {t("coach.bookings.rejectButton")}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => openEditLocationDialog(booking)}
+          >
+            <MapPin /> {t("coach.bookings.editLocationButton")}
           </Button>
         </div>
       )
@@ -291,6 +378,13 @@ export function CoachBookingsPanel() {
               disabled={cancelBookingCoach.isPending}
             >
               <Ban /> {t("coach.bookings.cancelButton")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => openEditLocationDialog(booking)}
+            >
+              <MapPin /> {t("coach.bookings.editLocationButton")}
             </Button>
           </div>
         )
@@ -337,6 +431,13 @@ export function CoachBookingsPanel() {
             >
               <Ban /> {t("coach.bookings.cancelButton")}
             </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => openEditLocationDialog(booking)}
+            >
+              <MapPin /> {t("coach.bookings.editLocationButton")}
+            </Button>
           </div>
         )
       }
@@ -346,14 +447,25 @@ export function CoachBookingsPanel() {
         booking.paymentStatus === undefined
       ) {
         return (
-          <Button
-            size="sm"
-            variant="destructive"
-            onClick={() => setCancelDialog({ open: true, booking, reason: "" })}
-            disabled={cancelBookingCoach.isPending}
-          >
-            <Ban /> {t("coach.bookings.cancelButton")}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() =>
+                setCancelDialog({ open: true, booking, reason: "" })
+              }
+              disabled={cancelBookingCoach.isPending}
+            >
+              <Ban /> {t("coach.bookings.cancelButton")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => openEditLocationDialog(booking)}
+            >
+              <MapPin /> {t("coach.bookings.editLocationButton")}
+            </Button>
+          </div>
         )
       }
 
@@ -558,6 +670,102 @@ export function CoachBookingsPanel() {
           </PaginationContent>
         </Pagination>
       )}
+
+      <Dialog
+        open={locationDialog.open}
+        onOpenChange={(open) =>
+          setLocationDialog((prev) => ({
+            ...prev,
+            open,
+            ...(open
+              ? {}
+              : {
+                  booking: null,
+                  mode: "free-text",
+                  courtBookingId: "",
+                  courtId: "",
+                  locationDescription: "",
+                }),
+          }))
+        }
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {t("coach.bookings.editLocationDialogTitle")}
+            </DialogTitle>
+            <DialogDescription>
+              {t("coach.bookings.editLocationDialogDescription")}
+            </DialogDescription>
+          </DialogHeader>
+
+          <CourtBookingLocationFields
+            mode={locationDialog.mode}
+            onModeChange={(mode) =>
+              setLocationDialog((prev) => ({
+                ...prev,
+                mode,
+                ...(mode === "court"
+                  ? { locationDescription: "" }
+                  : { courtBookingId: "", courtId: "" }),
+              }))
+            }
+            courtBookingId={locationDialog.courtBookingId}
+            onCourtBookingIdChange={(courtBookingId) =>
+              setLocationDialog((prev) => ({
+                ...prev,
+                courtBookingId,
+              }))
+            }
+            courtId={locationDialog.courtId}
+            onCourtIdChange={(courtId) =>
+              setLocationDialog((prev) => ({
+                ...prev,
+                courtId,
+              }))
+            }
+            locationDescription={locationDialog.locationDescription}
+            onLocationDescriptionChange={(locationDescription) =>
+              setLocationDialog((prev) => ({
+                ...prev,
+                locationDescription,
+              }))
+            }
+            disabled={updateBookingLocation.isPending}
+          />
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() =>
+                setLocationDialog({
+                  open: false,
+                  booking: null,
+                  mode: "free-text",
+                  courtBookingId: "",
+                  courtId: "",
+                  locationDescription: "",
+                })
+              }
+            >
+              {t("coach.bookings.closeButton")}
+            </Button>
+            <Button
+              onClick={handleUpdateBookingLocation}
+              disabled={
+                updateBookingLocation.isPending ||
+                (locationDialog.mode === "court"
+                  ? !locationDialog.courtBookingId || !locationDialog.courtId
+                  : !locationDialog.locationDescription.trim())
+              }
+            >
+              {updateBookingLocation.isPending
+                ? t("coach.bookings.updatingLocation")
+                : t("coach.bookings.saveLocation")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={confirmDialog.open}

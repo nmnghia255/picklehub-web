@@ -56,12 +56,12 @@
     "dayDetailsTitle": "Chi tiết ngày {{date}}",
     "dayDetailsDescription": "Danh sách hoạt động bạn đã đăng ký tham gia trong ngày này.",
     "noDayActivitiesTitle": "Không có hoạt động",
-    "noDayActivitiesDescription": "Bạn không có lịch social, đặt sân hay giải đấu nào trong ngày này.",
+    "noDayActivitiesDescription": "Bạn không có lịch Social, đặt sân hay giải đấu nào trong ngày này.",
     "activitiesCount": "Có {{count}} hoạt động",
     "moreActivities": "+{{count}} hoạt động khác",
     "participantsCount": "{{count}} người tham gia",
     "monthEmptyTitle": "Bạn chưa có hoạt động nào",
-    "monthEmptyDescription": "Hiện tại bạn chưa đăng ký tham gia bất kỳ buổi social, đặt sân cá nhân hay giải đấu nào trong {{monthYear}}.",
+    "monthEmptyDescription": "Hiện tại bạn chưa đăng ký tham gia bất kỳ buổi Social, đặt sân cá nhân hay giải đấu nào trong {{monthYear}}.",
     "detailDescription": "Chi tiết lịch hoạt động cá nhân của bạn",
     "time": "Thời gian",
     "location": "Địa điểm",
@@ -155,8 +155,8 @@
     "sessions": "Buổi chơi",
     "sessionList": "Danh sách buổi chơi",
     "mySessions": "Buổi chơi của tôi",
-    "discoverSocial": "Khám phá xã hội",
-    "mySocial": "Xã hội của tôi",
+    "discoverSocial": "Khám phá Social",
+    "mySocial": "Social của tôi",
     "tournaments": "Giải đấu",
     "groups": "Nhóm",
     "friends": "Bạn bè",
@@ -180,18 +180,18 @@
   },
   "chat": {
     "pageTitle": "Trò chuyện",
-    "pageDescription": "Nhắn tin với bạn bè, nhóm và các buổi chơi xã hội.",
+    "pageDescription": "Nhắn tin với bạn bè, nhóm và các buổi Social.",
     "conversationList": {
       "searchPlaceholder": "Tìm cuộc trò chuyện...",
       "emptyState": "Không tìm thấy cuộc trò chuyện nào."
     },
     "emptyState": {
       "title": "Chọn một cuộc trò chuyện để bắt đầu",
-      "description": "Nhắn tin với bạn bè, nhóm và các buổi chơi xã hội."
+      "description": "Nhắn tin với bạn bè, nhóm và các buổi Social."
     },
     "messages": {
       "groupMembers": "Thành viên nhóm",
-      "socialPrefix": "Buổi chơi xã hội",
+      "socialPrefix": "Social",
       "fromGroup": "Từ nhóm",
       "groupOnly": "Chỉ nhóm",
       "groupPrefix": "Nhóm",
@@ -238,7 +238,10 @@
     "settings": "Cài đặt",
     "logout": "Đăng xuất",
     "loggingOut": "Đang đăng xuất...",
-    "defaultUser": "Người dùng"
+    "defaultUser": "Người dùng",
+    "language": "Ngôn ngữ",
+    "languageEnglish": "Tiếng Anh",
+    "languageVietnamese": "Tiếng Việt"
   },
   "landing": {
     "header": {
@@ -914,6 +917,31 @@
         "rejected": "Bị từ chối"
       }
     },
+    "courtBookingSelector": {
+      "modeLabel": "Chế độ địa điểm",
+      "modeFreeText": "Mô tả địa điểm thủ công",
+      "modeCourt": "Lịch đặt sân liên kết",
+      "modeHint": "Chọn một lịch đặt sân hoặc chuyển sang mô tả địa điểm thủ công.",
+      "bookingLabel": "Lịch đặt sân",
+      "bookingPlaceholder": "Tìm lịch đặt sân...",
+      "unknownCenter": "Không rõ trung tâm thể thao",
+      "unknownCourt": "Không rõ sân",
+      "searchEmpty": "Không tìm thấy lịch đặt sân phù hợp.",
+      "emptyTitle": "Chưa có lịch đặt sân liên kết",
+      "emptyDescription": "Hãy tạo hoặc xác nhận một lịch đặt sân trước, rồi liên kết tại đây.",
+      "loadError": "Không tải được danh sách lịch đặt sân.",
+      "retry": "Thử lại",
+      "courtLabel": "Sân",
+      "courtPlaceholder": "Chọn sân",
+      "courtAutoSelected": "Lịch đặt sân này chỉ có một sân nên đã được chọn tự động.",
+      "courtSelectHint": "Lịch đặt sân này có nhiều sân. Hãy chọn sân cần liên kết.",
+      "manualLocationLabel": "Mô tả địa điểm",
+      "manualLocationPlaceholder": "Nhập mô tả địa điểm thủ công",
+      "manualLocationHint": "Dùng khi không liên kết với lịch đặt sân.",
+      "bookingRequired": "Vui lòng chọn lịch đặt sân.",
+      "courtRequired": "Vui lòng chọn sân.",
+      "manualLocationRequired": "Vui lòng nhập mô tả địa điểm."
+    },
     "income": {
       "overviewTitle": "Tổng quan thu nhập",
       "overviewErrorTitle": "Không thể tải tổng quan thu nhập",
@@ -1474,6 +1502,14 @@
       "cancelRequest": "Hủy yêu cầu",
       "uploadProof": "Tải lên bằng chứng thanh toán",
       "uploadProofAgain": "Tải lại bằng chứng",
+      "editLocationButton": "Sửa địa điểm",
+      "editLocationDialogTitle": "Sửa địa điểm đặt lịch",
+      "editLocationDialogDescription": "Chọn một lịch đặt sân liên kết hoặc nhập mô tả địa điểm thủ công.",
+      "closeButton": "Đóng",
+      "saveLocation": "Lưu địa điểm",
+      "updatingLocation": "Đang lưu...",
+      "updateLocationSuccess": "Đã cập nhật địa điểm đặt lịch",
+      "updateLocationError": "Cập nhật địa điểm đặt lịch thất bại",
       "uploadProofDialogTitle": "Tải lên bằng chứng thanh toán",
       "uploadProofDialogDescription": "Vui lòng cung cấp URL ảnh chụp bằng chứng thanh toán của bạn.",
       "uploadProofUrlLabel": "URL bằng chứng thanh toán",
@@ -1755,7 +1791,34 @@
       "confirmPasswordPlaceholder": "Nhập lại mật khẩu",
       "submit": "Lưu mật khẩu",
       "submitting": "Đang lưu...",
+      "success": "Đã đặt mật khẩu thành công.",
       "error": "Đặt mật khẩu thất bại. Vui lòng thử lại."
+    },
+    "forgotPassword": {
+      "title": "Quên mật khẩu",
+      "subtitle": "Nhập email của bạn và chúng tôi sẽ gửi link khôi phục mật khẩu.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "hoten@example.com",
+      "submit": "Gửi link khôi phục",
+      "submitting": "Đang gửi...",
+      "backToLogin": "Quay lại đăng nhập",
+      "success": "Nếu tài khoản đó tồn tại, email khôi phục mật khẩu đã được gửi đến bạn.",
+      "error": "Gửi link khôi phục thất bại. Vui lòng thử lại.",
+      "missingToken": "Thiếu token khôi phục mật khẩu."
+    },
+    "resetPassword": {
+      "title": "Khôi phục mật khẩu",
+      "subtitle": "Nhập mật khẩu mới để hoàn tất quá trình khôi phục từ email.",
+      "newPasswordLabel": "Mật khẩu mới",
+      "newPasswordPlaceholder": "Nhập mật khẩu mới",
+      "confirmNewPasswordLabel": "Nhập lại mật khẩu mới",
+      "confirmNewPasswordPlaceholder": "Nhập lại mật khẩu mới",
+      "submit": "Khôi phục mật khẩu",
+      "submitting": "Đang khôi phục...",
+      "backToLogin": "Quay lại đăng nhập",
+      "success": "Đã khôi phục mật khẩu thành công. Bạn có thể đăng nhập ngay bây giờ.",
+      "error": "Khôi phục mật khẩu thất bại. Vui lòng thử lại.",
+      "missingToken": "Thiếu token khôi phục mật khẩu."
     },
     "changePassword": {
       "title": "Đổi mật khẩu",
@@ -1785,7 +1848,19 @@
       "linkFailedRetry": "Liên kết thất bại. Vui lòng thử lại.",
       "accountDisabled": "Tài khoản của bạn đã bị vô hiệu hóa.",
       "facebookSdkMissing": "Hiện không thể sử dụng đăng nhập Facebook.",
-      "facebookCancelled": "Đăng nhập Facebook đã bị hủy."
+      "facebookCancelled": "Đăng nhập Facebook đã bị hủy.",
+      "unlinkSuccess": "Đã hủy liên kết tài khoản mạng xã hội."
+    },
+    "social": {
+      "unlink": "Hủy liên kết",
+      "unlinking": "Đang hủy liên kết...",
+      "unlinkTitle": "Hủy liên kết tài khoản mạng xã hội",
+      "unlinkDescription": "Hủy liên kết {{provider}} khỏi tài khoản này?",
+      "unlinkWarning": "Nếu đây là cách đăng nhập duy nhất, bạn cần đặt mật khẩu trước.",
+      "unlinkCancel": "Hủy",
+      "unlinkSuccess": "Đã hủy liên kết tài khoản mạng xã hội.",
+      "unlinkOnlyLoginMethod": "Hãy đặt mật khẩu trước nếu đây là cách đăng nhập duy nhất của bạn.",
+      "linkedAt": "Đã liên kết lúc {{date}}"
     },
     "verifyEmail": {
       "title": "Xác thực email",
@@ -1844,6 +1919,10 @@
       "registerFailed": "Đăng ký thất bại. Vui lòng thử lại.",
       "setPasswordFailed": "Đặt mật khẩu thất bại. Vui lòng thử lại.",
       "changePasswordFailed": "Đổi mật khẩu thất bại. Vui lòng thử lại.",
+      "passwordAlreadySet": "Tài khoản này đã có mật khẩu.",
+      "invalidCurrentPassword": "Mật khẩu hiện tại không đúng.",
+      "unauthorized": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+      "network": "Lỗi mạng. Vui lòng kiểm tra kết nối và thử lại.",
       "verifyFailed": "Xác thực thất bại. Link có thể đã hết hạn.",
       "sendLinkFailed": "Gửi link thất bại. Vui lòng thử lại.",
       "connectionRefused": "Không thể kết nối API Gateway. Kiểm tra NEXT_PUBLIC_API_GATEWAY_URL và trạng thái docker services."
@@ -1879,14 +1958,7 @@
   },
   "settingsPage": {
     "title": "Cài đặt",
-    "desc": "Điều chỉnh ngôn ngữ, giao diện và quản lý phiên đăng nhập tại đây.",
-    "languageTitle": "Ngôn ngữ",
-    "languageDesc": "Chọn ngôn ngữ hiển thị cho giao diện ứng dụng.",
-    "selectLanguagePlaceholder": "Chọn ngôn ngữ",
-    "languageOptionVi": "Tiếng Việt",
-    "languageOptionEn": "Tiếng Anh",
-    "vietnameseHint": "Giao diện đang được đặt ở tiếng Việt.",
-    "englishHint": "Giao diện đang được đặt ở tiếng Anh.",
+    "desc": "Điều chỉnh giao diện, ngôn ngữ và phiên đăng nhập tại đây.",
     "themeTitle": "Giao diện",
     "themeDesc": "Chọn cách hiển thị giao diện.",
     "selectThemePlaceholder": "Chọn giao diện",
@@ -1896,8 +1968,27 @@
     "themeLightLabel": "Sáng",
     "themeDarkLabel": "Tối",
     "themeSystemLabel": "Hệ thống",
-    "sessionTitle": "Phiên đăng nhập",
-    "sessionDesc": "Quản lý phiên đăng nhập của bạn trên thiết bị này.",
-    "logoutBtn": "Đăng xuất"
+    "accountTitle": "Tài khoản",
+    "accountDesc": "Quản lý mật khẩu, liên kết hoặc hủy liên kết tài khoản mạng xã hội và đăng xuất.",
+    "profileCardTitle": "Thông tin hồ sơ",
+    "profileCardDesc": "Hồ sơ tài khoản đang được xác thực trong ứng dụng.",
+    "profileRole": "Vai trò",
+    "profileRoleFallback": "Không có",
+    "securityTitle": "Bảo mật",
+    "securityDesc": "Quản lý mật khẩu dùng để bảo vệ tài khoản của bạn.",
+    "linkedAccountsTitle": "Tài khoản đã liên kết",
+    "linkedAccountsDesc": "Kết nối hoặc ngắt kết nối đăng nhập Google và Facebook.",
+    "linkProviderHint": "Kết nối {{provider}} để dùng làm một cách đăng nhập khác.",
+    "noLinkedAccounts": "Chưa có tài khoản mạng xã hội nào được liên kết.",
+    "sessionCardTitle": "Đăng xuất",
+    "sessionCardDesc": "Đăng xuất khỏi thiết bị này khi bạn không còn sử dụng nữa.",
+    "logoutBtn": "Đăng xuất",
+    "languageTitle": "Ngôn ngữ",
+    "languageDesc": "Chọn ngôn ngữ hiển thị cho giao diện ứng dụng.",
+    "selectLanguagePlaceholder": "Chọn ngôn ngữ",
+    "languageOptionVi": "Tiếng Việt",
+    "languageOptionEn": "Tiếng Anh",
+    "vietnameseHint": "Giao diện đang được đặt ở tiếng Việt.",
+    "englishHint": "Giao diện đang được đặt ở tiếng Anh."
   }
 }

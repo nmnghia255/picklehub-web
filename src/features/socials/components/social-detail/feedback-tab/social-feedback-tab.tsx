@@ -66,6 +66,9 @@ export default function SocialFeedbackTab({
     queryFn: () => getFeedbackAction(socialId),
     enabled: !!socialId,
   })
+  const comments = Array.isArray(feedbackData?.comments)
+    ? feedbackData.comments
+    : []
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -348,13 +351,12 @@ export default function SocialFeedbackTab({
                 <div className="h-20 animate-pulse rounded-xl bg-muted" />
                 <div className="h-20 animate-pulse rounded-xl bg-muted" />
               </div>
-            ) : !feedbackData?.comments ||
-              feedbackData.comments.length === 0 ? (
+            ) : comments.length === 0 ? (
               <div className="py-8 text-center text-sm text-muted-foreground">
                 {t("feedback.noReviewsYet")}
               </div>
             ) : (
-              feedbackData.comments.map((commentItem, idx) => (
+              comments.map((commentItem, idx) => (
                 <div
                   key={commentItem.id || idx}
                   className="group relative flex flex-col gap-2 rounded-2xl border p-4 transition-all"

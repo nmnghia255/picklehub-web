@@ -1,3 +1,5 @@
+import type { MyBookingsResponse } from "@/features/sport-center/types/booking"
+
 import type * as CoachTypes from "../types/coach"
 import type { DiscoverClassItemDTO } from "../types/dto/discover-class-dto"
 import type {
@@ -142,6 +144,21 @@ export const CoachClient = {
 
     return json as CoachTypes.CoachProfile
   },
+
+  listMyCourtBookings: (params?: {
+    status?: string
+    courtId?: string
+    centerId?: string
+    startDate?: string
+    endDate?: string
+    limit?: number
+    offset?: number
+  }) =>
+    apiFetch<MyBookingsResponse>(
+      "/bookings/me",
+      { method: "GET" },
+      params as QueryParams
+    ),
 
   updateMyCoachProfile: (dto: CoachTypes.UpdateCoachProfileDto) =>
     apiFetch<CoachTypes.CoachProfile>("/coach/profile/me", {

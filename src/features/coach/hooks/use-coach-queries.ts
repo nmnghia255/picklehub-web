@@ -694,3 +694,22 @@ export function useCancelBookingCoach() {
     },
   })
 }
+
+export function useUpdateBookingLocation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      bookingId,
+      dto,
+    }: {
+      bookingId: string
+      dto: CoachTypes.UpdateBookingLocationDto
+    }) => CoachClient.updateBookingLocation(bookingId, dto),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: coachQueryKeys.bookings() })
+      queryClient.invalidateQueries({ queryKey: coachQueryKeys.schedule() })
+      queryClient.invalidateQueries({ queryKey: learnerQueryKeys.bookings() })
+      queryClient.invalidateQueries({ queryKey: learnerQueryKeys.schedule() })
+    },
+  })
+}
