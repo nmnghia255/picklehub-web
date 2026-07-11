@@ -5,11 +5,11 @@ import {
   getGroupInvitations,
   getGroupMembers,
 } from "@/features/groups/api/groups-service"
-import { EditGroupDrawer } from "@/features/groups/components/edit-group-drawer"
-import { GroupDetailActionsMenu } from "@/features/groups/components/group-detail-actions-menu"
-import { GroupDetailHeader } from "@/features/groups/components/group-detail-header"
-import { GroupDetailPanels } from "@/features/groups/components/group-detail-panels"
-import { GroupInviteMemberButton } from "@/features/groups/components/group-invite-member-button"
+import { EditGroupDrawer } from "@/features/groups/components/details/edit-group-drawer"
+import { GroupDetailActionsMenu } from "@/features/groups/components/details/group-detail-actions-menu"
+import { GroupDetailHeader } from "@/features/groups/components/details/group-detail-header"
+import { GroupDetailPanels } from "@/features/groups/components/details/group-detail-panels"
+import { GroupInviteMemberButton } from "@/features/groups/components/members/group-invite-member-button"
 import { GroupFeedNotificationSender } from "@/features/notifications/components/group-feed-notification-sender"
 import { getSession } from "@/lib/session"
 

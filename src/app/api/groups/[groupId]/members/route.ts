@@ -1,6 +1,8 @@
-import { type NextRequest,NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 
 import { getAuthenticatedAxios } from "@/lib/server-api"
+
+export const dynamic = "force-dynamic"
 
 export async function GET(
   _request: NextRequest,
@@ -9,12 +11,19 @@ export async function GET(
   const { groupId } = await context.params
 
   try {
+    const { searchParams } = new URL(_request.url)
+    const activityId = searchParams.get("activityId")
+    const url = activityId
+      ? `/api/groups/${groupId}/members?activityId=${activityId}`
+      : `/api/groups/${groupId}/members`
+
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get(`/api/groups/${groupId}/members`)
-    console.log(`[api] GET /api/groups/${groupId}/members -> ${response.status}`)
+    const response = await axios.get(url)
+    console.log(`[api] GET ${url} -> ${response.status}`)
     return NextResponse.json(response.data, { status: 200 })
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load members"
+    const message =
+      error instanceof Error ? error.message : "Failed to load members"
     // log HTTP response details when available
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const errAny = error as any
@@ -27,6 +36,9 @@ export async function GET(
     })
 
     const statusCode = status ?? 500
-    return NextResponse.json({ message, details: data ?? null }, { status: statusCode })
+    return NextResponse.json(
+      { message, details: data ?? null },
+      { status: statusCode }
+    )
   }
 }

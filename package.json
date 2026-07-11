@@ -34,7 +34,8 @@
     "format:write": "prettier --write \"**/*.{ts,tsx,md,mdx}\" --cache",
     "upgrade:next": "npx @next/codemod@latest upgrade latest",
     "upgrade:tailwind": "npx @tailwindcss/upgrade@latest",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
@@ -82,6 +83,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4.1.18",
     "@tailwindcss/typography": "^0.5.19",
     "@types/facebook-js-sdk": "^3.3.13",

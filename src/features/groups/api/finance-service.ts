@@ -213,8 +213,13 @@ export async function createExpense(
     totalAmount: number
     receiptUrl?: string
     expenseDate: string
-    allocations: { userId: string; requiredFee: number }[]
-    guestAllocations?: { guestId: string; requiredFee: number }[]
+    allocations: {
+      userId: string
+      requiredFee: number
+      guestCount?: number
+      guestFee?: number
+    }[]
+    activityId?: string
   }
 ): Promise<ExpenseItem> {
   const axios = await getAuthenticatedAxios()

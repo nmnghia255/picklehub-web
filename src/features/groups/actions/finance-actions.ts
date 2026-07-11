@@ -140,11 +140,8 @@ export async function createExpenseAction(
       return { error: "Vui lòng chọn ít nhất một thành viên để phân bổ." }
     }
 
-    const guestAllocationsRaw =
-      formData.get("guestAllocations")?.toString() || ""
-    const guestAllocations = guestAllocationsRaw
-      ? JSON.parse(guestAllocationsRaw)
-      : undefined
+    const activityId =
+      formData.get("activityId")?.toString().trim() || undefined
 
     const receiptFileField = formData.get("receiptFile")
     const receiptFile =
@@ -167,7 +164,7 @@ export async function createExpenseAction(
       receiptUrl,
       expenseDate,
       allocations,
-      ...(guestAllocations ? { guestAllocations } : {}),
+      activityId,
     })
 
     return { success: true }

@@ -6,6 +6,8 @@ import {
   listActivities,
 } from "@/features/group-activity-schedule/api/activities-service"
 
+export const dynamic = "force-dynamic"
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ groupId: string }> }

@@ -171,7 +171,7 @@ export function GroupActivityCalendarView({
                           isCurrentMonth
                             ? "text-foreground"
                             : "text-muted-foreground"
-                        } ${isToday ? "rounded-full bg-primary px-2 py-0.5 text-primary-foreground" : ""}`}
+                        } ${isToday ? "flex h-6 w-6 items-center justify-center rounded-full border border-[#1A56DB]/30 bg-[#1A56DB]/10 font-bold text-[#1A56DB]" : ""}`}
                       >
                         {date.getDate()}
                       </p>

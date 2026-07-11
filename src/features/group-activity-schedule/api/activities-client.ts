@@ -1,4 +1,5 @@
 import type {
+  ActivityAttendance,
   CreateGroupActivityDto,
   GroupActivity,
   ListActivitiesParams,
@@ -30,8 +31,22 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
   })
 
   if (!response.ok) {
-    const payload = await response.json().catch(() => ({}))
-    const message = payload.message || "Đã có lỗi xảy ra"
+    let message = "Đã có lỗi xảy ra"
+    try {
+      const payload = await response.json()
+      if (Array.isArray(payload.message)) {
+        message = payload.message.join(", ")
+      } else {
+        message = payload.message || payload.error || message
+      }
+    } catch {
+      try {
+        const text = await response.text()
+        if (text && text.length < 200) {
+          message = text
+        }
+      } catch {}
+    }
     throw new Error(message)
   }
 
@@ -97,4 +112,125 @@ export async function deleteActivityClient(
   await fetchJson<void>(`/api/groups/${groupId}/activities/${activityId}`, {
     method: "DELETE",
   })
+}
+
+export async function reportAbsenceClient(
+  groupId: string,
+  activityId: string
+): Promise<ActivityAttendance> {
+  return fetchJson<ActivityAttendance>(
+    `/api/groups/${groupId}/activities/${activityId}/attendance/absence`,
+    {
+      method: "POST",
+    }
+  )
+}
+
+export async function cancelAbsenceClient(
+  groupId: string,
+  activityId: string
+): Promise<ActivityAttendance> {
+  return fetchJson<ActivityAttendance>(
+    `/api/groups/${groupId}/activities/${activityId}/attendance/absence`,
+    {
+      method: "DELETE",
+    }
+  )
+}
+
+export async function registerActivityGuestsClient(
+  groupId: string,
+  activityId: string,
+  guestCount: number
+): Promise<ActivityAttendance> {
+  return fetchJson<ActivityAttendance>(
+    `/api/groups/${groupId}/activities/${activityId}/attendance/guests`,
+    {
+      method: "POST",
+      body: JSON.stringify({ guestCount }),
+    }
+  )
+}
+
+export async function approveActivityGuestsClient(
+  groupId: string,
+  activityId: string,
+  memberId: string,
+  status: "APPROVED" | "REJECTED"
+): Promise<unknown> {
+  return fetchJson<unknown>(
+    `/api/groups/${groupId}/activities/${activityId}/attendance/${memberId}/guests/status`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    }
+  )
+}
+
+export async function deleteActivityGuestsClient(
+  groupId: string,
+  activityId: string,
+  memberId: string
+): Promise<unknown> {
+  return fetchJson<unknown>(
+    `/api/groups/${groupId}/activities/${activityId}/attendance/${memberId}/guests`,
+    {
+      method: "DELETE",
+    }
+  )
+}
+
+export async function getGuestRequestsClient(
+  groupId: string,
+  activityId: string,
+  status?: "PENDING" | "APPROVED" | "REJECTED"
+): Promise<{
+  message: string
+  data: Array<{
+    memberId: string
+    userId: string
+    role: string
+    guestCount: number
+    guestStatus: "PENDING" | "APPROVED" | "REJECTED" | null
+    pendingGuestCount: number | null
+    reportedAt: string
+    /** Tên hiển thị của người yêu cầu */
+    name?: string | null
+    /** Email người yêu cầu */
+    email?: string
+    /** Ảnh đại diện người yêu cầu */
+    avatarUrl?: string | null
+    /** Object lồng chứa thông tin người yêu cầu */
+    requester?: {
+      id: string
+      name: string | null
+      email: string
+      avatarUrl: string | null
+    }
+  }>
+}> {
+  const query = status ? `?status=${status}` : ""
+  return fetchJson<{
+    message: string
+    data: Array<{
+      memberId: string
+      userId: string
+      role: string
+      guestCount: number
+      guestStatus: "PENDING" | "APPROVED" | "REJECTED" | null
+      pendingGuestCount: number | null
+      reportedAt: string
+      name?: string | null
+      email?: string
+      avatarUrl?: string | null
+      requester?: {
+        id: string
+        name: string | null
+        email: string
+        avatarUrl: string | null
+      }
+    }>
+  }>(
+    `/api/groups/${groupId}/activities/${activityId}/attendance/guests${query}`
+  )
 }

@@ -159,7 +159,10 @@ export function GroupFeedNotificationSender({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button
+          size="sm"
+          className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+        >
           <Bell className="size-4" />
           {t("notifications.sender.trigger")}
         </Button>
@@ -234,7 +237,11 @@ export function GroupFeedNotificationSender({
               >
                 {t("notifications.sender.cancel")}
               </Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="border-none bg-amber-600 text-white hover:bg-amber-700"
+              >
                 {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
                 {t("notifications.sender.submit")}
               </Button>
