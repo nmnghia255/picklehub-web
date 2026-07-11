@@ -13,19 +13,19 @@ export type TransactionStatus = "pending" | "verifying" | "completed"
 export interface RegistrationRequest {
   playerId: string
   playerName: string
-  playerRating: number
-  playerAvatar: string
-  playerGender: string
+  playerRating?: number
+  playerAvatar?: string
+  playerGender: "M" | "F"
   playerAge: number
-  partnerId: string
-  partnerName: string
-  partnerRating: number
-  partnerAvatar: string
-  partnerGender: string
-  partnerAge: number
-  paymentStatus: string
-  playerDuprId: string
-  partnerDuprId: string
+  partnerId?: string
+  partnerName?: string
+  partnerRating?: number
+  partnerAvatar?: string
+  partnerGender?: "M" | "F"
+  partnerAge?: number
+  paymentStatus: PaymentStatus
+  playerDuprId?: string
+  partnerDuprId?: string
 }
 
 export interface RegistrationResponse {
@@ -54,4 +54,8 @@ export interface Registration {
   paymentProofUploadedAt?: string | null
   status: RegistrationStatus
   registrationDate: string
+}
+
+export interface PaymentSubmit {
+  paymentProofUrl: string
 }

@@ -28,9 +28,10 @@ import { SponsorStats } from "./sponsor-stats"
 
 interface SponsorsProps {
   tournamentId: string
+  isEditable: boolean
 }
 
-export function Sponsors({ tournamentId }: SponsorsProps) {
+export function Sponsors({ tournamentId, isEditable }: SponsorsProps) {
   const { t } = useTournamentTranslation()
   const [sponsors, setSponsors] = useState<Sponsor[]>([])
   const [isCreateOpen, setIsCreateOpen] = useState(false)
@@ -155,7 +156,10 @@ export function Sponsors({ tournamentId }: SponsorsProps) {
           </div>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-emerald-600 hover:bg-emerald-700">
+              <Button
+                className="bg-emerald-600 hover:bg-emerald-700"
+                disabled={!isEditable}
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 {t("sponsors.addSponsor")}
               </Button>

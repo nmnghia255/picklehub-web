@@ -28,8 +28,8 @@ export function GroupStandingsGrid({ isEditable }: GroupStandingsGridProps) {
   return (
     <div>
       <div className="mb-4 flex items-center gap-2">
-        <Users className="h-6 w-6 text-gray-700" />
-        <h2 className="text-xl font-semibold text-gray-900">
+        <Users className="h-6 w-6 text-gray-700 dark:text-zinc-300" />
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-zinc-100">
           {t("groupStage.standingsTitle", {
             defaultValue: "Groups & Standings",
           })}
@@ -37,16 +37,16 @@ export function GroupStandingsGrid({ isEditable }: GroupStandingsGridProps) {
       </div>
 
       {groups.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center gap-0 border-gray-200 bg-white p-12 text-center">
-          <div className="mb-4 rounded-full bg-gray-50 p-4">
-            <Grid className="h-8 w-8 text-gray-400" />
+        <Card className="flex flex-col items-center justify-center gap-0 border-gray-200 bg-white p-12 text-center dark:border-zinc-800 dark:bg-zinc-950">
+          <div className="mb-4 rounded-full bg-gray-50 p-4 dark:bg-zinc-900">
+            <Grid className="h-8 w-8 text-gray-400 dark:text-zinc-500" />
           </div>
-          <h3 className="mb-1 text-lg font-semibold text-gray-950">
+          <h3 className="mb-1 text-lg font-semibold text-gray-950 dark:text-zinc-100">
             {t("groupStage.noGroupsDrawnYet", {
               defaultValue: "No Groups Drawn Yet",
             })}
           </h3>
-          <p className="max-w-md text-sm text-gray-500">
+          <p className="max-w-md text-sm text-gray-500 dark:text-zinc-400">
             {isEditable
               ? t("groupStage.noGroupsHostDesc", {
                   defaultValue:
@@ -63,36 +63,36 @@ export function GroupStandingsGrid({ isEditable }: GroupStandingsGridProps) {
           {groups.map((group) => (
             <Card
               key={group.id}
-              className="gap-0 overflow-hidden border-gray-200 bg-white py-0 shadow-sm"
+              className="gap-0 overflow-hidden border-gray-200 bg-white py-0 shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
             >
-              <CardHeader className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
-                <CardTitle className="pt-4 text-lg font-semibold text-gray-900">
+              <CardHeader className="border-b border-gray-100 bg-gray-50/50 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-900/50">
+                <CardTitle className="pt-4 text-lg font-semibold text-gray-900 dark:text-zinc-100">
                   {group.name}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                 <Table>
-                  <TableHeader className="bg-gray-50/75">
-                    <TableRow>
-                      <TableHead className="w-12 text-center text-xs font-semibold text-gray-500 uppercase">
+                  <TableHeader className="bg-gray-50/75 dark:bg-zinc-900/60">
+                    <TableRow className="border-zinc-800">
+                      <TableHead className="w-12 text-center text-xs font-semibold text-gray-500 uppercase dark:text-zinc-400">
                         Pos
                       </TableHead>
-                      <TableHead className="text-xs font-semibold text-gray-500 uppercase">
+                      <TableHead className="text-xs font-semibold text-gray-500 uppercase dark:text-zinc-400">
                         Team
                       </TableHead>
-                      <TableHead className="w-12 text-center text-xs font-semibold text-gray-500 uppercase">
+                      <TableHead className="w-12 text-center text-xs font-semibold text-gray-500 uppercase dark:text-zinc-400">
                         W
                       </TableHead>
-                      <TableHead className="w-12 text-center text-xs font-semibold text-gray-500 uppercase">
+                      <TableHead className="w-12 text-center text-xs font-semibold text-gray-500 uppercase dark:text-zinc-400">
                         D
                       </TableHead>
-                      <TableHead className="w-12 text-center text-xs font-semibold text-gray-500 uppercase">
+                      <TableHead className="w-12 text-center text-xs font-semibold text-gray-500 uppercase dark:text-zinc-400">
                         L
                       </TableHead>
-                      <TableHead className="w-16 text-center text-xs font-semibold text-gray-500 uppercase">
+                      <TableHead className="w-16 text-center text-xs font-semibold text-gray-500 uppercase dark:text-zinc-400">
                         Diff
                       </TableHead>
-                      <TableHead className="w-16 text-center text-xs font-semibold text-gray-500 uppercase">
+                      <TableHead className="w-16 text-center text-xs font-semibold text-gray-500 uppercase dark:text-zinc-400">
                         Pts
                       </TableHead>
                     </TableRow>
@@ -105,47 +105,47 @@ export function GroupStandingsGrid({ isEditable }: GroupStandingsGridProps) {
                           key={membership.id}
                           className={
                             membership.isAdvanced
-                              ? "bg-emerald-50/30 hover:bg-emerald-50/50"
+                              ? "bg-emerald-50/30 hover:bg-emerald-50/50 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/30"
                               : isAdvancingRow
-                                ? "bg-gray-50/20"
+                                ? "bg-gray-50/20 dark:bg-zinc-900/20"
                                 : ""
                           }
                         >
-                          <TableCell className="text-center font-medium text-gray-900">
+                          <TableCell className="text-center font-medium text-gray-900 dark:text-zinc-100">
                             {idx + 1}
                           </TableCell>
-                          <TableCell className="min-w-[120px] py-3 font-medium wrap-break-word whitespace-normal text-gray-900">
+                          <TableCell className="min-w-[120px] py-3 font-medium wrap-break-word whitespace-normal text-gray-900 dark:text-zinc-100">
                             <div className="flex flex-col gap-1">
                               <div className="text-sm leading-snug">
                                 <span>{membership.teamName}</span>
                                 {membership.isAdvanced && (
-                                  <Badge className="ml-1.5 inline-flex items-center border-none bg-emerald-100 px-1.5 py-0.5 align-middle text-[10px] font-semibold text-emerald-800 shadow-none hover:bg-emerald-100">
+                                  <Badge className="ml-1.5 inline-flex items-center border-none bg-emerald-100 px-1.5 py-0.5 align-middle text-[10px] font-semibold text-emerald-800 shadow-none hover:bg-emerald-100 dark:bg-emerald-900/50 dark:text-emerald-300 dark:hover:bg-emerald-900/50">
                                     Q
                                   </Badge>
                                 )}
                               </div>
                               {membership.seed && (
-                                <span className="text-[10px] text-gray-500">
+                                <span className="text-[10px] text-gray-500 dark:text-zinc-500">
                                   Seed {membership.seed}
                                 </span>
                               )}
                             </div>
                           </TableCell>
-                          <TableCell className="text-center text-gray-700">
+                          <TableCell className="text-center text-gray-700 dark:text-zinc-300">
                             {membership.wins}
                           </TableCell>
-                          <TableCell className="text-center text-gray-700">
+                          <TableCell className="text-center text-gray-700 dark:text-zinc-300">
                             {membership.draws}
                           </TableCell>
-                          <TableCell className="text-center text-gray-700">
+                          <TableCell className="text-center text-gray-700 dark:text-zinc-300">
                             {membership.losses}
                           </TableCell>
-                          <TableCell className="text-center text-gray-600">
+                          <TableCell className="text-center text-gray-600 dark:text-zinc-400">
                             {membership.gameDiff > 0
                               ? `+${membership.gameDiff}`
                               : membership.gameDiff}
                           </TableCell>
-                          <TableCell className="text-center font-bold text-gray-900">
+                          <TableCell className="text-center font-bold text-gray-900 dark:text-zinc-100">
                             {membership.points}
                           </TableCell>
                         </TableRow>

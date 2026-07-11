@@ -36,12 +36,12 @@ export function EventManagement({
   tournament,
   events,
   prizes,
-  isHost,
+  isEditable,
 }: {
   tournament: Tournament
   events: TournamentEvent[]
   prizes: TournamentPrize[]
-  isHost: boolean
+  isEditable: boolean
 }) {
   const { t } = useTournamentTranslation()
   const params = useParams()
@@ -217,7 +217,8 @@ export function EventManagement({
     }
   }
 
-  const canManageEvents = isHost && tournament?.status === "draft"
+  const canManageEvents = isEditable && tournament?.status === "draft"
+  const canAwardEventPrizes = isEditable && tournament?.status === "completed"
 
   return (
     <div className="space-y-8 p-8">
@@ -275,91 +276,95 @@ export function EventManagement({
         />
 
         {/* Award Prizes Section (Host only) */}
-        {isHost && selectedEvent && selectedEventPrizes.length > 0 && (
-          <Card className="border border-amber-200 bg-amber-50/10 dark:bg-zinc-800/10">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-xl font-bold">
-                <Trophy className="h-5 w-5 text-amber-500" />
-                {t("events.award.title", {
-                  defaultValue: "Award Prizes to Winners",
-                })}
-              </CardTitle>
-              <p className="mt-1 text-sm text-gray-500">
-                {t("events.award.subtitle", {
-                  defaultValue:
-                    "Select the winning team for each configured reward.",
-                })}
-              </p>
-            </CardHeader>
-            <CardContent>
-              {isLoadingTeams ? (
-                <div className="py-6 text-center text-sm text-gray-500">
-                  {t("events.award.loadingTeams", {
-                    defaultValue: "Loading event teams...",
+        {canAwardEventPrizes &&
+          selectedEvent &&
+          selectedEventPrizes.length > 0 && (
+            <Card className="border border-amber-200 bg-amber-50/10 dark:bg-zinc-800/10">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl font-bold">
+                  <Trophy className="h-5 w-5 text-amber-500" />
+                  {t("events.award.title", {
+                    defaultValue: "Award Prizes to Winners",
                   })}
-                </div>
-              ) : eventTeams.length === 0 ? (
-                <div className="rounded-lg border border-dashed bg-white py-6 text-center text-sm text-gray-400 dark:bg-zinc-900">
-                  {t("events.award.noTeams", {
-                    defaultValue: "No teams registered in this event yet.",
+                </CardTitle>
+                <p className="mt-1 text-sm text-gray-500">
+                  {t("events.award.subtitle", {
+                    defaultValue:
+                      "Select the winning team for each configured reward.",
                   })}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {selectedEventPrizes.map((prize) => {
-                    return (
-                      <div
-                        key={prize.id}
-                        className="flex flex-col justify-between gap-4 rounded-lg border bg-white p-4 shadow-xs md:flex-row md:items-center dark:bg-zinc-900"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <span className="block truncate font-semibold text-gray-900 dark:text-zinc-100">
-                            {prize.name}
-                          </span>
-                          <span className="block text-xs text-gray-500">
-                            {prize.rewardType === "cash"
-                              ? `${t("events.dialog.rewardTypes.cash", { defaultValue: "Cash" })}: ${formatCurrencyVnd(prize.value)}`
-                              : `${t("events.dialog.rewardTypes.physical", { defaultValue: "Trophy / Physical" })}`}
-                          </span>
-                          {prize.description && (
-                            <span className="block truncate text-xs text-gray-400 italic">
-                              {prize.description}
+                </p>
+              </CardHeader>
+              <CardContent>
+                {isLoadingTeams ? (
+                  <div className="py-6 text-center text-sm text-gray-500">
+                    {t("events.award.loadingTeams", {
+                      defaultValue: "Loading event teams...",
+                    })}
+                  </div>
+                ) : eventTeams.length === 0 ? (
+                  <div className="rounded-lg border border-dashed bg-white py-6 text-center text-sm text-gray-400 dark:bg-zinc-900">
+                    {t("events.award.noTeams", {
+                      defaultValue: "No teams registered in this event yet.",
+                    })}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    {selectedEventPrizes.map((prize) => {
+                      return (
+                        <div
+                          key={prize.id}
+                          className="flex flex-col justify-between gap-4 rounded-lg border bg-white p-4 shadow-xs md:flex-row md:items-center dark:bg-zinc-900"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <span className="block truncate font-semibold text-gray-900 dark:text-zinc-100">
+                              {prize.name}
                             </span>
-                          )}
-                        </div>
+                            <span className="block text-xs text-gray-500">
+                              {prize.rewardType === "cash"
+                                ? `${t("events.dialog.rewardTypes.cash", { defaultValue: "Cash" })}: ${formatCurrencyVnd(prize.value)}`
+                                : `${t("events.dialog.rewardTypes.physical", { defaultValue: "Trophy / Physical" })}`}
+                            </span>
+                            {prize.description && (
+                              <span className="block truncate text-xs text-gray-400 italic">
+                                {prize.description}
+                              </span>
+                            )}
+                          </div>
 
-                        <div className="w-full shrink-0 md:w-64">
-                          <select
-                            value={prize.winnerTeamId || ""}
-                            onChange={(e) =>
-                              handleAwardPrize(prize.id, e.target.value)
-                            }
-                            disabled={isAwardingPrize === prize.id}
-                            className="w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm shadow-xs focus:border-emerald-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800"
-                          >
-                            <option value="">
-                              --{" "}
-                              {t("events.award.selectTeam", {
-                                defaultValue: "Select Winner Team",
-                              })}{" "}
-                              --
-                            </option>
-                            {eventTeams.map((team) => (
-                              <option key={team.id} value={team.id}>
-                                {team.player1.name}
-                                {team.player2 ? ` & ${team.player2.name}` : ""}
+                          <div className="w-full shrink-0 md:w-64">
+                            <select
+                              value={prize.winnerTeamId || ""}
+                              onChange={(e) =>
+                                handleAwardPrize(prize.id, e.target.value)
+                              }
+                              disabled={isAwardingPrize === prize.id}
+                              className="w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm shadow-xs focus:border-emerald-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800"
+                            >
+                              <option value="">
+                                --{" "}
+                                {t("events.award.selectTeam", {
+                                  defaultValue: "Select Winner Team",
+                                })}{" "}
+                                --
                               </option>
-                            ))}
-                          </select>
+                              {eventTeams.map((team) => (
+                                <option key={team.id} value={team.id}>
+                                  {team.player1.name}
+                                  {team.player2
+                                    ? ` & ${team.player2.name}`
+                                    : ""}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                         </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
+                      )
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
         {/* Dialog for Create/Edit Event */}
         <Dialog

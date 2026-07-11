@@ -15,11 +15,13 @@ import { RefereesRoster } from "./referees-roster"
 interface PersonnelManagementProps {
   tournamentId: string
   events: TournamentEvent[]
+  isEditable: boolean
 }
 
 export function PersonnelManagement({
   tournamentId,
   events,
+  isEditable,
 }: PersonnelManagementProps) {
   const { t } = useTournamentTranslation()
 
@@ -102,9 +104,13 @@ export function PersonnelManagement({
         </div>
       </div>
 
-      {activeSubTab === "roster" && <RefereesRoster />}
-      {activeSubTab === "assignments" && <MatchAssignments events={events} />}
-      {activeSubTab === "invitations" && <RefereeInvitationsList />}
+      {activeSubTab === "roster" && <RefereesRoster isEditable={isEditable} />}
+      {activeSubTab === "assignments" && (
+        <MatchAssignments events={events} isEditable={isEditable} />
+      )}
+      {activeSubTab === "invitations" && (
+        <RefereeInvitationsList isEditable={isEditable} />
+      )}
     </div>
   )
 }

@@ -31,11 +31,13 @@ import { ScheduledQueueCard } from "./scheduled-queue-card"
 interface LiveControlCenterProps {
   tournamentId: number
   events: TournamentEvent[]
+  isEditable: boolean
 }
 
 export function LiveControlCenter({
   tournamentId,
   events,
+  isEditable,
 }: LiveControlCenterProps) {
   const { t } = useTournamentTranslation()
   const [fixtures, setFixtures] = useState<TournamentSchedule[]>([])
@@ -276,7 +278,7 @@ export function LiveControlCenter({
       />
 
       {/* Main Operations Board */}
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <div className="flex flex-col gap-6">
         {/* Operations & Dispatch Card */}
         <OperationsCard
           events={events}
@@ -286,6 +288,7 @@ export function LiveControlCenter({
           onSync={handleSync}
           isDispatching={isDispatching}
           isSyncing={isSyncing}
+          isEditable={isEditable}
         />
 
         {/* Player Check-in System */}
@@ -294,6 +297,7 @@ export function LiveControlCenter({
           checkins={checkins}
           onCheckInPlayer={handleCheckInPlayer}
           isCheckingIn={isCheckingIn}
+          isEditable={isEditable}
         />
       </div>
 

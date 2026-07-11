@@ -7,11 +7,10 @@ import { cn } from "@/lib/utils"
 import { useSeedingStore } from "./use-seeding-store"
 
 interface SeedingHeaderProps {
-  isEditable: boolean
   isLocked: boolean
 }
 
-export function SeedingHeader({ isEditable, isLocked }: SeedingHeaderProps) {
+export function SeedingHeader({ isLocked }: SeedingHeaderProps) {
   const { t } = useTournamentTranslation()
   const selectedEventId = useSeedingStore((s) => s.selectedEventId)
   const isGenerating = useSeedingStore((s) => s.isGenerating)
@@ -33,7 +32,7 @@ export function SeedingHeader({ isEditable, isLocked }: SeedingHeaderProps) {
         <Button
           variant="outline"
           onClick={() => handleAutoSeed(t)}
-          disabled={isGenerating || isLocked || !selectedEventId || !isEditable}
+          disabled={isGenerating || isLocked || !selectedEventId}
         >
           {isGenerating ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -45,11 +44,7 @@ export function SeedingHeader({ isEditable, isLocked }: SeedingHeaderProps) {
         <Button
           onClick={() => handleLockSeeding(t)}
           disabled={
-            isLocking ||
-            isLocked ||
-            !selectedEventId ||
-            seedsList.length === 0 ||
-            !isEditable
+            isLocking || isLocked || !selectedEventId || seedsList.length === 0
           }
           className={cn(
             isLocked

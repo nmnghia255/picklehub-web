@@ -27,6 +27,7 @@ interface GroupManagementProps {
   isHost: boolean
   eventId?: number
   hideEventSelect?: boolean
+  isEditable: boolean
 }
 
 export function GroupManagement({
@@ -35,6 +36,7 @@ export function GroupManagement({
   isHost,
   eventId,
   hideEventSelect = false,
+  isEditable,
 }: GroupManagementProps) {
   const { t } = useTournamentTranslation()
 
@@ -73,8 +75,6 @@ export function GroupManagement({
       reset()
     }
   }, [reset])
-
-  const isEditable = isHost
 
   if (events.length === 0) {
     return (

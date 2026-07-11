@@ -142,5 +142,11 @@
             "errorMessage": "Không thể cập nhật tỷ số",
             "unexpectedErrorMessage": "Đã xảy ra lỗi không mong muốn"
         }
+    },
+    "permission": {
+        "accessDenied": "Truy cập bị từ chối",
+        "hostPlanRequired": "Bạn cần có gói Host để tổ chức giải đấu",
+        "goBack": "Quay lại",
+        "upgradeAccount": "Nâng cấp tài khoản"
     }
 }

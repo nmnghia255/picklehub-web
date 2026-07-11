@@ -26,11 +26,13 @@ import { RegistrationTable } from "./registration-table"
 interface RegistrationManagementProps {
   tournamentId: string
   events?: TournamentEvent[]
+  isEditable: boolean
 }
 
 export function RegistrationManagement({
   tournamentId,
   events = [],
+  isEditable,
 }: RegistrationManagementProps) {
   const { t } = useTournamentTranslation()
   const [registrations, setRegistrations] = useState<RegistrationResponse[]>([])
@@ -88,6 +90,7 @@ export function RegistrationManagement({
       if (res.success) {
         toast.success(
           t("registrations.approveSuccess", {
+            name: reg.player.name,
             defaultValue: `Approved registration for ${reg.player.name}`,
           })
         )
@@ -121,6 +124,7 @@ export function RegistrationManagement({
       if (res.success) {
         toast.success(
           t("registrations.rejectSuccess", {
+            name: reg.player.name,
             defaultValue: `Rejected registration for ${reg.player.name}`,
           })
         )
@@ -159,6 +163,8 @@ export function RegistrationManagement({
   const withdrawnCount = registrations.filter(
     (r) => r.status === "withdrawn"
   ).length
+
+  const canManageRegistrations = isEditable
 
   return (
     <div className="p-8">

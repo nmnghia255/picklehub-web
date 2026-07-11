@@ -1,10 +1,16 @@
 "use client"
 
-import { Check, Eye, Loader2, X } from "lucide-react"
+import { Check, Eye, Loader2, MoreHorizontal, X } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   Table,
   TableBody,
@@ -172,37 +178,50 @@ export function RegistrationTable({
 
                 {(hasActions || !!onViewDetails) && (
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      {onViewDetails && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
                         <Button
                           variant="ghost"
-                          size="sm"
-                          onClick={() => onViewDetails(reg)}
+                          size="icon"
+                          className="h-8 w-8 p-0"
                         >
-                          <Eye className="h-4 w-4" />
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Open menu</span>
                         </Button>
-                      )}
-                      {status === "pending" && onApprove && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
-                          onClick={() => onApprove(reg)}
-                        >
-                          <Check className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {status === "pending" && onReject && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-600 hover:bg-red-50 hover:text-red-700"
-                          onClick={() => onReject(reg)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-36">
+                        {onViewDetails && (
+                          <DropdownMenuItem onClick={() => onViewDetails(reg)}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            {t("registrations.table.actionsMenu.view", {
+                              defaultValue: "View details",
+                            })}
+                          </DropdownMenuItem>
+                        )}
+                        {status === "pending" && onApprove && (
+                          <DropdownMenuItem
+                            className="text-emerald-600 focus:bg-emerald-50 focus:text-emerald-700"
+                            onClick={() => onApprove(reg)}
+                          >
+                            <Check className="mr-2 h-4 w-4 text-emerald-600" />
+                            {t("registrations.table.actionsMenu.approve", {
+                              defaultValue: "Approve",
+                            })}
+                          </DropdownMenuItem>
+                        )}
+                        {status === "pending" && onReject && (
+                          <DropdownMenuItem
+                            className="text-red-600 focus:bg-red-50 focus:text-red-700"
+                            onClick={() => onReject(reg)}
+                          >
+                            <X className="mr-2 h-4 w-4 text-red-600" />
+                            {t("registrations.table.actionsMenu.reject", {
+                              defaultValue: "Reject",
+                            })}
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 )}
               </TableRow>

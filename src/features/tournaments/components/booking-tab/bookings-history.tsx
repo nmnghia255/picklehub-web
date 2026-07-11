@@ -36,12 +36,14 @@ interface BookingsHistoryProps {
   bookings: TournamentBooking[]
   centers: TournamentCenter[]
   onCancelBooking: (bookingId: string) => Promise<void>
+  isEditable: boolean
 }
 
 export function BookingsHistory({
   bookings,
   centers,
   onCancelBooking,
+  isEditable,
 }: BookingsHistoryProps) {
   const { t } = useTournamentTranslation()
   const [selectedBooking, setSelectedBooking] =
@@ -210,6 +212,7 @@ export function BookingsHistory({
                             <Button
                               variant="ghost"
                               size="sm"
+                              disabled={!isEditable}
                               onClick={() =>
                                 onCancelBooking(booking.id.toString())
                               }
@@ -233,10 +236,10 @@ export function BookingsHistory({
         onOpenChange={(open) => !open && setSelectedBooking(null)}
       >
         <DialogContent className="max-w-md gap-0 border bg-white dark:border-zinc-800 dark:bg-zinc-900">
-          <DialogHeader>
+          <DialogHeader className="mr-5">
             <DialogTitle className="text-base font-bold text-gray-900 dark:text-zinc-100">
               {t("booking.detailDialog.title", {
-                defaultValue: "Chi tiết Khung giờ Đặt sân",
+                defaultValue: "Detail booking",
               })}
             </DialogTitle>
           </DialogHeader>

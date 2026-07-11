@@ -44,9 +44,14 @@ import type { Tournament, TournamentRequest } from "../../types/tournament"
 interface PaymentTabProps {
   tournament: Tournament
   isHost: boolean
+  isEditable: boolean
 }
 
-export function PaymentTab({ tournament, isHost }: PaymentTabProps) {
+export function PaymentTab({
+  tournament,
+  isHost,
+  isEditable,
+}: PaymentTabProps) {
   const { t } = useTournamentTranslation()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -181,8 +186,6 @@ export function PaymentTab({ tournament, isHost }: PaymentTabProps) {
     tournament.paymentAccountNumber ||
     tournament.paymentQrUrl
   )
-
-  const isEditable = true || isHost
 
   return (
     <div className="p-8">

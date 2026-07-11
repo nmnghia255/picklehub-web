@@ -22,6 +22,7 @@ interface AssignedMatchesTabProps {
     teamId: string | null | undefined,
     isTeam1: boolean
   ) => React.ReactNode
+  isEditable: boolean
 }
 
 export function AssignedMatchesTab({
@@ -31,6 +32,7 @@ export function AssignedMatchesTab({
   scheduleMap,
   formatMatchTime,
   renderTeamDetails,
+  isEditable,
 }: AssignedMatchesTabProps) {
   const { t } = useTournamentTranslation()
 
@@ -69,6 +71,7 @@ export function AssignedMatchesTab({
                   size="sm"
                   className="border-gray-200 text-xs font-semibold text-red-600 hover:border-red-200 hover:bg-red-50 hover:text-red-700"
                   onClick={() => void handleUnassignReferee(match.id)}
+                  disabled={!isEditable}
                 >
                   <UserMinus className="mr-1 h-3.5 w-3.5" />
                   {t("personnel.assignments.unassignConfirmBtn", {

@@ -1,106 +1,121 @@
 {
-    "liveControl": {
-        "title": "Trung tâm điều khiển trực tiếp",
-        "subtitle": "Theo dõi các trận đấu trực tiếp, điểm danh người chơi và đồng bộ hóa bảng điểm trọng tài.",
-        "metrics": {
-            "liveBadge": "Trực tiếp",
-            "activeMatches": "Trận đấu đang diễn ra",
-            "upcomingBadge": "Sắp tới",
-            "upcomingMatches": "Hàng đợi đã lên lịch",
-            "courtsBadge": "Sân đấu",
-            "courtsInUse": "Sân đang sử dụng",
-            "playersBadge": "Vận động viên",
-            "checkedInPlayers": "Người chơi đã điểm danh"
-        },
-        "operations": {
-            "title": "Vận hành giải đấu",
-            "dispatchTitle": "Phân phối trận đấu",
-            "dispatchDesc": "Gửi các trận đấu đã lên lịch của nội dung được chọn tới dịch vụ trọng tài để ghi điểm.",
-            "chooseEvent": "Chọn nội dung",
-            "btnDispatch": "Phân phối",
-            "syncTitle": "Đồng bộ kết quả",
-            "syncDesc": "Lấy và cập nhật điểm số trận đấu, các hiệp đã hoàn thành và trạng thái đi tiếp từ bảng ghi điểm của trọng tài.",
-            "btnSync": "Đồng bộ tất cả trận đấu"
-        },
-        "checkin": {
-            "title": "Điểm danh vận động viên",
-            "searchPlaceholder": "Tìm tên vận động viên, tên bạn cùng chơi hoặc ID đăng ký...",
-            "noMatchingRegs": "Không tìm thấy thông tin đăng ký phù hợp",
-            "eventLabel": "Nội dung:",
-            "clearSelection": "Xóa lựa chọn",
-            "regDetail": "Mã đăng ký: {{id}} • Nội dung: {{event}}",
-            "checkedInAt": "Đã điểm danh: {{time}}",
-            "btnCheckin": "Điểm danh",
-            "noRegSelected": "Vui lòng chọn thông tin đăng ký vận động viên ở trên để quản lý điểm danh.",
-            "listTitle": "Đội & Vận động viên đã điểm danh",
-            "checkedInCountLabel": "Đã điểm danh",
-            "noCheckinsYet": "Chưa có lượt điểm danh nào được ghi nhận.",
-            "pending": "Chờ điểm danh"
-        },
-        "liveMatches": {
-            "title": "Trận đấu trực tiếp",
-            "titleWithCount": "Trận đấu đang trực tiếp ({{count}})",
-            "noMatches": "Hiện không có trận đấu trực tiếp nào đang diễn ra",
-            "refName": "Trọng tài: {{refName}}",
-            "vs": "đấu với"
-        },
-        "matchQueue": {
-            "title": "Hàng đợi trận đấu",
-            "titleWithCount": "Hàng đợi đã lên lịch ({{count}})",
-            "noMatches": "Không có trận đấu lên lịch sắp tới",
-            "noCourt": "Chưa có sân",
-            "tbd": "Chưa xác định",
-            "ready": "Sẵn sàng",
-            "scheduled": "Đã lên lịch",
-            "waiting": "Đang chờ"
-        },
-        "courtStatus": {
-            "title": "Trạng thái sân",
-            "available": "Trống",
-            "maintenance": "Bảo trì"
-        },
-        "announcements": {
-            "title": "Thông báo"
-        },
-        "toasts": {
-            "loadFailed": "Tải dữ liệu điều khiển thất bại",
-            "selectEventDispatch": "Vui lòng chọn nội dung để phân phối",
-            "dispatchSuccess": "Phân phối trận đấu tới bảng điểm trọng tài thành công!",
-            "dispatchFailed": "Phân phối trận đấu thất bại",
-            "dispatchError": "Đã xảy ra lỗi trong quá trình phân phối",
-            "syncSuccess": "Đã đồng bộ kết quả giải đấu và nhánh đấu từ dịch vụ trọng tài!",
-            "syncFailed": "Đồng bộ trận đấu giải đấu thất bại",
-            "syncError": "Đã xảy ra lỗi trong quá trình đồng bộ trận đấu",
-            "checkinSuccess": "Điểm danh {{player}} thành công!",
-            "checkinFailed": "Điểm danh vận động viên thất bại",
-            "checkinError": "Đã xảy ra lỗi trong quá trình điểm danh"
-        }
+  "liveControl": {
+    "title": "Trung tâm điều khiển trực tiếp",
+    "subtitle": "Theo dõi các trận đấu trực tiếp, điểm danh người chơi và đồng bộ hóa bảng điểm trọng tài.",
+    "metrics": {
+      "liveBadge": "Trực tiếp",
+      "activeMatches": "Trận đấu đang diễn ra",
+      "upcomingBadge": "Sắp tới",
+      "upcomingMatches": "Hàng đợi đã lên lịch",
+      "courtsBadge": "Sân đấu",
+      "courtsInUse": "Sân đang sử dụng",
+      "playersBadge": "Vận động viên",
+      "checkedInPlayers": "Người chơi đã điểm danh"
     },
-    "referee": {
-        "matchInfo": {
-            "title": "Đôi nam 4.0 - Tứ kết",
-            "court": "Sân {{court}}",
-            "matchTime": "Thời gian trận đấu: {{time}}",
-            "set": "Hiệp {{set}}",
-            "inProgress": "Đang diễn ra"
-        },
-        "scoring": {
-            "teamA": "ĐỘI A",
-            "teamB": "ĐỘI B",
-            "seed": "Hạt giống #{{seed}}",
-            "currentScore": "Tỷ số hiện tại",
-            "addPoint": "+1 Điểm"
-        },
-        "vs": "ĐẤU VỚI",
-        "setHistory": {
-            "title": "Lịch sử các hiệp",
-            "set": "Hiệp {{set}}",
-            "inProgress": "Đang diễn ra",
-            "notStarted": "Chưa bắt đầu"
-        },
-        "actions": {
-            "undo": "Hoàn tác điểm trước",
-            "confirm": "Xác nhận kết quả trận đấu"
-        }
+    "operations": {
+      "title": "Vận hành giải đấu",
+      "dispatchTitle": "Phân phối trận đấu",
+      "dispatchDesc": "Gửi các trận đấu đã lên lịch của nội dung được chọn tới dịch vụ trọng tài để ghi điểm.",
+      "chooseEvent": "Chọn nội dung",
+      "btnDispatch": "Phân phối",
+      "syncTitle": "Đồng bộ kết quả",
+      "syncDesc": "Lấy và cập nhật điểm số trận đấu, các hiệp đã hoàn thành và trạng thái đi tiếp từ bảng ghi điểm của trọng tài.",
+      "btnSync": "Đồng bộ tất cả trận đấu"
+    },
+    "checkin": {
+      "title": "Điểm danh vận động viên",
+      "searchPlaceholder": "Tìm tên vận động viên, tên bạn cùng chơi hoặc ID đăng ký...",
+      "noMatchingRegs": "Không tìm thấy thông tin đăng ký phù hợp",
+      "eventLabel": "Nội dung:",
+      "clearSelection": "Xóa lựa chọn",
+      "regDetail": "Mã đăng ký: {{id}} • Nội dung: {{event}}",
+      "checkedInAt": "Đã điểm danh: {{time}}",
+      "btnCheckin": "Điểm danh",
+      "noRegSelected": "Vui lòng chọn thông tin đăng ký vận động viên ở trên để quản lý điểm danh.",
+      "listTitle": "Đội & Vận động viên đã điểm danh",
+      "checkedInCountLabel": "Đã điểm danh",
+      "noCheckinsYet": "Chưa có lượt điểm danh nào được ghi nhận.",
+      "pending": "Chờ điểm danh"
+    },
+    "liveMatches": {
+      "title": "Trận đấu trực tiếp",
+      "titleWithCount": "Trận đấu đang trực tiếp ({{count}})",
+      "noMatches": "Hiện không có trận đấu trực tiếp nào đang diễn ra",
+      "refName": "Trọng tài: {{refName}}",
+      "vs": "đấu với"
+    },
+    "completedMatches": {
+      "title": "Trận đấu hoàn thành",
+      "titleWithCount": "Trận đấu đã hoàn thành ({{count}})",
+      "noMatches": "Hiện không có trận đấu đã hoàn thành",
+      "refName": "Trọng tài: {{refName}}",
+      "vs": "đấu với"
+    },
+    "matchQueue": {
+      "title": "Hàng đợi trận đấu",
+      "titleWithCount": "Hàng đợi đã lên lịch ({{count}})",
+      "noMatches": "Không có trận đấu lên lịch sắp tới",
+      "noCourt": "Chưa có sân",
+      "tbd": "Chưa xác định",
+      "ready": "Sẵn sàng",
+      "scheduled": "Đã lên lịch",
+      "waiting": "Đang chờ",
+      "vs": "đấu với"
+    },
+    "readyMatches": {
+      "title": "Sẵn sàng",
+      "titleWithCount": "Trận đấu sẵn sàng ({{count}})",
+      "noMatches": "Không có trận đấu sẵn sàng",
+      "noCourt": "Chưa có sân",
+      "vs": "đấu với"
+    },
+    "courtStatus": {
+      "title": "Trạng thái sân",
+      "available": "Trống",
+      "maintenance": "Bảo trì"
+    },
+    "announcements": {
+      "title": "Thông báo"
+    },
+    "toasts": {
+      "loadFailed": "Tải dữ liệu điều khiển thất bại",
+      "selectEventDispatch": "Vui lòng chọn nội dung để phân phối",
+      "dispatchSuccess": "Phân phối trận đấu tới bảng điểm trọng tài thành công!",
+      "dispatchFailed": "Phân phối trận đấu thất bại",
+      "dispatchError": "Đã xảy ra lỗi trong quá trình phân phối",
+      "syncSuccess": "Đã đồng bộ kết quả giải đấu và nhánh đấu từ dịch vụ trọng tài!",
+      "syncFailed": "Đồng bộ trận đấu giải đấu thất bại",
+      "syncError": "Đã xảy ra lỗi trong quá trình đồng bộ trận đấu",
+      "checkinSuccess": "Điểm danh {{player}} thành công!",
+      "checkinFailed": "Điểm danh vận động viên thất bại",
+      "checkinError": "Đã xảy ra lỗi trong quá trình điểm danh"
     }
+  },
+  "referee": {
+    "matchInfo": {
+      "title": "Đôi nam 4.0 - Tứ kết",
+      "court": "Sân {{court}}",
+      "matchTime": "Thời gian trận đấu: {{time}}",
+      "set": "Hiệp {{set}}",
+      "inProgress": "Đang diễn ra"
+    },
+    "scoring": {
+      "teamA": "ĐỘI A",
+      "teamB": "ĐỘI B",
+      "seed": "Hạt giống #{{seed}}",
+      "currentScore": "Tỷ số hiện tại",
+      "addPoint": "+1 Điểm"
+    },
+    "vs": "ĐẤU VỚI",
+    "setHistory": {
+      "title": "Lịch sử các hiệp",
+      "set": "Hiệp {{set}}",
+      "inProgress": "Đang diễn ra",
+      "notStarted": "Chưa bắt đầu"
+    },
+    "actions": {
+      "undo": "Hoàn tác điểm trước",
+      "confirm": "Xác nhận kết quả trận đấu"
+    }
+  }
 }

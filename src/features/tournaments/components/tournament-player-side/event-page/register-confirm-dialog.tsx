@@ -149,8 +149,8 @@ export function RegisterConfirmDialog({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-125">
-        <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-black">
+        <DialogHeader className="mr-10">
+          <DialogTitle className="text-lg font-bold text-gray-900 dark:text-zinc-100">
             {t("eventDetail.confirmRegistrationTitle", {
               defaultValue: "Confirm Registration Details",
             })}
@@ -168,26 +168,26 @@ export function RegisterConfirmDialog({
           <div className="space-y-4">
             {/* Player 1 Details */}
             <div className="space-y-2">
-              <label className="text-sm font-bold tracking-wider text-gray-700 uppercase">
+              <label className="text-sm font-bold tracking-wider text-gray-700 uppercase dark:text-zinc-300">
                 {t("eventDetail.player1", { defaultValue: "Player 1 (You)" })}
               </label>
-              <div className="mt-2 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/50 p-4">
-                <Avatar className="h-10 w-10 border border-emerald-200">
+              <div className="mt-2 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 dark:border-emerald-800/40 dark:bg-emerald-950/20">
+                <Avatar className="h-10 w-10 border border-emerald-200 dark:border-emerald-800/40">
                   <AvatarImage
                     src={currentUser.avatarUrl}
                     alt={currentUser.fullName}
                   />
-                  <AvatarFallback className="bg-emerald-100 font-bold text-emerald-800">
+                  <AvatarFallback className="bg-emerald-100 font-bold text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">
                     {currentUser.fullName
                       ? currentUser.fullName.substring(0, 2).toUpperCase()
                       : "ME"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-md truncate font-semibold text-gray-900">
+                  <h4 className="text-md truncate font-semibold text-gray-900 dark:text-zinc-100">
                     {currentUser.fullName}
                   </h4>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-zinc-400">
                     {t("eventDetail.genderCategory", {
                       defaultValue: "Gender",
                     })}
@@ -195,7 +195,7 @@ export function RegisterConfirmDialog({
                   </p>
                 </div>
                 <div className="text-right">
-                  <span className="inline-flex items-center rounded-md bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800">
+                  <span className="inline-flex items-center rounded-md bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">
                     DUPR {getRatingValue(currentUser).toFixed(2)}
                   </span>
                 </div>
@@ -204,22 +204,22 @@ export function RegisterConfirmDialog({
 
             {/* Player 2 Selection & Details (Doubles only) */}
             {isDoubles && (
-              <div className="space-y-4 border-t border-gray-100 pt-2">
-                <label className="text-sm font-bold tracking-wider text-gray-700 uppercase">
+              <div className="space-y-4 border-t border-gray-100 pt-2 dark:border-zinc-800">
+                <label className="text-sm font-bold tracking-wider text-gray-700 uppercase dark:text-zinc-300">
                   {t("eventDetail.player2", {
                     defaultValue: "Player 2 (Partner)",
                   })}
                 </label>
 
                 {isLoadingFriends ? (
-                  <div className="mt-2 flex items-center justify-center py-4 text-sm text-gray-400">
+                  <div className="mt-2 flex items-center justify-center py-4 text-sm text-gray-400 dark:text-zinc-500">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin text-emerald-600" />
                     {t("eventDetail.loadingFriends", {
                       defaultValue: "Loading friends list...",
                     })}
                   </div>
                 ) : friends.length === 0 ? (
-                  <div className="mt-2 rounded-xl border border-dashed border-gray-200 p-4 text-center text-sm text-gray-400">
+                  <div className="mt-2 rounded-xl border border-dashed border-gray-200 p-4 text-center text-sm text-gray-400 dark:border-zinc-800 dark:text-zinc-500">
                     {t("eventDetail.noFriendsFound", {
                       defaultValue:
                         "No friends found. Please add friends to register for doubles events.",
@@ -231,7 +231,7 @@ export function RegisterConfirmDialog({
                       value={selectedFriendId}
                       onValueChange={handleFriendSelect}
                     >
-                      <SelectTrigger className="w-full border-gray-200 bg-white focus:border-emerald-500 focus:ring-emerald-500">
+                      <SelectTrigger className="w-full border-gray-200 bg-white text-gray-900 focus:border-emerald-500 focus:ring-emerald-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100">
                         <SelectValue
                           placeholder={t(
                             "eventDetail.selectPartnerPlaceholder",
@@ -249,17 +249,17 @@ export function RegisterConfirmDialog({
                     </Select>
 
                     {isLoadingPartner ? (
-                      <div className="flex items-center justify-center rounded-xl border bg-gray-50/50 p-6">
+                      <div className="flex items-center justify-center rounded-xl border bg-gray-50/50 p-6 dark:border-zinc-800 dark:bg-zinc-900/20">
                         <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
                       </div>
                     ) : partnerProfile ? (
-                      <div className="animate-fadeIn flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50/20 p-3 shadow-xs transition-all">
-                        <Avatar className="h-10 w-10 border border-blue-200">
+                      <div className="animate-fadeIn flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50/20 p-3 shadow-xs transition-all dark:border-blue-900/40 dark:bg-blue-950/20">
+                        <Avatar className="h-10 w-10 border border-blue-200 dark:border-blue-800/40">
                           <AvatarImage
                             src={partnerProfile.avatarUrl}
                             alt={partnerProfile.fullName}
                           />
-                          <AvatarFallback className="bg-blue-100 font-bold text-blue-800">
+                          <AvatarFallback className="bg-blue-100 font-bold text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">
                             {partnerProfile.fullName
                               ? partnerProfile.fullName
                                   .substring(0, 2)
@@ -268,10 +268,10 @@ export function RegisterConfirmDialog({
                           </AvatarFallback>
                         </Avatar>
                         <div className="min-w-0 flex-1">
-                          <h4 className="truncate text-sm font-semibold text-gray-900">
+                          <h4 className="truncate text-sm font-semibold text-gray-900 dark:text-zinc-100">
                             {partnerProfile.fullName}
                           </h4>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 dark:text-zinc-400">
                             {t("eventDetail.genderCategory", {
                               defaultValue: "Gender",
                             })}
@@ -279,13 +279,13 @@ export function RegisterConfirmDialog({
                           </p>
                         </div>
                         <div className="text-right">
-                          <span className="inline-flex items-center rounded-md bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">
+                          <span className="inline-flex items-center rounded-md bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">
                             DUPR {getRatingValue(partnerProfile).toFixed(2)}
                           </span>
                         </div>
                       </div>
                     ) : (
-                      <div className="text-xs text-amber-600 italic">
+                      <div className="text-xs text-amber-600 italic dark:text-amber-500">
                         *{" "}
                         {t("eventDetail.partnerRequiredNotice", {
                           defaultValue:
@@ -300,7 +300,7 @@ export function RegisterConfirmDialog({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-3 border-t border-gray-100 pt-4">
+          <div className="flex justify-end gap-3 border-t border-gray-100 pt-4 dark:border-zinc-800">
             <Button
               type="button"
               variant="outline"

@@ -61,7 +61,7 @@ export function MatchItemCard({
               <Checkbox checked={checked} onCheckedChange={onToggleSelection} />
             </div>
           )}
-          <div className="flex-1 space-y-2">
+          <div className="w-full flex-1 space-y-2">
             {/* Badges metadata row */}
             <div className="flex flex-wrap items-center gap-2 text-[10px] text-gray-500">
               <Badge

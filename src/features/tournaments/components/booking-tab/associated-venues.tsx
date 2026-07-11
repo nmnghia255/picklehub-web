@@ -37,6 +37,7 @@ interface AssociatedVenuesProps {
   tournamentStartDate?: string | null
   /** Tournament end date (ISO YYYY-MM-DD) – restricts the date picker on the booking page */
   tournamentEndDate?: string | null
+  isEditable: boolean
 }
 
 export function AssociatedVenues({
@@ -51,6 +52,7 @@ export function AssociatedVenues({
   setIsCenterDialogOpen,
   tournamentStartDate,
   tournamentEndDate,
+  isEditable,
 }: AssociatedVenuesProps) {
   const { t } = useTournamentTranslation()
   const router = useRouter()
@@ -105,6 +107,7 @@ export function AssociatedVenues({
           <Button
             variant="outline"
             size="sm"
+            disabled={!isEditable}
             onClick={onOpenCenterDialog}
             className="h-8 border-emerald-600 px-2.5 text-xs text-emerald-700 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950/20"
           >
@@ -172,6 +175,7 @@ export function AssociatedVenues({
                     variant="outline"
                     size="sm"
                     onClick={() => handleBookClick(center.centerId)}
+                    disabled={!isEditable}
                     className="h-8 border-emerald-600 px-3 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-950/20"
                   >
                     {t("booking.venuesCard.bookBtn")}
@@ -179,6 +183,7 @@ export function AssociatedVenues({
                   <Button
                     variant="ghost"
                     size="sm"
+                    disabled={!isEditable}
                     onClick={() => onRemoveCenter(center.centerId)}
                     className="dark:hover:text-rose-350 h-8 w-8 shrink-0 rounded-full p-1.5 text-rose-500 hover:bg-rose-50 hover:text-rose-700 dark:text-rose-400 dark:hover:bg-rose-950/20"
                   >

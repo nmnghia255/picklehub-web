@@ -57,6 +57,7 @@ interface HostBracketSidebarProps {
   loadBrackets: (tournamentId: number, eventId: number) => Promise<void>
   tournamentId: number
   hideEventSelect?: boolean
+  isEditable: boolean
 }
 
 export function HostBracketSidebar({
@@ -65,8 +66,6 @@ export function HostBracketSidebar({
   setSelectedEventId,
   currentEvent,
   totalMatches,
-  completedMatches,
-  inProgressMatches,
   remainingMatches,
   hasBrackets,
   handleGenerateBracket,
@@ -81,6 +80,7 @@ export function HostBracketSidebar({
   loadBrackets,
   tournamentId,
   hideEventSelect = false,
+  isEditable,
 }: HostBracketSidebarProps) {
   const { t } = useTournamentTranslation()
   const [isAlertOpen, setIsAlertOpen] = useState(false)
@@ -164,7 +164,7 @@ export function HostBracketSidebar({
               {!hasBrackets ? (
                 <Button
                   onClick={handleGenerateBracket}
-                  disabled={isLoading || isPending}
+                  disabled={isLoading || isPending || !isEditable}
                   className="w-full justify-start bg-emerald-600 font-medium text-white hover:bg-emerald-700"
                 >
                   <Shuffle className="mr-2 h-4 w-4" />
@@ -314,46 +314,6 @@ export function HostBracketSidebar({
           </div>
         </div>
       </div>
-
-      {/* Sticky Bottom Stats
-      {hasBrackets && (
-        <div className="sticky bottom-0 z-10 shrink-0 border-t bg-white p-6">
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-zinc-400">
-                {t("brackets.sidebar.stats.total")}
-              </span>
-              <span className="font-semibold text-gray-900 dark:text-zinc-100">
-                {totalMatches}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-zinc-400">
-                {t("brackets.sidebar.stats.completed")}
-              </span>
-              <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                {completedMatches}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-zinc-400">
-                {t("brackets.sidebar.stats.inProgress")}
-              </span>
-              <span className="font-semibold text-yellow-600 dark:text-yellow-400">
-                {inProgressMatches}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-zinc-400">
-                {t("brackets.sidebar.stats.remaining")}
-              </span>
-              <span className="font-semibold text-gray-900 dark:text-zinc-100">
-                {remainingMatches}
-              </span>
-            </div>
-          </div>
-        </div>
-      )} */}
     </div>
   )
 }

@@ -31,71 +31,141 @@ export function EventRegistrationCard({
   const isFull = registeredCount >= maxCapacity
 
   return (
-    <Card className="sticky top-16 border-gray-200 bg-white shadow-sm">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-bold text-gray-900">
+    <Card className="sticky top-16 border-gray-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+      <CardHeader className="pb-0">
+        <CardTitle className="text-lg font-bold text-gray-900 dark:text-zinc-100">
           {t("eventDetail.registration", { defaultValue: "Registration" })}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* User Status Banner */}
-        {userRegistration ? (
-          <div
-            className={`flex items-start gap-2.5 rounded-xl border p-4 text-sm ${
-              userRegistration.status === "approved"
-                ? "border-emerald-200 bg-emerald-50/50 text-emerald-950"
-                : userRegistration.status === "rejected"
-                  ? "border-red-200 bg-red-50/50 text-red-950"
-                  : "border-yellow-200 bg-yellow-50/50 text-yellow-950"
-            }`}
-          >
-            {userRegistration.status === "approved" ? (
-              <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
-            ) : (
+        {/* User Status Banner */}
+        {userRegistration &&
+          (() => {
+            let bannerStyle =
+              "border-yellow-200 dark:border-yellow-900/40 bg-yellow-50/50 dark:bg-yellow-950/20 text-yellow-950 dark:text-yellow-200"
+            let bannerIcon = (
               <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-yellow-600" />
-            )}
-            <div>
-              <span className="block text-xs font-bold tracking-wider uppercase">
-                {userRegistration.status === "approved"
-                  ? t("eventDetail.registeredStatus", {
-                      defaultValue: "Registered",
-                    })
-                  : userRegistration.status === "pending"
-                    ? t("eventDetail.pendingApproval", {
-                        defaultValue: "Pending Approval",
-                      })
-                    : userRegistration.status === "waitlisted"
-                      ? t("eventDetail.waitlisted", {
-                          defaultValue: "Waitlisted",
-                        })
-                      : userRegistration.status}
-              </span>
-              <p className="mt-1 text-xs text-gray-600">
-                {userRegistration.status === "approved"
-                  ? t("eventDetail.regApprovedDesc", {
-                      defaultValue:
-                        "You are successfully registered for this event. See you on the courts!",
-                    })
-                  : userRegistration.status === "pending"
-                    ? t("eventDetail.regPendingDesc", {
-                        defaultValue:
-                          "Your registration request has been submitted. The organizer will verify your payment details shortly.",
-                      })
-                    : t("eventDetail.regProcessedDesc", {
-                        defaultValue: "Your registration has been processed.",
-                      })}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="flex items-center justify-between rounded-xl border bg-gray-50 p-4">
-            <div className="flex items-center gap-1.5 text-gray-600">
-              <DollarSign className="h-5 w-5 text-emerald-600" />
+            )
+            let bannerTitle = t("eventDetail.statusPending", {
+              defaultValue: "Pending Approval",
+            })
+            let bannerDesc = t("eventDetail.descPending", {
+              defaultValue:
+                "Your registration request has been submitted. Please wait for the tournament managers to accept your request before submitting payment.",
+            })
+
+            if (userRegistration.status === "rejected") {
+              bannerStyle =
+                "border-red-200 dark:border-red-900/40 bg-red-50/50 dark:bg-red-950/20 text-red-950 dark:text-red-200"
+              bannerIcon = (
+                <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+              )
+              bannerTitle = t("eventDetail.statusRejected", {
+                defaultValue: "Rejected",
+              })
+              bannerDesc = t("eventDetail.descRejected", {
+                defaultValue:
+                  "Your registration request has been rejected by the organizer.",
+              })
+            } else if (userRegistration.status === "withdrawn") {
+              bannerStyle =
+                "border-gray-200 dark:border-zinc-700 bg-gray-50/50 dark:bg-zinc-900/20 text-gray-950 dark:text-zinc-300"
+              bannerIcon = (
+                <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-gray-500" />
+              )
+              bannerTitle = t("eventDetail.statusWithdrawn", {
+                defaultValue: "Withdrawn",
+              })
+              bannerDesc = t("eventDetail.descWithdrawn", {
+                defaultValue: "You have withdrawn from this event.",
+              })
+            } else if (userRegistration.status === "waitlisted") {
+              bannerStyle =
+                "border-amber-200 dark:border-amber-900/40 bg-amber-50/50 dark:bg-amber-950/20 text-amber-950 dark:text-amber-200"
+              bannerIcon = (
+                <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+              )
+              bannerTitle = t("eventDetail.statusWaitlisted", {
+                defaultValue: "Waitlisted",
+              })
+              bannerDesc = t("eventDetail.descWaitlisted", {
+                defaultValue: "You are on the waitlist for this event.",
+              })
+            } else if (userRegistration.status === "approved") {
+              const isPaid =
+                userRegistration.paymentStatus === "completed" ||
+                userRegistration.paymentStatus === "paid"
+              const isVerifying = userRegistration.paymentStatus === "verifying"
+
+              if (isPaid) {
+                bannerStyle =
+                  "border-emerald-200 dark:border-emerald-900/40 bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-950 dark:text-emerald-200"
+                bannerIcon = (
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+                )
+                bannerTitle = t("eventDetail.statusConfirmed", {
+                  defaultValue: "Confirmed",
+                })
+                bannerDesc = t("eventDetail.descConfirmed", {
+                  defaultValue:
+                    "You are successfully registered for this event. See you on the courts!",
+                })
+              } else if (isVerifying) {
+                bannerStyle =
+                  "border-blue-200 dark:border-blue-900/40 bg-blue-50/50 dark:bg-blue-950/20 text-blue-950 dark:text-blue-200"
+                bannerIcon = (
+                  <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
+                )
+                bannerTitle = t("eventDetail.statusVerifyingPayment", {
+                  defaultValue: "Verifying Payment",
+                })
+                bannerDesc = t("eventDetail.descVerifyingPayment", {
+                  defaultValue:
+                    "Payment proof uploaded. The organizer is verifying your payment.",
+                })
+              } else {
+                bannerStyle =
+                  "border-amber-200 dark:border-amber-900/40 bg-amber-50/50 dark:bg-amber-950/20 text-amber-950 dark:text-amber-200"
+                bannerIcon = (
+                  <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+                )
+                bannerTitle = t("eventDetail.statusAwaitingPayment", {
+                  defaultValue: "Awaiting Payment",
+                })
+                bannerDesc = t("eventDetail.descAwaitingPayment", {
+                  defaultValue:
+                    "Your registration has been approved! Please upload your payment proof to complete registration.",
+                })
+              }
+            }
+
+            return (
+              <div
+                className={`flex items-start gap-2.5 rounded-xl border p-4 text-sm ${bannerStyle}`}
+              >
+                {bannerIcon}
+                <div>
+                  <span className="block text-xs font-bold tracking-wider uppercase">
+                    {bannerTitle}
+                  </span>
+                  <p className="mt-1 text-xs text-gray-600 dark:text-zinc-400">
+                    {bannerDesc}
+                  </p>
+                </div>
+              </div>
+            )
+          })()}
+
+        {event.entryFee !== undefined && !userRegistration && (
+          <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/30">
+            <div className="flex items-center gap-1.5 text-gray-600 dark:text-zinc-400">
+              <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               <span className="text-sm font-semibold">
                 {t("eventDetail.entryFee", { defaultValue: "Entry Fee" })}
               </span>
             </div>
-            <span className="text-lg font-black text-gray-900">
+            <span className="text-lg font-black text-gray-900 dark:text-zinc-100">
               {event.entryFee
                 ? `${event.entryFee.toLocaleString()} VND`
                 : t("eventDetail.free", { defaultValue: "Free" })}
@@ -123,7 +193,8 @@ export function EventRegistrationCard({
               t("eventDetail.registerNow", { defaultValue: "Register Now" })
             )}
           </Button>
-        ) : (userRegistration.paymentStatus === "pending" ||
+        ) : userRegistration.status === "approved" &&
+          (userRegistration.paymentStatus === "pending" ||
             userRegistration.paymentStatus === "unpaid") &&
           !userRegistration.paymentProofUrl ? (
           <Button
@@ -137,11 +208,19 @@ export function EventRegistrationCard({
         ) : (
           <Button
             disabled
-            className="w-full border border-gray-200 bg-gray-100 py-3 font-extrabold text-gray-400"
+            className="w-full border border-gray-200 bg-gray-100 py-3 font-extrabold text-gray-400 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-500"
           >
-            {t("eventDetail.alreadyRegistered", {
-              defaultValue: "Already Registered",
-            })}
+            {userRegistration.status === "pending"
+              ? t("eventDetail.waitingForApproval", {
+                  defaultValue: "Waiting for Approval",
+                })
+              : userRegistration.paymentStatus === "verifying"
+                ? t("eventDetail.paymentVerifying", {
+                    defaultValue: "Verifying Payment",
+                  })
+                : t("eventDetail.alreadyRegistered", {
+                    defaultValue: "Already Registered",
+                  })}
           </Button>
         )}
       </CardContent>

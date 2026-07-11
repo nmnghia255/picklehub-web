@@ -28,10 +28,12 @@ export function BookingManagement({
   tournamentId,
   tournamentStartDate,
   tournamentEndDate,
+  isEditable,
 }: {
   tournamentId: number
   tournamentStartDate?: string | null
   tournamentEndDate?: string | null
+  isEditable: boolean
 }) {
   const { t } = useTournamentTranslation()
   const [centers, setCenters] = useState<TournamentCenter[]>([])
@@ -263,6 +265,7 @@ export function BookingManagement({
           setIsCenterDialogOpen={setIsCenterDialogOpen}
           tournamentStartDate={tournamentStartDate}
           tournamentEndDate={tournamentEndDate}
+          isEditable={isEditable}
         />
 
         {/* Bookings List Card */}
@@ -270,6 +273,7 @@ export function BookingManagement({
           bookings={bookings}
           centers={centers}
           onCancelBooking={handleCancelBooking}
+          isEditable={isEditable}
         />
       </div>
     </div>

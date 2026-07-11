@@ -40,6 +40,7 @@ export interface TournamentDashboardProps {
   prizes?: TournamentPrize[]
   sponsors?: Sponsor[]
   isHost?: boolean
+  isEditable: boolean
 }
 
 export function TournamentDashboard({
@@ -47,7 +48,8 @@ export function TournamentDashboard({
   events: initialEvents,
   prizes = [],
   sponsors = [],
-  isHost = false,
+  isHost,
+  isEditable,
 }: TournamentDashboardProps) {
   const { t, i18n } = useTournamentTranslation()
   const {
@@ -243,7 +245,7 @@ export function TournamentDashboard({
             >
               <ImageIcon className="mr-2 h-4 w-4 text-emerald-600" />
               {t("dashboard.createPoster", {
-                defaultValue: "Tạo Poster",
+                defaultValue: "Create Poster",
               })}
             </Button>
           </div>
@@ -290,12 +292,12 @@ export function TournamentDashboard({
       </div>
 
       {/* Host Status Actions Panel */}
-      <StatusControlPanel />
+      <StatusControlPanel isEditable={isEditable} />
 
       {/* Poster Generation Modal */}
       <Dialog open={isPosterModalOpen} onOpenChange={setIsPosterModalOpen}>
         <DialogContent className="max-w-3xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-950">
-          <DialogHeader>
+          <DialogHeader className="mr-10">
             <DialogTitle className="text-xl font-bold text-gray-900 dark:text-zinc-100">
               {t("dashboard.posterTitle", {
                 defaultValue: "Poster Quảng Cáo Giải Đấu",

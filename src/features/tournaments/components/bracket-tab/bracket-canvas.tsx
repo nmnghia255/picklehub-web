@@ -29,6 +29,7 @@ interface BracketCanvasProps {
   handleGenerateBracket: () => Promise<void>
   isPending: boolean
   setSelectedMatch: (match: Bracket) => void
+  isEditable: boolean
 }
 
 export function BracketCanvas({
@@ -44,6 +45,7 @@ export function BracketCanvas({
   handleGenerateBracket,
   isPending,
   setSelectedMatch,
+  isEditable,
 }: BracketCanvasProps) {
   const { t } = useTournamentTranslation()
   const resetViewTrigger = useBracketStore((state) => state.resetViewTrigger)
@@ -214,7 +216,7 @@ export function BracketCanvas({
           {isHost && selectedEventId && (
             <Button
               onClick={handleGenerateBracket}
-              disabled={isPending}
+              disabled={isPending || !isEditable}
               className="h-auto rounded-xl bg-emerald-600 px-8 py-6 text-base font-semibold text-white shadow-lg shadow-emerald-600/20 transition-all duration-200 hover:bg-emerald-700 hover:shadow-emerald-600/30"
             >
               <Shuffle className="mr-3 h-5 w-5" />

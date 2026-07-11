@@ -21,7 +21,12 @@
             "date": "Ngày",
             "actions": "Thao tác",
             "paid": "Đã thanh toán",
-            "pending": "Chờ xử lý"
+            "pending": "Chờ xử lý",
+            "actionsMenu": {
+                "view": "Xem chi tiết",
+                "approve": "Phê duyệt",
+                "reject": "Từ chối"
+            }
         },
         "profile": {
             "title": "Hồ sơ người chơi",

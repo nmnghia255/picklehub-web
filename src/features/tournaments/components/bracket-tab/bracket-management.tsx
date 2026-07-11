@@ -26,6 +26,7 @@ interface BracketManagementProps {
   tournamentStatus?: TournamentStatus
   eventId?: number
   hideEventSelect?: boolean
+  isEditable: boolean
 }
 
 export function BracketManagement({
@@ -34,6 +35,7 @@ export function BracketManagement({
   isHost,
   eventId,
   hideEventSelect = false,
+  isEditable,
 }: BracketManagementProps) {
   const { t } = useTournamentTranslation()
 
@@ -198,6 +200,7 @@ export function BracketManagement({
         tournamentId={tournamentId}
         isHost={isHost}
         hideEventSelect={hideEventSelect}
+        isEditable={isEditable}
       />
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-gray-50/50">
@@ -214,6 +217,7 @@ export function BracketManagement({
           handleGenerateBracket={handleGenerateBracket}
           isPending={isPending}
           setSelectedMatch={setSelectedMatch}
+          isEditable={isEditable}
         />
       </div>
 

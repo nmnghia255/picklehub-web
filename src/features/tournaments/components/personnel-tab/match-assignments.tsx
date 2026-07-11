@@ -20,9 +20,13 @@ import { UnassignedMatchesTab } from "./unassigned-matches-tab"
 
 interface MatchAssignmentsProps {
   events: TournamentEvent[]
+  isEditable: boolean
 }
 
-export function MatchAssignments({ events }: MatchAssignmentsProps) {
+export function MatchAssignments({
+  events,
+  isEditable,
+}: MatchAssignmentsProps) {
   const { t } = useTournamentTranslation()
 
   // Store Hooks
@@ -243,7 +247,7 @@ export function MatchAssignments({ events }: MatchAssignmentsProps) {
       <div className="flex flex-col gap-0.5">
         <div className="flex flex-wrap items-center gap-1.5">
           <span
-            className="max-w-[180px] truncate text-sm font-semibold text-gray-900"
+            className="text-sm font-semibold text-gray-900"
             title={displayName}
           >
             {displayName}
@@ -260,7 +264,7 @@ export function MatchAssignments({ events }: MatchAssignmentsProps) {
 
         {team.name && (player1Name || player2Name) && (
           <div
-            className="truncate text-xs text-gray-500"
+            className="text-xs text-gray-500"
             title={
               player2Name ? `${player1Name} & ${player2Name}` : player1Name
             }
@@ -418,19 +422,19 @@ export function MatchAssignments({ events }: MatchAssignmentsProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-3">
-      {/* Left Column: Referees List */}
-      <RefereeList
-        referees={referees}
-        selectedRefereeId={selectedRefereeId}
-        onSelectReferee={(id) => {
-          setSelectedRefereeId(id)
-          setSelectedMatchIds(new Set())
-        }}
-      />
+    <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-2 gap-6">
+        {/* Left Column: Referees List */}
+        <RefereeList
+          referees={referees}
+          selectedRefereeId={selectedRefereeId}
+          onSelectReferee={(id) => {
+            setSelectedRefereeId(id)
+            setSelectedMatchIds(new Set())
+          }}
+        />
 
-      {/* Right Column: Assignment Workspace */}
-      <div className="space-y-6 md:col-span-2">
+        {/* Right Column: Referee Profile Card */}
         {!selectedReferee ? (
           <Card className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 bg-white p-12 text-center">
             <AlertCircle className="mx-auto mb-4 h-12 w-12 text-gray-300" />
@@ -450,75 +454,75 @@ export function MatchAssignments({ events }: MatchAssignmentsProps) {
           <>
             {/* Referee Profile Card */}
             <RefereeProfileCard referee={selectedReferee} />
-
-            {/* Assignments Tabs */}
-            <Tabs
-              value={activeTab}
-              onValueChange={setActiveTab}
-              className="w-full"
-            >
-              <TabsList className="grid w-full grid-cols-2 bg-gray-100/80 p-0">
-                <TabsTrigger
-                  value="unassigned"
-                  className="py-2 text-xs font-semibold"
-                >
-                  {t("personnel.assignments.assignMatches", {
-                    defaultValue: "Assign Matches",
-                  })}
-                </TabsTrigger>
-                <TabsTrigger
-                  value="assigned"
-                  className="py-2 text-xs font-semibold"
-                >
-                  {t("personnel.assignments.currentAssignments", {
-                    defaultValue: "Current Assignments ({{count}})",
-                    count: refereeAssignments.length,
-                  })}
-                </TabsTrigger>
-              </TabsList>
-
-              {/* UNASSIGNED TAB */}
-              <TabsContent
-                value="unassigned"
-                className="mt-4 space-y-4 focus:outline-hidden"
-              >
-                <UnassignedMatchesTab
-                  events={events}
-                  filteredUnassignedMatches={filteredUnassignedMatches}
-                  selectedMatchIds={selectedMatchIds}
-                  isAssigningBulk={isAssigningBulk}
-                  matchSearch={matchSearch}
-                  setMatchSearch={setMatchSearch}
-                  selectedEventId={selectedEventId}
-                  setSelectedEventId={setSelectedEventId}
-                  allFilteredSelected={allFilteredSelected}
-                  toggleSelectAll={toggleSelectAll}
-                  toggleMatchSelection={toggleMatchSelection}
-                  handleBulkAssign={handleBulkAssign}
-                  isLoadingMatches={isLoadingMatches}
-                  scheduleMap={scheduleMap}
-                  formatMatchTime={formatMatchTime}
-                  renderTeamDetails={renderTeamDetails}
-                />
-              </TabsContent>
-
-              {/* CURRENT ASSIGNMENTS TAB */}
-              <TabsContent
-                value="assigned"
-                className="mt-4 space-y-4 focus:outline-hidden"
-              >
-                <AssignedMatchesTab
-                  refereeAssignments={refereeAssignments}
-                  isLoadingMatches={isLoadingMatches}
-                  handleUnassignReferee={handleUnassignReferee}
-                  scheduleMap={scheduleMap}
-                  formatMatchTime={formatMatchTime}
-                  renderTeamDetails={renderTeamDetails}
-                />
-              </TabsContent>
-            </Tabs>
           </>
         )}
+      </div>
+
+      <div className="space-y-6 md:col-span-2">
+        {/* Assignments Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-gray-100/80 p-0">
+            <TabsTrigger
+              value="unassigned"
+              className="py-2 text-xs font-semibold"
+            >
+              {t("personnel.assignments.assignMatches", {
+                defaultValue: "Assign Matches",
+              })}
+            </TabsTrigger>
+            <TabsTrigger
+              value="assigned"
+              className="py-2 text-xs font-semibold"
+            >
+              {t("personnel.assignments.currentAssignments", {
+                defaultValue: "Current Assignments ({{count}})",
+                count: refereeAssignments.length,
+              })}
+            </TabsTrigger>
+          </TabsList>
+
+          {/* UNASSIGNED TAB */}
+          <TabsContent
+            value="unassigned"
+            className="mt-4 space-y-4 focus:outline-hidden"
+          >
+            <UnassignedMatchesTab
+              events={events}
+              filteredUnassignedMatches={filteredUnassignedMatches}
+              selectedMatchIds={selectedMatchIds}
+              isAssigningBulk={isAssigningBulk}
+              matchSearch={matchSearch}
+              setMatchSearch={setMatchSearch}
+              selectedEventId={selectedEventId}
+              setSelectedEventId={setSelectedEventId}
+              allFilteredSelected={allFilteredSelected}
+              toggleSelectAll={toggleSelectAll}
+              toggleMatchSelection={toggleMatchSelection}
+              handleBulkAssign={handleBulkAssign}
+              isLoadingMatches={isLoadingMatches}
+              scheduleMap={scheduleMap}
+              formatMatchTime={formatMatchTime}
+              renderTeamDetails={renderTeamDetails}
+              isEditable={isEditable}
+            />
+          </TabsContent>
+
+          {/* CURRENT ASSIGNMENTS TAB */}
+          <TabsContent
+            value="assigned"
+            className="mt-4 space-y-4 focus:outline-hidden"
+          >
+            <AssignedMatchesTab
+              refereeAssignments={refereeAssignments}
+              isLoadingMatches={isLoadingMatches}
+              handleUnassignReferee={handleUnassignReferee}
+              scheduleMap={scheduleMap}
+              formatMatchTime={formatMatchTime}
+              renderTeamDetails={renderTeamDetails}
+              isEditable={isEditable}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )

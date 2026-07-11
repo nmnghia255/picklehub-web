@@ -1,7 +1,15 @@
 "use client"
 
 import { format } from "date-fns"
-import { Calendar, Loader2, MapPin, Plus, Search, Users } from "lucide-react"
+import {
+  Calendar,
+  Loader2,
+  MapPin,
+  Plus,
+  Search,
+  ShieldAlert,
+  Users,
+} from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef } from "react"
 
@@ -17,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 import { cn } from "@/lib/utils"
 
@@ -148,6 +157,38 @@ export function TournamentList({
 
   function handleCreateTournament() {
     router.push("/tournament-management/create")
+  }
+
+  const { data: subscriptions } = useMySubscriptions()
+  const hasTournamentOrganizerPlan = Boolean(
+    subscriptions?.some(
+      (sub) =>
+        sub.status === "ACTIVE" && sub.plan.type === "TOURNAMENT_ORGANIZER"
+    )
+  )
+
+  if (!hasTournamentOrganizerPlan && mode === "management") {
+    return (
+      <div className="mx-auto flex max-w-md flex-col items-center justify-center px-4 py-16 text-center">
+        <div className="rounded-full bg-red-100 p-3 text-red-600 dark:bg-red-950/20">
+          <ShieldAlert className="size-8" />
+        </div>
+        <h1 className="mt-4 text-2xl font-bold tracking-tight">
+          {t("permission.accessDenied")}
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {t("permission.hostPlanRequired")}
+        </p>
+        <div className="mt-6 flex gap-3">
+          <Button variant="outline" onClick={() => router.back()}>
+            {t("permission.goBack")}
+          </Button>
+          <Button onClick={() => router.push("/subscriptions")}>
+            {t("permission.upgradeAccount")}
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (

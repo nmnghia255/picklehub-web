@@ -165,22 +165,37 @@ export function EventDetailClient({
       }
     }
 
+    const isSingles = event.type === "Singles"
+
     const payload: RegistrationRequest = {
       playerId: currentUser.id || "",
       playerName: currentUser.fullName || "",
       playerRating: ratingVal,
       playerAvatar: currentUser.avatarUrl || "",
-      playerGender: currentUser.gender || "MALE",
+      playerGender:
+        currentUser.gender?.toUpperCase() === "MALE" ||
+        currentUser.gender?.toUpperCase() === "M"
+          ? "M"
+          : "F",
       playerAge: 25,
       playerDuprId: currentUser.dupr?.duprId || "",
-      partnerId: partner?.id || "",
-      partnerName: partner?.fullName || "",
-      partnerRating: partnerRatingVal,
-      partnerAvatar: partner?.avatarUrl || "",
-      partnerGender: partner?.gender || "MALE",
-      partnerAge: 25,
-      partnerDuprId: partner?.dupr?.duprId || "",
-      paymentStatus: event.entryFee && event.entryFee > 0 ? "pending" : "paid",
+      paymentStatus:
+        event.entryFee && event.entryFee > 0 ? "pending" : "completed",
+      ...(!isSingles && partner
+        ? {
+            partnerId: partner.id,
+            partnerName: partner.fullName || "",
+            partnerRating: partnerRatingVal,
+            partnerAvatar: partner.avatarUrl || "",
+            partnerGender:
+              partner.gender?.toUpperCase() === "MALE" ||
+              partner.gender?.toUpperCase() === "M"
+                ? "M"
+                : "F",
+            partnerAge: 25,
+            partnerDuprId: partner.dupr?.duprId || "",
+          }
+        : {}),
     }
 
     try {
@@ -341,6 +356,7 @@ export function EventDetailClient({
                       isHost={false}
                       eventId={Number(event.id)}
                       hideEventSelect={true}
+                      isEditable={false}
                     />
                   ) : (
                     <BracketManagement
@@ -349,6 +365,7 @@ export function EventDetailClient({
                       isHost={false}
                       eventId={Number(event.id)}
                       hideEventSelect={true}
+                      isEditable={false}
                     />
                   )}
                 </div>

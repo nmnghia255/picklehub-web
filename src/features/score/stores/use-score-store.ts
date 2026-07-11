@@ -245,7 +245,34 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
       teamBScore: typeof score === "function" ? score(state.teamBScore) : score,
     })),
 
-  setServingTeam: (team) => set({ servingTeam: team }),
+  setServingTeam: (team) =>
+    set((state) => {
+      const nextServingTeam = team
+      let nextActiveServer = state.activeServer
+
+      if (nextServingTeam === "A") {
+        if (!state.activeServer.startsWith("A")) {
+          if (state.serverNumber === 1) {
+            nextActiveServer = state.isA1Right ? "A1" : "A2"
+          } else {
+            nextActiveServer = state.isA1Right ? "A2" : "A1"
+          }
+        }
+      } else {
+        if (!state.activeServer.startsWith("B")) {
+          if (state.serverNumber === 1) {
+            nextActiveServer = state.isB1Right ? "B1" : "B2"
+          } else {
+            nextActiveServer = state.isB1Right ? "B2" : "B1"
+          }
+        }
+      }
+
+      return {
+        servingTeam: nextServingTeam,
+        activeServer: nextActiveServer,
+      }
+    }),
   setServerNumber: (num) => set({ serverNumber: num }),
 
   setIsA1Right: (right) =>
@@ -259,10 +286,15 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
     })),
 
   setActiveServer: (server) =>
-    set((state) => ({
-      activeServer:
-        typeof server === "function" ? server(state.activeServer) : server,
-    })),
+    set((state) => {
+      const nextServer =
+        typeof server === "function" ? server(state.activeServer) : server
+      const nextServingTeam = nextServer.startsWith("A") ? "A" : "B"
+      return {
+        activeServer: nextServer,
+        servingTeam: nextServingTeam,
+      }
+    }),
 
   setSets: (sets) => set({ sets }),
   setCurrentSetId: (id) => set({ currentSetId: id }),

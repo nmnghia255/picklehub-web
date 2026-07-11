@@ -1,13 +1,21 @@
 "use client"
 
-import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react"
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Loader2,
+  ShieldAlert,
+} from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
+import { BackButton } from "@/components/common/back-button"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
 import { createFullTournamentAction } from "../../actions/tournament-actions"
@@ -45,6 +53,38 @@ export function CreateTournament() {
     { number: 5, title: t("create.steps.payment") },
     { number: 6, title: t("create.steps.review") },
   ]
+
+  const { data: subscriptions } = useMySubscriptions()
+  const hasTournamentOrganizerPlan = Boolean(
+    subscriptions?.some(
+      (sub) =>
+        sub.status === "ACTIVE" && sub.plan.type === "TOURNAMENT_ORGANIZER"
+    )
+  )
+
+  if (!hasTournamentOrganizerPlan) {
+    return (
+      <div className="mx-auto flex max-w-md flex-col items-center justify-center px-4 py-16 text-center">
+        <div className="rounded-full bg-red-100 p-3 text-red-600 dark:bg-red-950/20">
+          <ShieldAlert className="size-8" />
+        </div>
+        <h1 className="mt-4 text-2xl font-bold tracking-tight">
+          {t("permission.accessDenied")}
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {t("permission.hostPlanRequired")}
+        </p>
+        <div className="mt-6 flex gap-3">
+          <Button variant="outline" onClick={() => router.back()}>
+            {t("permission.goBack")}
+          </Button>
+          <Button onClick={() => router.push("/subscriptions")}>
+            {t("permission.upgradeAccount")}
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   const validateStep = (step: number): boolean => {
     switch (step) {
@@ -254,15 +294,7 @@ export function CreateTournament() {
             </h1>
             <p className="text-gray-600">{t("create.subtitle")}</p>
           </div>
-          <Button
-            variant="ghost"
-            onClick={() => router.back()}
-            disabled={isSubmitting}
-            className="mb-4"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t("create.back")}
-          </Button>
+          <BackButton />
         </div>
 
         {/* Progress */}

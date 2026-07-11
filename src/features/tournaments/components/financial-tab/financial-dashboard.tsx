@@ -14,9 +14,13 @@ import { SummaryCards } from "./summary-cards"
 
 interface FinancialDashboardProps {
   tournamentId: string
+  isEditable: boolean
 }
 
-export function FinancialDashboard({ tournamentId }: FinancialDashboardProps) {
+export function FinancialDashboard({
+  tournamentId,
+  isEditable,
+}: FinancialDashboardProps) {
   const { t } = useTournamentTranslation()
   const { setTournamentId, loadData, isLoading, isExporting, exportReport } =
     useFinanceStore()
@@ -125,7 +129,7 @@ export function FinancialDashboard({ tournamentId }: FinancialDashboardProps) {
         {/* Tables */}
         <div className="space-y-8">
           <RegistrationFeeTable />
-          <OtherTransactionsTable />
+          <OtherTransactionsTable isEditable={isEditable} />
         </div>
       </div>
     </div>

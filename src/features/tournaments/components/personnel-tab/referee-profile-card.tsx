@@ -15,12 +15,14 @@ interface RefereeProfileCardProps {
   referee: Referee
   onUnenroll?: (referee: Referee) => void
   className?: string
+  isEditable?: boolean
 }
 
 export function RefereeProfileCard({
   referee,
   onUnenroll,
   className,
+  isEditable,
 }: RefereeProfileCardProps) {
   const { t } = useTournamentTranslation()
   const referees = usePersonnelStore((s) => s.referees)
@@ -86,6 +88,7 @@ export function RefereeProfileCard({
                 size="icon"
                 className="h-8 w-8 shrink-0 rounded-lg text-gray-400 opacity-0 transition-opacity duration-200 group-hover:opacity-100 hover:bg-red-50 hover:text-red-600"
                 onClick={() => onUnenroll(referee)}
+                disabled={!isEditable}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>

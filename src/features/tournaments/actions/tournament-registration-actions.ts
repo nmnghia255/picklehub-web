@@ -7,7 +7,7 @@ import { getMyProfile } from "@/features/profile/api/profile-service"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import { TournamentRegistrationService } from "../api/registration-service"
-import type { RegistrationRequest } from "../types/registration"
+import type { PaymentSubmit, RegistrationRequest } from "../types/registration"
 
 export async function listTournamentRegistrationsAction(
   tournamentId: string,
@@ -157,13 +157,13 @@ export async function registerTournamentEventAction(
 export async function uploadPaymentProofAction(
   tournamentId: string,
   registrationId: string,
-  paymentProofUrl: string
+  paymentProof: PaymentSubmit
 ) {
   try {
     const data = await TournamentRegistrationService.uploadPaymentProof(
       tournamentId,
       registrationId,
-      paymentProofUrl
+      paymentProof
     )
     return { success: true, data }
   } catch (error: unknown) {

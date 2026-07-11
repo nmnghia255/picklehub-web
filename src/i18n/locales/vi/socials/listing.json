@@ -1,9 +1,9 @@
 {
     "listing": {
-        "title": "Social",
-        "subtitle": "Khám phá các Social sắp diễn ra, tinh chỉnh bộ lọc và tham gia phiên phù hợp.",
-        "searchPlaceholder": "Tìm Social...",
-        "createSocial": "Tạo Social",
+        "title": "Buổi chơi",
+        "subtitle": "Khám phá các buổi chơi sắp diễn ra, tinh chỉnh bộ lọc và tham gia phiên phù hợp.",
+        "searchPlaceholder": "Tìm buổi chơi...",
+        "createSocial": "Tạo buổi chơi",
         "filters": "Bộ lọc",
         "showingAvailableSlotsOnly": "Đang hiển thị: Chỉ còn chỗ trống",
         "showAllAvailability": "Hiển thị mọi tình trạng chỗ trống",

@@ -160,6 +160,9 @@ export function AppSidebar() {
   const hasSportCenterManagerPlan = subscriptions.some(
     (sub) => sub.status === "ACTIVE" && sub.plan.type === "SPORT_CENTER_MANAGER"
   )
+  const hasTournamentOrganizerPlan = subscriptions.some(
+    (sub) => sub.status === "ACTIVE" && sub.plan.type === "TOURNAMENT_ORGANIZER"
+  )
   const [isSportCenterManagementMenuOpen, setIsSportCenterManagementMenuOpen] =
     useState(false)
 
@@ -219,27 +222,33 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {sidebarItems.map((item) => {
-                return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActivePath(pathname, item.href)}
-                      tooltip={t(`sidebar.${item.titleKey}`)}
-                    >
-                      <Link href={item.href} onClick={handlePrimaryItemClick}>
-                        <span className="relative inline-flex items-center justify-center">
-                          <item.icon className="size-4" />
-                          {item.href === "/feed" && unreadCount > 0 && (
-                            <span className="ring-sidebar-background absolute -top-1 -right-1 size-2 rounded-full bg-red-500 ring-2" />
-                          )}
-                        </span>
-                        <span>{t(`sidebar.${item.titleKey}`)}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+              {sidebarItems
+                .filter(
+                  (item) =>
+                    item.href !== "/tournament-management" ||
+                    hasTournamentOrganizerPlan
                 )
-              })}
+                .map((item) => {
+                  return (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActivePath(pathname, item.href)}
+                        tooltip={t(`sidebar.${item.titleKey}`)}
+                      >
+                        <Link href={item.href} onClick={handlePrimaryItemClick}>
+                          <span className="relative inline-flex items-center justify-center">
+                            <item.icon className="size-4" />
+                            {item.href === "/feed" && unreadCount > 0 && (
+                              <span className="ring-sidebar-background absolute -top-1 -right-1 size-2 rounded-full bg-red-500 ring-2" />
+                            )}
+                          </span>
+                          <span>{t(`sidebar.${item.titleKey}`)}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                })}
 
               {hasSportCenterManagerPlan && (
                 <SidebarMenuItem>

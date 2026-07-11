@@ -29,12 +29,14 @@ import type { FinanceStatus, FinanceType } from "../../types/finance"
 
 interface AddTransactionDialogProps {
   tournamentId: string
+  isEditable: boolean
   onSuccess: () => void
 }
 
 export function AddTransactionDialog({
   tournamentId,
   onSuccess,
+  isEditable,
 }: AddTransactionDialogProps) {
   const { t, i18n } = useTournamentTranslation()
   const [open, setOpen] = useState(false)
@@ -122,7 +124,10 @@ export function AddTransactionDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-emerald-600 text-white hover:bg-emerald-700">
+        <Button
+          className="bg-emerald-600 text-white hover:bg-emerald-700"
+          disabled={!isEditable}
+        >
           <Plus className="mr-2 h-4 w-4" />
           {t("financials.transactions.add", {
             defaultValue: "Add Transaction",
@@ -130,7 +135,7 @@ export function AddTransactionDialog({
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
+        <DialogHeader className="mr-10">
           <DialogTitle>
             {t("financials.transactions.dialogTitle", {
               defaultValue: "Add New Transaction",

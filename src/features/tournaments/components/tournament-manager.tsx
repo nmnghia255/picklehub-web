@@ -13,13 +13,15 @@ import {
   ListOrdered,
   MoreHorizontal,
   Shield,
+  ShieldAlert,
   Trophy,
   Users,
 } from "lucide-react"
-import { useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 
 import { BackButton } from "@/components/common/back-button"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +36,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { BookingManagement } from "@/features/tournaments/components/booking-tab/booking-management"
 import { BracketManagement } from "@/features/tournaments/components/bracket-tab/bracket-management"
 import { TournamentDashboard } from "@/features/tournaments/components/dashboard-tab/tournament-dashboard"
@@ -94,6 +97,8 @@ export function TournamentManager({
 }) {
   const { t } = useTournamentTranslation()
   const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
   const tabParam = searchParams?.get("tab")
   const resolvedTabParam =
     tabParam === "brackets" ? "groups" : tabParam || "dashboard"
@@ -103,6 +108,15 @@ export function TournamentManager({
   if (tabParam !== prevTabParam) {
     setPrevTabParam(tabParam)
     setActiveTab(resolvedTabParam)
+  }
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value)
+    const params = new URLSearchParams(
+      searchParams ? searchParams.toString() : ""
+    )
+    params.set("tab", value)
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
   // Active stage (group stage or knockout stage) inside the merged 'Group & Bracket' tab
@@ -183,6 +197,39 @@ export function TournamentManager({
     (tab) => !displayTabs.includes(tab)
   )
 
+  const { data: subscriptions } = useMySubscriptions()
+  const hasTournamentOrganizerPlan = Boolean(
+    subscriptions?.some(
+      (sub) =>
+        sub.status === "ACTIVE" && sub.plan.type === "TOURNAMENT_ORGANIZER"
+    )
+  )
+  const isEditable = isHost && hasTournamentOrganizerPlan
+
+  if (!hasTournamentOrganizerPlan) {
+    return (
+      <div className="mx-auto flex max-w-md flex-col items-center justify-center px-4 py-16 text-center">
+        <div className="rounded-full bg-red-100 p-3 text-red-600 dark:bg-red-950/20">
+          <ShieldAlert className="size-8" />
+        </div>
+        <h1 className="mt-4 text-2xl font-bold tracking-tight">
+          {t("permission.accessDenied")}
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {t("permission.hostPlanRequired")}
+        </p>
+        <div className="mt-6 flex gap-3">
+          <Button variant="outline" onClick={() => router.back()}>
+            {t("permission.goBack")}
+          </Button>
+          <Button onClick={() => router.push("/subscriptions")}>
+            {t("permission.upgradeAccount")}
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
       className={cn(
@@ -213,7 +260,7 @@ export function TournamentManager({
 
       <Tabs
         value={activeTab}
-        onValueChange={setActiveTab}
+        onValueChange={handleTabChange}
         className="flex min-h-0 flex-1 flex-col gap-0 overflow-hidden p-0"
       >
         <div className="border-y border-gray-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
@@ -251,7 +298,7 @@ export function TournamentManager({
                       return (
                         <DropdownMenuItem
                           key={tabValue}
-                          onClick={() => setActiveTab(tabValue)}
+                          onClick={() => handleTabChange(tabValue)}
                           className="flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-emerald-600 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-emerald-400"
                         >
                           <Icon className="h-4 w-4" />
@@ -284,6 +331,7 @@ export function TournamentManager({
               prizes={prizes}
               sponsors={sponsors}
               isHost={isHost}
+              isEditable={isEditable}
             />
           </TabsContent>
           <TabsContent
@@ -294,7 +342,7 @@ export function TournamentManager({
               tournament={tournament}
               events={events}
               prizes={prizes}
-              isHost={isHost}
+              isEditable={isEditable}
             />
           </TabsContent>
           <TabsContent
@@ -304,6 +352,7 @@ export function TournamentManager({
             <RegistrationManagement
               tournamentId={tournament.id.toString()}
               events={events}
+              isEditable={isEditable}
             />
           </TabsContent>
 
@@ -316,6 +365,7 @@ export function TournamentManager({
               tournamentStatus={tournament.status}
               events={events}
               isHost={isHost}
+              isEditable={isEditable}
             />
           </TabsContent>
           <TabsContent
@@ -397,6 +447,7 @@ export function TournamentManager({
                     isHost={isHost}
                     eventId={selectedEventId || undefined}
                     hideEventSelect={true}
+                    isEditable={isEditable}
                   />
                 ) : (
                   <BracketManagement
@@ -406,6 +457,7 @@ export function TournamentManager({
                     tournamentStatus={tournament.status}
                     eventId={selectedEventId || undefined}
                     hideEventSelect={true}
+                    isEditable={isEditable}
                   />
                 )}
               </div>
@@ -429,31 +481,46 @@ export function TournamentManager({
               tournamentId={tournament.id}
               tournamentStartDate={tournament.startDate}
               tournamentEndDate={tournament.endDate}
+              isEditable={isEditable}
             />
           </TabsContent>
           <TabsContent
             value="live"
             className="m-0 border-none p-0 outline-none"
           >
-            <LiveControlCenter tournamentId={tournament.id} events={events} />
+            <LiveControlCenter
+              tournamentId={tournament.id}
+              events={events}
+              isEditable={isEditable}
+            />
           </TabsContent>
           <TabsContent
             value="financials"
             className="m-0 border-none p-0 outline-none"
           >
-            <FinancialDashboard tournamentId={tournament.id.toString()} />
+            <FinancialDashboard
+              tournamentId={tournament.id.toString()}
+              isEditable={isEditable}
+            />
           </TabsContent>
           <TabsContent
             value="payment"
             className="m-0 border-none p-0 outline-none"
           >
-            <PaymentTab tournament={tournament} isHost={isHost} />
+            <PaymentTab
+              tournament={tournament}
+              isHost={isHost}
+              isEditable={isEditable}
+            />
           </TabsContent>
           <TabsContent
             value="sponsors"
             className="m-0 border-none p-0 outline-none"
           >
-            <Sponsors tournamentId={tournament.id.toString()} />
+            <Sponsors
+              tournamentId={tournament.id.toString()}
+              isEditable={isEditable}
+            />
           </TabsContent>
           <TabsContent
             value="personnel"
@@ -462,6 +529,7 @@ export function TournamentManager({
             <PersonnelManagement
               tournamentId={tournament.id.toString()}
               events={events}
+              isEditable={isEditable}
             />
           </TabsContent>
         </div>

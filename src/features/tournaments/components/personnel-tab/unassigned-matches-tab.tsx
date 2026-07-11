@@ -42,6 +42,7 @@ interface UnassignedMatchesTabProps {
     teamId: string | null | undefined,
     isTeam1: boolean
   ) => React.ReactNode
+  isEditable: boolean
 }
 
 export function UnassignedMatchesTab({
@@ -61,13 +62,14 @@ export function UnassignedMatchesTab({
   scheduleMap,
   formatMatchTime,
   renderTeamDetails,
+  isEditable,
 }: UnassignedMatchesTabProps) {
   const { t } = useTournamentTranslation()
 
   return (
     <>
       {/* Search & Event Filters */}
-      <div className="flex flex-col justify-between gap-4 border-b border-gray-100 pb-4 sm:flex-row sm:items-center">
+      <div className="flex w-full flex-col justify-between gap-4 border-b border-gray-100 pb-4 sm:flex-row sm:items-center">
         <div className="flex flex-1 flex-col gap-3 sm:flex-row">
           <div className="relative w-full flex-1">
             <Search className="absolute top-2.5 left-3 h-4 w-4 text-gray-400" />
@@ -80,7 +82,7 @@ export function UnassignedMatchesTab({
           </div>
           <div className="w-full sm:w-56">
             <Select value={selectedEventId} onValueChange={setSelectedEventId}>
-              <SelectTrigger className="bg-white">
+              <SelectTrigger className="w-full bg-white">
                 <SelectValue
                   placeholder={t("personnel.assignments.allEvents")}
                 />
@@ -141,7 +143,9 @@ export function UnassignedMatchesTab({
             <Button
               size="sm"
               className="bg-emerald-600 text-xs font-semibold text-white hover:bg-emerald-700"
-              disabled={selectedMatchIds.size === 0 || isAssigningBulk}
+              disabled={
+                selectedMatchIds.size === 0 || isAssigningBulk || !isEditable
+              }
               onClick={() => void handleBulkAssign()}
             >
               {isAssigningBulk ? (

@@ -56,12 +56,12 @@
     "dayDetailsTitle": "Chi tiết ngày {{date}}",
     "dayDetailsDescription": "Danh sách hoạt động bạn đã đăng ký tham gia trong ngày này.",
     "noDayActivitiesTitle": "Không có hoạt động",
-    "noDayActivitiesDescription": "Bạn không có lịch Social, đặt sân hay giải đấu nào trong ngày này.",
+    "noDayActivitiesDescription": "Bạn không có lịch, đặt sân hay giải đấu nào trong ngày này.",
     "activitiesCount": "Có {{count}} hoạt động",
     "moreActivities": "+{{count}} hoạt động khác",
     "participantsCount": "{{count}} người tham gia",
     "monthEmptyTitle": "Bạn chưa có hoạt động nào",
-    "monthEmptyDescription": "Hiện tại bạn chưa đăng ký tham gia bất kỳ buổi Social, đặt sân cá nhân hay giải đấu nào trong {{monthYear}}.",
+    "monthEmptyDescription": "Hiện tại bạn chưa đăng ký tham gia bất kỳ buổi chơi nào, đặt sân cá nhân hay giải đấu nào trong {{monthYear}}.",
     "detailDescription": "Chi tiết lịch hoạt động cá nhân của bạn",
     "time": "Thời gian",
     "location": "Địa điểm",
@@ -78,11 +78,11 @@
       "cancelled": "Đã hủy"
     },
     "types": {
-      "socialSession": "Social",
-      "booking": "Booking",
-      "tournament": "Tournament",
-      "matchPractice": "Practice",
-      "matchTournament": "Tournament Match"
+      "socialSession": "Buổi chơi",
+      "booking": "Đặt sân",
+      "tournament": "Giải đấu",
+      "matchPractice": "Luyện tập",
+      "matchTournament": "Trận đấu giải"
     },
     "weekdays": {
       "monday": "T2",
@@ -155,8 +155,8 @@
     "sessions": "Buổi chơi",
     "sessionList": "Danh sách buổi chơi",
     "mySessions": "Buổi chơi của tôi",
-    "discoverSocial": "Khám phá Social",
-    "mySocial": "Social của tôi",
+    "discoverSocial": "Khám phá",
+    "mySocial": "Buổi chơi của tôi",
     "tournaments": "Giải đấu",
     "groups": "Nhóm",
     "friends": "Bạn bè",
@@ -180,18 +180,18 @@
   },
   "chat": {
     "pageTitle": "Trò chuyện",
-    "pageDescription": "Nhắn tin với bạn bè, nhóm và các buổi Social.",
+    "pageDescription": "Nhắn tin với bạn bè, nhóm và các buổi buổi chơi.",
     "conversationList": {
       "searchPlaceholder": "Tìm cuộc trò chuyện...",
       "emptyState": "Không tìm thấy cuộc trò chuyện nào."
     },
     "emptyState": {
       "title": "Chọn một cuộc trò chuyện để bắt đầu",
-      "description": "Nhắn tin với bạn bè, nhóm và các buổi Social."
+      "description": "Nhắn tin với bạn bè, nhóm và các buổi buổi chơi."
     },
     "messages": {
       "groupMembers": "Thành viên nhóm",
-      "socialPrefix": "Social",
+      "socialPrefix": "Buổi chơi",
       "fromGroup": "Từ nhóm",
       "groupOnly": "Chỉ nhóm",
       "groupPrefix": "Nhóm",

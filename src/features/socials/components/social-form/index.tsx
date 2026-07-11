@@ -6,6 +6,7 @@ import { startTransition, useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import {
@@ -97,7 +98,12 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
   )
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const hasSocialHostPlan = true
+  const { data: subscriptions } = useMySubscriptions()
+  const hasSocialHostPlan = Boolean(
+    subscriptions?.some(
+      (sub) => sub.status === "ACTIVE" && sub.plan.type === "SOCIAL_HOST"
+    )
+  )
 
   useEffect(() => {
     if (!social) return
@@ -254,7 +260,7 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
           <Button variant="outline" onClick={() => router.back()}>
             {t("form.goBack")}
           </Button>
-          <Button onClick={() => router.push("/settings")}>
+          <Button onClick={() => router.push("/subscriptions")}>
             {t("form.upgradeAccount")}
           </Button>
         </div>
