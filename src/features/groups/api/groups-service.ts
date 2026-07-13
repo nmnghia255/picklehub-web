@@ -137,6 +137,12 @@ export async function archiveGroup(groupId: string): Promise<Group> {
   return response.data
 }
 
+export async function restoreGroup(groupId: string): Promise<Group> {
+  const axios = await getAuthenticatedAxios()
+  const response = await axios.patch<Group>(`/api/groups/${groupId}/restore`)
+  return response.data
+}
+
 export async function inviteToGroup(
   groupId: string,
   email: string

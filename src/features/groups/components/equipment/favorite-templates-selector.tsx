@@ -1,7 +1,6 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { useTranslation } from "react-i18next"
 
 import {
   Select,
@@ -11,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import {
   equipmentQueryKeys,
@@ -27,7 +27,7 @@ export function FavoriteTemplatesSelector({
   groupId,
   onSelect,
 }: FavoriteTemplatesSelectorProps) {
-  const { t } = useTranslation("common")
+  const { t } = useGroupsTranslation()
 
   const { data, isLoading } = useQuery({
     queryKey: equipmentQueryKeys.favorites(groupId),

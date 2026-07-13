@@ -121,3 +121,16 @@ export interface EventFormValues {
   status: GroupActivityStatus
   courtBookingId?: string | null
 }
+
+export interface ActivityMember {
+  memberId: string
+  userId: string
+  name: string
+  email: string
+  avatarUrl: string | null
+  role: string
+  attendanceStatus: "ATTENDING" | "ABSENT"
+  guestCount: number
+  guestStatus: "PENDING" | "APPROVED" | "REJECTED" | null
+  pendingGuestCount: number | null
+}

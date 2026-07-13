@@ -7,6 +7,7 @@ import type {
   Invitation,
   ListGroupCourtBookingsResult,
   Member,
+  PaginatedResponse,
 } from "../types"
 import { financeQueryKeys } from "./finance-client"
 
@@ -98,7 +99,12 @@ export async function getGroupMembersClient(
   params?: { activityId?: string }
 ): Promise<Member[]> {
   const query = params?.activityId ? `?activityId=${params.activityId}` : ""
-  return fetchJson<Member[]>(`/api/groups/${groupId}/members${query}`)
+
+  const res = await fetchJson<PaginatedResponse<Member>>(
+    `/api/groups/${groupId}/members${query}`
+  )
+
+  return res.data
 }
 
 export async function getGroupInvitationsClient(

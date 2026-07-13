@@ -15,6 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import { archiveGroupAction } from "../../actions"
 
@@ -27,6 +28,7 @@ export function ArchiveGroupDialog({
   groupId,
   groupName,
 }: ArchiveGroupDialogProps) {
+  const { t } = useGroupsTranslation()
   const [open, setOpen] = useState(false)
   const router = useRouter()
   const handledSuccessRef = useRef(false)
@@ -38,7 +40,11 @@ export function ArchiveGroupDialog({
   useEffect(() => {
     if (state.success && !handledSuccessRef.current) {
       handledSuccessRef.current = true
-      toast.success(`Đã lưu trữ nhóm "${groupName}".`)
+      toast.success(
+        t("errors.archiveGroupSuccess", 'Đã lưu trữ nhóm "{{name}}".', {
+          name: groupName,
+        })
+      )
       // Avoid calling setState synchronously inside an effect to prevent cascading renders
       setTimeout(() => setOpen(false), 0)
       router.refresh()
@@ -46,27 +52,30 @@ export function ArchiveGroupDialog({
 
     if (state.error) {
       handledSuccessRef.current = false
-      toast.error(state.error)
+      toast.error(t(state.error, state.error))
     }
-  }, [groupName, router, state.error, state.success])
+  }, [groupName, router, state.error, state.success, t])
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="destructive" size="sm">
           <Archive className="mr-2 size-4" />
-          Lưu trữ nhóm
+          {t("dashboard.archiveGroupBtn", "Lưu trữ nhóm")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <form action={formAction}>
           <DialogHeader>
-            <DialogTitle>Lưu trữ nhóm</DialogTitle>
+            <DialogTitle>
+              {t("dashboard.archiveGroupDialogTitle", "Lưu trữ nhóm")}
+            </DialogTitle>
             <DialogDescription>
-              Bạn có chắc muốn lưu trữ nhóm {'"'}
-              {groupName}
-              {'"'} không? Nhóm sẽ không còn hoạt động bình thường, dữ liệu sẽ
-              không bị xóa và có thể khôi phục sau nếu hệ thống hỗ trợ.
+              {t(
+                "dashboard.archiveGroupDialogDesc",
+                'Bạn có chắc muốn lưu trữ nhóm "{{name}}" không? Nhóm sẽ không còn hoạt động bình thường, dữ liệu sẽ không bị xóa và có thể khôi phục sau nếu hệ thống hỗ trợ.',
+                { name: groupName }
+              )}
             </DialogDescription>
           </DialogHeader>
 
@@ -77,13 +86,15 @@ export function ArchiveGroupDialog({
               onClick={() => setOpen(false)}
               disabled={isPending}
             >
-              Hủy
+              {t("activitySchedule.btnCancel")}
             </Button>
             <Button type="submit" variant="destructive" disabled={isPending}>
               {isPending ? (
                 <Loader2 className="mr-2 size-4 animate-spin" />
               ) : null}
-              {isPending ? "Đang lưu trữ..." : "Lưu trữ"}
+              {isPending
+                ? t("dashboard.archivingGroupBtn", "Đang lưu trữ...")
+                : t("dashboard.archiveGroupActionBtn", "Lưu trữ")}
             </Button>
           </DialogFooter>
         </form>

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Group } from "@/features/groups/types"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import { GroupCard } from "./group-card"
 import { GroupSearchControls } from "./group-search-controls"
@@ -15,6 +16,7 @@ interface GroupTabsProps {
 }
 
 export function GroupTabs({ myGroups, myGroupsError = false }: GroupTabsProps) {
+  const { t } = useGroupsTranslation()
   const [myGroupsKeyword, setMyGroupsKeyword] = useState("")
 
   const filteredMyGroups = useMemo(() => {
@@ -36,28 +38,48 @@ export function GroupTabs({ myGroups, myGroupsError = false }: GroupTabsProps) {
     <Tabs defaultValue="your-groups" className="gap-6">
       <div className="flex justify-center">
         <TabsList className="w-full max-w-xl">
-          <TabsTrigger value="your-groups">Nhóm của bạn</TabsTrigger>
+          <TabsTrigger value="your-groups">
+            {t("dashboard.yourGroupsTab", "Nhóm của bạn")}
+          </TabsTrigger>
         </TabsList>
       </div>
 
       <TabsContent value="your-groups" className="space-y-4">
         <GroupSearchControls
-          placeholder="Tìm kiếm nhóm của bạn"
+          placeholder={t(
+            "dashboard.searchYourGroupsPlaceholder",
+            "Tìm kiếm nhóm của bạn"
+          )}
           value={myGroupsKeyword}
           onChange={setMyGroupsKeyword}
-          ariaLabel="Tìm kiếm nhóm của bạn"
+          ariaLabel={t(
+            "dashboard.searchYourGroupsAria",
+            "Tìm kiếm nhóm của bạn"
+          )}
         />
 
         <div className="mt-6">
           {myGroupsError ? (
             <GroupsEmptyState
-              title="Không thể tải danh sách nhóm"
-              description="Dữ liệu nhóm của bạn chưa tải được. Vui lòng thử lại sau."
+              title={t(
+                "dashboard.loadGroupsErrorTitle",
+                "Không thể tải danh sách nhóm"
+              )}
+              description={t(
+                "dashboard.loadGroupsErrorDesc",
+                "Dữ liệu nhóm của bạn chưa tải được. Vui lòng thử lại sau."
+              )}
             />
           ) : filteredMyGroups.length === 0 ? (
             <GroupsEmptyState
-              title="Không có nhóm nào phù hợp"
-              description="Thử một từ khóa khác để tìm trong nhóm của bạn."
+              title={t(
+                "dashboard.noGroupsMatchedTitle",
+                "Không có nhóm nào phù hợp"
+              )}
+              description={t(
+                "dashboard.noGroupsMatchedDesc",
+                "Thử một từ khóa khác để tìm trong nhóm của bạn."
+              )}
             />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2">
@@ -65,7 +87,7 @@ export function GroupTabs({ myGroups, myGroupsError = false }: GroupTabsProps) {
                 <GroupCard
                   key={group.id}
                   group={group}
-                  actionLabel="Mở"
+                  actionLabel={t("dashboard.openGroupBtn", "Mở")}
                   showRole
                 />
               ))}

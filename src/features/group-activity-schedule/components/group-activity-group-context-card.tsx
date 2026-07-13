@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { GroupActivityGroup } from "@/features/group-activity-schedule/group-activity-schedule.types"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 interface GroupActivityGroupContextCardProps {
   group: GroupActivityGroup
@@ -14,6 +15,8 @@ interface GroupActivityGroupContextCardProps {
 export function GroupActivityGroupContextCard({
   group,
 }: GroupActivityGroupContextCardProps) {
+  const { t } = useGroupsTranslation()
+
   return (
     <Card>
       <CardContent className="flex flex-col gap-4 p-4 md:flex-row md:items-start md:justify-between">
@@ -28,7 +31,9 @@ export function GroupActivityGroupContextCard({
               </h2>
               <Badge variant="secondary" className="gap-1">
                 <Users className="size-3.5" />
-                {group.memberCount} thành viên
+                {t("membersCount", "{{count}} members", {
+                  count: group.memberCount,
+                })}
               </Badge>
             </div>
             <p className="max-w-2xl text-sm text-muted-foreground">
