@@ -42,6 +42,7 @@ import {
   listGroupCourtBookingsClient,
 } from "@/features/groups/api/groups-client"
 import type { GroupCourtBooking } from "@/features/groups/types"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 const formatBookingTime = (isoString?: string) => {
   if (!isoString) return ""
@@ -116,6 +117,7 @@ export function GroupActivityFormDialog({
   onUpdate,
   isSubmitting = false,
 }: GroupActivityFormDialogProps) {
+  const { t } = useGroupsTranslation()
   // Query sân chưa liên kết (tương lai) để dùng trong dropdown tạo/sửa activity
   const courtBookingsQuery = useQuery({
     queryKey: groupQueryKeys.courtBookings(activeGroupId, {
@@ -133,7 +135,8 @@ export function GroupActivityFormDialog({
   })
 
   const courtBookings = useMemo(() => {
-    const unlinked = courtBookingsQuery.data?.data || []
+    const rawList = courtBookingsQuery.data?.data || []
+    const unlinked = rawList.filter((b) => !b.isLinked)
     // Khi edit, booking hiện tại đã linked=true nên sẽ không có trong list trên.
     // Nếu activity.courtBooking có sẵn (embedded), build synthetic entry để dropdown hiển thị đúng label.
     if (editingEvent?.courtBooking && editingEvent.courtBookingId) {
@@ -188,16 +191,25 @@ export function GroupActivityFormDialog({
   }, [editingEvent])
 
   const dialogTitle = useMemo(
-    () => (editingEvent ? "Chỉnh sửa hoạt động" : "Tạo hoạt động mới"),
-    [editingEvent]
+    () =>
+      editingEvent
+        ? t("activitySchedule.activityFormTitleEdit")
+        : t("activitySchedule.activityFormTitleCreate"),
+    [editingEvent, t]
   )
 
   const dialogDescription = useMemo(
     () =>
       editingEvent
-        ? "Cập nhật thông tin thời gian, địa điểm và các cấu phần liên quan."
-        : "Điền thông tin để tạo hoạt động mới cho nhóm.",
-    [editingEvent]
+        ? t(
+            "activitySchedule.activityFormDescEdit",
+            "Cập nhật thông tin thời gian, địa điểm và các cấu phần liên quan."
+          )
+        : t(
+            "activitySchedule.activityFormDescCreate",
+            "Điền thông tin để tạo hoạt động mới cho nhóm."
+          ),
+    [editingEvent, t]
   )
 
   const formKey = `${editingEvent?.id ?? "new"}-${open ? "open" : "closed"}`
@@ -246,6 +258,7 @@ function GroupActivityFormFields({
   isSubmitting,
   courtBookings,
 }: GroupActivityFormFieldsProps) {
+  const { t } = useGroupsTranslation()
   const [values, setValues] = useState<EventFormValues>(initialValues)
   const [errors, setErrors] = useState<
     Partial<Record<keyof EventFormValues, string>>
@@ -263,19 +276,31 @@ function GroupActivityFormFields({
     const nextErrors: Partial<Record<keyof EventFormValues, string>> = {}
 
     if (!values.title.trim()) {
-      nextErrors.title = "Vui lòng nhập tên hoạt động"
+      nextErrors.title = t(
+        "activitySchedule.formValidationTitle",
+        "Vui lòng nhập tên hoạt động"
+      )
     }
 
     if (!values.date) {
-      nextErrors.date = "Vui lòng chọn ngày"
+      nextErrors.date = t(
+        "activitySchedule.formValidationDate",
+        "Vui lòng chọn ngày"
+      )
     }
 
     if (!values.startTime) {
-      nextErrors.startTime = "Vui lòng chọn giờ bắt đầu"
+      nextErrors.startTime = t(
+        "activitySchedule.formValidationStartTime",
+        "Vui lòng chọn giờ bắt đầu"
+      )
     }
 
     if (!values.endTime) {
-      nextErrors.endTime = "Vui lòng chọn giờ kết thúc"
+      nextErrors.endTime = t(
+        "activitySchedule.formValidationEndTime",
+        "Vui lòng chọn giờ kết thúc"
+      )
     }
 
     if (
@@ -283,21 +308,33 @@ function GroupActivityFormFields({
       values.endTime &&
       values.endTime <= values.startTime
     ) {
-      nextErrors.endTime = "Giờ kết thúc phải sau giờ bắt đầu"
+      nextErrors.endTime = t(
+        "activitySchedule.formValidationTimeOrder",
+        "Giờ kết thúc phải sau giờ bắt đầu"
+      )
     }
 
     if (!values.location.trim()) {
-      nextErrors.location = "Vui lòng nhập địa điểm"
+      nextErrors.location = t(
+        "activitySchedule.formValidationLocation",
+        "Vui lòng nhập địa điểm"
+      )
     }
 
     if (!values.description.trim()) {
-      nextErrors.description = "Vui lòng nhập mô tả"
+      nextErrors.description = t(
+        "activitySchedule.formValidationDescription",
+        "Vui lòng nhập mô tả"
+      )
     }
 
     if (values.remindAt) {
       const remindTime = new Date(values.remindAt).getTime()
       if (remindTime <= Date.now()) {
-        nextErrors.remindAt = "Thời gian nhắc phải nằm trong tương lai"
+        nextErrors.remindAt = t(
+          "activitySchedule.formValidationRemindAt",
+          "Thời gian nhắc phải nằm trong tương lai"
+        )
       }
     }
 
@@ -368,19 +405,25 @@ function GroupActivityFormFields({
     <>
       <FieldGroup>
         <Field>
-          <FieldLabel htmlFor="event-title">Tên hoạt động</FieldLabel>
+          <FieldLabel htmlFor="event-title">
+            {t("activitySchedule.formActivityName")}{" "}
+            <span className="text-rose-500">*</span>
+          </FieldLabel>
           <Input
             id="event-title"
             value={values.title}
             onChange={(event) => handleChange("title", event.target.value)}
-            placeholder="Ví dụ: Tập luyện sáng thứ 7"
+            placeholder={t(
+              "activitySchedule.formActivityNamePlaceholder",
+              "Ví dụ: Tập luyện sáng thứ 7"
+            )}
           />
           <FieldError>{errors.title}</FieldError>
         </Field>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Field>
-            <FieldLabel>Loại hoạt động</FieldLabel>
+            <FieldLabel>{t("activitySchedule.formActivityType")}</FieldLabel>
             <Select
               value={values.activityType}
               onValueChange={(value) =>
@@ -391,36 +434,73 @@ function GroupActivityFormFields({
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Chọn loại hoạt động" />
+                <SelectValue
+                  placeholder={t(
+                    "activitySchedule.formSelectActivityType",
+                    "Chọn loại hoạt động"
+                  )}
+                />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="PRACTICE">Tập luyện</SelectItem>
-                <SelectItem value="MEETUP">Giao lưu (Meetup)</SelectItem>
-                <SelectItem value="INTERNAL_MATCH">Thi đấu nội bộ</SelectItem>
-                <SelectItem value="MEETING">Họp mặt</SelectItem>
-                <SelectItem value="OTHER">Khác</SelectItem>
+                <SelectItem value="PRACTICE">
+                  {t("activityTypes.PRACTICE")}
+                </SelectItem>
+                <SelectItem value="MEETUP">
+                  {t("activityTypes.MEETUP")}
+                </SelectItem>
+                <SelectItem value="INTERNAL_MATCH">
+                  {t("activityTypes.INTERNAL_MATCH")}
+                </SelectItem>
+                <SelectItem value="MEETING">
+                  {t("activityTypes.MEETING")}
+                </SelectItem>
+                <SelectItem value="OTHER">
+                  {t("activityTypes.OTHER")}
+                </SelectItem>
               </SelectContent>
             </Select>
           </Field>
 
           <Field>
-            <FieldLabel>Liên kết sân đặt</FieldLabel>
+            <FieldLabel>{t("activitySchedule.formLinkBooking")}</FieldLabel>
             <Select
               value={values.courtBookingId || "none"}
               onValueChange={handleSelectBooking}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Chọn lịch đặt sân để liên kết..." />
+                <SelectValue
+                  placeholder={t(
+                    "activitySchedule.formLinkBookingPlaceholder",
+                    "Chọn lịch đặt sân để liên kết..."
+                  )}
+                />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">Không liên kết</SelectItem>
-                {courtBookings.map((b) => (
-                  <SelectItem key={b.id} value={b.id} className="text-xs">
-                    {b.centerName} - {formatBookingDate(b.date)} (
-                    {formatBookingTime(b.startTime)} -{" "}
-                    {formatBookingTime(b.endTime)})
+                {courtBookings.length === 0 ? (
+                  <SelectItem
+                    value="none"
+                    disabled
+                    className="text-xs text-muted-foreground"
+                  >
+                    {t("activitySchedule.formLinkBookingEmpty")}
                   </SelectItem>
-                ))}
+                ) : (
+                  <>
+                    <SelectItem value="none">
+                      {t(
+                        "activitySchedule.formLinkBookingNone",
+                        "Không liên kết"
+                      )}
+                    </SelectItem>
+                    {courtBookings.map((b) => (
+                      <SelectItem key={b.id} value={b.id} className="text-xs">
+                        {b.centerName} - {formatBookingDate(b.date)} (
+                        {formatBookingTime(b.startTime)} -{" "}
+                        {formatBookingTime(b.endTime)})
+                      </SelectItem>
+                    ))}
+                  </>
+                )}
               </SelectContent>
             </Select>
           </Field>
@@ -428,7 +508,10 @@ function GroupActivityFormFields({
 
         <div className="grid gap-4 sm:grid-cols-3">
           <Field>
-            <FieldLabel>Ngày</FieldLabel>
+            <FieldLabel>
+              {t("activitySchedule.formDate", "Ngày")}{" "}
+              <span className="text-rose-500">*</span>
+            </FieldLabel>
             <Input
               type="date"
               value={values.date}
@@ -437,7 +520,10 @@ function GroupActivityFormFields({
             <FieldError>{errors.date}</FieldError>
           </Field>
           <Field>
-            <FieldLabel>Giờ bắt đầu</FieldLabel>
+            <FieldLabel>
+              {t("activitySchedule.formStartTime")}{" "}
+              <span className="text-rose-500">*</span>
+            </FieldLabel>
             <Input
               type="time"
               value={values.startTime}
@@ -448,7 +534,10 @@ function GroupActivityFormFields({
             <FieldError>{errors.startTime}</FieldError>
           </Field>
           <Field>
-            <FieldLabel>Giờ kết thúc</FieldLabel>
+            <FieldLabel>
+              {t("activitySchedule.formEndTime")}{" "}
+              <span className="text-rose-500">*</span>
+            </FieldLabel>
             <Input
               type="time"
               value={values.endTime}
@@ -459,24 +548,36 @@ function GroupActivityFormFields({
         </div>
 
         <Field>
-          <FieldLabel>Địa điểm</FieldLabel>
+          <FieldLabel>
+            {t("activitySchedule.formLocation")}{" "}
+            <span className="text-rose-500">*</span>
+          </FieldLabel>
           <Input
             value={values.location}
             onChange={(event) => handleChange("location", event.target.value)}
-            placeholder="Ví dụ: Sân Pickleball A"
+            placeholder={t(
+              "activitySchedule.formLocationPlaceholder",
+              "Ví dụ: Sân Pickleball A"
+            )}
           />
           <FieldError>{errors.location}</FieldError>
         </Field>
 
         <Field>
-          <FieldLabel>Mô tả</FieldLabel>
+          <FieldLabel>
+            {t("activitySchedule.formDescription")}{" "}
+            <span className="text-rose-500">*</span>
+          </FieldLabel>
           <Textarea
             rows={4}
             value={values.description}
             onChange={(event) =>
               handleChange("description", event.target.value)
             }
-            placeholder="Mô tả thêm về nội dung hoạt động"
+            placeholder={t(
+              "activitySchedule.formDescriptionPlaceholder",
+              "Mô tả thêm về nội dung hoạt động"
+            )}
           />
           <FieldError>{errors.description}</FieldError>
         </Field>
@@ -512,7 +613,7 @@ function GroupActivityFormFields({
               className="size-4 rounded border-gray-300 text-primary focus:ring-primary"
             />
             <FieldLabel htmlFor="enable-reminder" className="mb-0">
-              Nhắc nhở thành viên
+              {t("activitySchedule.formEnableReminder", "Nhắc nhở thành viên")}
             </FieldLabel>
           </div>
           {values.remindAt && (
@@ -551,18 +652,18 @@ function GroupActivityFormFields({
 
       <DialogFooter>
         <Button variant="outline" onClick={onCancel} disabled={isSubmitting}>
-          Hủy
+          {t("activitySchedule.formBtnCancel")}
         </Button>
         <Button
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className="border-none bg-[#1A56DB] text-white hover:bg-[#133F9A]"
+          variant="orangeCard"
         >
           {isSubmitting
-            ? "Đang xử lý..."
+            ? t("activitySchedule.formBtnProcessing", "Đang xử lý...")
             : editingEvent
-              ? "Lưu thay đổi"
-              : "Tạo hoạt động"}
+              ? t("activitySchedule.formBtnSubmitUpdate")
+              : t("activitySchedule.formBtnSubmitCreate")}
         </Button>
       </DialogFooter>
     </>

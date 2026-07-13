@@ -14,7 +14,6 @@ import {
   Trash2,
 } from "lucide-react"
 import { useMemo, useState } from "react"
-import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import {
@@ -53,6 +52,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import {
@@ -78,15 +78,23 @@ import type {
 } from "../../types"
 import { FavoriteTemplatesSelector } from "./favorite-templates-selector"
 
-const CONDITION_LABELS: Record<string, string> = {
-  NEW: "Mới",
-  GOOD: "Tốt",
-  WORN: "Đã mòn",
-  RETIRED: "Đã loại bỏ",
-}
-
 function EquipmentConditionBadge({ condition }: { condition: string }) {
-  const label = CONDITION_LABELS[condition] ?? condition
+  const { t } = useGroupsTranslation()
+  const label = (() => {
+    switch (condition) {
+      case "NEW":
+        return t("equipment.conditionNew", "Mới")
+      case "GOOD":
+        return t("equipment.conditionGood", "Tốt")
+      case "WORN":
+        return t("equipment.conditionWorn", "Đã mòn")
+      case "RETIRED":
+        return t("equipment.conditionRetired", "Đã loại bỏ")
+      default:
+        return condition
+    }
+  })()
+
   const baseStyles =
     "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
   switch (condition) {
@@ -187,6 +195,7 @@ function EquipmentFormDialog({
   groupId,
   editingItem,
 }: EquipmentFormDialogProps) {
+  const { t } = useGroupsTranslation()
   const queryClient = useQueryClient()
   const isEditing = !!editingItem
 
@@ -227,14 +236,16 @@ function EquipmentFormDialog({
     mutationFn: (data: CreateEquipmentInput) =>
       createEquipmentClient(groupId, data),
     onSuccess: () => {
-      toast.success("Thêm vật dụng thành công")
+      toast.success(t("equipment.addSuccess", "Thêm vật dụng thành công"))
       queryClient.invalidateQueries({
         queryKey: equipmentQueryKeys.all(groupId),
       })
       handleClose()
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Không thể thêm vật dụng")
+      toast.error(
+        error.message || t("equipment.addError", "Không thể thêm vật dụng")
+      )
     },
   })
 
@@ -242,14 +253,19 @@ function EquipmentFormDialog({
     mutationFn: (data: UpdateEquipmentInput) =>
       updateEquipmentClient(groupId, editingItem!.id, data),
     onSuccess: () => {
-      toast.success("Cập nhật vật dụng thành công")
+      toast.success(
+        t("equipment.updateSuccess", "Cập nhật vật dụng thành công")
+      )
       queryClient.invalidateQueries({
         queryKey: equipmentQueryKeys.all(groupId),
       })
       handleClose()
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Không thể cập nhật vật dụng")
+      toast.error(
+        error.message ||
+          t("equipment.updateError", "Không thể cập nhật vật dụng")
+      )
     },
   })
 
@@ -259,25 +275,33 @@ function EquipmentFormDialog({
     const newErrors: Record<string, string> = {}
 
     if (!name.trim()) {
-      newErrors.name = "Tên vật dụng không được để trống"
+      newErrors.name = t(
+        "equipment.errors.nameRequired",
+        "Tên vật dụng không được để trống"
+      )
     } else if (name.length > 200) {
-      newErrors.name = "Tên vật dụng tối đa 200 ký tự"
+      newErrors.name = t(
+        "equipment.errors.nameMaxLength",
+        "Tên vật dụng tối đa 200 ký tự"
+      )
     }
 
     if (!isEditing) {
       const qty = Number(quantity)
       if (!quantity || !Number.isFinite(qty) || qty < 1) {
-        newErrors.quantity = "Số lượng phải lớn hơn hoặc bằng 1"
+        newErrors.quantity = t(
+          "equipment.errors.quantityMin",
+          "Số lượng phải lớn hơn hoặc bằng 1"
+        )
       }
 
       const cost = Number(purchaseCost)
       if (!purchaseCost || !Number.isFinite(cost) || cost < 0) {
-        newErrors.purchaseCost = "Chi phí mua không hợp lệ"
+        newErrors.purchaseCost = t(
+          "equipment.errors.purchaseCostInvalid",
+          "Chi phí mua không hợp lệ"
+        )
       }
-    }
-
-    if (!isEditing && createExpense && !splitAmongAllMembers) {
-      // memberIds validation would go here if we had a member selector
     }
 
     setErrors(newErrors)
@@ -323,12 +347,20 @@ function EquipmentFormDialog({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>
-              {isEditing ? "Cập nhật vật dụng" : "Thêm vật dụng"}
+              {isEditing
+                ? t("equipment.editTitle", "Cập nhật vật dụng")
+                : t("equipment.addTitle", "Thêm vật dụng")}
             </DialogTitle>
             <DialogDescription>
               {isEditing
-                ? "Chỉnh sửa thông tin vật dụng của nhóm."
-                : "Nhập thông tin vật dụng mới cho nhóm."}
+                ? t(
+                    "equipment.editDesc",
+                    "Chỉnh sửa thông tin vật dụng của nhóm."
+                  )
+                : t(
+                    "equipment.addDesc",
+                    "Nhập thông tin vật dụng mới cho nhóm."
+                  )}
             </DialogDescription>
           </DialogHeader>
 
@@ -354,7 +386,8 @@ function EquipmentFormDialog({
 
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                Tên vật dụng <span className="text-destructive">*</span>
+                {t("equipment.nameLabel", "Tên vật dụng")}{" "}
+                <span className="text-destructive">*</span>
               </label>
               <input
                 type="text"
@@ -362,7 +395,10 @@ function EquipmentFormDialog({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 maxLength={200}
-                placeholder="VD: Bóng Dura 40+"
+                placeholder={t(
+                  "equipment.namePlaceholder",
+                  "VD: Bóng Dura 40+"
+                )}
               />
               {errors.name && (
                 <p className="text-xs text-destructive">{errors.name}</p>
@@ -370,12 +406,17 @@ function EquipmentFormDialog({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Mô tả</label>
+              <label className="text-sm font-medium">
+                {t("equipment.descriptionLabel", "Mô tả")}
+              </label>
               <textarea
                 className="min-h-20 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Mô tả vật dụng (không bắt buộc)"
+                placeholder={t(
+                  "equipment.descriptionPlaceholder",
+                  "Mô tả vật dụng (không bắt buộc)"
+                )}
               />
             </div>
 
@@ -384,7 +425,8 @@ function EquipmentFormDialog({
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
-                      Số lượng <span className="text-destructive">*</span>
+                      {t("equipment.quantityLabel", "Số lượng")}{" "}
+                      <span className="text-destructive">*</span>
                     </label>
                     <input
                       type="number"
@@ -392,7 +434,7 @@ function EquipmentFormDialog({
                       value={quantity}
                       onChange={(e) => setQuantity(e.target.value)}
                       min={1}
-                      placeholder="VD: 12"
+                      placeholder={t("equipment.quantityPlaceholder", "VD: 12")}
                     />
                     {errors.quantity && (
                       <p className="text-xs text-destructive">
@@ -403,7 +445,7 @@ function EquipmentFormDialog({
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
-                      Chi phí mua (VNĐ){" "}
+                      {t("equipment.purchaseCostLabel", "Chi phí mua (VNĐ)")}{" "}
                       <span className="text-destructive">*</span>
                     </label>
                     <input
@@ -412,7 +454,10 @@ function EquipmentFormDialog({
                       value={purchaseCost}
                       onChange={(e) => setPurchaseCost(e.target.value)}
                       min={0}
-                      placeholder="VD: 180000"
+                      placeholder={t(
+                        "equipment.purchaseCostPlaceholder",
+                        "VD: 180000"
+                      )}
                     />
                     {errors.purchaseCost && (
                       <p className="text-xs text-destructive">
@@ -424,7 +469,9 @@ function EquipmentFormDialog({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Ngày mua</label>
+                    <label className="text-sm font-medium">
+                      {t("equipment.purchaseDateLabel", "Ngày mua")}
+                    </label>
                     <input
                       type="date"
                       className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
@@ -434,16 +481,26 @@ function EquipmentFormDialog({
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Tình trạng</label>
+                    <label className="text-sm font-medium">
+                      {t("equipment.conditionLabel", "Tình trạng")}
+                    </label>
                     <select
                       className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
                       value={condition}
                       onChange={(e) => setCondition(e.target.value)}
                     >
-                      <option value="NEW">Mới</option>
-                      <option value="GOOD">Tốt</option>
-                      <option value="WORN">Đã mòn</option>
-                      <option value="RETIRED">Đã loại bỏ</option>
+                      <option value="NEW">
+                        {t("equipment.conditionNew", "Mới")}
+                      </option>
+                      <option value="GOOD">
+                        {t("equipment.conditionGood", "Tốt")}
+                      </option>
+                      <option value="WORN">
+                        {t("equipment.conditionWorn", "Đã mòn")}
+                      </option>
+                      <option value="RETIRED">
+                        {t("equipment.conditionRetired", "Đã loại bỏ")}
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -456,7 +513,7 @@ function EquipmentFormDialog({
                       checked={createExpense}
                       onChange={(e) => setCreateExpense(e.target.checked)}
                     />
-                    Tạo khoản chi nhóm
+                    {t("equipment.createExpenseLabel", "Tạo khoản chi nhóm")}
                   </label>
 
                   {createExpense && (
@@ -469,7 +526,10 @@ function EquipmentFormDialog({
                           setSplitAmongAllMembers(e.target.checked)
                         }
                       />
-                      Chia đều cho tất cả thành viên
+                      {t(
+                        "equipment.splitAllMembersLabel",
+                        "Chia đều cho tất cả thành viên"
+                      )}
                     </label>
                   )}
                 </div>
@@ -479,28 +539,40 @@ function EquipmentFormDialog({
             {isEditing && (
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Số lượng</label>
+                  <label className="text-sm font-medium">
+                    {t("equipment.quantityLabel", "Số lượng")}
+                  </label>
                   <input
                     type="number"
                     className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value)}
                     min={0}
-                    placeholder="VD: 10"
+                    placeholder={t("equipment.quantityPlaceholder", "VD: 10")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Tình trạng</label>
+                  <label className="text-sm font-medium">
+                    {t("equipment.conditionLabel", "Tình trạng")}
+                  </label>
                   <select
                     className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
                     value={condition}
                     onChange={(e) => setCondition(e.target.value)}
                   >
-                    <option value="NEW">Mới</option>
-                    <option value="GOOD">Tốt</option>
-                    <option value="WORN">Đã mòn</option>
-                    <option value="RETIRED">Đã loại bỏ</option>
+                    <option value="NEW">
+                      {t("equipment.conditionNew", "Mới")}
+                    </option>
+                    <option value="GOOD">
+                      {t("equipment.conditionGood", "Tốt")}
+                    </option>
+                    <option value="WORN">
+                      {t("equipment.conditionWorn", "Đã mòn")}
+                    </option>
+                    <option value="RETIRED">
+                      {t("equipment.conditionRetired", "Đã loại bỏ")}
+                    </option>
                   </select>
                 </div>
               </div>
@@ -514,15 +586,13 @@ function EquipmentFormDialog({
               onClick={handleClose}
               disabled={isPending}
             >
-              Hủy
+              {t("equipment.cancel", "Hủy")}
             </Button>
-            <Button
-              type="submit"
-              disabled={isPending}
-              className="bg-blue-600 font-semibold text-white hover:bg-blue-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-            >
+            <Button type="submit" disabled={isPending} variant="orangeCard">
               {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isEditing ? "Cập nhật" : "Lưu"}
+              {isEditing
+                ? t("equipment.btnUpdate", "Cập nhật")
+                : t("equipment.btnSave", "Lưu")}
             </Button>
           </DialogFooter>
         </form>
@@ -546,19 +616,22 @@ function DeleteConfirmDialog({
   groupId,
   item,
 }: DeleteConfirmDialogProps) {
+  const { t } = useGroupsTranslation()
   const queryClient = useQueryClient()
 
   const deleteMutation = useMutation({
     mutationFn: () => deleteEquipmentClient(groupId, item!.id),
     onSuccess: () => {
-      toast.success("Xóa vật dụng thành công")
+      toast.success(t("equipment.deleteSuccess", "Xóa vật dụng thành công"))
       queryClient.invalidateQueries({
         queryKey: equipmentQueryKeys.all(groupId),
       })
       onOpenChange(false)
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Không thể xóa vật dụng")
+      toast.error(
+        error.message || t("equipment.deleteError", "Không thể xóa vật dụng")
+      )
     },
   })
 
@@ -568,12 +641,14 @@ function DeleteConfirmDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-destructive">
             <AlertTriangle className="size-5" />
-            Xác nhận xóa
+            {t("equipment.confirmDeleteTitle", "Xác nhận xóa")}
           </DialogTitle>
           <DialogDescription>
-            Bạn có chắc muốn xóa vật dụng &ldquo;{item?.name}&rdquo;? Hành động
-            này sẽ ẩn vật dụng khỏi danh sách. Các khoản chi liên quan vẫn được
-            giữ nguyên.
+            {t(
+              "equipment.deleteConfirmDesc",
+              'Bạn có chắc muốn xóa vật dụng "{{name}}"? Hành động này sẽ ẩn vật dụng khỏi danh sách. Các khoản chi liên quan vẫn được giữ nguyên.',
+              { name: item?.name }
+            )}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="pt-4">
@@ -583,7 +658,7 @@ function DeleteConfirmDialog({
             onClick={() => onOpenChange(false)}
             disabled={deleteMutation.isPending}
           >
-            Hủy
+            {t("equipment.cancel", "Hủy")}
           </Button>
           <Button
             type="button"
@@ -594,7 +669,7 @@ function DeleteConfirmDialog({
             {deleteMutation.isPending && (
               <Loader2 className="mr-2 size-4 animate-spin" />
             )}
-            Xóa
+            {t("equipment.btnDelete", "Xóa")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -617,6 +692,7 @@ function LogUsageDialog({
   groupId,
   item,
 }: LogUsageDialogProps) {
+  const { t } = useGroupsTranslation()
   const queryClient = useQueryClient()
 
   const [quantityUsed, setQuantityUsed] = useState("")
@@ -632,7 +708,9 @@ function LogUsageDialog({
         usedAt: usedAt ? new Date(usedAt).toISOString() : undefined,
       }),
     onSuccess: () => {
-      toast.success("Ghi nhận sử dụng thành công")
+      toast.success(
+        t("equipment.logUsageSuccess", "Ghi nhận sử dụng thành công")
+      )
       queryClient.invalidateQueries({
         queryKey: equipmentQueryKeys.all(groupId),
       })
@@ -642,7 +720,10 @@ function LogUsageDialog({
       handleClose()
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Không thể ghi nhận sử dụng")
+      toast.error(
+        error.message ||
+          t("equipment.logUsageError", "Không thể ghi nhận sử dụng")
+      )
     },
   })
 
@@ -658,10 +739,17 @@ function LogUsageDialog({
     const newErrors: Record<string, string> = {}
     const qty = Number(quantityUsed)
     if (!quantityUsed || !Number.isFinite(qty) || qty < 1) {
-      newErrors.quantityUsed = "Số lượng sử dụng phải lớn hơn hoặc bằng 1"
+      newErrors.quantityUsed = t(
+        "equipment.errors.quantityUsedMin",
+        "Số lượng sử dụng phải lớn hơn hoặc bằng 1"
+      )
     }
     if (item && qty > item.quantity) {
-      newErrors.quantityUsed = `Số lượng sử dụng không thể lớn hơn số lượng hiện có (${item.quantity})`
+      newErrors.quantityUsed = t(
+        "equipment.errors.quantityUsedMax",
+        "Số lượng sử dụng không thể lớn hơn số lượng hiện có ({{quantity}})",
+        { quantity: item.quantity }
+      )
     }
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -678,20 +766,28 @@ function LogUsageDialog({
       <DialogContent className="sm:max-w-[450px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Ghi nhận sử dụng</DialogTitle>
+            <DialogTitle>
+              {t("equipment.logUsageTitle", "Ghi nhận sử dụng")}
+            </DialogTitle>
             <DialogDescription>
-              Ghi nhận số lượng &ldquo;{item?.name}&rdquo; đã được sử dụng.
+              {t(
+                "equipment.logUsageDesc",
+                'Ghi nhận số lượng "{{name}}" đã được sử dụng.',
+                { name: item?.name }
+              )}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <p className="text-sm text-muted-foreground">
-              Số lượng hiện có: <strong>{item?.quantity}</strong>
+              {t("equipment.quantityAvailable", "Số lượng hiện có:")}{" "}
+              <strong>{item?.quantity}</strong>
             </p>
 
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                Số lượng sử dụng <span className="text-destructive">*</span>
+                {t("equipment.quantityUsedLabel", "Số lượng sử dụng")}{" "}
+                <span className="text-destructive">*</span>
               </label>
               <input
                 type="number"
@@ -699,7 +795,7 @@ function LogUsageDialog({
                 value={quantityUsed}
                 onChange={(e) => setQuantityUsed(e.target.value)}
                 min={1}
-                placeholder="VD: 3"
+                placeholder={t("equipment.quantityUsedPlaceholder", "VD: 3")}
               />
               {errors.quantityUsed && (
                 <p className="text-xs text-destructive">
@@ -709,18 +805,25 @@ function LogUsageDialog({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Ghi chú</label>
+              <label className="text-sm font-medium">
+                {t("equipment.noteLabel", "Ghi chú")}
+              </label>
               <input
                 type="text"
                 className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                placeholder="VD: 1 quả bóng bị nứt"
+                placeholder={t(
+                  "equipment.notePlaceholder",
+                  "VD: 1 quả bóng bị nứt"
+                )}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Ngày sử dụng</label>
+              <label className="text-sm font-medium">
+                {t("equipment.usedDateLabel", "Ngày sử dụng")}
+              </label>
               <input
                 type="date"
                 className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
@@ -738,13 +841,17 @@ function LogUsageDialog({
               onClick={handleClose}
               disabled={usageMutation.isPending}
             >
-              Hủy
+              {t("equipment.cancel", "Hủy")}
             </Button>
-            <Button type="submit" disabled={usageMutation.isPending}>
+            <Button
+              type="submit"
+              disabled={usageMutation.isPending}
+              variant="orangeCard"
+            >
               {usageMutation.isPending && (
                 <Loader2 className="mr-2 size-4 animate-spin" />
               )}
-              Ghi nhận
+              {t("equipment.btnLogUsage", "Ghi nhận")}
             </Button>
           </DialogFooter>
         </form>
@@ -768,6 +875,7 @@ function UsageHistoryDialog({
   groupId,
   item,
 }: UsageHistoryDialogProps) {
+  const { t } = useGroupsTranslation()
   const [page, setPage] = useState(1)
   const limit = 20
 
@@ -793,9 +901,13 @@ function UsageHistoryDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Lịch sử sử dụng</DialogTitle>
+          <DialogTitle>
+            {t("equipment.usageHistoryTitle", "Lịch sử sử dụng")}
+          </DialogTitle>
           <DialogDescription>
-            Lịch sử sử dụng của &ldquo;{item?.name}&rdquo;
+            {t("equipment.usageHistoryDesc", 'Lịch sử sử dụng của "{{name}}"', {
+              name: item?.name,
+            })}
           </DialogDescription>
         </DialogHeader>
 
@@ -803,27 +915,36 @@ function UsageHistoryDialog({
           {isLoading ? (
             <div className="flex items-center justify-center gap-2 py-10 text-muted-foreground">
               <Loader2 className="size-5 animate-spin" />
-              Đang tải...
+              {t("equipment.loading", "Đang tải...")}
             </div>
           ) : isError ? (
             <div className="py-10 text-center text-sm text-destructive">
               {error instanceof Error
                 ? error.message
-                : "Không thể tải lịch sử sử dụng"}
+                : t(
+                    "equipment.loadHistoryError",
+                    "Không thể tải lịch sử sử dụng"
+                  )}
             </div>
           ) : usages.length === 0 ? (
             <div className="py-10 text-center text-sm text-muted-foreground">
-              Chưa có lịch sử sử dụng.
+              {t("equipment.noUsageHistory", "Chưa có lịch sử sử dụng.")}
             </div>
           ) : (
             <div className="space-y-4">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Số lượng</TableHead>
-                    <TableHead>Ghi chú</TableHead>
-                    <TableHead>Ngày sử dụng</TableHead>
-                    <TableHead>Ghi nhận lúc</TableHead>
+                    <TableHead>
+                      {t("equipment.quantityLabel", "Số lượng")}
+                    </TableHead>
+                    <TableHead>{t("equipment.noteLabel", "Ghi chú")}</TableHead>
+                    <TableHead>
+                      {t("equipment.usedDateLabel", "Ngày sử dụng")}
+                    </TableHead>
+                    <TableHead>
+                      {t("equipment.loggedAtLabel", "Ghi nhận lúc")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -852,10 +973,14 @@ function UsageHistoryDialog({
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page === 1}
                   >
-                    Trang trước
+                    {t("pagination.previous", "Trang trước")}
                   </Button>
                   <span className="text-xs text-muted-foreground">
-                    Trang {page} / {meta.totalPages}
+                    {t(
+                      "pagination.pageInfo",
+                      "Trang {{currentPage}} / {{totalPages}}",
+                      { currentPage: page, totalPages: meta.totalPages }
+                    )}
                   </span>
                   <Button
                     variant="outline"
@@ -865,7 +990,7 @@ function UsageHistoryDialog({
                     }
                     disabled={page === meta.totalPages}
                   >
-                    Trang sau
+                    {t("pagination.next", "Trang sau")}
                   </Button>
                 </div>
               )}
@@ -875,7 +1000,7 @@ function UsageHistoryDialog({
 
         <DialogFooter>
           <Button type="button" onClick={handleClose}>
-            Đóng
+            {t("activitySchedule.btnClose", "Đóng")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -892,7 +1017,7 @@ export function GroupEquipmentSection({
   groupId: string
   canManage: boolean
 }) {
-  const { t } = useTranslation("common")
+  const { t } = useGroupsTranslation()
   const queryClient = useQueryClient()
 
   const [page, setPage] = useState(1)
@@ -1024,7 +1149,7 @@ export function GroupEquipmentSection({
   const errorMessage =
     error instanceof Error
       ? error.message
-      : "Đã xảy ra lỗi khi tải danh sách vật dụng."
+      : t("equipment.loadError", "Đã xảy ra lỗi khi tải danh sách vật dụng.")
 
   return (
     <>
@@ -1034,10 +1159,13 @@ export function GroupEquipmentSection({
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Package className="size-5" />
-                Quản lý vật dụng
+                {t("equipment.manageTitle", "Quản lý vật dụng")}
               </CardTitle>
               <p className="mt-1 text-sm text-muted-foreground">
-                Theo dõi và quản lý vật dụng sử dụng chung trong nhóm.
+                {t(
+                  "equipment.manageDesc",
+                  "Theo dõi và quản lý vật dụng sử dụng chung trong nhóm."
+                )}
               </p>
             </div>
             {canManage && (
@@ -1047,7 +1175,7 @@ export function GroupEquipmentSection({
                 className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
               >
                 <Plus className="mr-2 size-4" />
-                Thêm vật dụng
+                {t("equipment.addTitle", "Thêm vật dụng")}
               </Button>
             )}
           </div>
@@ -1071,7 +1199,10 @@ export function GroupEquipmentSection({
                   <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
                   <input
                     type="text"
-                    placeholder="Tìm kiếm vật dụng..."
+                    placeholder={t(
+                      "equipment.searchPlaceholder",
+                      "Tìm kiếm vật dụng..."
+                    )}
                     className="w-full rounded-md border bg-background py-2 pr-4 pl-9 text-sm outline-none focus:ring-1 focus:ring-primary"
                     value={search}
                     onChange={(e) => {
@@ -1088,11 +1219,21 @@ export function GroupEquipmentSection({
                     setPage(1)
                   }}
                 >
-                  <option value="">Tất cả tình trạng</option>
-                  <option value="NEW">Mới</option>
-                  <option value="GOOD">Tốt</option>
-                  <option value="WORN">Đã mòn</option>
-                  <option value="RETIRED">Đã loại bỏ</option>
+                  <option value="">
+                    {t("equipment.allConditions", "Tất cả tình trạng")}
+                  </option>
+                  <option value="NEW">
+                    {t("equipment.conditionNew", "Mới")}
+                  </option>
+                  <option value="GOOD">
+                    {t("equipment.conditionGood", "Tốt")}
+                  </option>
+                  <option value="WORN">
+                    {t("equipment.conditionWorn", "Đã mòn")}
+                  </option>
+                  <option value="RETIRED">
+                    {t("equipment.conditionRetired", "Đã loại bỏ")}
+                  </option>
                 </select>
               </div>
 
@@ -1100,7 +1241,7 @@ export function GroupEquipmentSection({
               {isLoading ? (
                 <div className="flex items-center justify-center gap-2 py-10 text-muted-foreground">
                   <Loader2 className="size-5 animate-spin" />
-                  Đang tải...
+                  {t("equipment.loading", "Đang tải...")}
                 </div>
               ) : isError ? (
                 <div className="rounded-md border bg-destructive/5 py-10 text-center text-sm text-destructive">
@@ -1112,11 +1253,19 @@ export function GroupEquipmentSection({
                     <EmptyMedia variant="icon">
                       <Package className="size-6 text-muted-foreground" />
                     </EmptyMedia>
-                    <EmptyTitle>Chưa có vật dụng nào</EmptyTitle>
+                    <EmptyTitle>
+                      {t("equipment.emptyTitle", "Chưa có vật dụng nào")}
+                    </EmptyTitle>
                     <EmptyDescription>
                       {search || conditionFilter
-                        ? "Không tìm thấy vật dụng phù hợp."
-                        : "Nhóm chưa có vật dụng nào được quản lý."}
+                        ? t(
+                            "equipment.emptyFilterDesc",
+                            "Không tìm thấy vật dụng phù hợp."
+                          )
+                        : t(
+                            "equipment.emptyDesc",
+                            "Nhóm chưa có vật dụng nào được quản lý."
+                          )}
                     </EmptyDescription>
                   </EmptyHeader>
                 </Empty>
@@ -1126,12 +1275,24 @@ export function GroupEquipmentSection({
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Tên vật dụng</TableHead>
-                          <TableHead>Số lượng</TableHead>
-                          <TableHead>Tình trạng</TableHead>
-                          <TableHead>Chi phí mua</TableHead>
-                          <TableHead>Ngày mua</TableHead>
-                          <TableHead className="text-right">Thao tác</TableHead>
+                          <TableHead>
+                            {t("equipment.nameHeader", "Tên vật dụng")}
+                          </TableHead>
+                          <TableHead>
+                            {t("equipment.quantityHeader", "Số lượng")}
+                          </TableHead>
+                          <TableHead>
+                            {t("equipment.conditionHeader", "Tình trạng")}
+                          </TableHead>
+                          <TableHead>
+                            {t("equipment.costHeader", "Chi phí mua")}
+                          </TableHead>
+                          <TableHead>
+                            {t("equipment.purchaseDateHeader", "Ngày mua")}
+                          </TableHead>
+                          <TableHead className="text-right">
+                            {t("equipment.actionsHeader", "Thao tác")}
+                          </TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -1164,8 +1325,14 @@ export function GroupEquipmentSection({
                                     className="h-8 w-8"
                                     title={
                                       item.isFavorite
-                                        ? "Bỏ yêu thích"
-                                        : "Yêu thích"
+                                        ? t(
+                                            "equipment.unfavoriteTooltip",
+                                            "Bỏ yêu thích"
+                                          )
+                                        : t(
+                                            "equipment.favoriteTooltip",
+                                            "Yêu thích"
+                                          )
                                     }
                                     disabled={toggleFavoriteMutation.isPending}
                                     onClick={() =>
@@ -1188,7 +1355,10 @@ export function GroupEquipmentSection({
                                   variant="ghost"
                                   size="icon"
                                   className="h-8 w-8"
-                                  title="Lịch sử sử dụng"
+                                  title={t(
+                                    "equipment.historyTooltip",
+                                    "Lịch sử sử dụng"
+                                  )}
                                   onClick={() => handleViewHistory(item)}
                                 >
                                   <ListIcon className="size-4" />
@@ -1199,7 +1369,10 @@ export function GroupEquipmentSection({
                                       variant="ghost"
                                       size="icon"
                                       className="h-8 w-8 text-primary"
-                                      title="Ghi nhận sử dụng"
+                                      title={t(
+                                        "equipment.logUsageTooltip",
+                                        "Ghi nhận sử dụng"
+                                      )}
                                       onClick={() => handleLogUsage(item)}
                                     >
                                       <Eye className="size-4" />
@@ -1208,7 +1381,10 @@ export function GroupEquipmentSection({
                                       variant="ghost"
                                       size="icon"
                                       className="h-8 w-8"
-                                      title="Chỉnh sửa"
+                                      title={t(
+                                        "equipment.editTooltip",
+                                        "Chỉnh sửa"
+                                      )}
                                       onClick={() => handleEdit(item)}
                                     >
                                       <Edit className="size-4" />
@@ -1217,7 +1393,10 @@ export function GroupEquipmentSection({
                                       variant="ghost"
                                       size="icon"
                                       className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                      title="Xóa"
+                                      title={t(
+                                        "equipment.deleteTooltip",
+                                        "Xóa"
+                                      )}
                                       onClick={() => handleDelete(item)}
                                     >
                                       <Trash2 className="size-4" />
@@ -1241,10 +1420,14 @@ export function GroupEquipmentSection({
                         onClick={() => setPage((p) => Math.max(1, p - 1))}
                         disabled={page === 1}
                       >
-                        Trang trước
+                        {t("pagination.previous", "Trang trước")}
                       </Button>
                       <span className="text-xs text-muted-foreground">
-                        Trang {page} / {meta.totalPages}
+                        {t(
+                          "pagination.pageInfo",
+                          "Trang {{currentPage}} / {{totalPages}}",
+                          { currentPage: page, totalPages: meta.totalPages }
+                        )}
                       </span>
                       <Button
                         variant="outline"
@@ -1254,7 +1437,7 @@ export function GroupEquipmentSection({
                         }
                         disabled={page === meta.totalPages}
                       >
-                        Trang sau
+                        {t("pagination.next", "Trang sau")}
                       </Button>
                     </div>
                   )}
@@ -1266,13 +1449,16 @@ export function GroupEquipmentSection({
               {favoritesQuery.isLoading ? (
                 <div className="flex items-center justify-center gap-2 py-10 text-muted-foreground">
                   <Loader2 className="size-5 animate-spin" />
-                  Đang tải...
+                  {t("equipment.loading", "Đang tải...")}
                 </div>
               ) : favoritesQuery.isError ? (
                 <div className="rounded-md border bg-destructive/5 py-10 text-center text-sm text-destructive">
                   {favoritesQuery.error instanceof Error
                     ? favoritesQuery.error.message
-                    : "Đã xảy ra lỗi khi tải danh sách mẫu yêu thích."}
+                    : t(
+                        "equipment.loadFavoritesError",
+                        "Đã xảy ra lỗi khi tải danh sách mẫu yêu thích."
+                      )}
                 </div>
               ) : favorites.length === 0 ? (
                 <Empty className="py-12">
@@ -1280,9 +1466,14 @@ export function GroupEquipmentSection({
                     <EmptyMedia variant="icon">
                       <Package className="size-6 text-muted-foreground" />
                     </EmptyMedia>
-                    <EmptyTitle>Chưa có mẫu yêu thích nào</EmptyTitle>
+                    <EmptyTitle>
+                      {t("equipment.noFavorites", "Chưa có mẫu yêu thích nào")}
+                    </EmptyTitle>
                     <EmptyDescription>
-                      Lưu mẫu vật dụng thường dùng để tạo nhanh hơn.
+                      {t(
+                        "equipment.noFavoritesDesc",
+                        "Lưu mẫu vật dụng thường dùng để tạo nhanh hơn."
+                      )}
                     </EmptyDescription>
                   </EmptyHeader>
                 </Empty>
@@ -1291,12 +1482,31 @@ export function GroupEquipmentSection({
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Tên mẫu vật dụng</TableHead>
-                        <TableHead>Số lượng mặc định</TableHead>
-                        <TableHead>Tình trạng mặc định</TableHead>
-                        <TableHead>Chi phí mặc định</TableHead>
+                        <TableHead>
+                          {t(
+                            "equipment.templateNameHeader",
+                            "Tên mẫu vật dụng"
+                          )}
+                        </TableHead>
+                        <TableHead>
+                          {t(
+                            "equipment.defaultQuantityHeader",
+                            "Số lượng mặc định"
+                          )}
+                        </TableHead>
+                        <TableHead>
+                          {t(
+                            "equipment.defaultConditionHeader",
+                            "Tình trạng mặc định"
+                          )}
+                        </TableHead>
+                        <TableHead>
+                          {t("equipment.defaultCostHeader", "Chi phí mặc định")}
+                        </TableHead>
                         {canManage && (
-                          <TableHead className="text-right">Thao tác</TableHead>
+                          <TableHead className="text-right">
+                            {t("equipment.actionsHeader", "Thao tác")}
+                          </TableHead>
                         )}
                       </TableRow>
                     </TableHeader>
@@ -1326,7 +1536,10 @@ export function GroupEquipmentSection({
                                   variant="ghost"
                                   size="icon"
                                   className="h-8 w-8"
-                                  title="Chỉnh sửa"
+                                  title={t(
+                                    "equipment.editTooltip",
+                                    "Chỉnh sửa"
+                                  )}
                                   onClick={() => handleEditFavorite(item)}
                                 >
                                   <Edit className="size-4" />
@@ -1335,7 +1548,10 @@ export function GroupEquipmentSection({
                                   variant="ghost"
                                   size="icon"
                                   className="h-8 w-8 text-yellow-500 hover:bg-yellow-500/10"
-                                  title="Bỏ yêu thích"
+                                  title={t(
+                                    "equipment.unfavoriteTooltip",
+                                    "Bỏ yêu thích"
+                                  )}
                                   onClick={() => handleDeleteFavorite(item)}
                                 >
                                   <Star className="size-4 fill-yellow-400 text-yellow-400" />
@@ -1432,7 +1648,7 @@ function FavoriteFormDialog({
   editingItem,
 }: FavoriteFormDialogProps) {
   const queryClient = useQueryClient()
-  const { t } = useTranslation("common")
+  const { t } = useGroupsTranslation()
 
   const [name, setName] = useState(editingItem?.name || "")
   const [quantity, setQuantity] = useState(
@@ -1493,22 +1709,34 @@ function FavoriteFormDialog({
   function validate(): boolean {
     const newErrors: Record<string, string> = {}
     if (!name.trim()) {
-      newErrors.name = "Tên vật dụng không được để trống"
+      newErrors.name = t(
+        "equipment.errors.nameRequired",
+        "Tên vật dụng không được để trống"
+      )
     } else if (name.length > 200) {
-      newErrors.name = "Tên vật dụng tối đa 200 ký tự"
+      newErrors.name = t(
+        "equipment.errors.nameMaxLength",
+        "Tên vật dụng tối đa 200 ký tự"
+      )
     }
 
     if (quantity) {
       const qty = Number(quantity)
       if (Number.isNaN(qty) || qty < 1) {
-        newErrors.quantity = "Số lượng phải lớn hơn hoặc bằng 1"
+        newErrors.quantity = t(
+          "equipment.errors.quantityMin",
+          "Số lượng phải lớn hơn hoặc bằng 1"
+        )
       }
     }
 
     if (purchaseCost) {
       const cost = Number(purchaseCost)
       if (Number.isNaN(cost) || cost < 0) {
-        newErrors.purchaseCost = "Chi phí không hợp lệ"
+        newErrors.purchaseCost = t(
+          "equipment.errors.purchaseCostInvalid",
+          "Chi phí không hợp lệ"
+        )
       }
     }
 
@@ -1616,10 +1844,18 @@ function FavoriteFormDialog({
                   )
                 }
               >
-                <option value="NEW">Mới</option>
-                <option value="GOOD">Tốt</option>
-                <option value="WORN">Đã mòn</option>
-                <option value="RETIRED">Đã loại bỏ</option>
+                <option value="NEW">
+                  {t("equipment.conditionNew", "Mới")}
+                </option>
+                <option value="GOOD">
+                  {t("equipment.conditionGood", "Tốt")}
+                </option>
+                <option value="WORN">
+                  {t("equipment.conditionWorn", "Đã mòn")}
+                </option>
+                <option value="RETIRED">
+                  {t("equipment.conditionRetired", "Đã loại bỏ")}
+                </option>
               </select>
             </div>
           </div>
@@ -1633,7 +1869,11 @@ function FavoriteFormDialog({
             >
               {t("equipment.cancel", "Hủy")}
             </Button>
-            <Button type="submit" disabled={updateMutation.isPending}>
+            <Button
+              type="submit"
+              disabled={updateMutation.isPending}
+              variant="orangeCard"
+            >
               {updateMutation.isPending && (
                 <Loader2 className="mr-2 size-4 animate-spin" />
               )}
@@ -1662,7 +1902,7 @@ function DeleteFavoriteConfirm({
   item,
 }: DeleteFavoriteConfirmProps) {
   const queryClient = useQueryClient()
-  const { t } = useTranslation("common")
+  const { t } = useGroupsTranslation()
 
   const deleteMutation = useMutation({
     mutationFn: () => deleteEquipmentFavoriteClient(groupId, item!.id),

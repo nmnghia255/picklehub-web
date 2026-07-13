@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { ur } from "zod/v4/locales"
 
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
@@ -12,6 +13,8 @@ export async function GET(
   const limit = url.searchParams.get("limit") ?? ""
   const fromDate = url.searchParams.get("fromDate") ?? ""
   const toDate = url.searchParams.get("toDate") ?? ""
+  const linked = url.searchParams.get("linked")
+  const excludePast = url.searchParams.get("excludePast")
 
   try {
     const axios = await getAuthenticatedAxios()
@@ -20,6 +23,10 @@ export async function GET(
     if (limit) searchParams.set("limit", limit)
     if (fromDate) searchParams.set("fromDate", fromDate)
     if (toDate) searchParams.set("toDate", toDate)
+
+    if (linked !== null) searchParams.set("linked", linked)
+
+    if (excludePast !== null) searchParams.set("excludePast", excludePast)
 
     const suffix = searchParams.toString() ? `?${searchParams.toString()}` : ""
     const response = await axios.get(

@@ -20,6 +20,7 @@ import {
   getStatusBadgeClass,
   getStatusLabel,
 } from "@/features/group-activity-schedule/group-activity-schedule.utils"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 interface GroupActivityCalendarViewProps {
   events: GroupActivity[]
@@ -107,19 +108,21 @@ export function GroupActivityCalendarView({
   onSelectDate,
   onOpenEvent,
 }: GroupActivityCalendarViewProps) {
+  const { t, i18n } = useGroupsTranslation()
   const groupedEvents = groupEventsByDate(events)
   const monthDates = getMonthGridDates(baseDate)
   const weekDates = getWeekDates(baseDate)
   const selectedKey = format(selectedDate, "yyyy-MM-dd")
   const selectedDateEvents = groupedEvents[selectedKey] ?? []
   const currentMonth = baseDate.getMonth()
+  const dateLocale = i18n.language === "vi" ? "vi-VN" : "en-US"
 
   return (
     <Card>
       <CardHeader className="gap-3">
         <div className="flex items-center gap-2">
           <CalendarRange className="size-5" />
-          <CardTitle>Lịch hoạt động</CardTitle>
+          <CardTitle>{t("activitySchedule.calendarTitle")}</CardTitle>
         </div>
       </CardHeader>
 
@@ -130,20 +133,26 @@ export function GroupActivityCalendarView({
           className="gap-4"
         >
           <TabsList>
-            <TabsTrigger value="month">Tháng</TabsTrigger>
-            <TabsTrigger value="week">Tuần</TabsTrigger>
-            <TabsTrigger value="agenda">Lịch trình</TabsTrigger>
+            <TabsTrigger value="month">
+              {t("activitySchedule.tabMonth")}
+            </TabsTrigger>
+            <TabsTrigger value="week">
+              {t("activitySchedule.tabWeek")}
+            </TabsTrigger>
+            <TabsTrigger value="agenda">
+              {t("activitySchedule.tabAgenda")}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="month" className="space-y-3">
             <div className="grid grid-cols-7 gap-2 text-center text-xs font-medium text-muted-foreground">
-              <span>T2</span>
-              <span>T3</span>
-              <span>T4</span>
-              <span>T5</span>
-              <span>T6</span>
-              <span>T7</span>
-              <span>CN</span>
+              <span>{t("activitySchedule.weekdays.mon", "T2")}</span>
+              <span>{t("activitySchedule.weekdays.tue", "T3")}</span>
+              <span>{t("activitySchedule.weekdays.wed", "T4")}</span>
+              <span>{t("activitySchedule.weekdays.thu", "T5")}</span>
+              <span>{t("activitySchedule.weekdays.fri", "T6")}</span>
+              <span>{t("activitySchedule.weekdays.sat", "T7")}</span>
+              <span>{t("activitySchedule.weekdays.sun", "CN")}</span>
             </div>
 
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-7">
@@ -192,7 +201,9 @@ export function GroupActivityCalendarView({
                       ))}
                       {dayEvents.length > 2 && (
                         <p className="text-xs text-muted-foreground">
-                          Còn {dayEvents.length - 2} hoạt động
+                          {t("activitySchedule.activityCountMore", {
+                            count: dayEvents.length - 2,
+                          })}
                         </p>
                       )}
                     </div>
@@ -220,7 +231,7 @@ export function GroupActivityCalendarView({
                     }`}
                   >
                     <p className="mb-3 text-sm font-semibold">
-                      {date.toLocaleDateString("vi-VN", {
+                      {date.toLocaleDateString(dateLocale, {
                         weekday: "short",
                         day: "2-digit",
                         month: "2-digit",
@@ -230,7 +241,7 @@ export function GroupActivityCalendarView({
                     <div className="space-y-2">
                       {dayEvents.length === 0 && (
                         <p className="text-xs text-muted-foreground">
-                          Không có hoạt động
+                          {t("activitySchedule.noActivities")}
                         </p>
                       )}
                       {dayEvents.map((event) => (
@@ -250,7 +261,7 @@ export function GroupActivityCalendarView({
           <TabsContent value="agenda" className="space-y-2">
             {events.length === 0 ? (
               <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-                Không có hoạt động trong tháng này
+                {t("activitySchedule.noActivitiesMonth")}
               </p>
             ) : (
               events
@@ -272,7 +283,7 @@ export function GroupActivityCalendarView({
                       <p className="text-sm text-muted-foreground">
                         {event.startAt
                           ? new Date(event.startAt).toLocaleDateString(
-                              "vi-VN",
+                              dateLocale,
                               {
                                 weekday: "long",
                                 day: "2-digit",
@@ -280,7 +291,7 @@ export function GroupActivityCalendarView({
                                 year: "numeric",
                               }
                             )
-                          : "Chưa có lịch"}
+                          : t("activitySchedule.noSchedule")}
                         {event.startAt && event.endAt
                           ? ` · ${formatTime(event.startAt)} - ${formatTime(event.endAt)}`
                           : ""}
@@ -292,7 +303,7 @@ export function GroupActivityCalendarView({
                       {event.equipment && event.equipment.length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-2">
                           <span className="text-xs font-medium text-muted-foreground">
-                            Vật dụng:
+                            {t("activitySchedule.equipment")}
                           </span>
                           {event.equipment.map((eq, idx) => (
                             <Badge
@@ -311,7 +322,7 @@ export function GroupActivityCalendarView({
                       variant="outline"
                       className={getStatusBadgeClass(event.status)}
                     >
-                      {getStatusLabel(event.status)}
+                      {t(getStatusLabel(event.status))}
                     </Badge>
                   </button>
                 ))
@@ -320,8 +331,10 @@ export function GroupActivityCalendarView({
         </Tabs>
 
         <div className="mt-4 rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
-          Ngày {format(selectedDate, "dd/MM/yyyy")} có{" "}
-          {selectedDateEvents.length} hoạt động
+          {t("activitySchedule.activityCount", {
+            date: format(selectedDate, "dd/MM/yyyy"),
+            count: selectedDateEvents.length,
+          })}
         </div>
       </CardContent>
     </Card>

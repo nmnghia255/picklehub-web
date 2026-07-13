@@ -18,6 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import {
@@ -74,11 +75,15 @@ function formatDateTime(value?: string | null) {
   })
 }
 
-function formatTransactionStatus(status?: string | null) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function formatTransactionStatus(status: string | null | undefined, t: any) {
   const normalized = status?.toUpperCase()
-  if (normalized === "VERIFIED") return "Đã xác nhận"
-  if (normalized === "REJECTED") return "Đã từ chối"
-  if (normalized === "PENDING_REVIEW") return "Chờ duyệt"
+  if (normalized === "VERIFIED")
+    return t("transactionStatuses.VERIFIED", "Đã xác nhận")
+  if (normalized === "REJECTED")
+    return t("transactionStatuses.REJECTED", "Đã từ chối")
+  if (normalized === "PENDING_REVIEW")
+    return t("transactionStatuses.PENDING_REVIEW", "Chờ duyệt")
   return status ?? "-"
 }
 
@@ -86,40 +91,43 @@ export function getStatusBadgeClass(status?: string | null) {
   const normalized = status?.toUpperCase()
   switch (normalized) {
     case "VERIFIED":
-      return "bg-emerald-100 text-emerald-700 border-emerald-200"
+      return "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/60"
     case "PENDING_REVIEW":
-      return "bg-yellow-100 text-yellow-700 border-yellow-200"
+      return "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-400 dark:border-yellow-800/60"
     case "REJECTED":
-      return "bg-rose-100 text-rose-700 border-rose-200"
+      return "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800/60"
     default:
-      return "bg-gray-100 text-gray-700 border-gray-200"
+      return "bg-gray-100 text-gray-700 border-gray-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700"
   }
 }
 
-// function getTransactionStatusVariant(status?: string | null) {
-//   const normalized = status?.toUpperCase()
-//   if (normalized === "VERIFIED") return "default" as const
-//   if (normalized === "PENDING_REVIEW") return "secondary" as const
-//   if (normalized === "REJECTED") return "destructive" as const
-//   return "outline" as const
-// }
-
-function formatDebtStatus(status?: string | null) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function formatDebtStatus(status: string | null | undefined, t: any) {
   const normalized = status?.toUpperCase()
-  if (normalized === "PAID") return "Đã thanh toán"
-  if (normalized === "PARTIALLY_PAID") return "Thanh toán một phần"
-  if (normalized === "UNPAID") return "Chưa thanh toán"
-  if (normalized === "OVERPAID") return "Thanh toán dư"
+  if (normalized === "PAID") return t("debtStatuses.PAID", "Đã thanh toán")
+  if (normalized === "PARTIALLY_PAID")
+    return t("debtStatuses.PARTIALLY_PAID", "Thanh toán một phần")
+  if (normalized === "UNPAID")
+    return t("debtStatuses.UNPAID", "Chưa thanh toán")
+  if (normalized === "OVERPAID")
+    return t("debtStatuses.OVERPAID", "Thanh toán dư")
   return status ?? "-"
 }
 
-function getDebtStatusVariant(status?: string | null) {
+function getDebtStatusBadgeClass(status?: string | null) {
   const normalized = status?.toUpperCase()
-  if (normalized === "PAID") return "default" as const
-  if (normalized === "PARTIALLY_PAID") return "secondary" as const
-  if (normalized === "UNPAID") return "destructive" as const
-  if (normalized === "OVERPAID") return "outline" as const
-  return "outline" as const
+  switch (normalized) {
+    case "PAID":
+      return "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/60"
+    case "PARTIALLY_PAID":
+      return "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-400 dark:border-yellow-800/60"
+    case "UNPAID":
+      return "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800/60"
+    case "OVERPAID":
+      return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-800/60"
+    default:
+      return "bg-gray-100 text-gray-700 border-gray-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700"
+  }
 }
 
 function getInitials(name: string) {
@@ -134,21 +142,29 @@ function SummaryCard({
   value,
   description,
   className,
+  valueClassName,
 }: {
   title: string
   value: string
-  description: string
+  description: React.ReactNode
   className?: string
+  valueClassName?: string
 }) {
   return (
-    <Card className={`bg-orange-50 ${className}`}>
+    <Card
+      className={`bg-orange-50 ${className} dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm`}
+    >
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+        <CardTitle className="text-sm font-medium text-foreground dark:text-white">
           {title}
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold text-orange-500">{value}</div>
+        <div
+          className={`text-2xl font-bold ${valueClassName || "text-orange-500"}`}
+        >
+          {value}
+        </div>
         <p className="mt-1 text-xs text-muted-foreground">{description}</p>
       </CardContent>
     </Card>
@@ -165,7 +181,6 @@ function getQueryErrorMessage(error: unknown, fallback: string) {
 export function GroupFinanceSection({
   groupId,
   members,
-
   currentUserRole,
   groupStatus,
 }: {
@@ -175,6 +190,7 @@ export function GroupFinanceSection({
   currentUserRole: string | null
   groupStatus?: string | null
 }) {
+  const { t } = useGroupsTranslation()
   const activeTab = useGroupDetailActiveTab()
   const normalizedRole = currentUserRole?.toLowerCase() ?? ""
   const isOwner = normalizedRole === "owner"
@@ -236,20 +252,28 @@ export function GroupFinanceSection({
     enabled: isFinanceActive && isOwner,
   })
 
-  const resolvedMembers = membersQuery.data ?? []
+  const rawMembers = membersQuery.data
+  const resolvedMembers: Member[] = Array.isArray(rawMembers)
+    ? rawMembers
+    : rawMembers &&
+        typeof rawMembers === "object" &&
+        "data" in rawMembers &&
+        Array.isArray((rawMembers as Record<string, unknown>).data)
+      ? ((rawMembers as Record<string, unknown>).data as Member[])
+      : []
 
   if (!isFinanceActive) {
     return (
       <Card className="mt-6 shadow-sm">
         <CardHeader className="border-b">
-          <CardTitle>Thu chi nhóm</CardTitle>
+          <CardTitle>{t("finance.title")}</CardTitle>
           <p className="mt-1 text-sm text-muted-foreground">
-            Tổng quan tài chính nhóm.
+            {t("finance.generalOverview", "Tổng quan tài chính nhóm.")}
           </p>
         </CardHeader>
         <CardContent className="pt-6">
           <p className="text-sm text-muted-foreground">
-            Mở tab Thu chi để tải dữ liệu.
+            {t("finance.openTabNotice", "Mở tab Thu chi để tải dữ liệu.")}
           </p>
         </CardContent>
       </Card>
@@ -277,11 +301,17 @@ export function GroupFinanceSection({
       <CardHeader className="border-b">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <CardTitle>Thu chi nhóm</CardTitle>
+            <CardTitle>{t("finance.title")}</CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
               {canManage
-                ? "Tổng quan tài chính, giao dịch và khoản nợ của nhóm."
-                : "Theo dõi các khoản nợ và gửi thông tin thanh toán của bạn."}
+                ? t(
+                    "finance.manageDesc",
+                    "Tổng quan tài chính, giao dịch và khoản nợ của nhóm."
+                  )
+                : t(
+                    "finance.viewDesc",
+                    "Theo dõi các khoản nợ và gửi thông tin thanh toán của bạn."
+                  )}
             </p>
           </div>
           {!isArchivedGroup(groupStatus) && (
@@ -305,61 +335,94 @@ export function GroupFinanceSection({
       </CardHeader>
       <CardContent className="space-y-6 pt-6">
         {summaryQuery.isPending ? (
-          <p className="text-sm text-muted-foreground">Đang tải tổng quan...</p>
+          <p className="text-sm text-muted-foreground">
+            {t("finance.loadingSummary", "Đang tải tổng quan...")}
+          </p>
         ) : summaryQuery.isError ? (
           <ErrorSection
-            title="Lỗi tải tổng quan"
-            message={getQueryErrorMessage(summaryQuery.error, "Thử lại sau.")}
+            title={t("finance.loadSummaryError", "Lỗi tải tổng quan")}
+            message={getQueryErrorMessage(
+              summaryQuery.error,
+              t("errors.defaultError", "Thử lại sau.")
+            )}
           />
-        ) : summary ? (
+        ) : summary && isOwner ? (
           <div className="space-y-6">
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               <SummaryCard
-                title="Tổng chi tiêu"
+                title={t("finance.totalSpent", "Tổng chi tiêu")}
                 value={formatCurrency(summary.totalExpense)}
-                description={`Cân đối: ${formatCurrency(summary.netBalance)}`}
+                description={
+                  <span>
+                    {t("finance.netBalancePrefix", "Cân đối: ")}
+                    <span
+                      className={
+                        summary.netBalance > 0
+                          ? "font-semibold text-emerald-600 dark:text-emerald-400"
+                          : summary.netBalance < 0
+                            ? "font-semibold text-rose-600 dark:text-rose-400"
+                            : "text-muted-foreground"
+                      }
+                    >
+                      {formatCurrency(summary.netBalance)}
+                    </span>
+                  </span>
+                }
                 className=""
+                valueClassName="text-orange-600 dark:text-orange-400"
               />
               <SummaryCard
-                title="Tổng đã thu"
+                title={t("finance.totalCollected", "Tổng đã thu")}
                 value={formatCurrency(summary.totalCollected)}
-                description={`Chờ duyệt: ${formatCurrency(summary.totalExpectedRevenue - summary.totalCollected)}`}
-                className="text-blue-600 dark:text-blue-400"
+                description={`${t("finance.pendingReviewPrefix", "Chờ duyệt: ")}${formatCurrency(summary.totalExpectedRevenue - summary.totalCollected)}`}
+                className=""
+                valueClassName="text-emerald-600 dark:text-emerald-400"
               />
               <SummaryCard
-                title="Còn nợ"
+                title={t("finance.debtOutstanding", "Còn nợ")}
                 value={formatCurrency(summary.outstandingAmount)}
-                description={`Kỳ vọng thu: ${formatCurrency(summary.totalExpectedRevenue)}`}
-                className="text-amber-600 dark:text-amber-400"
+                description={`${t("finance.expectedRevenuePrefix", "Kỳ vọng thu: ")}${formatCurrency(summary.totalExpectedRevenue)}`}
+                className=""
+                valueClassName="text-rose-600 dark:text-rose-400"
               />
             </div>
 
             <div className="rounded-lg border bg-muted/20 p-4">
-              <h4 className="mb-3 text-sm font-semibold">Thống kê tháng</h4>
+              <h4 className="mb-3 text-sm font-semibold">
+                {t("finance.monthlyStats", "Thống kê tháng")}
+              </h4>
               <div
                 className={`grid gap-4 sm:grid-cols-3 ${isOwner ? "lg:grid-cols-5" : "lg:grid-cols-3"}`}
               >
                 <div>
                   <p className="text-xs text-muted-foreground uppercase">
-                    Tổng thu
+                    {t("finance.totalCollected", "Tổng thu")}
                   </p>
-                  <p className="text-success text-lg font-bold">
+                  <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                     {formatCurrency(monthlyStats.totalCollected)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground uppercase">
-                    Tổng chi
+                    {t("finance.totalSpent", "Tổng chi")}
                   </p>
-                  <p className="text-lg font-bold text-destructive">
+                  <p className="text-lg font-bold text-orange-500">
                     {formatCurrency(monthlyStats.totalSpent)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground uppercase">
-                    Chênh lệch
+                    {t("finance.netBalance", "Chênh lệch")}
                   </p>
-                  <p className="text-lg font-bold">
+                  <p
+                    className={`text-lg font-bold ${
+                      monthlyStats.difference > 0
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : monthlyStats.difference < 0
+                          ? "text-rose-600 dark:text-rose-400"
+                          : "text-muted-foreground"
+                    }`}
+                  >
                     {formatCurrency(monthlyStats.difference)}
                   </p>
                 </div>
@@ -367,7 +430,7 @@ export function GroupFinanceSection({
                   <>
                     <div>
                       <p className="text-xs text-muted-foreground uppercase">
-                        Thành viên nợ
+                        {t("finance.debtorsCount", "Thành viên nợ")}
                       </p>
                       <p className="text-lg font-bold">
                         {monthlyStats.debtorsCount}
@@ -375,7 +438,7 @@ export function GroupFinanceSection({
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground uppercase">
-                        Đóng dư
+                        {t("finance.overpayersCount", "Đóng dư")}
                       </p>
                       <p className="text-lg font-bold">
                         {monthlyStats.overpayersCount}
@@ -391,14 +454,24 @@ export function GroupFinanceSection({
         <Tabs defaultValue={canManage ? "transactions" : "my-debt"}>
           <TabsList>
             {canManage && (
-              <TabsTrigger value="transactions">Giao dịch</TabsTrigger>
+              <TabsTrigger value="transactions">
+                {t("finance.tabTransactions", "Giao dịch")}
+              </TabsTrigger>
             )}
-            <TabsTrigger value="my-debt">Nợ của tôi</TabsTrigger>
+            <TabsTrigger value="my-debt">
+              {t("finance.tabMyDebt", "Nợ của tôi")}
+            </TabsTrigger>
             {isOwner && (
-              <TabsTrigger value="member-debts">Nợ thành viên</TabsTrigger>
+              <TabsTrigger value="member-debts">
+                {t("finance.tabMemberDebts", "Nợ thành viên")}
+              </TabsTrigger>
             )}
-            <TabsTrigger value="expenses">Khoản chi</TabsTrigger>
-            <TabsTrigger value="credits">Tín dụng</TabsTrigger>
+            <TabsTrigger value="expenses">
+              {t("finance.tabExpenses", "Khoản chi")}
+            </TabsTrigger>
+            <TabsTrigger value="credits">
+              {t("finance.tabCredits", "Tín dụng")}
+            </TabsTrigger>
           </TabsList>
 
           {canManage && (
@@ -408,12 +481,20 @@ export function GroupFinanceSection({
                   <TableHeader>
                     <TableRow>
                       <TableHead style={{ minWidth: "150px", width: "20%" }}>
-                        Thành viên
+                        {t("members")}
                       </TableHead>
-                      <TableHead style={{ width: "10%" }}>Số tiền</TableHead>
-                      <TableHead style={{ width: "10%" }}>Ngày gửi</TableHead>
-                      <TableHead style={{ width: "10%" }}>Trạng thái</TableHead>
-                      <TableHead style={{ width: "10%" }}>Chứng từ</TableHead>
+                      <TableHead style={{ width: "10%" }}>
+                        {t("finance.amount", "Số tiền")}
+                      </TableHead>
+                      <TableHead style={{ width: "10%" }}>
+                        {t("finance.sentDate", "Ngày gửi")}
+                      </TableHead>
+                      <TableHead style={{ width: "10%" }}>
+                        {t("finance.status", "Trạng thái")}
+                      </TableHead>
+                      <TableHead style={{ width: "10%" }}>
+                        {t("finance.receipt", "Chứng từ")}
+                      </TableHead>
                       <TableHead style={{ width: "10%" }} />
                     </TableRow>
                   </TableHeader>
@@ -444,7 +525,7 @@ export function GroupFinanceSection({
                             variant="secondary"
                             className={getStatusBadgeClass(tx.status)}
                           >
-                            {formatTransactionStatus(tx.status)}
+                            {formatTransactionStatus(tx.status, t)}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -467,7 +548,10 @@ export function GroupFinanceSection({
                           colSpan={6}
                           className="py-4 text-center text-muted-foreground"
                         >
-                          Chưa có giao dịch nào.
+                          {t(
+                            "finance.noTransactions",
+                            "Chưa có giao dịch nào."
+                          )}
                         </TableCell>
                       </TableRow>
                     )}
@@ -481,24 +565,36 @@ export function GroupFinanceSection({
             {myDebtQuery.data && (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <SummaryCard
-                  title="Tổng phải đóng"
+                  title={t("finance.totalRequired", "Tổng phải đóng")}
                   value={formatCurrency(myDebtQuery.data.totalRequired)}
-                  description="Tổng các khoản chi được phân bổ"
+                  description={t(
+                    "finance.totalRequiredDesc",
+                    "Tổng các khoản chi được phân bổ"
+                  )}
                 />
                 <SummaryCard
-                  title="Đã thanh toán"
+                  title={t("finance.totalPaid", "Đã thanh toán")}
                   value={formatCurrency(myDebtQuery.data.totalPaid)}
-                  description="Tổng số tiền bạn đã đóng"
+                  description={t(
+                    "finance.totalPaidDesc",
+                    "Tổng số tiền bạn đã đóng"
+                  )}
                 />
                 <SummaryCard
-                  title="Công nợ hiện tại"
+                  title={t("finance.currentDebt", "Công nợ hiện tại")}
                   value={formatCurrency(myDebtQuery.data.debt)}
-                  description="Số tiền còn phải thanh toán"
+                  description={t(
+                    "finance.currentDebtDesc",
+                    "Số tiền còn phải thanh toán"
+                  )}
                 />
                 <SummaryCard
-                  title="Chênh lệch"
+                  title={t("finance.netBalance", "Chênh lệch")}
                   value={formatCurrency(myDebtQuery.data.netBalance)}
-                  description="Số dư tài chính của bạn"
+                  description={t(
+                    "finance.netBalanceDesc",
+                    "Số dư tài chính của bạn"
+                  )}
                 />
               </div>
             )}
@@ -507,12 +603,24 @@ export function GroupFinanceSection({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead style={{ width: "20%" }}>Khoản chi</TableHead>
-                    <TableHead style={{ width: "10%" }}>Phí khách</TableHead>
-                    <TableHead style={{ width: "10%" }}>Phải đóng</TableHead>
-                    <TableHead style={{ width: "10%" }}>Đã đóng</TableHead>
-                    <TableHead style={{ width: "10%" }}>Còn nợ</TableHead>
-                    <TableHead style={{ width: "10%" }}>Trạng thái</TableHead>
+                    <TableHead style={{ width: "20%" }}>
+                      {t("finance.expense", "Khoản chi")}
+                    </TableHead>
+                    <TableHead style={{ width: "10%" }}>
+                      {t("finance.guestFee", "Phí khách")}
+                    </TableHead>
+                    <TableHead style={{ width: "10%" }}>
+                      {t("finance.requiredAmount", "Phải đóng")}
+                    </TableHead>
+                    <TableHead style={{ width: "10%" }}>
+                      {t("finance.paidAmount", "Đã đóng")}
+                    </TableHead>
+                    <TableHead style={{ width: "10%" }}>
+                      {t("finance.debtAmount", "Còn nợ")}
+                    </TableHead>
+                    <TableHead style={{ width: "10%" }}>
+                      {t("finance.status", "Trạng thái")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -528,7 +636,9 @@ export function GroupFinanceSection({
                               variant="outline"
                               className="h-5 text-[10px]"
                             >
-                              Khách: {item.guestName ?? "N/A"}
+                              {t("finance.guestBadge", "Khách: {{name}}", {
+                                name: item.guestName ?? "N/A",
+                              })}
                             </Badge>
                           )}
                         </div>
@@ -540,13 +650,17 @@ export function GroupFinanceSection({
                               {formatCurrency(item.guestFee || 0)}
                             </span>
                             <span className="text-xs font-semibold text-orange-700 dark:text-orange-400">
-                              ({item.guestCount} khách)
+                              {t("finance.guestCount", "{{count}} khách", {
+                                count: item.guestCount,
+                              })}
                             </span>
                           </div>
                         ) : item.isGuestPayment ? (
                           <div className="flex flex-col gap-0.5">
                             <span className="text-xs font-semibold text-orange-700 dark:text-orange-400">
-                              1 khách
+                              {t("finance.guestCount", "{{count}} khách", {
+                                count: 1,
+                              })}
                             </span>
                           </div>
                         ) : (
@@ -563,8 +677,11 @@ export function GroupFinanceSection({
                         {formatCurrency(item.debt)}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={getDebtStatusVariant(item.status)}>
-                          {formatDebtStatus(item.status)}
+                        <Badge
+                          variant="outline"
+                          className={getDebtStatusBadgeClass(item.status)}
+                        >
+                          {formatDebtStatus(item.status, t)}
                         </Badge>
                       </TableCell>
                     </TableRow>
@@ -575,7 +692,7 @@ export function GroupFinanceSection({
                         colSpan={6}
                         className="py-10 text-center text-muted-foreground"
                       >
-                        Không có khoản công nợ nào.
+                        {t("finance.noDebts", "Không có khoản công nợ nào.")}
                       </TableCell>
                     </TableRow>
                   )}
@@ -591,34 +708,46 @@ export function GroupFinanceSection({
                 statsDebtsQuery.data.data.length > 0 && (
                   <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     <SummaryCard
-                      title="Tổng số người đang nợ"
+                      title={t("finance.totalDebtors", "Tổng số người đang nợ")}
                       value={String(
                         statsDebts.filter((d) => d.debt > 0).length
                       )}
-                      description="Thành viên chưa thanh toán đủ"
+                      description={t(
+                        "finance.totalDebtorsDesc",
+                        "Thành viên chưa thanh toán đủ"
+                      )}
                     />
                     <SummaryCard
-                      title="Tổng tiền đang nợ"
+                      title={t("finance.totalDebtAmount", "Tổng tiền đang nợ")}
                       value={formatCurrency(
                         statsDebts.reduce(
                           (sum, d) => sum + (d.debt > 0 ? d.debt : 0),
                           0
                         )
                       )}
-                      description="Tổng công nợ còn tồn đọng"
+                      description={t(
+                        "finance.totalDebtAmountDesc",
+                        "Tổng công nợ còn tồn đọng"
+                      )}
                     />
                     <SummaryCard
-                      title="Tổng khoản chưa thanh toán"
+                      title={t(
+                        "finance.totalUnpaidPayments",
+                        "Tổng khoản chưa thanh toán"
+                      )}
                       value={String(
                         statsDebts.reduce(
                           (sum, d) => sum + (d.unpaidPayments?.length ?? 0),
                           0
                         )
                       )}
-                      description="Số khoản chi chưa hoàn thành"
+                      description={t(
+                        "finance.totalUnpaidPaymentsDesc",
+                        "Số khoản chi chưa hoàn thành"
+                      )}
                     />
                     <SummaryCard
-                      title="Tổng credit dư"
+                      title={t("finance.totalCredits", "Tổng credit dư")}
                       value={formatCurrency(
                         statsDebts.reduce(
                           (sum, d) =>
@@ -626,7 +755,10 @@ export function GroupFinanceSection({
                           0
                         )
                       )}
-                      description="Thành viên đóng vượt mức"
+                      description={t(
+                        "finance.totalCreditsDesc",
+                        "Thành viên đóng vượt mức"
+                      )}
                     />
                   </div>
                 )}
@@ -637,7 +769,10 @@ export function GroupFinanceSection({
                   <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
                   <input
                     type="text"
-                    placeholder="Tìm kiếm thành viên..."
+                    placeholder={t(
+                      "finance.searchMembersPlaceholder",
+                      "Tìm kiếm thành viên..."
+                    )}
                     className="w-full rounded-md border bg-background py-2 pr-4 pl-9 text-sm outline-none focus:ring-1 focus:ring-primary"
                     value={search}
                     onChange={(e) => {
@@ -651,19 +786,22 @@ export function GroupFinanceSection({
               {groupDebtsQuery.isPending ? (
                 <div className="flex items-center justify-center gap-2 py-10 text-center text-muted-foreground">
                   <Loader2 className="size-5 animate-spin" />
-                  Đang tải dữ liệu công nợ...
+                  {t("finance.loadingDebts", "Đang tải dữ liệu công nợ...")}
                 </div>
               ) : groupDebtsQuery.isError ? (
                 <ErrorSection
-                  title="Lỗi tải dữ liệu"
+                  title={t("finance.loadDebtsError", "Lỗi tải dữ liệu")}
                   message={getQueryErrorMessage(
                     groupDebtsQuery.error,
-                    "Thử lại sau."
+                    t("errors.defaultError", "Thử lại sau.")
                   )}
                 />
               ) : !groupDebtsQuery.data?.data?.length ? (
                 <div className="rounded-md border bg-muted/5 py-10 text-center text-muted-foreground">
-                  Không tìm thấy thông tin công nợ nào.
+                  {t(
+                    "finance.noDebtsFound",
+                    "Không tìm thấy thông tin công nợ nào."
+                  )}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -671,16 +809,20 @@ export function GroupFinanceSection({
                     const isExpanded = expandedUsers.includes(item.userId)
                     const statusText =
                       item.debt > 0
-                        ? `Nợ ${formatCurrency(item.debt)}`
+                        ? t("finance.debtText", "Nợ {{amount}}", {
+                            amount: formatCurrency(item.debt),
+                          })
                         : item.creditBalance > 0
-                          ? `Dư ${formatCurrency(item.creditBalance)}`
-                          : "Đã thanh toán"
-                    const statusVariant =
+                          ? t("finance.creditText", "Dư {{amount}}", {
+                              amount: formatCurrency(item.creditBalance),
+                            })
+                          : t("finance.paidText", "Đã thanh toán")
+                    const debtStatus =
                       item.debt > 0
-                        ? ("destructive" as const)
+                        ? "UNPAID"
                         : item.creditBalance > 0
-                          ? ("secondary" as const)
-                          : ("default" as const)
+                          ? "OVERPAID"
+                          : "PAID"
 
                     return (
                       <Card
@@ -710,7 +852,12 @@ export function GroupFinanceSection({
                             <span className="text-sm font-semibold tabular-nums">
                               {formatCurrency(item.totalRequired)}
                             </span>
-                            <Badge variant={statusVariant}>{statusText}</Badge>
+                            <Badge
+                              variant="outline"
+                              className={getDebtStatusBadgeClass(debtStatus)}
+                            >
+                              {statusText}
+                            </Badge>
                             {item.creditBalance > 0 && (
                               <Badge variant="outline" className="text-xs">
                                 Credit: {formatCurrency(item.creditBalance)}
@@ -722,25 +869,33 @@ export function GroupFinanceSection({
                         {/* Compact stats row */}
                         <div className="grid grid-cols-2 gap-px border-t bg-border md:grid-cols-4">
                           <div className="bg-card px-4 py-2.5">
-                            <p className="text-sm font-semibold">Phải đóng</p>
+                            <p className="text-sm font-semibold">
+                              {t("finance.requiredAmount", "Phải đóng")}
+                            </p>
                             <p className="text-sm font-semibold">
                               {formatCurrency(item.totalRequired)}
                             </p>
                           </div>
                           <div className="bg-card px-4 py-2.5">
-                            <p className="text-sm font-semibold">Đã đóng</p>
+                            <p className="text-sm font-semibold">
+                              {t("finance.paidAmount", "Đã đóng")}
+                            </p>
                             <p className="text-sm font-semibold">
                               {formatCurrency(item.totalPaid)}
                             </p>
                           </div>
                           <div className="bg-card px-4 py-2.5">
-                            <p className="text-sm font-semibold">Credit dư</p>
+                            <p className="text-sm font-semibold">
+                              {t("finance.creditBalance", "Credit dư")}
+                            </p>
                             <p className="text-sm font-semibold">
                               {formatCurrency(item.creditBalance)}
                             </p>
                           </div>
                           <div className="bg-card px-4 py-2.5">
-                            <p className="text-sm font-semibold">Cân đối</p>
+                            <p className="text-sm font-semibold">
+                              {t("finance.netBalance", "Cân đối")}
+                            </p>
                             <p className="text-sm font-medium tabular-nums">
                               {formatCurrency(item.netBalance)}
                             </p>
@@ -765,13 +920,16 @@ export function GroupFinanceSection({
                               >
                                 {isExpanded ? (
                                   <>
-                                    Ẩn chi tiết
+                                    {t("finance.hideDetails", "Ẩn chi tiết")}
                                     <ChevronUp className="size-3.5" />
                                   </>
                                 ) : (
                                   <>
-                                    Xem chi tiết ({item.unpaidPayments.length}{" "}
-                                    khoản)
+                                    {t(
+                                      "finance.showDetails",
+                                      "Xem chi tiết ({{count}} khoản)",
+                                      { count: item.unpaidPayments.length }
+                                    )}
                                     <ChevronDown className="size-3.5" />
                                   </>
                                 )}
@@ -787,25 +945,31 @@ export function GroupFinanceSection({
                                 <TableHeader>
                                   <TableRow className="bg-muted/30">
                                     <TableHead className="text-xs">
-                                      Tên khoản chi
+                                      {t(
+                                        "finance.expenseName",
+                                        "Tên khoản chi"
+                                      )}
                                     </TableHead>
                                     <TableHead className="text-xs">
-                                      Phí khách
+                                      {t("finance.guestFee", "Phí khách")}
                                     </TableHead>
                                     <TableHead className="text-xs">
-                                      Số cần đóng
+                                      {t(
+                                        "finance.requiredAmount",
+                                        "Số cần đóng"
+                                      )}
                                     </TableHead>
                                     <TableHead className="text-xs">
-                                      Đã đóng
+                                      {t("finance.paidAmount", "Đã đóng")}
                                     </TableHead>
                                     <TableHead className="text-xs">
-                                      Còn nợ
+                                      {t("finance.debtAmount", "Còn nợ")}
                                     </TableHead>
                                     <TableHead className="text-xs">
-                                      Trạng thái
+                                      {t("finance.status", "Trạng thái")}
                                     </TableHead>
                                     <TableHead className="text-xs">
-                                      Ngày tạo
+                                      {t("finance.createdDate", "Ngày tạo")}
                                     </TableHead>
                                   </TableRow>
                                 </TableHeader>
@@ -823,8 +987,15 @@ export function GroupFinanceSection({
                                                 variant="outline"
                                                 className="h-5 text-[10px]"
                                               >
-                                                Khách:{" "}
-                                                {payment.guestName ?? "N/A"}
+                                                {t(
+                                                  "finance.guestBadge",
+                                                  "Khách: {{name}}",
+                                                  {
+                                                    name:
+                                                      payment.guestName ??
+                                                      "N/A",
+                                                  }
+                                                )}
                                               </Badge>
                                             )}
                                           </div>
@@ -835,7 +1006,11 @@ export function GroupFinanceSection({
                                           payment.guestCount > 0 ? (
                                             <div className="flex flex-col gap-0.5">
                                               <span className="text-xs font-semibold text-orange-700 dark:text-orange-400">
-                                                {payment.guestCount} khách
+                                                {t(
+                                                  "finance.guestCount",
+                                                  "{{count}} khách",
+                                                  { count: payment.guestCount }
+                                                )}
                                               </span>
                                               <span className="text-[10px] text-muted-foreground">
                                                 (
@@ -848,7 +1023,11 @@ export function GroupFinanceSection({
                                           ) : payment.isGuestPayment ? (
                                             <div className="flex flex-col gap-0.5">
                                               <span className="text-xs font-semibold text-orange-700 dark:text-orange-400">
-                                                1 khách
+                                                {t(
+                                                  "finance.guestCount",
+                                                  "{{count}} khách",
+                                                  { count: 1 }
+                                                )}
                                               </span>
                                             </div>
                                           ) : (
@@ -872,11 +1051,15 @@ export function GroupFinanceSection({
                                         {/* Status */}
                                         <TableCell>
                                           <Badge
-                                            variant={getDebtStatusVariant(
+                                            variant="outline"
+                                            className={getDebtStatusBadgeClass(
                                               payment.status
                                             )}
                                           >
-                                            {formatDebtStatus(payment.status)}
+                                            {formatDebtStatus(
+                                              payment.status,
+                                              t
+                                            )}
                                           </Badge>
                                         </TableCell>
                                         <TableCell className="text-xs text-muted-foreground">
@@ -890,7 +1073,10 @@ export function GroupFinanceSection({
                                         colSpan={7}
                                         className="py-6 text-center text-sm text-muted-foreground"
                                       >
-                                        Không có khoản nợ nào.
+                                        {t(
+                                          "finance.noDebts",
+                                          "Không có khoản nợ nào."
+                                        )}
                                       </TableCell>
                                     </TableRow>
                                   )}
@@ -915,10 +1101,17 @@ export function GroupFinanceSection({
                           }
                           disabled={page === 1}
                         >
-                          Trang trước
+                          {t("pagination.previous")}
                         </Button>
                         <span className="text-xs text-muted-foreground">
-                          Trang {page} / {groupDebtsQuery.data.meta.totalPages}
+                          {t(
+                            "pagination.pageInfo",
+                            "Trang {{currentPage}} / {{totalPages}}",
+                            {
+                              currentPage: page,
+                              totalPages: groupDebtsQuery.data.meta.totalPages,
+                            }
+                          )}
                         </span>
                         <Button
                           variant="outline"
@@ -935,7 +1128,7 @@ export function GroupFinanceSection({
                             page === groupDebtsQuery.data.meta.totalPages
                           }
                         >
-                          Trang sau
+                          {t("pagination.next")}
                         </Button>
                       </div>
                     )}
@@ -949,10 +1142,14 @@ export function GroupFinanceSection({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Tên khoản chi</TableHead>
-                    <TableHead>Số tiền</TableHead>
-                    <TableHead>Ngày chi</TableHead>
-                    <TableHead>Người tạo</TableHead>
+                    <TableHead>
+                      {t("finance.expenseName", "Tên khoản chi")}
+                    </TableHead>
+                    <TableHead>{t("finance.amount", "Số tiền")}</TableHead>
+                    <TableHead>
+                      {t("finance.expenseDate", "Ngày chi")}
+                    </TableHead>
+                    <TableHead>{t("finance.createdBy", "Người tạo")}</TableHead>
                     <TableHead />
                   </TableRow>
                 </TableHeader>
@@ -985,7 +1182,7 @@ export function GroupFinanceSection({
                         colSpan={5}
                         className="py-4 text-center text-muted-foreground"
                       >
-                        Chưa có khoản chi nào.
+                        {t("finance.noExpenses", "Chưa có khoản chi nào.")}
                       </TableCell>
                     </TableRow>
                   )}
@@ -1020,7 +1217,10 @@ export function GroupFinanceSection({
               ))}
               {!creditBalancesQuery.data?.data?.length && (
                 <div className="col-span-full py-10 text-center text-muted-foreground">
-                  Không có thành viên nào có số dư tín dụng.
+                  {t(
+                    "finance.noCredits",
+                    "Không có thành viên nào có số dư tín dụng."
+                  )}
                 </div>
               )}
             </div>

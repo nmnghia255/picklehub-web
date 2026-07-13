@@ -14,6 +14,7 @@ import {
   inviteToGroup,
   kickMember,
   leaveGroup,
+  restoreGroup,
   revokeInvitation,
   revokeInviteLink,
   updateGroup,
@@ -41,12 +42,10 @@ export async function revokeInvitationAction(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Revoke lời mời thất bại. Vui lòng thử lại.",
+        error: error.response?.data?.message || "errors.revokeInvitationFailed",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "errors.defaultError" }
   }
 }
 
@@ -75,12 +74,10 @@ export async function addGroupAction(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Tạo nhóm thất bại. Vui lòng thử lại.",
+        error: error.response?.data?.message || "errors.createGroupFailed",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "errors.defaultError" }
   }
 }
 
@@ -104,12 +101,10 @@ export async function inviteToGroupAction(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Gửi lời mời thất bại. Vui lòng thử lại.",
+        error: error.response?.data?.message || "errors.sendInvitationFailed",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "errors.defaultError" }
   }
 }
 
@@ -153,7 +148,7 @@ export async function updateGroupAction(
     }
 
     if (Object.keys(payload).length === 0) {
-      return { error: "Không có thông tin nào để cập nhật." }
+      return { error: "errors.noInfoToUpdate" }
     }
 
     await updateGroup(groupId, payload)
@@ -163,16 +158,11 @@ export async function updateGroupAction(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Cập nhật nhóm thất bại. Vui lòng thử lại.",
+        error: error.response?.data?.message || "errors.updateGroupFailed",
       }
     }
     return {
-      error:
-        error instanceof Error
-          ? error.message
-          : "Đã có lỗi xảy ra. Vui lòng thử lại.",
+      error: error instanceof Error ? error.message : "errors.defaultError",
     }
   }
 }
@@ -190,12 +180,30 @@ export async function archiveGroupAction(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Lưu trữ nhóm thất bại. Vui lòng thử lại.",
+        error: error.response?.data?.message || "errors.archiveGroupFailed",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "errors.defaultError" }
+  }
+}
+
+export async function restoreGroupAction(
+  groupId: string,
+  _prevState: GroupActionState,
+  _formData: FormData
+): Promise<GroupActionState> {
+  try {
+    await restoreGroup(groupId)
+    revalidatePath("/groups")
+    revalidatePath(`/groups/${groupId}`)
+    return { success: true }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        error: error.response?.data?.message || "dashboard.restoreGroupFailed",
+      }
+    }
+    return { error: "errors.defaultError" }
   }
 }
 
@@ -207,7 +215,7 @@ export async function kickMemberAction(
   const userId = formData.get("userId")?.toString() ?? ""
 
   if (!groupId || !userId) {
-    return { error: "Thiếu thông tin thành viên cần xóa." }
+    return { error: "errors.missingMemberToDelete" }
   }
 
   try {
@@ -217,12 +225,10 @@ export async function kickMemberAction(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Xóa thành viên thất bại. Vui lòng thử lại.",
+        error: error.response?.data?.message || "errors.deleteMemberFailed",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "errors.defaultError" }
   }
 }
 
@@ -233,7 +239,7 @@ export async function leaveGroupAction(
   const groupId = formData.get("groupId")?.toString() ?? ""
 
   if (!groupId) {
-    return { error: "Thiếu thông tin nhóm cần rời." }
+    return { error: "errors.missingGroupToLeave" }
   }
 
   try {
@@ -253,12 +259,10 @@ export async function leaveGroupAction(
 
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Rời nhóm thất bại. Vui lòng thử lại.",
+        error: error.response?.data?.message || "errors.leaveGroupFailed",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "errors.defaultError" }
   }
 }
 /** @deprecated */
@@ -277,12 +281,10 @@ export async function createInviteLinkAction(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Tạo invite link thất bại. Vui lòng thử lại.",
+        error: error.response?.data?.message || "errors.createInviteLinkFailed",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "errors.defaultError" }
   }
 }
 
@@ -302,12 +304,10 @@ export async function getInviteLinksAction(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Lấy danh sách invite links thất bại.",
+        error: error.response?.data?.message || "errors.getInviteLinksFailed",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "errors.defaultError" }
   }
 }
 
@@ -328,12 +328,10 @@ export async function revokeInviteLinkAction(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Revoke invite link thất bại. Vui lòng thử lại.",
+        error: error.response?.data?.message || "errors.revokeInviteLinkFailed",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "errors.defaultError" }
   }
 }
 
@@ -369,11 +367,9 @@ export async function acceptInvitationAction(
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Chấp nhận lời mời thất bại. Vui lòng thử lại.",
+        error: error.response?.data?.message || "errors.acceptInvitationFailed",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "errors.defaultError" }
   }
 }

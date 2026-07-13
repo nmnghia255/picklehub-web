@@ -47,7 +47,7 @@ export async function createTransactionAction(
   try {
     const amount = Number(formData.get("amount")?.toString().trim() ?? "0")
     if (isNaN(amount) || amount <= 0) {
-      return { error: "Số tiền không hợp lệ." }
+      return { error: "errors.invalidAmount" }
     }
 
     const receiptFileField = formData.get("receiptFile")
@@ -71,7 +71,7 @@ export async function createTransactionAction(
 
     return { success: true }
   } catch (error) {
-    return { error: getMessage(error, "Gửi giao dịch thất bại.") }
+    return { error: getMessage(error, "errors.transactionFailed") }
   }
 }
 
@@ -84,13 +84,13 @@ export async function verifyTransactionAction(
   try {
     const status = formData.get("status")?.toString() as "VERIFIED" | "REJECTED"
     if (!status) {
-      return { error: "Thiếu trạng thái xác nhận." }
+      return { error: "errors.missingVerificationStatus" }
     }
 
     await verifyTransaction(groupId, txId, { status })
     return { success: true }
   } catch (error) {
-    return { error: getMessage(error, "Xác nhận giao dịch thất bại.") }
+    return { error: getMessage(error, "errors.verificationFailed") }
   }
 }
 
@@ -105,13 +105,13 @@ export async function remindDebtAction(
     const sendEmail = formData.get("sendEmail")?.toString() === "true"
 
     if (!Array.isArray(userIds) || userIds.length === 0) {
-      return { error: "Vui lòng chọn ít nhất một thành viên." }
+      return { error: "errors.selectAtLeastOneMember" }
     }
 
     await remindDebt(groupId, { userIds, sendEmail })
     return { success: true }
   } catch (error) {
-    return { error: getMessage(error, "Gửi nhắc nợ thất bại.") }
+    return { error: getMessage(error, "errors.sendReminderFailed") }
   }
 }
 
@@ -125,19 +125,19 @@ export async function createExpenseAction(
       formData.get("totalAmount")?.toString().trim() ?? "0"
     )
     if (isNaN(totalAmount) || totalAmount <= 0) {
-      return { error: "Tổng số tiền không hợp lệ." }
+      return { error: "errors.invalidTotalAmount" }
     }
 
     const expenseDate = formData.get("expenseDate")?.toString().trim()
     if (!expenseDate) {
-      return { error: "Vui lòng chọn ngày chi tiêu." }
+      return { error: "errors.selectExpenseDate" }
     }
 
     const allocationsRaw = formData.get("allocations")?.toString() || ""
     const allocations = allocationsRaw ? JSON.parse(allocationsRaw) : []
 
     if (!Array.isArray(allocations) || allocations.length === 0) {
-      return { error: "Vui lòng chọn ít nhất một thành viên để phân bổ." }
+      return { error: "errors.selectAtLeastOneMemberAllocation" }
     }
 
     const activityId =
@@ -170,7 +170,7 @@ export async function createExpenseAction(
     return { success: true }
   } catch (error) {
     return {
-      error: getMessage(error, "Tạo chi tiêu thất bại. Vui lòng thử lại."),
+      error: getMessage(error, "errors.createExpenseFailed"),
     }
   }
 }
@@ -220,7 +220,7 @@ export async function updateExpenseAction(
     return { success: true }
   } catch (error) {
     return {
-      error: getMessage(error, "Cập nhật chi tiêu thất bại. Vui lòng thử lại."),
+      error: getMessage(error, "errors.updateExpenseFailed"),
     }
   }
 }
@@ -236,7 +236,7 @@ export async function deleteExpenseAction(
     return { success: true }
   } catch (error) {
     return {
-      error: getMessage(error, "Xóa chi tiêu thất bại. Vui lòng thử lại."),
+      error: getMessage(error, "errors.deleteExpenseFailed"),
     }
   }
 }

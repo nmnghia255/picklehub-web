@@ -20,6 +20,7 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import { updateGroupAction } from "../../actions"
 import { useGroupInvalidation } from "../../api/groups-client"
@@ -31,6 +32,7 @@ interface EditGroupDrawerProps {
 }
 
 export function EditGroupDrawer({ group }: EditGroupDrawerProps) {
+  const { t } = useGroupsTranslation()
   const router = useRouter()
   const invalidation = useGroupInvalidation(group.id)
   const [open, setOpen] = useState(false)
@@ -70,15 +72,19 @@ export function EditGroupDrawer({ group }: EditGroupDrawerProps) {
         const result = await updateGroupAction(group.id, {}, fd)
 
         if (result.success) {
-          toast.success("Cập nhật thông tin nhóm thành công")
+          toast.success(
+            t("errors.updateGroupSuccess", "Cập nhật thông tin nhóm thành công")
+          )
           void invalidation.invalidateAll()
           setOpen(false)
           router.refresh()
         } else if (result.error) {
-          toast.error(result.error)
+          toast.error(t(result.error, result.error))
         }
-      } catch (_error) {
-        toast.error("Đã có lỗi xảy ra. Vui lòng thử lại.")
+      } catch {
+        toast.error(
+          t("errors.defaultError", "Đã có lỗi xảy ra. Vui lòng thử lại.")
+        )
       }
     })
   })
@@ -88,25 +94,32 @@ export function EditGroupDrawer({ group }: EditGroupDrawerProps) {
       <DrawerTrigger asChild>
         <Button
           size="sm"
-          className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+          className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-600"
         >
           <Settings2 className="size-4" />
-          Chỉnh sửa nhóm
+          {t("dashboard.editGroupBtn", "Chỉnh sửa nhóm")}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
         <form className="flex h-full flex-col" onSubmit={onSubmit}>
           <DrawerHeader>
-            <DrawerTitle>Chỉnh sửa thông tin nhóm</DrawerTitle>
+            <DrawerTitle>
+              {t("dashboard.editGroupTitle", "Chỉnh sửa thông tin nhóm")}
+            </DrawerTitle>
           </DrawerHeader>
 
           <div className="flex-1 overflow-y-auto px-4">
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="edit-name">Tên nhóm</FieldLabel>
+                <FieldLabel htmlFor="edit-name">
+                  {t("dashboard.groupNameLabel", "Tên nhóm")}
+                </FieldLabel>
                 <Input
                   id="edit-name"
-                  placeholder="Nhập tên nhóm"
+                  placeholder={t(
+                    "dashboard.groupNamePlaceholder",
+                    "Nhập tên nhóm"
+                  )}
                   {...form.register("name")}
                   aria-invalid={!!form.formState.errors.name}
                 />
@@ -118,10 +131,15 @@ export function EditGroupDrawer({ group }: EditGroupDrawerProps) {
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="edit-description">Mô tả</FieldLabel>
+                <FieldLabel htmlFor="edit-description">
+                  {t("dashboard.descriptionLabel", "Mô tả")}
+                </FieldLabel>
                 <Textarea
                   id="edit-description"
-                  placeholder="Nhập mô tả nhóm"
+                  placeholder={t(
+                    "dashboard.descriptionPlaceholder",
+                    "Nhập mô tả nhóm"
+                  )}
                   rows={4}
                   {...form.register("description")}
                   aria-invalid={!!form.formState.errors.description}
@@ -134,7 +152,9 @@ export function EditGroupDrawer({ group }: EditGroupDrawerProps) {
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="edit-avatar">Ảnh đại diện</FieldLabel>
+                <FieldLabel htmlFor="edit-avatar">
+                  {t("dashboard.avatarLabel", "Ảnh đại diện")}
+                </FieldLabel>
                 <Input
                   id="edit-avatar"
                   type="file"
@@ -155,7 +175,7 @@ export function EditGroupDrawer({ group }: EditGroupDrawerProps) {
 
               <Field>
                 <FieldLabel htmlFor="edit-maxMembers">
-                  Số lượng thành viên tối đa
+                  {t("dashboard.maxMembersLabel", "Số lượng thành viên tối đa")}
                 </FieldLabel>
                 <Input
                   id="edit-maxMembers"
@@ -174,16 +194,14 @@ export function EditGroupDrawer({ group }: EditGroupDrawerProps) {
           </div>
 
           <DrawerFooter>
-            <Button
-              type="submit"
-              disabled={isPending}
-              className="border-none bg-slate-700 text-white hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-500"
-            >
-              {isPending ? "Đang cập nhật..." : "Lưu thay đổi"}
+            <Button type="submit" disabled={isPending} variant="orangeCard">
+              {isPending
+                ? t("dashboard.updatingGroupBtn", "Đang cập nhật...")
+                : t("dashboard.saveChangesBtn", "Lưu thay đổi")}
             </Button>
             <DrawerClose asChild>
               <Button variant="outline" type="button">
-                Hủy
+                {t("activitySchedule.btnCancel")}
               </Button>
             </DrawerClose>
           </DrawerFooter>

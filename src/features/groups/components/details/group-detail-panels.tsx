@@ -31,7 +31,7 @@ export async function GroupDetailPanels({
   defaultTab,
 }: GroupDetailPanelsProps) {
   const normalizedRole = currentUserRole?.toLowerCase()
-  const canManage = normalizedRole === "owner"
+  const canManage = normalizedRole === "owner" || normalizedRole === "admin"
 
   const overviewPanel = (
     <div className="space-y-6 lg:space-y-8">
@@ -48,7 +48,7 @@ export async function GroupDetailPanels({
       <GroupFeedNotificationsContainer groupId={groupId} />
 
       {canManage && (
-        <Card>
+        <Card className="bg-orange-50 dark:bg-accent">
           <CardContent>
             <InvitationsTable
               groupId={groupId}

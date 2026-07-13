@@ -1,5 +1,6 @@
 import type {
   ActivityAttendance,
+  ActivityMember,
   CreateGroupActivityDto,
   GroupActivity,
   ListActivitiesParams,
@@ -59,6 +60,8 @@ export const activityQueryKeys = {
     ["group-activities", groupId, "list", params] as const,
   detail: (groupId: string, activityId: string) =>
     ["group-activities", groupId, "detail", activityId] as const,
+  members: (groupId: string, activityId: string) =>
+    ["group-activities", groupId, "detail", activityId, "members"] as const,
 }
 
 export async function createActivityClient(
@@ -128,14 +131,15 @@ export async function reportAbsenceClient(
 
 export async function cancelAbsenceClient(
   groupId: string,
-  activityId: string
+  activityId: string,
+  memberId?: string
 ): Promise<ActivityAttendance> {
-  return fetchJson<ActivityAttendance>(
-    `/api/groups/${groupId}/activities/${activityId}/attendance/absence`,
-    {
-      method: "DELETE",
-    }
-  )
+  const url = memberId
+    ? `/api/groups/${groupId}/activities/${activityId}/attendance/absence?memberId=${memberId}`
+    : `/api/groups/${groupId}/activities/${activityId}/attendance/absence`
+  return fetchJson<ActivityAttendance>(url, {
+    method: "DELETE",
+  })
 }
 
 export async function registerActivityGuestsClient(
@@ -232,5 +236,14 @@ export async function getGuestRequestsClient(
     }>
   }>(
     `/api/groups/${groupId}/activities/${activityId}/attendance/guests${query}`
+  )
+}
+
+export async function getActivityMembersClient(
+  groupId: string,
+  activityId: string
+): Promise<{ data: ActivityMember[] }> {
+  return fetchJson<{ data: ActivityMember[] }>(
+    `/api/groups/${groupId}/activities/${activityId}/members`
   )
 }
