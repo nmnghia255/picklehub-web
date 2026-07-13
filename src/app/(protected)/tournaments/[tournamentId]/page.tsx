@@ -7,6 +7,7 @@ import { TournamentRegistrationService } from "@/features/tournaments/api/regist
 import { TournamentSponsorService } from "@/features/tournaments/api/sponsor-service"
 import { TournamentService } from "@/features/tournaments/api/tournaments-service"
 import { PlayerTournament } from "@/features/tournaments/components/tournament-player-side/tabs/player-tournament"
+import { TournamentLoadingFallback } from "@/features/tournaments/components/tournament-player-side/tournament-loading-fallback"
 import type { Player } from "@/features/tournaments/types/player"
 import type { Sponsor } from "@/features/tournaments/types/sponsor"
 import type { Tournament } from "@/features/tournaments/types/tournament"
@@ -88,7 +89,7 @@ export default async function TournamentDetailPage(props: {
 
   return (
     <div className="tournament-player-root flex flex-1 flex-col">
-      <Suspense fallback={<TournamentLoading />}>
+      <Suspense fallback={<TournamentLoadingFallback />}>
         <PlayerTournament
           tournament={tournament}
           events={events}

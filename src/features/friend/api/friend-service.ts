@@ -1,3 +1,7 @@
+import { headers } from "next/headers"
+
+import enCommon from "@/i18n/locales/en/common.json"
+import viCommon from "@/i18n/locales/vi/common.json"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type { FriendUser } from "../types"
@@ -33,6 +37,11 @@ interface GlobalUserSearchApiItem {
 
 type UnknownPayload = unknown
 
+async function getCommonLocale() {
+  const acceptLanguage = (await headers()).get("accept-language") ?? ""
+  return acceptLanguage.toLowerCase().startsWith("vi") ? viCommon : enCommon
+}
+
 function createAvatarUrl(seed: string) {
   return `https://i.pravatar.cc/160?u=${encodeURIComponent(seed)}`
 }
@@ -45,7 +54,10 @@ function toDisplayName(name: string | null | undefined, email: string) {
   return name?.trim() || getUsernameFromEmail(email)
 }
 
-function mapSearchUser(item: GlobalUserSearchApiItem): FriendUser {
+function mapSearchUser(
+  item: GlobalUserSearchApiItem,
+  common: typeof enCommon
+): FriendUser {
   const displayName = toDisplayName(item.name, item.email)
 
   return {
@@ -53,14 +65,19 @@ function mapSearchUser(item: GlobalUserSearchApiItem): FriendUser {
     username: getUsernameFromEmail(item.email),
     fullName: displayName,
     avatarUrl: createAvatarUrl(item.id),
-    bio: item.isFriend ? "Da la ban be" : "Nguoi dung tren he thong",
+    bio: item.isFriend
+      ? common.friends.service.friendBio
+      : common.friends.service.userBio,
     level: "Beginner",
-    location: "Chua cap nhat",
+    location: common.friends.service.location,
     mutualFriends: item.mutualFriendsCount,
   }
 }
 
-function mapFriendship(item: FriendshipApiItem): FriendUser {
+function mapFriendship(
+  item: FriendshipApiItem,
+  common: typeof enCommon
+): FriendUser {
   const email = item.friend?.email ?? `${item.friendId}@unknown.local`
   const displayName = toDisplayName(item.friend?.name, email)
 
@@ -69,18 +86,19 @@ function mapFriendship(item: FriendshipApiItem): FriendUser {
     username: getUsernameFromEmail(email),
     fullName: displayName,
     avatarUrl: createAvatarUrl(item.friendId),
-    bio: "Da la ban be",
+    bio: common.friends.service.friendBio,
     level: "Intermediate",
-    location: "Chua cap nhat",
+    location: common.friends.service.location,
     mutualFriends: item.mutualFriendsCount,
     becameFriendAt: item.createdAt,
-    friendshipSinceLabel: "Dang tai",
+    friendshipSinceLabel: common.friends.service.loading,
   }
 }
 
 function mapRequest(
   item: FriendRequestApiItem,
-  direction: "sent" | "received"
+  direction: "sent" | "received",
+  common: typeof enCommon
 ): FriendUser {
   const counterpart = direction === "sent" ? item.receiver : item.sender
   const counterpartId = direction === "sent" ? item.receiverId : item.senderId
@@ -95,13 +113,13 @@ function mapRequest(
     avatarUrl: createAvatarUrl(counterpartId),
     bio:
       direction === "sent"
-        ? "Loi moi ket ban da gui"
-        : "Loi moi ket ban da nhan",
+        ? common.friends.service.requestSentBio
+        : common.friends.service.requestReceivedBio,
     level: "Beginner",
-    location: "Chua cap nhat",
+    location: common.friends.service.location,
     mutualFriends: item.mutualFriendsCount,
     invitedAt: item.createdAt,
-    inviteSource: "Friend service",
+    inviteSource: common.friends.service.inviteSource,
   }
 }
 
@@ -143,8 +161,11 @@ async function requestWithAuth<T>(
 
 export async function listFriends(): Promise<FriendUser[]> {
   try {
+    const common = await getCommonLocale()
     const payload = await requestWithAuth<UnknownPayload>("/api/friends")
-    return extractItems<FriendshipApiItem>(payload).map(mapFriendship)
+    return extractItems<FriendshipApiItem>(payload).map((item) =>
+      mapFriendship(item, common)
+    )
   } catch {
     return []
   }
@@ -152,11 +173,12 @@ export async function listFriends(): Promise<FriendUser[]> {
 
 export async function listIncomingRequests(): Promise<FriendUser[]> {
   try {
+    const common = await getCommonLocale()
     const payload = await requestWithAuth<UnknownPayload>(
       "/api/friends/requests/incoming"
     )
     return extractItems<FriendRequestApiItem>(payload).map((item) =>
-      mapRequest(item, "received")
+      mapRequest(item, "received", common)
     )
   } catch {
     return []
@@ -165,11 +187,12 @@ export async function listIncomingRequests(): Promise<FriendUser[]> {
 
 export async function listOutgoingRequests(): Promise<FriendUser[]> {
   try {
+    const common = await getCommonLocale()
     const payload = await requestWithAuth<UnknownPayload>(
       "/api/friends/requests/outgoing"
     )
     return extractItems<FriendRequestApiItem>(payload).map((item) =>
-      mapRequest(item, "sent")
+      mapRequest(item, "sent", common)
     )
   } catch {
     return []
@@ -182,6 +205,7 @@ export async function searchUsers(
   limit = 20
 ): Promise<FriendUser[]> {
   try {
+    const common = await getCommonLocale()
     const payload = await requestWithAuth<UnknownPayload>(
       "/api/friends/users/search",
       {
@@ -191,7 +215,9 @@ export async function searchUsers(
       }
     )
 
-    return extractItems<GlobalUserSearchApiItem>(payload).map(mapSearchUser)
+    return extractItems<GlobalUserSearchApiItem>(payload).map((item) =>
+      mapSearchUser(item, common)
+    )
   } catch {
     return []
   }

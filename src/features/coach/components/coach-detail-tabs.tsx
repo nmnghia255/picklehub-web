@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CoachDashboardStats } from "@/features/coach/components/coach-dashboard-stats"
@@ -26,6 +27,7 @@ export type CoachTabValue =
   | "reviews"
 
 function CoachDetailTabsInner() {
+  const { t } = useTranslation("common")
   const searchParams = useSearchParams()
   const router = useRouter()
   const tabFromUrl = searchParams.get("tab") as CoachTabValue | null
@@ -66,28 +68,28 @@ function CoachDetailTabsInner() {
         className="w-full min-w-0 flex-wrap justify-start gap-1 overflow-x-auto pb-1"
       >
         <TabsTrigger value="overview" className="sm:flex-none">
-          Tổng quan
+          {t("coach.discovery.overviewTab")}
         </TabsTrigger>
         <TabsTrigger value="profile" className="sm:flex-none">
-          Hồ sơ HLV
+          {t("coach.discovery.tabInfo")}
         </TabsTrigger>
         <TabsTrigger value="classes" className="sm:flex-none">
-          Lớp học
+          {t("coach.discovery.classesTab")}
         </TabsTrigger>
         <TabsTrigger value="bookings" className="sm:flex-none">
-          Đặt lịch
+          {t("coach.discovery.scheduleTab")}
         </TabsTrigger>
         <TabsTrigger value="students" className="sm:flex-none">
-          Quản lý học viên
+          {t("coach.students.pageTitle")}
         </TabsTrigger>
         <TabsTrigger value="schedule" className="sm:flex-none">
-          Lịch tập
+          {t("coach.discovery.scheduleTab")}
         </TabsTrigger>
         <TabsTrigger value="finance" className="sm:flex-none">
-          Thu chi & thanh toán
+          {t("coach.discovery.statsTab")}
         </TabsTrigger>
         <TabsTrigger value="reviews" className="sm:flex-none">
-          Đánh giá & Giới thiệu
+          {t("coach.discovery.reviewsTab")}
         </TabsTrigger>
       </TabsList>
 

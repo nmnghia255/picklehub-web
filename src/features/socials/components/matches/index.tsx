@@ -108,7 +108,7 @@ export function MatchesCreationContent({
           m.teamA.forEach((p) => {
             matchPlayers.push({
               id: p.participantId,
-              name: p.user?.fullName || "Unknown Player",
+              name: p.user?.fullName || t("common.unknownPlayer"),
               avatarUrl: p.user?.avatarUrl,
               skillLevel: p.user?.selfRating,
             })
@@ -117,7 +117,7 @@ export function MatchesCreationContent({
           m.teamB.forEach((p) => {
             matchPlayers.push({
               id: p.participantId,
-              name: p.user?.fullName || "Unknown Player",
+              name: p.user?.fullName || t("common.unknownPlayer"),
               avatarUrl: p.user?.avatarUrl,
               skillLevel: p.user?.selfRating,
             })
@@ -141,20 +141,13 @@ export function MatchesCreationContent({
       setCourts(request.singlesCount + request.doublesCount)
       setMatches(newMatches)
       setScheduleTimes(newScheduleTimes)
-      toast.success(
-        t("matches.creation.generateSuccess", {
-          defaultValue: "Matches generated successfully!",
-        })
-      )
+      toast.success(t("matches.creation.generateSuccess"))
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : "Failed to generate matches."
-      toast.error(
-        message ||
-          t("matches.creation.generateError", {
-            defaultValue: "Failed to generate matches.",
-          })
-      )
+        error instanceof Error
+          ? error.message
+          : t("matches.creation.generateError")
+      toast.error(message || t("matches.controlPanel.generateError"))
       console.error(error)
     }
   }
@@ -165,11 +158,7 @@ export function MatchesCreationContent({
     )
 
     if (validMatches.length === 0) {
-      toast.error(
-        t("matches.creation.noMatchesError", {
-          defaultValue: "Please assign players to at least one match.",
-        })
-      )
+      toast.error(t("matches.creation.noMatchesError"))
       return
     }
 
@@ -326,7 +315,7 @@ export function MatchesCreationContent({
               >
                 <CheckCircle2 className="h-4 w-4" />
                 {isConfirming
-                  ? t("common.submitting", { defaultValue: "Submitting..." })
+                  ? t("common.submitting")
                   : t("matches.creation.confirmButton")}
               </Button>
             </div>
@@ -355,9 +344,7 @@ export function MatchesCreationContent({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t("matches.creation.incompleteWarningTitle", {
-                defaultValue: "Incomplete Matches",
-              })}
+              {t("matches.creation.incompleteWarningTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {t("matches.creation.incompleteWarningDescription", {
@@ -366,11 +353,9 @@ export function MatchesCreationContent({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>
-              {t("common.cancel", { defaultValue: "Cancel" })}
-            </AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={executeCommitMatches}>
-              {t("common.proceed", { defaultValue: "Proceed" })}
+              {t("common.proceed")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

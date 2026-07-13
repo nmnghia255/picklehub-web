@@ -1,10 +1,9 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
-import { RecurringSocialTemplate } from "../recurring-socials.types"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useRecurringSocialsTranslation } from "@/i18n/use-recurring-socials-translation"
 
 interface RecurringSocialsFiltersProps {
   onFilterChange: (filter: string) => void
@@ -15,6 +14,8 @@ export function RecurringSocialsFilters({
   onFilterChange,
   defaultValue = "all",
 }: RecurringSocialsFiltersProps) {
+  const { t } = useRecurringSocialsTranslation()
+
   return (
     <Tabs
       defaultValue={defaultValue}
@@ -22,10 +23,18 @@ export function RecurringSocialsFilters({
       className="w-full"
     >
       <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="all">Tất cả</TabsTrigger>
-        <TabsTrigger value="weekly">Hàng tuần</TabsTrigger>
-        <TabsTrigger value="monthly">Hàng tháng</TabsTrigger>
-        <TabsTrigger value="quarterly">Hàng quý</TabsTrigger>
+        <TabsTrigger value="all">
+          {t("recurringSocials.list.statuses.all")}
+        </TabsTrigger>
+        <TabsTrigger value="weekly">
+          {t("recurringSocials.form.recurrenceTypes.weekly")}
+        </TabsTrigger>
+        <TabsTrigger value="monthly">
+          {t("recurringSocials.form.recurrenceTypes.monthly")}
+        </TabsTrigger>
+        <TabsTrigger value="quarterly">
+          {t("recurringSocials.form.recurrenceTypes.quarterly")}
+        </TabsTrigger>
       </TabsList>
     </Tabs>
   )

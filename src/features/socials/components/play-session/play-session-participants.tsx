@@ -50,25 +50,25 @@ export default function PlaySessionParticipants({
                         src={participant.user?.avatarUrl ?? undefined}
                         alt={
                           participant.isHost
-                            ? participant.guestName || "Guest"
-                            : participant.user?.name || "Unknown"
+                            ? participant.guestName || t("common.guest")
+                            : participant.user?.name || t("common.unknownUser")
                         }
                       />
                       <AvatarFallback>
                         {(participant.isHost
-                          ? participant.guestName || "Guest"
-                          : participant.user?.name || "Unknown"
-                        ).slice(0, 1) ?? "Host"}
+                          ? participant.guestName || t("common.guest")
+                          : participant.user?.name || t("common.unknownUser")
+                        ).slice(0, 1) ?? t("common.host")}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="flex items-center text-sm font-medium">
                         {participant.isHost
-                          ? participant.guestName || "Guest"
-                          : participant.user?.name || "Unknown"}
+                          ? participant.guestName || t("common.guest")
+                          : participant.user?.name || t("common.unknownUser")}
                         {participant.isHost && (
                           <Badge variant="outline" className="ml-2 text-[10px]">
-                            Host
+                            {t("common.host")}
                           </Badge>
                         )}
                       </p>

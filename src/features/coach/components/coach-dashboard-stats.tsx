@@ -1,6 +1,7 @@
 "use client"
 
 import { AlertTriangle, CalendarDays, DollarSign, Users } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -11,6 +12,7 @@ import { useSession } from "@/features/auth/hooks/use-session"
 import { useCoachLearnerDashboard } from "../hooks/use-coach-queries"
 
 export function CoachDashboardStats() {
+  const { t } = useTranslation("common")
   const session = useSession()
   const { data, isLoading } = useCoachLearnerDashboard({
     enabled: !!session?.user,
@@ -37,32 +39,36 @@ export function CoachDashboardStats() {
     return (
       <Card className="rounded-2xl border shadow-sm">
         <CardContent className="p-8 text-center text-sm text-muted-foreground">
-          Chưa có dữ liệu thống kê. Vui lòng quay lại sau.
+          {t("coach.stats.noData")}
         </CardContent>
       </Card>
     )
   }
 
   const stats = [
-    { icon: Users, label: "Tổng học viên", value: data.totalLearners },
+    {
+      icon: Users,
+      label: t("coach.stats.totalLearners"),
+      value: data.totalLearners,
+    },
     {
       icon: DollarSign,
-      label: "Thanh toán lớp chờ duyệt",
+      label: t("coach.stats.pendingClassPayments"),
       value: data.learnersWithPendingClassPayments,
     },
     {
       icon: DollarSign,
-      label: "Thanh toán đặt lịch chờ duyệt",
+      label: t("coach.stats.pendingBookingPayments"),
       value: data.learnersWithPendingBookingPayments,
     },
     {
       icon: CalendarDays,
-      label: "Học viên có lịch sắp tới",
+      label: t("coach.stats.learnersWithUpcomingSessions"),
       value: data.learnersWithUpcomingSessions,
     },
     {
       icon: CalendarDays,
-      label: "Tổng lịch sắp tới",
+      label: t("coach.stats.totalUpcomingSessions"),
       value: data.upcomingSessionTotal,
     },
   ]
@@ -90,7 +96,7 @@ export function CoachDashboardStats() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <AlertTriangle className="size-4 text-amber-500" />
-              Học viên cần chú ý
+              {t("coach.stats.attentionLearners")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -119,14 +125,16 @@ export function CoachDashboardStats() {
 
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary" className="rounded-full">
-                    {learner.upcomingSessionCount} buổi sắp tới
+                    {learner.upcomingSessionCount}{" "}
+                    {t("coach.stats.upcomingSessions")}
                   </Badge>
                   {learner.classPaymentPendingReviewCount > 0 && (
                     <Badge
                       variant="outline"
                       className="rounded-full border-amber-300 text-amber-700"
                     >
-                      {learner.classPaymentPendingReviewCount} thanh toán lớp
+                      {learner.classPaymentPendingReviewCount}{" "}
+                      {t("coach.stats.classPayments")}
                     </Badge>
                   )}
                   {learner.bookingPaymentPendingReviewCount > 0 && (
@@ -134,8 +142,8 @@ export function CoachDashboardStats() {
                       variant="outline"
                       className="rounded-full border-amber-300 text-amber-700"
                     >
-                      {learner.bookingPaymentPendingReviewCount} thanh toán đặt
-                      lịch
+                      {learner.bookingPaymentPendingReviewCount}{" "}
+                      {t("coach.stats.bookingPayments")}
                     </Badge>
                   )}
                 </div>

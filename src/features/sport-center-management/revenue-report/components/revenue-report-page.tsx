@@ -7,6 +7,7 @@ import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import { useRevenueReportStore } from "../store/revenue-store"
 import {
@@ -22,6 +23,7 @@ import { RevenueTransactionDrawer } from "./revenue-transaction-drawer"
 import { RevenueTransactionsTable } from "./revenue-transactions-table"
 
 export function RevenueReportPage() {
+  const { t } = useSportCenterManagementTranslation()
   const { toast } = useToast()
   const filters = useRevenueReportStore((state) => state.filters)
   const centers = useRevenueReportStore((state) => state.centers)
@@ -124,7 +126,7 @@ export function RevenueReportPage() {
     if (!error) return
 
     toast({
-      title: "Có lỗi xảy ra",
+      title: t("revenue.toast.errorTitle"),
       description: error,
       variant: "destructive",
     })
@@ -143,8 +145,8 @@ export function RevenueReportPage() {
 
     if (!url) {
       toast({
-        title: "Không thể xuất CSV",
-        description: "CSV tạm thời chưa sẵn sàng hoặc bị giới hạn.",
+        title: t("revenue.toast.exportErrorTitle"),
+        description: t("revenue.toast.exportErrorDescription"),
         variant: "destructive",
       })
       return
@@ -154,8 +156,8 @@ export function RevenueReportPage() {
     downloadFromUrl(url, filename)
 
     toast({
-      title: "Đã tạo báo cáo CSV",
-      description: "Đang tải file xuống trình duyệt.",
+      title: t("revenue.toast.successTitle"),
+      description: t("revenue.toast.successDescription"),
     })
   }
 
@@ -169,12 +171,13 @@ export function RevenueReportPage() {
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
               <BarChart3 className="size-4 text-sky-500" />
-              Báo cáo doanh thu
+              {t("revenue.page.badge")}
             </div>
-            <h1 className="text-2xl font-semibold">Báo cáo doanh thu</h1>
+            <h1 className="text-2xl font-semibold">
+              {t("revenue.page.title")}
+            </h1>
             <p className="text-sm text-muted-foreground">
-              Theo dõi doanh thu, giao dịch và tỷ lệ hủy/hoàn tiền theo thời
-              gian.
+              {t("revenue.page.subtitle")}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -184,11 +187,13 @@ export function RevenueReportPage() {
               disabled={loadingAll}
             >
               <RefreshCcw className="size-4" />
-              Làm mới
+              {t("revenue.page.refresh")}
             </Button>
             <Button onClick={handleExport} disabled={exporting}>
               <FileDown className="size-4" />
-              {exporting ? "Đang xuất..." : "Export CSV"}
+              {exporting
+                ? t("revenue.page.exporting")
+                : t("revenue.page.exportCsv")}
             </Button>
           </div>
         </div>
@@ -197,7 +202,7 @@ export function RevenueReportPage() {
       {permissionDenied ? (
         <div className="flex items-center gap-3 rounded-2xl border border-dashed bg-muted/30 p-4 text-sm text-muted-foreground">
           <ShieldAlert className="size-5 text-amber-500" />
-          Bạn không có quyền truy cập.
+          {t("revenue.permissionDenied")}
         </div>
       ) : null}
 
@@ -225,14 +230,20 @@ export function RevenueReportPage() {
       {loadingAll ? (
         <div className="flex items-center justify-center gap-2 rounded-3xl border bg-card/60 py-10 text-sm text-muted-foreground">
           <div className="size-4 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground" />
-          Đang tải dữ liệu...
+          {t("common.loading")}
         </div>
       ) : (
         <Tabs defaultValue="summary" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="summary">Tổng quan</TabsTrigger>
-            <TabsTrigger value="transactions">Giao dịch</TabsTrigger>
-            <TabsTrigger value="cancellations">Hủy / Hoàn tiền</TabsTrigger>
+            <TabsTrigger value="summary">
+              {t("revenue.tabs.summary")}
+            </TabsTrigger>
+            <TabsTrigger value="transactions">
+              {t("revenue.tabs.transactions")}
+            </TabsTrigger>
+            <TabsTrigger value="cancellations">
+              {t("revenue.tabs.cancellations")}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="summary" className="space-y-6">

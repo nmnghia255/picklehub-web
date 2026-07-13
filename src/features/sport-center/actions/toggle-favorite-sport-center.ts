@@ -1,9 +1,9 @@
-"use server"
-
 import {
   addFavoriteSportCenter,
   removeFavoriteSportCenter,
 } from "@/features/sport-center/api/sport-center-service"
+import enSportCenter from "@/i18n/locales/en/sport-center.json"
+import viSportCenter from "@/i18n/locales/vi/sport-center.json"
 
 export interface ToggleFavoriteSportCenterState {
   isFavourite: boolean
@@ -11,17 +11,24 @@ export interface ToggleFavoriteSportCenterState {
   error?: string
 }
 
+function getSportCenterLocale() {
+  const language =
+    typeof navigator !== "undefined" ? (navigator.language ?? "") : ""
+  return language.toLowerCase().startsWith("vi") ? viSportCenter : enSportCenter
+}
+
 export async function toggleFavoriteSportCenterAction(
   _state: ToggleFavoriteSportCenterState,
   formData: FormData
 ): Promise<ToggleFavoriteSportCenterState> {
+  const sportCenter = getSportCenterLocale()
   const centerId = String(formData.get("centerId") ?? "").trim()
   const isFavourite = formData.get("isFavourite") === "true"
 
   if (!centerId) {
     return {
       isFavourite,
-      error: "Không tìm thấy mã sân.",
+      error: sportCenter.detail.favoriteMissing,
     }
   }
 
@@ -31,7 +38,7 @@ export async function toggleFavoriteSportCenterAction(
 
       return {
         isFavourite: false,
-        message: "Đã xóa khỏi danh sách yêu thích.",
+        message: sportCenter.detail.favoriteRemoved,
       }
     }
 
@@ -39,7 +46,7 @@ export async function toggleFavoriteSportCenterAction(
 
     return {
       isFavourite: true,
-      message: "Đã thêm vào danh sách yêu thích.",
+      message: sportCenter.detail.favoriteAdded,
     }
   } catch (error) {
     return {
@@ -47,7 +54,7 @@ export async function toggleFavoriteSportCenterAction(
       error:
         error instanceof Error
           ? error.message
-          : "Không thể cập nhật trạng thái yêu thích.",
+          : sportCenter.detail.favoriteError,
     }
   }
 }

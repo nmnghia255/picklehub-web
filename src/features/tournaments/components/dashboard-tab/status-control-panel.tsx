@@ -8,7 +8,7 @@ import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 import { useTournamentDashboardStore } from "../../stores/tournament-dashboard-store"
 import type { TournamentStatus } from "../../types/tournament"
 
-export function StatusControlPanel() {
+export function StatusControlPanel({ isEditable }: { isEditable: boolean }) {
   const { t, i18n } = useTournamentTranslation()
   const { tournament, updatingStatus, advanceStatus } =
     useTournamentDashboardStore()
@@ -104,7 +104,7 @@ export function StatusControlPanel() {
         {tournament.status !== "completed" && (
           <Button
             onClick={handleAdvanceStatus}
-            disabled={updatingStatus}
+            disabled={!isEditable || updatingStatus}
             className="bg-emerald-600 font-medium text-white hover:bg-emerald-700"
           >
             {updatingStatus

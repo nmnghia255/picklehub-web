@@ -133,6 +133,8 @@ export interface CoachScheduleApiItem {
   type?: "class" | "booking"
   title: string
   description?: string | null
+  priceVnd?: number | null
+  coverImageUrl?: string | null
   startsAt?: string
   startTime?: string
   endsAt?: string
@@ -151,10 +153,12 @@ export interface CoachScheduleApiItem {
   coachProfile?: CoachScheduleApiProfile | null
   classId?: string | null
   bookingId?: string | null
+  courtId?: string | null
   locationDescription?: string | null
   location?: string | null
   meetingUrl?: string | null
   learnerCount?: number
+  actions?: string[]
 }
 
 export interface CoachScheduleApiResponse {
@@ -170,6 +174,8 @@ export interface CoachScheduleItem {
   type: "class" | "booking"
   title: string
   description: string | null
+  priceVnd: number | null
+  coverImageUrl: string | null
   startTime: string
   endTime: string
   status: "upcoming" | "live" | "past" | "pending"
@@ -178,11 +184,13 @@ export interface CoachScheduleItem {
   learners: CoachScheduleParticipant[]
   classId: string | null
   bookingId: string | null
+  courtId: string | null
   location: string | null
   meetingUrl: string | null
   learnerCount: number
   coachName: string | null
   learnerName: string | null
+  actions: string[]
 }
 
 export interface CoachScheduleSummary {
@@ -256,6 +264,9 @@ export interface ClassScheduleEntry {
   durationMinutes: number
   topic: string
   note: string
+  courtBookingId?: string | null
+  courtId?: string | null
+  locationDescription?: string | null
   createdAt: string
   updatedAt: string
 }
@@ -289,6 +300,15 @@ export interface CreateClassScheduleDto {
   durationMinutes: number
   topic?: string
   note?: string
+  courtBookingId?: string
+  courtId?: string
+  locationDescription?: string
+}
+
+export interface UpdateClassScheduleLocationDto {
+  courtBookingId?: string
+  courtId?: string
+  locationDescription?: string
 }
 
 export interface DiscoverClassItem {
@@ -464,6 +484,8 @@ export interface RevenueSummary {
     classRevenueVnd: number
     bookingRevenueVnd: number
     totalRevenueVnd: number
+    courtCostVnd: number
+    netRevenueVnd: number
     classSettlementCount: number
     bookingSettlementCount: number
     totalSettlementCount: number
@@ -476,6 +498,8 @@ export interface RevenueBucket {
   classRevenueVnd: number
   bookingRevenueVnd: number
   totalRevenueVnd: number
+  courtCostVnd: number
+  netRevenueVnd: number
 }
 
 export interface ClassRevenue {
@@ -505,6 +529,8 @@ export interface BookingRevenue {
   status?: string
   paymentStatus?: string
   priceVnd: number
+  courtCostVnd: number | null
+  netRevenueVnd: number
   settledAt: string | null
   coachNote?: string | null
 }
@@ -516,9 +542,13 @@ export interface Booking {
   sessionAt: string
   durationMinutes: number
   priceVnd: number
+  courtBookingId?: string | null
+  courtId?: string | null
+  courtCostVnd?: number | null
   status: BookingStatus
   paymentStatus: PaymentStatus | null
   paymentProofUrl: string | null
+  locationDescription?: string | null
   learnerProfile?: {
     id: string
     name: string
@@ -558,12 +588,23 @@ export interface CreateBookingDto {
   sessionAt: string
   durationMinutes: number
   learnerNote?: string
+  courtBookingId?: string
+  courtId?: string
+  locationDescription?: string
+}
+
+export interface UpdateBookingLocationDto {
+  courtBookingId?: string
+  courtId?: string
+  locationDescription?: string
 }
 
 export interface LearnerScheduleItem {
   id: string
   kind: "class" | "booking"
   title: string
+  priceVnd: number | null
+  coverImageUrl: string | null
   startsAt: string
   endsAt: string
   durationMinutes: number
@@ -577,11 +618,13 @@ export interface LearnerScheduleItem {
     locationCity: string | null
   } | null
   locationDescription: string | null
+  courtId: string | null
   topic: string | null
   note: string | null
   paymentStatus: string | null
   classId: string | null
   bookingId: string | null
+  actions: string[]
 }
 
 export interface LearnerScheduleResponse {
@@ -614,4 +657,10 @@ export interface ApiResponse<T> {
   message?: string
 }
 
-export type DiscoveryTabValue = "overview" | "schedule" | "reviews" | "classes" | "info" | "stats"
+export type DiscoveryTabValue =
+  | "overview"
+  | "schedule"
+  | "reviews"
+  | "classes"
+  | "info"
+  | "stats"

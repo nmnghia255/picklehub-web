@@ -73,20 +73,8 @@ function getTranslatedMessage(
   t: (key: string) => string
 ): string {
   if (!msg) return ""
-  if (msg.includes("nhập tên hiển thị")) {
-    return t("edit.nameRequiredError")
-  }
-  if (msg.includes("cập nhật avatar bằng avatarUrl")) {
-    return t("edit.avatarFileError")
-  }
-  if (msg.includes("thành công")) {
-    return t("edit.updateSuccess")
-  }
-  if (msg.includes("Không thể cập nhật") || msg.includes("thử lại")) {
-    return t("edit.updateError")
-  }
-  if (msg.includes("lỗi xảy ra")) {
-    return t("edit.genericError")
+  if (msg.startsWith("edit.")) {
+    return t(msg)
   }
   return msg
 }

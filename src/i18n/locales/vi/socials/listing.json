@@ -1,54 +1,62 @@
 {
-  "listing": {
-    "title": "Buổi chơi",
-    "subtitle": "Khám phá các buổi chơi sắp diễn ra, tinh chỉnh bộ lọc và tham gia phiên phù hợp.",
-    "searchPlaceholder": "Tìm buổi chơi...",
-    "createSocial": "Tạo buổi chơi",
-    "filters": "Bộ lọc",
-    "showingAvailableSlotsOnly": "Đang hiển thị: Chỉ còn chỗ trống",
-    "showAllAvailability": "Hiển thị mọi tình trạng chỗ trống",
-    "sessionCount_one": "{{count}} phiên",
-    "sessionCount_other": "{{count}} phiên",
-    "organizerCount_one": "{{count}} người tổ chức",
-    "organizerCount_other": "{{count}} người tổ chức",
-    "noResultsTitle": "Không tìm thấy buổi chơi nào",
-    "noResultsDescription": "Thử xóa bộ lọc hoặc tìm kiếm một sự kiện khác.",
-    "participants": "người tham gia",
-    "free": "Miễn phí"
-  },
-  "mySocials": {
-    "title": "Buổi chơi của tôi",
-    "subtitle": "Danh sách các buổi chơi bạn đã tham gia hoặc tạo"
-  },
-  "filters": {
-    "title": "Bộ lọc",
-    "selectStatus": "Chọn trạng thái",
-    "selectGenderPolicy": "Chọn giới tính",
-    "selectAgeGroup": "Chọn nhóm tuổi",
-    "selectFormat": "Chọn hình thức",
-    "all": "Tất cả",
-    "clearAll": "Đặt lại",
-    "notYet": "Chọn",
-    "close": "Đóng",
-    "upcoming": "Sắp diễn ra",
-    "history": "Lịch sử",
-    "upcomingOptions": {
-      "all": "Tất cả",
-      "yes": "Có",
-      "no": "Không"
+    "listing": {
+        "title": "Buổi chơi",
+        "subtitle": "Khám phá các buổi chơi sắp diễn ra, tinh chỉnh bộ lọc và tham gia phiên phù hợp.",
+        "searchPlaceholder": "Tìm buổi chơi...",
+        "createSocial": "Tạo buổi chơi",
+        "filters": "Bộ lọc",
+        "showingAvailableSlotsOnly": "Đang hiển thị: Chỉ còn chỗ trống",
+        "showAllAvailability": "Hiển thị mọi tình trạng chỗ trống",
+        "sessionCount_one": "{{count}} phiên",
+        "sessionCount_other": "{{count}} phiên",
+        "organizerCount_one": "{{count}} người tổ chức",
+        "organizerCount_other": "{{count}} người tổ chức",
+        "noResultsTitle": "Không tìm thấy Social nào",
+        "noResultsDescription": "Thử xóa bộ lọc hoặc tìm kiếm một sự kiện khác.",
+        "participants": "người tham gia",
+        "free": "Miễn phí"
     },
-    "hasAvailableSlotsOptions": {
-      "all": "Tất cả",
-      "yes": "Còn chỗ trống",
-      "no": "Không còn chỗ trống"
+    "mySocials": {
+        "title": "Social của tôi",
+        "subtitle": "Danh sách các Social bạn đã tham gia hoặc tạo"
     },
-    "levelOptions": {
-      "1": "1 - Mới bắt đầu",
-      "2": "2 - Người mới chơi",
-      "3": "3 - Trung cấp",
-      "4": "4 - Nâng cao",
-      "5": "5 - Chuyên nghiệp",
-      "all": "Tất cả"
+    "filters": {
+        "title": "Bộ lọc",
+        "apply": "Áp dụng",
+        "selectStatus": "Chọn trạng thái",
+        "selectGenderPolicy": "Chọn giới tính",
+        "selectAgeGroup": "Chọn nhóm tuổi",
+        "selectFormat": "Chọn hình thức",
+        "all": "Tất cả",
+        "clearAll": "Đặt lại",
+        "notYet": "Chọn",
+        "close": "Đóng",
+        "upcoming": "Sắp diễn ra",
+        "history": "Lịch sử",
+        "upcomingOptions": {
+            "all": "Tất cả",
+            "yes": "Có",
+            "no": "Không",
+            "notYet": "Chọn"
+        },
+        "hasAvailableSlotsOptions": {
+            "all": "Tất cả",
+            "yes": "Còn chỗ trống",
+            "no": "Không còn chỗ trống",
+            "notYet": "Chọn"
+        },
+        "levelOptions": {
+            "1": "1 - Mới bắt đầu",
+            "2": "2 - Người mới chơi",
+            "3": "3 - Trung cấp",
+            "4": "4 - Nâng cao",
+            "5": "5 - Chuyên nghiệp",
+            "all": "Tất cả",
+            "notYet": "Chọn"
+        },
+        "status": "Trạng thái",
+        "genderPolicy": "Giới tính",
+        "ageGroup": "Nhóm tuổi",
+        "format": "Hình thức"
     }
-  }
 }

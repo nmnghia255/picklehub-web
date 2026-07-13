@@ -32,7 +32,11 @@ const isRegistrationFee = (transaction: Finance) => {
   )
 }
 
-export function OtherTransactionsTable() {
+export function OtherTransactionsTable({
+  isEditable,
+}: {
+  isEditable: boolean
+}) {
   const { t, i18n } = useTournamentTranslation()
   const { tournamentId, transactions, loadData, deleteTransaction } =
     useFinanceStore()
@@ -98,6 +102,7 @@ export function OtherTransactionsTable() {
         {tournamentId && (
           <AddTransactionDialog
             tournamentId={tournamentId}
+            isEditable={isEditable}
             onSuccess={loadData}
           />
         )}
@@ -206,6 +211,7 @@ export function OtherTransactionsTable() {
                         size="icon"
                         className="h-8 w-8 text-gray-500 hover:text-red-600 dark:text-zinc-400 dark:hover:text-red-400"
                         onClick={() => handleDelete(transaction.id)}
+                        disabled={!isEditable}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

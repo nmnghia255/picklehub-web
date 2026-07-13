@@ -5,12 +5,16 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useActionState } from "react"
 import { Suspense } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Field, FieldGroup } from "@/components/ui/field"
 import { resendVerificationAction } from "@/features/auth/actions"
+import { AuthLoadingFallback } from "@/features/auth/components/auth-loading-fallback"
+import { translateAuthMessage } from "@/features/auth/utils"
 
 function VerifyEmailContent() {
+  const { t } = useTranslation("common")
   const searchParams = useSearchParams()
   const email = searchParams.get("email") || ""
   const [state, formAction, isPending] = useActionState(
@@ -26,7 +30,7 @@ function VerifyEmailContent() {
             <div className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
               <BoxIcon className="size-4" />
             </div>
-            PickleHub
+            {t("brand")}
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-center">
@@ -39,28 +43,27 @@ function VerifyEmailContent() {
                   </div>
                   <div className="space-y-2">
                     <h1 className="text-2xl font-bold">
-                      Kiểm tra email của bạn
+                      {t("auth.registerVerifyEmail.title")}
                     </h1>
                     <p className="text-sm text-muted-foreground">
-                      Chúng tôi đã gửi email xác thực đến
+                      {t("auth.registerVerifyEmail.description")}
                     </p>
                     {email && <p className="text-sm font-medium">{email}</p>}
                     <p className="text-sm text-muted-foreground">
-                      Vui lòng kiểm tra hộp thư và nhấn vào link xác thực để
-                      hoàn tất đăng ký.
+                      {t("auth.registerVerifyEmail.instruction")}
                     </p>
                   </div>
                 </div>
 
                 {state.success && (
                   <p className="text-center text-sm text-green-600">
-                    {state.message}
+                    {translateAuthMessage(t, state.message)}
                   </p>
                 )}
 
                 {state.error && (
                   <p className="text-center text-sm text-red-500">
-                    {state.error}
+                    {translateAuthMessage(t, state.error)}
                   </p>
                 )}
 
@@ -73,18 +76,20 @@ function VerifyEmailContent() {
                       disabled={!email || isPending}
                       className="w-full"
                     >
-                      {isPending ? "Đang gửi lại..." : "Gửi lại email xác thực"}
+                      {isPending
+                        ? t("auth.registerVerifyEmail.resending")
+                        : t("auth.registerVerifyEmail.resendButton")}
                     </Button>
                   </form>
                 </Field>
 
                 <div className="text-center text-sm text-muted-foreground">
-                  Đã xác thực email?{" "}
+                  {t("auth.registerVerifyEmail.verified")}{" "}
                   <Link
                     href="/login"
                     className="font-medium underline underline-offset-4"
                   >
-                    Đăng nhập
+                    {t("auth.registerVerifyEmail.login")}
                   </Link>
                 </div>
               </FieldGroup>
@@ -95,7 +100,7 @@ function VerifyEmailContent() {
       <div className="relative hidden bg-muted lg:block">
         <img
           src="/placeholder.svg"
-          alt="Image"
+          alt={t("auth.alt.decorativeImage")}
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
       </div>
@@ -105,7 +110,7 @@ function VerifyEmailContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<AuthLoadingFallback />}>
       <VerifyEmailContent />
     </Suspense>
   )

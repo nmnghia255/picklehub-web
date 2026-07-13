@@ -3,6 +3,7 @@
 import { AlertTriangle, CreditCard, XCircle } from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { RevenueCancellationAnalysis } from "../types"
 import { formatCurrencyVnd } from "../utils/format"
@@ -11,19 +12,19 @@ import { RevenueEmptyState } from "./revenue-empty-state"
 const CARD_CONFIG = [
   {
     key: "totalCancelledBookingCount",
-    label: "Số lượt hủy",
+    labelKey: "revenue.cancellations.cancelledBookings",
     icon: XCircle,
     tone: "text-rose-600",
   },
   {
     key: "totalCancelledRevenue",
-    label: "Doanh thu bị hủy",
+    labelKey: "revenue.cancellations.cancelledRevenue",
     icon: AlertTriangle,
     tone: "text-amber-600",
   },
   {
     key: "totalRefundedCreditAmount",
-    label: "Hoàn tiền/credit",
+    labelKey: "revenue.cancellations.refundedCredit",
     icon: CreditCard,
     tone: "text-sky-600",
   },
@@ -36,8 +37,9 @@ export function RevenueCancellationsCards({
   cancellations: RevenueCancellationAnalysis | null
   loading: boolean
 }) {
+  const { t } = useSportCenterManagementTranslation()
   if (!cancellations && !loading) {
-    return <RevenueEmptyState title="Chưa có dữ liệu hủy/hoàn tiền" />
+    return <RevenueEmptyState title={t("revenue.empty.cancellations")} />
   }
 
   return (
@@ -61,7 +63,9 @@ export function RevenueCancellationsCards({
                 <Icon className={`size-5 ${card.tone}`} />
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">{card.label}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t(card.labelKey)}
+                </p>
                 <p className="text-2xl font-semibold tracking-tight">{value}</p>
               </div>
             </CardContent>

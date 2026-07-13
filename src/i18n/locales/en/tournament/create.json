@@ -14,8 +14,11 @@
     "buttons": {
       "previous": "Previous",
       "next": "Next Step",
-      "publish": "Publish Tournament"
+      "publish": "Publish Tournament",
+      "publishing": "Publishing..."
     },
+    "successMessage": "Tournament created successfully!",
+    "errorMessage": "Failed to create the tournament. Please try again.",
     "step1": {
       "nameLabel": "Tournament Name *",
       "namePlaceholder": "e.g., San Diego Summer Slam 2026",
@@ -74,6 +77,7 @@
       "dialogTitle": "Configure Prizes — {{eventName}}",
       "dialogDesc": "Define the rewards for placement positions based on the event capacity of {{capacity}} slots.",
       "cashPrizeLabel": "Cash Prize ({{currency}})",
+      "cashPrizePlaceholder": "e.g. 5,000,000",
       "includeTrophy": "Include Trophy / Medal",
       "descriptionOptional": "Description (Optional)",
       "descPlaceholder": "e.g. Awarded on center court",

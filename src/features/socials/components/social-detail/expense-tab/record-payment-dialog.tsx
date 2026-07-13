@@ -56,10 +56,7 @@ export function RecordPaymentDialog({
     mutationFn: () =>
       recordPaymentAction(socialId, participantId, Number(amount)),
     onSuccess: () => {
-      toast.success(
-        t("expenses.recordPaymentDialog.success") ||
-          "Payment recorded successfully"
-      )
+      toast.success(t("expenses.recordPaymentDialog.success"))
       queryClient.invalidateQueries({
         queryKey: ["socialParticipants", socialId],
       })
@@ -67,11 +64,7 @@ export function RecordPaymentDialog({
       onOpenChange(false)
     },
     onError: (error) => {
-      toast.error(
-        error.message ||
-          t("expenses.recordPaymentDialog.error") ||
-          "Failed to record payment"
-      )
+      toast.error(error.message || t("expenses.recordPaymentDialog.error"))
     },
   })
 
@@ -79,24 +72,15 @@ export function RecordPaymentDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>
-            {t("expenses.recordPaymentDialog.title", {
-              defaultValue: "Record Cash Payment",
-            })}
-          </DialogTitle>
+          <DialogTitle>{t("expenses.recordPaymentDialog.title")}</DialogTitle>
           <DialogDescription>
-            {t("expenses.recordPaymentDialog.description", {
-              defaultValue:
-                "Manually record a cash payment for this participant.",
-            })}
+            {t("expenses.recordPaymentDialog.description")}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="amount">
-              {t("expenses.recordPaymentDialog.amountLabel", {
-                defaultValue: "Amount (VND)",
-              })}
+              {t("expenses.recordPaymentDialog.amountLabel")}
             </Label>
             <Input
               id="amount"
@@ -104,7 +88,7 @@ export function RecordPaymentDialog({
               inputMode="numeric"
               value={formatDisplayValue(amount)}
               onChange={(e) => handleAmountChange(e.target.value)}
-              placeholder="e.g. 50.000"
+              placeholder={t("expenses.recordPaymentDialog.amountPlaceholder")}
             />
           </div>
         </div>
@@ -114,15 +98,11 @@ export function RecordPaymentDialog({
             onClick={() => onOpenChange(false)}
             disabled={isPending}
           >
-            {t("expenses.recordPaymentDialog.cancel", {
-              defaultValue: "Cancel",
-            })}
+            {t("expenses.recordPaymentDialog.cancel")}
           </Button>
           <Button onClick={() => mutate()} disabled={isPending || !amount}>
             {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-            {t("expenses.recordPaymentDialog.recordPayment", {
-              defaultValue: "Record Payment",
-            })}
+            {t("expenses.recordPaymentDialog.recordPayment")}
           </Button>
         </DialogFooter>
       </DialogContent>

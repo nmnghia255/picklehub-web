@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -30,10 +30,8 @@ export function ScoreBoard() {
 
   const servingScore = servingTeam === "A" ? teamAScore : teamBScore
   const receivingScore = servingTeam === "A" ? teamBScore : teamAScore
-
   const activeServerName = playerNames[activeServer]
 
-  // Configured names mapped to physical sides
   const leftTeamName = isSwappedSides ? teamBName : teamAName
   const rightTeamName = isSwappedSides ? teamAName : teamBName
   const leftTeamScore = isSwappedSides ? teamBScore : teamAScore
@@ -48,7 +46,6 @@ export function ScoreBoard() {
   return (
     <Card className="overflow-hidden rounded-2xl border border-gray-200 bg-white py-0 shadow-xs">
       <CardContent className="flex flex-col items-center gap-4 p-6">
-        {/* Top bar: Format details */}
         <div className="flex w-full items-center justify-between border-b pb-4 text-xs font-semibold text-muted-foreground">
           <div className="flex items-center gap-2">
             <Badge
@@ -97,9 +94,7 @@ export function ScoreBoard() {
           </div>
         </div>
 
-        {/* Large Centered Score Callout */}
         <div className="relative flex w-full items-center justify-center rounded-2xl border border-dashed border-gray-200/60 bg-muted/20 py-4">
-          {/* Left Team block */}
           <div className="flex flex-1 flex-col items-center justify-center px-4 text-center">
             <span
               className={cn(
@@ -120,7 +115,6 @@ export function ScoreBoard() {
             </span>
           </div>
 
-          {/* Center Divider/Server Indicator */}
           <div className="z-10 flex flex-col items-center justify-center gap-2 px-2">
             <span className="text-3xl font-light text-gray-300">–</span>
             {isDoubles && (
@@ -130,7 +124,6 @@ export function ScoreBoard() {
             )}
           </div>
 
-          {/* Right Team block */}
           <div className="flex flex-1 flex-col items-center justify-center px-4 text-center">
             <span
               className={cn(
@@ -152,7 +145,6 @@ export function ScoreBoard() {
           </div>
         </div>
 
-        {/* Scoreboard Metadata & Call Announcement Helper */}
         <div className="mt-2 flex w-full flex-col items-center gap-2 text-center">
           <div className="w-full rounded-2xl border border-amber-200 bg-amber-50/50 p-4 shadow-xs transition-all dark:border-amber-900/40 dark:bg-amber-950/10">
             <div className="text-xs font-black tracking-widest text-amber-800 uppercase dark:text-amber-400">
@@ -186,7 +178,6 @@ export function ScoreBoard() {
           </p>
         </div>
 
-        {/* Completed sets display */}
         {sets && sets.length > 0 && (
           <div className="mt-2 flex w-full flex-wrap justify-center gap-2 border-t border-gray-100 pt-4 text-xs font-semibold text-muted-foreground">
             {sets.map((setScore, idx) => (
@@ -200,8 +191,7 @@ export function ScoreBoard() {
                 })}
                 :{" "}
                 <span className="font-bold text-foreground">
-                  {isSwappedSides ? setScore[1] : setScore[0]} –{" "}
-                  {isSwappedSides ? setScore[0] : setScore[1]}
+                  {setScore[0]} – {setScore[1]}
                 </span>
               </div>
             ))}

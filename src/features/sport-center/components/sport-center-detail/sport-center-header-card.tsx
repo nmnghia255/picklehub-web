@@ -2,13 +2,16 @@
 
 import { ArrowLeft, Clock3, Heart, Mail, MapPin, Phone } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { startTransition, useActionState, useEffect } from "react"
+import { useState } from "react"
 
 import { FallbackImage } from "@/components/fallback-image"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { toggleFavoriteSportCenterAction } from "@/features/sport-center/actions/toggle-favorite-sport-center"
+import {
+  addFavoriteSportCenter,
+  removeFavoriteSportCenter,
+} from "@/features/sport-center/api/sport-center-favorites.client"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
 import { useToast } from "@/hooks/use-toast"
 import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
@@ -22,30 +25,38 @@ export function SportCenterHeaderCard({
 }: SportCenterHeaderCardProps) {
   const { t } = useSportCenterTranslation()
   const { toast } = useToast()
-
-  const [favoriteState, formAction, isPending] = useActionState(
-    toggleFavoriteSportCenterAction,
-    {
-      isFavourite: sportCenter.isFavourite,
-    }
-  )
-
   const router = useRouter()
+  const [isFavourite, setIsFavourite] = useState(sportCenter.isFavourite)
+  const [isPending, setIsPending] = useState(false)
 
-  useEffect(() => {
-    if (favoriteState.message) {
+  const handleFavoriteToggle = async () => {
+    setIsPending(true)
+
+    try {
+      if (isFavourite) {
+        await removeFavoriteSportCenter(sportCenter.id)
+        setIsFavourite(false)
+        toast({
+          title: t("detail.favoriteRemoved"),
+        })
+        return
+      }
+
+      await addFavoriteSportCenter(sportCenter.id)
+      setIsFavourite(true)
       toast({
-        title: favoriteState.message,
+        title: t("detail.favoriteAdded"),
       })
-    }
-
-    if (favoriteState.error) {
+    } catch (error) {
       toast({
-        title: favoriteState.error,
+        title:
+          error instanceof Error ? error.message : t("detail.favoriteError"),
         variant: "destructive",
       })
+    } finally {
+      setIsPending(false)
     }
-  }, [favoriteState.error, favoriteState.message, toast])
+  }
 
   return (
     <Card className="overflow-hidden py-0">
@@ -57,7 +68,7 @@ export function SportCenterHeaderCard({
           <div className="flex items-start gap-4">
             <FallbackImage
               src={sportCenter.images[0]}
-              alt={`${sportCenter.name} logo`}
+              alt={t("detail.logoAlt", { name: sportCenter.name })}
               className="size-20 rounded-full border-4 border-background object-cover shadow-sm"
             />
             <div className="space-y-2">
@@ -93,28 +104,19 @@ export function SportCenterHeaderCard({
             >
               {t("detail.header.bookCourt")}
             </Button>
-            <form
-              action={(formData) => {
-                startTransition(() => formAction(formData))
-              }}
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isPending}
+              onClick={handleFavoriteToggle}
             >
-              <input type="hidden" name="centerId" value={sportCenter.id} />
-              <input
-                type="hidden"
-                name="isFavourite"
-                value={String(favoriteState.isFavourite)}
-              />
-              <Button type="submit" variant="outline" disabled={isPending}>
-                <Heart
-                  className={favoriteState.isFavourite ? "fill-current" : ""}
-                />
-                {isPending
-                  ? t("detail.header.updating")
-                  : favoriteState.isFavourite
-                    ? t("detail.header.favorited")
-                    : t("detail.header.favorite")}
-              </Button>
-            </form>
+              <Heart className={isFavourite ? "fill-current" : ""} />
+              {isPending
+                ? t("detail.header.updating")
+                : isFavourite
+                  ? t("detail.header.favorited")
+                  : t("detail.header.favorite")}
+            </Button>
             <Button variant="outline" onClick={() => router.back()}>
               <ArrowLeft className="size-4" />
               {t("detail.header.back")}

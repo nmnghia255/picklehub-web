@@ -74,12 +74,8 @@ export function AddExpenseDialog({
     onSuccess: () => {
       toast.success(
         expenseToEdit
-          ? t("expenses.expenseDialog.successUpdate", {
-              defaultValue: "Expense updated successfully",
-            })
-          : t("expenses.expenseDialog.successAdd", {
-              defaultValue: "Expense added successfully",
-            })
+          ? t("expenses.expenseDialog.successUpdate")
+          : t("expenses.expenseDialog.successAdd")
       )
       queryClient.invalidateQueries({ queryKey: ["financeSummary", socialId] })
       queryClient.invalidateQueries({ queryKey: ["socialExpenses", socialId] })
@@ -89,12 +85,8 @@ export function AddExpenseDialog({
       toast.error(
         error.message ||
           (expenseToEdit
-            ? t("expenses.expenseDialog.errorUpdate", {
-                defaultValue: "Failed to update expense",
-              })
-            : t("expenses.expenseDialog.errorAdd", {
-                defaultValue: "Failed to add expense",
-              }))
+            ? t("expenses.expenseDialog.errorUpdate")
+            : t("expenses.expenseDialog.errorAdd"))
       )
     },
   })
@@ -105,45 +97,30 @@ export function AddExpenseDialog({
         <DialogHeader>
           <DialogTitle>
             {expenseToEdit
-              ? t("expenses.expenseDialog.editTitle", {
-                  defaultValue: "Edit Expense",
-                })
-              : t("expenses.expenseDialog.addTitle", {
-                  defaultValue: "Add Extra Expense",
-                })}
+              ? t("expenses.expenseDialog.editTitle")
+              : t("expenses.expenseDialog.addTitle")}
           </DialogTitle>
           <DialogDescription>
             {expenseToEdit
-              ? t("expenses.expenseDialog.editDescription", {
-                  defaultValue: "Modify the details of this extra expense.",
-                })
-              : t("expenses.expenseDialog.addDescription", {
-                  defaultValue:
-                    "Add an extra expense like water, balls, ice, etc.",
-                })}
+              ? t("expenses.expenseDialog.editDescription")
+              : t("expenses.expenseDialog.addDescription")}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="title">
-              {t("expenses.expenseDialog.titleLabel", {
-                defaultValue: "Title",
-              })}
+              {t("expenses.expenseDialog.titleLabel")}
             </Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder={t("expenses.expenseDialog.titlePlaceholder", {
-                defaultValue: "e.g., Water, Shuttlecocks",
-              })}
+              placeholder={t("expenses.expenseDialog.titlePlaceholder")}
             />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="amount">
-              {t("expenses.expenseDialog.amountLabel", {
-                defaultValue: "Amount (VND)",
-              })}
+              {t("expenses.expenseDialog.amountLabel")}
             </Label>
             <Input
               id="amount"
@@ -154,24 +131,18 @@ export function AddExpenseDialog({
                 const rawValue = e.target.value.replace(/\D/g, "")
                 setAmount(rawValue)
               }}
-              placeholder={t("expenses.expenseDialog.amountPlaceholder", {
-                defaultValue: "e.g., 50,000",
-              })}
+              placeholder={t("expenses.expenseDialog.amountPlaceholder")}
             />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="description">
-              {t("expenses.expenseDialog.descriptionLabel", {
-                defaultValue: "Description",
-              })}
+              {t("expenses.expenseDialog.descriptionLabel")}
             </Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder={t("expenses.expenseDialog.descriptionPlaceholder", {
-                defaultValue: "Provide a brief description...",
-              })}
+              placeholder={t("expenses.expenseDialog.descriptionPlaceholder")}
             />
           </div>
         </div>
@@ -181,9 +152,7 @@ export function AddExpenseDialog({
             onClick={() => onOpenChange(false)}
             disabled={isPending}
           >
-            {t("expenses.expenseDialog.cancel", {
-              defaultValue: "Cancel",
-            })}
+            {t("expenses.expenseDialog.cancel")}
           </Button>
           <Button
             onClick={() => mutate()}
@@ -191,12 +160,8 @@ export function AddExpenseDialog({
           >
             {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
             {expenseToEdit
-              ? t("expenses.expenseDialog.update", {
-                  defaultValue: "Update Expense",
-                })
-              : t("expenses.expenseDialog.save", {
-                  defaultValue: "Add Expense",
-                })}
+              ? t("expenses.expenseDialog.update")
+              : t("expenses.expenseDialog.save")}
           </Button>
         </DialogFooter>
       </DialogContent>

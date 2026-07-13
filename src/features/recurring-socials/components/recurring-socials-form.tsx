@@ -1,6 +1,7 @@
-"use client"
+﻿"use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import type { TFunction } from "i18next"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -31,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useRecurringSocialsTranslation } from "@/i18n/use-recurring-socials-translation"
 
 import {
   DAYS_OF_WEEK,
@@ -50,55 +52,98 @@ import { generateSchedulePreview } from "../recurring-socials.utils"
 import { ConfirmCreateModal } from "./confirm-create-modal"
 import { RecurringSocialsPreview } from "./recurring-socials-preview"
 
-const formSchema = z.object({
-  name: z.string().min(3, "Tên social phải từ 3 ký tự trở lên"),
-  description: z.string().min(10, "Mô tả phải từ 10 ký tự trở lên"),
-  socialType: z.string().min(1, "Vui lòng chọn loại social"),
-  skillLevel: z.string().min(1, "Vui lòng chọn trình độ"),
-  startTime: z.string().min(1, "Vui lòng chọn giờ bắt đầu"),
-  endTime: z.string().min(1, "Vui lòng chọn giờ kết thúc"),
-  recurrenceType: z.enum(["weekly", "monthly", "quarterly"]),
-  daysOfWeek: z.array(z.string()).optional(),
-  dayOfMonth: z.number().optional(),
-  monthPosition: z.string().optional(),
-  quarterStartMonth: z.number().optional(),
-  quarterDay: z.number().optional(),
-  startDate: z.string().min(1, "Vui lòng chọn ngày bắt đầu"),
-  endDate: z.string().min(1, "Vui lòng chọn ngày kết thúc"),
-  selectedCourts: z
-    .array(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-        capacity: z.number(),
-      })
-    )
-    .min(1, "Vui lòng chọn ít nhất 1 sân"),
-  maxParticipants: z
-    .number()
-    .min(4, "Tối thiểu 4 người")
-    .max(256, "Tối đa 256 người"),
-  maxPerCourt: z
-    .number()
-    .min(2, "Tối thiểu 2 người/sân")
-    .max(20, "Tối đa 20 người/sân"),
-  maxWaitlist: z.number().min(0, "Không âm").max(100, "Tối đa 100 người"),
-  fee: z.number().min(0, "Không âm"),
-  courtRentFee: z.number().min(0, "Không âm"),
-  costNote: z.string().optional(),
-})
-
 interface RecurringSocialsFormProps {
   onSubmit?: (data: RecurringSocialFormData) => void
 }
 
+function createFormSchema(t: TFunction) {
+  return z.object({
+    name: z.string().min(3, t("recurringSocials.form.validation.nameMin")),
+    description: z
+      .string()
+      .min(10, t("recurringSocials.form.validation.descriptionMin")),
+    socialType: z
+      .string()
+      .min(1, t("recurringSocials.form.validation.selectSocialType")),
+    skillLevel: z
+      .string()
+      .min(1, t("recurringSocials.form.validation.selectSkillLevel")),
+    startTime: z
+      .string()
+      .min(1, t("recurringSocials.form.validation.selectStartTime")),
+    endTime: z
+      .string()
+      .min(1, t("recurringSocials.form.validation.selectEndTime")),
+    recurrenceType: z.enum(["weekly", "monthly", "quarterly"]),
+    daysOfWeek: z.array(z.string()).optional(),
+    dayOfMonth: z.number().optional(),
+    monthPosition: z.string().optional(),
+    quarterStartMonth: z.number().optional(),
+    quarterDay: z.number().optional(),
+    startDate: z
+      .string()
+      .min(1, t("recurringSocials.form.validation.selectStartDate")),
+    endDate: z
+      .string()
+      .min(1, t("recurringSocials.form.validation.selectEndDate")),
+    selectedCourts: z
+      .array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+          labelKey: z.string().optional(),
+          capacity: z.number(),
+        })
+      )
+      .min(1, t("recurringSocials.form.validation.selectCourt")),
+    maxParticipants: z
+      .number()
+      .min(4, t("recurringSocials.form.validation.minParticipants"))
+      .max(256, t("recurringSocials.form.validation.maxParticipants")),
+    maxPerCourt: z
+      .number()
+      .min(2, t("recurringSocials.form.validation.minPerCourt"))
+      .max(20, t("recurringSocials.form.validation.maxPerCourt")),
+    maxWaitlist: z
+      .number()
+      .min(0, t("recurringSocials.form.validation.nonNegative"))
+      .max(100, t("recurringSocials.form.validation.maxWaitlist")),
+    fee: z.number().min(0, t("recurringSocials.form.validation.nonNegative")),
+    courtRentFee: z
+      .number()
+      .min(0, t("recurringSocials.form.validation.nonNegative")),
+    costNote: z.string().optional(),
+  })
+}
+
+function mapLabel<T extends { value: string | number; labelKey: string }>(
+  items: T[],
+  t: TFunction
+) {
+  return items.map((item) => ({ ...item, label: t(item.labelKey) }))
+}
+
+function getCourtDisplayName(court: Court, t: TFunction) {
+  return court.labelKey ? t(court.labelKey) : court.name
+}
+
 export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
+  const { t, i18n } = useRecurringSocialsTranslation()
   const [selectedRecurrence, setSelectedRecurrence] =
     useState<RecurrenceType>("weekly")
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [previewData, setPreviewData] = useState<
     (RecurringSocialFormData & { schedulePreview: SchedulePreview[] }) | null
   >(null)
+
+  const locale = i18n.language.startsWith("vi") ? "vi-VN" : "en-US"
+  const formSchema = React.useMemo(() => createFormSchema(t), [t])
+
+  const socialTypeOptions = mapLabel(SOCIAL_TYPES, t)
+  const skillLevelOptions = mapLabel(SKILL_LEVELS, t)
+  const dayOptions = mapLabel(DAYS_OF_WEEK, t)
+  const monthPositionOptions = mapLabel(MONTH_POSITIONS, t)
+  const quarterOptions = mapLabel(QUARTERS, t)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -135,7 +180,8 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
 
   const handleFormSubmit = (values: z.infer<typeof formSchema>) => {
     const schedulePreview = generateSchedulePreview(
-      values as RecurringSocialFormData
+      values as RecurringSocialFormData,
+      locale
     )
     setPreviewData({
       ...(values as RecurringSocialFormData),
@@ -152,13 +198,8 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
         setShowConfirmModal(false)
         form.reset()
       } catch (err) {
-        // basic error handling
-
         console.error("Create recurring social failed:", err)
-        // show simple alert for now
-        // In production replace with toast UI
-
-        alert("Tạo social thất bại. Vui lòng thử lại.")
+        alert(t("recurringSocials.toast.createFailed"))
       }
     }
 
@@ -172,12 +213,11 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
           onSubmit={form.handleSubmit(handleFormSubmit)}
           className="space-y-8"
         >
-          {/* Basic Information Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Thông tin cơ bản</CardTitle>
+              <CardTitle>{t("recurringSocials.form.basicInfoTitle")}</CardTitle>
               <CardDescription>
-                Nhập thông tin cơ bản về social tự động
+                {t("recurringSocials.form.basicInfoDescription")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -186,10 +226,12 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tên social</FormLabel>
+                    <FormLabel>
+                      {t("recurringSocials.form.nameLabel")}
+                    </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Ví dụ: Saturday Morning Social"
+                        placeholder={t("recurringSocials.form.namePlaceholder")}
                         {...field}
                       />
                     </FormControl>
@@ -203,11 +245,15 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mô tả</FormLabel>
+                    <FormLabel>
+                      {t("recurringSocials.form.descriptionLabel")}
+                    </FormLabel>
                     <FormControl>
                       <textarea
                         className="flex min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                        placeholder="Mô tả chi tiết về buổi chơi này..."
+                        placeholder={t(
+                          "recurringSocials.form.descriptionPlaceholder"
+                        )}
                         {...field}
                       />
                     </FormControl>
@@ -222,18 +268,24 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                   name="socialType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Loại social</FormLabel>
+                      <FormLabel>
+                        {t("recurringSocials.form.socialTypeLabel")}
+                      </FormLabel>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Chọn loại social" />
+                            <SelectValue
+                              placeholder={t(
+                                "recurringSocials.form.socialTypePlaceholder"
+                              )}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {SOCIAL_TYPES.map((type) => (
+                          {socialTypeOptions.map((type) => (
                             <SelectItem key={type.value} value={type.value}>
                               {type.label}
                             </SelectItem>
@@ -250,18 +302,24 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                   name="skillLevel"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Trình độ</FormLabel>
+                      <FormLabel>
+                        {t("recurringSocials.form.skillLevelLabel")}
+                      </FormLabel>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Chọn trình độ" />
+                            <SelectValue
+                              placeholder={t(
+                                "recurringSocials.form.skillLevelPlaceholder"
+                              )}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {SKILL_LEVELS.map((level) => (
+                          {skillLevelOptions.map((level) => (
                             <SelectItem key={level.value} value={level.value}>
                               {level.label}
                             </SelectItem>
@@ -276,11 +334,12 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
             </CardContent>
           </Card>
 
-          {/* Time Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Khung giờ chơi</CardTitle>
-              <CardDescription>Chọn giờ bắt đầu và kết thúc</CardDescription>
+              <CardTitle>{t("recurringSocials.form.timeTitle")}</CardTitle>
+              <CardDescription>
+                {t("recurringSocials.form.timeDescription")}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-4 sm:grid-cols-2">
@@ -289,7 +348,9 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                   name="startTime"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Giờ bắt đầu</FormLabel>
+                      <FormLabel>
+                        {t("recurringSocials.form.startTimeLabel")}
+                      </FormLabel>
                       <FormControl>
                         <Input type="time" {...field} />
                       </FormControl>
@@ -303,7 +364,9 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                   name="endTime"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Giờ kết thúc</FormLabel>
+                      <FormLabel>
+                        {t("recurringSocials.form.endTimeLabel")}
+                      </FormLabel>
                       <FormControl>
                         <Input type="time" {...field} />
                       </FormControl>
@@ -315,12 +378,13 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
             </CardContent>
           </Card>
 
-          {/* Recurrence Type Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Kiểu lặp</CardTitle>
+              <CardTitle>
+                {t("recurringSocials.form.recurrenceTitle")}
+              </CardTitle>
               <CardDescription>
-                Chọn kiểu lặp cho social tự động
+                {t("recurringSocials.form.recurrenceDescription")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -329,22 +393,34 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                 name="recurrenceType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Lặp định kỳ</FormLabel>
+                    <FormLabel>
+                      {t("recurringSocials.form.recurrenceLabel")}
+                    </FormLabel>
                     <Select
                       value={field.value}
-                      onValueChange={(value) => {
+                      onValueChange={(value) =>
                         handleRecurrenceChange(value as RecurrenceType)
-                      }}
+                      }
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Chọn kiểu lặp" />
+                          <SelectValue
+                            placeholder={t(
+                              "recurringSocials.form.recurrencePlaceholder"
+                            )}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="weekly">Hàng tuần</SelectItem>
-                        <SelectItem value="monthly">Hàng tháng</SelectItem>
-                        <SelectItem value="quarterly">Hàng quý</SelectItem>
+                        <SelectItem value="weekly">
+                          {t("recurringSocials.form.recurrenceTypes.weekly")}
+                        </SelectItem>
+                        <SelectItem value="monthly">
+                          {t("recurringSocials.form.recurrenceTypes.monthly")}
+                        </SelectItem>
+                        <SelectItem value="quarterly">
+                          {t("recurringSocials.form.recurrenceTypes.quarterly")}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -352,16 +428,17 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                 )}
               />
 
-              {/* Weekly Recurrence */}
               {selectedRecurrence === "weekly" && (
                 <FormField
                   control={form.control}
                   name="daysOfWeek"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Chọn ngày trong tuần</FormLabel>
+                      <FormLabel>
+                        {t("recurringSocials.form.weekdaysLabel")}
+                      </FormLabel>
                       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        {DAYS_OF_WEEK.map((day) => (
+                        {dayOptions.map((day) => (
                           <FormItem
                             key={day.value}
                             className="flex items-center space-x-2"
@@ -393,7 +470,6 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                 />
               )}
 
-              {/* Monthly Recurrence */}
               {selectedRecurrence === "monthly" && (
                 <div className="space-y-4">
                   <FormField
@@ -401,20 +477,26 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                     name="dayOfMonth"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Chọn ngày trong tháng</FormLabel>
+                        <FormLabel>
+                          {t("recurringSocials.form.monthDayLabel")}
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="number"
                             min="1"
                             max="31"
-                            placeholder="Ví dụ: 15"
+                            placeholder={t(
+                              "recurringSocials.form.monthDayPlaceholder"
+                            )}
                             value={field.value || ""}
                             onChange={(e) =>
                               field.onChange(parseInt(e.target.value))
                             }
                           />
                         </FormControl>
-                        <FormDescription>Nhập số ngày (1-31)</FormDescription>
+                        <FormDescription>
+                          {t("recurringSocials.form.monthDayDescription")}
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -425,18 +507,24 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                     name="monthPosition"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Hoặc chọn vị trí trong tháng</FormLabel>
+                        <FormLabel>
+                          {t("recurringSocials.form.monthPositionLabel")}
+                        </FormLabel>
                         <Select
                           value={field.value || ""}
                           onValueChange={field.onChange}
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Ví dụ: Thứ 7 đầu tiên của tháng" />
+                              <SelectValue
+                                placeholder={t(
+                                  "recurringSocials.form.monthPositionPlaceholder"
+                                )}
+                              />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {MONTH_POSITIONS.map((pos) => (
+                            {monthPositionOptions.map((pos) => (
                               <SelectItem key={pos.value} value={pos.value}>
                                 {pos.label}
                               </SelectItem>
@@ -450,7 +538,6 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                 </div>
               )}
 
-              {/* Quarterly Recurrence */}
               {selectedRecurrence === "quarterly" && (
                 <div className="space-y-4">
                   <FormField
@@ -458,20 +545,31 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                     name="quarterStartMonth"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Chọn quý</FormLabel>
+                        <FormLabel>
+                          {t("recurringSocials.form.quarterLabel")}
+                        </FormLabel>
                         <Select
                           value={String(field.value)}
-                          onValueChange={(e) => field.onChange(parseInt(e))}
+                          onValueChange={(value) =>
+                            field.onChange(parseInt(value))
+                          }
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Chọn quý" />
+                              <SelectValue
+                                placeholder={t(
+                                  "recurringSocials.form.quarterPlaceholder"
+                                )}
+                              />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {QUARTERS.map((q) => (
-                              <SelectItem key={q.value} value={String(q.value)}>
-                                {q.label}
+                            {quarterOptions.map((quarter) => (
+                              <SelectItem
+                                key={quarter.value}
+                                value={String(quarter.value)}
+                              >
+                                {quarter.label}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -486,20 +584,26 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                     name="quarterDay"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Ngày tổ chức trong quý</FormLabel>
+                        <FormLabel>
+                          {t("recurringSocials.form.quarterDayLabel")}
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="number"
                             min="1"
                             max="31"
-                            placeholder="Ví dụ: 20"
+                            placeholder={t(
+                              "recurringSocials.form.quarterDayPlaceholder"
+                            )}
                             value={field.value || ""}
                             onChange={(e) =>
                               field.onChange(parseInt(e.target.value))
                             }
                           />
                         </FormControl>
-                        <FormDescription>Nhập số ngày (1-31)</FormDescription>
+                        <FormDescription>
+                          {t("recurringSocials.form.quarterDayDescription")}
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -509,11 +613,12 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
             </CardContent>
           </Card>
 
-          {/* Date Range Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Khoảng thời gian áp dụng</CardTitle>
-              <CardDescription>Chọn ngày bắt đầu và kết thúc</CardDescription>
+              <CardTitle>{t("recurringSocials.form.dateRangeTitle")}</CardTitle>
+              <CardDescription>
+                {t("recurringSocials.form.dateRangeDescription")}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-4 sm:grid-cols-2">
@@ -522,7 +627,9 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                   name="startDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Ngày bắt đầu</FormLabel>
+                      <FormLabel>
+                        {t("recurringSocials.form.startDateLabel")}
+                      </FormLabel>
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>
@@ -536,7 +643,9 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                   name="endDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Ngày kết thúc</FormLabel>
+                      <FormLabel>
+                        {t("recurringSocials.form.endDateLabel")}
+                      </FormLabel>
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>
@@ -548,11 +657,12 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
             </CardContent>
           </Card>
 
-          {/* Courts Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Chọn sân</CardTitle>
-              <CardDescription>Chọn các sân sẽ được sử dụng</CardDescription>
+              <CardTitle>{t("recurringSocials.form.courtsTitle")}</CardTitle>
+              <CardDescription>
+                {t("recurringSocials.form.courtsDescription")}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <FormField
@@ -560,7 +670,9 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                 name="selectedCourts"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Sân</FormLabel>
+                    <FormLabel>
+                      {t("recurringSocials.form.courtLabel")}
+                    </FormLabel>
                     <div className="space-y-3">
                       {MOCK_COURTS.map((court) => (
                         <FormItem
@@ -588,10 +700,12 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                           />
                           <div className="flex-1">
                             <FormLabel className="cursor-pointer font-normal">
-                              {court.name}
+                              {getCourtDisplayName(court, t)}
                             </FormLabel>
                             <FormDescription>
-                              Sức chứa: {court.capacity} người
+                              {t("recurringSocials.form.courtCapacity", {
+                                count: court.capacity,
+                              })}
                             </FormDescription>
                           </div>
                         </FormItem>
@@ -602,19 +716,21 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                 )}
               />
 
-              {/* Court Capacity Summary */}
               {form.watch("selectedCourts").length > 0 && (
                 <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
                   <CardContent className="pt-4">
                     <div className="text-sm">
                       <p className="font-semibold text-blue-900 dark:text-blue-100">
-                        Tổng sân: {form.watch("selectedCourts").length}
+                        {t("recurringSocials.form.courtSummaryTotal", {
+                          count: form.watch("selectedCourts").length,
+                        })}
                       </p>
                       <p className="text-blue-800 dark:text-blue-200">
-                        Sức chứa dự kiến:{" "}
-                        {form.watch("selectedCourts").length *
-                          form.watch("maxPerCourt")}{" "}
-                        người
+                        {t("recurringSocials.form.courtSummaryCapacity", {
+                          count:
+                            form.watch("selectedCourts").length *
+                            form.watch("maxPerCourt"),
+                        })}
                       </p>
                     </div>
                   </CardContent>
@@ -623,12 +739,11 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
             </CardContent>
           </Card>
 
-          {/* Capacity Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Giới hạn người tham gia</CardTitle>
+              <CardTitle>{t("recurringSocials.form.capacityTitle")}</CardTitle>
               <CardDescription>
-                Cấu hình số lượng người cho mỗi buổi
+                {t("recurringSocials.form.capacityDescription")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -638,7 +753,9 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                   name="maxParticipants"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tối đa toàn social</FormLabel>
+                      <FormLabel>
+                        {t("recurringSocials.form.maxParticipantsLabel")}
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -650,7 +767,9 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                           }
                         />
                       </FormControl>
-                      <FormDescription>Tổng cộng tất cả sân</FormDescription>
+                      <FormDescription>
+                        {t("recurringSocials.form.maxParticipantsDescription")}
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -661,7 +780,9 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                   name="maxPerCourt"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tối đa mỗi sân</FormLabel>
+                      <FormLabel>
+                        {t("recurringSocials.form.maxPerCourtLabel")}
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -673,7 +794,9 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                           }
                         />
                       </FormControl>
-                      <FormDescription>Người chơi chính</FormDescription>
+                      <FormDescription>
+                        {t("recurringSocials.form.maxPerCourtDescription")}
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -684,7 +807,9 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                   name="maxWaitlist"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Dự bị tối đa</FormLabel>
+                      <FormLabel>
+                        {t("recurringSocials.form.maxWaitlistLabel")}
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -696,7 +821,9 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                           }
                         />
                       </FormControl>
-                      <FormDescription>Danh sách chờ</FormDescription>
+                      <FormDescription>
+                        {t("recurringSocials.form.maxWaitlistDescription")}
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -705,12 +832,11 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
             </CardContent>
           </Card>
 
-          {/* Cost Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Chi phí</CardTitle>
+              <CardTitle>{t("recurringSocials.form.costTitle")}</CardTitle>
               <CardDescription>
-                Cấu hình giá tham gia và chi phí thuê sân
+                {t("recurringSocials.form.costDescription")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -720,19 +846,25 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                   name="fee"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Giá tham gia (VNĐ)</FormLabel>
+                      <FormLabel>
+                        {t("recurringSocials.form.feeLabel")}
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
                           min="0"
-                          placeholder="Ví dụ: 150000"
+                          placeholder={t(
+                            "recurringSocials.form.feePlaceholder"
+                          )}
                           {...field}
                           onChange={(e) =>
                             field.onChange(parseInt(e.target.value))
                           }
                         />
                       </FormControl>
-                      <FormDescription>Giá cho mỗi người</FormDescription>
+                      <FormDescription>
+                        {t("recurringSocials.form.feeDescription")}
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -743,19 +875,25 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                   name="courtRentFee"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Chi phí thuê sân (VNĐ)</FormLabel>
+                      <FormLabel>
+                        {t("recurringSocials.form.courtRentFeeLabel")}
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
                           min="0"
-                          placeholder="Ví dụ: 200000"
+                          placeholder={t(
+                            "recurringSocials.form.courtRentFeePlaceholder"
+                          )}
                           {...field}
                           onChange={(e) =>
                             field.onChange(parseInt(e.target.value))
                           }
                         />
                       </FormControl>
-                      <FormDescription>Tổng chi phí sân/buổi</FormDescription>
+                      <FormDescription>
+                        {t("recurringSocials.form.courtRentFeeDescription")}
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -767,11 +905,15 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
                 name="costNote"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Ghi chú chi phí</FormLabel>
+                    <FormLabel>
+                      {t("recurringSocials.form.costNoteLabel")}
+                    </FormLabel>
                     <FormControl>
                       <textarea
                         className="flex min-h-15 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                        placeholder="Ví dụ: Bao gồm đồ uống nhẹ, quả bóng mới..."
+                        placeholder={t(
+                          "recurringSocials.form.costNotePlaceholder"
+                        )}
                         {...field}
                       />
                     </FormControl>
@@ -782,28 +924,27 @@ export function RecurringSocialsForm({ onSubmit }: RecurringSocialsFormProps) {
             </CardContent>
           </Card>
 
-          {/* Preview Section */}
           {form.watch("selectedCourts").length > 0 && (
             <RecurringSocialsPreview
               formData={form.getValues() as RecurringSocialFormData}
+              locale={locale}
             />
           )}
 
-          {/* Submit Button */}
           <div className="flex gap-4">
             <Button type="submit" size="lg" className="flex-1">
-              Tiếp theo: Xác nhận tạo
+              {t("recurringSocials.form.submitButton")}
             </Button>
           </div>
         </form>
       </Form>
 
-      {/* Confirm Modal */}
       {showConfirmModal && previewData && (
         <ConfirmCreateModal
           scheduleCount={previewData.schedulePreview.length}
           schedules={previewData.schedulePreview}
           formData={previewData}
+          locale={locale}
           onConfirm={handleConfirmCreate}
           onCancel={() => setShowConfirmModal(false)}
         />

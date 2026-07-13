@@ -148,18 +148,16 @@ export async function updateProfileInformationAction(
 
     return {
       success: true,
-      message: "Cập nhật thông tin cá nhân thành công.",
+      message: "edit.updateSuccess",
       user: updatedUser,
     }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Không thể cập nhật thông tin cá nhân. Vui lòng thử lại.",
+        error: error.response?.data?.message || "edit.updateError",
       }
     }
 
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "edit.genericError" }
   }
 }

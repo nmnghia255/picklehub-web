@@ -1,15 +1,11 @@
-"use client"
+﻿"use client"
 
-import {
-  CalendarDays,
-  Coins,
-  CreditCard,
-  DollarSign,
-  Image as ImageIcon,
-} from "lucide-react"
+import { CreditCard, Image as ImageIcon } from "lucide-react"
+
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { Booking } from "../../../types/booking"
-import { formatBookingCreatedAt, formatCurrency } from "../booking-list.utils"
+import { formatCurrency } from "../booking-list.utils"
 import { BookingDetailField } from "./booking-detail-field"
 
 interface Props {
@@ -18,6 +14,8 @@ interface Props {
 }
 
 export function BookingPaymentSection({ booking, variant = "card" }: Props) {
+  const { t } = useSportCenterManagementTranslation()
+
   return (
     <section
       className={
@@ -28,58 +26,38 @@ export function BookingPaymentSection({ booking, variant = "card" }: Props) {
     >
       <div className="text-md flex items-center gap-2 font-semibold">
         <CreditCard className="size-5 text-orange-500" />
-        Thông tin thanh toán
+        {t("bookingList.detail.paymentTitle")}
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <BookingDetailField
-          label="Tổng tiền"
-          value={formatCurrency(booking.totalPrice)}
-          icon={DollarSign}
-          toneClassName="text-orange-500"
-        />
-        <BookingDetailField
-          label="Số dư còn lại"
-          value={formatCurrency(booking.paymentRemaining)}
-          icon={Coins}
-          toneClassName="text-orange-500"
-        />
-        <BookingDetailField
-          label="Số dư đã áp dụng"
+          label={t("bookingList.detail.amountPaid")}
           value={formatCurrency(booking.creditApplied)}
-          icon={Coins}
-          toneClassName="text-orange-500"
         />
         <BookingDetailField
-          label="Ngày tạo"
-          value={formatBookingCreatedAt(booking.createdAt)}
-          icon={CalendarDays}
-          toneClassName="text-orange-500"
+          label={t("bookingList.detail.amountDue")}
+          value={formatCurrency(booking.paymentRemaining)}
         />
         {booking.paymentProofUrl ? (
           <div className="rounded-2xl border bg-background/80 p-3 shadow-sm">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <ImageIcon className="size-4 text-orange-500" />
-              <span>Ảnh minh chứng</span>
+              <span>{t("bookingList.detail.paymentProof")}</span>
             </div>
             <div className="mt-2">
               <a
                 href={booking.paymentProofUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-block"
+                className="text-sm text-primary underline"
               >
-                <img
-                  src={booking.paymentProofUrl}
-                  alt="Payment proof"
-                  className="max-h-40 w-auto rounded-md object-contain"
-                />
+                {t("bookingList.detail.viewProof")}
               </a>
             </div>
           </div>
         ) : (
           <BookingDetailField
-            label="Ảnh minh chứng"
-            value="Chưa thanh toán"
+            label={t("bookingList.detail.paymentProof")}
+            value={t("bookingList.detail.notPaid")}
             icon={ImageIcon}
             toneClassName="text-orange-500"
           />
@@ -88,5 +66,3 @@ export function BookingPaymentSection({ booking, variant = "card" }: Props) {
     </section>
   )
 }
-
-export default BookingPaymentSection

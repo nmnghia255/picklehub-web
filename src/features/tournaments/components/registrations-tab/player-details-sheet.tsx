@@ -1,5 +1,6 @@
 "use client"
 
+import { format } from "date-fns"
 import { ExternalLink } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -96,7 +97,7 @@ export function PlayerDetailsSheet({
           </div>
 
           {/* Registration Details */}
-          <div className="border-t border-gray-100 pt-6">
+          <div className="space-y-6 border-t border-gray-100 p-6">
             <h4 className="mb-3 text-sm font-semibold tracking-wider text-gray-900 uppercase">
               {t("registrations.profile.registrationDetails")}
             </h4>
@@ -123,7 +124,7 @@ export function PlayerDetailsSheet({
                   {t("registrations.profile.registrationDate")}
                 </span>
                 <span className="font-medium text-gray-900">
-                  {registrationDate}
+                  {format(new Date(registrationDate), "hh:mm a - dd/MM/yyyy")}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -164,26 +165,6 @@ export function PlayerDetailsSheet({
                   </a>
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* Match History (Mock statistics for layout) */}
-          <div className="border-t border-gray-100 pt-6">
-            <h4 className="mb-3 text-sm font-semibold tracking-wider text-gray-900 uppercase">
-              {t("registrations.profile.matchHistory")}
-            </h4>
-            <div className="space-y-2 text-sm text-gray-600">
-              <p className="font-medium text-gray-800">
-                {t("registrations.profile.historyStats", {
-                  wins: 23,
-                  losses: 15,
-                })}
-              </p>
-              <p className="text-xs text-gray-500">
-                {t("registrations.profile.previousTournaments", {
-                  count: 5,
-                })}
-              </p>
             </div>
           </div>
         </div>

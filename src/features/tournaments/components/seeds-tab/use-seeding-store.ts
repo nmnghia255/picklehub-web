@@ -128,7 +128,12 @@ export const useSeedingStore = create<SeedingState>((set, get) => {
             })
           )
         } else {
-          toast.error(res.error || "Failed to generate seeds")
+          toast.error(
+            res.error ||
+              t("seeding.errors.generateFailed", {
+                defaultValue: "Failed to generate seeds",
+              })
+          )
         }
       } catch (err) {
         console.error(err)
@@ -159,7 +164,12 @@ export const useSeedingStore = create<SeedingState>((set, get) => {
             })
           )
         } else {
-          toast.error(res.error || "Failed to lock seeding")
+          toast.error(
+            res.error ||
+              t("seeding.errors.lockFailed", {
+                defaultValue: "Failed to lock seeding",
+              })
+          )
         }
       } catch (err) {
         console.error(err)
@@ -220,7 +230,12 @@ export const useSeedingStore = create<SeedingState>((set, get) => {
             })
           )
         } else {
-          toast.error(res.error || "Failed to save reordered seeds")
+          toast.error(
+            res.error ||
+              t("seeding.errors.reorderFailed", {
+                defaultValue: "Failed to save seeding order",
+              })
+          )
           await get().fetchSeeding(Number(selectedEventId), t)
         }
       } catch (err) {

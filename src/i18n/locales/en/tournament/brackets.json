@@ -42,7 +42,8 @@
         "completed": "Completed",
         "inProgress": "In Progress",
         "remaining": "Remaining"
-      }
+      },
+      "refresh": "Refresh"
     },
     "toolbar": {
       "searchPlaceholder": "Search matches...",
@@ -84,7 +85,10 @@
         "Quarterfinal": "Quarterfinals",
         "Semifinal": "Semifinals",
         "Final": "Finals",
-        "Bronze Match": "Bronze Match"
+        "Bronze Match": "Bronze Match",
+        "Quarterfinals": "Quarterfinals",
+        "Semifinals": "Semifinals",
+        "Finals": "Finals"
       },
       "details": {
         "title": "Match Details",
@@ -104,7 +108,18 @@
         "reassignCourt": "Reassign Court",
         "updateScore": "Update Score",
         "markWalkover": "Mark Walkover / Forfeit"
-      }
-    }
+      },
+      "edit": {
+        "title": "Edit Matchup",
+        "team1": "Team 1",
+        "team2": "Team 2",
+        "save": "Save Matchup",
+        "cancel": "Cancel"
+      },
+      "editSuccess": "Matchup updated successfully!",
+      "editError": "Failed to update matchup"
+    },
+    "lockSuccess": "Bracket locked successfully!",
+    "lockError": "Failed to lock bracket"
   }
 }

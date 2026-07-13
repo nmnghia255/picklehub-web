@@ -5,9 +5,6 @@ import { useEffect, useMemo, useState } from "react"
 
 import { PageContainer } from "@/components/page-container"
 import { Card, CardContent } from "@/components/ui/card"
-import { fetchSportCenterByIdAction } from "@/features/sport-center/actions/fetch-sport-center-by-id"
-import { submitPaymentProofAction } from "@/features/sport-center/actions/submit-payment-proof-action"
-import { uploadImageAction } from "@/features/sport-center/actions/upload-image-action"
 import { BookingConfirmationHeader } from "@/features/sport-center/components/booking-confirmation/booking-confirmation-header"
 import { BookingConfirmationPaymentCard } from "@/features/sport-center/components/payment/payment-card"
 import { useBookingStore } from "@/features/sport-center/stores/booking-store"
@@ -15,9 +12,18 @@ import { useSportCenterStore } from "@/features/sport-center/stores/sport-center
 import type { BookingResponse } from "@/features/sport-center/types/booking"
 import type { Product } from "@/features/sport-center/types/product"
 import type { Service } from "@/features/sport-center/types/service"
+import type { SportCenter } from "@/features/sport-center/types/sport-center"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
+function hasDataProperty(
+  value: SportCenter | { data?: SportCenter }
+): value is { data?: SportCenter } {
+  return "data" in value
+}
+
 export default function PaymentPage() {
+  const { t } = useSportCenterTranslation()
   const router = useRouter()
   const searchParams = useSearchParams()
   const params = useParams<{ id?: string }>()
@@ -140,7 +146,7 @@ export default function PaymentPage() {
 
     fetch(`/api/bookings/${bookingId}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Không thể tải thông tin đặt sân.")
+        if (!res.ok) throw new Error(t("booking.payment.errorLoadBooking"))
         return res.json() as Promise<
           { data?: BookingResponse } & BookingResponse
         >
@@ -172,9 +178,22 @@ export default function PaymentPage() {
     let isActive = true
     if (!sportCenter || !sportCenter.id) {
       if (centerIdParam) {
-        fetchSportCenterByIdAction(centerIdParam)
-          .then((center) => {
-            if (isActive) setSportCenter(center)
+        fetch(`/api/sport-centers/${centerIdParam}`, {
+          credentials: "include",
+        })
+          .then(async (response) => {
+            if (!response.ok) {
+              throw new Error(t("booking.payment.errorLoadBooking"))
+            }
+            return response.json() as Promise<
+              SportCenter | { data?: SportCenter }
+            >
+          })
+          .then((payload) => {
+            const center = hasDataProperty(payload)
+              ? (payload.data ?? undefined)
+              : payload
+            if (isActive && center) setSportCenter(center)
           })
           .catch((err) => {
             console.error("Failed to load sport center:", err)
@@ -200,7 +219,7 @@ export default function PaymentPage() {
         })
 
         if (!response.ok) {
-          throw new Error("Không thể tải số dư credit.")
+          throw new Error(t("booking.payment.errorLoadCredit"))
         }
 
         const payload = (await response.json()) as {
@@ -220,7 +239,7 @@ export default function PaymentPage() {
           setCreditError(
             error instanceof Error
               ? error.message
-              : "Không thể tải số dư credit."
+              : t("booking.payment.errorLoadCredit")
           )
         }
       } finally {
@@ -248,11 +267,35 @@ export default function PaymentPage() {
     setIsUploadingProof(true)
 
     try {
-      const uploadedUrl = await uploadImageAction(paymentProofFile)
+      const formData = new FormData()
+      formData.append("file", paymentProofFile, paymentProofFile.name)
+
+      const response = await fetch("/api/coach/media/images", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error(t("booking.payment.errorUploadImage"))
+      }
+
+      const payload = (await response.json()) as {
+        url?: string
+        data?: { url?: string }
+      }
+      const uploadedUrl = payload.data?.url ?? payload.url ?? ""
+
+      if (!uploadedUrl) {
+        throw new Error(t("booking.payment.errorUploadImage"))
+      }
+
       setPaymentProofUrl(uploadedUrl)
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Không thể tải được ảnh."
+        error instanceof Error
+          ? error.message
+          : t("booking.payment.errorUploadImage")
       setSubmitError(message)
       return error
     } finally {
@@ -267,11 +310,11 @@ export default function PaymentPage() {
 
     try {
       if (!bookingId) {
-        throw new Error("Không tìm thấy mã đặt sân để tải lên minh chứng.")
+        throw new Error(t("booking.payment.errorMissingBookingId"))
       }
 
       if (!requiresProof) {
-        setSubmitMessage("Đã hoàn tất booking bằng credit.")
+        setSubmitMessage(t("booking.payment.creditComplete"))
         setHasCompleted(true)
         setTimeout(() => {
           router.push("/sport-center/booking-history")
@@ -280,11 +323,22 @@ export default function PaymentPage() {
       }
 
       if (!paymentProofUrl) {
-        throw new Error("Vui lòng tải lên ảnh minh chứng thanh toán.")
+        throw new Error(t("booking.payment.errorUploadProof"))
       }
-      await submitPaymentProofAction(bookingId, paymentProofUrl)
+      const response = await fetch(`/api/bookings/${bookingId}/payment-proof`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ paymentProofUrl }),
+      })
 
-      setSubmitMessage("Đã tải lên minh chứng thanh toán thành công.")
+      if (!response.ok) {
+        throw new Error(t("booking.payment.errorSubmitProof"))
+      }
+
+      setSubmitMessage(t("booking.payment.uploadSuccess"))
       setHasCompleted(true)
       setTimeout(() => {
         router.push("/sport-center/booking-history")
@@ -293,7 +347,7 @@ export default function PaymentPage() {
       const message =
         error instanceof Error
           ? error.message
-          : "Không thể tải lên minh chứng thanh toán."
+          : t("booking.payment.errorSubmitProof")
       setSubmitError(message)
       return error
     } finally {
@@ -324,20 +378,20 @@ export default function PaymentPage() {
             <CardContent className="grid gap-4 p-4 sm:grid-cols-2 sm:items-center">
               <div>
                 <div className="text-sm text-muted-foreground">
-                  Tổng thanh toán
+                  {t("booking.payment.totalPayment")}
                 </div>
                 <div className="text-2xl font-semibold">{totalDisplay}</div>
               </div>
 
               <div className="sm:text-right">
                 <div className="text-sm text-muted-foreground">
-                  Số dư credit
+                  {t("booking.payment.creditBalance")}
                 </div>
                 <div className="text-2xl font-semibold">
                   {creditLoading
-                    ? "Đang tải..."
+                    ? t("booking.payment.loading")
                     : creditError
-                      ? "Không tải được"
+                      ? t("booking.payment.errorShort")
                       : formatCurrencyVnd(creditBalance ?? 0)}
                 </div>
               </div>

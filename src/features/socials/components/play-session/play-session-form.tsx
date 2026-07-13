@@ -111,7 +111,9 @@ export function PlaySessionForm({
     return {
       value: b.id,
       label: `${b.center?.name || t("sessionForm.defaultCourt")} - ${new Date(b.date).toLocaleDateString(i18n.language === "vi" ? "vi-VN" : "en-US")}`,
-      description: t("sessionForm.timeLabel", { time: timeString || "—" }),
+      description: t("sessionForm.timeLabel", {
+        time: timeString || t("common.na"),
+      }),
     }
   })
 
@@ -269,10 +271,7 @@ export function PlaySessionForm({
               <Alert variant="destructive">
                 <AlertDescription>
                   <p className="font-semibold">
-                    {error ||
-                      t("common.validationError", {
-                        defaultValue: "Please check the errors below:",
-                      })}
+                    {error || t("common.validationError")}
                   </p>
                   <ul className="mt-1 list-inside list-disc text-xs">
                     {Object.keys(errors).map((key) => {
@@ -340,7 +339,7 @@ export function PlaySessionForm({
                         <div className="relative flex items-center">
                           <Input
                             type="text"
-                            placeholder="0"
+                            placeholder={t("sessionForm.feePlaceholder")}
                             value={displayValue}
                             onChange={(e) => {
                               const rawValue = e.target.value.replace(/\D/g, "")
@@ -349,7 +348,7 @@ export function PlaySessionForm({
                             className="pr-12"
                           />
                           <span className="pointer-events-none absolute right-3 text-sm font-medium text-muted-foreground">
-                            VND
+                            {t("common.currency")}
                           </span>
                         </div>
                       </FormControl>
@@ -365,7 +364,11 @@ export function PlaySessionForm({
                   <FormItem>
                     <FormLabel>{t("sessionForm.maxSlotLabel")}</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="10" {...field} />
+                      <Input
+                        type="number"
+                        placeholder={t("sessionForm.maxSlotPlaceholder")}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

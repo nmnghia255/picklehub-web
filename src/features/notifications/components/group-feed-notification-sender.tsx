@@ -1,10 +1,11 @@
-"use client"
+﻿"use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAtom } from "jotai"
 import { Bell, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -34,12 +35,20 @@ import { groupFeedNotificationsAtom } from "@/features/notifications/store/group
 import { useToast } from "@/hooks/use-toast"
 import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
-const sendNotificationSchema = z.object({
-  title: z.string().min(1, "Tiêu đề không được để trống").max(200),
-  message: z.string().min(1, "Nội dung không được để trống").max(1000),
-})
+function createSchema(t: (key: string) => string) {
+  return z.object({
+    title: z
+      .string()
+      .min(1, t("notifications.sender.validation.title"))
+      .max(200),
+    message: z
+      .string()
+      .min(1, t("notifications.sender.validation.message"))
+      .max(1000),
+  })
+}
 
-type SendNotificationFormValues = z.infer<typeof sendNotificationSchema>
+type SendNotificationFormValues = z.infer<ReturnType<typeof createSchema>>
 
 interface GroupFeedNotificationSenderProps {
   groupId: string
@@ -58,6 +67,7 @@ export function GroupFeedNotificationSender({
   const [, setNotifications] = useAtom(notificationFeedAtom)
   const [, setGroupNotifications] = useAtom(groupFeedNotificationsAtom)
   const { toast } = useToast()
+  const sendNotificationSchema = createSchema(t)
 
   const form = useForm<SendNotificationFormValues>({
     resolver: zodResolver(sendNotificationSchema),
@@ -92,19 +102,21 @@ export function GroupFeedNotificationSender({
       })
 
       const now = new Date()
-      const timeLabel = now.toLocaleString("vi-VN")
+      const timeLabel = now.toLocaleString(
+        i18n.language.startsWith("vi") ? "vi-VN" : i18n.language || undefined
+      )
 
       const optimisticNotification: FeedNotification = {
         id: `group-notification-${groupId}-${now.getTime()}`,
         type: "group",
         groupId,
-        section: "Hôm nay",
+        section: "today",
         title: data.title,
         description: data.message,
         actor: groupName,
         timeLabel,
         unread: true,
-        tags: ["Nhóm", "Thông báo"],
+        tags: [t("feed.tags.group"), t("feed.tags.notification")],
         actionHref: `/groups/${groupId}`,
       }
 

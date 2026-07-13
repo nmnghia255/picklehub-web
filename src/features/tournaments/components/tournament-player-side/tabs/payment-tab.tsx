@@ -9,5 +9,7 @@ interface PaymentTabProps {
 
 export function PaymentTab({ tournament }: PaymentTabProps) {
   if (!tournament) return null
-  return <BasePaymentTab tournament={tournament} isHost={false} />
+  return (
+    <BasePaymentTab tournament={tournament} isHost={false} isEditable={false} />
+  )
 }

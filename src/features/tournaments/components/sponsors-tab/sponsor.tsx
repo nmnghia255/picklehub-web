@@ -28,9 +28,10 @@ import { SponsorStats } from "./sponsor-stats"
 
 interface SponsorsProps {
   tournamentId: string
+  isEditable: boolean
 }
 
-export function Sponsors({ tournamentId }: SponsorsProps) {
+export function Sponsors({ tournamentId, isEditable }: SponsorsProps) {
   const { t } = useTournamentTranslation()
   const [sponsors, setSponsors] = useState<Sponsor[]>([])
   const [isCreateOpen, setIsCreateOpen] = useState(false)
@@ -45,7 +46,12 @@ export function Sponsors({ tournamentId }: SponsorsProps) {
         if (res.success && res.data) {
           setSponsors(res.data)
         } else {
-          toast.error(res.error || "Failed to load sponsors")
+          toast.error(
+            res.error ||
+              t("sponsors.loadError", {
+                defaultValue: "Failed to load sponsors",
+              })
+          )
         }
         setIsLoading(false)
       })
@@ -92,7 +98,12 @@ export function Sponsors({ tournamentId }: SponsorsProps) {
       setSponsors((prev) => [...prev, res.data])
       setIsCreateOpen(false)
     } else {
-      toast.error(res.error || "Failed to add sponsor")
+      toast.error(
+        res.error ||
+          t("sponsors.addError", {
+            defaultValue: "Failed to add sponsor",
+          })
+      )
     }
   }
 
@@ -107,11 +118,20 @@ export function Sponsors({ tournamentId }: SponsorsProps) {
         )
         setSponsors((prev) => prev.filter((s) => s.id !== id))
       } else {
-        toast.error(res.error || "Failed to delete sponsor")
+        toast.error(
+          res.error ||
+            t("sponsors.deleteError", {
+              defaultValue: "Failed to delete sponsor",
+            })
+        )
       }
     } catch (error) {
       console.error("Failed to delete sponsor:", error)
-      toast.error("Failed to delete sponsor")
+      toast.error(
+        t("sponsors.deleteError", {
+          defaultValue: "Failed to delete sponsor",
+        })
+      )
     }
   }
 
@@ -136,7 +156,10 @@ export function Sponsors({ tournamentId }: SponsorsProps) {
           </div>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-emerald-600 hover:bg-emerald-700">
+              <Button
+                className="bg-emerald-600 hover:bg-emerald-700"
+                disabled={!isEditable}
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 {t("sponsors.addSponsor")}
               </Button>

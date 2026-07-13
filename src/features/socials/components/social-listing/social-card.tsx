@@ -33,7 +33,7 @@ export default function SocialCard({ social, onClick }: SocialCardProps) {
       <div className="relative flex h-48 items-center justify-center overflow-hidden bg-linear-to-br from-sky-500 via-blue-600 to-violet-600">
         <Image
           src="/pickleball.png"
-          alt="Pickleball"
+          alt={t("hero.imageAlt")}
           width={72}
           height={72}
           className="drop-shadow-sm transition-transform duration-300 group-hover:scale-110"
@@ -87,7 +87,7 @@ export default function SocialCard({ social, onClick }: SocialCardProps) {
               variant="default"
               className={`${TOURNAMENT_THEME.badge.success} hover:bg-emerald-100`}
             >
-              {t("listing.free", { defaultValue: "Free" })}
+              {t("listing.free")}
             </Badge>
           )}
         </div>

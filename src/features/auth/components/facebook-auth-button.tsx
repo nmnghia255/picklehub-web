@@ -1,10 +1,12 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { loginWithFacebookAction } from "../actions/facebook"
 import { useFacebookLogin } from "../hooks/use-facebook-login"
+import { translateAuthMessage } from "../utils"
 
 function FacebookIcon() {
   return (
@@ -20,6 +22,7 @@ function FacebookIcon() {
 }
 
 export function FacebookAuthButton({ title }: { title: string }) {
+  const { t } = useTranslation("common")
   const { getFacebookAccessToken } = useFacebookLogin()
   const [loading, setLoading] = useState(false)
 
@@ -27,21 +30,23 @@ export function FacebookAuthButton({ title }: { title: string }) {
     try {
       setLoading(true)
 
-      // 1. Get Facebook access token
       const accessToken = await getFacebookAccessToken()
       if (!accessToken) {
-        toast.error("Không nhận được thông tin xác thực từ Facebook.")
+        toast.error(t("auth.oauth.facebookError"))
         return
       }
 
-      // 2. Send access token to backend for authentication
       const result = await loginWithFacebookAction(accessToken)
       if (result?.error) {
-        toast.error(result.error)
+        toast.error(translateAuthMessage(t, result.error))
       }
     } catch (err) {
       console.error(err)
-      toast.error("Không thể xác thực với Facebook. Vui lòng thử lại.")
+      if (err instanceof Error) {
+        toast.error(translateAuthMessage(t, err.message))
+      } else {
+        toast.error(t("auth.oauth.facebookErrorGeneric"))
+      }
     } finally {
       setLoading(false)
     }
@@ -51,13 +56,14 @@ export function FacebookAuthButton({ title }: { title: string }) {
     <button
       type="button"
       disabled={loading}
+      aria-busy={loading}
       onClick={handleFacebookLogin}
       className="relative flex h-10 w-full cursor-pointer items-center justify-center rounded-[4px] border border-[#dadce0] bg-white px-3 pl-10 text-sm font-normal text-[#3c4043] transition-colors hover:bg-[#f8f9fa] disabled:opacity-50"
     >
       <div className="absolute left-2.5 flex items-center justify-center">
         <FacebookIcon />
       </div>
-      <span>{loading ? "Đang xử lý..." : title}</span>
+      <span>{loading ? t("auth.oauth.loading") : title}</span>
     </button>
   )
 }

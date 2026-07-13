@@ -41,7 +41,7 @@ export function SocialStatisticsCards({
           </div>
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-muted-foreground">
-              {t("statistics.revenue", { defaultValue: "Revenue Earned" })}
+              {t("statistics.revenue")}
             </p>
             <Coins className="size-4 text-emerald-500" />
           </div>
@@ -50,22 +50,14 @@ export function SocialStatisticsCards({
               {formatCurrencyVnd(collectedRevenue)}
             </p>
             <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
-              <span>
-                {t("statistics.revenueDescription", {
-                  defaultValue: "Revenue Collected",
-                })}
-                :
-              </span>
+              <span>{t("statistics.revenueDescription")}:</span>
               <span className="font-semibold text-foreground">
                 {formatCurrencyVnd(totalExpectedRevenue)}
               </span>
             </div>
             {outstandingAmount > 0 && (
               <div className="mt-0.5 flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
-                <span>
-                  {t("statistics.outstanding", { defaultValue: "Outstanding" })}
-                  :
-                </span>
+                <span>{t("statistics.outstanding")}:</span>
                 <span className="font-semibold">
                   {formatCurrencyVnd(outstandingAmount)}
                 </span>
@@ -81,7 +73,7 @@ export function SocialStatisticsCards({
           </div>
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-muted-foreground">
-              {t("statistics.expense", { defaultValue: "Expense Spent" })}
+              {t("statistics.expense")}
             </p>
             <TrendingUp className="size-4 text-rose-500" />
           </div>
@@ -90,9 +82,7 @@ export function SocialStatisticsCards({
               {formatCurrencyVnd(totalExpense)}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {t("expenses.summary.totalExpenseDescription", {
-                defaultValue: "All court bookings added to the social event",
-              })}
+              {t("expenses.summary.totalExpenseDescription")}
             </p>
           </div>
         </Card>
@@ -104,7 +94,7 @@ export function SocialStatisticsCards({
           </div>
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-muted-foreground">
-              {t("statistics.profit", { defaultValue: "Net Profit" })}
+              {t("statistics.profit")}
             </p>
             <Trophy
               className={`size-4 ${estimatedProfit >= 0 ? "text-emerald-500" : "text-rose-500"}`}
@@ -118,12 +108,8 @@ export function SocialStatisticsCards({
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
               {estimatedProfit >= 0
-                ? t("statistics.estimated", {
-                    defaultValue: "Estimated Profit",
-                  })
-                : t("statistics.estimatedLoss", {
-                    defaultValue: "Estimated Loss",
-                  })}
+                ? t("statistics.estimated")
+                : t("statistics.estimatedLoss")}
             </p>
           </div>
         </Card>
@@ -138,7 +124,7 @@ export function SocialStatisticsCards({
           </div>
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-muted-foreground">
-              {t("statistics.totalMatches", { defaultValue: "Total Matches" })}
+              {t("statistics.totalMatches")}
             </p>
             <Activity className="size-4 text-primary" />
           </div>
@@ -147,9 +133,7 @@ export function SocialStatisticsCards({
               {displayMatchesCount}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {t("matches.statistics.playerMatchesTitle", {
-                defaultValue: "Matches by player",
-              })}
+              {t("matches.statistics.playerMatchesTitle", {})}
             </p>
           </div>
         </Card>
@@ -161,18 +145,16 @@ export function SocialStatisticsCards({
           </div>
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-muted-foreground">
-              {t("statistics.courtHours", { defaultValue: "Court Hours" })}
+              {t("statistics.courtHours")}
             </p>
             <Clock className="size-4 text-blue-500" />
           </div>
           <div className="mt-2">
             <p className="text-2xl font-bold tracking-tight text-foreground">
-              {courtHours || t("common.na", { defaultValue: "N/A" })}
+              {courtHours || t("common.na")}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {t("statistics.courtHoursDescription", {
-                defaultValue: "Total time booked for matches",
-              })}
+              {t("statistics.courtHoursDescription")}
             </p>
           </div>
         </Card>
@@ -184,9 +166,7 @@ export function SocialStatisticsCards({
           </div>
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-muted-foreground">
-              {t("statistics.activePlayers", {
-                defaultValue: "Active Players",
-              })}
+              {t("statistics.activePlayers")}
             </p>
             <Users className="size-4 text-indigo-500" />
           </div>
@@ -195,9 +175,7 @@ export function SocialStatisticsCards({
               {displayActivePlayers}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {t("statistics.activePlayersDescription", {
-                defaultValue: "Players who played matches",
-              })}
+              {t("statistics.activePlayersDescription")}
             </p>
           </div>
         </Card>

@@ -56,14 +56,10 @@ export function SocialParticipantsTable({
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-lg font-semibold text-foreground">
-              {t("statistics.participants", {
-                defaultValue: "Participants Summary",
-              })}
+              {t("statistics.participants")}
             </CardTitle>
             <CardDescription className="text-xs text-muted-foreground">
-              {t("matches.statistics.playerMatchesTitle", {
-                defaultValue: "Matches played by each participant",
-              })}
+              {t("matches.statistics.playerMatchesTitle")}
             </CardDescription>
           </div>
           <Badge
@@ -71,8 +67,7 @@ export function SocialParticipantsTable({
             className="flex items-center gap-1.5 px-3 py-1 font-semibold"
           >
             <Medal className="size-3.5 text-primary" />
-            {participants.length}{" "}
-            {t("statistics.playersCount", { defaultValue: "Players" })}
+            {participants.length} {t("statistics.playersCount")}
           </Badge>
         </div>
       </CardHeader>
@@ -83,22 +78,16 @@ export function SocialParticipantsTable({
             <TableHeader>
               <TableRow className="bg-muted/30">
                 <TableHead className="w-[40%] py-3.5 pl-6 font-semibold">
-                  {t("statistics.headers.participant", {
-                    defaultValue: "Participant",
-                  })}
+                  {t("statistics.headers.participant")}
                 </TableHead>
                 <TableHead className="w-[20%] py-3.5 text-center font-semibold">
-                  {t("statistics.headers.level", { defaultValue: "Level" })}
+                  {t("statistics.headers.level")}
                 </TableHead>
                 <TableHead className="w-[20%] py-3.5 text-right font-semibold">
-                  {t("statistics.headers.matchesPlayed", {
-                    defaultValue: "Matches Played",
-                  })}
+                  {t("statistics.headers.matchesPlayed")}
                 </TableHead>
                 <TableHead className="w-[20%] py-3.5 pr-6 text-right font-semibold">
-                  {t("statistics.headers.wins", {
-                    defaultValue: "Win Matches",
-                  })}
+                  {t("statistics.headers.wins")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -109,15 +98,14 @@ export function SocialParticipantsTable({
                     colSpan={4}
                     className="py-8 text-center text-sm text-muted-foreground"
                   >
-                    {t("detail.noParticipants", {
-                      defaultValue: "No participants yet.",
-                    })}
+                    {t("detail.noParticipants")}
                   </TableCell>
                 </TableRow>
               ) : (
                 participants.map((participant) => {
                   const rating = participant.user?.selfRating
-                  const displayName = participant.user?.name || "Unknown Player"
+                  const displayName =
+                    participant.user?.name || t("common.unknownPlayer")
 
                   return (
                     <TableRow
@@ -154,8 +142,8 @@ export function SocialParticipantsTable({
                           className={`px-2.5 py-0.5 text-xs font-semibold ${getSkillLevelTone(rating)}`}
                         >
                           {rating !== undefined && rating !== null
-                            ? `${t("common.level", { defaultValue: "Level" })} ${rating.toFixed(1)}`
-                            : t("common.na", { defaultValue: "N/A" })}
+                            ? `${t("common.level")} ${rating.toFixed(1)}`
+                            : t("common.na")}
                         </Badge>
                       </TableCell>
 

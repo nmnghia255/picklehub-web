@@ -2,11 +2,14 @@
 
 import { Plus, UserCheck, Users } from "lucide-react"
 import Link from "next/link"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 
 export function DashboardQuickActions() {
+  const { t } = useTranslation("common")
+
   return (
     <div className="grid gap-4 sm:grid-cols-3">
       <Card className="flex flex-col gap-4 p-6">
@@ -14,11 +17,17 @@ export function DashboardQuickActions() {
           <Plus className="size-5 text-primary" />
         </div>
         <div className="flex flex-col gap-2">
-          <h3 className="font-semibold">Tạo Nhóm Mới</h3>
-          <p className="text-sm text-muted-foreground">Khởi tạo một nhóm mới</p>
+          <h3 className="font-semibold">
+            {t("dashboard.quickActions.createGroup.title")}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {t("dashboard.quickActions.createGroup.description")}
+          </p>
         </div>
         <Button size="sm" asChild className="mt-auto">
-          <Link href="/groups/create">Tạo Nhóm</Link>
+          <Link href="/groups/create">
+            {t("dashboard.quickActions.createGroup.button")}
+          </Link>
         </Button>
       </Card>
 
@@ -27,11 +36,17 @@ export function DashboardQuickActions() {
           <Users className="size-5 text-primary" />
         </div>
         <div className="flex flex-col gap-2">
-          <h3 className="font-semibold">Nhóm Của Tôi</h3>
-          <p className="text-sm text-muted-foreground">Xem tất cả nhóm bạn</p>
+          <h3 className="font-semibold">
+            {t("dashboard.quickActions.myGroups.title")}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {t("dashboard.quickActions.myGroups.description")}
+          </p>
         </div>
         <Button size="sm" variant="outline" asChild className="mt-auto">
-          <Link href="/groups">Xem Nhóm</Link>
+          <Link href="/groups">
+            {t("dashboard.quickActions.myGroups.button")}
+          </Link>
         </Button>
       </Card>
 
@@ -40,13 +55,17 @@ export function DashboardQuickActions() {
           <UserCheck className="size-5 text-primary" />
         </div>
         <div className="flex flex-col gap-2">
-          <h3 className="font-semibold">Hồ Sơ</h3>
+          <h3 className="font-semibold">
+            {t("dashboard.quickActions.profile.title")}
+          </h3>
           <p className="text-sm text-muted-foreground">
-            Quản lý thông tin cá nhân
+            {t("dashboard.quickActions.profile.description")}
           </p>
         </div>
         <Button size="sm" variant="outline" asChild className="mt-auto">
-          <Link href="/profile">Cài Đặt</Link>
+          <Link href="/profile">
+            {t("dashboard.quickActions.profile.button")}
+          </Link>
         </Button>
       </Card>
     </div>

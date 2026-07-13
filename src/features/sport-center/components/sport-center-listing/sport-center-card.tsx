@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { Clock3, Heart, MapPin } from "lucide-react"
 import Link from "next/link"
@@ -8,9 +8,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
 import { useSportCenterStore } from "@/features/sport-center/stores/sport-center-store"
 import type { SportCenter } from "@/features/sport-center/types/sport-center"
-import { TOURNAMENT_THEME } from "@/features/tournaments/styles/theme"
+import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
+  const { t } = useSportCenterTranslation()
   const setSportCenter = useSportCenterStore((s) => s.setSportCenter)
 
   return (
@@ -18,14 +19,12 @@ export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
       href={`/sport-center/${sportCenter.id}`}
       onClick={() => setSportCenter(sportCenter)}
     >
-      <Card
-        className={`group cursor-pointer gap-0 overflow-hidden py-0 transition-transform duration-200 ease-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] ${TOURNAMENT_THEME.card.base}`}
-      >
+      <Card className="group cursor-pointer gap-0 overflow-hidden py-0 transition-transform duration-200 ease-out hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">
         <div className="relative h-44 w-full overflow-hidden">
           <FallbackImage
             src={sportCenter.images[0]}
-            alt={`${sportCenter.name} cover`}
-            className="h-full w-full object-cover transition-transform duration-300"
+            alt={t("listing.coverAlt", { name: sportCenter.name })}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
           {sportCenter.isFavourite ? (
             <span className="absolute top-3 right-3 inline-flex size-8 items-center justify-center rounded-full border border-white/20 bg-white/30 text-rose-500 shadow-sm backdrop-blur-md">
@@ -39,7 +38,7 @@ export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
             <Avatar size="lg" className="border">
               <AvatarImage
                 src={sportCenter.images[0]}
-                alt={`${sportCenter.name} logo`}
+                alt={t("listing.logoAlt", { name: sportCenter.name })}
                 className="transition-transform duration-200 group-hover:scale-105"
               />
               <AvatarFallback className="bg-slate-200 text-base font-semibold text-slate-700">

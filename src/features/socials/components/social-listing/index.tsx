@@ -208,7 +208,7 @@ export default function SocialListing({
                     }, 0)
                   }}
                 >
-                  {t("common.clearFilters", { defaultValue: "Clear Filters" })}
+                  {t("common.clearFilters")}
                 </Button>
               </EmptyContent>
             </Empty>

@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { refundPaymentAction } from "@/features/socials/actions/payment-actions"
+import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 interface RefundDialogProps {
   socialId: string
@@ -33,6 +34,7 @@ export function RefundDialog({
   open,
   onOpenChange,
 }: RefundDialogProps) {
+  const { t } = useSocialsTranslation()
   const queryClient = useQueryClient()
   const [amount, setAmount] = useState(String(maxRefundAmount))
 
@@ -40,7 +42,7 @@ export function RefundDialog({
     mutationFn: () =>
       refundPaymentAction(socialId, participantId, Number(amount)),
     onSuccess: () => {
-      toast.success("Refund processed successfully")
+      toast.success(t("expenses.refundDialog.success"))
       queryClient.invalidateQueries({
         queryKey: ["socialParticipants", socialId],
       })
@@ -48,7 +50,7 @@ export function RefundDialog({
       onOpenChange(false)
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to process refund")
+      toast.error(error.message || t("expenses.refundDialog.error"))
     },
   })
 
@@ -59,15 +61,16 @@ export function RefundDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Issue Refund</DialogTitle>
+          <DialogTitle>{t("expenses.refundDialog.title")}</DialogTitle>
           <DialogDescription>
-            Confirm you have manually transferred the money back to the user,
-            then record it here.
+            {t("expenses.refundDialog.description")}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="amount">Amount to Refund (VND)</Label>
+            <Label htmlFor="amount">
+              {t("expenses.refundDialog.amountLabel")}
+            </Label>
             <Input
               id="amount"
               type="number"
@@ -77,8 +80,9 @@ export function RefundDialog({
             />
             {isOverMax && (
               <p className="text-xs text-destructive">
-                Amount cannot exceed available credit balance ({maxRefundAmount}
-                )
+                {t("expenses.refundDialog.maxError", {
+                  maxRefundAmount,
+                })}
               </p>
             )}
           </div>
@@ -89,14 +93,14 @@ export function RefundDialog({
             onClick={() => onOpenChange(false)}
             disabled={isPending}
           >
-            Cancel
+            {t("expenses.refundDialog.cancel")}
           </Button>
           <Button
             onClick={() => mutate()}
             disabled={isPending || !amount || isOverMax}
           >
             {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-            Confirm Refund
+            {t("expenses.refundDialog.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>

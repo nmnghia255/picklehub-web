@@ -1,5 +1,7 @@
-import axios from "axios"
+import { headers } from "next/headers"
 
+import enCommon from "@/i18n/locales/en/common.json"
+import viCommon from "@/i18n/locales/vi/common.json"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type { FriendUser } from "../types"
@@ -30,6 +32,11 @@ type SearchUsersResult = {
   meta: PaginationMeta
 }
 
+async function getCommonLocale() {
+  const acceptLanguage = (await headers()).get("accept-language") ?? ""
+  return acceptLanguage.toLowerCase().startsWith("vi") ? viCommon : enCommon
+}
+
 function createAvatarUrl(seed: string) {
   return `https://i.pravatar.cc/160?u=${encodeURIComponent(seed)}`
 }
@@ -38,7 +45,10 @@ function getUsernameFromEmail(email: string) {
   return email.split("@")[0] || email
 }
 
-function mapUser(item: GlobalUserSearchApiItem): FriendUser {
+function mapUser(
+  item: GlobalUserSearchApiItem,
+  common: typeof enCommon
+): FriendUser {
   const fullName = item.name?.trim() || getUsernameFromEmail(item.email)
 
   return {
@@ -47,9 +57,11 @@ function mapUser(item: GlobalUserSearchApiItem): FriendUser {
     fullName,
     email: item.email,
     avatarUrl: createAvatarUrl(item.id),
-    bio: item.isFriend ? "Đã là bạn bè" : "Người dùng trên hệ thống",
+    bio: item.isFriend
+      ? common.friends.service.friendBio
+      : common.friends.service.userBio,
     level: "Beginner",
-    location: "Chưa cập nhật",
+    location: common.friends.service.location,
     mutualFriends: item.mutualFriendsCount,
     friendshipStatus: item.friendshipStatus,
     isFriend: item.isFriend,
@@ -82,6 +94,7 @@ export async function getFindUsers(params?: {
   page?: number
   limit?: number
 }): Promise<SearchUsersResult> {
+  const common = await getCommonLocale()
   const client = await getAuthenticatedAxios()
   const response = await client.get<
     SearchUsersResponse | GlobalUserSearchApiItem[]
@@ -96,7 +109,7 @@ export async function getFindUsers(params?: {
   const { data, meta } = extractResults(response.data)
 
   return {
-    data: data.map(mapUser),
+    data: data.map((item) => mapUser(item, common)),
     meta,
   }
 }

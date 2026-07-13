@@ -17,6 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { Booking } from "../../types/booking"
 import {
@@ -42,17 +43,18 @@ export function BookingCard({
   isConfirming = false,
   isCancelling = false,
 }: BookingCardProps) {
+  const { t } = useSportCenterManagementTranslation()
   const displayNote = getBookingDisplayNote(booking)
-  const phone = booking.phoneNumber || "—"
+  const phone = booking.phoneNumber || t("common.notUpdated")
   const isBusy = isConfirming || isCancelling
   const showConfirmAction = booking.status === "PENDING"
   const showCancelAction =
     booking.status === "PENDING" || booking.status === "CONFIRMED"
   const firstBookingItem = booking.bookingItems?.[0]
-  const courtName = firstBookingItem?.court?.name ?? "Sân"
+  const courtName = firstBookingItem?.court?.name ?? t("bookingList.card.court")
   const timeRange = firstBookingItem
     ? `${firstBookingItem.startTime} - ${firstBookingItem.endTime}`
-    : "—"
+    : t("common.notAvailable")
 
   return (
     <Card className="overflow-hidden border-border/70 bg-card/90 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
@@ -74,7 +76,7 @@ export function BookingCard({
           <div className="rounded-xl border bg-muted/30 p-3">
             <div className="mb-1 flex items-center gap-2 text-xs tracking-wide text-muted-foreground uppercase">
               <Phone className="size-3.5" />
-              Số điện thoại
+              {t("bookingList.card.phone")}
             </div>
             <div className="text-sm font-medium">{phone}</div>
           </div>
@@ -82,7 +84,7 @@ export function BookingCard({
           <div className="rounded-xl border bg-muted/30 p-3">
             <div className="mb-1 flex items-center gap-2 text-xs tracking-wide text-muted-foreground uppercase">
               <Clock3 className="size-3.5" />
-              Khung giờ
+              {t("bookingList.card.timeRange")}
             </div>
             <div className="text-sm font-medium">{timeRange}</div>
           </div>
@@ -95,7 +97,7 @@ export function BookingCard({
             <MapPinned className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
             <div className="space-y-1">
               <div className="text-xs tracking-wide text-muted-foreground uppercase">
-                Ngày tạo
+                {t("bookingList.card.createdAt")}
               </div>
               <div className="text-sm font-medium">
                 {formatBookingCreatedAt(booking.createdAt)}
@@ -107,7 +109,7 @@ export function BookingCard({
             <ReceiptText className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
             <div className="space-y-1">
               <div className="text-xs tracking-wide text-muted-foreground uppercase">
-                Tổng tiền
+                {t("bookingList.card.totalPrice")}
               </div>
               <div className="text-sm font-medium">
                 {formatCurrency(booking.totalPrice)}
@@ -119,7 +121,7 @@ export function BookingCard({
         <div className="rounded-xl border bg-muted/20 p-3">
           <div className="mb-1 flex items-center gap-2 text-xs tracking-wide text-muted-foreground uppercase">
             <Calendar className="size-3.5" />
-            Ghi chú
+            {t("bookingList.card.note")}
           </div>
           <p className="text-sm leading-6 whitespace-pre-line text-foreground">
             {displayNote}
@@ -135,7 +137,7 @@ export function BookingCard({
             className="min-w-28"
           >
             {isConfirming && <Loader2 className="size-4 animate-spin" />}
-            Xác nhận
+            {t("bookingList.card.confirm")}
           </Button>
         )}
 
@@ -147,13 +149,13 @@ export function BookingCard({
             className="min-w-28"
           >
             {isCancelling && <Loader2 className="size-4 animate-spin" />}
-            Hủy đặt sân
+            {t("bookingList.card.cancelBooking")}
           </Button>
         )}
 
         {!showConfirmAction && !showCancelAction && (
           <div className="text-sm text-muted-foreground">
-            Trạng thái này không có thao tác quản lý.
+            {t("bookingList.card.noActions")}
           </div>
         )}
       </CardFooter>

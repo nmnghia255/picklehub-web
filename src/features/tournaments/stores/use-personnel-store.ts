@@ -163,7 +163,7 @@ export const usePersonnelStore = create<PersonnelState>((set, get) => ({
 
   enrollReferee: async (request) => {
     const { tournamentId, fetchRoster } = get()
-    if (!tournamentId) return { success: false, error: "Missing tournament ID" }
+    if (!tournamentId) return { success: false, error: "" }
 
     try {
       const res = await enrollRefereeAction(tournamentId, request)
@@ -171,16 +171,16 @@ export const usePersonnelStore = create<PersonnelState>((set, get) => ({
         await fetchRoster()
         return { success: true }
       }
-      return { success: false, error: res.error || "Failed to enroll referee" }
+      return { success: false, error: res.error || "" }
     } catch (err) {
       console.error(err)
-      return { success: false, error: "An unexpected error occurred" }
+      return { success: false, error: "" }
     }
   },
 
   unenrollReferee: async (refereeId) => {
     const { tournamentId, fetchRoster } = get()
-    if (!tournamentId) return { success: false, error: "Missing tournament ID" }
+    if (!tournamentId) return { success: false, error: "" }
 
     try {
       const res = await unenrollRefereeAction(tournamentId, refereeId)
@@ -190,17 +190,17 @@ export const usePersonnelStore = create<PersonnelState>((set, get) => ({
       }
       return {
         success: false,
-        error: res.error || "Failed to unenroll referee",
+        error: res.error || "",
       }
     } catch (err) {
       console.error(err)
-      return { success: false, error: "An unexpected error occurred" }
+      return { success: false, error: "" }
     }
   },
 
   assignReferee: async (matchId, refereeId) => {
     const { tournamentId, fetchMatches, fetchRoster } = get()
-    if (!tournamentId) return { success: false, error: "Missing tournament ID" }
+    if (!tournamentId) return { success: false, error: "" }
 
     try {
       const res = await assignRefereeToMatchAction(
@@ -213,10 +213,10 @@ export const usePersonnelStore = create<PersonnelState>((set, get) => ({
         await fetchRoster() // Refresh workloads
         return { success: true }
       }
-      return { success: false, error: res.error || "Failed to assign referee" }
+      return { success: false, error: res.error || "" }
     } catch (err) {
       console.error(err)
-      return { success: false, error: "An unexpected error occurred" }
+      return { success: false, error: "" }
     }
   },
 
@@ -247,7 +247,7 @@ export const usePersonnelStore = create<PersonnelState>((set, get) => ({
 
   unassignReferee: async (matchId) => {
     const { tournamentId, fetchMatches, fetchRoster } = get()
-    if (!tournamentId) return { success: false, error: "Missing tournament ID" }
+    if (!tournamentId) return { success: false, error: "" }
 
     try {
       const res = await unassignRefereeFromMatchAction(tournamentId, matchId)
@@ -258,11 +258,11 @@ export const usePersonnelStore = create<PersonnelState>((set, get) => ({
       }
       return {
         success: false,
-        error: res.error || "Failed to unassign referee",
+        error: res.error || "",
       }
     } catch (err) {
       console.error(err)
-      return { success: false, error: "An unexpected error occurred" }
+      return { success: false, error: "" }
     }
   },
 

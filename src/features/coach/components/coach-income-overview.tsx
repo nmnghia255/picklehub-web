@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { ErrorState } from "@/components/shared/error-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -72,30 +73,6 @@ function safeFormatDate(value?: string) {
 const currentYear = new Date().getFullYear()
 const yearOptions = Array.from({ length: 11 }, (_, i) => currentYear - 10 + i)
 
-const statusLabels: Record<string, string> = {
-  OPEN: "Đang mở",
-  FULL: "Đã đầy",
-  ONGOING: "Đang diễn ra",
-  COMPLETED: "Đã hoàn thành",
-  CANCELLED: "Đã hủy",
-  DRAFT: "Nháp",
-}
-
-const bookingStatusLabels: Record<string, string> = {
-  PENDING_CONFIRMATION: "Chờ xác nhận",
-  CONFIRMED: "Đã xác nhận",
-  COMPLETED: "Đã hoàn thành",
-  CANCELLED: "Đã hủy",
-  REJECTED: "Từ chối",
-}
-
-const paymentStatusLabels: Record<string, string> = {
-  PENDING_PROOF: "Chưa có bằng chứng",
-  PENDING_REVIEW: "Đang xem xét",
-  SETTLED: "Đã thanh toán",
-  REJECTED: "Bị từ chối",
-}
-
 const statusBadgeVariant = (status?: string) => {
   switch (status) {
     case "OPEN":
@@ -114,6 +91,7 @@ const statusBadgeVariant = (status?: string) => {
 }
 
 function OverviewTab() {
+  const { t } = useTranslation("common")
   const session = useSession()
   const [period, setPeriod] = useState<string>("month")
   const [year, setYear] = useState<number>(currentYear)
@@ -126,7 +104,7 @@ function OverviewTab() {
   if (isError) {
     return (
       <ErrorState
-        title="Không thể tải tổng quan thu nhập"
+        title={t("coach.income.overviewErrorTitle")}
         description={getErrorMessage(error)}
         retry={refetch}
       />
@@ -152,7 +130,7 @@ function OverviewTab() {
     return (
       <Card className="rounded-2xl border shadow-sm">
         <CardContent className="p-8 text-center text-sm text-muted-foreground">
-          Chưa có dữ liệu thu nhập. Vui lòng quay lại sau.
+          {t("coach.income.noData")}
         </CardContent>
       </Card>
     )
@@ -162,16 +140,18 @@ function OverviewTab() {
     classRevenueVnd = 0,
     bookingRevenueVnd = 0,
     totalRevenueVnd = 0,
+    courtCostVnd = 0,
+    netRevenueVnd = 0,
     totalSettlementCount = 0,
   } = data.totals
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
         <Card className="rounded-2xl border shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center justify-between text-muted-foreground">
-              <span className="text-xs">Tổng doanh thu</span>
+              <span className="text-xs">{t("coach.income.totalRevenue")}</span>
               <TrendingUp className="size-3.5" />
             </div>
             <p className="mt-1 text-xl font-semibold tracking-tight">
@@ -182,7 +162,7 @@ function OverviewTab() {
         <Card className="rounded-2xl border shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center justify-between text-muted-foreground">
-              <span className="text-xs">Doanh thu lớp học</span>
+              <span className="text-xs">{t("coach.income.classRevenue")}</span>
               <BookOpen className="size-3.5" />
             </div>
             <p className="mt-1 text-xl font-semibold tracking-tight">
@@ -193,7 +173,9 @@ function OverviewTab() {
         <Card className="rounded-2xl border shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center justify-between text-muted-foreground">
-              <span className="text-xs">Doanh thu đặt lịch</span>
+              <span className="text-xs">
+                {t("coach.income.bookingRevenue")}
+              </span>
               <CalendarDays className="size-3.5" />
             </div>
             <p className="mt-1 text-xl font-semibold tracking-tight">
@@ -204,7 +186,9 @@ function OverviewTab() {
         <Card className="rounded-2xl border shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center justify-between text-muted-foreground">
-              <span className="text-xs">Tổng giao dịch</span>
+              <span className="text-xs">
+                {t("coach.income.totalTransactions")}
+              </span>
               <DollarSign className="size-3.5" />
             </div>
             <p className="mt-1 text-xl font-semibold tracking-tight">
@@ -212,24 +196,56 @@ function OverviewTab() {
             </p>
           </CardContent>
         </Card>
+        <Card className="rounded-2xl border shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between text-muted-foreground">
+              <span className="text-xs">{t("coach.income.courtCost")}</span>
+              <DollarSign className="size-3.5" />
+            </div>
+            <p className="mt-1 text-xl font-semibold tracking-tight">
+              {formatVnd(courtCostVnd)}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="rounded-2xl border shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between text-muted-foreground">
+              <span className="text-xs">{t("coach.income.netRevenue")}</span>
+              <TrendingUp className="size-3.5" />
+            </div>
+            <p className="mt-1 text-xl font-semibold tracking-tight">
+              {formatVnd(netRevenueVnd)}
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
-          <Label className="text-sm text-muted-foreground">Kỳ</Label>
+          <Label className="text-sm text-muted-foreground">
+            {t("coach.income.periodLabel")}
+          </Label>
           <Select value={period} onValueChange={setPeriod}>
             <SelectTrigger className="w-36">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="month">Theo tháng</SelectItem>
-              <SelectItem value="quarter">Theo quý</SelectItem>
-              <SelectItem value="year">Theo năm</SelectItem>
+              <SelectItem value="month">
+                {t("coach.income.periodMonth")}
+              </SelectItem>
+              <SelectItem value="quarter">
+                {t("coach.income.periodQuarter")}
+              </SelectItem>
+              <SelectItem value="year">
+                {t("coach.income.periodYear")}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="flex items-center gap-2">
-          <Label className="text-sm text-muted-foreground">Năm</Label>
+          <Label className="text-sm text-muted-foreground">
+            {t("coach.income.yearLabel")}
+          </Label>
           <Select
             value={String(year)}
             onValueChange={(v) => setYear(Number(v))}
@@ -251,7 +267,9 @@ function OverviewTab() {
       {data.buckets.length > 0 && (
         <Card className="rounded-2xl border shadow-sm">
           <div className="p-6">
-            <h3 className="mb-4 text-sm font-semibold">Chi tiết theo kỳ</h3>
+            <h3 className="mb-4 text-sm font-semibold">
+              {t("coach.income.detailByPeriod")}
+            </h3>
             <div className="divide-y">
               {data.buckets.map((bucket, index) => (
                 <div
@@ -262,8 +280,14 @@ function OverviewTab() {
                     {bucket.periodLabel}
                   </span>
                   <div className="flex gap-4 text-sm text-muted-foreground">
-                    <span>Lớp: {formatVnd(bucket.classRevenueVnd)}</span>
-                    <span>Đặt lịch: {formatVnd(bucket.bookingRevenueVnd)}</span>
+                    <span>
+                      {t("coach.income.classLabel")}:{" "}
+                      {formatVnd(bucket.classRevenueVnd)}
+                    </span>
+                    <span>
+                      {t("coach.income.bookingLabel")}:{" "}
+                      {formatVnd(bucket.bookingRevenueVnd)}
+                    </span>
                     <span className="font-semibold text-foreground">
                       {formatVnd(bucket.totalRevenueVnd)}
                     </span>
@@ -279,10 +303,23 @@ function OverviewTab() {
 }
 
 function ClassesTab() {
+  const { t } = useTranslation("common")
   const [page, setPage] = useState(1)
   const [from, setFrom] = useState("")
   const [to, setTo] = useState("")
   const limit = 10
+
+  const statusLabel = (s?: string) => {
+    const m: Record<string, string> = {
+      OPEN: t("coach.income.status.open"),
+      FULL: t("coach.income.status.full"),
+      ONGOING: t("coach.income.status.ongoing"),
+      COMPLETED: t("coach.income.status.completed"),
+      CANCELLED: t("coach.income.status.cancelled"),
+      DRAFT: t("coach.income.status.draft"),
+    }
+    return m[s ?? ""] ?? s
+  }
 
   const { data, isLoading, isError, error, refetch } = useClassRevenue(
     {
@@ -297,7 +334,7 @@ function ClassesTab() {
   if (isError) {
     return (
       <ErrorState
-        title="Không thể tải doanh thu lớp học"
+        title={t("coach.income.classesTabError")}
         description={getErrorMessage(error)}
         retry={refetch}
       />
@@ -313,7 +350,9 @@ function ClassesTab() {
       <div className="grid gap-3 sm:grid-cols-3">
         <Card className="rounded-xl border shadow-sm">
           <CardContent className="p-3">
-            <p className="text-xs text-muted-foreground">Tổng doanh thu lớp</p>
+            <p className="text-xs text-muted-foreground">
+              {t("coach.income.totalClassRevenue")}
+            </p>
             <p className="mt-0.5 text-lg font-semibold">
               {formatVnd(totals?.settledRevenueVnd ?? 0)}
             </p>
@@ -322,7 +361,7 @@ function ClassesTab() {
         <Card className="rounded-xl border shadow-sm">
           <CardContent className="p-3">
             <p className="text-xs text-muted-foreground">
-              Tổng lượt thanh toán
+              {t("coach.income.totalPayments")}
             </p>
             <p className="mt-0.5 text-lg font-semibold">
               {totals?.settledEnrollmentCount ?? 0}
@@ -331,7 +370,9 @@ function ClassesTab() {
         </Card>
         <Card className="rounded-xl border shadow-sm">
           <CardContent className="p-3">
-            <p className="text-xs text-muted-foreground">Tổng lớp</p>
+            <p className="text-xs text-muted-foreground">
+              {t("coach.income.totalClassRevenue")}
+            </p>
             <p className="mt-0.5 text-lg font-semibold">
               {pagination?.total ?? 0}
             </p>
@@ -341,7 +382,9 @@ function ClassesTab() {
 
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
-          <Label className="text-sm text-muted-foreground">Từ ngày</Label>
+          <Label className="text-sm text-muted-foreground">
+            {t("coach.income.fromDate")}
+          </Label>
           <Input
             type="date"
             value={from}
@@ -353,7 +396,9 @@ function ClassesTab() {
           />
         </div>
         <div className="flex items-center gap-2">
-          <Label className="text-sm text-muted-foreground">Đến ngày</Label>
+          <Label className="text-sm text-muted-foreground">
+            {t("coach.income.toDate")}
+          </Label>
           <Input
             type="date"
             value={to}
@@ -374,7 +419,7 @@ function ClassesTab() {
               setPage(1)
             }}
           >
-            Xoá bộ lọc
+            {t("coach.income.clearFilters")}
           </Button>
         )}
       </div>
@@ -385,7 +430,8 @@ function ClassesTab() {
         <>
           <div className="space-y-3">
             {items.map((item) => {
-              const title = item.title || item.className || "Không có tên"
+              const title =
+                item.title || item.className || t("coach.income.noName")
               return (
                 <Card
                   key={item.classId}
@@ -405,7 +451,7 @@ function ClassesTab() {
                             variant={statusBadgeVariant(item.status)}
                             className="rounded-full text-[11px]"
                           >
-                            {statusLabels[item.status] ?? item.status}
+                            {statusLabel(item.status)}
                           </Badge>
                         )}
                         {item.level && (
@@ -427,22 +473,27 @@ function ClassesTab() {
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
                       <span className="flex items-center gap-1">
                         <User className="size-3.5 text-muted-foreground" />
-                        {item.enrolledLearnerCount ?? 0} học viên
+                        {item.enrolledLearnerCount ?? 0}{" "}
+                        {t("coach.discovery.enrolledCount", {
+                          count: item.enrolledLearnerCount ?? 0,
+                        })}
                       </span>
                       <span className="flex items-center gap-1">
                         <DollarSign className="size-3.5 text-muted-foreground" />
-                        {item.settledEnrollmentCount ?? 0} đã thanh toán
+                        {item.settledEnrollmentCount ?? 0}{" "}
+                        {t("coach.income.paid")}
                       </span>
                     </div>
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                       {item.firstSettledAt && (
                         <span>
-                          Thanh toán đầu: {safeFormatDate(item.firstSettledAt)}
+                          {t("coach.income.firstPayment")}:{" "}
+                          {safeFormatDate(item.firstSettledAt)}
                         </span>
                       )}
                       {item.lastSettledAt && (
                         <span>
-                          Thanh toán gần nhất:{" "}
+                          {t("coach.income.latestPayment")}:{" "}
                           {safeFormatDate(item.lastSettledAt)}
                         </span>
                       )}
@@ -505,7 +556,7 @@ function ClassesTab() {
       ) : (
         <Card className="rounded-2xl border shadow-sm">
           <CardContent className="py-8 text-center text-sm text-muted-foreground">
-            Chưa có dữ liệu doanh thu lớp học.
+            {t("coach.income.noClassData")}
           </CardContent>
         </Card>
       )}
@@ -514,7 +565,29 @@ function ClassesTab() {
 }
 
 function BookingsTab() {
+  const { t } = useTranslation("common")
   const [page, setPage] = useState(1)
+
+  const bookingStatusLabel = (s?: string) => {
+    const m: Record<string, string> = {
+      PENDING_CONFIRMATION: t("coach.income.bookingStatus.pendingConfirmation"),
+      CONFIRMED: t("coach.income.bookingStatus.confirmed"),
+      COMPLETED: t("coach.income.bookingStatus.completed"),
+      CANCELLED: t("coach.income.bookingStatus.cancelled"),
+      REJECTED: t("coach.income.bookingStatus.rejected"),
+    }
+    return m[s ?? ""] ?? s
+  }
+
+  const paymentStatusLabel = (s?: string) => {
+    const m: Record<string, string> = {
+      PENDING_PROOF: t("coach.income.paymentStatus.pendingProof"),
+      PENDING_REVIEW: t("coach.income.paymentStatus.pendingReview"),
+      SETTLED: t("coach.income.paymentStatus.settled"),
+      REJECTED: t("coach.income.paymentStatus.rejected"),
+    }
+    return m[s ?? ""] ?? s
+  }
   const [from, setFrom] = useState("")
   const [to, setTo] = useState("")
   const limit = 10
@@ -532,7 +605,7 @@ function BookingsTab() {
   if (isError) {
     return (
       <ErrorState
-        title="Không thể tải doanh thu đặt lịch"
+        title={t("coach.income.bookingsTabError")}
         description={getErrorMessage(error)}
         retry={refetch}
       />
@@ -549,7 +622,7 @@ function BookingsTab() {
         <Card className="rounded-xl border shadow-sm">
           <CardContent className="p-3">
             <p className="text-xs text-muted-foreground">
-              Tổng doanh thu booking
+              {t("coach.income.totalBookingRevenue")}
             </p>
             <p className="mt-0.5 text-lg font-semibold">
               {formatVnd(totals?.settledRevenueVnd ?? 0)}
@@ -559,7 +632,7 @@ function BookingsTab() {
         <Card className="rounded-xl border shadow-sm">
           <CardContent className="p-3">
             <p className="text-xs text-muted-foreground">
-              Tổng booking thanh toán
+              {t("coach.income.totalPayments")}
             </p>
             <p className="mt-0.5 text-lg font-semibold">
               {totals?.settledBookingCount ?? 0}
@@ -568,7 +641,9 @@ function BookingsTab() {
         </Card>
         <Card className="rounded-xl border shadow-sm">
           <CardContent className="p-3">
-            <p className="text-xs text-muted-foreground">Tổng booking</p>
+            <p className="text-xs text-muted-foreground">
+              {t("coach.income.totalBookings")}
+            </p>
             <p className="mt-0.5 text-lg font-semibold">
               {pagination?.total ?? 0}
             </p>
@@ -578,7 +653,9 @@ function BookingsTab() {
 
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
-          <Label className="text-sm text-muted-foreground">Từ ngày</Label>
+          <Label className="text-sm text-muted-foreground">
+            {t("coach.income.fromDate")}
+          </Label>
           <Input
             type="date"
             value={from}
@@ -590,7 +667,9 @@ function BookingsTab() {
           />
         </div>
         <div className="flex items-center gap-2">
-          <Label className="text-sm text-muted-foreground">Đến ngày</Label>
+          <Label className="text-sm text-muted-foreground">
+            {t("coach.income.toDate")}
+          </Label>
           <Input
             type="date"
             value={to}
@@ -611,7 +690,7 @@ function BookingsTab() {
               setPage(1)
             }}
           >
-            Xoá bộ lọc
+            {t("coach.income.clearFilters")}
           </Button>
         )}
       </div>
@@ -639,14 +718,16 @@ function BookingsTab() {
                     </Avatar>
                     <div className="space-y-1.5">
                       <p className="font-semibold">
-                        {item.learnerProfile?.name || "Không có tên"}
+                        {item.learnerProfile?.name || t("coach.income.noName")}
                       </p>
                       <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
                         <Clock className="size-3.5 shrink-0" />
                         {safeFormatDateTime(item.sessionAt)}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {item.durationMinutes ?? 0} phút
+                        {t("coach.bookings.minutes", {
+                          count: item.durationMinutes ?? 0,
+                        })}
                       </p>
                       <div className="flex flex-wrap gap-1.5">
                         {item.status && (
@@ -654,7 +735,7 @@ function BookingsTab() {
                             variant={statusBadgeVariant(item.status)}
                             className="rounded-full text-[11px]"
                           >
-                            {bookingStatusLabels[item.status] ?? item.status}
+                            {bookingStatusLabel(item.status)}
                           </Badge>
                         )}
                         {item.paymentStatus && (
@@ -662,14 +743,15 @@ function BookingsTab() {
                             variant={statusBadgeVariant(item.paymentStatus)}
                             className="rounded-full text-[11px]"
                           >
-                            {paymentStatusLabels[item.paymentStatus] ??
-                              item.paymentStatus}
+                            {paymentStatusLabel(item.paymentStatus)}
                           </Badge>
                         )}
                       </div>
                       {item.coachNote && (
                         <p className="text-xs text-muted-foreground italic">
-                          Ghi chú: {item.coachNote}
+                          {t("coach.income.notePrefix", {
+                            note: item.coachNote,
+                          })}
                         </p>
                       )}
                     </div>
@@ -678,10 +760,22 @@ function BookingsTab() {
                     <p className="font-bold text-primary">
                       {formatVnd(item.priceVnd)}
                     </p>
+                    <div className="space-y-0.5 text-right text-xs text-muted-foreground">
+                      <p>
+                        {t("coach.income.courtCost")}:{" "}
+                        {item.courtCostVnd !== null
+                          ? formatVnd(item.courtCostVnd)
+                          : t("coach.income.notApplicable")}
+                      </p>
+                      <p>
+                        {t("coach.income.netRevenue")}:{" "}
+                        {formatVnd(item.netRevenueVnd)}
+                      </p>
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       {item.settledAt
                         ? safeFormatDate(item.settledAt)
-                        : "Chưa thanh toán"}
+                        : t("coach.income.notPaid")}
                     </p>
                   </div>
                 </CardContent>
@@ -741,7 +835,7 @@ function BookingsTab() {
       ) : (
         <Card className="rounded-2xl border shadow-sm">
           <CardContent className="py-8 text-center text-sm text-muted-foreground">
-            Chưa có dữ liệu doanh thu đặt lịch.
+            {t("coach.income.noBookingData")}
           </CardContent>
         </Card>
       )}
@@ -750,6 +844,7 @@ function BookingsTab() {
 }
 
 export function CoachIncomeOverview() {
+  const { t } = useTranslation("common")
   const searchParams = useSearchParams()
   const router = useRouter()
   const section = searchParams.get("section") ?? "overview"
@@ -774,13 +869,13 @@ export function CoachIncomeOverview() {
         className="w-full min-w-0 flex-wrap justify-start gap-1 overflow-x-auto pb-1"
       >
         <TabsTrigger value="overview" className="sm:flex-none">
-          Tổng quan
+          {t("coach.income.overviewTitle")}
         </TabsTrigger>
         <TabsTrigger value="classes" className="sm:flex-none">
-          Lớp học
+          {t("coach.income.classRevenue")}
         </TabsTrigger>
         <TabsTrigger value="bookings" className="sm:flex-none">
-          Đặt lịch
+          {t("coach.income.bookingRevenue")}
         </TabsTrigger>
       </TabsList>
 

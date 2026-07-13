@@ -29,6 +29,7 @@ interface BracketSidebarProps {
   tournamentId: number
   isHost: boolean
   hideEventSelect?: boolean
+  isEditable: boolean
 }
 
 export function BracketSidebar(props: BracketSidebarProps) {

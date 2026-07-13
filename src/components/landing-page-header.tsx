@@ -4,10 +4,12 @@ import { BoxIcon, Moon, Sun } from "lucide-react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
 import { useLayoutEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 
 export function LandingPageHeader() {
+  const { t } = useTranslation("common")
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
@@ -25,7 +27,7 @@ export function LandingPageHeader() {
         <div className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
           <BoxIcon className="size-4" />
         </div>
-        PickleHub
+        {t("brand")}
       </Link>
       <div className="flex gap-3">
         {mounted ? (
@@ -33,8 +35,11 @@ export function LandingPageHeader() {
             variant="ghost"
             size="icon"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            aria-label={t("landing.header.themeToggle")}
             title={
-              theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+              theme === "dark"
+                ? t("landing.header.switchToLight")
+                : t("landing.header.switchToDark")
             }
           >
             {theme === "dark" ? (

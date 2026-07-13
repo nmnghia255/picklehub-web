@@ -18,13 +18,10 @@ export function SocialStatisticsHeader() {
       <CardHeader className="bg-muted/20">
         <div>
           <CardTitle className="text-2xl font-bold tracking-tight sm:text-3xl">
-            {t("statistics.title", { defaultValue: "Post-Event Statistics" })}
+            {t("statistics.title")}
           </CardTitle>
           <CardDescription className="mt-2 text-sm text-muted-foreground">
-            {t("statistics.subtitle", {
-              defaultValue:
-                "Review matches played, total expenses, and actual revenue earned for this completed social.",
-            })}
+            {t("statistics.subtitle")}
           </CardDescription>
         </div>
       </CardHeader>

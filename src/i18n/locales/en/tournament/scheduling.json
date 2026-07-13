@@ -17,7 +17,8 @@
       "dates": {
         "june15": "June 15, 2026",
         "june16": "June 16, 2026",
-        "june17": "June 17, 2026"
+        "june17": "June 17, 2026",
+        "noDates": "No dates available"
       },
       "eventLabel": "Event:",
       "events": {
@@ -33,7 +34,13 @@
       "warningsDialog": {
         "title": "Auto-Scheduling Warnings",
         "close": "Close"
-      }
+      },
+      "centers": {
+        "placeholder": "Select a court",
+        "noCenters": "No centers associated"
+      },
+      "autoScheduleBtn": "Auto Schedule",
+      "cancelAutoScheduleBtn": "Cancel"
     },
     "grid": {
       "courtsLabel": "Courts",
@@ -149,10 +156,17 @@
       "previewFailed": "Failed to generate preview",
       "executeSuccess": "Schedule applied and notifications sent to players!",
       "executeFailed": "Failed to execute auto-schedule",
+      "noActiveAutoScheduleConfig": "No active auto-schedule configuration found.",
+      "executeUnexpectedError": "Failed to execute auto-schedule due to an unexpected error.",
       "loadFixturesFailed": "Failed to load fixtures",
       "loadFixturesError": "Failed to load tournament fixtures",
       "noBookingItemAtSlot": "No booking item covers this slot.",
       "previewMoveSuccess": "Preview assignment updated!"
+    },
+    "noMatchesCompletedYet": "No matches have been completed yet",
+    "noMatchesScheduledYet": "No matches have been scheduled yet",
+    "status": {
+      "scheduled": "Scheduled"
     }
   }
 }

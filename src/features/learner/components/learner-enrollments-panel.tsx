@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import {
   AlertTriangle,
@@ -10,7 +10,8 @@ import {
   XCircle,
 } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import { type ReactNode, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { ErrorState } from "@/components/shared/error-state"
@@ -55,50 +56,15 @@ import {
 } from "@/features/learner/hooks/use-learner-queries"
 import { getErrorMessage } from "@/lib/api-client"
 
-const PAYMENT_STATUS_CONFIG: Record<
-  string,
-  { label: string; className: string; icon: React.ReactNode }
-> = {
-  PENDING_PROOF: {
-    label: "Chờ tải bằng chứng",
-    className: "bg-yellow-100 text-yellow-800",
-    icon: <Clock className="size-3" />,
-  },
-  PENDING_REVIEW: {
-    label: "Đang chờ xác nhận",
-    className: "bg-blue-100 text-blue-800",
-    icon: <AlertTriangle className="size-3" />,
-  },
-  SETTLED: {
-    label: "Đã thanh toán",
-    className: "bg-green-100 text-green-800",
-    icon: <CheckCircle2 className="size-3" />,
-  },
-  REJECTED: {
-    label: "Bị từ chối",
-    className: "bg-red-100 text-red-800",
-    icon: <XCircle className="size-3" />,
-  },
+function getLocaleCode(language: string) {
+  return language.startsWith("vi") ? "vi-VN" : "en-US"
 }
 
-const ENROLLMENT_STATUS_CONFIG: Record<
-  string,
-  { label: string; className: string }
-> = {
-  ACTIVE: { label: "Đang hoạt động", className: "bg-green-100 text-green-800" },
-  CANCELLED: { label: "Đã hủy", className: "bg-gray-100 text-gray-800" },
-  COMPLETED: { label: "Đã hoàn thành", className: "bg-blue-100 text-blue-800" },
-}
-
-const LEVEL_LABEL: Record<string, string> = {
-  Beginner: "Cơ bản",
-  Intermediate: "Trung cấp",
-  Advanced: "Nâng cao",
-  Pro: "Chuyên nghiệp",
-}
-
-function formatAmount(amount: number) {
-  return new Intl.NumberFormat("vi-VN").format(amount) + "₫"
+function formatAmount(amount: number, locale: string) {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "VND",
+  }).format(amount)
 }
 
 function EnrollmentSkeleton() {
@@ -127,13 +93,14 @@ function UploadDialog({
   enrollmentId: string
   triggerLabel: string
 }) {
+  const { t } = useTranslation("common")
   const [open, setOpen] = useState(false)
   const [url, setUrl] = useState("")
   const uploadMutation = useUploadEnrollmentPaymentProof()
 
   const handleSubmit = async () => {
     if (!url.trim()) {
-      toast.error("Vui lòng nhập URL bằng chứng thanh toán")
+      toast.error(t("learner.enrollments.uploadProofUrlRequired"))
       return
     }
     try {
@@ -141,11 +108,11 @@ function UploadDialog({
         enrollmentId,
         paymentProofUrl: url.trim(),
       })
-      toast.success("Tải lên bằng chứng thanh toán thành công")
+      toast.success(t("learner.enrollments.uploadProofSuccess"))
       setOpen(false)
       setUrl("")
     } catch {
-      toast.error("Tải lên bằng chứng thất bại")
+      toast.error(t("learner.enrollments.uploadProofError"))
     }
   }
 
@@ -159,28 +126,31 @@ function UploadDialog({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Tải lên bằng chứng thanh toán</DialogTitle>
+          <DialogTitle>
+            {t("learner.enrollments.uploadProofDialogTitle")}
+          </DialogTitle>
           <DialogDescription>
-            Vui lòng cung cấp đường dẫn đến hình ảnh bằng chứng chuyển khoản của
-            bạn.
+            {t("learner.enrollments.uploadProofDialogDescription")}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-2">
           <label className="text-sm font-medium">
-            URL bằng chứng thanh toán
+            {t("learner.enrollments.uploadProofUrlLabel")}
           </label>
           <Input
-            placeholder="https://example.com/chung-tu.png"
+            placeholder={t("learner.enrollments.uploadProofUrlPlaceholder")}
             value={url}
             onChange={(e) => setUrl(e.target.value)}
           />
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
-            Hủy
+            {t("learner.enrollments.cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={uploadMutation.isPending}>
-            {uploadMutation.isPending ? "Đang tải..." : "Xác nhận"}
+            {uploadMutation.isPending
+              ? t("learner.enrollments.uploading")
+              : t("learner.enrollments.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -189,14 +159,15 @@ function UploadDialog({
 }
 
 function CancelDialog({ enrollmentId }: { enrollmentId: string }) {
+  const { t } = useTranslation("common")
   const cancelMutation = useCancelEnrollment()
 
   const handleCancel = async () => {
     try {
       await cancelMutation.mutateAsync(enrollmentId)
-      toast.success("Hủy đăng ký thành công")
+      toast.success(t("learner.enrollments.cancelSuccess"))
     } catch {
-      toast.error("Hủy đăng ký thất bại")
+      toast.error(t("learner.enrollments.cancelError"))
     }
   }
 
@@ -205,24 +176,29 @@ function CancelDialog({ enrollmentId }: { enrollmentId: string }) {
       <AlertDialogTrigger asChild>
         <Button variant="destructive" size="sm">
           <XCircle className="mr-1 size-4" />
-          Hủy đăng ký
+          {t("learner.enrollments.cancelEnrollment")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Xác nhận hủy đăng ký</AlertDialogTitle>
+          <AlertDialogTitle>
+            {t("learner.enrollments.cancelDialogTitle")}
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            Bạn có chắc chắn muốn hủy đăng ký lớp học này? Hành động này không
-            thể hoàn tác.
+            {t("learner.enrollments.cancelDialogDescription")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Quay lại</AlertDialogCancel>
+          <AlertDialogCancel>
+            {t("learner.enrollments.cancelBack")}
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleCancel}
             disabled={cancelMutation.isPending}
           >
-            {cancelMutation.isPending ? "Đang hủy..." : "Xác nhận hủy"}
+            {cancelMutation.isPending
+              ? t("learner.enrollments.cancelling")
+              : t("learner.enrollments.cancelConfirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -231,7 +207,9 @@ function CancelDialog({ enrollmentId }: { enrollmentId: string }) {
 }
 
 export function LearnerEnrollmentsPanel() {
+  const { t, i18n } = useTranslation("common")
   const session = useSession()
+  const locale = getLocaleCode(i18n.language)
   const {
     data: enrollments,
     isLoading,
@@ -240,10 +218,61 @@ export function LearnerEnrollmentsPanel() {
     refetch,
   } = useMyEnrollments({ enabled: !!session?.user })
 
+  const paymentStatusConfig: Record<
+    string,
+    { label: string; className: string; icon: ReactNode }
+  > = {
+    PENDING_PROOF: {
+      label: t("learner.enrollments.paymentPendingProof"),
+      className: "bg-yellow-100 text-yellow-800",
+      icon: <Clock className="size-3" />,
+    },
+    PENDING_REVIEW: {
+      label: t("learner.enrollments.paymentPendingReview"),
+      className: "bg-blue-100 text-blue-800",
+      icon: <AlertTriangle className="size-3" />,
+    },
+    SETTLED: {
+      label: t("learner.enrollments.paymentSettled"),
+      className: "bg-green-100 text-green-800",
+      icon: <CheckCircle2 className="size-3" />,
+    },
+    REJECTED: {
+      label: t("learner.enrollments.paymentRejected"),
+      className: "bg-red-100 text-red-800",
+      icon: <XCircle className="size-3" />,
+    },
+  }
+
+  const enrollmentStatusConfig: Record<
+    string,
+    { label: string; className: string }
+  > = {
+    ACTIVE: {
+      label: t("learner.enrollments.statusActive"),
+      className: "bg-green-100 text-green-800",
+    },
+    CANCELLED: {
+      label: t("learner.enrollments.statusCancelled"),
+      className: "bg-gray-100 text-gray-800",
+    },
+    COMPLETED: {
+      label: t("learner.enrollments.statusCompleted"),
+      className: "bg-blue-100 text-blue-800",
+    },
+  }
+
+  const levelLabel: Record<string, string> = {
+    Beginner: t("learner.enrollments.levelBeginner"),
+    Intermediate: t("learner.enrollments.levelIntermediate"),
+    Advanced: t("learner.enrollments.levelAdvanced"),
+    Pro: t("learner.enrollments.levelPro"),
+  }
+
   if (isError) {
     return (
       <ErrorState
-        title="Không thể tải danh sách đăng ký"
+        title={t("learner.enrollments.errorTitle")}
         description={getErrorMessage(error)}
         retry={refetch}
       />
@@ -266,13 +295,15 @@ export function LearnerEnrollmentsPanel() {
         <CardContent className="flex flex-col items-center justify-center py-16">
           <CreditCard className="mb-4 size-12 text-muted-foreground" />
           <p className="mb-2 text-center text-lg font-medium">
-            Bạn chưa đăng ký lớp học nào.
+            {t("learner.enrollments.noEnrollments")}
           </p>
           <p className="mb-6 text-center text-sm text-muted-foreground">
-            Khám phá các lớp học ngay!
+            {t("learner.enrollments.noEnrollmentsDescription")}
           </p>
           <Button asChild>
-            <Link href="/classes">Khám phá lớp học</Link>
+            <Link href="/classes">
+              {t("learner.enrollments.exploreClasses")}
+            </Link>
           </Button>
         </CardContent>
       </Card>
@@ -282,8 +313,8 @@ export function LearnerEnrollmentsPanel() {
   return (
     <div className="space-y-4">
       {enrollments.map((enrollment, idx) => {
-        const paymentCfg = PAYMENT_STATUS_CONFIG[enrollment.paymentStatus]
-        const enrollmentCfg = ENROLLMENT_STATUS_CONFIG[enrollment.status]
+        const paymentCfg = paymentStatusConfig[enrollment.paymentStatus]
+        const enrollmentCfg = enrollmentStatusConfig[enrollment.status]
 
         return (
           <Card key={enrollment.id ?? `enrollment-${idx}`}>
@@ -291,18 +322,19 @@ export function LearnerEnrollmentsPanel() {
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1">
                   <CardTitle className="text-lg">
-                    {enrollment.className || "Lớp học"}
+                    {enrollment.className ||
+                      t("learner.enrollments.classFallback")}
                   </CardTitle>
                   <CardDescription>
                     {enrollment.classLevel
-                      ? (LEVEL_LABEL[enrollment.classLevel] ??
+                      ? (levelLabel[enrollment.classLevel] ??
                         enrollment.classLevel)
                       : ""}
                     {enrollment.locationDescription
                       ? ` • ${enrollment.locationDescription}`
                       : ""}
                     {enrollment.scheduleDate
-                      ? ` • ${new Date(enrollment.scheduleDate).toLocaleDateString("vi-VN")}`
+                      ? ` • ${new Date(enrollment.scheduleDate).toLocaleDateString(locale)}`
                       : ""}
                   </CardDescription>
                 </div>
@@ -325,7 +357,8 @@ export function LearnerEnrollmentsPanel() {
                       </AvatarFallback>
                     </Avatar>
                     <span className="text-sm text-muted-foreground">
-                      {enrollment.coachName ?? "Huấn luyện viên"}
+                      {enrollment.coachName ??
+                        t("learner.enrollments.coachFallback")}
                     </span>
                   </div>
                 )}
@@ -338,7 +371,7 @@ export function LearnerEnrollmentsPanel() {
                     </Badge>
                   )}
                   <span className="text-sm font-semibold">
-                    {formatAmount(enrollment.amountVnd)}
+                    {formatAmount(enrollment.amountVnd, locale)}
                   </span>
                 </div>
               </div>
@@ -347,23 +380,23 @@ export function LearnerEnrollmentsPanel() {
                 <div className="rounded-lg border bg-muted/50 p-3">
                   <div className="mb-1 flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
                     <Banknote className="size-4" />
-                    Thông tin chuyển khoản
+                    {t("learner.enrollments.transferInfo")}
                   </div>
                   <div className="space-y-0.5 text-sm">
                     <p>
-                      Ngân hàng:{" "}
+                      {t("learner.enrollments.bankName")}
                       <span className="font-medium">
                         {enrollment.paymentBankName}
                       </span>
                     </p>
                     <p>
-                      Số tài khoản:{" "}
+                      {t("learner.enrollments.accountNumber")}
                       <span className="font-medium">
                         {enrollment.paymentAccountNumber}
                       </span>
                     </p>
                     <p>
-                      Chủ tài khoản:{" "}
+                      {t("learner.enrollments.accountName")}
                       <span className="font-medium">
                         {enrollment.paymentAccountName}
                       </span>
@@ -377,25 +410,25 @@ export function LearnerEnrollmentsPanel() {
               {enrollment.paymentStatus === "PENDING_PROOF" && (
                 <UploadDialog
                   enrollmentId={enrollment.id}
-                  triggerLabel="Tải lên bằng chứng thanh toán"
+                  triggerLabel={t("learner.enrollments.uploadProof")}
                 />
               )}
               {enrollment.paymentStatus === "PENDING_REVIEW" && (
                 <Button variant="outline" size="sm" disabled>
                   <Clock className="mr-1 size-4" />
-                  Đang chờ xác nhận
+                  {t("learner.enrollments.paymentPendingReview")}
                 </Button>
               )}
               {enrollment.paymentStatus === "REJECTED" && (
                 <UploadDialog
                   enrollmentId={enrollment.id}
-                  triggerLabel="Tải lại bằng chứng"
+                  triggerLabel={t("learner.enrollments.uploadProofAgain")}
                 />
               )}
               {enrollment.paymentStatus === "SETTLED" && (
                 <Button variant="outline" size="sm" disabled>
                   <CheckCircle2 className="mr-1 size-4" />
-                  Đã thanh toán
+                  {t("learner.enrollments.paymentSettled")}
                 </Button>
               )}
 

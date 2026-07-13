@@ -1,6 +1,7 @@
 "use client"
 
 import { Bell, Clock } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -27,6 +28,7 @@ function formatDate(dateString: string, t: any): string {
   if (Number.isNaN(date.getTime())) {
     return t("notifications.justNow", "Vừa xong")
   }
+
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffMins = Math.floor(diffMs / 60000)
@@ -47,7 +49,7 @@ function formatDate(dateString: string, t: any): string {
       count: diffDays,
     })
 
-  return date.toLocaleDateString("vi-VN")
+  return date.toLocaleDateString(locale)
 }
 
 export function GroupFeedNotifications({

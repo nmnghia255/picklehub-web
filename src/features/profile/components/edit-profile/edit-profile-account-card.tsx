@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { UserRound } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -33,20 +33,8 @@ function getTranslatedMessage(
   t: (key: string) => string
 ): string {
   if (!msg) return ""
-  if (msg.includes("nhập tên hiển thị")) {
-    return t("edit.nameRequiredError")
-  }
-  if (msg.includes("cập nhật avatar bằng avatarUrl")) {
-    return t("edit.avatarFileError")
-  }
-  if (msg.includes("thành công")) {
-    return t("edit.updateSuccess")
-  }
-  if (msg.includes("Không thể cập nhật") || msg.includes("thử lại")) {
-    return t("edit.updateError")
-  }
-  if (msg.includes("lỗi xảy ra")) {
-    return t("edit.genericError")
+  if (msg.startsWith("edit.")) {
+    return t(msg)
   }
   return msg
 }
@@ -107,7 +95,9 @@ export function EditProfileAccountCard({
           <div className="relative">
             <Avatar className="size-14 transition-opacity group-hover:opacity-85">
               <AvatarImage src={avatarUrl || undefined} alt={displayName} />
-              <AvatarFallback>{initials || "U"}</AvatarFallback>
+              <AvatarFallback>
+                {initials || t("unnamedPlayer").charAt(0)}
+              </AvatarFallback>
             </Avatar>
           </div>
 

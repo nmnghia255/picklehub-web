@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import { uploadImageAction } from "@/features/sport-center/actions/upload-image-action"
 import { uploadPaymentProofAction } from "@/features/tournaments/actions/tournament-registration-actions"
+import type { PaymentSubmit } from "@/features/tournaments/types/registration"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
 interface PaymentProofDialogProps {
@@ -81,11 +82,15 @@ export function PaymentProofDialog({
       // 1. Upload to media server
       const imageUrl = await uploadImageAction(file)
 
+      const paymentProof: PaymentSubmit = {
+        paymentProofUrl: imageUrl,
+      }
+
       // 2. Upload payment proof to registration service
       const res = await uploadPaymentProofAction(
         tournamentId,
         registrationId,
-        imageUrl
+        paymentProof
       )
 
       if (res.success) {
@@ -109,7 +114,7 @@ export function PaymentProofDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-gray-900">
+          <DialogTitle className="text-lg font-bold text-gray-900 dark:text-zinc-100">
             {t("eventDetail.uploadProofTitle")}
           </DialogTitle>
           <DialogDescription>
@@ -118,17 +123,17 @@ export function PaymentProofDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6 pt-3">
-          <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50/50 p-4">
+          <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50/50 p-4 dark:border-zinc-800 dark:bg-zinc-900/20">
             <div className="flex flex-col items-center justify-center gap-2 py-4">
               {!previewUrl ? (
                 <label className="flex cursor-pointer flex-col items-center justify-center gap-2">
-                  <div className="rounded-full bg-emerald-100 p-3 text-emerald-700">
+                  <div className="rounded-full bg-emerald-100 p-3 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400">
                     <Upload className="h-6 w-6" />
                   </div>
-                  <span className="text-sm font-semibold text-gray-700">
+                  <span className="text-sm font-semibold text-gray-700 dark:text-zinc-300">
                     {t("eventDetail.clickToSelect")}
                   </span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-gray-400 dark:text-zinc-500">
                     {t("eventDetail.sizeLimitHint")}
                   </span>
                   <input
@@ -140,7 +145,7 @@ export function PaymentProofDialog({
                   />
                 </label>
               ) : (
-                <div className="relative w-full overflow-hidden rounded-xl border bg-white p-2">
+                <div className="relative w-full overflow-hidden rounded-xl border border-gray-200 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-950">
                   <img
                     src={previewUrl}
                     alt={t("eventDetail.previewAlt")}
@@ -159,17 +164,17 @@ export function PaymentProofDialog({
           </div>
 
           {file && (
-            <div className="flex items-center justify-between rounded-xl border bg-gray-50 p-3 text-sm">
-              <span className="truncate font-medium text-gray-700">
+            <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm dark:border-zinc-800 dark:bg-zinc-900/20">
+              <span className="truncate font-medium text-gray-700 dark:text-zinc-300">
                 {file.name}
               </span>
-              <span className="ml-2 shrink-0 text-xs text-gray-400">
+              <span className="ml-2 shrink-0 text-xs text-gray-400 dark:text-zinc-500">
                 {(file.size / 1024 / 1024).toFixed(2)} MB
               </span>
             </div>
           )}
 
-          <div className="flex justify-end gap-3 border-t pt-4">
+          <div className="flex justify-end gap-3 border-t border-gray-100 pt-4 dark:border-zinc-800">
             <Button
               type="button"
               variant="outline"

@@ -7,8 +7,6 @@
     "deleteConfirmTitle": "Xóa sơ đồ",
     "deleteSuccess": "Xóa sơ đồ thi đấu thành công!",
     "deleteError": "Không thể xóa sơ đồ thi đấu",
-    "lockConfirmTitle": "Khóa các cặp đấu",
-    "lockConfirmDesc": "Bạn có chắc chắn muốn khóa các cặp đấu trong sơ đồ? Sau khi khóa, các trận đấu sẽ trở thành chính thức và bạn sẽ không thể chỉnh sửa vị trí các đội nữa.",
     "dialog": {
       "cancel": "Hủy",
       "delete": "Xóa",
@@ -30,8 +28,7 @@
       "quickActions": "Thao tác nhanh",
       "generateBracket": "Tạo sơ đồ thi đấu",
       "deleteBracket": "Xóa sơ đồ",
-      "lockBracket": "Khóa các cặp đấu",
-      "lockedStatus": "Đã khóa (Trận đấu chính thức)",
+      "lockBracket": "Khóa sơ đồ",
       "exportPdf": "Xuất PDF",
       "viewControls": "Bảng điều khiển xem",
       "zoomOut": "Thu nhỏ",
@@ -43,7 +40,8 @@
         "completed": "Đã hoàn thành",
         "inProgress": "Đang diễn ra",
         "remaining": "Còn lại"
-      }
+      },
+      "lockedStatus": "Đã khóa (Trạn chính thức)"
     },
     "toolbar": {
       "searchPlaceholder": "Tìm kiếm trận đấu...",
@@ -73,7 +71,7 @@
         "in_progress": "Đang thi đấu",
         "completed": "Hoàn thành",
         "walkover": "Xử thắng/Thua cuộc",
-        "pending": "Đang chờ"
+        "pending": "Chờ xử lý"
       },
       "rounds": {
         "Round 1": "Vòng 1",
@@ -82,22 +80,13 @@
         "Round of 16": "Vòng 16",
         "Round of 32": "Vòng 32",
         "Round of 64": "Vòng 64",
+        "Quarterfinals": "Tứ kết",
+        "Semifinals": "Bán kết",
+        "Finals": "Chung kết",
+        "Bronze Match": "Tranh hạng ba",
         "Quarterfinal": "Tứ kết",
         "Semifinal": "Bán kết",
-        "Final": "Chung kết",
-        "Bronze Match": "Tranh hạng ba"
-      },
-      "round": {
-        "Round 1": "Vòng 1",
-        "Round 2": "Vòng 2",
-        "Round 3": "Vòng 3",
-        "Round of 16": "Vòng 16",
-        "Round of 32": "Vòng 32",
-        "Round of 64": "Vòng 64",
-        "Quarterfinal": "Tứ kết",
-        "Semifinal": "Bán kết",
-        "Final": "Chung kết",
-        "Bronze Match": "Tranh hạng ba"
+        "Final": "Chung kết"
       },
       "details": {
         "title": "Chi tiết trận đấu",
@@ -117,7 +106,20 @@
         "reassignCourt": "Đổi sân thi đấu",
         "updateScore": "Cập nhật tỷ số",
         "markWalkover": "Xử thua cuộc / Bỏ cuộc"
-      }
-    }
+      },
+      "edit": {
+        "title": "Chỉnh sửa cặp đấu",
+        "team1": "Đội 1",
+        "team2": "Đội 2",
+        "save": "Lưu cặp đấu",
+        "cancel": "Hủy"
+      },
+      "editSuccess": "Cập nhật cặp đấu thành công!",
+      "editError": "Cập nhật cặp đấu thất bại"
+    },
+    "lockConfirmTitle": "Khóa các cặp đấu",
+    "lockConfirmDesc": "Bạn có chắc chắn muốn khóa các cặp đấu của sơ đồ thi đấu không? Sau khi khóa, các trạn sẽ được xem là chính thức và bạn sẽ không thể chỉnh sửa vị trí đội nữa.",
+    "lockSuccess": "Khóa sơ đồ thi đấu thành công!",
+    "lockError": "Khóa sơ đồ thi đấu thất bại"
   }
 }

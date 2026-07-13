@@ -81,9 +81,7 @@ export default function SocialOverview({
           <h3 className="text-base font-semibold">{t("detail.skillLevel")}</h3>
           {social.minimumLevel === null && social.maximumLevel === null ? (
             <p className="text-sm text-muted-foreground">
-              {t("detail.noSkillLevelLimit", {
-                defaultValue: "All skill levels welcome",
-              })}
+              {t("detail.noSkillLevelLimit")}
             </p>
           ) : (
             <>

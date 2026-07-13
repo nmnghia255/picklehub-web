@@ -16,8 +16,10 @@ import { CustomerDetailPageSkeleton } from "@/features/sport-center-management/c
 import { CustomerDetailProfileCard } from "@/features/sport-center-management/components/customer/customer-detail/customer-detail-profile-card"
 import { CustomerDetailSummaryGrid } from "@/features/sport-center-management/components/customer/customer-detail/customer-detail-summary-grid"
 import type { CustomerDetailResponse } from "@/features/sport-center-management/types/customer"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 export default function CustomerDetailPage() {
+  const { t } = useSportCenterManagementTranslation()
   const router = useRouter()
   const params = useParams<{ customerId?: string | string[] }>()
   const customerId = Array.isArray(params.customerId)
@@ -43,7 +45,7 @@ export default function CustomerDetailPage() {
         setLoadError(
           error instanceof Error
             ? error.message
-            : "Không thể tải chi tiết khách hàng"
+            : t("customer.detail.page.loadError")
         )
       })
 
@@ -53,7 +55,8 @@ export default function CustomerDetailPage() {
   }, [customerId, reloadKey])
 
   const isLoading = Boolean(customerId) && !detail && !loadError
-  const customerName = detail?.customer.name ?? "Đang tải khách hàng"
+  const customerName =
+    detail?.customer.name ?? t("customer.detail.page.loading")
 
   const handleRetry = () => {
     setLoadError(null)
@@ -72,11 +75,11 @@ export default function CustomerDetailPage() {
 
       {!customerId ? (
         <CustomerDetailNoticeCard
-          title="Không tìm thấy khách hàng"
-          description="Mã khách hàng không hợp lệ hoặc bị thiếu trong đường dẫn."
+          title={t("customer.detail.page.notFoundTitle")}
+          description={t("customer.detail.page.notFoundDescription")}
         >
           <Button variant="outline" onClick={() => router.back()}>
-            Quay lại danh sách
+            {t("common.back")}
           </Button>
         </CustomerDetailNoticeCard>
       ) : null}
@@ -85,7 +88,7 @@ export default function CustomerDetailPage() {
 
       {!isLoading && customerId && loadError ? (
         <CustomerDetailNoticeCard
-          title="Không thể tải chi tiết khách hàng"
+          title={t("customer.detail.page.loadErrorTitle")}
           description={loadError}
         >
           <Button
@@ -94,11 +97,11 @@ export default function CustomerDetailPage() {
               router.push("/sport-center-management/customer-management")
             }
           >
-            Quay lại danh sách
+            {t("common.back")}
           </Button>
           <Button onClick={handleRetry}>
             <RefreshCw className="mr-2 size-4" />
-            Thử lại
+            {t("customer.detail.page.retry")}
           </Button>
         </CustomerDetailNoticeCard>
       ) : null}

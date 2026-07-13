@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import { uploadProductImage } from "../api/services-products-service"
 import type { InventoryKind } from "../store/services-products-store"
@@ -95,6 +96,7 @@ export function InventoryFormDialog({
   const updateService = useServicesProductsStore((state) => state.updateService)
   const createProduct = useServicesProductsStore((state) => state.createProduct)
   const updateProduct = useServicesProductsStore((state) => state.updateProduct)
+  const { t } = useSportCenterManagementTranslation()
 
   const [form, setForm] = useState<FormState>(() =>
     buildInitialState(kind, item)
@@ -126,12 +128,12 @@ export function InventoryFormDialog({
     if (!file) return
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Vui lòng chọn tệp ảnh (png, jpeg, jpg).")
+      toast.error(t("inventory.form.invalidImage"))
       return
     }
 
     if (file.size > MAX_IMAGE_BYTES) {
-      toast.error("Ảnh vượt quá dung lượng tối đa 5MB.")
+      toast.error(t("inventory.form.imageTooLarge"))
       return
     }
 
@@ -139,10 +141,10 @@ export function InventoryFormDialog({
     try {
       const result = await uploadProductImage(file)
       updateField("imageUrl", result.url)
-      toast.success("Đã tải ảnh lên.")
+      toast.success(t("inventory.form.uploadSuccess"))
     } catch (error) {
       console.error("[ServicesProducts] uploadProductImage error:", error)
-      toast.error("Không thể tải ảnh lên. Vui lòng thử lại.")
+      toast.error(t("inventory.form.uploadError"))
     } finally {
       setUploading(false)
     }
@@ -151,13 +153,13 @@ export function InventoryFormDialog({
   const handleSubmit = async () => {
     const name = form.name.trim()
     if (!name) {
-      toast.error("Vui lòng nhập tên.")
+      toast.error(t("inventory.form.nameRequired"))
       return
     }
 
     const price = Number(form.price)
     if (!Number.isFinite(price) || price < 0) {
-      toast.error("Giá không hợp lệ.")
+      toast.error(t("inventory.form.priceInvalid"))
       return
     }
 
@@ -188,7 +190,7 @@ export function InventoryFormDialog({
     } else {
       const stock = form.stock.trim() === "" ? undefined : Number(form.stock)
       if (stock != null && (!Number.isFinite(stock) || stock < 0)) {
-        toast.error("Tồn kho không hợp lệ.")
+        toast.error(t("inventory.form.stockInvalid"))
         return
       }
 
@@ -220,11 +222,11 @@ export function InventoryFormDialog({
       toast.success(
         mode === "create"
           ? isProduct
-            ? "Đã thêm sản phẩm."
-            : "Đã thêm dịch vụ."
+            ? t("inventory.form.createdProduct")
+            : t("inventory.form.createdService")
           : isProduct
-            ? "Đã cập nhật sản phẩm."
-            : "Đã cập nhật dịch vụ."
+            ? t("inventory.form.updatedProduct")
+            : t("inventory.form.updatedService")
       )
       onOpenChange(false)
     }
@@ -233,11 +235,11 @@ export function InventoryFormDialog({
   const title =
     mode === "create"
       ? isProduct
-        ? "Thêm sản phẩm"
-        : "Thêm dịch vụ"
+        ? t("inventory.form.createProductTitle")
+        : t("inventory.form.createServiceTitle")
       : isProduct
-        ? "Chỉnh sửa sản phẩm"
-        : "Chỉnh sửa dịch vụ"
+        ? t("inventory.form.editProductTitle")
+        : t("inventory.form.editServiceTitle")
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -245,21 +247,24 @@ export function InventoryFormDialog({
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
-            Điền thông tin {isProduct ? "sản phẩm" : "dịch vụ"} bên dưới.
+            {t("inventory.form.description")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="inv-name">
-              Tên <span className="text-rose-500">*</span>
+              {t("inventory.form.nameLabel")}{" "}
+              <span className="text-rose-500">*</span>
             </Label>
             <Input
               id="inv-name"
               value={form.name}
               onChange={(event) => updateField("name", event.target.value)}
               placeholder={
-                isProduct ? "VD: Pocari Sweat 500ml" : "VD: Thuê vợt"
+                isProduct
+                  ? t("inventory.form.namePlaceholderProduct")
+                  : t("inventory.form.namePlaceholderService")
               }
             />
           </div>
@@ -267,7 +272,8 @@ export function InventoryFormDialog({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>
-                Loại <span className="text-rose-500">*</span>
+                {t("inventory.form.typeLabel")}{" "}
+                <span className="text-rose-500">*</span>
               </Label>
               <Select
                 value={form.type}
@@ -288,7 +294,8 @@ export function InventoryFormDialog({
 
             <div className="space-y-2">
               <Label htmlFor="inv-price">
-                Giá (VND) <span className="text-rose-500">*</span>
+                {t("inventory.form.priceLabel")}{" "}
+                <span className="text-rose-500">*</span>
               </Label>
               <Input
                 id="inv-price"
@@ -303,52 +310,60 @@ export function InventoryFormDialog({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="inv-unit">Đơn vị hiển thị</Label>
+              <Label htmlFor="inv-unit">{t("inventory.form.unitLabel")}</Label>
               <Input
                 id="inv-unit"
                 value={form.unit}
                 onChange={(event) => updateField("unit", event.target.value)}
-                placeholder={isProduct ? "VND / chai" : "VND / 3h"}
+                placeholder={
+                  isProduct
+                    ? t("inventory.form.unitPlaceholderProduct")
+                    : t("inventory.form.unitPlaceholderService")
+                }
               />
             </div>
 
             {isProduct ? (
               <div className="space-y-2">
-                <Label htmlFor="inv-stock">Tồn kho</Label>
+                <Label htmlFor="inv-stock">
+                  {t("inventory.form.stockLabel")}
+                </Label>
                 <Input
                   id="inv-stock"
                   type="number"
                   min={0}
                   value={form.stock}
                   onChange={(event) => updateField("stock", event.target.value)}
-                  placeholder="100"
+                  placeholder={t("inventory.form.stockPlaceholder")}
                 />
               </div>
             ) : null}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="inv-description">Mô tả</Label>
+            <Label htmlFor="inv-description">
+              {t("inventory.form.descriptionLabel")}
+            </Label>
             <Textarea
               id="inv-description"
               value={form.description}
               onChange={(event) =>
                 updateField("description", event.target.value)
               }
-              placeholder="Mô tả ngắn gọn..."
+              placeholder={t("inventory.form.descriptionPlaceholder")}
               rows={3}
             />
           </div>
 
           {isProduct ? (
             <div className="space-y-2">
-              <Label>Ảnh sản phẩm</Label>
+              <Label>{t("inventory.form.imageLabel")}</Label>
               {form.imageUrl ? (
                 <div className="relative w-fit">
                   {}
                   <img
                     src={form.imageUrl}
-                    alt="Ảnh sản phẩm"
+                    alt={t("inventory.form.imageLabel")}
                     className="h-32 w-32 rounded-xl border object-cover"
                   />
                   <button
@@ -366,7 +381,11 @@ export function InventoryFormDialog({
                   ) : (
                     <ImagePlus className="size-5" />
                   )}
-                  <span>{uploading ? "Đang tải..." : "Tải ảnh lên"}</span>
+                  <span>
+                    {uploading
+                      ? t("inventory.form.uploading")
+                      : t("inventory.form.uploadImage")}
+                  </span>
                   <input
                     type="file"
                     accept="image/png,image/jpeg,image/jpg"
@@ -377,7 +396,7 @@ export function InventoryFormDialog({
                 </label>
               )}
               <p className="text-xs text-muted-foreground">
-                PNG, JPEG, JPG · tối đa 5MB
+                {t("inventory.form.imageHint")}
               </p>
             </div>
           ) : null}
@@ -385,9 +404,11 @@ export function InventoryFormDialog({
           {mode === "edit" ? (
             <div className="flex items-center justify-between rounded-2xl border bg-muted/20 p-3">
               <div>
-                <p className="text-sm font-medium">Đang hoạt động</p>
+                <p className="text-sm font-medium">
+                  {t("inventory.form.activeTitle")}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  Tắt để tạm ngưng hiển thị/đặt mục này.
+                  {t("inventory.form.activeDescription")}
                 </p>
               </div>
               <Switch
@@ -404,15 +425,15 @@ export function InventoryFormDialog({
             onClick={() => onOpenChange(false)}
             disabled={saving}
           >
-            Hủy
+            {t("inventory.form.cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={saving || uploading}>
             {saving ? (
               <Loader2 className="size-4 animate-spin" />
             ) : mode === "create" ? (
-              "Tạo mới"
+              t("inventory.form.create")
             ) : (
-              "Lưu thay đổi"
+              t("inventory.form.save")
             )}
           </Button>
         </DialogFooter>

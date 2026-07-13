@@ -180,9 +180,7 @@ export default function SocialJoinDialog({
                 selectedSessionIds.length === 0)
             }
           >
-            {isJoining
-              ? t("dialogs.joining", { defaultValue: "Joining..." })
-              : t("dialogs.confirmJoin")}
+            {isJoining ? t("dialogs.joining") : t("dialogs.confirmJoin")}
           </Button>
         </DialogFooter>
       </DialogContent>

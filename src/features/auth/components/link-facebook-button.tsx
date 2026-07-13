@@ -1,12 +1,14 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { useProfileTranslation } from "@/i18n/use-profile-translation"
 
 import { linkFacebookAction } from "../actions/facebook"
 import { useFacebookLogin } from "../hooks/use-facebook-login"
+import { translateAuthMessage } from "../utils"
 
 function FacebookIcon() {
   return (
@@ -22,31 +24,44 @@ function FacebookIcon() {
 }
 
 export function LinkFacebookButton() {
+  const { t: tCommon } = useTranslation("common")
+  const { t: tProfile } = useProfileTranslation()
   const { getFacebookAccessToken } = useFacebookLogin()
   const [loading, setLoading] = useState(false)
-  const { t } = useProfileTranslation()
 
   const handleFacebookLink = async () => {
     try {
       setLoading(true)
 
-      // 1. Get Facebook access token
       const accessToken = await getFacebookAccessToken()
       if (!accessToken) {
-        toast.error("Không nhận được thông tin xác thực từ Facebook.")
+        toast.error(tCommon("auth.oauth.facebookError"))
         return
       }
 
-      // 2. Link with backend
       const result = await linkFacebookAction(accessToken)
       if (result.success) {
-        toast.success(result.message ?? "Đã liên kết tài khoản Facebook.")
+        toast.success(
+          translateAuthMessage(
+            tCommon,
+            result.message ?? tCommon("auth.oauth.linkFacebookSuccess")
+          )
+        )
       } else {
-        toast.error(result.error ?? "Liên kết thất bại.")
+        toast.error(
+          translateAuthMessage(
+            tCommon,
+            result.error ?? tCommon("auth.oauth.linkFailed")
+          )
+        )
       }
     } catch (err) {
       console.error(err)
-      toast.error("Không thể xác thực với Facebook. Vui lòng thử lại.")
+      if (err instanceof Error) {
+        toast.error(translateAuthMessage(tCommon, err.message))
+      } else {
+        toast.error(tCommon("auth.oauth.facebookErrorGeneric"))
+      }
     } finally {
       setLoading(false)
     }
@@ -56,6 +71,7 @@ export function LinkFacebookButton() {
     <button
       type="button"
       disabled={loading}
+      aria-busy={loading}
       onClick={handleFacebookLink}
       className="relative flex h-10 w-full cursor-pointer items-center justify-center rounded-[4px] border border-[#dadce0] bg-white px-3 text-sm font-medium text-[#3c4043] transition-colors hover:bg-[#f8f9fa] disabled:opacity-50"
     >
@@ -63,7 +79,9 @@ export function LinkFacebookButton() {
         <FacebookIcon />
       </div>
       <span className="font-normal">
-        {loading ? "Đang xử lý..." : t("edit.continueWithFacebook")}
+        {loading
+          ? tCommon("auth.oauth.loading")
+          : tProfile("continueWithFacebook")}
       </span>
     </button>
   )

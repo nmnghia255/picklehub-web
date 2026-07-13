@@ -24,6 +24,7 @@ interface OperationsCardProps {
   onSync: () => void
   isDispatching: boolean
   isSyncing: boolean
+  isEditable: boolean
 }
 
 export function OperationsCard({
@@ -34,6 +35,7 @@ export function OperationsCard({
   onSync,
   isDispatching,
   isSyncing,
+  isEditable,
 }: OperationsCardProps) {
   const { t } = useTournamentTranslation()
   const activeDispatchEventId =
@@ -48,7 +50,7 @@ export function OperationsCard({
           })}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6 p-6">
+      <CardContent className="grid grid-cols-2 gap-6 p-6">
         {/* Dispatch Section */}
         <div className="space-y-2.5">
           <Label className="font-semibold text-gray-700">
@@ -84,7 +86,7 @@ export function OperationsCard({
             </Select>
             <Button
               onClick={onDispatch}
-              disabled={isDispatching || events.length === 0}
+              disabled={isDispatching || events.length === 0 || !isEditable}
               className="w-full bg-emerald-600 font-medium text-white hover:bg-emerald-700"
             >
               {isDispatching ? (
@@ -101,24 +103,24 @@ export function OperationsCard({
           </div>
         </div>
 
-        <hr className="border-gray-200" />
-
         {/* Sync Section */}
-        <div className="space-y-2.5">
-          <Label className="font-semibold text-gray-700">
-            {t("liveControl.operations.syncTitle", {
-              defaultValue: "Sync Match Results",
-            })}
-          </Label>
-          <p className="text-xs text-gray-500">
-            {t("liveControl.operations.syncDesc", {
-              defaultValue:
-                "Fetch and update match scores, completed sets, and advancement status from referee scoring sheets.",
-            })}
-          </p>
+        <div className="flex flex-col justify-between space-y-2.5 border-l pl-6">
+          <div className="space-y-2.5">
+            <Label className="font-semibold text-gray-700">
+              {t("liveControl.operations.syncTitle", {
+                defaultValue: "Sync Match Results",
+              })}
+            </Label>
+            <p className="text-xs text-gray-500">
+              {t("liveControl.operations.syncDesc", {
+                defaultValue:
+                  "Fetch and update match scores, completed sets, and advancement status from referee scoring sheets.",
+              })}
+            </p>
+          </div>
           <Button
             onClick={onSync}
-            disabled={isSyncing}
+            disabled={isSyncing || !isEditable}
             variant="outline"
             className="w-full border-emerald-600 font-medium text-emerald-700 hover:bg-emerald-50"
           >

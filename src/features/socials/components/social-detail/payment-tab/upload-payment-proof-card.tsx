@@ -66,9 +66,7 @@ export function UploadPaymentProofCard({
       router.refresh()
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to submit payment proof."
+        error instanceof Error ? error.message : t("payment.submitError")
       )
     } finally {
       setIsUploading(false)
@@ -101,7 +99,7 @@ export function UploadPaymentProofCard({
             {}
             <img
               src={previewUrl}
-              alt="Selected proof preview"
+              alt={t("payment.previewAlt")}
               className="h-auto max-h-[250px] rounded-lg object-contain"
             />
             <div className="relative mt-2">

@@ -59,6 +59,8 @@ interface ScoreActions {
   initialize: (params: {
     team1?: string | null
     team2?: string | null
+    defaultTeam1Label: string
+    defaultTeam2Label: string
     isMatchServiceMatch: boolean
     isViewOnly?: boolean
   }) => void
@@ -117,8 +119,8 @@ const getPlayers = (teamStr: string | null, defaultPrefix: string) => {
 
 export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
   // Initial state
-  teamAName: "Đội A",
-  teamBName: "Đội B",
+  teamAName: "",
+  teamBName: "",
   playerNames: {
     A1: "A1",
     A2: "A2",
@@ -158,15 +160,22 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
   scoreCall: null,
 
   // Actions
-  initialize: ({ team1, team2, isMatchServiceMatch, isViewOnly }) => {
+  initialize: ({
+    team1,
+    team2,
+    defaultTeam1Label,
+    defaultTeam2Label,
+    isMatchServiceMatch,
+    isViewOnly,
+  }) => {
     const [initialA1, initialA2] = getPlayers(team1 || null, "A")
     const [initialB1, initialB2] = getPlayers(team2 || null, "B")
 
     const isDoubles = initialA2 !== "" || initialB2 !== ""
 
     set({
-      teamAName: team1 || "Đội A",
-      teamBName: team2 || "Đội B",
+      teamAName: team1 || defaultTeam1Label,
+      teamBName: team2 || defaultTeam2Label,
       playerNames: {
         A1: initialA1,
         A2: initialA2,
@@ -236,7 +245,34 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
       teamBScore: typeof score === "function" ? score(state.teamBScore) : score,
     })),
 
-  setServingTeam: (team) => set({ servingTeam: team }),
+  setServingTeam: (team) =>
+    set((state) => {
+      const nextServingTeam = team
+      let nextActiveServer = state.activeServer
+
+      if (nextServingTeam === "A") {
+        if (!state.activeServer.startsWith("A")) {
+          if (state.serverNumber === 1) {
+            nextActiveServer = state.isA1Right ? "A1" : "A2"
+          } else {
+            nextActiveServer = state.isA1Right ? "A2" : "A1"
+          }
+        }
+      } else {
+        if (!state.activeServer.startsWith("B")) {
+          if (state.serverNumber === 1) {
+            nextActiveServer = state.isB1Right ? "B1" : "B2"
+          } else {
+            nextActiveServer = state.isB1Right ? "B2" : "B1"
+          }
+        }
+      }
+
+      return {
+        servingTeam: nextServingTeam,
+        activeServer: nextActiveServer,
+      }
+    }),
   setServerNumber: (num) => set({ serverNumber: num }),
 
   setIsA1Right: (right) =>
@@ -250,10 +286,15 @@ export const useScoreStore = create<ScoreState & ScoreActions>((set, get) => ({
     })),
 
   setActiveServer: (server) =>
-    set((state) => ({
-      activeServer:
-        typeof server === "function" ? server(state.activeServer) : server,
-    })),
+    set((state) => {
+      const nextServer =
+        typeof server === "function" ? server(state.activeServer) : server
+      const nextServingTeam = nextServer.startsWith("A") ? "A" : "B"
+      return {
+        activeServer: nextServer,
+        servingTeam: nextServingTeam,
+      }
+    }),
 
   setSets: (sets) => set({ sets }),
   setCurrentSetId: (id) => set({ currentSetId: id }),

@@ -1,20 +1,25 @@
-"use client"
+﻿"use client"
 
-import { Calendar, CreditCard, ShieldX } from "lucide-react"
+import { ShieldX } from "lucide-react"
+
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { Booking } from "../../../types/booking"
-import { formatBookingCreatedAt } from "../booking-list.utils"
 import { BookingDetailField } from "./booking-detail-field"
 
 interface Props {
   booking: Booking
+  displayNote?: string
   variant?: "card" | "ghost"
 }
 
 export function BookingCancellationSection({
   booking,
+  displayNote,
   variant = "card",
 }: Props) {
+  const { t } = useSportCenterManagementTranslation()
+
   return (
     <section
       className={
@@ -25,44 +30,26 @@ export function BookingCancellationSection({
     >
       <div className="text-md flex items-center gap-2 font-semibold">
         <ShieldX className="size-5 text-rose-500" />
-        Thông tin hủy
+        {t("bookingList.detail.cancellationTitle")}
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <BookingDetailField
-          label="Ngày hủy"
+          label={t("bookingList.detail.cancelledAt")}
           value={
             booking.cancelledAt
-              ? formatBookingCreatedAt(booking.cancelledAt)
-              : "Chưa cập nhật"
+              ? new Date(booking.cancelledAt).toLocaleString()
+              : t("bookingList.detail.notCancelled")
           }
-          icon={Calendar}
-          toneClassName="text-rose-500"
         />
         <BookingDetailField
-          label="Lý do hủy"
-          value={booking.cancelReason ?? "Không có lý do"}
-          icon={ShieldX}
-          toneClassName="text-rose-500"
-        />
-        <BookingDetailField
-          label="Thanh toán"
-          value={booking.paymentProofUrl ? "Có" : "Không"}
-          icon={CreditCard}
-          toneClassName="text-rose-500"
-        />
-        <BookingDetailField
-          label="Ngày tải lên minh chứng thanh toán"
+          label={t("bookingList.detail.cancellationReason")}
           value={
-            booking.paymentProofUploadedAt
-              ? formatBookingCreatedAt(booking.paymentProofUploadedAt)
-              : "Chưa cập nhật"
+            booking.cancelReason ||
+            displayNote ||
+            t("bookingList.detail.noCancellationReason")
           }
-          icon={Calendar}
-          toneClassName="text-rose-500"
         />
       </div>
     </section>
   )
 }
-
-export default BookingCancellationSection

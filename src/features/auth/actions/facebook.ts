@@ -43,7 +43,7 @@ export async function loginWithFacebookAction(
         : responseData?.message || responseData?.error
 
       if (status === 403) {
-        return { error: "Tài khoản của bạn đã bị vô hiệu hóa." }
+        return { error: "auth.oauth.accountDisabled" }
       }
 
       if (backendMessage) {
@@ -51,10 +51,10 @@ export async function loginWithFacebookAction(
       }
 
       return {
-        error: `Đăng nhập thất bại (${status ?? "network"}). Vui lòng thử lại.`,
+        error: "auth.errors.loginFailed",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "auth.errors.generic" }
   }
 
   return {}
@@ -73,7 +73,7 @@ export async function linkFacebookAction(
     await authenticatedAxios.post("/api/auth/facebook/link", { accessToken })
     return {
       success: true,
-      message: "Đã liên kết tài khoản Facebook thành công.",
+      message: "auth.oauth.linkFacebookSuccess",
     }
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -85,9 +85,9 @@ export async function linkFacebookAction(
         : responseData?.message || responseData?.error
 
       return {
-        error: backendMessage || "Liên kết thất bại. Vui lòng thử lại.",
+        error: backendMessage || "auth.oauth.linkFailed",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "auth.errors.generic" }
   }
 }

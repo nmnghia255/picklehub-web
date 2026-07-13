@@ -20,6 +20,7 @@ interface PlayerCardProps {
   player: Player
   skillLevelLabel: string
   skillLevelColor: string
+  removeAriaLabel: string
   onRemove: () => void
   onDragStart: () => void
   onDragEnd: () => void
@@ -32,6 +33,7 @@ export function PlayerCard({
   player,
   skillLevelLabel,
   skillLevelColor,
+  removeAriaLabel,
   onRemove,
   onDragStart,
   onDragEnd,
@@ -89,7 +91,7 @@ export function PlayerCard({
         variant="ghost"
         size="icon"
         className="h-8 w-8 shrink-0 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-        aria-label={`Xóa ${player.name}`}
+        aria-label={removeAriaLabel}
         onClick={onRemove}
       >
         <X className="h-4 w-4" />

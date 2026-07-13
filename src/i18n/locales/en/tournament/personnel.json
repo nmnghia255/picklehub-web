@@ -27,10 +27,10 @@
       "unenrollTitle": "Unenroll Referee?",
       "unenrollDesc": "Are you sure you want to remove {{name}} from the roster? This action cannot be undone and will fail if the referee is currently assigned to any matches.",
       "unenrollConfirm": "Unenroll Referee",
-      "unenrollSuccess": "Referee unenrolled from tournament",
-      "unenrollFailed": "Failed to unenroll referee. Make sure they have no active assignments.",
       "cancel": "Cancel",
-      "loading": "Loading referees roster..."
+      "loading": "Loading referees roster...",
+      "unenrollSuccess": "Referee unenrolled from tournament",
+      "unenrollFailed": "Failed to unenroll referee. Make sure they have no active assignments."
     },
     "enrollDialog": {
       "title": "Invite Referee",
@@ -46,13 +46,16 @@
       "phoneLabel": "Phone Number (Optional)",
       "phonePlaceholder": "e.g. +1234567890",
       "submitBtn": "Enroll Referee",
-      "verifyBtn": "Search",
-      "verifiedStatus": "User profile found! Ready to send invitation.",
+      "profileNotFound": "User profile not found. Please verify the ID.",
+      "fetchFailed": "Failed to fetch user profile.",
+      "successToast": "Referee enrolled successfully!",
+      "failToast": "Failed to enroll referee",
       "noAccountTitle": "Email not registered in app",
       "noAccountDesc": "This email is not yet registered. An invitation will be sent to the address above.",
       "inviteBtn": "Send Invitation",
-      "successToast": "Referee enrolled successfully!",
       "inviteSuccessToast": "Invitation sent successfully!",
+      "verifyBtn": "Search",
+      "verifiedStatus": "User profile found! Ready to send invitation.",
       "verifyFirst": "Please verify the referee email first",
       "invalidEmail": "Please enter a valid email address."
     },
@@ -103,6 +106,12 @@
       "unassigned": "Unassigned",
       "reassignPlaceholder": "Reassign",
       "assignPlaceholder": "Assign Referee",
+      "loading": "Loading matches list...",
+      "noReferees": "No referees enrolled",
+      "assignSuccess": "Referee assigned successfully!",
+      "assignFailed": "Failed to assign referee",
+      "unassignSuccess": "Referee unassigned from match",
+      "unassignFailed": "Failed to unassign referee",
       "refereesListTitle": "Referees List",
       "selectRefereeTitle": "No Referee Selected",
       "selectRefereePrompt": "Select a referee from the roster on the left to start managing match assignments.",
@@ -115,12 +124,7 @@
       "unassignConfirmBtn": "Remove",
       "noAssignments": "This referee has no matches assigned yet.",
       "bulkAssignSuccess": "Successfully assigned {{count}} matches to {{name}}!",
-      "bulkAssignPartial": "Assigned {{success}} matches. Failed to assign {{fail}} matches.",
-      "assignSuccess": "Referee assigned successfully!",
-      "assignFailed": "Failed to assign referee",
-      "unassignSuccess": "Referee unassigned from match",
-      "unassignFailed": "Failed to unassign referee",
-      "loading": "Loading matches list..."
+      "bulkAssignPartial": "Assigned {{success}} matches. Failed to assign {{fail}} matches."
     }
   },
   "referee": {
@@ -212,3 +216,6 @@
     }
   }
 }
+
+
+

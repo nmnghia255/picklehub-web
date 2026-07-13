@@ -1,16 +1,16 @@
-export function normalizeStatus(status: string) {
-  switch (status) {
-    case "PUBLISHED":
-      return "Lên lịch"
-    case "IN_PROGRESS":
-      return "Đang diễn ra"
-    case "COMPLETED":
-      return "Hoàn thành"
-    case "CANCELLED":
-      return "Đã hủy"
-    default:
-      return status
-  }
+const STATUS_LABEL_KEYS: Record<string, string> = {
+  PUBLISHED: "common.labels.scheduled",
+  IN_PROGRESS: "common.labels.inProgress",
+  COMPLETED: "common.labels.completed",
+  CANCELLED: "common.labels.cancelled",
+}
+
+export function normalizeStatus(
+  status: string,
+  translate?: (key: string) => string
+) {
+  const key = STATUS_LABEL_KEYS[status]
+  return key && translate ? translate(key) : status
 }
 
 export function formatDateTime(dateTimeStr: string) {

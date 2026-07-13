@@ -1,6 +1,7 @@
 "use client"
 
 import { MessageSquare, Users, Users2 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Card } from "@/components/ui/card"
 
@@ -15,23 +16,24 @@ export function DashboardStats({
   membersCount = 0,
   pendingInvitesCount = 0,
 }: DashboardStats) {
+  const { t } = useTranslation("common")
   const stats = [
     {
-      label: "Nhóm",
+      label: t("dashboard.stats.groups"),
       value: groupsCount,
       icon: Users,
       color: "text-blue-500",
       bgColor: "bg-blue-50 dark:bg-blue-950",
     },
     {
-      label: "Thành Viên",
+      label: t("dashboard.stats.members"),
       value: membersCount,
       icon: Users2,
       color: "text-green-500",
       bgColor: "bg-green-50 dark:bg-green-950",
     },
     {
-      label: "Lời Mời Chờ",
+      label: t("dashboard.stats.pendingInvites"),
       value: pendingInvitesCount,
       icon: MessageSquare,
       color: "text-orange-500",

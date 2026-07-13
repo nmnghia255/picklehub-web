@@ -165,7 +165,7 @@ export function Step5Payment() {
               <div className="relative h-40 w-40 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
                 <Image
                   src={formValues.paymentQrUrl}
-                  alt="QR Code preview"
+                  alt={t("common.previewImageAlt")}
                   fill
                   sizes="160px"
                   className="object-contain p-2"

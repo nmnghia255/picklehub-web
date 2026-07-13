@@ -1,3 +1,5 @@
+import "server-only"
+
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type {

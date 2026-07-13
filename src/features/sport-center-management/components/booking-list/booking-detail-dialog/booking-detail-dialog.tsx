@@ -1,6 +1,7 @@
 "use client"
 
 import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { Booking } from "../../../types/booking"
 import {
@@ -30,11 +31,12 @@ export function BookingDetailDialog({
   onClose,
   onActionSuccess,
 }: BookingDetailDialogProps) {
+  const { t } = useSportCenterManagementTranslation()
   if (!booking) return null
 
   const displayNote = getBookingDisplayNote(booking)
   const firstBookingItem = booking.bookingItems?.[0]
-  const startTime = firstBookingItem?.startTime ?? "—"
+  const startTime = firstBookingItem?.startTime ?? t("common.notAvailable")
   const serviceCount = booking.bookingServices.length
   const productCount = booking.bookingProducts.length
 

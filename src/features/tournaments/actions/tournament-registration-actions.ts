@@ -7,7 +7,7 @@ import { getMyProfile } from "@/features/profile/api/profile-service"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import { TournamentRegistrationService } from "../api/registration-service"
-import type { RegistrationRequest } from "../types/registration"
+import type { PaymentSubmit, RegistrationRequest } from "../types/registration"
 
 export async function listTournamentRegistrationsAction(
   tournamentId: string,
@@ -24,11 +24,9 @@ export async function listTournamentRegistrationsAction(
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to list tournament registrations:", error)
-    let errorMessage = "An unknown error occurred"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return {
       success: false,
@@ -53,11 +51,9 @@ export async function updateRegistrationStatusAction(
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to update registration status:", error)
-    let errorMessage = "An unknown error occurred"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return {
       success: false,
@@ -82,11 +78,9 @@ export async function confirmPaymentAction(
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to confirm payment:", error)
-    let errorMessage = "An unknown error occurred"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return {
       success: false,
@@ -107,11 +101,9 @@ export async function deleteRegistrationAction(
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to delete registration:", error)
-    let errorMessage = "An unknown error occurred"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return {
       success: false,
@@ -126,11 +118,9 @@ export async function getMyProfileAction() {
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to get current user profile:", error)
-    let errorMessage = "An unknown error occurred"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return {
       success: false,
@@ -153,11 +143,9 @@ export async function registerTournamentEventAction(
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to register for tournament event:", error)
-    let errorMessage = "An unknown error occurred"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return {
       success: false,
@@ -169,22 +157,20 @@ export async function registerTournamentEventAction(
 export async function uploadPaymentProofAction(
   tournamentId: string,
   registrationId: string,
-  paymentProofUrl: string
+  paymentProof: PaymentSubmit
 ) {
   try {
     const data = await TournamentRegistrationService.uploadPaymentProof(
       tournamentId,
       registrationId,
-      paymentProofUrl
+      paymentProof
     )
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to upload payment proof:", error)
-    let errorMessage = "An unknown error occurred"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return {
       success: false,
@@ -199,11 +185,9 @@ export async function getFriendsAction() {
     return { success: true, data }
   } catch (error: unknown) {
     console.error("Failed to list friends:", error)
-    let errorMessage = "An unknown error occurred"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return {
       success: false,
@@ -220,11 +204,9 @@ export async function getUserProfileAction(userId: string) {
     return { success: true, data }
   } catch (error: unknown) {
     console.error(`Failed to get user profile ${userId}:`, error)
-    let errorMessage = "An unknown error occurred"
+    let errorMessage = ""
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message
-    } else if (error instanceof Error) {
-      errorMessage = error.message
+      errorMessage = error.response?.data?.message || ""
     }
     return {
       success: false,

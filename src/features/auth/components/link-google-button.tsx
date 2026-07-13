@@ -1,28 +1,38 @@
 "use client"
 
 import { GoogleLogin } from "@react-oauth/google"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { linkGoogleAction } from "../actions/google"
+import { translateAuthMessage } from "../utils"
 
 export function LinkGoogleButton() {
+  const { t } = useTranslation("common")
   return (
     <GoogleLogin
       onSuccess={async (credentialResponse) => {
         const idToken = credentialResponse.credential
         if (!idToken) {
-          toast.error("Không nhận được thông tin xác thực từ Google.")
+          toast.error(t("auth.oauth.googleError"))
           return
         }
         const result = await linkGoogleAction(idToken)
         if (result.success) {
-          toast.success(result.message ?? "Đã liên kết tài khoản Google.")
+          toast.success(
+            translateAuthMessage(
+              t,
+              result.message ?? t("auth.oauth.linkGoogleSuccess")
+            )
+          )
         } else {
-          toast.error(result.error ?? "Liên kết thất bại.")
+          toast.error(
+            translateAuthMessage(t, result.error ?? t("auth.oauth.linkFailed"))
+          )
         }
       }}
       onError={() => {
-        toast.error("Không thể xác thực với Google. Vui lòng thử lại.")
+        toast.error(t("auth.oauth.googleErrorGeneric"))
       }}
       useOneTap={false}
       text="continue_with"

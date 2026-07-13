@@ -15,6 +15,7 @@ export type RecurringStatus = "active" | "paused" | "expired"
 export interface RecurringSocialTemplate {
   id: string
   name: string
+  nameKey?: string
   description: string
   socialType: string
   skillLevel: string
@@ -53,6 +54,7 @@ export interface RecurringSocialTemplate {
 export interface Court {
   id: string
   name: string
+  labelKey?: string
   capacity: number
 }
 

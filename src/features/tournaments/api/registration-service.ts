@@ -1,6 +1,7 @@
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type {
+  PaymentSubmit,
   RegistrationRequest,
   RegistrationResponse,
 } from "../types/registration"
@@ -104,12 +105,12 @@ export const TournamentRegistrationService = {
   uploadPaymentProof: async (
     tournamentId: string,
     registrationId: string,
-    paymentProofUrl: string
+    paymentProof: PaymentSubmit
   ) => {
     const axios = await getAuthenticatedAxios()
     const response = await axios.post<RegistrationResponse>(
       `/api/tournaments/${tournamentId}/registrations/${registrationId}/pay`,
-      { paymentProofUrl }
+      paymentProof
     )
     return unwrapApiResponse(response.data)
   },

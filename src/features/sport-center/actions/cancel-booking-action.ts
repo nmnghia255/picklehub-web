@@ -1,4 +1,13 @@
+import enSportCenter from "@/i18n/locales/en/sport-center.json"
+import viSportCenter from "@/i18n/locales/vi/sport-center.json"
+
 import type { BookingResponse } from "../types/booking"
+
+function getSportCenterLocale() {
+  const language =
+    typeof navigator !== "undefined" ? (navigator.language ?? "") : ""
+  return language.toLowerCase().startsWith("vi") ? viSportCenter : enSportCenter
+}
 
 async function apiRequest<T>(input: string, init?: RequestInit): Promise<T> {
   const response = await fetch(input, {
@@ -15,7 +24,10 @@ async function apiRequest<T>(input: string, init?: RequestInit): Promise<T> {
   }
 
   if (!response.ok) {
-    throw new Error(payload.message || "Request failed")
+    const sportCenter = getSportCenterLocale()
+    throw new Error(
+      payload.message || sportCenter.booking.history.cancelErrorDesc
+    )
   }
 
   return (payload.data ?? payload) as T

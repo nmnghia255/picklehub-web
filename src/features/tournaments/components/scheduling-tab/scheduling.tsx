@@ -316,7 +316,7 @@ export function Scheduling({
 
   const handleConfirmAutoSchedule = async () => {
     if (!previewEventId || !autoScheduleConfig) {
-      toast.error("No active auto-schedule configuration found.")
+      toast.error(t("scheduling.toasts.noActiveAutoScheduleConfig"))
       return
     }
 
@@ -346,7 +346,7 @@ export function Scheduling({
       }
     } catch (err) {
       console.error("Error executing auto-schedule:", err)
-      toast.error("Failed to execute auto-schedule due to an unexpected error.")
+      toast.error(t("scheduling.toasts.executeUnexpectedError"))
     } finally {
       setIsConfirmingAutoSchedule(false)
     }

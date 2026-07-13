@@ -11,8 +11,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useCourtScheduleStore } from "@/features/sport-center-management/stores/court-schedule-store"
 import { useCustomerManagementStore } from "@/features/sport-center-management/stores/customer-management-store"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 export function CustomerSportCenterSelector() {
+  const { t } = useSportCenterManagementTranslation()
   const sportCenters = useCourtScheduleStore((state) => state.sportCenters)
   const loadingSportCenters = useCourtScheduleStore(
     (state) => state.loadingSportCenters
@@ -27,7 +29,8 @@ export function CustomerSportCenterSelector() {
   const selectedCenter = sportCenters.find(
     (center) => center.id === centerFilterId
   )
-  const displayName = selectedCenter?.name ?? "Tất cả sân"
+  const displayName =
+    selectedCenter?.name ?? t("customer.detail.selector.allCenters")
 
   return (
     <DropdownMenu>
@@ -55,17 +58,19 @@ export function CustomerSportCenterSelector() {
               {centerFilterId == null ? <Check className="h-4 w-4" /> : null}
             </span>
 
-            <span className="font-medium">Tất cả sân</span>
+            <span className="font-medium">
+              {t("customer.detail.selector.allCenters")}
+            </span>
           </span>
         </DropdownMenuItem>
 
         {loadingSportCenters ? (
           <div className="px-2 py-1.5 text-sm text-muted-foreground">
-            Đang tải...
+            {t("customer.detail.selector.loadingCenters")}
           </div>
         ) : sportCenters.length === 0 ? (
           <div className="px-2 py-1.5 text-sm text-muted-foreground">
-            Không có sân nào
+            {t("customer.detail.selector.noCenters")}
           </div>
         ) : (
           sportCenters.map((center) => (

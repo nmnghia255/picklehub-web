@@ -58,8 +58,10 @@ export function CalendarNavigation({
         variant="secondary"
         onClick={onToday}
         className="h-10 px-4 font-semibold"
+        aria-label={t("calendar.today")}
+        title={t("calendar.today")}
       >
-        {t("calendar.today", "Hôm nay")}
+        {t("calendar.today")}
       </Button>
 
       <div className="flex items-center gap-1">
@@ -68,6 +70,8 @@ export function CalendarNavigation({
           size="icon"
           onClick={onPrevMonth}
           className="size-10 rounded-full bg-background shadow-sm transition-all hover:text-primary"
+          aria-label={t("calendar.previousMonth")}
+          title={t("calendar.previousMonth")}
         >
           <ChevronLeft className="size-5" />
         </Button>
@@ -76,6 +80,8 @@ export function CalendarNavigation({
           size="icon"
           onClick={onNextMonth}
           className="size-10 rounded-full bg-background shadow-sm transition-all hover:text-primary"
+          aria-label={t("calendar.nextMonth")}
+          title={t("calendar.nextMonth")}
         >
           <ChevronRight className="size-5" />
         </Button>
@@ -106,7 +112,10 @@ export function CalendarNavigation({
             value={String(currentYear)}
             onValueChange={handleYearSelect}
           >
-            <ComboboxInput className="w-24 [appearance:textfield] border-none bg-transparent text-sm font-bold text-foreground focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+            <ComboboxInput
+              aria-label={t("calendar.yearSelectLabel")}
+              className="w-24 [appearance:textfield] border-none bg-transparent text-sm font-bold text-foreground focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            />
             <ComboboxContent>
               <ComboboxList>
                 {years.map((y) => (

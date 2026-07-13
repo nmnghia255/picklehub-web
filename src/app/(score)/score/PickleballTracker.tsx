@@ -85,6 +85,8 @@ function PickleballTracker() {
     initialize({
       team1: team1Param,
       team2: team2Param,
+      defaultTeam1Label: t("referee.tracker.teamADefault"),
+      defaultTeam2Label: t("referee.tracker.teamBDefault"),
       isMatchServiceMatch,
       isViewOnly,
     })

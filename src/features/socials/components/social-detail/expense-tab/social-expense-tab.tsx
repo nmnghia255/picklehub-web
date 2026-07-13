@@ -58,6 +58,8 @@ export default function SocialExpenseTab({
     queryFn: () => listExpensesAction(socialId),
     enabled: !!socialId,
   })
+  const courtBookingRows = Array.isArray(courtBookings) ? courtBookings : []
+  const manualExpenseRows = Array.isArray(manualExpenses) ? manualExpenses : []
 
   const isLoading = isLoadingSummary || isLoadingBookings
 
@@ -75,12 +77,10 @@ export default function SocialExpenseTab({
             <div className="space-y-3">
               <div>
                 <CardTitle className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                  {t("expenses.title", { defaultValue: "Financial Dashboard" })}
+                  {t("expenses.title")}
                 </CardTitle>
                 <CardDescription className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-                  {t("expenses.subtitle", {
-                    defaultValue: "Monitor event finances and expenses.",
-                  })}
+                  {t("expenses.subtitle")}
                 </CardDescription>
               </div>
             </div>
@@ -94,9 +94,7 @@ export default function SocialExpenseTab({
                 disabled={social?.status !== "DRAFT"}
               >
                 <Calculator className="size-4" />
-                {t("expenses.actions.setPricing", {
-                  defaultValue: "Set Pricing",
-                })}
+                {t("expenses.actions.setPricing")}
               </Button>
             </div>
           </div>
@@ -108,9 +106,12 @@ export default function SocialExpenseTab({
             totalCourtExpense={summary.totalExpense}
             confirmedParticipants={summary.participants.joinedCount}
             extraExpense={
-              courtBookings
+              courtBookingRows.length > 0
                 ? summary.totalExpense -
-                  courtBookings.reduce((acc, curr) => acc + curr.bookingCost, 0)
+                  courtBookingRows.reduce(
+                    (acc, curr) => acc + curr.bookingCost,
+                    0
+                  )
                 : 0
             }
             paidMembers={summary.paidMembersCount}
@@ -122,15 +123,12 @@ export default function SocialExpenseTab({
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <TrendingUp className="size-4 text-primary" />
-                {t("expenses.progress.title", {
-                  defaultValue: "Collection Progress",
-                })}
+                {t("expenses.progress.title")}
               </div>
               <Progress value={collectionProgress} className="h-2.5" />
               <p className="text-sm text-muted-foreground">
                 {t("expenses.progress.description", {
                   count: collectionProgress,
-                  defaultValue: `${collectionProgress}% of target collected`,
                 })}
               </p>
             </div>
@@ -142,15 +140,17 @@ export default function SocialExpenseTab({
       <section className="grid gap-6">
         <div className="space-y-6">
           <CourtBookingExpensesCard
-            expenseRows={courtBookings || []}
+            expenseRows={courtBookingRows}
             totalCourtExpense={
-              courtBookings?.reduce((acc, curr) => acc + curr.bookingCost, 0) ||
-              0
+              courtBookingRows.reduce(
+                (acc, curr) => acc + curr.bookingCost,
+                0
+              ) || 0
             }
           />
           <ExtraExpensesCard
             socialId={socialId}
-            expenses={manualExpenses || []}
+            expenses={manualExpenseRows}
             isLocked={social?.status !== "DRAFT"}
           />
         </div>

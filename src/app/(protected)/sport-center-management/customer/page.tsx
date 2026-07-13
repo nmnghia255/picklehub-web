@@ -9,10 +9,12 @@ import { CustomerManagementPageHeader } from "@/features/sport-center-management
 import { CustomerManagementResults } from "@/features/sport-center-management/components/customer/customer-results"
 import { useCourtScheduleStore } from "@/features/sport-center-management/stores/court-schedule-store"
 import { useCustomerManagementStore } from "@/features/sport-center-management/stores/customer-management-store"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 const PAGE_SIZE = 20
 
 export default function CustomerManagementPage() {
+  const { t } = useSportCenterManagementTranslation()
   const router = useRouter()
   const sportCenters = useCourtScheduleStore((state) => state.sportCenters)
   const loadingSportCenters = useCourtScheduleStore(
@@ -76,7 +78,7 @@ export default function CustomerManagementPage() {
   const hasActiveFilters = keyword.trim().length > 0
 
   const isPageLoading = loadingSportCenters || isLoading
-  const selectedCenterName = selectedCenter?.name ?? "Tất cả sân"
+  const selectedCenterName = selectedCenter?.name ?? t("common.all")
 
   const handleCustomerSelect = (customerId: string) => {
     router.push(`/sport-center-management/customer/${customerId}`)

@@ -12,6 +12,7 @@ import { useState } from "react"
 import { Toaster } from "sonner"
 
 import { I18nProvider } from "@/components/i18n-provider"
+import { ThemeEffects } from "@/components/theme-effects"
 
 if (typeof window !== "undefined") {
   let googleVal: unknown = undefined
@@ -99,9 +100,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
               disableTransitionOnChange
               enableColorScheme
               storageKey="theme"
-              defaultTheme="light"
+              defaultTheme="system"
               attribute="class"
             >
+              <ThemeEffects />
               <AppProgressProvider
                 color="#2563eb"
                 height="2px"

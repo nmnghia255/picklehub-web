@@ -27,7 +27,7 @@ export function EditProfileAccountSettingsCard() {
       </CardHeader>
       <CardContent>
         <Button asChild variant="outline" className="w-full sm:w-auto">
-          <Link href="/account">{t("edit.manageAccount")}</Link>
+          <Link href="/settings">{t("edit.manageAccount")}</Link>
         </Button>
       </CardContent>
     </Card>

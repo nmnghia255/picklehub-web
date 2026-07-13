@@ -4,7 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import dayjs from "dayjs"
 import { Banknote, Calendar, Clock, MapPin, Shield, Users } from "lucide-react"
 import { useParams } from "next/navigation"
-import { useState } from "react"
+import { useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { BackNavigation } from "@/components/common/back-navigation"
@@ -26,22 +27,6 @@ import { coachQueryKeys } from "@/features/coach/api/query-keys"
 import { useClassDetail } from "@/features/coach/hooks/use-coach-queries"
 import { useMyEnrollments } from "@/features/learner/hooks/use-learner-queries"
 
-const levelLabel: Record<string, string> = {
-  Beginner: "Cơ bản",
-  Intermediate: "Trung cấp",
-  Advanced: "Nâng cao",
-  Pro: "Chuyên nghiệp",
-}
-
-const statusLabel: Record<string, string> = {
-  DRAFT: "Nháp",
-  OPEN: "Đang mở",
-  FULL: "Đã đầy",
-  ONGOING: "Đang diễn ra",
-  COMPLETED: "Đã kết thúc",
-  CANCELLED: "Đã hủy",
-}
-
 const statusVariant: Record<
   string,
   "default" | "secondary" | "destructive" | "outline"
@@ -52,19 +37,6 @@ const statusVariant: Record<
   ONGOING: "default",
   COMPLETED: "secondary",
   CANCELLED: "destructive",
-}
-
-const verificationLabel: Record<string, string> = {
-  UNVERIFIED: "Chưa xác thực",
-  PENDING: "Chờ xác thực",
-  VERIFIED: "Đã xác thực",
-  REJECTED: "Từ chối",
-}
-
-const enrollmentStatusLabel: Record<string, string> = {
-  ACTIVE: "Đang hoạt động",
-  COMPLETED: "Đã hoàn thành",
-  CANCELLED: "Đã hủy",
 }
 
 function maskAccountNumber(num: string): string {
@@ -104,6 +76,8 @@ function ClassDetailSkeleton() {
 export default function ClassDetailPage() {
   const params = useParams()
   const classId = params.classId as string
+  const { t, i18n } = useTranslation("common")
+  const locale = i18n.language.startsWith("vi") ? "vi-VN" : "en-US"
   const { data: session, isLoading: isSessionLoading } = useQuery({
     queryKey: ["session"],
     queryFn: fetchSession,
@@ -145,10 +119,10 @@ export default function ClassDetailPage() {
         queryKey: coachQueryKeys.classDetail(classId),
       })
       queryClient.invalidateQueries({ queryKey: ["learner", "enrollments"] })
-      toast.success("Đăng ký lớp học thành công!")
+      toast.success(t("learner.classDetail.enrollSuccess"))
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Đăng ký thất bại. Vui lòng thử lại.")
+      toast.error(error.message || t("learner.classDetail.enrollError"))
     },
   })
 
@@ -157,7 +131,9 @@ export default function ClassDetailPage() {
   if (isError || !classData) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-20 text-center">
-        <p className="text-lg text-muted-foreground">Lớp học không tồn tại</p>
+        <p className="text-lg text-muted-foreground">
+          {t("learner.classDetail.notFound")}
+        </p>
       </div>
     )
   }
@@ -183,13 +159,46 @@ export default function ClassDetailPage() {
   const showEnrollmentAction =
     !isSessionLoading && (!isLoadingEnrollments || !session?.user)
 
+  const levelLabel: Record<string, string> = {
+    Beginner: t("learner.classDetail.level.beginner"),
+    Intermediate: t("learner.classDetail.level.intermediate"),
+    Advanced: t("learner.classDetail.level.advanced"),
+    Pro: t("learner.classDetail.level.pro"),
+  }
+
+  const statusLabel: Record<string, string> = {
+    DRAFT: t("learner.classDetail.status.draft"),
+    OPEN: t("learner.classDetail.status.open"),
+    FULL: t("learner.classDetail.status.full"),
+    ONGOING: t("learner.classDetail.status.ongoing"),
+    COMPLETED: t("learner.classDetail.status.completed"),
+    CANCELLED: t("learner.classDetail.status.cancelled"),
+  }
+
+  const verificationLabel: Record<string, string> = {
+    UNVERIFIED: t("learner.classDetail.verification.unverified"),
+    PENDING: t("learner.classDetail.verification.pending"),
+    VERIFIED: t("learner.classDetail.verification.verified"),
+    REJECTED: t("learner.classDetail.verification.rejected"),
+  }
+
+  const enrollmentStatusLabel: Record<string, string> = {
+    ACTIVE: t("learner.classDetail.enrollmentStatus.active"),
+    COMPLETED: t("learner.classDetail.enrollmentStatus.completed"),
+    CANCELLED: t("learner.classDetail.enrollmentStatus.cancelled"),
+  }
+
+  const currencyFormatter = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "VND",
+  })
+
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-8">
       <div className="flex items-center justify-between">
         <BackNavigation fallbackPath="/learner" />
       </div>
 
-      {/* Hero */}
       <div className="relative overflow-hidden rounded-xl bg-muted">
         {coverImageUrl ? (
           <img
@@ -211,13 +220,12 @@ export default function ClassDetailPage() {
               variant={statusVariant[status] ?? "outline"}
               className="border-none"
             >
-              {statusLabel[status] ?? status}
+              {statusLabel[status] ?? t("learner.classDetail.status.unknown")}
             </Badge>
           </div>
         </div>
       </div>
 
-      {/* Coach */}
       <Card>
         <CardContent className="flex items-center gap-4 pt-6">
           <Avatar size="lg">
@@ -231,7 +239,7 @@ export default function ClassDetailPage() {
           </Avatar>
           <div className="flex flex-col gap-1">
             <span className="text-sm text-muted-foreground">
-              Huấn luyện viên
+              {t("learner.classDetail.coachLabel")}
             </span>
             <span className="text-lg font-semibold">
               {coachProfile.displayName}
@@ -246,29 +254,29 @@ export default function ClassDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Description */}
       <Card>
         <CardHeader>
-          <CardTitle>Giới thiệu lớp học</CardTitle>
+          <CardTitle>{t("learner.classDetail.aboutTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="whitespace-pre-line text-muted-foreground">
-            {description || "Chưa có mô tả."}
+            {description || t("learner.classDetail.noDescription")}
           </p>
         </CardContent>
       </Card>
 
-      {/* Schedule */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="size-5" />
-            Lịch học
+            {t("learner.classDetail.scheduleTitle")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {schedules.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Chưa có lịch học.</p>
+            <p className="text-sm text-muted-foreground">
+              {t("learner.classDetail.noSchedule")}
+            </p>
           ) : (
             <div className="space-y-4">
               {schedules.map((entry) => (
@@ -284,14 +292,16 @@ export default function ClassDetailPage() {
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Clock className="size-4" />
                       {dayjs(entry.scheduledAt).format("HH:mm")}
-                      {" — "}
-                      {entry.durationMinutes} phút
+                      {" - "}
+                      {t("learner.classDetail.durationMinutes", {
+                        minutes: entry.durationMinutes,
+                      })}
                     </div>
                     {entry.topic && <p className="text-sm">{entry.topic}</p>}
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <MapPin className="size-4" />
-                    {locationDescription || "Chưa có địa điểm"}
+                    {locationDescription || t("learner.classDetail.noLocation")}
                   </div>
                 </div>
               ))}
@@ -300,21 +310,17 @@ export default function ClassDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Price & Capacity */}
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Banknote className="size-5" />
-              Học phí
+              {t("learner.classDetail.tuitionTitle")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">
-              {priceVnd.toLocaleString("vi-VN")}
-              <span className="ml-1 text-base font-normal text-muted-foreground">
-                VNĐ
-              </span>
+              {currencyFormatter.format(priceVnd)}
             </p>
           </CardContent>
         </Card>
@@ -323,16 +329,21 @@ export default function ClassDetailPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="size-5" />
-              Sức chứa
+              {t("learner.classDetail.capacityTitle")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">
-                Đã đăng ký: {enrolledCount}/{capacity}
+                {t("learner.classDetail.enrolledCount", {
+                  enrolled: enrolledCount,
+                  capacity,
+                })}
               </span>
               <span className="font-medium">
-                {spotsLeft > 0 ? `Còn ${spotsLeft} chỗ` : "Đã đầy"}
+                {spotsLeft > 0
+                  ? t("learner.classDetail.spotsLeft", { count: spotsLeft })
+                  : t("learner.classDetail.full")}
               </span>
             </div>
             <Progress value={(enrolledCount / capacity) * 100} />
@@ -340,12 +351,12 @@ export default function ClassDetailPage() {
         </Card>
       </div>
 
-      {/* Enrollment */}
       <Card>
         <CardContent className="pt-6">
           {currentEnrollment ? (
             <Button size="lg" className="w-full" disabled variant="secondary">
-              {enrollmentStatusLabel[currentEnrollment.status] ?? "Đã đăng ký"}
+              {enrollmentStatusLabel[currentEnrollment.status] ??
+                t("learner.classDetail.registered")}
             </Button>
           ) : canEnroll && showEnrollmentAction ? (
             <Button
@@ -354,54 +365,66 @@ export default function ClassDetailPage() {
               onClick={() => enrollMutation.mutate()}
               disabled={enrollMutation.isPending}
             >
-              {enrollMutation.isPending ? "Đang xử lý..." : "Đăng ký ngay"}
+              {enrollMutation.isPending
+                ? t("learner.classDetail.registering")
+                : t("learner.classDetail.registerNow")}
             </Button>
           ) : canEnroll ? (
             <Button size="lg" className="w-full" disabled variant="secondary">
-              Đang kiểm tra...
+              {t("learner.classDetail.checkingEnrollment")}
             </Button>
           ) : isFull ? (
             <Button size="lg" className="w-full" disabled variant="secondary">
-              Lớp đã đầy
+              {t("learner.classDetail.full")}
             </Button>
           ) : (
             <p className="text-center text-sm text-muted-foreground">
-              Trạng thái: {statusLabel[status] ?? status}
+              {t("learner.classDetail.statusPrefix")}{" "}
+              {statusLabel[status] ?? t("learner.classDetail.status.unknown")}
             </p>
           )}
         </CardContent>
       </Card>
 
-      {/* Bank Info Dialog */}
       <Dialog open={showBankDialog} onOpenChange={setShowBankDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Thông tin thanh toán</DialogTitle>
+            <DialogTitle>
+              {t("learner.classDetail.paymentInfoTitle")}
+            </DialogTitle>
             <DialogDescription>
-              Vui lòng chuyển khoản học phí đến tài khoản dưới đây và tải lên
-              ảnh chụp biên lai để hoàn tất đăng ký.
+              {t("learner.classDetail.paymentInfoDescription")}
             </DialogDescription>
           </DialogHeader>
           {bankInfo && (
             <div className="space-y-3 rounded-lg border p-4">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Ngân hàng</span>
+                <span className="text-muted-foreground">
+                  {t("learner.classDetail.bankNameLabel")}
+                </span>
                 <span className="font-medium">{bankInfo.bankName}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Chủ tài khoản</span>
+                <span className="text-muted-foreground">
+                  {t("learner.classDetail.accountNameLabel")}
+                </span>
                 <span className="font-medium">{bankInfo.bankAccountName}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Số tài khoản</span>
+                <span className="text-muted-foreground">
+                  {t("learner.classDetail.accountNumberLabel")}
+                </span>
                 <span className="font-medium tracking-widest">
                   {maskAccountNumber(bankInfo.bankAccountNumber)}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Số tiền</span>
+                <span className="text-muted-foreground">
+                  {t("learner.classDetail.amountLabel")}
+                </span>
                 <span className="font-medium">
-                  {priceVnd.toLocaleString("vi-VN")} VNĐ
+                  {currencyFormatter.format(priceVnd)}{" "}
+                  {t("learner.classDetail.currencyLabel")}
                 </span>
               </div>
             </div>

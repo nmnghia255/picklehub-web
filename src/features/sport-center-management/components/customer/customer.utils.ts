@@ -12,6 +12,13 @@ export function formatDateTimeLong(timestamp?: string | null) {
   }).format(parsed)
 }
 
-export function formatVisitBreakdown(summary: CustomerSummary) {
-  return `Hoàn thành ${summary.completedVisitCount} · Chờ ${summary.pendingVisitCount} · Hủy ${summary.cancelledVisitCount}`
+export function formatVisitBreakdown(
+  summary: CustomerSummary,
+  labels: {
+    completed: string
+    pending: string
+    cancelled: string
+  }
+) {
+  return `${labels.completed} ${summary.completedVisitCount} · ${labels.pending} ${summary.pendingVisitCount} · ${labels.cancelled} ${summary.cancelledVisitCount}`
 }

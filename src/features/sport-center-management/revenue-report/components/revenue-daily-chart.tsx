@@ -9,17 +9,11 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { RevenueDailyStatistics, RevenueStatistics } from "../types"
 import { formatCurrencyVnd, formatShortDate } from "../utils/format"
 import { RevenueEmptyState } from "./revenue-empty-state"
-
-const chartConfig = {
-  settledRevenue: {
-    label: "Doanh thu đã quyết toán",
-    color: "var(--chart-2)",
-  },
-} satisfies ChartConfig
 
 export function RevenueDailyChart({
   daily,
@@ -30,6 +24,13 @@ export function RevenueDailyChart({
   statistics: RevenueStatistics | null
   loading: boolean
 }) {
+  const { t } = useSportCenterManagementTranslation()
+  const chartConfig = {
+    settledRevenue: {
+      label: t("revenue.dailyChart.settledRevenue"),
+      color: "var(--chart-2)",
+    },
+  } satisfies ChartConfig
   const chartData = daily?.byDay?.map((item) => ({
     date: item.date,
     settledRevenue: item.settledCashRevenue,
@@ -39,10 +40,10 @@ export function RevenueDailyChart({
     return (
       <Card className="rounded-2xl border shadow-sm">
         <CardHeader>
-          <CardTitle>Biểu đồ doanh thu theo ngày</CardTitle>
+          <CardTitle>{t("revenue.dailyChart.title")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <RevenueEmptyState title="Chưa có dữ liệu biểu đồ doanh thu" />
+          <RevenueEmptyState title={t("revenue.empty.dailyChart")} />
         </CardContent>
       </Card>
     )
@@ -51,10 +52,10 @@ export function RevenueDailyChart({
   return (
     <Card className="rounded-2xl border shadow-sm">
       <CardHeader className="space-y-2">
-        <CardTitle>Biểu đồ doanh thu theo ngày</CardTitle>
+        <CardTitle>{t("revenue.dailyChart.title")}</CardTitle>
         {statistics?.grossRevenue?.totalRevenue ? (
           <p className="text-xs text-muted-foreground">
-            Doanh thu gộp kỳ này:{" "}
+            {t("revenue.dailyChart.grossRevenue")}:{" "}
             {formatCurrencyVnd(statistics.grossRevenue.totalRevenue)}
           </p>
         ) : null}

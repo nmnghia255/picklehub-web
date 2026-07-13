@@ -17,7 +17,11 @@ import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
 import { usePersonnelStore } from "../../stores/use-personnel-store"
 
-export function RefereeInvitationsList() {
+export function RefereeInvitationsList({
+  isEditable,
+}: {
+  isEditable: boolean
+}) {
   const { t } = useTournamentTranslation()
   const [isPending, startTransition] = useTransition()
 
@@ -241,7 +245,7 @@ export function RefereeInvitationsList() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleRevoke(inv.id, inv.email)}
-                          disabled={isPending}
+                          disabled={isPending || !isEditable}
                           className="hover:bg-red-55/10 h-8 rounded-md px-2 text-red-600 transition-colors hover:text-red-700"
                           title={t("personnel.invitations.revoke", {
                             defaultValue: "Revoke invitation",

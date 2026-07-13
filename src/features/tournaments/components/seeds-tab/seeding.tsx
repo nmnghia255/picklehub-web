@@ -19,12 +19,14 @@ interface SeedingProps {
   tournamentStatus: TournamentStatus
   events?: TournamentEvent[]
   isHost?: boolean
+  isEditable: boolean
 }
 
 export function Seeding({
   tournamentId,
   tournamentStatus,
   events = [],
+  isEditable,
 }: SeedingProps) {
   const { t } = useTournamentTranslation()
 
@@ -67,7 +69,8 @@ export function Seeding({
 
   // For seeding modifications, we lock editing rules
   const hostVal = true // matching legacy behavior in seeding.tsx
-  const isEditable = tournamentStatus === "closed_registration"
+  const canManageSeeding =
+    isEditable && tournamentStatus === "closed_registration"
 
   const selectedEvent = events.find((e) => e.id.toString() === selectedEventId)
 
@@ -101,7 +104,7 @@ export function Seeding({
     <div className="p-8">
       <div className="mx-auto max-w-7xl">
         {/* Header Section */}
-        <SeedingHeader isEditable={isEditable} isLocked={isLocked} />
+        {canManageSeeding && <SeedingHeader isLocked={isLocked} />}
 
         {/* Dropdown Selector */}
         <div className="mb-8">
@@ -109,7 +112,7 @@ export function Seeding({
         </div>
 
         {/* Status Validation Warning Banner */}
-        {hostVal && !isEditable && (
+        {canManageSeeding && (
           <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
             <Lock className="mt-0.5 h-5 w-5 text-amber-600" />
             <div>
@@ -130,8 +133,7 @@ export function Seeding({
         {/* Seeding Table */}
         <SeedingTable
           selectedEvent={selectedEvent}
-          isHost={hostVal}
-          isEditable={isEditable}
+          canManageSeeding={canManageSeeding}
           isLocked={isLocked}
         />
 

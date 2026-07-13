@@ -15,7 +15,7 @@ export default function SocialHero({ isPrivate }: { isPrivate: boolean }) {
       <div className="flex h-72 items-center justify-center">
         <Image
           src="/pickleball.png"
-          alt="Pickleball"
+          alt={t("hero.imageAlt")}
           width={88}
           height={88}
           className="drop-shadow-lg"

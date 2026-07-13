@@ -21,7 +21,9 @@
       "center": "Sport Center",
       "date": "Date",
       "phone": "Contact Phone",
+      "phonePlaceholder": "e.g. 0912345678",
       "playerName": "Contact Player / Organizer Name",
+      "playerNamePlaceholder": "e.g. John Doe",
       "court": "Court",
       "start": "Start Time",
       "end": "End Time",
@@ -81,6 +83,7 @@
       "slotsQuantity": "Number of slots",
       "paymentProofTitle": "Upload Payment Proof",
       "paymentProofDesc": "Please transfer the total amount to the account below and upload the payment proof image to complete your booking.",
+      "paymentQrAlt": "Sport center payment QR code",
       "bankName": "Bank Name",
       "accountNumber": "Account Number",
       "accountName": "Account Name",
@@ -107,7 +110,8 @@
       "selectedDate": "Booked Dates",
       "selectDates": "Select Dates",
       "selectedDatesCount": "{{count}} dates selected",
-      "tournamentDates": "Tournament: {{start}} - {{end}}"
+      "tournamentDates": "Tournament: {{start}} - {{end}}",
+      "removeDate": "Remove date"
     },
     "grid": {
       "description": "Click on empty blocks to select court and time slots.",
@@ -117,7 +121,8 @@
       "legendSelected": "Selecting",
       "loading": "Loading court availability...",
       "noData": "No court availability data found.",
-      "courtHeader": "Court"
+      "courtHeader": "Court",
+      "title": "Select Open Time Slots"
     },
     "historyCard": {
       "title": "Court Bookings History",
@@ -147,9 +152,14 @@
       "syncSuccess": "Booking statuses synchronized!",
       "cancelSuccess": "Booking cancelled successfully!",
       "createSuccess": "Booking created successfully!",
+      "loadDataFailed": "Failed to load booking data",
       "loadCentersFailed": "Failed to load tournament centers",
       "loadBookingsFailed": "Failed to load bookings",
       "loadAvailableFailed": "Failed to load available centers",
+      "associateCenterFailed": "Failed to associate center",
+      "removeCenterFailed": "Failed to remove center",
+      "syncFailed": "Failed to sync bookings",
+      "cancelFailed": "Failed to cancel booking",
       "selectCenterError": "Please select a center to associate",
       "timeOrderError": "Start time must be earlier than end time",
       "fillFormError": "Please fill in center, date, name, and phone number",
@@ -162,6 +172,11 @@
       "noPaymentProof": "Please select payment proof image",
       "missingBookingId": "Missing booking ID",
       "uploadFailedButReserved": "Slots reserved successfully, but payment proof upload failed. Please submit proof in bookings history."
+    },
+    "more": "More",
+    "detailDialog": {
+      "title": "Booking details",
+      "slotsTitle": "Booked courts and time slots"
     }
   }
 }

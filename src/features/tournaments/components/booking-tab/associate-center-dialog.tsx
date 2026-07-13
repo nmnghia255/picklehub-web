@@ -87,14 +87,14 @@ export function AssociateCenterDialog({
         }
       }}
     >
-      <DialogContent className="sm:max-w-[420px]">
+      <DialogContent className="overflow-visible overflow-y-auto pt-8 sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>{t("booking.dialog.associateTitle")}</DialogTitle>
           <DialogDescription>
             {t("booking.dialog.associateDesc")}
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-3 py-4" ref={containerRef}>
+        <div className="space-y-3" ref={containerRef}>
           <div className="space-y-1">
             <Label>{t("booking.form.center")}</Label>
             <Combobox
@@ -112,7 +112,7 @@ export function AssociateCenterDialog({
                 className="mt-1.5 w-full bg-white"
                 showClear
               />
-              <ComboboxContent container={containerRef}>
+              <ComboboxContent side="bottom" align="start" sideOffset={6}>
                 <ComboboxList>
                   {filteredAvailableCenters.map((sc) => (
                     <ComboboxItem key={sc.id} value={sc.name}>

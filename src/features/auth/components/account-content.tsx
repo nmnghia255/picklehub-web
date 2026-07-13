@@ -19,12 +19,91 @@ import type { LinkedProvider } from "@/features/auth/types"
 import { EditProfileLinkedAccountsCard } from "@/features/profile/components/edit-profile/edit-profile-linked-accounts-card"
 import { useProfileTranslation } from "@/i18n/use-profile-translation"
 
-export function AccountContent({
+export function AccountSection({
   linkedProviders,
 }: {
   linkedProviders: LinkedProvider[]
 }) {
   const [showChangePassword, setShowChangePassword] = useState(false)
+  const { t } = useProfileTranslation()
+
+  return (
+    <div className="grid gap-6 md:grid-cols-2">
+      <EditProfileLinkedAccountsCard linkedProviders={linkedProviders} />
+
+      {!showChangePassword ? (
+        <Card className="h-fit">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <KeyRound className="size-4" />
+              {t("edit.security")}
+            </CardTitle>
+            <CardDescription>{t("edit.changePasswordIntro")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={() => setShowChangePassword(true)}
+              className="w-full cursor-pointer sm:w-auto"
+            >
+              {t("edit.changePassword")}
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="h-fit">
+          <CardHeader className="flex flex-row items-start justify-between gap-4">
+            <div className="space-y-1.5">
+              <CardTitle className="flex items-center gap-2">
+                <KeyRound className="size-4" />
+                {t("edit.changePassword")}
+              </CardTitle>
+              <CardDescription>{t("edit.changePasswordDesc")}</CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <ChangePasswordForm hideHeader />
+            <div className="flex justify-end pt-2">
+              <Button
+                variant="ghost"
+                onClick={() => setShowChangePassword(false)}
+                className="cursor-pointer"
+              >
+                {t("edit.cancel")}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card className="h-fit border-destructive/20 bg-destructive/5">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-destructive">
+            <LogOut className="size-4" />
+            {t("edit.logout")}
+          </CardTitle>
+          <CardDescription>{t("edit.logoutDesc")}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form action={logoutAction}>
+            <Button
+              type="submit"
+              variant="destructive"
+              className="w-full cursor-pointer sm:w-auto"
+            >
+              {t("edit.logoutBtn")}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+export function AccountContent({
+  linkedProviders,
+}: {
+  linkedProviders: LinkedProvider[]
+}) {
   const { t } = useProfileTranslation()
 
   return (
@@ -46,80 +125,7 @@ export function AccountContent({
         </p>
       </div>
 
-      {/* Linked accounts section taking full width */}
-      <EditProfileLinkedAccountsCard linkedProviders={linkedProviders} />
-
-      {/* Grid container with 2 columns */}
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Column 1: Change password section */}
-        {!showChangePassword ? (
-          <Card className="h-fit">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <KeyRound className="size-4" />
-                {t("edit.security")}
-              </CardTitle>
-              <CardDescription>{t("edit.changePasswordIntro")}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button
-                onClick={() => setShowChangePassword(true)}
-                className="w-full cursor-pointer sm:w-auto"
-              >
-                {t("edit.changePassword")}
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <Card className="h-fit">
-            <CardHeader className="flex flex-row items-start justify-between gap-4">
-              <div className="space-y-1.5">
-                <CardTitle className="flex items-center gap-2">
-                  <KeyRound className="size-4" />
-                  {t("edit.changePassword")}
-                </CardTitle>
-                <CardDescription>
-                  {t("edit.changePasswordDesc")}
-                </CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <ChangePasswordForm hideHeader />
-              <div className="flex justify-end pt-2">
-                <Button
-                  variant="ghost"
-                  onClick={() => setShowChangePassword(false)}
-                  className="cursor-pointer"
-                >
-                  {t("edit.cancel")}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Column 2: Logout section */}
-        <Card className="h-fit border-destructive/20 bg-destructive/5">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-destructive">
-              <LogOut className="size-4" />
-              {t("edit.logout")}
-            </CardTitle>
-            <CardDescription>{t("edit.logoutDesc")}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form action={logoutAction}>
-              <Button
-                type="submit"
-                variant="destructive"
-                className="w-full cursor-pointer sm:w-auto"
-              >
-                {t("edit.logoutBtn")}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
+      <AccountSection linkedProviders={linkedProviders} />
     </PageContainer>
   )
 }

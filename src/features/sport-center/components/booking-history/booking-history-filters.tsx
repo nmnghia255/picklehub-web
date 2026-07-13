@@ -9,10 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import type { BookingHistoryStatusFilter } from "@/features/sport-center/types/booking"
-import {
-  bookingStatusOptions,
-  formatBookingDate,
-} from "@/features/sport-center-management/components/booking-list/booking-list.utils"
+import { formatBookingDate } from "@/features/sport-center-management/components/booking-list/booking-list.utils"
 import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 
 interface BookingHistoryFiltersProps {
@@ -33,6 +30,16 @@ export function BookingHistoryFilters({
 }: BookingHistoryFiltersProps) {
   const { t } = useSportCenterTranslation()
   const selectedDate = dateFilter ? new Date(dateFilter) : undefined
+  const bookingStatusOptions: Array<{
+    value: "all" | BookingHistoryStatusFilter
+    label: string
+  }> = [
+    { value: "all", label: t("booking.history.allStatus") },
+    { value: "PENDING", label: t("booking.history.pending") },
+    { value: "CONFIRMED", label: t("booking.history.confirmed") },
+    { value: "CANCELLED", label: t("booking.history.cancelled") },
+    { value: "COMPLETED", label: t("booking.history.completed") },
+  ]
 
   return (
     <div className="sticky top-16 z-30">
@@ -116,11 +123,7 @@ export function BookingHistoryFilters({
                 {bookingStatusOptions.map((option) => (
                   <DropdownMenuItem
                     key={option.value}
-                    onClick={() =>
-                      onStatusFilterChange(
-                        option.value as BookingHistoryStatusFilter
-                      )
-                    }
+                    onClick={() => onStatusFilterChange(option.value)}
                   >
                     {option.label}
                   </DropdownMenuItem>

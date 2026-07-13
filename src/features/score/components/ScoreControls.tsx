@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect } from "react"
 
@@ -35,7 +35,6 @@ export function ScoreControls({
     decrementTimeoutTimer,
   } = useScoreStore()
 
-  // Set up timer effect for timeout countdowns
   useEffect(() => {
     if (!isTimeoutActive) return
     const interval = setInterval(() => {
@@ -52,7 +51,6 @@ export function ScoreControls({
   const team2Color = TEAM_COLOR.B
   const team2Id = isSwappedSides ? "A" : "B"
 
-  // Consequence helper for Team 1 winning rally
   const getConsequenceText1 = () => {
     if (servingTeam === team1Id) {
       return t("referee.tracker.gainPoint", { defaultValue: "+1" })
@@ -69,7 +67,6 @@ export function ScoreControls({
         })
   }
 
-  // Consequence helper for Team 2 winning rally
   const getConsequenceText2 = () => {
     if (servingTeam === team2Id) {
       return t("referee.tracker.gainPoint", { defaultValue: "+1" })
@@ -86,7 +83,6 @@ export function ScoreControls({
         })
   }
 
-  // Render Timeout overlay if active
   if (isTimeoutActive) {
     return (
       <div className="animate-fade-in flex flex-col items-center justify-center space-y-4 rounded-2xl border-2 border-amber-300 bg-amber-50/50 p-6 text-center shadow-sm dark:bg-amber-950/20">
@@ -121,7 +117,6 @@ export function ScoreControls({
 
   return (
     <div className="space-y-4">
-      {/* Primary Actions: Award rally winners */}
       <div className="flex flex-col gap-4 sm:flex-row">
         <Button
           type="button"
@@ -174,7 +169,6 @@ export function ScoreControls({
         </Button>
       </div>
 
-      {/* Secondary Actions: Timeouts & Official calls */}
       <div className="flex flex-wrap items-center justify-center gap-2 rounded-xl border border-gray-100 bg-gray-50/30 p-2.5">
         <Button
           type="button"

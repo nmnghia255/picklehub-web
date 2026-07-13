@@ -80,7 +80,7 @@ export function EditProfileLinkedAccountsCard({
               <div>
                 <p className="flex items-center gap-2 font-medium">
                   <GoogleIcon />
-                  Google
+                  {t("edit.googleProvider")}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {googleLinked
@@ -105,7 +105,7 @@ export function EditProfileLinkedAccountsCard({
               <div className="w-full">
                 <p className="flex items-center gap-2 font-medium">
                   <FacebookIcon />
-                  Facebook
+                  {t("edit.facebookProvider")}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {facebookLinked

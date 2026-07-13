@@ -2,6 +2,9 @@
 
 import { create } from "zustand"
 
+import enManagement from "@/i18n/locales/en/sport-center-management.json"
+import viManagement from "@/i18n/locales/vi/sport-center-management.json"
+
 import { listOwnerSportCentersAction } from "../../actions/sport-center-actions"
 import type { SportCenter } from "../../types/sport-center"
 // import type { SportCenter } from "@/features/sport-center-management/api/sport-center-service"
@@ -40,6 +43,12 @@ export type RevenueFilters = {
 }
 
 const DEFAULT_RANGE = getDefaultDateRange()
+
+function getManagementLocale() {
+  const language =
+    typeof navigator !== "undefined" ? (navigator.language ?? "") : ""
+  return language.toLowerCase().startsWith("vi") ? viManagement : enManagement
+}
 
 function resolveCenterId(centerIds: string[]) {
   return centerIds.length === 1 ? centerIds[0] : undefined
@@ -130,6 +139,7 @@ export const useRevenueReportStore = create<RevenueReportState>((set, get) => ({
   fetchOverview: async () => {
     const { filters } = get()
     const centerId = resolveCenterId(filters.centerIds)
+    const management = getManagementLocale()
 
     set({ loadingOverview: true })
 
@@ -175,7 +185,7 @@ export const useRevenueReportStore = create<RevenueReportState>((set, get) => ({
         daily: null,
         cancellations: null,
         permissionDenied: isPermissionError(error),
-        error: "Không thể tải dữ liệu tổng quan doanh thu.",
+        error: management.revenue.toast.errorDescription,
       })
     } finally {
       set({ loadingOverview: false })
@@ -185,6 +195,7 @@ export const useRevenueReportStore = create<RevenueReportState>((set, get) => ({
   fetchTransactions: async () => {
     const { filters } = get()
     const centerId = resolveCenterId(filters.centerIds)
+    const management = getManagementLocale()
 
     set({ loadingTransactions: true })
 
@@ -211,7 +222,7 @@ export const useRevenueReportStore = create<RevenueReportState>((set, get) => ({
         transactions: [],
         pagination: null,
         permissionDenied: isPermissionError(error),
-        error: "Không thể tải danh sách giao dịch doanh thu.",
+        error: management.revenue.toast.errorDescription,
       })
     } finally {
       set({ loadingTransactions: false })
@@ -225,6 +236,7 @@ export const useRevenueReportStore = create<RevenueReportState>((set, get) => ({
   exportCsv: async () => {
     const { filters } = get()
     const centerId = resolveCenterId(filters.centerIds)
+    const management = getManagementLocale()
 
     set({ exporting: true })
 
@@ -240,7 +252,7 @@ export const useRevenueReportStore = create<RevenueReportState>((set, get) => ({
       return url
     } catch (error) {
       console.error("[RevenueReport] exportCsv error:", error)
-      set({ error: "Không thể xuất báo cáo CSV lúc này." })
+      set({ error: management.revenue.toast.errorDescription })
       return null
     } finally {
       set({ exporting: false })

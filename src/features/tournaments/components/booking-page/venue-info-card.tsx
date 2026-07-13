@@ -133,7 +133,7 @@ export default function VenueInfoCard() {
             <div className="flex flex-col items-start gap-1.5 select-none sm:items-end">
               <div className="flex shrink-0 items-center gap-2">
                 <span className="text-xs font-bold text-gray-600">
-                  {t("booking.page.bookingDate", { defaultValue: "Add Date" })}:
+                  {t("booking.page.bookingDate")}:
                 </span>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -142,11 +142,7 @@ export default function VenueInfoCard() {
                       className="h-9 border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
                     >
                       <CalendarIcon className="mr-2 h-3.5 w-3.5 text-emerald-600" />
-                      <span>
-                        {t("booking.page.selectDates", {
-                          defaultValue: "Select Dates",
-                        })}
-                      </span>
+                      <span>{t("booking.page.selectDates")}</span>
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent
@@ -235,7 +231,6 @@ export default function VenueInfoCard() {
                   {t("booking.page.tournamentDates", {
                     start: formatDate(tournamentStartDate),
                     end: formatDate(tournamentEndDate),
-                    defaultValue: `Tournament: ${formatDate(tournamentStartDate)} - ${formatDate(tournamentEndDate)}`,
                   })}
                 </span>
               )}
@@ -246,7 +241,7 @@ export default function VenueInfoCard() {
           {selectedDates.length > 0 && (
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <span className="text-xs font-semibold text-gray-500">
-                {t("booking.page.selectedDate", { defaultValue: "Viewing:" })}
+                {t("booking.page.selectedDate")}
               </span>
               {selectedDates
                 .slice()
@@ -284,9 +279,7 @@ export default function VenueInfoCard() {
                       <button
                         type="button"
                         onClick={() => toggleSelectedDate(date)}
-                        title={t("booking.page.removeDate", {
-                          defaultValue: "Remove date",
-                        })}
+                        title={t("booking.page.removeDate")}
                         className={[
                           "flex items-center rounded-r-md border border-l-0 px-1.5 py-1 transition-all",
                           isActive

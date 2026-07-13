@@ -45,18 +45,10 @@
       "vs": "đấu với"
     },
     "completedMatches": {
-      "title": "Trận đấu đã kết thúc",
-      "titleWithCount": "Trận đấu đã kết thúc ({{count}})",
-      "noMatches": "Hiện không có trận đấu đã kết thúc",
+      "title": "Trận đấu hoàn thành",
+      "titleWithCount": "Trận đấu đã hoàn thành ({{count}})",
+      "noMatches": "Hiện không có trận đấu đã hoàn thành",
       "refName": "Trọng tài: {{refName}}",
-      "vs": "đấu với"
-    },
-    "readyMatches": {
-      "titleWithCount": "Trận đấu đã sẵn sàng ({{count}})",
-      "noMatches": "Không có trận đấu đã sẵn sàng",
-      "ready": "Sẵn sàng",
-      "noCourt": "Chưa có sân",
-      "tbd": "Chưa xác định",
       "vs": "đấu với"
     },
     "matchQueue": {
@@ -65,8 +57,16 @@
       "noMatches": "Không có trận đấu lên lịch sắp tới",
       "noCourt": "Chưa có sân",
       "tbd": "Chưa xác định",
+      "ready": "Sẵn sàng",
       "scheduled": "Đã lên lịch",
       "waiting": "Đang chờ",
+      "vs": "đấu với"
+    },
+    "readyMatches": {
+      "title": "Sẵn sàng",
+      "titleWithCount": "Trận đấu sẵn sàng ({{count}})",
+      "noMatches": "Không có trận đấu sẵn sàng",
+      "noCourt": "Chưa có sân",
       "vs": "đấu với"
     },
     "courtStatus": {

@@ -103,7 +103,11 @@ export function AddSponsorForm({ onAdd, onClose }: AddSponsorFormProps) {
     } catch (error) {
       console.error("Failed to add sponsor:", error)
       toast.error(
-        error instanceof Error ? error.message : "Failed to add sponsor"
+        error instanceof Error
+          ? error.message
+          : t("sponsors.addError", {
+              defaultValue: "Failed to add sponsor",
+            })
       )
     } finally {
       setIsSubmitting(false)
@@ -183,7 +187,7 @@ export function AddSponsorForm({ onAdd, onClose }: AddSponsorFormProps) {
             <div className="relative h-16 w-16 overflow-hidden rounded-lg border border-gray-200 bg-white">
               <Image
                 src={logoPreview}
-                alt="Logo preview"
+                alt={t("common.previewImageAlt")}
                 fill
                 sizes="64px"
                 className="object-contain p-1.5"

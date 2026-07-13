@@ -45,7 +45,7 @@ export function EditProfileContent({
   }, [hydrateProfile, initialLinkedProviders, initialUser, sessionEmail])
 
   const displayNameValue =
-    displayName || sessionEmail.split("@")[0] || "Unnamed Player"
+    displayName || sessionEmail.split("@")[0] || t("unnamedPlayer")
   const profileUser = user ?? initialUser
 
   return (

@@ -21,7 +21,7 @@ interface ProfileEditState {
 }
 
 function getFallbackDisplayName(email: string): string {
-  return email.split("@")[0] || "Unnamed Player"
+  return email.split("@")[0] || ""
 }
 
 function buildDisplayName(user: User | null, sessionEmail: string): string {
@@ -32,7 +32,7 @@ export const useProfileEditStore = create<ProfileEditState>((set, get) => ({
   user: null,
   linkedProviders: [],
   sessionEmail: "",
-  displayName: "Unnamed Player",
+  displayName: "",
 
   hydrateProfile: ({ user, linkedProviders, sessionEmail }) => {
     set({

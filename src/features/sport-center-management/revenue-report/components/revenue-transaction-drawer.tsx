@@ -9,6 +9,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { RevenueTransaction } from "../types"
 import { formatCurrencyVnd, formatDate, formatDateTime } from "../utils/format"
@@ -40,6 +41,7 @@ export function RevenueTransactionDrawer({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const { t } = useSportCenterManagementTranslation()
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-2xl">
@@ -78,6 +80,24 @@ export function RevenueTransactionDrawer({
                   <DetailBlock
                     label="Tổng tiền"
                     value={formatCurrencyVnd(transaction.amount)}
+                  />
+                  <DetailBlock
+                    label={t("revenue.drawer.courtCost")}
+                    value={
+                      transaction.courtCostVnd !== undefined &&
+                      transaction.courtCostVnd !== null
+                        ? formatCurrencyVnd(transaction.courtCostVnd)
+                        : "-"
+                    }
+                  />
+                  <DetailBlock
+                    label={t("revenue.drawer.netRevenue")}
+                    value={
+                      transaction.netRevenueVnd !== undefined &&
+                      transaction.netRevenueVnd !== null
+                        ? formatCurrencyVnd(transaction.netRevenueVnd)
+                        : "-"
+                    }
                   />
                   <DetailBlock
                     label="Phí"

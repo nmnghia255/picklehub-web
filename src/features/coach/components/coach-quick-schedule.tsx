@@ -1,4 +1,5 @@
 import { CalendarX } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -10,7 +11,7 @@ type TodayScheduleItem = {
   target: string
   location: string
   lessonPlan: string
-  status: "Sắp bắt đầu" | "Đang diễn ra" | "Chưa bắt đầu"
+  status: "upcoming" | "live" | "pending"
 }
 
 type CoachQuickScheduleProps = {
@@ -18,23 +19,33 @@ type CoachQuickScheduleProps = {
 }
 
 const statusVariantMap = {
-  "Sắp bắt đầu": "secondary",
-  "Đang diễn ra": "default",
-  "Chưa bắt đầu": "outline",
+  upcoming: "secondary",
+  live: "default",
+  pending: "outline",
 } as const
 
 export function CoachQuickSchedule({ schedules }: CoachQuickScheduleProps) {
+  const { t } = useTranslation("common")
+  const statusLabelMap = {
+    upcoming: t("coach.schedule.statusUpcoming"),
+    live: t("coach.schedule.statusLive"),
+    pending: t("coach.schedule.statusPending"),
+  } as const
   if (schedules.length === 0) {
     return (
       <Card className="rounded-2xl border shadow-sm">
         <CardHeader>
-          <CardTitle>Lịch hôm nay</CardTitle>
+          <CardTitle>{t("coach.schedule.todayScheduleTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <CalendarX className="mb-3 size-10 text-muted-foreground" />
-            <p className="text-sm font-medium text-muted-foreground">Chưa có lịch</p>
-            <p className="text-xs text-muted-foreground">Hôm nay bạn không có lịch dạy nào.</p>
+            <p className="text-sm font-medium text-muted-foreground">
+              {t("coach.schedule.noSchedule")}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {t("coach.schedule.noScheduleDescription")}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -44,7 +55,7 @@ export function CoachQuickSchedule({ schedules }: CoachQuickScheduleProps) {
   return (
     <Card className="rounded-2xl border shadow-sm">
       <CardHeader>
-        <CardTitle>Lịch hôm nay</CardTitle>
+        <CardTitle>{t("coach.schedule.todayScheduleTitle")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {schedules.map((schedule, index) => (
@@ -57,7 +68,7 @@ export function CoachQuickSchedule({ schedules }: CoachQuickScheduleProps) {
                     variant={statusVariantMap[schedule.status]}
                     className="rounded-full"
                   >
-                    {schedule.status}
+                    {statusLabelMap[schedule.status]}
                   </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">
@@ -67,12 +78,14 @@ export function CoachQuickSchedule({ schedules }: CoachQuickScheduleProps) {
                   {schedule.location}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Giáo án: {schedule.lessonPlan}
+                  {t("coach.schedule.lessonPlan", {
+                    plan: schedule.lessonPlan,
+                  })}
                 </p>
               </div>
 
               <Button variant="outline" className="rounded-full">
-                Xem chi tiết
+                {t("coach.schedule.viewDetailButton")}
               </Button>
             </div>
           </div>

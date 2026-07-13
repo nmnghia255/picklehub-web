@@ -2,6 +2,7 @@
 
 import { Search, UserCheck, UserPlus, UserRoundX, XCircle } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -32,11 +33,29 @@ import {
 
 type UsersByTab = Record<TabKey, FriendUser[]>
 
+function getFriendLevelLabel(
+  level: FriendUser["level"],
+  t: (key: string) => string
+) {
+  switch (level) {
+    case "Beginner":
+      return t("friends.service.levelBeginner")
+    case "Intermediate":
+      return t("friends.service.levelIntermediate")
+    case "Advanced":
+      return t("friends.service.levelAdvanced")
+    default:
+      return level
+  }
+}
+
 export default function FriendClient({
   initialUsersByTab,
 }: {
   initialUsersByTab: UsersByTab
 }) {
+  const { t } = useTranslation("common")
+
   const [activeTab, setActiveTab] = useState<TabKey>("find")
   const [search, setSearch] = useState("")
   const [sortBy, setSortBy] = useState<SortKey>("alphabet")
@@ -155,8 +174,8 @@ export default function FriendClient({
             id: requestId,
             counterpartId: user.id,
             invitedAt: new Date().toISOString(),
-            inviteSource: "Web",
-            bio: "Lời mời kết bạn đã gửi",
+            inviteSource: t("friends.service.inviteSource"),
+            bio: t("friends.optimistic.requestSent"),
           },
           ...prev.sent,
         ],
@@ -203,9 +222,9 @@ export default function FriendClient({
       const friendUser: FriendUser = {
         ...request,
         id: request.counterpartId ?? request.id,
-        bio: "Đã là bạn bè",
+        bio: t("friends.status.friend"),
         becameFriendAt: new Date().toISOString(),
-        friendshipSinceLabel: "Vừa kết bạn",
+        friendshipSinceLabel: t("friends.optimistic.justFriended"),
       }
 
       setUsersByTab((prev) => ({
@@ -258,9 +277,9 @@ export default function FriendClient({
   return (
     <div className="container mx-auto max-w-5xl p-6">
       <div className="mb-6 rounded-2xl border bg-linear-to-r from-primary/10 via-sky-500/5 to-emerald-500/10 p-5">
-        <h1 className="text-3xl font-bold">Bạn bè</h1>
+        <h1 className="text-3xl font-bold">{t("friends.pageTitle")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Quản lý lời mời, kết nối mới và danh sách bạn bè của bạn tại một nơi.
+          {t("friends.pageDescription")}
         </p>
       </div>
 
@@ -269,10 +288,12 @@ export default function FriendClient({
         onValueChange={(value) => setActiveTab(value as TabKey)}
       >
         <TabsList className="grid h-auto w-full grid-cols-2 gap-2 bg-transparent p-0 md:grid-cols-4">
-          <TabsTrigger value="find">Tìm bạn</TabsTrigger>
-          <TabsTrigger value="sent">Đã gửi</TabsTrigger>
-          <TabsTrigger value="received">Đã nhận</TabsTrigger>
-          <TabsTrigger value="friends">Bạn bè</TabsTrigger>
+          <TabsTrigger value="find">{t("friends.tabs.find")}</TabsTrigger>
+          <TabsTrigger value="sent">{t("friends.tabs.sent")}</TabsTrigger>
+          <TabsTrigger value="received">
+            {t("friends.tabs.received")}
+          </TabsTrigger>
+          <TabsTrigger value="friends">{t("friends.tabs.friends")}</TabsTrigger>
         </TabsList>
 
         <div className="mt-4 flex flex-col gap-3 rounded-xl border bg-card p-4 sm:flex-row sm:items-center">
@@ -282,7 +303,7 @@ export default function FriendClient({
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               className="pl-9"
-              placeholder="Tìm kiếm theo tên, username hoặc email..."
+              placeholder={t("friends.searchPlaceholder")}
             />
           </div>
 
@@ -291,13 +312,17 @@ export default function FriendClient({
             onValueChange={(value) => setSortBy(value as SortKey)}
           >
             <SelectTrigger className="w-full sm:w-60">
-              <SelectValue placeholder="Sắp xếp" />
+              <SelectValue placeholder={t("friends.sort.placeholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="alphabet">Theo chữ cái (A-Z)</SelectItem>
-              <SelectItem value="friendTime">Theo thời gian kết bạn</SelectItem>
+              <SelectItem value="alphabet">
+                {t("friends.sort.alphabet")}
+              </SelectItem>
+              <SelectItem value="friendTime">
+                {t("friends.sort.friendTime")}
+              </SelectItem>
               <SelectItem value="inviteTime">
-                Theo thời gian gửi lời mời
+                {t("friends.sort.inviteTime")}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -309,25 +334,19 @@ export default function FriendClient({
               <div className="mb-4 flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-semibold">
-                    {tab === "find"
-                      ? "Tìm bạn"
-                      : tab === "sent"
-                        ? "Lời mời bạn đã gửi"
-                        : tab === "received"
-                          ? "Lời mời gửi đến bạn"
-                          : "Danh sách bạn bè"}
+                    {t(`friends.headings.${tab}`)}
                   </h2>
                   <p className="text-sm text-muted-foreground">
                     {tab === "find" && isLoadingFind
-                      ? "Đang tải danh sách người dùng..."
-                      : `Tổng cộng ${users.length} người dùng`}
+                      ? t("friends.subtitle.findLoading")
+                      : t("friends.subtitle.count", { count: users.length })}
                   </p>
                 </div>
               </div>
 
               {users.length === 0 ? (
                 <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
-                  Không có dữ liệu phù hợp với bộ lọc hiện tại.
+                  {t("friends.empty")}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -341,7 +360,9 @@ export default function FriendClient({
                           type="button"
                           className="cursor-pointer"
                           onClick={() => setSelectedUser(user)}
-                          aria-label={`Xem hồ sơ ${user.username}`}
+                          aria-label={t("friends.aria.viewProfile", {
+                            username: user.username,
+                          })}
                         >
                           <Avatar size="lg" className="ring-2 ring-background">
                             <AvatarImage
@@ -360,10 +381,14 @@ export default function FriendClient({
                             @{user.username}
                           </p>
                           <div className="mt-2 flex flex-wrap gap-2">
-                            <Badge variant="secondary">{user.level}</Badge>
+                            <Badge variant="secondary">
+                              {getFriendLevelLabel(user.level, t)}
+                            </Badge>
                             <Badge variant="outline">{user.location}</Badge>
                             <Badge variant="ghost">
-                              {user.mutualFriends} bạn chung
+                              {t("friends.badge.mutualFriends", {
+                                count: user.mutualFriends,
+                              })}
                             </Badge>
                           </div>
                         </div>
@@ -375,20 +400,25 @@ export default function FriendClient({
                             (() => {
                               const status = user.friendshipStatus ?? "NONE"
                               const canSendRequest = status === "NONE"
-                              const actionLabel =
+
+                              const statusKey =
                                 status === "FRIEND"
-                                  ? "Đã là bạn bè"
+                                  ? "friend"
                                   : status === "REQUEST_SENT"
-                                    ? "Đã gửi lời mời"
+                                    ? "requestSent"
                                     : status === "REQUEST_RECEIVED"
-                                      ? "Đã nhận lời mời"
-                                      : "Kết bạn"
+                                      ? "requestReceived"
+                                      : "addFriend"
+
+                              const actionLabel = t(
+                                `friends.status.${statusKey}`
+                              )
 
                               return status === "FRIEND" ? (
                                 <Button
                                   size="sm"
                                   disabled
-                                  aria-label="Đã là bạn bè"
+                                  aria-label={t("friends.status.friend")}
                                   className="bg-gray-100 text-gray-800 hover:bg-gray-100"
                                 >
                                   <UserCheck
@@ -396,7 +426,7 @@ export default function FriendClient({
                                     strokeWidth={1.8}
                                   />
                                   <span className="font-semibold text-gray-800">
-                                    Đã là bạn bè
+                                    {t("friends.status.friend")}
                                   </span>
                                 </Button>
                               ) : (
@@ -424,7 +454,7 @@ export default function FriendClient({
                               onClick={() => handleCancelRequest(user.id)}
                             >
                               <XCircle className="size-4" />
-                              Hủy lời mời
+                              {t("friends.actions.cancelRequest")}
                             </Button>
                           )}
 
@@ -437,7 +467,7 @@ export default function FriendClient({
                                 )}
                                 onClick={() => handleAcceptRequest(user)}
                               >
-                                Chấp nhận
+                                {t("friends.actions.accept")}
                               </Button>
                               <Button
                                 size="sm"
@@ -447,7 +477,7 @@ export default function FriendClient({
                                 )}
                                 onClick={() => handleRejectRequest(user.id)}
                               >
-                                Từ chối
+                                {t("friends.actions.reject")}
                               </Button>
                             </>
                           )}
@@ -463,7 +493,7 @@ export default function FriendClient({
                                 onClick={() => handleRemoveFriend(user.id)}
                               >
                                 <UserRoundX className="size-4" />
-                                Hủy kết bạn
+                                {t("friends.actions.unfriend")}
                               </Button>
                             </>
                           )}
@@ -486,9 +516,9 @@ export default function FriendClient({
           {selectedUser && (
             <>
               <DialogHeader>
-                <DialogTitle>Hồ sơ người dùng</DialogTitle>
+                <DialogTitle>{t("friends.dialog.title")}</DialogTitle>
                 <DialogDescription>
-                  Thông tin để xem trước giao diện profile trên modal.
+                  {t("friends.dialog.description")}
                 </DialogDescription>
               </DialogHeader>
 
@@ -512,10 +542,14 @@ export default function FriendClient({
                   </p>
                   <p className="mt-2 text-sm">{selectedUser.bio}</p>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <Badge variant="secondary">{selectedUser.level}</Badge>
+                    <Badge variant="secondary">
+                      {getFriendLevelLabel(selectedUser.level, t)}
+                    </Badge>
                     <Badge variant="outline">{selectedUser.location}</Badge>
                     <Badge variant="ghost">
-                      {selectedUser.mutualFriends} bạn chung
+                      {t("friends.badge.mutualFriends", {
+                        count: selectedUser.mutualFriends,
+                      })}
                     </Badge>
                   </div>
                 </div>

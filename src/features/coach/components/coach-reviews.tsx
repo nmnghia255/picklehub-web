@@ -1,6 +1,7 @@
 "use client"
 
 import { Star } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { ErrorState } from "@/components/shared/error-state"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -12,6 +13,8 @@ import { getErrorMessage } from "@/lib/api-client"
 import { useCoachReviews, useMyCoachProfile } from "../hooks/use-coach-queries"
 
 export function CoachReviews() {
+  const { t, i18n } = useTranslation("common")
+  const locale = i18n.language.startsWith("vi") ? "vi-VN" : "en-US"
   const session = useSession()
   const {
     data: profile,
@@ -26,7 +29,7 @@ export function CoachReviews() {
   if (profileError) {
     return (
       <ErrorState
-        title="Không thể tải thông tin HLV"
+        title={t("coach.reviews.coachErrorTitle")}
         description={getErrorMessage(profileErr)}
         retry={profileRefetch}
       />
@@ -36,7 +39,7 @@ export function CoachReviews() {
   if (isError) {
     return (
       <ErrorState
-        title="Không thể tải đánh giá"
+        title={t("coach.reviews.errorTitle")}
         description={getErrorMessage(error)}
         retry={refetch}
       />
@@ -47,7 +50,7 @@ export function CoachReviews() {
     return (
       <Card className="rounded-2xl border shadow-sm">
         <CardHeader>
-          <CardTitle>Đánh giá HLV</CardTitle>
+          <CardTitle>{t("coach.reviews.loadingTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -70,11 +73,11 @@ export function CoachReviews() {
     return (
       <Card className="rounded-2xl border shadow-sm">
         <CardHeader>
-          <CardTitle>Đánh giá HLV</CardTitle>
+          <CardTitle>{t("coach.reviews.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="py-8 text-center text-sm text-muted-foreground">
-            Chưa có đánh giá nào.
+            {t("coach.reviews.noReviews")}
           </p>
         </CardContent>
       </Card>
@@ -85,9 +88,12 @@ export function CoachReviews() {
     <Card className="rounded-2xl border shadow-sm">
       <CardHeader>
         <CardTitle>
-          Đánh giá HLV
+          {t("coach.reviews.title")}
           <span className="ml-2 text-sm font-normal text-muted-foreground">
-            ({data.averageRating.toFixed(1)} sao · {data.reviewCount} đánh giá)
+            {t("coach.reviews.ratingInfo", {
+              rating: data.averageRating.toFixed(1),
+              count: data.reviewCount,
+            })}
           </span>
         </CardTitle>
       </CardHeader>
@@ -130,7 +136,7 @@ export function CoachReviews() {
                 </p>
               )}
               <p className="text-xs text-muted-foreground">
-                {new Date(review.createdAt).toLocaleDateString("vi-VN")}
+                {new Date(review.createdAt).toLocaleDateString(locale)}
               </p>
             </div>
           </div>

@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import { create } from "zustand"
 
 import type { Match, Player } from "@/features/socials/types/match"
+import i18n from "@/i18n/client"
 
 interface HistoryEntry {
   state: MatchesGeneratorState
@@ -230,9 +231,7 @@ export const useMatchesGeneratorStore = create<
             fromMatchId
           )
         ) {
-          toast.error(
-            "Cầu thủ này đã xuất hiện trong phiên chơi này. Không thể thêm vào trận khác trong cùng phiên."
-          )
+          toast.error(i18n.t("matches.creation.playerAlreadyInSession"))
           return false
         }
 
@@ -246,9 +245,7 @@ export const useMatchesGeneratorStore = create<
             toMatchId
           )
         ) {
-          toast.error(
-            "Cầu thủ này đã xuất hiện trong phiên chơi này. Không thể thêm vào trận khác trong cùng phiên."
-          )
+          toast.error(i18n.t("matches.creation.playerAlreadyInSession"))
           return false
         }
       }

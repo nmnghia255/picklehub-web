@@ -356,7 +356,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       !playerName.trim() ||
       !phoneNumber.trim()
     ) {
-      return { success: false, error: "Missing required information" }
+      return { success: false, error: "" }
     }
 
     // Build bookingGroups from selectedCourts (dateKey -> courtId -> slots)
@@ -383,7 +383,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
     })
 
     if (bookings.length === 0) {
-      return { success: false, error: "Please select at least one slot" }
+      return { success: false, error: "" }
     }
 
     set({ isSubmitting: true })
@@ -403,18 +403,12 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       if (res.success) {
         return { success: true, data: res.data }
       } else {
-        return {
-          success: false,
-          error: res.error || "Failed to book court slots",
-        }
+        return { success: false, error: res.error || "" }
       }
     } catch (err) {
       console.error(err)
       set({ isSubmitting: false })
-      return {
-        success: false,
-        error: "An unexpected error occurred while booking",
-      }
+      return { success: false, error: "" }
     }
   },
 

@@ -23,12 +23,10 @@ export function DisplayPaymentProofCard({
     <Card className="overflow-hidden">
       <CardHeader className="border-b border-border/60 bg-muted/20">
         <CardTitle className="text-xl">
-          {t("payment.proof", { defaultValue: "Payment Proof" })}
+          {t("expenses.tracking.paymentProof")}
         </CardTitle>
         <CardDescription className="mt-1">
-          {t("payment.proofDescription", {
-            defaultValue: "Your submitted payment proof image",
-          })}
+          {t("expenses.tracking.paymentProofDescription")}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex justify-center p-6">
@@ -36,7 +34,7 @@ export function DisplayPaymentProofCard({
           {}
           <img
             src={imageUrl}
-            alt="Payment Proof"
+            alt={t("expenses.tracking.paymentProof")}
             className="h-auto max-h-[400px] w-full object-contain"
           />
         </div>

@@ -1,115 +1,538 @@
 {
-  "page": {
-    "badge": "Khu vực quản lý bảo lưu",
-    "title": "Bảo lưu",
-    "subtitle": "Quản lý các khoản hoàn tiền được tạo khi đơn đặt sân bị hủy.",
-    "mockCredits": "{{count}} bảo lưu mẫu"
-  },
-  "sort": {
-    "latestCreated": "Mới tạo gần đây",
-    "soonestExpiry": "Sắp hết hạn nhất",
-    "highestCreditAmount": "Giá trị hoàn tiền cao nhất",
-    "highestRemainingAmount": "Số dư còn lại cao nhất",
-    "customerAZ": "Khách hàng A-Z"
-  },
-  "filters": {
-    "searchPlaceholder": "Tìm khách hàng, số điện thoại, mã đặt sân hoặc mã bảo lưu",
-    "reason": "Lý do",
-    "court": "Sân",
-    "sort": "Sắp xếp",
-    "resetFilters": "Đặt lại bộ lọc",
-    "courts": {
-      "all": "Tất cả sân",
-      "courtA": "Sân A",
-      "courtB": "Sân B",
-      "courtC": "Sân C",
-      "courtD": "Sân D",
-      "centerCourt": "Sân trung tâm"
+    "page": {
+        "badge": "Khu vực quản lý bảo lưu",
+        "title": "Bảo lưu",
+        "subtitle": "Quản lý các khoản hoàn tiền được tạo khi đơn đặt sân bị hủy.",
+        "mockCredits": "{{count}} bảo lưu mẫu"
+    },
+    "sort": {
+        "latestCreated": "Mới tạo gần đây",
+        "soonestExpiry": "Sắp hết hạn nhất",
+        "highestCreditAmount": "Giá trị hoàn tiền cao nhất",
+        "highestRemainingAmount": "Số dư còn lại cao nhất",
+        "customerAZ": "Khách hàng A-Z"
+    },
+    "filters": {
+        "searchPlaceholder": "Tìm khách hàng, số điện thoại, mã đặt sân hoặc mã bảo lưu",
+        "reason": "Lý do",
+        "court": "Sân",
+        "sort": "Sắp xếp",
+        "resetFilters": "Đặt lại bộ lọc",
+        "courts": {
+            "all": "Tất cả sân",
+            "courtA": "Sân A",
+            "courtB": "Sân B",
+            "courtC": "Sân C",
+            "courtD": "Sân D",
+            "centerCourt": "Sân trung tâm"
+        },
+        "reasons": {
+            "all": "Tất cả lý do",
+            "customerCancelled": "Khách hàng hủy",
+            "ownerCancelled": "Chủ sân hủy",
+            "weather": "Thời tiết",
+            "maintenance": "Bảo trì",
+            "other": "Khác"
+        }
+    },
+    "stats": {
+        "totalCreditValue": "Tổng giá trị hoàn tiền",
+        "totalCredits": "Tổng số bảo lưu",
+        "liveMock": "Dữ liệu mẫu"
+    },
+    "empty": {
+        "noCreditsTitle": "Không tìm thấy bảo lưu nào",
+        "noCreditsDescription": "Các bảo lưu được tạo từ đơn hủy sẽ hiển thị ở đây.",
+        "restoreMockCredits": "Khôi phục dữ liệu mẫu",
+        "noMatchesTitle": "Không có bảo lưu phù hợp",
+        "noMatchesDescription": "Thử bộ lọc hoặc từ khóa khác để hiển thị một bộ bảo lưu mẫu khác.",
+        "clearFilters": "Xóa bộ lọc"
+    },
+    "table": {
+        "creditId": "Mã bảo lưu",
+        "customer": "Khách hàng",
+        "originalBookingId": "Mã đặt sân gốc",
+        "creditAmount": "Giá trị hoàn tiền",
+        "remainingAmount": "Số dư còn lại",
+        "createdDate": "Ngày tạo",
+        "cancellationReason": "Lý do hủy",
+        "actions": "Thao tác"
+    },
+    "mobile": {
+        "created": "Ngày tạo",
+        "booking": "Đặt sân {{bookingId}}",
+        "balance": "Số dư",
+        "original": "Ban đầu {{amount}}",
+        "reason": "Lý do",
+        "remaining": "Còn lại {{amount}}"
+    },
+    "actions": {
+        "viewDetails": "Xem chi tiết",
+        "cancelCredit": "Hủy bảo lưu",
+        "createManualCredit": "Tạo bảo lưu thủ công"
+    },
+    "detail": {
+        "title": "Chi tiết bảo lưu",
+        "description": "Xem lại đơn hủy ban đầu, số dư còn lại và dòng thời gian sử dụng.",
+        "customerInformation": "Thông tin khách hàng",
+        "name": "Tên",
+        "phoneNumber": "Số điện thoại",
+        "originalBookingInformation": "Thông tin đặt sân ban đầu",
+        "bookingId": "Mã đặt sân",
+        "courtName": "Tên sân",
+        "bookingDate": "Ngày đặt",
+        "timeSlot": "Khung giờ",
+        "creditInformation": "Thông tin bảo lưu",
+        "creditAmount": "Giá trị hoàn tiền",
+        "remainingAmount": "Số dư còn lại",
+        "createdDate": "Ngày tạo",
+        "cancellationInformation": "Thông tin hủy",
+        "cancellationReason": "Lý do hủy",
+        "manualCredit": "Bảo lưu thủ công",
+        "yes": "Có",
+        "no": "Không",
+        "notes": "Ghi chú",
+        "creditUsageHistory": "Lịch sử sử dụng bảo lưu",
+        "usedAmount": "Đã dùng {{amount}}",
+        "bookingLabel": "Đặt sân {{bookingId}}",
+        "noUsageRecorded": "Chưa có lần sử dụng nào.",
+        "cancelCredit": "Hủy bảo lưu",
+        "noCreditSelected": "Chưa chọn bảo lưu nào."
+    },
+    "status": {
+        "ACTIVE": "Đang hoạt động",
+        "PARTIALLY_USED": "Đã dùng một phần",
+        "USED": "Đã dùng",
+        "EXPIRED": "Đã hết hạn"
     },
     "reasons": {
-      "all": "Tất cả lý do",
-      "customerCancelled": "Khách hàng hủy",
-      "ownerCancelled": "Chủ sân hủy",
-      "weather": "Thời tiết",
-      "maintenance": "Bảo trì",
-      "other": "Khác"
+        "CUSTOMER_CANCELLED": "Khách hàng hủy",
+        "OWNER_CANCELLED": "Chủ sân hủy",
+        "WEATHER": "Thời tiết",
+        "MAINTENANCE": "Bảo trì",
+        "OTHER": "Khác"
+    },
+    "common": {
+        "all": "Tất cả",
+        "back": "Quay lại",
+        "cancel": "Hủy",
+        "close": "Đóng",
+        "confirm": "Xác nhận",
+        "customer": "Khách hàng",
+        "delete": "Xóa",
+        "emailNotUpdated": "Email chưa cập nhật",
+        "loading": "Đang tải...",
+        "no": "Không",
+        "noNote": "Không có ghi chú",
+        "noReason": "Không có lý do",
+        "notAvailable": "Không có",
+        "notUpdated": "Chưa cập nhật",
+        "phoneNotUpdated": "Số điện thoại chưa cập nhật",
+        "reset": "Đặt lại",
+        "search": "Tìm kiếm",
+        "yes": "Có",
+        "active": "Đang hoạt động",
+        "inactive": "Tạm ngưng",
+        "next": "Sau",
+        "previous": "Trước",
+        "noImage": "Chưa có ảnh đại diện",
+        "noReviews": "Chưa có đánh giá"
+    },
+    "bookingList": {
+        "filters": {
+            "title": "Bộ lọc",
+            "createdAtLabel": "Ngày tạo",
+            "datePlaceholder": "Chọn ngày",
+            "centerLabel": "Trung tâm",
+            "statusLabel": "Trạng thái",
+            "allStatuses": "Tất cả trạng thái",
+            "reset": "Đặt lại"
+        },
+        "status": {
+            "pending": "Chờ xác nhận",
+            "confirmed": "Đã xác nhận",
+            "cancelled": "Đã hủy",
+            "completed": "Hoàn thành"
+        },
+        "card": {
+            "court": "Sân",
+            "phone": "Số điện thoại",
+            "timeRange": "Khung giờ",
+            "createdAt": "Ngày tạo",
+            "totalPrice": "Tổng tiền",
+            "note": "Ghi chú",
+            "confirm": "Xác nhận",
+            "cancelBooking": "Hủy đặt sân",
+            "noActions": "Trạng thái này không có thao tác quản lý.",
+            "viewDetails": "Xem chi tiết",
+            "tapToViewDetails": "Nhấn để xem thông tin đầy đủ."
+        },
+        "dialog": {
+            "title": "Lý do hủy",
+            "description": "Vui lòng nhập lý do hủy.",
+            "placeholder": "Lý do hủy...",
+            "close": "Đóng",
+            "confirm": "Xác nhận hủy"
+        },
+        "detail": {
+            "title": "Chi tiết đặt sân",
+            "description": "Thông tin đầy đủ của lượt đặt này, bao gồm lịch thi đấu, dịch vụ và sản phẩm.",
+            "infoTitle": "Thông tin đặt sân",
+            "bookingCode": "Mã đặt sân",
+            "startTime": "Giờ bắt đầu",
+            "bookingDate": "Ngày đặt",
+            "note": "Ghi chú",
+            "customerTitle": "Thông tin khách hàng",
+            "customerName": "Tên",
+            "customerPhone": "Số điện thoại",
+            "paymentTitle": "Thông tin thanh toán",
+            "totalPrice": "Tổng tiền",
+            "remainingBalance": "Số dư còn lại",
+            "appliedCredit": "Số dư đã áp dụng",
+            "createdAt": "Ngày tạo",
+            "paymentProof": "Ảnh minh chứng",
+            "notPaid": "Chưa thanh toán",
+            "confirm": "Xác nhận",
+            "cancel": "Hủy",
+            "close": "Đóng",
+            "scheduleTitle": "Chi tiết lịch và dịch vụ",
+            "courtsTitle": "Danh sách sân",
+            "noCourts": "Không có sân được ghi nhận.",
+            "servicesTitle": "Dịch vụ và sản phẩm",
+            "services": "Dịch vụ",
+            "service": "Dịch vụ",
+            "products": "Sản phẩm",
+            "product": "Sản phẩm",
+            "quantity": "Số lượng",
+            "unitPrice": "Đơn giá",
+            "noServices": "Không có dịch vụ.",
+            "noProducts": "Không có sản phẩm.",
+            "summaryTitle": "Tổng hợp đặt sân",
+            "totalCourtPrice": "Tổng tiền sân",
+            "totalServicePrice": "Tổng tiền dịch vụ",
+            "totalProductPrice": "Tổng tiền sản phẩm",
+            "totalTimeSlots": "Tổng số khung giờ",
+            "cancellationTitle": "Thông tin hủy",
+            "cancelledAt": "Ngày hủy",
+            "cancelReason": "Lý do hủy",
+            "payment": "Thanh toán",
+            "paymentProofUploadedAt": "Ngày tải lên minh chứng thanh toán",
+            "paymentProofAlt": "Ảnh minh chứng thanh toán"
+        },
+        "errors": {
+            "loadFailed": "Không thể tải danh sách lượt đặt.",
+            "confirmFailed": "Không thể xác nhận đặt sân",
+            "cancelFailed": "Không thể hủy đặt sân"
+        }
+    },
+    "customer": {
+        "detail": {
+            "page": {
+                "badge": "Chi tiết khách hàng",
+                "loading": "Đang tải khách hàng",
+                "subtitle": "Trang tổng quan khách hàng riêng, gọn hơn dialog để xem nhanh hồ sơ, thống kê và lịch sử gần đây.",
+                "notFoundTitle": "Không tìm thấy khách hàng",
+                "notFoundDescription": "Mã khách hàng không hợp lệ hoặc bị thiếu trong đường dẫn.",
+                "loadErrorTitle": "Không thể tải chi tiết khách hàng",
+                "loadError": "Không thể tải chi tiết khách hàng.",
+                "retry": "Thử lại"
+            },
+            "basicInfoTitle": "Thông tin cơ bản",
+            "fullName": "Họ và tên",
+            "phoneNumber": "Số điện thoại",
+            "cancelledRefundAmount": "Hoàn tiền credit hủy",
+            "recentBookingsTitle": "Lịch sử đặt sân gần đây",
+            "noRecentBookings": "Chưa có booking gần đây.",
+            "appliedCredit": "Credit áp dụng",
+            "remainingBalance": "Còn lại",
+            "byCenterTitle": "Theo trung tâm",
+            "noCenterStats": "Chưa có thống kê theo trung tâm.",
+            "centerCode": "Mã trung tâm",
+            "visitCount": "{{count}} lượt",
+            "spend": "Chi tiêu",
+            "creditBalance": "Credit còn lại",
+            "lastVisit": "Lần ghé gần nhất",
+            "firstVisit": "Lần đầu",
+            "visitCountLabel": "Lượt ghé thăm",
+            "stats": {
+                "totalCustomers": "Tổng khách hàng",
+                "visibleCustomers": "Đang hiển thị {{count}} khách",
+                "visits": "Lượt ghé thăm",
+                "currentPageVisits": "Trong trang hiện tại",
+                "totalSpend": "Tổng chi tiêu",
+                "totalSpendDescription": "Cộng trên các khách hiển thị",
+                "creditBalance": "Dư credit",
+                "creditBalanceDescription": "Trong trang hiện tại"
+            },
+            "selector": {
+                "allCenters": "Tất cả sân",
+                "loadingCenters": "Đang tải...",
+                "noCenters": "Không có sân nào"
+            }
+        }
+    },
+    "courts": {
+        "page": {
+            "badge": "Quản lý sân",
+            "title": "Lịch sân",
+            "subtitle": "Quản lý lượt đặt sân, đặt nhanh và lịch trong ngày."
+        },
+        "filters": {
+            "title": "Bộ lọc",
+            "datePlaceholder": "Chọn ngày",
+            "allCourts": "Tất cả sân",
+            "selectedCourt": "Chọn sân",
+            "loadingCenters": "Đang tải trung tâm...",
+            "noCourts": "Không có sân nào",
+            "legendBooked": "Đã đặt",
+            "legendPending": "Chờ xác nhận",
+            "legendAvailable": "Còn trống",
+            "legendCancelled": "Đã hủy"
+        },
+        "quickBooking": {
+            "title": "Đặt sân nhanh",
+            "courtTime": "lúc",
+            "playerName": "Tên người chơi",
+            "phone": "Số điện thoại",
+            "note": "Ghi chú",
+            "playerNamePlaceholder": "Nhập tên người chơi",
+            "phonePlaceholder": "Nhập số điện thoại",
+            "notePlaceholder": "Nhập ghi chú cho lượt đặt sân",
+            "cancel": "Hủy",
+            "confirm": "Xác nhận đặt sân",
+            "errorCreateBooking": "Không thể tạo lượt đặt sân."
+        },
+        "selector": {
+            "selectedCenter": "Chọn trung tâm",
+            "loadingCenters": "Đang tải...",
+            "noCenters": "Không có trung tâm nào"
+        },
+        "noCenterSelected": "Vui lòng chọn trung tâm bạn quản lý để xem lịch và đặt sân.",
+        "detail": {
+            "title": "Chi tiết đặt sân",
+            "timeAt": "lúc",
+            "playerName": "Tên người chơi",
+            "contact": "Liên hệ",
+            "noPhone": "Chưa có số điện thoại",
+            "noCourtName": "Chưa có tên sân",
+            "status": "Trạng thái",
+            "rebook": "Đặt người chơi mới",
+            "cancelConfirmTitle": "Xác nhận hủy đặt sân",
+            "cancelConfirmDescription": "Bạn có chắc chắn muốn hủy lượt đặt sân này không?"
+        }
+    },
+    "revenue": {
+        "filters": {
+            "title": "Bộ lọc chung",
+            "7d": "7 ngày",
+            "30d": "30 ngày",
+            "this-month": "Tháng này",
+            "reset": "Đặt lại",
+            "fromDate": "Từ ngày",
+            "toDate": "Đến ngày",
+            "center": "Trung tâm",
+            "allCenters": "Tất cả trung tâm",
+            "singleCenter": "1 trung tâm",
+            "multipleCenters": "{{count}} trung tâm",
+            "noCenters": "Không có trung tâm nào",
+            "noAddress": "Không có địa chỉ",
+            "multiCenterNote": "API chỉ hỗ trợ lọc 1 trung tâm, hiển thị tổng hợp tất cả.",
+            "status": "Trạng thái",
+            "method": "Phương thức",
+            "show": "Hiển thị",
+            "limit20": "20 dòng",
+            "limit50": "50 dòng",
+            "limit100": "100 dòng",
+            "limitPlaceholder": "20"
+        },
+        "status": {
+            "pendingReview": "Chờ duyệt",
+            "settled": "Đã quyết toán",
+            "rejected": "Bị từ chối",
+            "voided": "Đã hủy"
+        },
+        "method": {
+            "bankTransfer": "Chuyển khoản",
+            "cash": "Tiền mặt"
+        },
+        "summary": {
+            "settledRevenue": "Doanh thu đã quyết toán",
+            "pendingRevenue": "Doanh thu chờ duyệt",
+            "courtCost": "Chi phí sân",
+            "netRevenue": "Doanh thu ròng",
+            "settledTransactions": "Giao dịch đã quyết toán",
+            "pendingTransactions": "Giao dịch chờ duyệt"
+        },
+        "empty": {
+            "summary": "Chưa có dữ liệu doanh thu tổng quan.",
+            "cancellations": "Chưa có dữ liệu hủy/hoàn tiền.",
+            "transactions": "Không có giao dịch phù hợp.",
+            "dailyChart": "Chưa có dữ liệu biểu đồ doanh thu."
+        },
+        "page": {
+            "badge": "Báo cáo doanh thu",
+            "title": "Doanh thu",
+            "subtitle": "Theo dõi doanh thu, giao dịch và tỷ lệ hủy/hoàn tiền theo thời gian.",
+            "refresh": "Làm mới",
+            "exportCsv": "Xuất CSV",
+            "exporting": "Đang xuất..."
+        },
+        "toast": {
+            "errorTitle": "Không thể tải báo cáo doanh thu",
+            "errorDescription": "Không thể tải dữ liệu doanh thu.",
+            "exportErrorTitle": "Không thể xuất CSV",
+            "exportErrorDescription": "Tệp CSV tạm thời chưa sẵn sàng hoặc đã bị giới hạn tốc độ.",
+            "successTitle": "Đã tạo báo cáo CSV",
+            "successDescription": "Tệp đang được tải xuống trong trình duyệt."
+        },
+        "tabs": {
+            "summary": "Tổng quan",
+            "transactions": "Giao dịch",
+            "cancellations": "Hủy / Hoàn tiền"
+        },
+        "cancellations": {
+            "cancelledBookings": "Số lượt hủy",
+            "cancelledRevenue": "Doanh thu bị hủy",
+            "refundedCredit": "Hoàn tiền/credit"
+        },
+        "dailyChart": {
+            "title": "Biểu đồ doanh thu theo ngày",
+            "grossRevenue": "Doanh thu gộp kỳ này",
+            "settledRevenue": "Doanh thu đã quyết toán"
+        },
+        "transactions": {
+            "id": "Mã giao dịch",
+            "center": "Trung tâm",
+            "paidAt": "Ngày thanh toán",
+            "status": "Trạng thái",
+            "total": "Tổng tiền",
+            "fee": "Phí",
+            "courtCost": "Chi phí sân",
+            "netRevenue": "Doanh thu ròng",
+            "showing": "Hiển thị {{start}}-{{end}} / {{total}}"
+        },
+        "drawer": {
+            "courtCost": "Chi phí sân",
+            "netRevenue": "Doanh thu ròng"
+        }
+    },
+    "inventory": {
+        "page": {
+            "badge": "Quản lý kho",
+            "title": "Dịch vụ & Sản phẩm",
+            "subtitle": "Quản lý dịch vụ và sản phẩm theo từng trung tâm."
+        },
+        "center": {
+            "loading": "Đang tải...",
+            "noCenters": "Không có trung tâm nào",
+            "selected": "Chọn trung tâm"
+        },
+        "toast": {
+            "deleteServiceSuccess": "Đã xóa dịch vụ.",
+            "deleteProductSuccess": "Đã xóa sản phẩm.",
+            "deleteServiceError": "Không thể xóa dịch vụ.",
+            "deleteProductError": "Không thể xóa sản phẩm.",
+            "loadError": "Không thể tải danh sách dịch vụ và sản phẩm.",
+            "createServiceError": "Không thể thêm dịch vụ.",
+            "updateServiceError": "Không thể cập nhật dịch vụ.",
+            "createProductError": "Không thể thêm sản phẩm.",
+            "updateProductError": "Không thể cập nhật sản phẩm."
+        },
+        "filters": {
+            "searchTitle": "Tìm kiếm",
+            "searchServicePlaceholder": "Tìm dịch vụ",
+            "searchProductPlaceholder": "Tìm sản phẩm",
+            "typeTitle": "Loại",
+            "typeAll": "Tất cả loại",
+            "statusTitle": "Trạng thái",
+            "statusAll": "Tất cả",
+            "statusActive": "Đang hoạt động",
+            "statusInactive": "Tạm ngưng",
+            "createService": "Thêm dịch vụ",
+            "createProduct": "Thêm sản phẩm"
+        },
+        "form": {
+            "createServiceTitle": "Thêm dịch vụ",
+            "createProductTitle": "Thêm sản phẩm",
+            "editServiceTitle": "Chỉnh sửa dịch vụ",
+            "editProductTitle": "Chỉnh sửa sản phẩm",
+            "description": "Điền thông tin bên dưới.",
+            "nameLabel": "Tên",
+            "namePlaceholderService": "VD: Thuê vợt",
+            "namePlaceholderProduct": "VD: Pocari Sweat 500ml",
+            "typeLabel": "Loại",
+            "priceLabel": "Giá (VND)",
+            "unitLabel": "Đơn vị hiển thị",
+            "unitPlaceholderService": "VND / 3h",
+            "unitPlaceholderProduct": "VND / chai",
+            "stockLabel": "Tồn kho",
+            "stockPlaceholder": "100",
+            "descriptionLabel": "Mô tả",
+            "descriptionPlaceholder": "Mô tả ngắn gọn...",
+            "imageLabel": "Ảnh sản phẩm",
+            "imageHint": "PNG, JPEG, JPG · tối đa 5MB",
+            "uploading": "Đang tải...",
+            "uploadImage": "Tải ảnh lên",
+            "activeTitle": "Đang hoạt động",
+            "activeDescription": "Tắt để tạm ngưng hiển thị/đặt mục này.",
+            "cancel": "Hủy",
+            "create": "Tạo mới",
+            "save": "Lưu thay đổi",
+            "invalidImage": "Vui lòng chọn tệp ảnh (png, jpeg, jpg).",
+            "imageTooLarge": "Ảnh vượt quá dung lượng tối đa 5MB.",
+            "uploadSuccess": "Đã tải ảnh lên.",
+            "uploadError": "Không thể tải ảnh lên. Vui lòng thử lại.",
+            "nameRequired": "Vui lòng nhập tên.",
+            "priceInvalid": "Giá không hợp lệ.",
+            "stockInvalid": "Tồn kho không hợp lệ.",
+            "createdService": "Đã thêm dịch vụ.",
+            "createdProduct": "Đã thêm sản phẩm.",
+            "updatedService": "Đã cập nhật dịch vụ.",
+            "updatedProduct": "Đã cập nhật sản phẩm."
+        },
+        "deleteDialog": {
+            "title": "Xác nhận xóa",
+            "description": "Bạn có chắc muốn xóa “{{name}}”? Hành động này không thể hoàn tác.",
+            "cancel": "Hủy",
+            "delete": "Xóa",
+            "deleting": "Đang xóa..."
+        },
+        "detail": {
+            "serviceDescription": "Thông tin chi tiết dịch vụ",
+            "productDescription": "Thông tin chi tiết sản phẩm",
+            "type": "Loại",
+            "price": "Giá",
+            "unit": "Đơn vị",
+            "stock": "Tồn kho",
+            "description": "Mô tả",
+            "createdAt": "Ngày tạo",
+            "updatedAt": "Cập nhật gần nhất",
+            "edit": "Chỉnh sửa",
+            "empty": "Chưa chọn mục nào."
+        },
+        "table": {
+            "image": "Ảnh",
+            "name": "Tên",
+            "type": "Loại",
+            "price": "Giá",
+            "stock": "Tồn kho",
+            "status": "Trạng thái",
+            "actions": "Thao tác",
+            "noProducts": "Chưa có sản phẩm nào",
+            "noServices": "Chưa có dịch vụ nào",
+            "emptyDescription": "Không tìm thấy mục phù hợp với bộ lọc hiện tại."
+        }
+    },
+    "servicesProducts": {
+        "page": {
+            "product": "Sản phẩm",
+            "service": "Dịch vụ",
+            "activeCount_one": "{{count}} đang hoạt động",
+            "activeCount_other": "{{count}} đang hoạt động"
+        }
+    },
+    "sportCenterCard": {
+        "coverAlt": "{{name}} ảnh bìa",
+        "logoAlt": "{{name}} logo"
     }
-  },
-  "stats": {
-    "totalCreditValue": "Tổng giá trị hoàn tiền",
-    "totalCredits": "Tổng số bảo lưu",
-    "liveMock": "Dữ liệu mẫu"
-  },
-  "empty": {
-    "noCreditsTitle": "Không tìm thấy bảo lưu nào",
-    "noCreditsDescription": "Các bảo lưu được tạo từ đơn hủy sẽ hiển thị ở đây.",
-    "restoreMockCredits": "Khôi phục dữ liệu mẫu",
-    "noMatchesTitle": "Không có bảo lưu phù hợp",
-    "noMatchesDescription": "Thử bộ lọc hoặc từ khóa khác để hiển thị một bộ bảo lưu mẫu khác.",
-    "clearFilters": "Xóa bộ lọc"
-  },
-  "table": {
-    "creditId": "Mã bảo lưu",
-    "customer": "Khách hàng",
-    "originalBookingId": "Mã đặt sân gốc",
-    "creditAmount": "Giá trị hoàn tiền",
-    "remainingAmount": "Số dư còn lại",
-    "createdDate": "Ngày tạo",
-    "cancellationReason": "Lý do hủy",
-    "actions": "Thao tác"
-  },
-  "mobile": {
-    "created": "Ngày tạo",
-    "booking": "Đặt sân {{bookingId}}",
-    "balance": "Số dư",
-    "original": "Ban đầu {{amount}}",
-    "reason": "Lý do",
-    "remaining": "Còn lại {{amount}}"
-  },
-  "actions": {
-    "viewDetails": "Xem chi tiết",
-    "cancelCredit": "Hủy bảo lưu",
-    "createManualCredit": "Tạo bảo lưu thủ công"
-  },
-  "detail": {
-    "title": "Chi tiết bảo lưu",
-    "description": "Xem lại đơn hủy ban đầu, số dư còn lại và dòng thời gian sử dụng.",
-    "customerInformation": "Thông tin khách hàng",
-    "name": "Tên",
-    "phoneNumber": "Số điện thoại",
-    "originalBookingInformation": "Thông tin đặt sân ban đầu",
-    "bookingId": "Mã đặt sân",
-    "courtName": "Tên sân",
-    "bookingDate": "Ngày đặt",
-    "timeSlot": "Khung giờ",
-    "creditInformation": "Thông tin bảo lưu",
-    "creditAmount": "Giá trị hoàn tiền",
-    "remainingAmount": "Số dư còn lại",
-    "createdDate": "Ngày tạo",
-    "cancellationInformation": "Thông tin hủy",
-    "cancellationReason": "Lý do hủy",
-    "manualCredit": "Bảo lưu thủ công",
-    "yes": "Có",
-    "no": "Không",
-    "notes": "Ghi chú",
-    "creditUsageHistory": "Lịch sử sử dụng bảo lưu",
-    "usedAmount": "Đã dùng {{amount}}",
-    "bookingLabel": "Đặt sân {{bookingId}}",
-    "noUsageRecorded": "Chưa có lần sử dụng nào.",
-    "cancelCredit": "Hủy bảo lưu",
-    "noCreditSelected": "Chưa chọn bảo lưu nào."
-  },
-  "status": {
-    "ACTIVE": "Đang hoạt động",
-    "PARTIALLY_USED": "Đã dùng một phần",
-    "USED": "Đã dùng",
-    "EXPIRED": "Đã hết hạn"
-  },
-  "reasons": {
-    "CUSTOMER_CANCELLED": "Khách hàng hủy",
-    "OWNER_CANCELLED": "Chủ sân hủy",
-    "WEATHER": "Thời tiết",
-    "MAINTENANCE": "Bảo trì",
-    "OTHER": "Khác"
-  }
 }

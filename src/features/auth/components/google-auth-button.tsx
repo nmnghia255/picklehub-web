@@ -2,15 +2,18 @@
 
 import { GoogleLogin } from "@react-oauth/google"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { loginWithGoogleAction } from "../actions/google"
+import { translateAuthMessage } from "../utils"
 
 export function GoogleAuthButton({
   text,
 }: {
   text: "signin_with" | "signup_with"
 }) {
+  const { t } = useTranslation("common")
   const [, setIsPending] = useState(false)
 
   return (
@@ -18,18 +21,18 @@ export function GoogleAuthButton({
       onSuccess={async (credentialResponse) => {
         const idToken = credentialResponse.credential
         if (!idToken) {
-          toast.error("Không nhận được thông tin xác thực từ Google.")
+          toast.error(t("auth.oauth.googleError"))
           return
         }
         setIsPending(true)
         const result = await loginWithGoogleAction(idToken)
         setIsPending(false)
         if (result?.error) {
-          toast.error(result.error)
+          toast.error(translateAuthMessage(t, result.error))
         }
       }}
       onError={() => {
-        toast.error("Không thể xác thực với Google. Vui lòng thử lại.")
+        toast.error(t("auth.oauth.googleErrorGeneric"))
       }}
       useOneTap={false}
       text={text}

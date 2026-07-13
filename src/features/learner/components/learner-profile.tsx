@@ -1,6 +1,7 @@
-"use client"
+﻿"use client"
 
 import { Mail, Phone, User } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useSession } from "@/features/auth/hooks/use-session"
 
 export function LearnerProfile() {
+  const { t } = useTranslation("common")
   const session = useSession()
   const user = session?.user
 
@@ -36,7 +38,7 @@ export function LearnerProfile() {
         <CardContent className="flex flex-col items-center justify-center py-16 text-center">
           <User className="mb-2 size-10 text-muted-foreground" />
           <p className="text-muted-foreground">
-            Vui lòng đăng nhập để xem hồ sơ
+            {t("learner.profile.loginRequired")}
           </p>
         </CardContent>
       </Card>
@@ -47,19 +49,23 @@ export function LearnerProfile() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Hồ sơ người học</CardTitle>
+          <CardTitle>{t("learner.profile.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-6">
             <Avatar size="lg" className="size-20">
-              <AvatarImage src={""} alt={user.name ?? "User"} />
+              <AvatarImage
+                src={""}
+                alt={user.name ?? t("learner.profile.defaultUser")}
+              />
               <AvatarFallback className="text-lg">
-                {(user.name ?? "U")[0].toUpperCase()}
+                {(user.name ??
+                  t("learner.profile.defaultUser"))[0].toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="space-y-2">
               <h2 className="text-xl font-semibold">
-                {user.name ?? "Người dùng"}
+                {user.name ?? t("learner.profile.defaultUser")}
               </h2>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="size-4" />

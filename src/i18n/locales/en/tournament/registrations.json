@@ -2,6 +2,7 @@
   "registrations": {
     "title": "Registration Management",
     "subtitle": "Review and manage participant registrations",
+    "loadError": "Failed to load registrations",
     "tabs": {
       "pending": "Pending ({{count}})",
       "approved": "Approved ({{count}})",
@@ -39,6 +40,15 @@
       "noRegistrations": "No registrations found",
       "paymentProof": "Payment Proof",
       "viewProof": "View Proof"
-    }
+    },
+    "paymentProof": "Payment Proof",
+    "viewProof": "View Proof",
+    "filterEvent": "Filter Event",
+    "filterStatus": "Filter Status",
+    "allEvents": "All Events",
+    "approveSuccess": "Approved registration for {{name}}",
+    "rejectSuccess": "Rejected registration for {{name}}",
+    "approveError": "Failed to approve registration",
+    "rejectError": "Failed to reject registration"
   }
 }

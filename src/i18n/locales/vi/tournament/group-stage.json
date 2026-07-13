@@ -37,12 +37,14 @@
       "group": "Vòng bảng",
       "knockout": "Vòng loại trực tiếp"
     },
-    "noScheduledMatches": "Chưa lên lịch trận đấu",
-    "scheduledMatchesTitle": "Lịch trận đấu",
-    "unscheduled": "Chưa xếp lịch",
-    "completed": "Hoàn thành",
-    "scheduled": "Chưa diễn ra",
+    "scheduledMatchesTitle": "Lịch thi đấu vòng bảng",
+    "completed": "Hoàn tất",
     "inProgress": "Đang diễn ra",
-    "ready": "Sẵn sàng"
+    "ready": "Sẵn sàng",
+    "scheduled": "Lên lịch",
+    "unscheduled": "Chưa lên lịch",
+    "noScheduledMatches": "Chưa có lịch thi đấu vòng bảng",
+    "noScheduledMatchesHostDesc": "Vui lòng tạo lịch thi đấu vòng bảng",
+    "noScheduledMatchesUserDesc": "Hiện tại chưa có lịch thi đấu vòng bảng. Vui lòng liên hệ với ban tổ chức"
   }
 }

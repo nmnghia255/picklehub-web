@@ -49,15 +49,13 @@ function getTeamId(seed: Seed): string | undefined {
 
 interface SeedingTableProps {
   selectedEvent?: TournamentEvent
-  isHost: boolean
-  isEditable: boolean
+  canManageSeeding: boolean
   isLocked: boolean
 }
 
 export function SeedingTable({
   selectedEvent,
-  isHost,
-  isEditable,
+  canManageSeeding,
   isLocked,
 }: SeedingTableProps) {
   const { t } = useTournamentTranslation()
@@ -99,10 +97,10 @@ export function SeedingTable({
             <p className="mb-6 max-w-sm text-sm text-gray-500">
               {t("seeding.emptyState.description")}
             </p>
-            {isHost && (
+            {canManageSeeding && (
               <Button
                 onClick={() => handleAutoSeed(t)}
-                disabled={isGenerating || !isEditable}
+                disabled={isGenerating}
                 className="bg-emerald-600 text-white hover:bg-emerald-700"
               >
                 {isGenerating ? (
@@ -145,15 +143,15 @@ export function SeedingTable({
                   return (
                     <TableRow
                       key={getTeamId(seed) || `seed-${seed.seed}-${index}`}
-                      draggable={isHost && !isLocked && isEditable}
+                      draggable={canManageSeeding && !isLocked}
                       onDragStart={(e) => {
-                        if (!isHost || isLocked || !isEditable) return
+                        if (!canManageSeeding || isLocked) return
                         setDraggedIndex(index)
                         e.dataTransfer.effectAllowed = "move"
                         e.dataTransfer.setData("text/plain", index.toString())
                       }}
                       onDragOver={(e) => {
-                        if (!isHost || isLocked || !isEditable) return
+                        if (!canManageSeeding || isLocked) return
                         e.preventDefault()
                         if (dragOverIndex !== index) {
                           setDragOverIndex(index)
@@ -164,7 +162,7 @@ export function SeedingTable({
                         setDragOverIndex(null)
                       }}
                       onDrop={() => {
-                        if (!isHost || isLocked || !isEditable) return
+                        if (!canManageSeeding || isLocked) return
                         handleDrop(index, t)
                       }}
                       className={cn(
@@ -173,14 +171,13 @@ export function SeedingTable({
                         isDragOverThis &&
                           draggedIndex !== index &&
                           "border-t-2 border-emerald-500 bg-emerald-50",
-                        isHost &&
+                        canManageSeeding &&
                           !isLocked &&
-                          isEditable &&
                           "cursor-grab hover:bg-gray-50/80 active:cursor-grabbing"
                       )}
                     >
                       <TableCell className="text-center align-middle">
-                        {isHost && !isLocked && isEditable ? (
+                        {canManageSeeding && !isLocked ? (
                           <GripVertical className="h-4 w-4 cursor-grab text-gray-400 active:cursor-grabbing" />
                         ) : (
                           <div className="h-4 w-4" />

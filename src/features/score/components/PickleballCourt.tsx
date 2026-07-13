@@ -20,10 +20,10 @@ export function PickleballCourt() {
   const teamBSlots = getTeamBSlots(isB1Right)
   const teamASlots = getTeamASlots(isA1Right)
 
-  const leftTopSlot = isSwappedSides ? teamBSlots.right : teamASlots.left
-  const leftBottomSlot = isSwappedSides ? teamBSlots.left : teamASlots.right
-  const rightTopSlot = isSwappedSides ? teamASlots.left : teamBSlots.right
-  const rightBottomSlot = isSwappedSides ? teamASlots.right : teamBSlots.left
+  const leftTopSlot = isSwappedSides ? teamBSlots.left : teamASlots.left
+  const leftBottomSlot = isSwappedSides ? teamBSlots.right : teamASlots.right
+  const rightTopSlot = isSwappedSides ? teamASlots.right : teamBSlots.right
+  const rightBottomSlot = isSwappedSides ? teamASlots.left : teamBSlots.left
 
   const leftTeam = "A"
   const rightTeam = "B"

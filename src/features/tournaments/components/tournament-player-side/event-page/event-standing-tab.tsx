@@ -18,6 +18,7 @@ export function EventStandingTab({
 }: EventStandingTabProps) {
   const { t } = useTournamentTranslation()
   const { standing, isLoadingStanding, fetchStandings } = useEventStore()
+  const standingRows = Array.isArray(standing?.data) ? standing.data : []
 
   useEffect(() => {
     fetchStandings(tournamentId, eventId)
@@ -35,7 +36,7 @@ export function EventStandingTab({
     )
   }
 
-  if (!standing || standing.data.length === 0) {
+  if (!standing || standingRows.length === 0) {
     return (
       <div className="flex h-48 flex-col items-center justify-center gap-2 rounded-xl border border-dashed bg-white text-gray-400 shadow-sm dark:bg-zinc-950">
         <Trophy className="h-8 w-8 text-gray-300" />
@@ -99,7 +100,7 @@ export function EventStandingTab({
               </tr>
             </thead>
             <tbody className="dark:divide-zinc-850 divide-y divide-gray-100 bg-white dark:bg-zinc-900">
-              {standing.data.map((row) => {
+              {standingRows.map((row) => {
                 const isPodium = row.position <= 3
                 const rankStyle =
                   row.position === 1

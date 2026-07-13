@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import {
   BadgeCheck,
@@ -8,6 +8,7 @@ import {
   Star,
   TrendingUp,
 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,8 +16,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useSession } from "@/features/auth/hooks/use-session"
 import { useLearnerSchedule } from "@/features/learner/hooks/use-learner-queries"
 
-function formatDateTime(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("vi-VN", {
+function getLocaleCode(language: string) {
+  return language.startsWith("vi") ? "vi-VN" : "en-US"
+}
+
+function formatDateTime(dateStr: string, locale: string) {
+  return new Date(dateStr).toLocaleDateString(locale, {
     weekday: "short",
     day: "numeric",
     month: "numeric",
@@ -27,7 +32,9 @@ function formatDateTime(dateStr: string) {
 }
 
 export function LearnerOverview() {
+  const { t, i18n } = useTranslation("common")
   const session = useSession()
+  const locale = getLocaleCode(i18n.language)
   const { data, isLoading, error } = useLearnerSchedule(
     { limit: 5, sort: "asc" },
     { enabled: !!session?.user }
@@ -66,9 +73,9 @@ export function LearnerOverview() {
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-          <p className="text-destructive">Không thể tải dữ liệu tổng quan.</p>
+          <p className="text-destructive">{t("learner.overview.errorTitle")}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Vui lòng thử lại sau.
+            {t("learner.overview.errorDescription")}
           </p>
         </CardContent>
       </Card>
@@ -88,7 +95,7 @@ export function LearnerOverview() {
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <Calendar className="size-4" />
-              Tổng số buổi
+              {t("learner.overview.totalSessions")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -99,7 +106,7 @@ export function LearnerOverview() {
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <BookOpen className="size-4" />
-              Lớp học
+              {t("learner.overview.classes")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -110,7 +117,7 @@ export function LearnerOverview() {
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <Star className="size-4" />
-              Đặt lịch riêng
+              {t("learner.overview.privateBookings")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -121,7 +128,7 @@ export function LearnerOverview() {
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <TrendingUp className="size-4" />
-              Sắp diễn ra
+              {t("learner.overview.upcomingSessions")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -134,7 +141,7 @@ export function LearnerOverview() {
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <BadgeCheck className="size-4" />
-              HLV
+              {t("learner.overview.coaches")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -149,7 +156,7 @@ export function LearnerOverview() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Clock className="size-5" />
-            Buổi sắp tới
+            {t("learner.overview.upcomingTitle")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -157,7 +164,7 @@ export function LearnerOverview() {
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <Calendar className="mb-2 size-10 text-muted-foreground" />
               <p className="text-muted-foreground">
-                Bạn chưa có buổi học nào sắp tới
+                {t("learner.overview.noUpcomingSessions")}
               </p>
             </div>
           ) : (
@@ -171,7 +178,7 @@ export function LearnerOverview() {
                     <p className="font-medium">{item.title}</p>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="size-3.5" />
-                      <span>{formatDateTime(item.startsAt)}</span>
+                      <span>{formatDateTime(item.startsAt, locale)}</span>
                       <span className="text-xs">
                         (
                         {Math.round(
@@ -179,19 +186,23 @@ export function LearnerOverview() {
                             new Date(item.startsAt).getTime()) /
                             60000
                         )}{" "}
-                        phút)
+                        {t("learner.overview.minutes")})
                       </span>
                     </div>
                     {item.coachProfile && (
                       <p className="text-sm text-muted-foreground">
-                        HLV: {item.coachProfile.displayName}
+                        {t("learner.overview.coachLabel", {
+                          name: item.coachProfile.displayName,
+                        })}
                       </p>
                     )}
                   </div>
                   <Badge
                     variant={item.status === "live" ? "default" : "secondary"}
                   >
-                    {item.status === "live" ? "Đang diễn ra" : "Sắp tới"}
+                    {item.status === "live"
+                      ? t("learner.overview.live")
+                      : t("learner.overview.upcoming")}
                   </Badge>
                 </div>
               ))}

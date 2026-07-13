@@ -39,7 +39,7 @@ import type { Referee } from "../../types/referee"
 import { EnrollRefereeDialog } from "./enroll-referee-dialog"
 import { RefereeProfileCard } from "./referee-profile-card"
 
-export function RefereesRoster() {
+export function RefereesRoster({ isEditable }: { isEditable: boolean }) {
   const { t } = useTournamentTranslation()
   const [isPending, startTransition] = useTransition()
 
@@ -178,6 +178,7 @@ export function RefereesRoster() {
           </Button>
           <Button
             onClick={() => setIsEnrollOpen(true)}
+            disabled={!isEditable}
             className="bg-emerald-600 font-medium text-white shadow-sm hover:bg-emerald-700"
           >
             <Plus className="mr-2 h-4 w-4" />
@@ -210,6 +211,7 @@ export function RefereesRoster() {
           {!refereeSearch && (
             <Button
               onClick={() => setIsEnrollOpen(true)}
+              disabled={!isEditable}
               className="bg-emerald-600 text-white hover:bg-emerald-700"
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -224,6 +226,7 @@ export function RefereesRoster() {
               key={referee.id}
               referee={referee}
               onUnenroll={setRefereeToUnenroll}
+              isEditable={isEditable}
             />
           ))}
         </div>

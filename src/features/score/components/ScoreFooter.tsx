@@ -3,6 +3,17 @@
 import { Undo2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
@@ -23,8 +34,15 @@ export function ScoreFooter({
 }: ScoreFooterProps) {
   const { t } = useTournamentTranslation()
   const router = useRouter()
-  const { teamAScore, teamBScore, history, isSaving, matchStatus, handleUndo } =
-    useScoreStore()
+  const {
+    teamAScore,
+    teamBScore,
+    history,
+    isSaving,
+    matchStatus,
+    handleUndo,
+    applyReset,
+  } = useScoreStore()
 
   const isUndoDisabled = isMatchServiceMatch
     ? teamAScore === 0 && teamBScore === 0
@@ -32,7 +50,42 @@ export function ScoreFooter({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col-reverse items-stretch justify-end gap-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col-reverse items-stretch justify-between gap-4 sm:flex-row sm:items-center">
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              className="text-muted-foreground"
+            >
+              {t("referee.tracker.resetMatch")}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {t("referee.tracker.resetConfirmTitle")}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("referee.tracker.resetConfirmDesc")}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel type="button">
+                {t("referee.tracker.cancel")}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                type="button"
+                variant="destructive"
+                onClick={() => {
+                  void applyReset(isMatchServiceMatch, matchId)
+                }}
+              >
+                {t("referee.tracker.reset")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
         <Button
           type="button"
           variant="outline"
@@ -40,7 +93,7 @@ export function ScoreFooter({
           onClick={() => handleUndo(isMatchServiceMatch, matchId)}
         >
           <Undo2 data-icon="inline-start" />
-          {t("referee.tracker.undo", { defaultValue: "Undo" })}
+          {t("referee.tracker.undo")}
         </Button>
       </div>
 

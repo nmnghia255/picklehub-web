@@ -1,6 +1,10 @@
 export const dynamic = "force-dynamic"
 
 import { PageContainer } from "@/components/page-container"
+import {
+  cancelSubscriptionAction,
+  subscribeToPlanAction,
+} from "@/features/subscriptions/actions/subscription-actions"
 import { SubscriptionService } from "@/features/subscriptions/api/subscriptions-service"
 import { SubscriptionCards } from "@/features/subscriptions/components/subscription-cards"
 import type {
@@ -29,6 +33,8 @@ export default async function SubscriptionsPage() {
         <SubscriptionCards
           availablePlans={availablePlans}
           mySubscriptions={mySubscriptions}
+          onSubscribeToPlan={subscribeToPlanAction}
+          onCancelSubscription={cancelSubscriptionAction}
         />
       </PageContainer>
     </div>

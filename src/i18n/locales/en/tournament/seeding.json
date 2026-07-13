@@ -36,6 +36,12 @@
       "item2": "Drag and drop teams to manually adjust seeding order",
       "item3": "Lock individual seeds to prevent changes during auto-seeding",
       "item4": "Click \"Lock Seeding\" when finalized to prevent further modifications"
+    },
+    "errors": {
+      "loadFailed": "Failed to load seeding data",
+      "generateFailed": "Failed to generate seeds",
+      "lockFailed": "Failed to lock seeding",
+      "reorderFailed": "Failed to save seeding order"
     }
   }
 }

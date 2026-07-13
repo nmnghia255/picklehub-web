@@ -40,7 +40,7 @@ export async function loginWithGoogleAction(
         : responseData?.message || responseData?.error
 
       if (status === 403) {
-        return { error: "Tài khoản của bạn đã bị vô hiệu hóa." }
+        return { error: "auth.oauth.accountDisabled" }
       }
 
       if (backendMessage) {
@@ -49,16 +49,15 @@ export async function loginWithGoogleAction(
 
       if (error.code === "ECONNREFUSED") {
         return {
-          error:
-            "Không thể kết nối API Gateway. Kiểm tra NEXT_PUBLIC_API_GATEWAY_URL và trạng thái docker services.",
+          error: "auth.errors.connectionRefused",
         }
       }
 
       return {
-        error: `Đăng nhập thất bại (${status ?? "network"}). Vui lòng thử lại.`,
+        error: "auth.errors.loginFailed",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "auth.errors.generic" }
   }
 
   redirect("/")
@@ -76,7 +75,7 @@ export async function linkGoogleAction(
     await authenticatedAxios.post("/api/auth/google/link", { idToken })
     return {
       success: true,
-      message: "Đã liên kết tài khoản Google thành công.",
+      message: "auth.oauth.linkGoogleSuccess",
     }
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -88,9 +87,9 @@ export async function linkGoogleAction(
         : responseData?.message || responseData?.error
 
       return {
-        error: backendMessage || "Liên kết thất bại. Vui lòng thử lại.",
+        error: backendMessage || "auth.oauth.linkFailed",
       }
     }
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "auth.errors.generic" }
   }
 }

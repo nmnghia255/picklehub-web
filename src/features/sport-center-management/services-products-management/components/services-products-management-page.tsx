@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { InventoryKind } from "../store/services-products-store"
 import { useServicesProductsStore } from "../store/services-products-store"
@@ -46,6 +47,7 @@ function matchesStatus(
 }
 
 export function ServicesProductsManagementPage() {
+  const { t } = useSportCenterManagementTranslation()
   const centers = useServicesProductsStore((state) => state.centers)
   const loadingCenters = useServicesProductsStore(
     (state) => state.loadingCenters
@@ -202,7 +204,9 @@ export function ServicesProductsManagementPage() {
 
     if (success) {
       toast.success(
-        deleteTarget.kind === "service" ? "Đã xóa dịch vụ." : "Đã xóa sản phẩm."
+        deleteTarget.kind === "service"
+          ? t("inventory.toast.deleteServiceSuccess")
+          : t("inventory.toast.deleteProductSuccess")
       )
       setDeleteTarget(null)
     }
@@ -230,13 +234,13 @@ export function ServicesProductsManagementPage() {
         <div className="space-y-2">
           <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
             <PackageOpen className="size-4 text-sky-500" />
-            Dịch vụ & Sản phẩm
+            {t("inventory.page.badge")}
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            Dịch vụ & Sản phẩm
+            {t("inventory.page.title")}
           </h1>
           <p className="max-w-2xl text-sm text-muted-foreground">
-            Quản lý dịch vụ và sản phẩm theo từng trung tâm.
+            {t("inventory.page.subtitle")}
           </p>
         </div>
 
@@ -248,18 +252,20 @@ export function ServicesProductsManagementPage() {
               disabled={loadingCenters}
             >
               <MapPinned className="size-4" />
-              <span>{selectedCenter?.name ?? "Chọn trung tâm"}</span>
+              <span>
+                {selectedCenter?.name ?? t("inventory.center.selected")}
+              </span>
               <ChevronDown className="size-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-64">
             {loadingCenters ? (
               <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                Đang tải...
+                {t("inventory.center.loading")}
               </div>
             ) : centers.length === 0 ? (
               <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                Không có trung tâm nào
+                {t("inventory.center.noCenters")}
               </div>
             ) : (
               centers.map((center) => (
@@ -284,29 +290,37 @@ export function ServicesProductsManagementPage() {
       {permissionDenied ? (
         <div className="flex items-center gap-3 rounded-2xl border border-dashed bg-muted/30 p-4 text-sm text-muted-foreground">
           <ShieldAlert className="size-5 text-amber-500" />
-          Bạn không có quyền quản lý dịch vụ/sản phẩm của trung tâm này.
+          {t("revenue.permissionDenied")}
         </div>
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardContent className="space-y-2 p-4">
-            <p className="text-sm text-muted-foreground">Sản phẩm</p>
+            <p className="text-sm text-muted-foreground">
+              {t("servicesProducts.page.product")}
+            </p>
             <div className="flex items-center justify-between gap-3">
               <p className="text-2xl font-semibold">{productSummary.total}</p>
               <Badge variant="secondary">
-                {productSummary.active} hoạt động
+                {t("servicesProducts.page.activeCount", {
+                  count: productSummary.active,
+                })}
               </Badge>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="space-y-2 p-4">
-            <p className="text-sm text-muted-foreground">Dịch vụ</p>
+            <p className="text-sm text-muted-foreground">
+              {t("servicesProducts.page.service")}
+            </p>
             <div className="flex items-center justify-between gap-3">
               <p className="text-2xl font-semibold">{serviceSummary.total}</p>
               <Badge variant="secondary">
-                {serviceSummary.active} hoạt động
+                {t("servicesProducts.page.activeCount", {
+                  count: serviceSummary.active,
+                })}
               </Badge>
             </div>
           </CardContent>
@@ -320,11 +334,11 @@ export function ServicesProductsManagementPage() {
       >
         <TabsList>
           <TabsTrigger value="product" className="gap-2">
-            Sản phẩm
+            {t("servicesProducts.page.product")}
             <Badge variant="secondary">{products.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="service" className="gap-2">
-            Dịch vụ
+            {t("servicesProducts.page.service")}
             <Badge variant="secondary">{services.length}</Badge>
           </TabsTrigger>
         </TabsList>
@@ -400,14 +414,19 @@ export function ServicesProductsManagementPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("inventory.deleteDialog.title")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc muốn xóa “{deleteTarget?.item.name}”? Hành động này
-              không thể hoàn tác.
+              {t("inventory.deleteDialog.description", {
+                name: deleteTarget?.item.name ?? "",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Hủy</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>
+              {t("inventory.deleteDialog.cancel")}
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={(event) => {
                 event.preventDefault()
@@ -416,7 +435,9 @@ export function ServicesProductsManagementPage() {
               disabled={deleting}
               className="bg-rose-600 hover:bg-rose-700"
             >
-              {deleting ? "Đang xóa..." : "Xóa"}
+              {deleting
+                ? t("inventory.deleteDialog.deleting")
+                : t("common.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -52,7 +52,7 @@ function getMemberId(member: unknown): string {
 function getMemberName(member: unknown): string {
   if (!member) return ""
   if (typeof member === "string") {
-    return member.length === 36 ? `User ${member.slice(0, 8)}` : member
+    return member.length === 36 ? member.slice(0, 8) : member
   }
   if (typeof member === "object" && member !== null) {
     const obj = member as Record<string, unknown>
@@ -60,7 +60,7 @@ function getMemberName(member: unknown): string {
     if (typeof name === "string") return name
     const id = obj.id || obj.userId
     if (typeof id === "string") {
-      return `User ${id.slice(0, 8)}`
+      return id.slice(0, 8)
     }
   }
   return ""
@@ -80,7 +80,8 @@ function getOpponentLabel(
   }
 
   if (opponentTeam.length === 1) {
-    return getMemberName(opponentTeam[0]) || t("unknown")
+    const opponentName = getMemberName(opponentTeam[0])
+    return opponentName ? t("unknownUser", { id: opponentName }) : t("unknown")
   }
 
   return t("teamSize", { count: opponentTeam.length })

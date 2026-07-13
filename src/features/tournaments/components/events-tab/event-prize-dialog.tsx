@@ -295,7 +295,7 @@ export function EventPrizeDialog({
                     <div className="relative mt-1">
                       <Input
                         id={`cash-${pos.id}`}
-                        placeholder="e.g. 5.000.000"
+                        placeholder={t("create.step4.cashPrizePlaceholder")}
                         value={config.cashValue}
                         onChange={(e) =>
                           handleCashChange(pos.id, e.target.value)

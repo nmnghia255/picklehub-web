@@ -44,9 +44,14 @@ import type { Tournament, TournamentRequest } from "../../types/tournament"
 interface PaymentTabProps {
   tournament: Tournament
   isHost: boolean
+  isEditable: boolean
 }
 
-export function PaymentTab({ tournament, isHost }: PaymentTabProps) {
+export function PaymentTab({
+  tournament,
+  isHost,
+  isEditable,
+}: PaymentTabProps) {
   const { t } = useTournamentTranslation()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -181,8 +186,6 @@ export function PaymentTab({ tournament, isHost }: PaymentTabProps) {
     tournament.paymentAccountNumber ||
     tournament.paymentQrUrl
   )
-
-  const isEditable = true || isHost
 
   return (
     <div className="p-8">
@@ -320,7 +323,7 @@ export function PaymentTab({ tournament, isHost }: PaymentTabProps) {
                       <div className="relative h-40 w-40 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
                         <Image
                           src={qrUrl}
-                          alt="QR Code Preview"
+                          alt={t("common.previewImageAlt")}
                           fill
                           sizes="160px"
                           className="object-contain p-2"
@@ -600,7 +603,7 @@ export function PaymentTab({ tournament, isHost }: PaymentTabProps) {
                       <div className="relative h-64 w-64 rounded-xl border border-gray-200 bg-white shadow-lg transition-transform duration-300 hover:scale-[1.02]">
                         <Image
                           src={tournament.paymentQrUrl}
-                          alt="Payment QR Code"
+                          alt={t("common.previewImageAlt")}
                           fill
                           sizes="256px"
                           className="object-contain p-0"

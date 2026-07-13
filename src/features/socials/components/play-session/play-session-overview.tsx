@@ -91,16 +91,12 @@ export default function PlaySessionOverview({
     setIsPending(true)
     try {
       await startPlaySession(socialId, session.id)
-      toast.success(
-        t("sessions.startSuccess") || "Play session started successfully!"
-      )
+      toast.success(t("sessions.startSuccess"))
       router.refresh()
     } catch (error) {
       console.error("Error starting play session:", error)
       const message = error instanceof Error ? error.message : ""
-      toast.error(
-        message || t("sessions.startError") || "Failed to start play session"
-      )
+      toast.error(message || t("sessions.startError"))
     } finally {
       setIsPending(false)
     }
@@ -111,18 +107,12 @@ export default function PlaySessionOverview({
     setIsPending(true)
     try {
       await completePlaySession(socialId, session.id)
-      toast.success(
-        t("sessions.completeSuccess") || "Play session completed successfully!"
-      )
+      toast.success(t("sessions.completeSuccess"))
       router.refresh()
     } catch (error) {
       console.error("Error completing play session:", error)
       const message = error instanceof Error ? error.message : ""
-      toast.error(
-        message ||
-          t("sessions.completeError") ||
-          "Failed to complete play session"
-      )
+      toast.error(message || t("sessions.completeError"))
     } finally {
       setIsPending(false)
     }
@@ -157,21 +147,15 @@ export default function PlaySessionOverview({
         <StatCard value={duration} label={t("playSessionOverview.minutes")} />
         <StatCard
           value={`${session.joinedCount} / ${session.maxSlot ?? t("playSessionOverview.unlimited")}`}
-          label={t("playSessionOverview.participants", {
-            defaultValue: "Participants",
-          })}
+          label={t("playSessionOverview.participants", {})}
         />
         <StatCard
           value={totalMatchesCount}
-          label={t("playSessionOverview.totalMatches", {
-            defaultValue: "Total Matches",
-          })}
+          label={t("playSessionOverview.totalMatches", {})}
         />
         <StatCard
           value={userJoinedMatchesCount}
-          label={t("playSessionOverview.joinedMatches", {
-            defaultValue: "My Matches",
-          })}
+          label={t("playSessionOverview.joinedMatches", {})}
         />
       </div>
 
@@ -199,11 +183,11 @@ export default function PlaySessionOverview({
         {typeof session.sessionFee === "number" && (
           <InfoRow
             icon={<Banknote className="size-5" />}
-            label={t("sidebar.payment", { defaultValue: "Payment" })}
+            label={t("sidebar.payment")}
             value={
               session.sessionFee > 0
                 ? formatCurrencyVnd(session.sessionFee)
-                : t("form.freeEvent", { defaultValue: "Free" })
+                : t("form.freeEvent")
             }
             iconClassName="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
           />

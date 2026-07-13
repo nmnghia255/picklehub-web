@@ -8,6 +8,7 @@ import {
   confirmBookingAction,
 } from "@/features/sport-center-management/actions/booking-actions"
 import CancelReasonDialog from "@/features/sport-center-management/components/booking-list/cancel-reason-dialog"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { Booking } from "../../../types/booking"
 
@@ -22,6 +23,7 @@ export function BookingFooterActions({
   onClose,
   onActionSuccess,
 }: Props) {
+  const { t } = useSportCenterManagementTranslation()
   const [isProcessing, setIsProcessing] = useState(false)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -35,7 +37,11 @@ export function BookingFooterActions({
       onActionSuccess()
       onClose()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to confirm booking")
+      setError(
+        err instanceof Error
+          ? err.message
+          : t("bookingList.errors.confirmFailed")
+      )
     } finally {
       setIsProcessing(false)
     }
@@ -50,7 +56,11 @@ export function BookingFooterActions({
       onActionSuccess()
       onClose()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to cancel booking")
+      setError(
+        err instanceof Error
+          ? err.message
+          : t("bookingList.errors.cancelFailed")
+      )
     } finally {
       setIsProcessing(false)
     }
@@ -65,7 +75,7 @@ export function BookingFooterActions({
       <div className="flex justify-end gap-2 border-t pt-2">
         {booking.status === "PENDING" && (
           <Button onClick={handleConfirm} disabled={isProcessing}>
-            Xác nhận
+            {t("bookingList.detail.confirm")}
           </Button>
         )}
 
@@ -75,12 +85,12 @@ export function BookingFooterActions({
             variant="destructive"
             disabled={isProcessing}
           >
-            Hủy
+            {t("bookingList.detail.cancel")}
           </Button>
         )}
 
         <Button onClick={onClose} variant="outline">
-          Đóng
+          {t("bookingList.detail.close")}
         </Button>
       </div>
 

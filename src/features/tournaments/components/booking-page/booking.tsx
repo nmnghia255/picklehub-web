@@ -136,9 +136,7 @@ export default function BookingPage() {
         if (isActive) {
           setCourtAvailability(null)
           setAvailabilityError(
-            tRef.current("booking.toasts.loadAvailabilityFailed", {
-              defaultValue: "Failed to load court availability for this date",
-            })
+            tRef.current("booking.toasts.loadAvailabilityFailed")
           )
         }
       } finally {
@@ -177,18 +175,14 @@ export default function BookingPage() {
   if (!sportCenter) {
     return (
       <div className="w-full px-4 py-12 text-center sm:px-6 md:px-8">
-        <p className="text-gray-500">
-          {t("booking.page.centerNotFound", {
-            defaultValue: "Sport center not found",
-          })}
-        </p>
+        <p className="text-gray-500">{t("booking.page.centerNotFound")}</p>
         <Button
           variant="outline"
           className="mt-4"
           onClick={() => router.back()}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          {t("booking.page.goBack", { defaultValue: "Go Back" })}
+          {t("booking.page.goBack")}
         </Button>
       </div>
     )

@@ -1,3 +1,5 @@
+import type { MyBookingsResponse } from "@/features/sport-center/types/booking"
+
 import type * as CoachTypes from "../types/coach"
 import type { DiscoverClassItemDTO } from "../types/dto/discover-class-dto"
 import type {
@@ -143,6 +145,21 @@ export const CoachClient = {
     return json as CoachTypes.CoachProfile
   },
 
+  listMyCourtBookings: (params?: {
+    status?: string
+    courtId?: string
+    centerId?: string
+    startDate?: string
+    endDate?: string
+    limit?: number
+    offset?: number
+  }) =>
+    apiFetch<MyBookingsResponse>(
+      "/bookings/me",
+      { method: "GET" },
+      params as QueryParams
+    ),
+
   updateMyCoachProfile: (dto: CoachTypes.UpdateCoachProfileDto) =>
     apiFetch<CoachTypes.CoachProfile>("/coach/profile/me", {
       method: "PATCH",
@@ -183,6 +200,19 @@ export const CoachClient = {
       `/coach/classes/${classId}/schedules`,
       {
         method: "POST",
+        body: JSON.stringify(dto),
+      }
+    ),
+
+  updateClassScheduleLocation: (
+    classId: string,
+    scheduleId: string,
+    dto: CoachTypes.UpdateClassScheduleLocationDto
+  ) =>
+    apiFetch<CoachTypes.ClassScheduleEntry>(
+      `/coach/classes/${classId}/schedules/${scheduleId}/location`,
+      {
+        method: "PATCH",
         body: JSON.stringify(dto),
       }
     ),
@@ -427,6 +457,15 @@ export const CoachClient = {
   createBooking: (coachId: string, dto: CoachTypes.CreateBookingDto) =>
     apiFetch<CoachTypes.Booking>(`/coaches/${coachId}/bookings`, {
       method: "POST",
+      body: JSON.stringify(dto),
+    }),
+
+  updateBookingLocation: (
+    bookingId: string,
+    dto: CoachTypes.UpdateBookingLocationDto
+  ) =>
+    apiFetch<CoachTypes.Booking>(`/coach/bookings/${bookingId}/location`, {
+      method: "PATCH",
       body: JSON.stringify(dto),
     }),
 

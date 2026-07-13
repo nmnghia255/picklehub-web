@@ -13,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { formatCurrencyVnd } from "@/features/sport-center-management/revenue-report/utils/format"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { InventoryKind } from "../store/services-products-store"
 import type { SportCenterProduct, SportCenterService } from "../types"
@@ -35,6 +36,7 @@ export function InventoryTable({
   onEdit: (item: InventoryRow) => void
   onDelete: (item: InventoryRow) => void
 }) {
+  const { t } = useSportCenterManagementTranslation()
   const isProduct = kind === "product"
 
   if (loading) {
@@ -52,10 +54,12 @@ export function InventoryTable({
       <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed bg-muted/20 px-6 py-12 text-center">
         <PackageSearch className="size-6 text-muted-foreground" />
         <p className="text-sm font-medium">
-          {isProduct ? "Chưa có sản phẩm nào" : "Chưa có dịch vụ nào"}
+          {isProduct
+            ? t("inventory.table.noProducts")
+            : t("inventory.table.noServices")}
         </p>
         <p className="text-xs text-muted-foreground">
-          Không tìm thấy mục phù hợp với bộ lọc hiện tại.
+          {t("inventory.table.emptyDescription")}
         </p>
       </div>
     )
@@ -66,15 +70,25 @@ export function InventoryTable({
       <Table>
         <TableHeader>
           <TableRow>
-            {isProduct ? <TableHead className="w-14">Ảnh</TableHead> : null}
-            <TableHead>Tên</TableHead>
-            <TableHead>Loại</TableHead>
-            <TableHead className="text-right">Giá</TableHead>
             {isProduct ? (
-              <TableHead className="text-right">Tồn kho</TableHead>
+              <TableHead className="w-14">
+                {t("inventory.table.image")}
+              </TableHead>
             ) : null}
-            <TableHead>Trạng thái</TableHead>
-            <TableHead className="w-[1%] text-right">Thao tác</TableHead>
+            <TableHead>{t("inventory.table.name")}</TableHead>
+            <TableHead>{t("inventory.table.type")}</TableHead>
+            <TableHead className="text-right">
+              {t("inventory.table.price")}
+            </TableHead>
+            {isProduct ? (
+              <TableHead className="text-right">
+                {t("inventory.table.stock")}
+              </TableHead>
+            ) : null}
+            <TableHead>{t("inventory.table.status")}</TableHead>
+            <TableHead className="w-[1%] text-right">
+              {t("inventory.table.actions")}
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

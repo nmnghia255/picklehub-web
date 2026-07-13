@@ -14,6 +14,7 @@ import {
   House,
   type LucideIcon,
   MapPinned,
+  MessageSquare,
   Shield,
   Trophy,
   UserRound,
@@ -59,6 +60,7 @@ const sidebarItems: SidebarItem[] = [
   { titleKey: "tournaments", href: "/tournaments", icon: Trophy },
   { titleKey: "groups", href: "/groups", icon: Users },
   { titleKey: "friends", href: "/friend", icon: Handshake },
+  { titleKey: "chat", href: "/chat", icon: MessageSquare },
   {
     titleKey: "tournamentManagement",
     href: "/tournament-management",
@@ -107,6 +109,7 @@ function isActivePath(pathname: string, href: string) {
 function SidebarLogo() {
   const { state } = useSidebar()
   const { resolvedTheme } = useTheme()
+  const { t } = useTranslation("common")
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -135,7 +138,7 @@ function SidebarLogo() {
       >
         <img
           src={isDark ? "/logo-dark.png" : "/logo-light.png"}
-          alt="PickleHub Logo"
+          alt={t("logoAlt")}
           className="h-full w-full object-cover"
         />
       </div>
@@ -156,6 +159,9 @@ export function AppSidebar() {
   const { data: subscriptions = [] } = useMySubscriptions()
   const hasSportCenterManagerPlan = subscriptions.some(
     (sub) => sub.status === "ACTIVE" && sub.plan.type === "SPORT_CENTER_MANAGER"
+  )
+  const hasTournamentOrganizerPlan = subscriptions.some(
+    (sub) => sub.status === "ACTIVE" && sub.plan.type === "TOURNAMENT_ORGANIZER"
   )
   const [isSportCenterManagementMenuOpen, setIsSportCenterManagementMenuOpen] =
     useState(false)
@@ -216,27 +222,33 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {sidebarItems.map((item) => {
-                return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActivePath(pathname, item.href)}
-                      tooltip={t(`sidebar.${item.titleKey}`)}
-                    >
-                      <Link href={item.href} onClick={handlePrimaryItemClick}>
-                        <span className="relative inline-flex items-center justify-center">
-                          <item.icon className="size-4" />
-                          {item.href === "/feed" && unreadCount > 0 && (
-                            <span className="ring-sidebar-background absolute -top-1 -right-1 size-2 rounded-full bg-red-500 ring-2" />
-                          )}
-                        </span>
-                        <span>{t(`sidebar.${item.titleKey}`)}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+              {sidebarItems
+                .filter(
+                  (item) =>
+                    item.href !== "/tournament-management" ||
+                    hasTournamentOrganizerPlan
                 )
-              })}
+                .map((item) => {
+                  return (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActivePath(pathname, item.href)}
+                        tooltip={t(`sidebar.${item.titleKey}`)}
+                      >
+                        <Link href={item.href} onClick={handlePrimaryItemClick}>
+                          <span className="relative inline-flex items-center justify-center">
+                            <item.icon className="size-4" />
+                            {item.href === "/feed" && unreadCount > 0 && (
+                              <span className="ring-sidebar-background absolute -top-1 -right-1 size-2 rounded-full bg-red-500 ring-2" />
+                            )}
+                          </span>
+                          <span>{t(`sidebar.${item.titleKey}`)}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                })}
 
               {hasSportCenterManagerPlan && (
                 <SidebarMenuItem>

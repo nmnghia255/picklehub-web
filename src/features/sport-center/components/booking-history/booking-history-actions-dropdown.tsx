@@ -54,7 +54,7 @@ export function BookingHistoryActionsDropdown({
               href={`/sport-center/${booking.center.id || booking.centerId}/booking/confirmation/payment?bookingId=${booking.id}`}
             >
               <CreditCard className="mr-2 size-4" />
-              {t("booking.history.pay", { defaultValue: "Thanh toán" })}
+              {t("booking.history.pay")}
             </Link>
           </DropdownMenuItem>
         )}

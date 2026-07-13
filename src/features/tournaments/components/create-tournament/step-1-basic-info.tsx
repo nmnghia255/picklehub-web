@@ -90,7 +90,7 @@ export function Step1BasicInfo() {
             <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-gray-200 bg-white">
               <Image
                 src={formValues.banner}
-                alt="Banner preview"
+                alt={t("common.previewImageAlt")}
                 fill
                 className="object-cover"
                 unoptimized

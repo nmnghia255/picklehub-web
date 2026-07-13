@@ -66,26 +66,21 @@ export default function SocialFeedbackTab({
     queryFn: () => getFeedbackAction(socialId),
     enabled: !!socialId,
   })
+  const comments = Array.isArray(feedbackData?.comments)
+    ? feedbackData.comments
+    : []
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMessage(null)
 
     if (overallRating === 0) {
-      setErrorMessage(
-        t("feedback.errorEmptyRating", {
-          defaultValue: "Please choose a rating before submitting.",
-        })
-      )
+      setErrorMessage(t("feedback.errorEmptyRating"))
       return
     }
 
     if (!comment.trim()) {
-      setErrorMessage(
-        t("feedback.errorEmptyComment", {
-          defaultValue: "Please write a comment before submitting.",
-        })
-      )
+      setErrorMessage(t("feedback.errorEmptyComment"))
       return
     }
 
@@ -103,7 +98,7 @@ export default function SocialFeedbackTab({
     } catch (err: unknown) {
       console.error(err)
       const msg =
-        err instanceof Error ? err.message : "Failed to submit feedback."
+        err instanceof Error ? err.message : t("feedback.submitFailed")
       setErrorMessage(msg)
     } finally {
       setIsSubmitting(false)
@@ -177,13 +172,10 @@ export default function SocialFeedbackTab({
           <Card className="w-full gap-0 border-primary/10 bg-linear-to-br from-background via-background to-primary/5 shadow-sm">
             <CardHeader className="pb-4">
               <CardTitle className="text-2xl font-bold tracking-tight sm:text-3xl">
-                {t("feedback.title", { defaultValue: "Participant Feedback" })}
+                {t("feedback.title")}
               </CardTitle>
               <CardDescription className="mt-2 text-sm text-muted-foreground">
-                {t("feedback.subtitle", {
-                  defaultValue:
-                    "Your feedback helps the host improve future pickleball social events. Let them know how it went!",
-                })}
+                {t("feedback.subtitle")}
               </CardDescription>
             </CardHeader>
 
@@ -195,14 +187,10 @@ export default function SocialFeedbackTab({
                   <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
                     <div>
                       <span className="text-sm font-semibold text-foreground">
-                        {t("feedback.overallExperience", {
-                          defaultValue: "Overall Experience",
-                        })}
+                        {t("feedback.overallExperience")}
                       </span>
                       <p className="text-xs text-muted-foreground">
-                        {t("feedback.overallDesc", {
-                          defaultValue: "Rate your total experience today",
-                        })}
+                        {t("feedback.overallDesc")}
                       </p>
                     </div>
                     {renderStarRating(
@@ -219,15 +207,10 @@ export default function SocialFeedbackTab({
                   <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
                     <div>
                       <span className="text-sm font-semibold text-foreground">
-                        {t("feedback.hostOrganization", {
-                          defaultValue: "Host Organization",
-                        })}
+                        {t("feedback.hostOrganization")}
                       </span>
                       <p className="text-xs text-muted-foreground">
-                        {t("feedback.hostDesc", {
-                          defaultValue:
-                            "Match coordination, friendliness and organization",
-                        })}
+                        {t("feedback.hostDesc")}
                       </p>
                     </div>
                     {renderStarRating(
@@ -244,15 +227,10 @@ export default function SocialFeedbackTab({
                   <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
                     <div>
                       <span className="text-sm font-semibold text-foreground">
-                        {t("feedback.venueQuality", {
-                          defaultValue: "Venue & Court Quality",
-                        })}
+                        {t("feedback.venueQuality")}
                       </span>
                       <p className="text-xs text-muted-foreground">
-                        {t("feedback.venueDesc", {
-                          defaultValue:
-                            "Court conditions, lights and sports facilities",
-                        })}
+                        {t("feedback.venueDesc")}
                       </p>
                     </div>
                     {renderStarRating(
@@ -270,18 +248,13 @@ export default function SocialFeedbackTab({
                     htmlFor="comment"
                     className="text-sm font-semibold text-foreground"
                   >
-                    {t("feedback.commentLabel", {
-                      defaultValue: "Write your review / comment",
-                    })}
+                    {t("feedback.commentLabel")}
                   </label>
                   <Textarea
                     id="comment"
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
-                    placeholder={t("feedback.commentPlaceholder", {
-                      defaultValue:
-                        "Describe your experience, what went well, and what could be improved...",
-                    })}
+                    placeholder={t("feedback.commentPlaceholder")}
                     className="min-h-[120px] resize-none rounded-2xl border-border bg-card/60 focus:bg-card focus:ring-1 focus:ring-primary/40"
                   />
                 </div>
@@ -303,12 +276,8 @@ export default function SocialFeedbackTab({
                     disabled={isSubmitting}
                   >
                     {isSubmitting
-                      ? t("common.submitting", {
-                          defaultValue: "Submitting...",
-                        })
-                      : t("feedback.submitBtn", {
-                          defaultValue: "Submit Feedback",
-                        })}
+                      ? t("common.submitting")
+                      : t("feedback.submitBtn")}
                   </Button>
                 </div>
               </form>
@@ -323,15 +292,10 @@ export default function SocialFeedbackTab({
           <CardHeader className="pb-0">
             <div>
               <CardTitle className="text-2xl font-semibold tracking-tight">
-                {t("feedback.othersTitle", {
-                  defaultValue: "Participant Reviews",
-                })}
+                {t("feedback.othersTitle")}
               </CardTitle>
               <CardDescription className="mt-1 text-sm text-muted-foreground">
-                {t("feedback.othersSubtitle", {
-                  defaultValue:
-                    "See what other players say about this social event",
-                })}
+                {t("feedback.othersSubtitle")}
               </CardDescription>
 
               {/* Average Rating Summary Overview */}
@@ -340,9 +304,7 @@ export default function SocialFeedbackTab({
                   <div className="mt-4 grid grid-cols-1 gap-4 rounded-xl border border-border/50 bg-muted/20 p-4 sm:grid-cols-3">
                     <div className="flex flex-col items-center justify-center p-2 text-center">
                       <span className="text-xs text-muted-foreground">
-                        {t("feedback.overallExperience", {
-                          defaultValue: "Overall Experience",
-                        })}
+                        {t("feedback.overallExperience")}
                       </span>
                       <div className="mt-1 flex items-center gap-1">
                         <span className="text-lg font-bold">
@@ -354,9 +316,7 @@ export default function SocialFeedbackTab({
                     </div>
                     <div className="flex flex-col items-center justify-center border-border/40 p-2 text-center sm:border-x sm:border-t-0">
                       <span className="text-xs text-muted-foreground">
-                        {t("feedback.hostOrganization", {
-                          defaultValue: "Host Organization",
-                        })}
+                        {t("feedback.hostOrganization")}
                       </span>
                       <div className="mt-1 flex items-center gap-1">
                         <span className="text-lg font-bold">
@@ -369,9 +329,7 @@ export default function SocialFeedbackTab({
                     </div>
                     <div className="flex flex-col items-center justify-center border-t p-2 text-center sm:border-t-0">
                       <span className="text-xs text-muted-foreground">
-                        {t("feedback.venueQuality", {
-                          defaultValue: "Venue & Court Quality",
-                        })}
+                        {t("feedback.venueQuality")}
                       </span>
                       <div className="mt-1 flex items-center gap-1">
                         <span className="text-lg font-bold">
@@ -393,16 +351,12 @@ export default function SocialFeedbackTab({
                 <div className="h-20 animate-pulse rounded-xl bg-muted" />
                 <div className="h-20 animate-pulse rounded-xl bg-muted" />
               </div>
-            ) : !feedbackData?.comments ||
-              feedbackData.comments.length === 0 ? (
+            ) : comments.length === 0 ? (
               <div className="py-8 text-center text-sm text-muted-foreground">
-                {t("feedback.noReviewsYet", {
-                  defaultValue:
-                    "No reviews yet. Be the first to share your experience!",
-                })}
+                {t("feedback.noReviewsYet")}
               </div>
             ) : (
-              feedbackData.comments.map((commentItem, idx) => (
+              comments.map((commentItem, idx) => (
                 <div
                   key={commentItem.id || idx}
                   className="group relative flex flex-col gap-2 rounded-2xl border p-4 transition-all"
@@ -423,9 +377,7 @@ export default function SocialFeedbackTab({
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-foreground">
                           {commentItem.userName ||
-                            t("feedback.anonymousPlayer", {
-                              defaultValue: "Participant",
-                            })}
+                            t("feedback.anonymousPlayer")}
                         </p>
                         {commentItem.createdAt && (
                           <p
@@ -460,18 +412,15 @@ export default function SocialFeedbackTab({
               <CheckCircle2 className="size-10" />
             </div>
             <DialogTitle className="text-lg font-bold">
-              {t("feedback.dialogTitle", { defaultValue: "Feedback Received" })}
+              {t("feedback.dialogTitle")}
             </DialogTitle>
             <DialogDescription className="mt-2 text-sm text-muted-foreground">
-              {t("feedback.dialogDesc", {
-                defaultValue:
-                  "Thank you for your response! Your feedback has been submitted successfully.",
-              })}
+              {t("feedback.dialogDesc")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="pt-2 sm:justify-center">
             <Button type="button" onClick={handleCloseDialog} className="px-6">
-              {t("feedback.close", { defaultValue: "Close" })}
+              {t("feedback.close")}
             </Button>
           </DialogFooter>
         </DialogContent>

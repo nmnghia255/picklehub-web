@@ -28,10 +28,12 @@ export function BookingManagement({
   tournamentId,
   tournamentStartDate,
   tournamentEndDate,
+  isEditable,
 }: {
   tournamentId: number
   tournamentStartDate?: string | null
   tournamentEndDate?: string | null
+  isEditable: boolean
 }) {
   const { t } = useTournamentTranslation()
   const [centers, setCenters] = useState<TournamentCenter[]>([])
@@ -106,7 +108,7 @@ export function BookingManagement({
       }
     } catch (error) {
       console.error(error)
-      toast.error("An error occurred while loading data")
+      toast.error(t("booking.toasts.loadDataFailed"))
     } finally {
       setIsLoading(false)
     }
@@ -152,11 +154,11 @@ export function BookingManagement({
         toast.success(t("booking.toasts.centerAdded"))
         loadData()
       } else {
-        toast.error(res.error || "Failed to associate center")
+        toast.error(res.error || t("booking.toasts.associateCenterFailed"))
       }
     } catch (err) {
       console.error(err)
-      toast.error("An error occurred")
+      toast.error(t("booking.toasts.associateCenterFailed"))
     }
   }
 
@@ -171,11 +173,11 @@ export function BookingManagement({
         toast.success(t("booking.toasts.centerRemoved"))
         loadData()
       } else {
-        toast.error(res.error || "Failed to remove center")
+        toast.error(res.error || t("booking.toasts.removeCenterFailed"))
       }
     } catch (err) {
       console.error(err)
-      toast.error("An error occurred while removing center")
+      toast.error(t("booking.toasts.removeCenterFailed"))
     }
   }
 
@@ -188,11 +190,11 @@ export function BookingManagement({
         toast.success(t("booking.toasts.syncSuccess"))
         loadData()
       } else {
-        toast.error(res.error || "Failed to sync bookings")
+        toast.error(res.error || t("booking.toasts.syncFailed"))
       }
     } catch (err) {
       console.error(err)
-      toast.error("An error occurred during synchronization")
+      toast.error(t("booking.toasts.syncFailed"))
     } finally {
       setIsSyncing(false)
     }
@@ -206,11 +208,11 @@ export function BookingManagement({
         toast.success(t("booking.toasts.cancelSuccess"))
         loadData()
       } else {
-        toast.error(res.error || "Failed to cancel booking")
+        toast.error(res.error || t("booking.toasts.cancelFailed"))
       }
     } catch (err) {
       console.error(err)
-      toast.error("An error occurred while cancelling booking")
+      toast.error(t("booking.toasts.cancelFailed"))
     }
   }
 
@@ -263,6 +265,7 @@ export function BookingManagement({
           setIsCenterDialogOpen={setIsCenterDialogOpen}
           tournamentStartDate={tournamentStartDate}
           tournamentEndDate={tournamentEndDate}
+          isEditable={isEditable}
         />
 
         {/* Bookings List Card */}
@@ -270,6 +273,7 @@ export function BookingManagement({
           bookings={bookings}
           centers={centers}
           onCancelBooking={handleCancelBooking}
+          isEditable={isEditable}
         />
       </div>
     </div>

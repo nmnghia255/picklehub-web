@@ -2,6 +2,7 @@
 
 import { Shield } from "lucide-react"
 import { Suspense } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Skeleton } from "@/components/ui/skeleton"
 import { useCoachProfile } from "@/features/coach/hooks/use-coach-queries"
@@ -29,6 +30,7 @@ function LoadingSkeleton() {
 }
 
 function CoachDashboardGateInner() {
+  const { t } = useTranslation("common")
   const { isLoading, exists, isError, error } = useCoachProfile()
 
   if (isLoading) {
@@ -40,9 +42,11 @@ function CoachDashboardGateInner() {
       <div className="flex flex-col items-center justify-center gap-4 py-20">
         <Shield className="size-12 text-muted-foreground/40" />
         <div className="text-center">
-          <p className="text-lg font-medium">Không thể tải hồ sơ HLV</p>
+          <p className="text-lg font-medium">
+            {t("coach.dashboard.errorTitle")}
+          </p>
           <p className="text-sm text-muted-foreground">
-            {error?.message ?? "Đã có lỗi xảy ra. Vui lòng thử lại sau."}
+            {error?.message ?? t("coach.dashboard.errorDescription")}
           </p>
         </div>
       </div>
@@ -57,10 +61,10 @@ function CoachDashboardGateInner() {
     <div className="space-y-6">
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-semibold tracking-tight">
-          Huấn luyện viên
+          {t("coach.dashboard.title")}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Quản lý hồ sơ, học viên, lịch tập và thu chi của huấn luyện viên.
+          {t("coach.dashboard.description")}
         </p>
       </div>
       <CoachDetailTabs />

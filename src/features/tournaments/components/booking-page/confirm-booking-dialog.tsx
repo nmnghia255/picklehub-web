@@ -80,11 +80,7 @@ export default function ConfirmBookingDialog() {
     const selectedFile = e.target.files?.[0]
     if (selectedFile) {
       if (!selectedFile.type.startsWith("image/")) {
-        toast.error(
-          t("booking.page.invalidImage", {
-            defaultValue: "Please select a valid image file",
-          })
-        )
+        toast.error(t("booking.page.invalidImage"))
         return
       }
       setFile(selectedFile)
@@ -111,20 +107,17 @@ export default function ConfirmBookingDialog() {
     e.preventDefault()
 
     if (!playerName.trim() || !phoneNumber.trim()) {
-      toast.error(
-        t("booking.toasts.fillContactInfo", {
-          defaultValue: "Please enter contact player name and phone number",
-        })
-      )
+      toast.error(t("booking.toasts.fillContactInfo"))
       return
     }
 
     if (!file) {
-      toast.error(
-        t("booking.toasts.noPaymentProof", {
-          defaultValue: "Please select payment proof image",
-        })
-      )
+      toast.error(t("booking.toasts.noPaymentProof"))
+      return
+    }
+
+    if (totalSlotsCount === 0) {
+      toast.error(t("booking.toasts.noSlotsSelected"))
       return
     }
 
@@ -135,7 +128,7 @@ export default function ConfirmBookingDialog() {
       // 1. Reserve court slots
       const bookingRes = await submitBooking()
       if (!bookingRes.success || !bookingRes.data) {
-        throw new Error(bookingRes.error || "Failed to book court slots")
+        throw new Error(bookingRes.error || t("booking.toasts.createFailed"))
       }
 
       // The API returns an array of booking entries; pick the first one.
@@ -148,9 +141,7 @@ export default function ConfirmBookingDialog() {
           ?.externalBookingId ?? null
 
       if (!reservedBookingId) {
-        throw new Error(
-          "Booking succeeded but no booking ID was returned by the server"
-        )
+        throw new Error(t("booking.toasts.missingBookingId"))
       }
 
       // 2. Upload image to media server
@@ -159,12 +150,7 @@ export default function ConfirmBookingDialog() {
       // 3. Submit payment proof
       await submitPaymentProofAction(reservedBookingId, imageUrl)
 
-      toast.success(
-        t("booking.page.uploadSuccess", {
-          defaultValue:
-            "Booking created and payment proof uploaded successfully!",
-        })
-      )
+      toast.success(t("booking.page.uploadSuccess"))
       // Clear selected slots now that booking is fully completed
       useBookingStore.setState({ selectedCourts: {} })
       setIsConfirmDialogOpen(false)
@@ -184,12 +170,7 @@ export default function ConfirmBookingDialog() {
 
       if (reservedBookingId) {
         // Slot is booked, but upload failed. Let user know they can finish upload in bookings tab
-        toast.warning(
-          t("booking.toasts.uploadFailedButReserved", {
-            defaultValue:
-              "Slots reserved successfully, but payment proof upload failed. Please submit proof in bookings history.",
-          })
-        )
+        toast.warning(t("booking.toasts.uploadFailedButReserved"))
         setIsConfirmDialogOpen(false)
         const rawTournamentId = tournamentId || routeParams.tournamentId
         const finalTournamentId =
@@ -206,13 +187,7 @@ export default function ConfirmBookingDialog() {
         router.refresh()
       } else {
         // Reservation failed entirely
-        toast.error(
-          err instanceof Error
-            ? err.message
-            : t("booking.toasts.createFailed", {
-                defaultValue: "Failed to book court slots",
-              })
-        )
+        toast.error(t("booking.toasts.createFailed"))
       }
     } finally {
       setSubmitting(false)
@@ -225,15 +200,10 @@ export default function ConfirmBookingDialog() {
         <DialogHeader className="border-b pb-4">
           <DialogTitle className="flex items-center gap-2 text-xl font-bold text-gray-900">
             <User className="h-5.5 w-5.5 text-emerald-600" />
-            {t("booking.page.confirmBtn", {
-              defaultValue: "Confirm Booking & Submit Payment",
-            })}
+            {t("booking.page.confirmBtn")}
           </DialogTitle>
           <DialogDescription className="text-sm text-gray-500">
-            {t("booking.page.unifiedDesc", {
-              defaultValue:
-                "Enter contact details, perform bank transfer, and upload transfer receipt image below to complete reservation.",
-            })}
+            {t("booking.page.unifiedDesc")}
           </DialogDescription>
         </DialogHeader>
 
@@ -244,9 +214,7 @@ export default function ConfirmBookingDialog() {
               {/* Form Input fields */}
               <div className="space-y-3.5">
                 <h3 className="text-sm font-bold tracking-wider text-gray-700">
-                  {t("booking.page.contactInfo", {
-                    defaultValue: "Contact Information",
-                  })}
+                  {t("booking.page.contactInfo")}
                 </h3>
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -258,7 +226,7 @@ export default function ConfirmBookingDialog() {
                     </Label>
                     <Input
                       id="dialogPlayerName"
-                      placeholder="e.g. John Doe"
+                      placeholder={t("booking.form.playerNamePlaceholder")}
                       value={playerName}
                       onChange={(e) => setPlayerName(e.target.value)}
                       className="h-10 border-gray-200 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus-visible:ring-emerald-500"
@@ -277,7 +245,7 @@ export default function ConfirmBookingDialog() {
                     <Input
                       id="dialogPhoneNumber"
                       type="tel"
-                      placeholder="e.g. 0912345678"
+                      placeholder={t("booking.form.phonePlaceholder")}
                       value={phoneNumber}
                       onChange={(e) => setPhoneNumber(e.target.value)}
                       className="h-10 border-gray-200 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus-visible:ring-emerald-500"
@@ -291,16 +259,12 @@ export default function ConfirmBookingDialog() {
               {/* Pricing & Booking summary card */}
               <div className="space-y-3">
                 <h3 className="text-sm font-bold tracking-wider text-gray-700 uppercase">
-                  {t("booking.page.bookingDetails", {
-                    defaultValue: "Booking Details",
-                  })}
+                  {t("booking.page.bookingDetails")}
                 </h3>
                 <div className="space-y-2 rounded-lg border border-gray-100 bg-gray-50/50 p-3.5 text-sm text-gray-700 shadow-2xs">
                   <div className="flex justify-between">
                     <span className="text-gray-500">
-                      {t("booking.page.bookingDate", {
-                        defaultValue: "Booking Date",
-                      })}
+                      {t("booking.page.bookingDate")}
                     </span>
                     <span className="font-semibold text-gray-800">
                       {selectedDateText}
@@ -308,23 +272,14 @@ export default function ConfirmBookingDialog() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500">
-                      {t("booking.page.slotsQuantity", {
-                        defaultValue: "Number of slots",
-                      })}
+                      {t("booking.page.slotsQuantity")}
                     </span>
                     <span className="font-semibold text-gray-800">
-                      {t("booking.page.slotsCount", {
-                        count: totalSlotsCount,
-                        defaultValue: `${totalSlotsCount} slots`,
-                      })}
+                      {t("booking.page.slotsCount", { count: totalSlotsCount })}
                     </span>
                   </div>
                   <div className="flex justify-between border-t pt-2 text-base font-bold text-gray-900">
-                    <span>
-                      {t("booking.page.totalPrice", {
-                        defaultValue: "Total Price",
-                      })}
-                    </span>
+                    <span>{t("booking.page.totalPrice")}</span>
                     <span className="text-emerald-700">
                       {formatCurrencyVnd(totalPrice)}
                     </span>
@@ -335,16 +290,12 @@ export default function ConfirmBookingDialog() {
               {/* Bank accounts info card */}
               <div className="space-y-3">
                 <h3 className="text-sm font-bold tracking-wider text-gray-700 uppercase">
-                  {t("booking.page.bankInfo", {
-                    defaultValue: "Transfer Information",
-                  })}
+                  {t("booking.page.bankInfo")}
                 </h3>
                 <div className="space-y-2.5 rounded-lg border border-emerald-100 bg-emerald-50/20 p-3.5 text-sm text-gray-700">
                   <div className="flex justify-between">
                     <span className="text-sm font-semibold text-emerald-900/60">
-                      {t("booking.page.bankName", {
-                        defaultValue: "Bank Name",
-                      })}
+                      {t("booking.page.bankName")}
                     </span>
                     <span className="font-bold text-emerald-950">
                       {sportCenter?.paymentBankName || "-"}
@@ -352,9 +303,7 @@ export default function ConfirmBookingDialog() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm font-semibold text-emerald-900/60">
-                      {t("booking.page.accountNumber", {
-                        defaultValue: "Account Number",
-                      })}
+                      {t("booking.page.accountNumber")}
                     </span>
                     <span className="font-bold text-emerald-950">
                       {sportCenter?.paymentAccountNumber || "-"}
@@ -362,9 +311,7 @@ export default function ConfirmBookingDialog() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm font-semibold text-emerald-900/60">
-                      {t("booking.page.accountName", {
-                        defaultValue: "Account Name",
-                      })}
+                      {t("booking.page.accountName")}
                     </span>
                     <span className="font-bold text-emerald-950 uppercase">
                       {sportCenter?.paymentAccountName || "-"}
@@ -382,22 +329,18 @@ export default function ConfirmBookingDialog() {
                   <div className="group relative overflow-hidden rounded-xl border bg-white p-2 shadow-xs transition-all duration-300 hover:shadow-sm">
                     <img
                       src={sportCenter.paymentQrUrl}
-                      alt="Sport center payment QR"
+                      alt={t("booking.page.paymentQrAlt")}
                       className="h-32 w-32 object-contain transition-transform duration-300 group-hover:scale-[1.025]"
                     />
                     <div className="mt-1.5 text-center text-[9px] font-bold tracking-wide text-gray-400 uppercase">
-                      {t("booking.page.scanToPay", {
-                        defaultValue: "Scan to Pay",
-                      })}
+                      {t("booking.page.scanToPay")}
                     </div>
                   </div>
                 ) : (
                   <div className="flex h-32 w-32 flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-gray-200 bg-white text-gray-400">
                     <QrCode className="h-6 w-6 stroke-[1.25]" />
                     <span className="text-[10px]">
-                      {t("booking.page.noQr", {
-                        defaultValue: "No QR Code Available",
-                      })}
+                      {t("booking.page.noQr")}
                     </span>
                   </div>
                 )}
@@ -406,9 +349,7 @@ export default function ConfirmBookingDialog() {
               {/* Upload Dropzone */}
               <div className="flex flex-1 flex-col justify-end space-y-2">
                 <span className="text-sm font-bold tracking-wider text-gray-600 uppercase">
-                  {t("booking.page.uploadProof", {
-                    defaultValue: "Upload Proof Image",
-                  })}
+                  {t("booking.page.uploadProof")}
                 </span>
 
                 <div className="flex min-h-[140px] flex-1 flex-col justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 p-4">
@@ -419,14 +360,10 @@ export default function ConfirmBookingDialog() {
                           <Upload className="h-5 w-5" />
                         </div>
                         <span className="text-xs font-semibold text-gray-700">
-                          {t("booking.page.dragDrop", {
-                            defaultValue: "Click to select or drag and drop",
-                          })}
+                          {t("booking.page.dragDrop")}
                         </span>
                         <span className="text-[10px] text-gray-400">
-                          {t("booking.page.imageLimit", {
-                            defaultValue: "PNG, JPG or WEBP (Max 5MB)",
-                          })}
+                          {t("booking.page.imageLimit")}
                         </span>
                         <input
                           type="file"
@@ -441,9 +378,7 @@ export default function ConfirmBookingDialog() {
                       <div className="relative w-full overflow-hidden rounded-lg border border-gray-200 bg-white p-2">
                         <img
                           src={previewUrl}
-                          alt={t("booking.page.preview", {
-                            defaultValue: "Proof Image Preview",
-                          })}
+                          alt={t("booking.page.preview")}
                           className="max-h-[130px] w-full object-contain"
                         />
                         <button
@@ -482,7 +417,7 @@ export default function ConfirmBookingDialog() {
               className="h-10 border-gray-200 px-5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
               disabled={isSubmitting}
             >
-              {t("booking.cancelBtn", { defaultValue: "Cancel" })}
+              {t("booking.cancelBtn")}
             </Button>
             <Button
               type="submit"
@@ -498,14 +433,10 @@ export default function ConfirmBookingDialog() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t("booking.page.submitting", {
-                    defaultValue: "Processing...",
-                  })}
+                  {t("booking.page.submitting")}
                 </>
               ) : (
-                t("booking.page.confirmAndBook", {
-                  defaultValue: "Confirm Booking & Submit Payment",
-                })
+                t("booking.page.confirmAndBook")
               )}
             </Button>
           </DialogFooter>

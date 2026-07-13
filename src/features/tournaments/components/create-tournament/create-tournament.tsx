@@ -1,13 +1,21 @@
 "use client"
 
-import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react"
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Loader2,
+  ShieldAlert,
+} from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
+import { BackButton } from "@/components/common/back-button"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
 import { createFullTournamentAction } from "../../actions/tournament-actions"
@@ -46,95 +54,85 @@ export function CreateTournament() {
     { number: 6, title: t("create.steps.review") },
   ]
 
+  const { data: subscriptions } = useMySubscriptions()
+  const hasTournamentOrganizerPlan = Boolean(
+    subscriptions?.some(
+      (sub) =>
+        sub.status === "ACTIVE" && sub.plan.type === "TOURNAMENT_ORGANIZER"
+    )
+  )
+
+  if (!hasTournamentOrganizerPlan) {
+    return (
+      <div className="mx-auto flex max-w-md flex-col items-center justify-center px-4 py-16 text-center">
+        <div className="rounded-full bg-red-100 p-3 text-red-600 dark:bg-red-950/20">
+          <ShieldAlert className="size-8" />
+        </div>
+        <h1 className="mt-4 text-2xl font-bold tracking-tight">
+          {t("permission.accessDenied")}
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {t("permission.hostPlanRequired")}
+        </p>
+        <div className="mt-6 flex gap-3">
+          <Button variant="outline" onClick={() => router.back()}>
+            {t("permission.goBack")}
+          </Button>
+          <Button onClick={() => router.push("/subscriptions")}>
+            {t("permission.upgradeAccount")}
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
         if (!formValues.name?.trim()) {
-          toast.error(
-            t("create.validation.requiredFields", {
-              defaultValue: "Please fill in all required fields marked with *",
-            })
-          )
+          toast.error(t("create.validation.requiredFields"))
           return false
         }
         if (!formValues.venue?.trim()) {
-          toast.error(
-            t("create.validation.requiredFields", {
-              defaultValue: "Please fill in all required fields marked with *",
-            })
-          )
+          toast.error(t("create.validation.requiredFields"))
           return false
         }
         if (!formValues.startDate) {
-          toast.error(
-            t("create.validation.requiredFields", {
-              defaultValue: "Please fill in all required fields marked with *",
-            })
-          )
+          toast.error(t("create.validation.requiredFields"))
           return false
         }
         if (!formValues.endDate) {
-          toast.error(
-            t("create.validation.requiredFields", {
-              defaultValue: "Please fill in all required fields marked with *",
-            })
-          )
+          toast.error(t("create.validation.requiredFields"))
           return false
         }
         if (new Date(formValues.startDate) >= new Date(formValues.endDate)) {
-          toast.error(
-            t("create.validation.dateOrder", {
-              defaultValue: "Start date must be before end date",
-            })
-          )
+          toast.error(t("create.validation.dateOrder"))
           return false
         }
         return true
 
       case 2:
         if (!formValues.regOpen) {
-          toast.error(
-            t("create.validation.requiredFields", {
-              defaultValue: "Please fill in all required fields marked with *",
-            })
-          )
+          toast.error(t("create.validation.requiredFields"))
           return false
         }
         if (!formValues.regClose) {
-          toast.error(
-            t("create.validation.requiredFields", {
-              defaultValue: "Please fill in all required fields marked with *",
-            })
-          )
+          toast.error(t("create.validation.requiredFields"))
           return false
         }
         if (new Date(formValues.regOpen) >= new Date(formValues.regClose)) {
-          toast.error(
-            t("create.validation.regDateOrder", {
-              defaultValue:
-                "Registration open date must be before registration close date",
-            })
-          )
+          toast.error(t("create.validation.regDateOrder"))
           return false
         }
         if (new Date(formValues.regClose) > new Date(formValues.startDate)) {
-          toast.error(
-            t("create.validation.regCloseBeforeStart", {
-              defaultValue:
-                "Registration must close before the tournament starts",
-            })
-          )
+          toast.error(t("create.validation.regCloseBeforeStart"))
           return false
         }
         return true
 
       case 3:
         if (events.length === 0) {
-          toast.error(
-            t("create.validation.minEvents", {
-              defaultValue: "Please add at least one event",
-            })
-          )
+          toast.error(t("create.validation.minEvents"))
           return false
         }
         return true
@@ -182,12 +180,7 @@ export function CreateTournament() {
         })
 
         if (!isComplete) {
-          toast.error(
-            t("create.validation.incompletePrizes", {
-              defaultValue:
-                "Please configure prizes for all placement positions in all events",
-            })
-          )
+          toast.error(t("create.validation.incompletePrizes"))
           return false
         }
         return true
@@ -195,27 +188,15 @@ export function CreateTournament() {
 
       case 5:
         if (!formValues.paymentBankName?.trim()) {
-          toast.error(
-            t("create.validation.bankRequired", {
-              defaultValue: "Bank Name is required",
-            })
-          )
+          toast.error(t("create.validation.bankRequired"))
           return false
         }
         if (!formValues.paymentAccountName?.trim()) {
-          toast.error(
-            t("create.validation.accountNameRequired", {
-              defaultValue: "Account Holder Name is required",
-            })
-          )
+          toast.error(t("create.validation.accountNameRequired"))
           return false
         }
         if (!formValues.paymentAccountNumber?.trim()) {
-          toast.error(
-            t("create.validation.accountNumberRequired", {
-              defaultValue: "Account Number is required",
-            })
-          )
+          toast.error(t("create.validation.accountNumberRequired"))
           return false
         }
         return true
@@ -271,28 +252,15 @@ export function CreateTournament() {
       })
 
       if (result.success && result.tournamentId) {
-        toast.success(
-          t("create.successMessage", {
-            defaultValue: "Tournament created successfully!",
-          })
-        )
+        toast.success(t("create.successMessage"))
         resetForm()
         router.push(`/tournament/${result.tournamentId}`)
       } else {
-        toast.error(
-          result.error ||
-            t("create.errorMessage", {
-              defaultValue: "Failed to create tournament.",
-            })
-        )
+        toast.error(result.error || t("create.errorMessage"))
       }
     } catch (error) {
       console.error(error)
-      toast.error(
-        t("create.errorMessage", {
-          defaultValue: "Failed to create tournament.",
-        })
-      )
+      toast.error(t("create.errorMessage"))
     } finally {
       setIsSubmitting(false)
     }
@@ -326,15 +294,7 @@ export function CreateTournament() {
             </h1>
             <p className="text-gray-600">{t("create.subtitle")}</p>
           </div>
-          <Button
-            variant="ghost"
-            onClick={() => router.back()}
-            disabled={isSubmitting}
-            className="mb-4"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t("create.back")}
-          </Button>
+          <BackButton />
         </div>
 
         {/* Progress */}
@@ -402,9 +362,7 @@ export function CreateTournament() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t("create.buttons.publishing", {
-                      defaultValue: "Publishing...",
-                    })}
+                    {t("create.buttons.publishing")}
                   </>
                 ) : (
                   <>

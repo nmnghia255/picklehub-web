@@ -40,6 +40,7 @@ export interface TournamentDashboardProps {
   prizes?: TournamentPrize[]
   sponsors?: Sponsor[]
   isHost?: boolean
+  isEditable: boolean
 }
 
 export function TournamentDashboard({
@@ -47,7 +48,8 @@ export function TournamentDashboard({
   events: initialEvents,
   prizes = [],
   sponsors = [],
-  isHost = false,
+  isHost,
+  isEditable,
 }: TournamentDashboardProps) {
   const { t, i18n } = useTournamentTranslation()
   const {
@@ -125,7 +127,7 @@ export function TournamentDashboard({
       } else {
         toast.error(
           res.error ||
-            t("tournaments.dashboard.posterError", {
+            t("dashboard.posterError", {
               defaultValue: "Không thể tạo poster giải đấu",
             })
         )
@@ -134,7 +136,7 @@ export function TournamentDashboard({
     } catch (err) {
       console.error(err)
       toast.error(
-        t("tournaments.dashboard.posterUnexpectedError", {
+        t("dashboard.posterUnexpectedError", {
           defaultValue: "Đã xảy ra lỗi không mong muốn khi tạo poster",
         })
       )
@@ -212,7 +214,7 @@ export function TournamentDashboard({
                 className="shrink-0 bg-white/90 font-bold text-gray-900 shadow-md hover:bg-white"
               >
                 <ImageIcon className="mr-2 h-4 w-4" />
-                {t("tournaments.dashboard.createPoster", {
+                {t("dashboard.createPoster", {
                   defaultValue: "Tạo Poster",
                 })}
               </Button>
@@ -242,8 +244,8 @@ export function TournamentDashboard({
               className="shrink-0 bg-white font-bold text-emerald-700 shadow-md hover:bg-emerald-50"
             >
               <ImageIcon className="mr-2 h-4 w-4 text-emerald-600" />
-              {t("tournaments.dashboard.createPoster", {
-                defaultValue: "Tạo Poster",
+              {t("dashboard.createPoster", {
+                defaultValue: "Create Poster",
               })}
             </Button>
           </div>
@@ -290,14 +292,14 @@ export function TournamentDashboard({
       </div>
 
       {/* Host Status Actions Panel */}
-      <StatusControlPanel />
+      <StatusControlPanel isEditable={isEditable} />
 
       {/* Poster Generation Modal */}
       <Dialog open={isPosterModalOpen} onOpenChange={setIsPosterModalOpen}>
-        <DialogContent className="max-w-3xl overflow-hidden rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-950">
-          <DialogHeader>
+        <DialogContent className="max-w-3xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-950">
+          <DialogHeader className="mr-10">
             <DialogTitle className="text-xl font-bold text-gray-900 dark:text-zinc-100">
-              {t("tournaments.dashboard.posterTitle", {
+              {t("dashboard.posterTitle", {
                 defaultValue: "Poster Quảng Cáo Giải Đấu",
               })}
             </DialogTitle>
@@ -307,7 +309,7 @@ export function TournamentDashboard({
               <div className="flex flex-col items-center gap-3">
                 <Loader2 className="h-10 w-10 animate-spin text-emerald-600" />
                 <span className="text-sm font-medium text-gray-500">
-                  {t("tournaments.dashboard.generatingPoster", {
+                  {t("dashboard.generatingPoster", {
                     defaultValue: "Đang tạo poster...",
                   })}
                 </span>
@@ -316,7 +318,7 @@ export function TournamentDashboard({
               <div className="relative overflow-hidden rounded-lg shadow-lg">
                 <img
                   src={`data:image/png;base64,${posterBase64}`}
-                  alt="Tournament Poster"
+                  alt={t("common.previewImageAlt")}
                   className="max-h-[500px] w-full object-contain"
                 />
               </div>
@@ -328,7 +330,7 @@ export function TournamentDashboard({
               variant="outline"
               onClick={() => setIsPosterModalOpen(false)}
             >
-              {t("tournaments.dashboard.close", { defaultValue: "Đóng" })}
+              {t("dashboard.close", { defaultValue: "Đóng" })}
             </Button>
             <Button
               type="button"
@@ -337,7 +339,7 @@ export function TournamentDashboard({
               onClick={handleDownloadPoster}
             >
               <Download className="mr-2 h-4 w-4" />
-              {t("tournaments.dashboard.downloadPoster", {
+              {t("dashboard.downloadPoster", {
                 defaultValue: "Tải xuống",
               })}
             </Button>

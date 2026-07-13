@@ -20,6 +20,7 @@ interface PlayerCheckinCardProps {
     playerIndex: "player1" | "player2"
   ) => void
   isCheckingIn: boolean
+  isEditable: boolean
 }
 
 export function PlayerCheckinCard({
@@ -27,6 +28,7 @@ export function PlayerCheckinCard({
   checkins,
   onCheckInPlayer,
   isCheckingIn,
+  isEditable,
 }: PlayerCheckinCardProps) {
   const { t } = useTournamentTranslation()
   const [searchQuery, setSearchQuery] = useState("")
@@ -129,7 +131,7 @@ export function PlayerCheckinCard({
                         {r.partner && (
                           <span className="text-xs text-gray-500">
                             {" "}
-                            (with {r.partner.name})
+                            ({r.partner.name})
                           </span>
                         )}
                         <div className="text-xs text-gray-400">
@@ -206,7 +208,7 @@ export function PlayerCheckinCard({
                     {!selectedCheckin?.player1CheckedIn && (
                       <Button
                         size="sm"
-                        disabled={isCheckingIn}
+                        disabled={isCheckingIn || !isEditable}
                         onClick={() =>
                           onCheckInPlayer(selectedReg.id, "player1")
                         }
@@ -248,7 +250,7 @@ export function PlayerCheckinCard({
                       {!selectedCheckin?.player2CheckedIn && (
                         <Button
                           size="sm"
-                          disabled={isCheckingIn}
+                          disabled={isCheckingIn || !isEditable}
                           onClick={() =>
                             onCheckInPlayer(selectedReg.id, "player2")
                           }

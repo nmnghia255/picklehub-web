@@ -1,7 +1,15 @@
 "use client"
 
 import { format } from "date-fns"
-import { Calendar, Loader2, MapPin, Plus, Search, Users } from "lucide-react"
+import {
+  Calendar,
+  Loader2,
+  MapPin,
+  Plus,
+  Search,
+  ShieldAlert,
+  Users,
+} from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef } from "react"
 
@@ -17,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 import { cn } from "@/lib/utils"
 
@@ -150,6 +159,38 @@ export function TournamentList({
     router.push("/tournament-management/create")
   }
 
+  const { data: subscriptions } = useMySubscriptions()
+  const hasTournamentOrganizerPlan = Boolean(
+    subscriptions?.some(
+      (sub) =>
+        sub.status === "ACTIVE" && sub.plan.type === "TOURNAMENT_ORGANIZER"
+    )
+  )
+
+  if (!hasTournamentOrganizerPlan && mode === "management") {
+    return (
+      <div className="mx-auto flex max-w-md flex-col items-center justify-center px-4 py-16 text-center">
+        <div className="rounded-full bg-red-100 p-3 text-red-600 dark:bg-red-950/20">
+          <ShieldAlert className="size-8" />
+        </div>
+        <h1 className="mt-4 text-2xl font-bold tracking-tight">
+          {t("permission.accessDenied")}
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {t("permission.hostPlanRequired")}
+        </p>
+        <div className="mt-6 flex gap-3">
+          <Button variant="outline" onClick={() => router.back()}>
+            {t("permission.goBack")}
+          </Button>
+          <Button onClick={() => router.push("/subscriptions")}>
+            {t("permission.upgradeAccount")}
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
       className={cn(
@@ -184,22 +225,14 @@ export function TournamentList({
           {mode === "management" ? (
             <Select value={role} onValueChange={(val) => setRole(val)}>
               <SelectTrigger className="h-12! w-64 bg-white dark:bg-zinc-900">
-                <SelectValue
-                  placeholder={t("list.roles.all", {
-                    defaultValue: "All Roles",
-                  })}
-                />
+                <SelectValue placeholder={t("list.roles.all")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">
-                  {t("list.roles.all", { defaultValue: "All Roles" })}
-                </SelectItem>
+                <SelectItem value="all">{t("list.roles.all")}</SelectItem>
                 <SelectItem value="organizer">
-                  {t("list.roles.organizer", { defaultValue: "Organizer" })}
+                  {t("list.roles.organizer")}
                 </SelectItem>
-                <SelectItem value="player">
-                  {t("list.roles.player", { defaultValue: "Player" })}
-                </SelectItem>
+                <SelectItem value="player">{t("list.roles.player")}</SelectItem>
               </SelectContent>
             </Select>
           ) : (
@@ -258,14 +291,10 @@ export function TournamentList({
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <Search className="mb-4 h-12 w-12 text-gray-400 dark:text-zinc-600" />
             <h3 className="mb-1 text-lg font-medium text-gray-900 dark:text-zinc-100">
-              {t("list.noResultsTitle", {
-                defaultValue: "No tournaments found",
-              })}
+              {t("list.noResultsTitle")}
             </h3>
             <p className="text-sm text-gray-500 dark:text-zinc-400">
-              {t("list.noResultsDescription", {
-                defaultValue: "Try adjusting your search or status filter.",
-              })}
+              {t("list.noResultsDescription")}
             </p>
           </div>
         ) : (

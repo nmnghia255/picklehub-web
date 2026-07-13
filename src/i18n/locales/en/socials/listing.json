@@ -12,7 +12,9 @@
     "organizerCount_one": "{{count}} organizer",
     "organizerCount_other": "{{count}} organizers",
     "noResultsTitle": "No socials found",
-    "noResultsDescription": "Try clearing filters or searching for a different event."
+    "noResultsDescription": "Try clearing filters or searching for a different event.",
+    "free": "Free",
+    "participants": "participants"
   },
   "mySocials": {
     "title": "My Socials",
@@ -20,6 +22,7 @@
   },
   "filters": {
     "title": "Filters",
+    "apply": "Apply",
     "status": "Status",
     "selectStatus": "Select status",
     "genderPolicy": "Gender Policy",
@@ -30,25 +33,30 @@
     "selectFormat": "Select format",
     "all": "All",
     "clearAll": "Clear All",
-    "notYet": "Chọn",
-    "close": "Đóng",
+    "notYet": "Select",
+    "close": "Close",
     "upcomingOptions": {
-      "notYet": "Chọn",
-      "yes": "Có",
-      "no": "Không"
+      "notYet": "Select",
+      "yes": "Yes",
+      "no": "No",
+      "all": "All"
     },
     "hasAvailableSlotsOptions": {
-      "notYet": "Chọn",
-      "yes": "Còn chỗ trống",
-      "no": "Không còn chỗ trống"
+      "notYet": "Select",
+      "yes": "Available",
+      "no": "Unavailable",
+      "all": "All"
     },
     "levelOptions": {
-      "1": "1 - Mới bắt đầu",
-      "2": "2 - Người mới chơi",
-      "3": "3 - Trung cấp",
-      "4": "4 - Nâng cao",
-      "5": "5 - Chuyên nghiệp",
-      "notYet": "Chọn"
-    }
+      "1": "1 - Beginner",
+      "2": "2 - New player",
+      "3": "3 - Intermediate",
+      "4": "4 - Advanced",
+      "5": "5 - Professional",
+      "notYet": "Select",
+      "all": "All"
+    },
+    "upcoming": "Upcoming",
+    "history": "History"
   }
 }

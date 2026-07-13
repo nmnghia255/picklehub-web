@@ -52,10 +52,7 @@ export function BookingAvailableCourtsCard() {
             </Badge>
           </div>
           <CardDescription className="mt-0.5 text-sm">
-            {t("booking.grid.description", {
-              defaultValue:
-                "Click on empty blocks to select court and time slots.",
-            })}
+            {t("booking.grid.description")}
           </CardDescription>
         </div>
 
@@ -63,29 +60,19 @@ export function BookingAvailableCourtsCard() {
         <div className="flex flex-wrap items-center gap-4 text-[10px] font-semibold text-gray-600 select-none sm:text-xs dark:text-zinc-400">
           <div className="flex items-center gap-1.5">
             <div className="h-6 w-6 rounded border border-gray-300 bg-white dark:border-zinc-700 dark:bg-zinc-950" />
-            <span>
-              {t("booking.grid.legendEmpty", { defaultValue: "Available" })}
-            </span>
+            <span>{t("booking.grid.legendEmpty")}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="h-6 w-6 rounded border border-rose-200 bg-rose-50 dark:border-rose-950/50 dark:bg-rose-950/20" />
-            <span>
-              {t("booking.grid.legendBooked", { defaultValue: "Booked" })}
-            </span>
+            <span>{t("booking.grid.legendBooked")}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="h-6 w-6 rounded border border-gray-200 bg-gray-100 dark:border-zinc-800 dark:bg-zinc-900" />
-            <span>
-              {t("booking.grid.legendLocked", { defaultValue: "Locked" })}
-            </span>
+            <span>{t("booking.grid.legendLocked")}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="h-6 w-6 rounded border border-emerald-600 bg-emerald-500" />
-            <span>
-              {t("booking.grid.legendSelected", {
-                defaultValue: "Selecting",
-              })}
-            </span>
+            <span>{t("booking.grid.legendSelected")}</span>
           </div>
         </div>
       </CardHeader>
@@ -95,9 +82,7 @@ export function BookingAvailableCourtsCard() {
           <div className="flex flex-col items-center justify-center gap-2 bg-gray-50/10 py-16 dark:bg-zinc-950/10">
             <Loader2 className="h-7 w-7 animate-spin text-emerald-600" />
             <p className="text-xs font-medium text-gray-500">
-              {t("booking.grid.loading", {
-                defaultValue: "Loading court availability...",
-              })}
+              {t("booking.grid.loading")}
             </p>
           </div>
         ) : error ? (
@@ -117,7 +102,7 @@ export function BookingAvailableCourtsCard() {
             {/* STICKY LEFT COLUMN - Court Names */}
             <div className="z-10 flex w-32 shrink-0 flex-col border-r border-gray-200 bg-gray-50/80 sm:w-44 dark:border-zinc-800 dark:bg-zinc-900/80">
               <div className="flex h-12 items-center justify-center border-b border-gray-200 bg-gray-100 text-xs font-bold text-gray-500 select-none sm:text-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
-                {t("booking.grid.courtHeader", { defaultValue: "Court" })}
+                {t("booking.grid.courtHeader")}
               </div>
               {availability.courts.map((court) => (
                 <div

@@ -1,3 +1,5 @@
+import "server-only"
+
 import axios from "axios"
 
 import { getSession } from "./session"

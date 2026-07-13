@@ -146,8 +146,8 @@ export function Pagination({
   const determinedVariant =
     variant || (totalPages !== undefined && totalPages > 1 ? "full" : "simple")
 
-  const prevText = t("pagination.previous", { defaultValue: "Previous" })
-  const nextText = t("pagination.next", { defaultValue: "Next" })
+  const prevText = t("pagination.previous")
+  const nextText = t("pagination.next")
 
   const handlePrev = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (disabled || !hasPrev) {
@@ -209,15 +209,8 @@ export function Pagination({
           <PaginationItem>
             <span className="px-3 text-sm text-muted-foreground select-none">
               {totalPages !== undefined && totalPages > 1
-                ? t("pagination.pageInfo", {
-                    currentPage,
-                    totalPages,
-                    defaultValue: `Page ${currentPage} of ${totalPages}`,
-                  })
-                : t("pagination.page", {
-                    page: currentPage,
-                    defaultValue: `Page ${currentPage}`,
-                  })}
+                ? t("pagination.pageInfo", { currentPage, totalPages })
+                : t("pagination.page", { page: currentPage })}
             </span>
           </PaginationItem>
         ) : (

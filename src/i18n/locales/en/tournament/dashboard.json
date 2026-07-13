@@ -9,6 +9,7 @@
     "vs": "vs",
     "live": "Live",
     "recentActivities": "Recent Activities",
+    "noEvents": "No events added to this tournament yet.",
     "lifecycle": {
       "created": "Tournament Created",
       "openRegistration": "Registration Opens",
@@ -45,7 +46,14 @@
       "statusUpdated": "Tournament status successfully updated.",
       "failedUpdate": "Failed to update tournament status.",
       "errorOccurred": "An error occurred while updating status."
-    }
+    },
+    "close": "Close",
+    "createPoster": "Create Poster",
+    "downloadPoster": "Download",
+    "generatingPoster": "Generating poster...",
+    "posterTitle": "Tournament Promotional Poster",
+    "posterError": "Could not generate tournament poster",
+    "posterUnexpectedError": "An unexpected error occurred while generating the poster"
   },
   "financials": {
     "title": "Financial Dashboard",
@@ -86,6 +94,7 @@
       "fieldDesc": "Description",
       "fieldType": "Type",
       "fieldAmount": "Amount",
+      "amountPlaceholder": "0",
       "fieldStatus": "Status",
       "cancel": "Cancel",
       "submit": "Save Transaction",
@@ -100,7 +109,8 @@
       "validationAmount": "Please enter a valid amount greater than 0",
       "emptyOther": "No other finance transactions found",
       "emptyRegistration": "No registration fee transactions found"
-    }
+    },
+    "exportError": "Failed to export report"
   },
   "sponsors": {
     "title": "Sponsorship Management",
@@ -123,6 +133,9 @@
       "websiteUrlPlaceholder": "e.g., https://example.com",
       "cancel": "Cancel",
       "submit": "Add Sponsor",
+      "loading": "Loading...",
+      "paymentQrUploaded": "QR code uploaded successfully!",
+      "paymentQrUploadFailed": "Failed to upload QR code image.",
       "validationName": "Please enter a sponsor name",
       "validationPrice": "Please enter a valid positive contribution amount",
       "validationWebsiteUrl": "Please enter a valid URL (starting with http:// or https://)"
@@ -139,7 +152,13 @@
     "rank3": "#3 Supporter",
     "website": "Website",
     "deleteTitle": "Remove Sponsor",
-    "delete": "Delete"
+    "delete": "Delete",
+    "addSuccess": "Sponsor added successfully!",
+    "loading": "Loading...",
+    "deleteSuccess": "Sponsor deleted successfully!",
+    "loadError": "Failed to load sponsors",
+    "addError": "Failed to add sponsor",
+    "deleteError": "Failed to delete sponsor"
   },
   "paymentTab": {
     "title": "Payment Settings",

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sheet"
 import { formatCurrencyVnd } from "@/features/sport-center-management/revenue-report/utils/format"
 import { formatDateTime } from "@/features/sport-center-management/revenue-report/utils/format"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { InventoryKind } from "../store/services-products-store"
 import type { SportCenterProduct, SportCenterService } from "../types"
@@ -43,6 +44,7 @@ export function InventoryDetailSheet({
   onOpenChange: (open: boolean) => void
   onEdit: (item: InventoryRow) => void
 }) {
+  const { t } = useSportCenterManagementTranslation()
   const product =
     item && kind === "product" ? (item as SportCenterProduct) : undefined
 
@@ -57,8 +59,8 @@ export function InventoryDetailSheet({
                   <SheetTitle className="text-xl">{item.name}</SheetTitle>
                   <SheetDescription>
                     {kind === "service"
-                      ? "Thông tin chi tiết dịch vụ"
-                      : "Thông tin chi tiết sản phẩm"}
+                      ? t("inventory.detail.serviceDescription")
+                      : t("inventory.detail.productDescription")}
                   </SheetDescription>
                 </div>
                 <ActiveBadge isActive={item.isActive} />
@@ -76,21 +78,26 @@ export function InventoryDetailSheet({
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-2xl border bg-muted/20 p-3">
-                  <p className="text-xs text-muted-foreground">Loại</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("inventory.detail.type")}
+                  </p>
                   <div className="mt-1">
                     <TypeBadge kind={kind} type={item.type} />
                   </div>
                 </div>
                 <DetailBlock
-                  label="Giá"
+                  label={t("inventory.detail.price")}
                   value={formatCurrencyVnd(item.price)}
                 />
                 {item.unit ? (
-                  <DetailBlock label="Đơn vị" value={item.unit} />
+                  <DetailBlock
+                    label={t("inventory.detail.unit")}
+                    value={item.unit}
+                  />
                 ) : null}
                 {product ? (
                   <DetailBlock
-                    label="Tồn kho"
+                    label={t("inventory.detail.stock")}
                     value={String(product.stock ?? 0)}
                   />
                 ) : null}
@@ -98,7 +105,9 @@ export function InventoryDetailSheet({
 
               {item.description ? (
                 <div className="rounded-2xl border bg-muted/20 p-3">
-                  <p className="text-xs text-muted-foreground">Mô tả</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("inventory.detail.description")}
+                  </p>
                   <p className="mt-1 text-sm leading-6 text-foreground">
                     {item.description}
                   </p>
@@ -107,24 +116,24 @@ export function InventoryDetailSheet({
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <DetailBlock
-                  label="Ngày tạo"
+                  label={t("inventory.detail.createdAt")}
                   value={formatDateTime(item.createdAt)}
                 />
                 <DetailBlock
-                  label="Cập nhật gần nhất"
+                  label={t("inventory.detail.updatedAt")}
                   value={formatDateTime(item.updatedAt)}
                 />
               </div>
 
               <Button className="w-full gap-2" onClick={() => onEdit(item)}>
                 <Pencil className="size-4" />
-                Chỉnh sửa
+                {t("inventory.detail.edit")}
               </Button>
             </div>
           </div>
         ) : (
           <div className="flex h-full items-center justify-center px-6 py-10 text-sm text-muted-foreground">
-            Chưa chọn mục nào.
+            {t("inventory.detail.empty")}
           </div>
         )}
       </SheetContent>

@@ -177,9 +177,7 @@ export function SocialFormPaymentCard({
           </Field>
 
           {isEditMode && (
-            <Field
-              label={t("form.packageFee", { defaultValue: "Package Fee" })}
-            >
+            <Field label={t("form.packageFee")}>
               <Input
                 type="text"
                 inputMode="numeric"

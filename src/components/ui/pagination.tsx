@@ -1,18 +1,23 @@
+"use client"
+
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MoreHorizontalIcon,
 } from "lucide-react"
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import { type Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
+  const { t } = useTranslation("common")
+
   return (
     <nav
       role="navigation"
-      aria-label="pagination"
+      aria-label={t("pagination.navigation")}
       data-slot="pagination"
       className={cn("mx-auto flex w-full justify-center", className)}
       {...props}
@@ -70,15 +75,19 @@ function PaginationPrevious({
   children,
   ...props
 }: React.ComponentProps<typeof PaginationLink>) {
+  const { t } = useTranslation("common")
+
   return (
     <PaginationLink
-      aria-label="Go to previous page"
+      aria-label={t("pagination.previousPage")}
       size="default"
       className={cn("gap-1 px-2.5 sm:pl-2.5", className)}
       {...props}
     >
       <ChevronLeftIcon />
-      {children || <span className="hidden sm:block">Previous</span>}
+      {children || (
+        <span className="hidden sm:block">{t("pagination.previous")}</span>
+      )}
     </PaginationLink>
   )
 }
@@ -88,14 +97,18 @@ function PaginationNext({
   children,
   ...props
 }: React.ComponentProps<typeof PaginationLink>) {
+  const { t } = useTranslation("common")
+
   return (
     <PaginationLink
-      aria-label="Go to next page"
+      aria-label={t("pagination.nextPage")}
       size="default"
       className={cn("gap-1 px-2.5 sm:pr-2.5", className)}
       {...props}
     >
-      {children || <span className="hidden sm:block">Next</span>}
+      {children || (
+        <span className="hidden sm:block">{t("pagination.next")}</span>
+      )}
       <ChevronRightIcon />
     </PaginationLink>
   )
@@ -105,6 +118,8 @@ function PaginationEllipsis({
   className,
   ...props
 }: React.ComponentProps<"span">) {
+  const { t } = useTranslation("common")
+
   return (
     <span
       aria-hidden
@@ -113,7 +128,7 @@ function PaginationEllipsis({
       {...props}
     >
       <MoreHorizontalIcon className="size-4" />
-      <span className="sr-only">More pages</span>
+      <span className="sr-only">{t("pagination.morePages")}</span>
     </span>
   )
 }

@@ -31,31 +31,43 @@ import {
 } from "@/features/coach/hooks/use-coach-queries"
 import { getErrorMessage } from "@/lib/api-client"
 
-const levelOptions = [
-  { value: "Beginner", label: "Cơ bản" },
-  { value: "Intermediate", label: "Trung cấp" },
-  { value: "Advanced", label: "Nâng cao" },
-  { value: "Pro", label: "Chuyên nghiệp" },
-]
-
-const specialtyOptions = [
-  { value: "Beginner Coaching", label: "Dạy người mới" },
-  { value: "Advanced Strategy", label: "Dạy nâng cao" },
-  { value: "Kids Coaching", label: "Dạy trẻ em" },
-  { value: "Tournament Coaching", label: "Huấn luyện thi đấu" },
-]
-
-const languageOptions = [
-  { value: "vi", label: "Tiếng Việt" },
-  { value: "en", label: "Tiếng Anh" },
-  { value: "zh", label: "Tiếng Trung" },
-  { value: "ko", label: "Tiếng Hàn" },
-  { value: "ja", label: "Tiếng Nhật" },
-]
-
 export function CoachOnboarding() {
   const { t } = useTranslation("common")
   const router = useRouter()
+
+  const levelOptions = [
+    { value: "Beginner", label: t("coach.discovery.levelLabels.beginner") },
+    {
+      value: "Intermediate",
+      label: t("coach.discovery.levelLabels.intermediate"),
+    },
+    { value: "Advanced", label: t("coach.discovery.levelLabels.advanced") },
+    { value: "Pro", label: t("coach.discovery.levelLabels.pro") },
+  ]
+
+  const specialtyOptions = [
+    {
+      value: "Beginner Coaching",
+      label: t("coach.onboarding.specialtyBeginner"),
+    },
+    {
+      value: "Advanced Strategy",
+      label: t("coach.onboarding.specialtyAdvanced"),
+    },
+    { value: "Kids Coaching", label: t("coach.onboarding.specialtyKids") },
+    {
+      value: "Tournament Coaching",
+      label: t("coach.onboarding.specialtyTournament"),
+    },
+  ]
+
+  const languageOptions = [
+    { value: "vi", label: t("coach.onboarding.langVi") },
+    { value: "en", label: t("coach.onboarding.langEn") },
+    { value: "zh", label: t("coach.onboarding.langZh") },
+    { value: "ko", label: t("coach.onboarding.langKo") },
+    { value: "ja", label: t("coach.onboarding.langJa") },
+  ]
 
   const { refetch } = useCoachProfile({ enabled: false })
   const registerCoach = useRegisterAsCoach()
@@ -103,26 +115,28 @@ export function CoachOnboarding() {
     const newErrors: Record<string, string> = {}
 
     if (!displayName.trim()) {
-      newErrors.displayName = "Vui lòng nhập tên hiển thị"
+      newErrors.displayName = t("coach.onboarding.displayNameRequired")
     }
     if (!paymentAccountName.trim()) {
-      newErrors.paymentAccountName = "Vui lòng nhập tên tài khoản"
+      newErrors.paymentAccountName = t("coach.onboarding.accountNameRequired")
     }
     if (!paymentAccountNumber.trim()) {
-      newErrors.paymentAccountNumber = "Vui lòng nhập số tài khoản"
+      newErrors.paymentAccountNumber = t(
+        "coach.onboarding.accountNumberRequired"
+      )
     }
     if (!paymentBankName.trim()) {
-      newErrors.paymentBankName = "Vui lòng nhập tên ngân hàng"
+      newErrors.paymentBankName = t("coach.onboarding.bankNameRequired")
     }
 
     const expYears = Number(yearsExperience)
     if (Number.isNaN(expYears) || expYears < 0) {
-      newErrors.yearsExperience = "Số năm kinh nghiệm phải >= 0"
+      newErrors.yearsExperience = t("coach.onboarding.experienceRequired")
     }
 
     const rate = Number(hourlyRateVnd)
     if (Number.isNaN(rate) || rate < 0) {
-      newErrors.hourlyRateVnd = "Giá theo giờ phải >= 0"
+      newErrors.hourlyRateVnd = t("coach.onboarding.hourlyRateRequired")
     }
 
     setErrors(newErrors)
@@ -136,14 +150,12 @@ export function CoachOnboarding() {
 
     registerCoach.mutate(getDto(), {
       onSuccess: () => {
-        toast.success(
-          t("coach.registration.createSuccess", "Tạo hồ sơ HLV thành công")
-        )
+        toast.success(t("coach.registration.createSuccess"))
         refetch()
       },
       onError: (err: Error) => {
-        setApiError(getErrorMessage(err) || "Tạo hồ sơ thất bại")
-        toast.error(getErrorMessage(err) || "Tạo hồ sơ thất bại")
+        setApiError(getErrorMessage(err) || t("coach.registration.createError"))
+        toast.error(getErrorMessage(err) || t("coach.registration.createError"))
       },
     })
   }
@@ -157,19 +169,23 @@ export function CoachOnboarding() {
       onSuccess: () => {
         publishProfile.mutate(undefined, {
           onSuccess: () => {
-            toast.success(t("coach.publish.success", "Đã công khai hồ sơ HLV"))
+            toast.success(t("coach.registration.publishSuccess"))
             refetch()
             router.push("/coach")
           },
           onError: (err: Error) => {
-            setApiError(getErrorMessage(err) || "Công khai thất bại")
-            toast.error(getErrorMessage(err) || "Công khai thất bại")
+            setApiError(
+              getErrorMessage(err) || t("coach.registration.publishError")
+            )
+            toast.error(
+              getErrorMessage(err) || t("coach.registration.publishError")
+            )
           },
         })
       },
       onError: (err: Error) => {
-        setApiError(getErrorMessage(err) || "Tạo hồ sơ thất bại")
-        toast.error(getErrorMessage(err) || "Tạo hồ sơ thất bại")
+        setApiError(getErrorMessage(err) || t("coach.registration.createError"))
+        toast.error(getErrorMessage(err) || t("coach.registration.createError"))
       },
     })
   }
@@ -196,10 +212,10 @@ export function CoachOnboarding() {
           </div>
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
-              Become a Coach
+              {t("coach.onboarding.title")}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Complete your coach profile before using Coach features.
+              {t("coach.onboarding.description")}
             </p>
           </div>
         </div>
@@ -209,21 +225,24 @@ export function CoachOnboarding() {
         {/* Basic Information */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Thông tin cơ bản</CardTitle>
+            <CardTitle className="text-lg">
+              {t("coach.onboarding.basicInfoTitle")}
+            </CardTitle>
             <CardDescription>
-              Thông tin hiển thị công khai đến học viên.
+              {t("coach.onboarding.basicInfoDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="displayName">
-                Tên hiển thị <span className="text-destructive">*</span>
+                {t("coach.onboarding.displayName")}{" "}
+                <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="displayName"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Nguyễn Văn A"
+                placeholder={t("coach.onboarding.displayNamePlaceholder")}
               />
               {errors.displayName && (
                 <p className="text-xs text-destructive">{errors.displayName}</p>
@@ -231,37 +250,49 @@ export function CoachOnboarding() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="bio">Giới thiệu</Label>
+              <Label htmlFor="bio">{t("coach.onboarding.bioLabel")}</Label>
               <Textarea
                 id="bio"
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 rows={3}
-                placeholder="Mô tả ngắn về kinh nghiệm và phong cách huấn luyện"
+                placeholder={t("coach.onboarding.bioPlaceholder")}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="avatarUrl">URL ảnh đại diện</Label>
+              <Label htmlFor="avatarUrl">
+                {t("coach.onboarding.avatarLabel")}
+              </Label>
               <Input
                 id="avatarUrl"
                 value={avatarUrl}
                 onChange={(e) => setAvatarUrl(e.target.value)}
-                placeholder="https://example.com/avatar.jpg"
+                placeholder={t("coach.onboarding.avatarPlaceholder")}
               />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="level">Cấp độ</Label>
+                <Label htmlFor="level">
+                  {t("coach.onboarding.levelLabel")}
+                </Label>
                 <Select value={level} onValueChange={setLevel}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Chọn cấp độ" />
+                    <SelectValue
+                      placeholder={t("coach.onboarding.levelPlaceholder")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {levelOptions.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
+                        {opt.value === "Beginner"
+                          ? t("coach.onboarding.level.beginner")
+                          : opt.value === "Intermediate"
+                            ? t("coach.onboarding.level.intermediate")
+                            : opt.value === "Advanced"
+                              ? t("coach.onboarding.level.advanced")
+                              : t("coach.onboarding.level.pro")}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -269,14 +300,16 @@ export function CoachOnboarding() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="yearsExperience">Số năm kinh nghiệm</Label>
+                <Label htmlFor="yearsExperience">
+                  {t("coach.onboarding.experienceLabel")}
+                </Label>
                 <Input
                   id="yearsExperience"
                   type="number"
                   min={0}
                   value={yearsExperience}
                   onChange={(e) => setYearsExperience(e.target.value)}
-                  placeholder="0"
+                  placeholder={t("coach.onboarding.yearsExperiencePlaceholder")}
                 />
                 {errors.yearsExperience && (
                   <p className="text-xs text-destructive">
@@ -287,7 +320,7 @@ export function CoachOnboarding() {
             </div>
 
             <div className="space-y-2">
-              <Label>Chuyên môn</Label>
+              <Label>{t("coach.onboarding.specialtiesLabel")}</Label>
               <div className="flex flex-wrap gap-2">
                 {specialtyOptions.map((opt) => {
                   const isSelected = specialties.includes(opt.value)
@@ -302,7 +335,13 @@ export function CoachOnboarding() {
                           : "border-border hover:border-primary/50 hover:bg-accent/40"
                       }`}
                     >
-                      {opt.label}
+                      {opt.value === "Beginner Coaching"
+                        ? t("coach.onboarding.specialtyBeginner")
+                        : opt.value === "Advanced Strategy"
+                          ? t("coach.onboarding.specialtyAdvanced")
+                          : opt.value === "Kids Coaching"
+                            ? t("coach.onboarding.specialtyKids")
+                            : t("coach.onboarding.specialtyTournament")}
                     </button>
                   )
                 })}
@@ -310,7 +349,7 @@ export function CoachOnboarding() {
             </div>
 
             <div className="space-y-2">
-              <Label>Ngôn ngữ</Label>
+              <Label>{t("coach.onboarding.languagesLabel")}</Label>
               <div className="flex flex-wrap gap-2">
                 {languageOptions.map((opt) => {
                   const isSelected = languages.includes(opt.value)
@@ -325,7 +364,15 @@ export function CoachOnboarding() {
                           : "border-border hover:border-primary/50 hover:bg-accent/40"
                       }`}
                     >
-                      {opt.label}
+                      {opt.value === "vi"
+                        ? t("coach.onboarding.langVi")
+                        : opt.value === "en"
+                          ? t("coach.onboarding.langEn")
+                          : opt.value === "zh"
+                            ? t("coach.onboarding.langZh")
+                            : opt.value === "ko"
+                              ? t("coach.onboarding.langKo")
+                              : t("coach.onboarding.langJa")}
                     </button>
                   )
                 })}
@@ -334,24 +381,28 @@ export function CoachOnboarding() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="locationCity">Khu vực</Label>
+                <Label htmlFor="locationCity">
+                  {t("coach.onboarding.locationLabel")}
+                </Label>
                 <Input
                   id="locationCity"
                   value={locationCity}
                   onChange={(e) => setLocationCity(e.target.value)}
-                  placeholder="TP. Hồ Chí Minh"
+                  placeholder={t("coach.onboarding.locationPlaceholder")}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="hourlyRateVnd">Giá theo giờ (VNĐ)</Label>
+                <Label htmlFor="hourlyRateVnd">
+                  {t("coach.onboarding.hourlyRateLabel")}
+                </Label>
                 <Input
                   id="hourlyRateVnd"
                   type="number"
                   min={0}
                   value={hourlyRateVnd}
                   onChange={(e) => setHourlyRateVnd(e.target.value)}
-                  placeholder="0"
+                  placeholder={t("coach.onboarding.hourlyRatePlaceholder")}
                 />
                 {errors.hourlyRateVnd && (
                   <p className="text-xs text-destructive">
@@ -366,21 +417,26 @@ export function CoachOnboarding() {
         {/* Payment Information */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Thông tin thanh toán</CardTitle>
+            <CardTitle className="text-lg">
+              {t("coach.onboarding.paymentInfoTitle")}
+            </CardTitle>
             <CardDescription>
-              Thông tin nhận thanh toán từ học viên.
+              {t("coach.onboarding.paymentInfoDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="paymentAccountName">
-                Tên tài khoản <span className="text-destructive">*</span>
+                {t("coach.onboarding.accountNameLabel")}{" "}
+                <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="paymentAccountName"
                 value={paymentAccountName}
                 onChange={(e) => setPaymentAccountName(e.target.value)}
-                placeholder="NGUYEN VAN A"
+                placeholder={t(
+                  "coach.onboarding.paymentAccountNamePlaceholder"
+                )}
               />
               {errors.paymentAccountName && (
                 <p className="text-xs text-destructive">
@@ -391,13 +447,16 @@ export function CoachOnboarding() {
 
             <div className="space-y-2">
               <Label htmlFor="paymentAccountNumber">
-                Số tài khoản <span className="text-destructive">*</span>
+                {t("coach.onboarding.accountNumberLabel")}{" "}
+                <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="paymentAccountNumber"
                 value={paymentAccountNumber}
                 onChange={(e) => setPaymentAccountNumber(e.target.value)}
-                placeholder="1234567890"
+                placeholder={t(
+                  "coach.onboarding.paymentAccountNumberPlaceholder"
+                )}
               />
               {errors.paymentAccountNumber && (
                 <p className="text-xs text-destructive">
@@ -408,13 +467,14 @@ export function CoachOnboarding() {
 
             <div className="space-y-2">
               <Label htmlFor="paymentBankName">
-                Tên ngân hàng <span className="text-destructive">*</span>
+                {t("coach.onboarding.bankNameLabel")}{" "}
+                <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="paymentBankName"
                 value={paymentBankName}
                 onChange={(e) => setPaymentBankName(e.target.value)}
-                placeholder="Vietcombank"
+                placeholder={t("coach.onboarding.paymentBankNamePlaceholder")}
               />
               {errors.paymentBankName && (
                 <p className="text-xs text-destructive">
@@ -424,12 +484,14 @@ export function CoachOnboarding() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="paymentQrUrl">URL mã QR thanh toán</Label>
+              <Label htmlFor="paymentQrUrl">
+                {t("coach.onboarding.qrUrlLabel")}
+              </Label>
               <Input
                 id="paymentQrUrl"
                 value={paymentQrUrl}
                 onChange={(e) => setPaymentQrUrl(e.target.value)}
-                placeholder="https://example.com/qr.png"
+                placeholder={t("coach.onboarding.paymentQrUrlPlaceholder")}
               />
             </div>
           </CardContent>
@@ -452,7 +514,9 @@ export function CoachOnboarding() {
             disabled={registerCoach.isPending}
           >
             <Save className="size-4" />
-            {registerCoach.isPending ? "Đang lưu..." : "Save Draft"}
+            {registerCoach.isPending
+              ? t("coach.onboarding.saving")
+              : t("coach.onboarding.saveDraft")}
           </Button>
           <Button
             type="button"
@@ -460,7 +524,9 @@ export function CoachOnboarding() {
             disabled={registerCoach.isPending || publishProfile.isPending}
           >
             <Send className="size-4" />
-            {publishProfile.isPending ? "Đang công khai..." : "Publish Profile"}
+            {publishProfile.isPending
+              ? t("coach.onboarding.publishing")
+              : t("coach.onboarding.publishButton")}
           </Button>
         </div>
       </form>
