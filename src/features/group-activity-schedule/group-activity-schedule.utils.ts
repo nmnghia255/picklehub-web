@@ -77,15 +77,15 @@ export function formatWeekdayAndDate(value: Date) {
 export function getActivityTypeLabel(type: ActivityType) {
   switch (type) {
     case "PRACTICE":
-      return "Tập luyện"
+      return "activityTypes.PRACTICE"
     case "MEETUP":
-      return "Giao lưu (Meetup)"
+      return "activityTypes.MEETUP"
     case "INTERNAL_MATCH":
-      return "Thi đấu nội bộ"
+      return "activityTypes.INTERNAL_MATCH"
     case "MEETING":
-      return "Họp mặt"
+      return "activityTypes.MEETING"
     case "OTHER":
-      return "Khác"
+      return "activityTypes.OTHER"
     default:
       return type
   }
@@ -94,11 +94,11 @@ export function getActivityTypeLabel(type: ActivityType) {
 export function getStatusLabel(status: GroupActivityStatus) {
   switch (status) {
     case "SCHEDULED":
-      return "Sắp diễn ra"
+      return "activityStatuses.UPCOMING"
     case "COMPLETED":
-      return "Đã kết thúc"
+      return "activityStatuses.FINISHED"
     case "CANCELLED":
-      return "Đã hủy"
+      return "activityStatuses.CANCELLED"
     default:
       return status
   }
@@ -124,13 +124,13 @@ export function getActivityTypeBadgeClass(type: ActivityType) {
 export function getStatusBadgeClass(status: GroupActivityStatus) {
   switch (status) {
     case "SCHEDULED":
-      return "bg-blue-100 text-blue-700 border-blue-200"
+      return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-100 dark:border-blue-700"
     case "COMPLETED":
-      return "bg-emerald-100 text-emerald-700 border-emerald-200"
+      return "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-100 dark:border-emerald-700"
     case "CANCELLED":
-      return "bg-rose-100 text-rose-700 border-rose-200"
+      return "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900 dark:text-rose-100 dark:border-rose-700"
     default:
-      return ""
+      return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-100 dark:border-blue-700"
   }
 }
 

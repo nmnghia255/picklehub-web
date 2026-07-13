@@ -52,6 +52,7 @@ import {
   getActivityClient,
   listActivitiesClient,
 } from "@/features/group-activity-schedule/api/activities-client"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 import { cn } from "@/lib/utils"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
@@ -119,6 +120,7 @@ function isImageReceiptUrl(url?: string | null) {
 }
 
 export function PaymentReceiptPreview({ receiptUrl }: { receiptUrl: string }) {
+  const { t } = useGroupsTranslation()
   const [open, setOpen] = useState(false)
   const isImage = isImageReceiptUrl(receiptUrl)
 
@@ -128,10 +130,10 @@ export function PaymentReceiptPreview({ receiptUrl }: { receiptUrl: string }) {
         type="button"
         variant="outline"
         size="xs"
-        className="h-7 rounded-full bg-orange-100 px-2.5"
+        className="h-7 rounded-full bg-orange-100 px-2.5 dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm"
         onClick={() => setOpen(true)}
       >
-        {isImage ? "Xem ảnh" : "Xem chứng từ"}
+        {t("finance.viewReceipt", "Xem chứng từ")}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -141,13 +143,13 @@ export function PaymentReceiptPreview({ receiptUrl }: { receiptUrl: string }) {
               {isImage ? (
                 <img
                   src={receiptUrl}
-                  alt="Biên lai thanh toán"
+                  alt={t("finance.receiptAlt", "Biên lai thanh toán")}
                   className="max-h-[78vh] w-full max-w-full rounded-md object-contain"
                 />
               ) : (
                 <iframe
                   src={receiptUrl}
-                  title="Biên lai thanh toán"
+                  title={t("finance.receiptTitle", "Biên lai thanh toán")}
                   className="h-[78vh] w-full rounded-md bg-white"
                 />
               )}
@@ -155,9 +157,14 @@ export function PaymentReceiptPreview({ receiptUrl }: { receiptUrl: string }) {
 
             <div className="flex flex-col gap-4 border-t p-5 md:border-t-0 md:border-l">
               <DialogHeader className="text-left">
-                <DialogTitle>Chứng từ thanh toán</DialogTitle>
+                <DialogTitle>
+                  {t("finance.receiptDialogTitle", "Chứng từ thanh toán")}
+                </DialogTitle>
                 <DialogDescription>
-                  Xem chứng từ ngay trong trang hiện tại.
+                  {t(
+                    "finance.receiptDialogDesc",
+                    "Xem chứng từ ngay trong trang hiện tại."
+                  )}
                 </DialogDescription>
               </DialogHeader>
 
@@ -167,7 +174,7 @@ export function PaymentReceiptPreview({ receiptUrl }: { receiptUrl: string }) {
                   variant="outline"
                   onClick={() => setOpen(false)}
                 >
-                  Đóng
+                  {t("activitySchedule.btnClose", "Đóng")}
                 </Button>
               </div>
             </div>
@@ -185,6 +192,7 @@ function useToastState(
   successMessage: string,
   onSuccess: () => void
 ) {
+  const { t } = useGroupsTranslation()
   const handledRef = useRef(false)
 
   useEffect(() => {
@@ -199,9 +207,9 @@ function useToastState(
     }
 
     if (state.error) {
-      toast.error(state.error)
+      toast.error(t(state.error, state.error))
     }
-  }, [onSuccess, state.error, state.success, successMessage])
+  }, [onSuccess, state.error, state.success, successMessage, t])
 }
 
 function useFinanceInvalidation(groupId: string) {
@@ -274,24 +282,31 @@ function TransactionForm({
   groupId: string
   onDone: () => void
 }) {
+  const { t } = useGroupsTranslation()
   const [state, formAction, isPending] = useActionState(
     createTransactionAction.bind(null, groupId),
     {}
   )
 
-  useToastState(state, "Đã gửi giao dịch thanh toán.", onDone)
+  useToastState(
+    state,
+    t("finance.transactionSent", "Đã gửi giao dịch thanh toán."),
+    onDone
+  )
 
   return (
     <form action={formAction}>
       <div className="space-y-4 py-2">
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="tx-amount">Số tiền thanh toán</FieldLabel>
+            <FieldLabel htmlFor="tx-amount">
+              {t("finance.paymentAmount", "Số tiền thanh toán")}
+            </FieldLabel>
             <Input id="tx-amount" name="amount" type="number" required />
           </Field>
           <Field>
             <FieldLabel htmlFor="tx-receipt-file">
-              Tệp biên lai (Tùy chọn)
+              {t("finance.receiptFileOptional", "Tệp biên lai (Tùy chọn)")}
             </FieldLabel>
             <Input
               id="tx-receipt-file"
@@ -304,9 +319,9 @@ function TransactionForm({
       </div>
 
       <DialogFooter showCloseButton>
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={isPending} variant="orangeCard">
           {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-          Gửi thanh toán
+          {t("finance.sendPayment", "Gửi thanh toán")}
         </Button>
       </DialogFooter>
     </form>
@@ -326,6 +341,7 @@ function ExpenseForm({
   members: Member[]
   onDone: () => void
 }) {
+  const { t } = useGroupsTranslation()
   const [state, formAction, isPending] = useActionState(
     mode === "create"
       ? createExpenseAction.bind(null, groupId)
@@ -335,7 +351,9 @@ function ExpenseForm({
 
   useToastState(
     state,
-    mode === "create" ? "Đã tạo chi tiêu." : "Đã cập nhật chi tiêu.",
+    mode === "create"
+      ? t("finance.expenseCreated", "Đã tạo chi tiêu.")
+      : t("finance.expenseUpdated", "Đã cập nhật chi tiêu."),
     onDone
   )
 
@@ -411,21 +429,25 @@ function ExpenseForm({
         selectedActivityId ? { activityId: selectedActivityId } : undefined
       ),
     enabled: mode === "create",
-    initialData:
-      !selectedActivityId || selectedActivityId === "none"
-        ? members
-        : undefined,
+    initialData: members,
   })
 
   const resolvedMembers = useMemo(() => {
-    const list = membersQuery.data || members
+    const list = membersQuery.data ?? members
+
     if (mode === "create" && selectedActivityId && activityDetailQuery.data) {
       const activity = activityDetailQuery.data
-      return list.filter((m) => {
-        const att = activity.attendance?.find(
-          (a) => a.memberId === m.userId || a.member?.userId === m.userId
+      return [...list].sort((a, b) => {
+        const attA = activity.attendance?.find(
+          (x) => x.memberId === a.userId || x.member?.userId === a.userId
         )
-        return !att || att.status !== "ABSENT"
+        const attB = activity.attendance?.find(
+          (x) => x.memberId === b.userId || x.member?.userId === b.userId
+        )
+        const isAbsentA = attA?.status === "ABSENT"
+        const isAbsentB = attB?.status === "ABSENT"
+        if (isAbsentA === isAbsentB) return 0
+        return isAbsentA ? 1 : -1
       })
     }
     return list
@@ -472,11 +494,19 @@ function ExpenseForm({
   useEffect(() => {
     if (activityDetailQuery.data && membersQuery.data && mode === "create") {
       const activity = activityDetailQuery.data
-      const currentMembers = membersQuery.data
+      const currentMembers = (membersQuery.data ?? []) as Member[]
 
       // Auto fill inputs
-      setTitle(`Hoạt động: ${activity.title}`)
-      setDescription(`Chi phí cho hoạt động: ${activity.title}`)
+      setTitle(
+        t("finance.expenseActivityTitle", "Hoạt động: {{title}}", {
+          title: activity.title,
+        })
+      )
+      setDescription(
+        t("finance.expenseActivityDesc", "Chi phí cho hoạt động: {{title}}", {
+          title: activity.title,
+        })
+      )
       if (activity.startAt) {
         const d = new Date(activity.startAt)
         if (!isNaN(d.getTime())) {
@@ -490,7 +520,7 @@ function ExpenseForm({
       const newSelected: Record<string, boolean> = {}
       const newGuestCounts: Record<string, string> = {}
 
-      currentMembers.forEach((m) => {
+      currentMembers.forEach((m: Member) => {
         const mGuestCount =
           m.guestCount !== undefined && m.guestCount !== null
             ? String(m.guestCount)
@@ -512,7 +542,7 @@ function ExpenseForm({
       setSelectedMap(newSelected)
       setGuestCountMap(newGuestCounts)
     }
-  }, [activityDetailQuery.data, membersQuery.data, mode])
+  }, [activityDetailQuery.data, membersQuery.data, mode, t])
 
   const allocations = useMemo(
     () =>
@@ -539,8 +569,6 @@ function ExpenseForm({
     [allocations]
   )
   const totalAmountNum = Number(totalAmount)
-  const isTotalMatching =
-    totalAllocated === totalAmountNum && totalAmountNum > 0
 
   return (
     <form action={formAction}>
@@ -549,12 +577,18 @@ function ExpenseForm({
           {mode === "create" && (
             <Field>
               <FieldLabel htmlFor="expense-activity">
-                Liên kết hoạt động (không bắt buộc)
+                {t(
+                  "finance.linkActivityOptional",
+                  "Liên kết hoạt động (không bắt buộc)"
+                )}
               </FieldLabel>
               {activitiesQuery.isLoading ? (
                 <div className="flex items-center gap-2 py-2 text-xs text-muted-foreground">
                   <Loader2 className="size-4 animate-spin text-primary" />
-                  Đang tải danh sách hoạt động...
+                  {t(
+                    "finance.loadingActivities",
+                    "Đang tải danh sách hoạt động..."
+                  )}
                 </div>
               ) : (
                 <Select
@@ -577,11 +611,19 @@ function ExpenseForm({
                   }}
                 >
                   <SelectTrigger className="h-9 w-full border bg-background text-xs">
-                    <SelectValue placeholder="Chọn hoạt động nhóm..." />
+                    <SelectValue
+                      placeholder={t(
+                        "finance.selectGroupActivity",
+                        "Chọn hoạt động nhóm..."
+                      )}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none" className="text-xs">
-                      -- Không liên kết hoạt động --
+                      {t(
+                        "finance.noLinkedActivity",
+                        "-- Không liên kết hoạt động --"
+                      )}
                     </SelectItem>
                     {activitiesQuery.data?.data?.map((act) => (
                       <SelectItem
@@ -605,7 +647,9 @@ function ExpenseForm({
           )}
 
           <Field>
-            <FieldLabel htmlFor="expense-title">Tên khoản chi</FieldLabel>
+            <FieldLabel htmlFor="expense-title">
+              {t("finance.expenseName", "Tên khoản chi")}
+            </FieldLabel>
             <Input
               id="expense-title"
               name="title"
@@ -615,7 +659,9 @@ function ExpenseForm({
             />
           </Field>
           <Field>
-            <FieldLabel htmlFor="expense-description">Mô tả</FieldLabel>
+            <FieldLabel htmlFor="expense-description">
+              {t("finance.description", "Mô tả")}
+            </FieldLabel>
             <Textarea
               id="expense-description"
               name="description"
@@ -625,7 +671,9 @@ function ExpenseForm({
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field>
-              <FieldLabel htmlFor="expense-amount">Tổng số tiền</FieldLabel>
+              <FieldLabel htmlFor="expense-amount">
+                {t("finance.totalAmountLabel", "Tổng số tiền")}
+              </FieldLabel>
               <Input
                 id="expense-amount"
                 name="totalAmount"
@@ -636,7 +684,7 @@ function ExpenseForm({
               />
             </Field>
             <Field>
-              <FieldLabel>Ngày chi</FieldLabel>
+              <FieldLabel>{t("finance.expenseDate", "Ngày chi")}</FieldLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -651,7 +699,9 @@ function ExpenseForm({
                     {expenseDate ? (
                       format(new Date(expenseDate), "dd/MM/yyyy")
                     ) : (
-                      <span>Chọn ngày chi...</span>
+                      <span>
+                        {t("finance.selectExpenseDate", "Chọn ngày chi...")}
+                      </span>
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -678,7 +728,9 @@ function ExpenseForm({
           </div>
 
           <Field>
-            <FieldLabel>Phân bổ cho thành viên</FieldLabel>
+            <FieldLabel>
+              {t("finance.allocationToMembers", "Phân bổ cho thành viên")}
+            </FieldLabel>
             <div className="max-h-80 space-y-3 overflow-y-auto rounded-md border bg-muted/5 p-3">
               {resolvedMembers.map((member) => {
                 const isSelected = !!selectedMap[member.userId]
@@ -706,6 +758,43 @@ function ExpenseForm({
                         />
                         <span className="text-sm">{member.name}</span>
                       </label>
+                      {selectedActivityId &&
+                        activityDetailQuery.data &&
+                        (() => {
+                          const att = activityDetailQuery.data.attendance?.find(
+                            (a) =>
+                              a.memberId === member.userId ||
+                              a.member?.userId === member.userId
+                          )
+                          if (att?.status === "ABSENT") {
+                            return (
+                              <Badge
+                                variant="outline"
+                                className="border-rose-200 bg-rose-50 px-1.5 py-px text-[10px] text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-400"
+                              >
+                                {t("activitySchedule.isAbsentLabel", "Vắng")
+                                  .replace("❌", "")
+                                  .trim()}
+                              </Badge>
+                            )
+                          }
+                          if (att) {
+                            return (
+                              <Badge
+                                variant="outline"
+                                className="border-emerald-200 bg-emerald-50 px-1.5 py-px text-[10px] text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-400"
+                              >
+                                {t(
+                                  "activitySchedule.isAttendingLabel",
+                                  "Tham gia"
+                                )
+                                  .replace("✅", "")
+                                  .trim()}
+                              </Badge>
+                            )
+                          }
+                          return null
+                        })()}
                     </div>
                     {isSelected && (
                       <div className="mt-2 space-y-3 border-t border-dashed pt-2">
@@ -713,7 +802,7 @@ function ExpenseForm({
                         <div className="flex gap-4">
                           <div className="flex-1">
                             <span className="mb-0.5 block text-[10px] font-medium text-muted-foreground">
-                              Phí thành viên
+                              {t("finance.memberFee", "Phí thành viên")}
                             </span>
                             <Input
                               type="number"
@@ -730,7 +819,10 @@ function ExpenseForm({
                           </div>
                           <div className="flex-1">
                             <span className="mb-0.5 block text-[10px] font-medium text-muted-foreground">
-                              Số lượng khách đi kèm
+                              {t(
+                                "finance.guestCountLabel",
+                                "Số lượng khách đi kèm"
+                              )}
                             </span>
                             <Input
                               type="number"
@@ -753,7 +845,7 @@ function ExpenseForm({
                           <div className="flex items-center gap-3 rounded-md border border-dashed bg-muted/20 p-2.5">
                             <div className="flex-1">
                               <span className="mb-0.5 block text-[10px] font-medium text-muted-foreground">
-                                Phí mỗi khách
+                                {t("finance.feePerGuest", "Phí mỗi khách")}
                               </span>
                               <Input
                                 type="number"
@@ -769,7 +861,11 @@ function ExpenseForm({
                               />
                             </div>
                             <div className="pt-4 text-xs font-medium text-muted-foreground">
-                              × {gCount} khách =
+                              {t(
+                                "finance.multiplyGuest",
+                                "× {{count}} khách =",
+                                { count: gCount }
+                              )}
                             </div>
                             <div className="pt-4 text-xs font-semibold text-foreground">
                               {formatCurrency(gCount * gUnitPrice)}
@@ -780,7 +876,7 @@ function ExpenseForm({
                         {/* Dòng 3: Tổng cộng */}
                         <div className="flex items-center justify-between border-t border-muted-foreground/10 pt-2 text-xs">
                           <span className="font-semibold text-muted-foreground">
-                            Tổng cộng:
+                            {t("finance.totalAmountLabel", "Tổng cộng:")}
                           </span>
                           <span className="font-bold text-foreground">
                             {formatCurrency(memberTotal)}
@@ -794,8 +890,14 @@ function ExpenseForm({
             </div>
             <div className="mt-2 flex items-center justify-between text-xs">
               <span className="font-medium text-muted-foreground">
-                Đã phân bổ: {formatCurrency(totalAllocated)} /{" "}
-                {formatCurrency(totalAmountNum)}
+                {t(
+                  "finance.allocatedLabel",
+                  "Đã phân bổ: {{allocated}} / {{total}}",
+                  {
+                    allocated: formatCurrency(totalAllocated),
+                    total: formatCurrency(totalAmountNum),
+                  }
+                )}
               </span>
               <Button
                 type="button"
@@ -841,13 +943,15 @@ function ExpenseForm({
                   }
                 }}
               >
-                Chia đều
+                {t("finance.splitEqually", "Chia đều")}
               </Button>
             </div>
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="expense-receipt-file">Tệp biên lai</FieldLabel>
+            <FieldLabel htmlFor="expense-receipt-file">
+              {t("finance.receiptFile", "Tệp biên lai")}
+            </FieldLabel>
             <Input
               id="expense-receipt-file"
               name="receiptFile"
@@ -865,9 +969,17 @@ function ExpenseForm({
       />
 
       <DialogFooter showCloseButton>
-        <Button type="submit" disabled={isPending || !isTotalMatching}>
+        <Button
+          type="submit"
+          disabled={
+            isPending || totalAmountNum <= 0 || allocations.length === 0
+          }
+          variant="orangeCard"
+        >
           {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-          {mode === "create" ? "Tạo khoản chi" : "Lưu thay đổi"}
+          {mode === "create"
+            ? t("finance.btnCreateExpense", "Tạo khoản chi")
+            : t("finance.btnSaveChanges", "Lưu thay đổi")}
         </Button>
       </DialogFooter>
     </form>
@@ -886,8 +998,9 @@ function DeleteForm({
   ) => Promise<{ success?: boolean; error?: string }>
   onDone: () => void
 }) {
+  const { t } = useGroupsTranslation()
   const [state, formAction, isPending] = useActionState(action, {})
-  useToastState(state, "Đã xóa thành công.", onDone)
+  useToastState(state, t("finance.deleteSuccess", "Đã xóa thành công."), onDone)
 
   return (
     <form action={formAction} className="space-y-4">
@@ -901,11 +1014,11 @@ function DeleteForm({
           onClick={onDone}
           disabled={isPending}
         >
-          Hủy
+          {t("activitySchedule.btnCancel", "Hủy")}
         </Button>
         <Button type="submit" variant="destructive" disabled={isPending}>
           {isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-          Xác nhận xóa
+          {t("finance.btnConfirmDelete", "Xác nhận xóa")}
         </Button>
       </DialogFooter>
     </form>
@@ -913,6 +1026,7 @@ function DeleteForm({
 }
 
 export function CreateTransactionButton({ groupId }: { groupId: string }) {
+  const { t } = useGroupsTranslation()
   const [open, setOpen] = useState(false)
   const invalidation = useFinanceInvalidation(groupId)
 
@@ -924,13 +1038,16 @@ export function CreateTransactionButton({ groupId }: { groupId: string }) {
         className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
       >
         <Plus className="mr-2 size-4" />
-        Gửi thanh toán
+        {t("finance.sendPayment", "Gửi thanh toán")}
       </Button>
       <FinanceDialogShell
         open={open}
         onOpenChange={setOpen}
-        title="Gửi thanh toán"
-        description="Gửi thông tin giao dịch bạn đã chuyển khoản cho nhóm."
+        title={t("finance.sendPayment", "Gửi thanh toán")}
+        description={t(
+          "finance.sendPaymentDesc",
+          "Gửi thông tin giao dịch bạn đã chuyển khoản cho nhóm."
+        )}
       >
         <TransactionForm
           groupId={groupId}
@@ -951,6 +1068,7 @@ export function CreateExpenseButton({
   groupId: string
   members: Member[]
 }) {
+  const { t } = useGroupsTranslation()
   const [open, setOpen] = useState(false)
   const invalidation = useFinanceInvalidation(groupId)
 
@@ -962,13 +1080,16 @@ export function CreateExpenseButton({
         className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
       >
         <Plus className="mr-2 size-4" />
-        Tạo khoản chi
+        {t("finance.btnCreateExpense", "Tạo khoản chi")}
       </Button>
       <FinanceDialogShell
         open={open}
         onOpenChange={setOpen}
-        title="Tạo khoản chi"
-        description="Ghi nhận chi tiêu và phân bổ cho các thành viên."
+        title={t("finance.btnCreateExpense", "Tạo khoản chi")}
+        description={t(
+          "finance.createExpenseDesc",
+          "Ghi nhận chi tiêu và phân bổ cho các thành viên."
+        )}
       >
         <ExpenseForm
           groupId={groupId}
@@ -991,6 +1112,7 @@ export function RemindDebtButton({
   groupId: string
   members: Member[]
 }) {
+  const { t } = useGroupsTranslation()
   const [open, setOpen] = useState(false)
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
   const [sendEmail, setSendEmail] = useState(true)
@@ -999,7 +1121,11 @@ export function RemindDebtButton({
     {}
   )
 
-  useToastState(state, "Đã gửi nhắc nợ thành công.", () => setOpen(false))
+  useToastState(
+    state,
+    t("finance.remindDebtSuccess", "Đã gửi nhắc nợ thành công."),
+    () => setOpen(false)
+  )
 
   useEffect(() => {
     if (!open) {
@@ -1080,27 +1206,35 @@ export function RemindDebtButton({
         className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
       >
         <Send className="mr-2 size-4" />
-        Nhắc nợ
+        {t("finance.btnRemindDebt", "Nhắc nợ")}
       </Button>
       <FinanceDialogShell
         open={open}
         onOpenChange={setOpen}
-        title="Nhắc nợ thành viên"
-        description="Gửi thông báo nhắc nhở thành viên hoàn thành các khoản nợ."
+        title={t("finance.remindDebtTitle", "Nhắc nợ thành viên")}
+        description={t(
+          "finance.remindDebtDesc",
+          "Gửi thông báo nhắc nhở thành viên hoàn thành các khoản nợ."
+        )}
       >
         <form action={formAction}>
           <div className="space-y-4 py-2">
             <Field>
-              <FieldLabel>Chọn thành viên</FieldLabel>
+              <FieldLabel>
+                {t("finance.selectMembers", "Chọn thành viên")}
+              </FieldLabel>
               <div className="max-h-[400px] space-y-3 overflow-y-auto rounded-md border p-4">
                 {debtsQuery.isLoading ? (
                   <div className="flex items-center justify-center gap-2 py-6 text-center text-sm text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" />
-                    Đang tải danh sách công nợ...
+                    {t(
+                      "finance.loadingDebtsList",
+                      "Đang tải danh sách công nợ..."
+                    )}
                   </div>
                 ) : members.length === 0 ? (
                   <div className="py-6 text-center text-sm text-muted-foreground">
-                    Không có thành viên nào.
+                    {t("finance.noMembersFound", "Không có thành viên nào.")}
                   </div>
                 ) : (
                   members.map((m) => {
@@ -1129,19 +1263,35 @@ export function RemindDebtButton({
                           />
                           <span className="font-medium">{m.name}</span>
                           <Badge
-                            variant={
-                              detail.totalDebt > 50000
-                                ? "destructive"
-                                : "outline"
-                            }
-                            className="ml-auto"
+                            variant="outline"
+                            className={cn(
+                              "ml-auto font-semibold",
+                              detail.totalDebt > 0
+                                ? "border-rose-200 bg-rose-100 text-rose-700 dark:border-rose-800/60 dark:bg-rose-950/40 dark:text-rose-400"
+                                : "border-gray-200 bg-gray-100 text-gray-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400"
+                            )}
                           >
                             {formatCurrency(detail.totalDebt)}
                           </Badge>
                         </label>
                         <div className="ml-7 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                          <div>Số khoản: {detail.unpaidCount}</div>
-                          <div>Quá hạn: {detail.daysOverdue} ngày</div>
+                          <div>
+                            {t("finance.paymentCount", "Số khoản: {{count}}", {
+                              count: detail.unpaidCount,
+                            })}
+                          </div>
+                          <div
+                            className={cn(
+                              detail.daysOverdue > 10 &&
+                                "font-semibold text-rose-600 dark:text-rose-400"
+                            )}
+                          >
+                            {t(
+                              "finance.daysOverdue",
+                              "Quá hạn: {{days}} ngày",
+                              { days: detail.daysOverdue }
+                            )}
+                          </div>
                         </div>
                       </div>
                     )
@@ -1156,7 +1306,9 @@ export function RemindDebtButton({
                   checked={sendEmail}
                   onChange={(e) => setSendEmail(e.target.checked)}
                 />
-                <span className="text-sm">Gửi kèm Email thông báo</span>
+                <span className="text-sm">
+                  {t("finance.sendEmailNotice", "Gửi kèm Email thông báo")}
+                </span>
               </label>
             </Field>
           </div>
@@ -1170,11 +1322,14 @@ export function RemindDebtButton({
             <Button
               type="submit"
               disabled={isPending || selectedUsers.length === 0}
+              variant="orangeCard"
             >
               {isPending ? (
                 <Loader2 className="mr-2 size-4 animate-spin" />
               ) : null}
-              Gửi nhắc nợ ({selectedUsers.length})
+              {t("finance.btnSendRemindDebt", "Gửi nhắc nợ ({{count}})", {
+                count: selectedUsers.length,
+              })}
             </Button>
           </DialogFooter>
         </form>
@@ -1192,14 +1347,17 @@ export function TransactionRowActions({
   transaction: Transaction
   canManage: boolean
 }) {
+  const { t } = useGroupsTranslation()
   const invalidation = useFinanceInvalidation(groupId)
   const [state, formAction, isPending] = useActionState(
     verifyTransactionAction.bind(null, groupId, transaction.id),
     {}
   )
 
-  useToastState(state, "Đã cập nhật trạng thái giao dịch.", () =>
-    invalidation.refreshTransactions()
+  useToastState(
+    state,
+    t("finance.updateTxStatusSuccess", "Đã cập nhật trạng thái giao dịch."),
+    () => invalidation.refreshTransactions()
   )
 
   if (!canManage || transaction.status !== "PENDING_REVIEW") return null
@@ -1214,7 +1372,7 @@ export function TransactionRowActions({
         className="bg-blue-600 text-white hover:bg-blue-800"
         disabled={isPending}
       >
-        Duyệt
+        {t("finance.btnApprove", "Duyệt")}
       </Button>
       <Button
         type="submit"
@@ -1224,7 +1382,7 @@ export function TransactionRowActions({
         className="bg-red-500 text-white hover:bg-red-700"
         disabled={isPending}
       >
-        Từ chối
+        {t("finance.btnReject", "Từ chối")}
       </Button>
     </form>
   )
@@ -1241,6 +1399,7 @@ export function ExpenseRowActions({
   members: Member[]
   canManage: boolean
 }) {
+  const { t } = useGroupsTranslation()
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [viewOpen, setViewOpen] = useState(false)
@@ -1256,7 +1415,12 @@ export function ExpenseRowActions({
       const json = await res.json()
       setExpenseDetail(json.data)
     } catch {
-      toast.error("Không thể tải chi tiết khoản chi.")
+      toast.error(
+        t(
+          "finance.loadExpenseDetailFailed",
+          "Không thể tải chi tiết khoản chi."
+        )
+      )
     } finally {
       setDetailLoading(false)
     }
@@ -1277,11 +1441,11 @@ export function ExpenseRowActions({
               void loadDetail()
             }}
           >
-            Xem chi tiết
+            {t("finance.btnViewDetails", "Xem chi tiết")}
           </DropdownMenuItem>
           {canManage && (
             <DropdownMenuItem onSelect={() => setEditOpen(true)}>
-              Chỉnh sửa
+              {t("finance.btnEdit", "Chỉnh sửa")}
             </DropdownMenuItem>
           )}
           {canManage && (
@@ -1291,7 +1455,7 @@ export function ExpenseRowActions({
                 variant="destructive"
                 onSelect={() => setDeleteOpen(true)}
               >
-                Xóa
+                {t("finance.btnDelete", "Xóa")}
               </DropdownMenuItem>
             </>
           )}
@@ -1301,7 +1465,7 @@ export function ExpenseRowActions({
       <FinanceDialogShell
         open={viewOpen}
         onOpenChange={setViewOpen}
-        title="Chi tiết khoản chi"
+        title={t("finance.expenseDetailTitle", "Chi tiết khoản chi")}
         description={expense.title}
       >
         {detailLoading ? (
@@ -1313,7 +1477,7 @@ export function ExpenseRowActions({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <div className="text-xs text-muted-foreground uppercase">
-                  Số tiền
+                  {t("finance.amount", "Số tiền")}
                 </div>
                 <div className="font-semibold">
                   {formatCurrency(expenseDetail.totalAmount)}
@@ -1321,7 +1485,7 @@ export function ExpenseRowActions({
               </div>
               <div>
                 <div className="text-xs text-muted-foreground uppercase">
-                  Ngày chi
+                  {t("finance.expenseDate", "Ngày chi")}
                 </div>
                 <div className="font-semibold">
                   {formatDate(expenseDetail.expenseDate)}
@@ -1331,7 +1495,7 @@ export function ExpenseRowActions({
             {expenseDetail.description && (
               <div>
                 <div className="text-xs text-muted-foreground uppercase">
-                  Mô tả
+                  {t("finance.description", "Mô tả")}
                 </div>
                 <div className="text-sm">{expenseDetail.description}</div>
               </div>
@@ -1339,28 +1503,28 @@ export function ExpenseRowActions({
             {expenseDetail.receiptUrl && (
               <div>
                 <div className="text-xs text-muted-foreground uppercase">
-                  Chứng từ
+                  {t("finance.receipt", "Chứng từ")}
                 </div>
                 <PaymentReceiptPreview receiptUrl={expenseDetail.receiptUrl} />
               </div>
             )}
             <div className="rounded-md border bg-muted/20 p-3">
               <div className="mb-1 text-xs font-semibold text-muted-foreground uppercase">
-                Chi tiết vật dụng
+                {t("finance.equipmentDetails", "Chi tiết vật dụng")}
               </div>
               <ul className="space-y-1 text-sm">
-                <li>• Mua: Banh x5</li>
+                <li>• {t("finance.buyEquipmentMock", "Mua: Banh x5")}</li>
                 <li className="ml-4 text-xs text-muted-foreground">
-                  - Sử dụng cho trận 05/06
+                  - {t("finance.equipmentMockUse1", "Sử dụng cho trận 05/06")}
                 </li>
                 <li className="ml-4 text-xs text-muted-foreground">
-                  - Sử dụng cho buổi tập
+                  - {t("finance.equipmentMockUse2", "Sử dụng cho buổi tập")}
                 </li>
               </ul>
             </div>
             <div>
               <div className="mb-2 text-xs text-muted-foreground uppercase">
-                Phân bổ thành viên
+                {t("finance.allocationToMembers", "Phân bổ thành viên")}
               </div>
               <div className="space-y-2">
                 {expenseDetail.allocations?.length ? (
@@ -1384,10 +1548,17 @@ export function ExpenseRowActions({
                         </div>
                         {a.guestCount && a.guestCount > 0 ? (
                           <div className="text-[10px] text-muted-foreground">
-                            (Cá nhân:{" "}
-                            {formatCurrency(a.requiredFee - (a.guestFee ?? 0))}{" "}
-                            + {a.guestCount} khách: {formatCurrency(a.guestFee)}
-                            )
+                            {t(
+                              "guestFeeExplanation",
+                              "(Personal: {{personal}} + {{count}} guests: {{fee}})",
+                              {
+                                personal: formatCurrency(
+                                  a.requiredFee - (a.guestFee ?? 0)
+                                ),
+                                count: a.guestCount,
+                                fee: formatCurrency(a.guestFee),
+                              }
+                            )}
                           </div>
                         ) : null}
                         <Badge
@@ -1400,7 +1571,9 @@ export function ExpenseRowActions({
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-muted-foreground">Không có</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("finance.none", "Không có")}
+                  </p>
                 )}
               </div>
             </div>
@@ -1411,8 +1584,12 @@ export function ExpenseRowActions({
       <FinanceDialogShell
         open={editOpen}
         onOpenChange={setEditOpen}
-        title="Chỉnh sửa khoản chi"
-        description={`Cập nhật khoản chi "${expense.title}".`}
+        title={t("finance.editExpenseDialogTitle", "Chỉnh sửa khoản chi")}
+        description={t(
+          "finance.editExpenseDialogDesc",
+          'Cập nhật khoản chi "{{title}}".',
+          { title: expense.title }
+        )}
       >
         <ExpenseForm
           groupId={groupId}
@@ -1429,11 +1606,18 @@ export function ExpenseRowActions({
       <FinanceDialogShell
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="Xóa khoản chi"
-        description="Thao tác này không thể hoàn tác."
+        title={t("finance.deleteExpenseDialogTitle", "Xóa khoản chi")}
+        description={t(
+          "finance.deleteExpenseDialogDesc",
+          "Thao tác này không thể hoàn tác."
+        )}
       >
         <DeleteForm
-          label={`Bạn có chắc muốn xóa khoản chi "${expense.title}" không?`}
+          label={t(
+            "finance.deleteExpenseConfirmLabel",
+            'Bạn có chắc muốn xóa khoản chi "{{title}}" không?',
+            { title: expense.title }
+          )}
           action={deleteExpenseAction.bind(null, groupId, expense.id)}
           onDone={() => {
             void invalidation.refreshExpenses()

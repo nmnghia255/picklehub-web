@@ -36,7 +36,9 @@ import {
 import {
   cancelCourtBookingClient,
   checkCancelEligibilityClient,
+  groupQueryKeys,
 } from "@/features/groups/api/groups-client"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import {
   activityQueryKeys,
@@ -72,6 +74,7 @@ export function GroupActivitySchedulePage({
   currentUserRole,
   currentUserId,
 }: GroupActivitySchedulePageProps) {
+  const { t } = useGroupsTranslation()
   const queryClient = useQueryClient()
   const groupId = initialGroupId || ""
 
@@ -128,11 +131,14 @@ export function GroupActivitySchedulePage({
       void queryClient.invalidateQueries({
         queryKey: ["group-activities", groupId],
       })
-      toast.success("Đã tạo hoạt động mới thành công")
+      void queryClient.invalidateQueries({
+        queryKey: [...groupQueryKeys.detail(groupId), "courtBookings"],
+      })
+      toast.success(t("activitySchedule.createSuccess"))
       setFormOpen(false)
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Không thể tạo hoạt động")
+      toast.error(error.message || t("activitySchedule.createError"))
     },
   })
 
@@ -148,11 +154,14 @@ export function GroupActivitySchedulePage({
       void queryClient.invalidateQueries({
         queryKey: ["group-activities", groupId],
       })
-      toast.success("Đã cập nhật hoạt động thành công")
+      void queryClient.invalidateQueries({
+        queryKey: [...groupQueryKeys.detail(groupId), "courtBookings"],
+      })
+      toast.success(t("activitySchedule.updateSuccess"))
       setFormOpen(false)
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Không thể cập nhật hoạt động")
+      toast.error(error.message || t("activitySchedule.updateError"))
     },
   })
 
@@ -163,12 +172,15 @@ export function GroupActivitySchedulePage({
       void queryClient.invalidateQueries({
         queryKey: ["group-activities", groupId],
       })
-      toast.success("Đã xóa hoạt động nhóm.")
+      void queryClient.invalidateQueries({
+        queryKey: [...groupQueryKeys.detail(groupId), "courtBookings"],
+      })
+      toast.success(t("activitySchedule.deleteSuccess"))
       setCancelActivityConfirmOpen(false)
       setActivityToCancel(null)
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Không thể xóa hoạt động")
+      toast.error(error.message || t("activitySchedule.deleteError"))
     },
   })
 
@@ -179,12 +191,12 @@ export function GroupActivitySchedulePage({
       void queryClient.invalidateQueries({
         queryKey: ["group-activities", groupId],
       })
-      toast.success("Đã hủy thành công đặt sân và hoạt động nhóm.")
+      toast.success(t("activitySchedule.cancelBookingSuccess"))
       setCancelActivityConfirmOpen(false)
       setActivityToCancel(null)
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Hủy lịch đặt sân thất bại.")
+      toast.error(error.message || t("activitySchedule.cancelBookingError"))
     },
   })
 
@@ -282,7 +294,7 @@ export function GroupActivitySchedulePage({
         {filteredEvents.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center text-sm text-muted-foreground">
-              Không có hoạt động nào trong tháng này.
+              {t("activitySchedule.noActivitiesMonth")}
             </CardContent>
           </Card>
         ) : (
@@ -295,7 +307,6 @@ export function GroupActivitySchedulePage({
               )
               .map((event) => {
                 const stats = (() => {
-                  // Ưu tiên dùng fields từ API response (changelog #1)
                   if (
                     event.attendingMemberCount !== undefined ||
                     event.attendingGuestCount !== undefined
@@ -303,11 +314,18 @@ export function GroupActivitySchedulePage({
                     const mCount = event.attendingMemberCount ?? 0
                     const gCount = event.attendingGuestCount ?? 0
                     if (gCount > 0) {
-                      return `${mCount} người + ${gCount} khách`
+                      return t(
+                        "activitySchedule.participantsSummaryShort",
+                        "{{members}} members + {{guests}} guests",
+                        { members: mCount, guests: gCount }
+                      )
                     }
-                    return `${mCount} người tham gia`
+                    return t(
+                      "activitySchedule.participantsSummaryMembersOnly",
+                      "{{members}} members",
+                      { members: mCount }
+                    )
                   }
-                  // Fallback: tính từ attendance array (response cũ)
                   const attendance = event.attendance ?? []
                   const attending = attendance.filter(
                     (a) => a.status !== "ABSENT"
@@ -318,13 +336,17 @@ export function GroupActivitySchedulePage({
                       sum + (a.guestStatus === "APPROVED" ? a.guestCount : 0),
                     0
                   )
-                  return `${mCount + gCount} người tham gia`
+                  return t(
+                    "activitySchedule.participantsSummaryTotal",
+                    "{{total}} participants",
+                    { total: mCount + gCount }
+                  )
                 })()
 
                 return (
                   <Card
                     key={event.id}
-                    className="cursor-pointer bg-card/65 shadow-sm backdrop-blur-sm transition-all hover:border-primary/50"
+                    className="cursor-pointer border bg-orange-50 shadow-sm transition-all hover:bg-orange-100 hover:shadow-md dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm dark:hover:border-accent-foreground/15 dark:hover:bg-accent-foreground/10"
                     onClick={() => openDetailDrawer(event)}
                   >
                     <CardContent className="space-y-3 p-4">
@@ -336,7 +358,7 @@ export function GroupActivitySchedulePage({
                           variant="outline"
                           className={getStatusBadgeClass(event.status)}
                         >
-                          {getStatusLabel(event.status)}
+                          {t(getStatusLabel(event.status))}
                         </Badge>
                       </div>
 
@@ -402,10 +424,10 @@ export function GroupActivitySchedulePage({
       {!embedded && (
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">
-            Lịch hoạt động nhóm
+            {t("activitySchedule.calendarTitle")}
           </h1>
           <p className="text-muted-foreground">
-            Quản lý và theo dõi các hoạt động chung của nhóm bạn.
+            {t("activitySchedule.upcomingDesc")}
           </p>
         </div>
       )}
@@ -449,14 +471,16 @@ export function GroupActivitySchedulePage({
               onValueChange={(val: "calendar" | "list") => setViewMode(val)}
             >
               <SelectTrigger className="w-32 border bg-background text-xs">
-                <SelectValue placeholder="Chế độ xem" />
+                <SelectValue
+                  placeholder={t("activitySchedule.viewMode", "Chế độ xem")}
+                />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="calendar" className="text-xs">
-                  Dạng lịch
+                  {t("activitySchedule.viewModeCalendar", "Lịch")}
                 </SelectItem>
                 <SelectItem value="list" className="text-xs">
-                  Danh sách
+                  {t("activitySchedule.viewModeList", "Danh sách")}
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -468,7 +492,7 @@ export function GroupActivitySchedulePage({
               className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
             >
               <Plus className="mr-2 size-4" />
-              Thêm hoạt động
+              {t("activitySchedule.btnCreateActivity")}
             </Button>
           )}
         </CardContent>
@@ -492,10 +516,17 @@ export function GroupActivitySchedulePage({
             <CardContent className="space-y-4 p-4">
               <div>
                 <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-                  Hoạt động ngày {format(selectedDate, "dd/MM/yyyy")}
+                  {t(
+                    "activitySchedule.selectedDateTitle",
+                    "Hoạt động ngày {{date}}",
+                    { date: format(selectedDate, "dd/MM/yyyy") }
+                  )}
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Có {selectedDayEvents.length} hoạt động được lên lịch
+                  {t("activitySchedule.activityCount", {
+                    date: format(selectedDate, "dd/MM/yyyy"),
+                    count: selectedDayEvents.length,
+                  })}
                 </p>
               </div>
 
@@ -505,13 +536,16 @@ export function GroupActivitySchedulePage({
                   onClick={openCreateDialog}
                 >
                   <Plus className="mr-2 size-4" />
-                  Thêm hoạt động
+                  {t("activitySchedule.btnCreateActivity")}
                 </Button>
               )}
 
               {selectedDayEvents.length === 0 ? (
                 <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-                  Không có hoạt động nào trong ngày này.
+                  {t(
+                    "activitySchedule.noActivitiesDay",
+                    "Không có hoạt động nào trong ngày này."
+                  )}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -524,7 +558,6 @@ export function GroupActivitySchedulePage({
                     )
                     .map((event) => {
                       const eventStats = (() => {
-                        // Ưu tiên dùng fields từ API response (changelog #1)
                         if (
                           event.attendingMemberCount !== undefined ||
                           event.attendingGuestCount !== undefined
@@ -532,11 +565,18 @@ export function GroupActivitySchedulePage({
                           const mCount = event.attendingMemberCount ?? 0
                           const gCount = event.attendingGuestCount ?? 0
                           if (gCount > 0) {
-                            return `${mCount} người + ${gCount} khách`
+                            return t(
+                              "activitySchedule.participantsSummaryShort",
+                              "{{members}} members + {{guests}} guests",
+                              { members: mCount, guests: gCount }
+                            )
                           }
-                          return `${mCount} người tham gia`
+                          return t(
+                            "activitySchedule.participantsSummaryMembersOnly",
+                            "{{members}} members",
+                            { members: mCount }
+                          )
                         }
-                        // Fallback: tính từ attendance array (response cũ)
                         const attendance = event.attendance ?? []
                         const attending = attendance.filter(
                           (a) => a.status !== "ABSENT"
@@ -548,25 +588,33 @@ export function GroupActivitySchedulePage({
                             (a.guestStatus === "APPROVED" ? a.guestCount : 0),
                           0
                         )
-                        return `${mCount + gCount} người tham gia`
+                        return t(
+                          "activitySchedule.participantsSummaryTotal",
+                          "{{total}} participants",
+                          { total: mCount + gCount }
+                        )
                       })()
+
+                      const isAbsent = event.myAttendance?.status === "ABSENT"
 
                       return (
                         <div
                           key={event.id}
-                          className="group relative cursor-pointer rounded-lg border p-3 transition-colors hover:border-primary/50"
+                          className="group relative cursor-pointer rounded-lg border bg-orange-50 p-3 shadow-sm transition-all hover:bg-orange-100 hover:shadow-md dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm dark:hover:border-accent-foreground/15 dark:hover:bg-accent-foreground/10"
                           onClick={() => openDetailDrawer(event)}
                         >
                           <div className="mb-2 flex items-start justify-between gap-2">
                             <p className="line-clamp-2 text-sm font-bold">
                               {event.title}
                             </p>
-                            <Badge
-                              variant="outline"
-                              className={getStatusBadgeClass(event.status)}
-                            >
-                              {getStatusLabel(event.status)}
-                            </Badge>
+                            <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center">
+                              <Badge
+                                variant="outline"
+                                className={getStatusBadgeClass(event.status)}
+                              >
+                                {t(getStatusLabel(event.status))}
+                              </Badge>
+                            </div>
                           </div>
                           <p className="text-xs text-muted-foreground">
                             {format(new Date(event.startAt), "HH:mm")} -{" "}
@@ -576,35 +624,51 @@ export function GroupActivitySchedulePage({
                             <Users className="size-3 text-muted-foreground" />
                             <span>{eventStats}</span>
                           </p>
-
-                          {canManageActivities && (
-                            <div
-                              className="mt-3 flex items-center justify-end gap-2 opacity-0 transition-opacity group-hover:opacity-100"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-8 text-muted-foreground hover:text-primary"
-                                onClick={() => openEditDialog(event)}
-                                disabled={updateMutation.isPending}
-                              >
-                                <Edit className="size-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-8 text-muted-foreground hover:text-destructive"
-                                onClick={() => handleDeleteClick(event)}
-                                disabled={
-                                  deleteMutation.isPending ||
-                                  cancelBookingMutation.isPending
-                                }
-                              >
-                                <Trash2 className="size-4" />
-                              </Button>
+                          <div className="mt-3 flex min-h-[32px] items-center justify-between">
+                            <div>
+                              {event.myAttendance && (
+                                <Badge
+                                  variant="outline"
+                                  className={
+                                    isAbsent
+                                      ? "border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-50 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-400"
+                                      : "border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-400"
+                                  }
+                                >
+                                  {isAbsent ? t("absent") : t("attending")}
+                                </Badge>
+                              )}
                             </div>
-                          )}
+
+                            {canManageActivities && (
+                              <div
+                                className="flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-8 text-muted-foreground hover:text-primary"
+                                  onClick={() => openEditDialog(event)}
+                                  disabled={updateMutation.isPending}
+                                >
+                                  <Edit className="size-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-8 text-muted-foreground hover:text-destructive"
+                                  onClick={() => handleDeleteClick(event)}
+                                  disabled={
+                                    deleteMutation.isPending ||
+                                    cancelBookingMutation.isPending
+                                  }
+                                >
+                                  <Trash2 className="size-4" />
+                                </Button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       )
                     })}
@@ -649,18 +713,24 @@ export function GroupActivitySchedulePage({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="size-5" />
-              Xác nhận hủy hoạt động nhóm
+              {t("activitySchedule.confirmCancelActivityTitle")}
             </DialogTitle>
             <DialogDescription>
               {activityToCancel?.bookingId ? (
                 <div className="space-y-4 text-foreground">
                   <p className="text-sm">
-                    Sự kiện này đang liên kết với một lịch đặt sân tại cụm sân.
+                    {t(
+                      "activitySchedule.linkedBookingNotice",
+                      "Sự kiện này đang liên kết với một lịch đặt sân tại cụm sân."
+                    )}
                   </p>
                   {checkingEligibility ? (
                     <div className="flex items-center gap-2 py-2 text-xs text-muted-foreground">
                       <Loader2 className="size-4 animate-spin text-primary" />
-                      Đang kiểm tra chính sách hủy đặt sân...
+                      {t(
+                        "activitySchedule.checkingCancellationPolicy",
+                        "Đang kiểm tra chính sách hủy đặt sân..."
+                      )}
                     </div>
                   ) : cancellationEligibility ? (
                     <p className="rounded-md border border-amber-200 bg-muted/60 p-2.5 text-xs text-amber-800">
@@ -677,11 +747,11 @@ export function GroupActivitySchedulePage({
                       }
                       className="h-4 w-4 rounded border-border bg-background accent-primary"
                     />
-                    <span>Xác nhận hủy đặt sân thực tế tại cụm sân</span>
+                    <span>{t("activitySchedule.cancelBookingCascade")}</span>
                   </label>
                 </div>
               ) : (
-                "Bạn có chắc muốn hủy hoạt động nhóm này không? Hành động này không thể hoàn tác."
+                t("activitySchedule.confirmCancelActivityDesc")
               )}
             </DialogDescription>
           </DialogHeader>
@@ -697,7 +767,7 @@ export function GroupActivitySchedulePage({
                 deleteMutation.isPending || cancelBookingMutation.isPending
               }
             >
-              Hủy
+              {t("activitySchedule.btnCancel")}
             </Button>
             <Button
               type="button"
@@ -713,7 +783,7 @@ export function GroupActivitySchedulePage({
                 cancelBookingMutation.isPending) && (
                 <Loader2 className="mr-2 size-4 animate-spin" />
               )}
-              Xác nhận hủy
+              {t("activitySchedule.btnConfirm")}
             </Button>
           </DialogFooter>
         </DialogContent>

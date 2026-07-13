@@ -5,6 +5,7 @@ import { useMemo, useState } from "react"
 import { PageContainer } from "@/components/page-container"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Group } from "@/features/groups/types"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import { isArchivedGroup } from "../../utils/group-status"
 import { GroupCard } from "./group-card"
@@ -19,6 +20,7 @@ type Props = {
 }
 
 export function GroupsPageContent({ myGroups, myGroupsError = false }: Props) {
+  const { t } = useGroupsTranslation()
   const [keyword, setKeyword] = useState("")
   const [groupFilter, setGroupFilter] = useState<GroupListFilter>("active")
 
@@ -49,46 +51,81 @@ export function GroupsPageContent({ myGroups, myGroupsError = false }: Props) {
   }, [filteredByStatus, keyword])
 
   const emptyStateTitle = myGroupsError
-    ? "Không thể tải danh sách nhóm"
+    ? t("dashboard.loadGroupsErrorTitle", "Không thể tải danh sách nhóm")
     : filteredMyGroups.length === 0 && keyword.trim().length > 0
-      ? "Không có nhóm nào phù hợp"
+      ? t("dashboard.noGroupsMatchedTitle", "Không có nhóm nào phù hợp")
       : groupFilter === "archived"
-        ? "Chưa có nhóm đã lưu trữ"
+        ? t("dashboard.noArchivedGroupsTitle", "Chưa có nhóm đã lưu trữ")
         : groupFilter === "active"
-          ? "Chưa có nhóm đang hoạt động"
-          : "Không có nhóm nào phù hợp"
+          ? t("dashboard.noActiveGroupsTitle", "Chưa có nhóm đang hoạt động")
+          : t("dashboard.noGroupsMatchedTitle", "Không có nhóm nào phù hợp")
 
   const emptyStateDescription = myGroupsError
-    ? "Dữ liệu nhóm của bạn chưa tải được. Vui lòng thử lại sau."
+    ? t(
+        "dashboard.loadGroupsErrorDesc",
+        "Dữ liệu nhóm của bạn chưa tải được. Vui lòng thử lại sau."
+      )
     : filteredMyGroups.length === 0 && keyword.trim().length > 0
-      ? "Thử một từ khóa khác hoặc đổi bộ lọc để tìm trong nhóm của bạn."
+      ? t(
+          "dashboard.noGroupsMatchedFilteredDesc",
+          "Thử một từ khóa khác hoặc đổi bộ lọc để tìm trong nhóm của bạn."
+        )
       : groupFilter === "archived"
-        ? "Các nhóm đã lưu trữ sẽ xuất hiện ở đây để bạn xem lại khi cần."
+        ? t(
+            "dashboard.archivedGroupsDesc",
+            "Các nhóm đã lưu trữ sẽ xuất hiện ở đây để bạn xem lại khi cần."
+          )
         : groupFilter === "active"
-          ? "Các nhóm đang hoạt động sẽ xuất hiện ở đây."
-          : "Thử một từ khóa khác để tìm trong nhóm của bạn."
+          ? t(
+              "dashboard.activeGroupsDesc",
+              "Các nhóm đang hoạt động sẽ xuất hiện ở đây."
+            )
+          : t(
+              "dashboard.noGroupsMatchedDesc",
+              "Thử một từ khóa khác để tìm trong nhóm của bạn."
+            )
 
   return (
     <PageContainer>
-      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <h1 className="text-3xl font-bold">Nhóm của tôi</h1>
+      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight">
+            {t("dashboard.myGroupsTitle", "Nhóm")}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {t(
+              "dashboard.myGroupsDesc",
+              "Quản lý và tham gia các hoạt động, tài chính và đặt sân cùng các nhóm của bạn."
+            )}
+          </p>
+        </div>
         <Tabs
           value={groupFilter}
           onValueChange={(value) => setGroupFilter(value as GroupListFilter)}
+          className="shrink-0"
         >
           <TabsList className="w-full sm:w-auto">
-            <TabsTrigger value="all">Tất cả</TabsTrigger>
-            <TabsTrigger value="active">Đang hoạt động</TabsTrigger>
-            <TabsTrigger value="archived">Đã lưu trữ</TabsTrigger>
+            <TabsTrigger value="all">
+              {t("dashboard.tabAll", "Tất cả")}
+            </TabsTrigger>
+            <TabsTrigger value="active">
+              {t("dashboard.tabActive", "Đang hoạt động")}
+            </TabsTrigger>
+            <TabsTrigger value="archived">
+              {t("archived", "Đã lưu trữ")}
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
 
       <GroupSearchControls
-        placeholder="Tìm kiếm nhóm của bạn"
+        placeholder={t(
+          "dashboard.searchYourGroupsPlaceholder",
+          "Tìm kiếm nhóm của bạn"
+        )}
         value={keyword}
         onChange={setKeyword}
-        ariaLabel="Tìm kiếm nhóm của bạn"
+        ariaLabel={t("dashboard.searchYourGroupsAria", "Tìm kiếm nhóm của bạn")}
       />
 
       <div className="mt-6">
@@ -108,7 +145,7 @@ export function GroupsPageContent({ myGroups, myGroupsError = false }: Props) {
               <GroupCard
                 key={group.id}
                 group={group}
-                actionLabel="Mở"
+                actionLabel={t("dashboard.openGroupBtn", "Mở")}
                 showRole
               />
             ))}

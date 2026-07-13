@@ -1,7 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { ChevronDown, ChevronUp, Loader2, Trash2 } from "lucide-react"
+import { ChevronDown, ChevronUp, Loader2, Mail, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -22,6 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import { revokeInvitationAction } from "../../actions"
 import {
@@ -63,6 +64,7 @@ export function InvitationsTable({
   groupId,
   initialInvitations,
 }: InvitationsTableProps) {
+  const { t } = useGroupsTranslation()
   const invalidation = useGroupInvalidation(groupId)
   const queryKey = groupQueryKeys.invitations(groupId)
   useSyncGroupData(queryKey, initialInvitations)
@@ -83,10 +85,10 @@ export function InvitationsTable({
     const result = await revokeInvitationAction(groupId, invitationId)
     setRevokingId(null)
     if (result.success) {
-      toast.success("Đã thu hồi lời mời.")
+      toast.success(t("errors.revokeInvitationSuccess", "Đã thu hồi lời mời."))
       void invalidation.invalidateInvitations()
     } else if (result.error) {
-      toast.error(result.error)
+      toast.error(t(result.error, result.error))
     }
   }
 
@@ -106,10 +108,17 @@ export function InvitationsTable({
     <div className="py-4">
       <div className="flex items-center justify-between gap-3 pb-2">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold">Lời mời</h3>
+          <Mail className="size-5 text-base" />
+          <h3 className="text-lg font-semibold">
+            {t("dashboard.invitationsLabel", "Lời mời")}
+          </h3>
           {!isListVisible && (
             <span className="text-sm text-muted-foreground">
-              ({pendingCount} chờ phản hồi)
+              (
+              {t("dashboard.pendingCountLabel", "{{count}} pending", {
+                count: pendingCount,
+              })}
+              )
             </span>
           )}
         </div>
@@ -121,7 +130,9 @@ export function InvitationsTable({
           onClick={() => setIsListVisible((prev) => !prev)}
           aria-expanded={isListVisible}
           aria-label={
-            isListVisible ? "Ẩn danh sách lời mời" : "Hiện danh sách lời mời"
+            isListVisible
+              ? t("dashboard.hideInvitationsList", "Ẩn danh sách lời mời")
+              : t("dashboard.showInvitationsList", "Hiện danh sách lời mời")
           }
         >
           {isListVisible ? (
@@ -145,9 +156,9 @@ export function InvitationsTable({
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[35%] pl-4">Email</TableHead>
-                  <TableHead>Trạng thái</TableHead>
-                  <TableHead>Ngày tạo</TableHead>
-                  <TableHead>Hết hạn</TableHead>
+                  <TableHead>{t("activitySchedule.thStatus")}</TableHead>
+                  <TableHead>{t("dashboard.createdAtLabel")}</TableHead>
+                  <TableHead>{t("dashboard.thExpiresAt", "Hết hạn")}</TableHead>
                   <TableHead className="w-14 pr-6" />
                 </TableRow>
               </TableHeader>
@@ -161,7 +172,10 @@ export function InvitationsTable({
                       <span
                         className={`font-medium capitalize ${getStatusClasses(invitation.status)}`}
                       >
-                        {invitation.status}
+                        {t(
+                          `invitationStatuses.${invitation.status}`,
+                          invitation.status
+                        )}
                       </span>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
@@ -192,7 +206,10 @@ export function InvitationsTable({
                           className="size-7 text-muted-foreground hover:text-destructive"
                           disabled={revokingId === invitation.id}
                           onClick={() => setInvitationToRevoke(invitation)}
-                          aria-label="Thu hồi lời mời"
+                          aria-label={t(
+                            "dashboard.revokeInvitationAction",
+                            "Thu hồi lời mời"
+                          )}
                         >
                           {revokingId === invitation.id ? (
                             <Loader2 className="size-3.5 animate-spin" />
@@ -210,7 +227,7 @@ export function InvitationsTable({
                       colSpan={5}
                       className="py-4 text-center text-muted-foreground"
                     >
-                      Chưa có lời mời nào.
+                      {t("dashboard.noInvitations", "Chưa có lời mời nào.")}
                     </TableCell>
                   </TableRow>
                 )}
@@ -230,11 +247,15 @@ export function InvitationsTable({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Thu hồi lời mời</DialogTitle>
+            <DialogTitle>
+              {t("dashboard.revokeInvitationDialogTitle", "Thu hồi lời mời")}
+            </DialogTitle>
             <DialogDescription>
-              Bạn có chắc muốn thu hồi lời mời gửi tới{" "}
-              {invitationToRevoke?.email} không? Thao tác này sẽ thay đổi trạng
-              thái lời mời sang đã thu hồi.
+              {t(
+                "dashboard.revokeInvitationDialogDesc",
+                "Bạn có chắc muốn thu hồi lời mời gửi tới {{email}} không? Thao tác này sẽ thay đổi trạng thái lời mời sang đã thu hồi.",
+                { email: invitationToRevoke?.email }
+              )}
             </DialogDescription>
           </DialogHeader>
 
@@ -245,7 +266,7 @@ export function InvitationsTable({
               onClick={() => setInvitationToRevoke(null)}
               disabled={revokingId !== null}
             >
-              Không
+              {t("activitySchedule.btnNo", "Không")}
             </Button>
             <Button
               type="button"
@@ -253,7 +274,7 @@ export function InvitationsTable({
               onClick={handleConfirmRevoke}
               disabled={revokingId !== null}
             >
-              Có, thu hồi
+              {t("dashboard.btnRevoke", "Có, thu hồi")}
             </Button>
           </DialogFooter>
         </DialogContent>

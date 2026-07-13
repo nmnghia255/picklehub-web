@@ -1,5 +1,12 @@
 export type GroupStatus = "ACTIVE" | "GRACE_PERIOD" | "FROZEN" | "ARCHIVED"
 
+export interface GroupSubscription {
+  hasAccess: boolean
+  planType: string
+  subscriptionId: string
+  expiresAt: string
+}
+
 export interface Group {
   id: string
   name: string
@@ -9,6 +16,7 @@ export interface Group {
   memberCount: number
   role: string
   status?: GroupStatus
+  subscription?: GroupSubscription | null
   createdAt: string
 }
 

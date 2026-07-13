@@ -3,6 +3,7 @@
 import { createContext, type ReactNode, useContext, useState } from "react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 export type GroupDetailTabValue =
   | "overview"
@@ -34,6 +35,7 @@ export function GroupDetailTabs({
   equipment,
   defaultValue = "overview",
 }: GroupDetailTabsProps) {
+  const { t } = useGroupsTranslation()
   const [activeTab, setActiveTab] = useState<GroupDetailTabValue>(defaultValue)
 
   return (
@@ -48,19 +50,19 @@ export function GroupDetailTabs({
           className="w-full min-w-0 flex-wrap justify-start gap-1 overflow-x-auto pb-1"
         >
           <TabsTrigger value="overview" className="sm:flex-none">
-            Tổng quan
+            {t("dashboard.tabOverview", "Tổng quan")}
           </TabsTrigger>
           <TabsTrigger value="activity" className="sm:flex-none">
-            Lịch hoạt động
+            {t("dashboard.tabSchedule", "Lịch hoạt động")}
           </TabsTrigger>
           <TabsTrigger value="court-bookings" className="sm:flex-none">
-            Đặt sân nhóm
+            {t("courtBookings")}
           </TabsTrigger>
           <TabsTrigger value="finance" className="sm:flex-none">
-            Thu chi
+            {t("finance.title")}
           </TabsTrigger>
           <TabsTrigger value="equipment" className="sm:flex-none">
-            Vật dụng
+            {t("equipment.title", "Vật dụng")}
           </TabsTrigger>
         </TabsList>
 

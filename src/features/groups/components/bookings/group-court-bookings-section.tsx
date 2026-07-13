@@ -40,6 +40,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import {
@@ -88,6 +89,7 @@ export function GroupCourtBookingsSection({
   currentUserRole,
   groupStatus,
 }: GroupCourtBookingsSectionProps) {
+  const { t } = useGroupsTranslation()
   const { invalidateCourtBookings } = useGroupInvalidation(groupId)
 
   const normalizedRole = currentUserRole?.toUpperCase() ?? ""
@@ -136,7 +138,9 @@ export function GroupCourtBookingsSection({
     mutationFn: (body: { title: string; note: string; bookingId: string }) =>
       linkGroupCourtBookingClient(groupId, body),
     onSuccess: () => {
-      toast.success("Liên kết lịch đặt sân thành công!")
+      toast.success(
+        t("errors.linkBookingSuccess", "Liên kết lịch đặt sân thành công!")
+      )
       setLinkDialogOpen(false)
       setFormTitle("")
       setFormNote("")
@@ -144,9 +148,7 @@ export function GroupCourtBookingsSection({
       invalidateCourtBookings()
     },
     onError: (error: Error) => {
-      toast.error(
-        error.message || "Không thể liên kết lịch đặt sân. Vui lòng thử lại."
-      )
+      toast.error(error.message || t("errors.linkBookingFailed"))
     },
   })
 
@@ -154,20 +156,24 @@ export function GroupCourtBookingsSection({
   const unlinkBookingMutation = useMutation({
     mutationFn: (id: string) => unlinkGroupCourtBookingClient(groupId, id),
     onSuccess: () => {
-      toast.success("Đã xóa liên kết lịch đặt sân.")
+      toast.success(
+        t("errors.unlinkBookingSuccess", "Đã xóa liên kết lịch đặt sân.")
+      )
       setDeleteConfirmOpen(false)
       setBookingToDelete(null)
       invalidateCourtBookings()
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Không thể xóa liên kết lịch đặt sân.")
+      toast.error(error.message || t("errors.unlinkBookingFailed"))
     },
   })
 
   const handleLinkSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!formBookingId) {
-      toast.error("Vui lòng chọn lịch đặt sân để liên kết.")
+      toast.error(
+        t("errors.linkBookingEmpty", "Vui lòng chọn lịch đặt sân để liên kết.")
+      )
       return
     }
 
@@ -216,11 +222,14 @@ export function GroupCourtBookingsSection({
     if (courtBookingsQuery.isError) {
       return (
         <ErrorSection
-          title="Lỗi tải danh sách lịch đặt sân"
+          title={t(
+            "errors.loadBookingsFailed",
+            "Lỗi tải danh sách lịch đặt sân"
+          )}
           message={
             courtBookingsQuery.error instanceof Error
               ? courtBookingsQuery.error.message
-              : "Đã xảy ra lỗi."
+              : t("errors.defaultError", "Đã xảy ra lỗi.")
           }
         />
       )
@@ -235,9 +244,17 @@ export function GroupCourtBookingsSection({
             <EmptyMedia variant="icon">
               <Calendar className="size-6 text-muted-foreground" />
             </EmptyMedia>
-            <EmptyTitle>Chưa có lịch đặt sân nào</EmptyTitle>
+            <EmptyTitle>
+              {t(
+                "activitySchedule.quickLinkBookingEmpty",
+                "Chưa có lịch đặt sân nào"
+              )}
+            </EmptyTitle>
             <EmptyDescription>
-              Nhóm chưa liên kết bất kỳ lịch đặt sân nào.
+              {t(
+                "errors.groupNoBookingsLinked",
+                "Nhóm chưa liên kết bất kỳ lịch đặt sân nào."
+              )}
             </EmptyDescription>
             {isOwner && !isArchived && (
               <Button
@@ -246,7 +263,7 @@ export function GroupCourtBookingsSection({
                 className="mt-4 border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
               >
                 <Plus className="mr-2 size-4" />
-                Liên kết lịch đặt sân
+                {t("errors.linkBookingBtn", "Liên kết lịch đặt sân")}
               </Button>
             )}
           </EmptyHeader>
@@ -257,7 +274,8 @@ export function GroupCourtBookingsSection({
     return (
       <div className="space-y-4">
         {bookings.map((item) => {
-          const centerName = item.centerName || "Sân chưa rõ"
+          const centerName =
+            item.centerName || t("errors.sportCenterUnknown", "Sân chưa rõ")
           const bookingDate = item.date ? formatDate(item.date) : "-"
           const totalPrice = item.totalBookingCost
             ? formatCurrencyVnd(item.totalBookingCost)
@@ -268,7 +286,7 @@ export function GroupCourtBookingsSection({
             ? Array.from(
                 new Set(item.bookingItemsSnapshot.map((bi) => bi.courtName))
               ).join(", ")
-            : "Sân chưa rõ"
+            : t("errors.sportCenterUnknown", "Sân chưa rõ")
 
           // Get overall time range
           const timeRange = (() => {
@@ -292,7 +310,7 @@ export function GroupCourtBookingsSection({
           return (
             <Card
               key={item.id}
-              className="cursor-pointer bg-orange-50 transition-all hover:bg-orange-100"
+              className="flex cursor-pointer flex-col gap-6 rounded-xl border bg-orange-50 py-6 text-card-foreground shadow-sm transition-all hover:bg-orange-100 hover:shadow-md dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm dark:hover:border-accent-foreground/15 dark:hover:bg-accent-foreground/10"
               onClick={() => handleOpenDetail(item)}
             >
               <CardHeader className="pb-3">
@@ -306,9 +324,14 @@ export function GroupCourtBookingsSection({
                         {centerName}
                       </span>
                       <span className="text-muted-foreground">•</span>
-                      <span>Ngày: {bookingDate}</span>
+                      <span>
+                        {t("activitySchedule.thTime")}: {bookingDate}
+                      </span>
                       <span className="text-muted-foreground">•</span>
-                      <span>Khung giờ: {timeRange}</span>
+                      <span>
+                        {t("activitySchedule.thTimeRange", "Khung giờ")}:{" "}
+                        {timeRange}
+                      </span>
                     </CardDescription>
                   </div>
                   <div
@@ -332,13 +355,13 @@ export function GroupCourtBookingsSection({
                 <div className="grid gap-2 sm:grid-cols-2">
                   <div>
                     <span className="font-medium text-foreground">
-                      Sân đặt:{" "}
+                      {t("activitySchedule.thEquipment", "Sân đặt")}:{" "}
                     </span>
                     {courtNames}
                   </div>
                   <div>
                     <span className="font-medium text-foreground">
-                      Tổng chi phí:{" "}
+                      {t("activitySchedule.thCost", "Tổng chi phí")}:{" "}
                     </span>
                     <span className="font-semibold text-primary tabular-nums">
                       {totalPrice}
@@ -349,7 +372,7 @@ export function GroupCourtBookingsSection({
                 {item.note && (
                   <div className="rounded-md bg-muted/30 p-2.5 text-xs">
                     <span className="font-semibold text-foreground">
-                      Ghi chú:{" "}
+                      {t("activitySchedule.formDescription", "Ghi chú")}:{" "}
                     </span>
                     {item.note}
                   </div>
@@ -358,11 +381,15 @@ export function GroupCourtBookingsSection({
                 <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-2.5 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <User className="size-3" />
-                    Người liên kết: {item.creator?.name || "Thành viên"}
+                    {t("errors.linkedBy", "Người liên kết: {{name}}", {
+                      name: item.creator?.name || t("members"),
+                    })}
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="size-3" />
-                    Thời gian liên kết: {formatDateTime(item.createdAt)}
+                    {t("errors.linkedAt", "Thời gian liên kết: {{time}}", {
+                      time: formatDateTime(item.createdAt),
+                    })}
                   </span>
                 </div>
               </CardContent>
@@ -381,10 +408,13 @@ export function GroupCourtBookingsSection({
                 disabled={page === 1}
               >
                 <ArrowLeft className="mr-2 size-4" />
-                Trước
+                {t("activitySchedule.filterPrev", "Trước")}
               </Button>
               <span className="text-sm font-medium">
-                Trang {page} / {courtBookingsQuery.data.meta.totalPages}
+                {t("activitySchedule.pageInfo", "Trang {{page}} / {{total}}", {
+                  page,
+                  total: courtBookingsQuery.data.meta.totalPages,
+                })}
               </span>
               <Button
                 variant="outline"
@@ -396,7 +426,7 @@ export function GroupCourtBookingsSection({
                 }
                 disabled={page === courtBookingsQuery.data.meta.totalPages}
               >
-                Sau
+                {t("activitySchedule.filterNext", "Sau")}
                 <ArrowRight className="ml-2 size-4" />
               </Button>
             </div>
@@ -410,21 +440,23 @@ export function GroupCourtBookingsSection({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">
-            Lịch đặt sân nhóm
+            {t("courtBookings")}
           </h2>
           <p className="text-sm text-muted-foreground">
-            Danh sách các lịch đặt sân đã được liên kết với nhóm để thành viên
-            cùng theo dõi.
+            {t(
+              "errors.bookingsListDesc",
+              "Danh sách các lịch đặt sân đã được liên kết với nhóm để thành viên cùng theo dõi."
+            )}
           </p>
         </div>
         {isOwner && !isArchived && (
           <Button
             onClick={() => setLinkDialogOpen(true)}
             size="sm"
-            className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+            className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
           >
             <Plus className="mr-2 size-4" />
-            Liên kết lịch đặt sân
+            {t("errors.linkBookingBtn", "Liên kết lịch đặt sân")}
           </Button>
         )}
       </div>
@@ -436,20 +468,28 @@ export function GroupCourtBookingsSection({
         <DialogContent className="sm:max-w-[500px]">
           <form onSubmit={handleLinkSubmit}>
             <DialogHeader>
-              <DialogTitle>Liên kết lịch đặt sân</DialogTitle>
+              <DialogTitle>
+                {t("errors.linkBookingDialogTitle", "Liên kết lịch đặt sân")}
+              </DialogTitle>
               <DialogDescription>
-                Chọn một lịch đặt sân của bạn để liên kết vào nhóm này. Chỉ các
-                lịch đặt sân có trạng thái đã xác nhận hoặc đã hoàn thành mới
-                khả dụng.
+                {t(
+                  "errors.linkBookingDialogDesc",
+                  "Chọn một lịch đặt sân của bạn để liên kết vào nhóm này. Chỉ các lịch đặt sân có trạng thái đã xác nhận hoặc đã hoàn thành mới khả dụng."
+                )}
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Tiêu đề</label>
+                <label className="text-sm font-medium">
+                  {t("activitySchedule.formActivityName")}
+                </label>
                 <input
                   type="text"
-                  placeholder="Ví dụ: Giao lưu sáng thứ 7"
+                  placeholder={t(
+                    "activitySchedule.formActivityNamePlaceholder",
+                    "Ví dụ: Giao lưu sáng thứ 7"
+                  )}
                   className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
                   value={formTitle}
                   onChange={(e) => setFormTitle(e.target.value)}
@@ -457,9 +497,14 @@ export function GroupCourtBookingsSection({
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Ghi chú</label>
+                <label className="text-sm font-medium">
+                  {t("activitySchedule.formDescription")}
+                </label>
                 <textarea
-                  placeholder="Nhập ghi chú cho nhóm nếu có..."
+                  placeholder={t(
+                    "activitySchedule.formDescriptionPlaceholder",
+                    "Nhập ghi chú cho nhóm nếu có..."
+                  )}
                   className="min-h-20 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
                   value={formNote}
                   onChange={(e) => setFormNote(e.target.value)}
@@ -468,21 +513,24 @@ export function GroupCourtBookingsSection({
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">
-                  Chọn lịch đặt sân <span className="text-destructive">*</span>
+                  {t("activitySchedule.formLinkBooking")}{" "}
+                  <span className="text-destructive">*</span>
                 </label>
                 {myBookingsQuery.isPending ? (
                   <div className="flex items-center gap-2 py-2 text-sm text-muted-foreground">
                     <Loader2 className="size-4 animate-spin text-primary" />
-                    Đang tải danh sách đặt sân của bạn...
+                    {t("activitySchedule.formLoadingBookings")}
                   </div>
                 ) : myBookingsQuery.isError ? (
                   <div className="py-2 text-sm text-destructive">
-                    Lỗi tải danh sách lịch đặt sân. Vui lòng thử lại.
+                    {t("errors.loadBookingsFailed")}
                   </div>
                 ) : eligibleBookings.length === 0 ? (
                   <div className="py-2 text-sm text-muted-foreground">
-                    Bạn không có lịch đặt sân nào có trạng thái CONFIRMED hoặc
-                    COMPLETED.
+                    {t(
+                      "errors.noConfirmedBookings",
+                      "Bạn không có lịch đặt sân nào có trạng thái CONFIRMED hoặc COMPLETED."
+                    )}
                   </div>
                 ) : (
                   <select
@@ -491,12 +539,16 @@ export function GroupCourtBookingsSection({
                     onChange={(e) => setFormBookingId(e.target.value)}
                     required
                   >
-                    <option value="">-- Chọn lịch đặt sân --</option>
+                    <option value="">
+                      {t("activitySchedule.quickLinkBookingPlaceholder")}
+                    </option>
                     {eligibleBookings.map((b) => {
-                      const cName = b.center?.name || "Sân chưa rõ"
+                      const cName =
+                        b.center?.name ||
+                        t("errors.sportCenterUnknown", "Sân chưa rõ")
                       const dateStr = b.date
                         ? new Date(b.date).toLocaleDateString("vi-VN")
-                        : "Chưa rõ ngày"
+                        : t("activitySchedule.noSchedule")
                       return (
                         <option key={b.id} value={b.id}>
                           {cName} - {dateStr}
@@ -515,17 +567,17 @@ export function GroupCourtBookingsSection({
                 onClick={() => setLinkDialogOpen(false)}
                 disabled={linkBookingMutation.isPending}
               >
-                Hủy
+                {t("activitySchedule.btnCancel")}
               </Button>
               <Button
                 type="submit"
                 disabled={linkBookingMutation.isPending || !formBookingId}
-                className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                variant="orangeCard"
               >
                 {linkBookingMutation.isPending && (
                   <Loader2 className="mr-2 size-4 animate-spin" />
                 )}
-                Liên kết
+                {t("errors.btnLink", "Liên kết")}
               </Button>
             </DialogFooter>
           </form>
@@ -538,12 +590,10 @@ export function GroupCourtBookingsSection({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="size-5" />
-              Xác nhận xóa liên kết
+              {t("activitySchedule.confirmUnlinkBookingTitle")}
             </DialogTitle>
             <DialogDescription>
-              Bạn có chắc muốn xóa lịch đặt sân này? Hành động này chỉ gỡ lịch
-              đặt sân khỏi nhóm, không ảnh hưởng đến việc đặt sân thực tế của
-              bạn tại cụm sân.
+              {t("activitySchedule.confirmUnlinkBookingDesc")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="pt-4">
@@ -553,7 +603,7 @@ export function GroupCourtBookingsSection({
               onClick={() => setDeleteConfirmOpen(false)}
               disabled={unlinkBookingMutation.isPending}
             >
-              Hủy
+              {t("activitySchedule.btnCancel")}
             </Button>
             <Button
               type="button"
@@ -564,7 +614,7 @@ export function GroupCourtBookingsSection({
               {unlinkBookingMutation.isPending && (
                 <Loader2 className="mr-2 size-4 animate-spin" />
               )}
-              Xóa liên kết
+              {t("activitySchedule.confirmUnlinkBookingBtnConfirm")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -572,7 +622,7 @@ export function GroupCourtBookingsSection({
 
       {/* Detail Dialog */}
       <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto bg-orange-50 sm:max-w-[600px]">
+        <DialogContent className="max-h-[85vh] overflow-y-auto bg-orange-50 sm:max-w-[600px] dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm">
           {selectedBooking && (
             <div>
               <DialogHeader>
@@ -580,10 +630,18 @@ export function GroupCourtBookingsSection({
                   <DialogTitle className="text-xl font-bold">
                     {selectedBooking.title}
                   </DialogTitle>
-                  <Badge variant="default">Đã liên kết</Badge>
+                  <Badge
+                    variant="outline"
+                    className="border-emerald-500/20 bg-emerald-500/10 text-emerald-500 dark:border-emerald-800/30 dark:bg-emerald-950/20 dark:text-emerald-400"
+                  >
+                    {t("errors.linkedBadge", "Đã liên kết")}
+                  </Badge>
                 </div>
                 <DialogDescription>
-                  Chi tiết thông tin lịch đặt sân đã liên kết.
+                  {t(
+                    "errors.bookingDetailDesc",
+                    "Chi tiết thông tin lịch đặt sân đã liên kết."
+                  )}
                 </DialogDescription>
               </DialogHeader>
 
@@ -592,15 +650,15 @@ export function GroupCourtBookingsSection({
                 <div className="grid gap-3 rounded-lg border bg-muted/20 p-4 sm:grid-cols-2">
                   <div>
                     <span className="block text-xs text-muted-foreground uppercase">
-                      Người liên kết
+                      {t("errors.linker", "Người liên kết")}
                     </span>
                     <span className="font-semibold text-foreground">
-                      {selectedBooking.creator?.name || "Thành viên"}
+                      {selectedBooking.creator?.name || t("members")}
                     </span>
                   </div>
                   <div>
                     <span className="block text-xs text-muted-foreground uppercase">
-                      Thời gian liên kết
+                      {t("errors.linkedTime", "Thời gian liên kết")}
                     </span>
                     <span className="font-semibold text-foreground">
                       {formatDateTime(selectedBooking.createdAt)}
@@ -609,7 +667,7 @@ export function GroupCourtBookingsSection({
                   {selectedBooking.note && (
                     <div className="mt-1 border-t pt-2 sm:col-span-2">
                       <span className="block text-xs text-muted-foreground uppercase">
-                        Ghi chú liên kết
+                        {t("errors.linkedNote", "Ghi chú liên kết")}
                       </span>
                       <p className="mt-1 whitespace-pre-wrap text-foreground">
                         {selectedBooking.note}
@@ -621,18 +679,23 @@ export function GroupCourtBookingsSection({
                 {/* Booking details */}
                 <div className="space-y-3">
                   <h4 className="border-b pb-1.5 font-bold text-foreground">
-                    Thông tin đặt sân
+                    {t("activitySchedule.linkedBookingTitle")}
                   </h4>
 
                   <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2">
                     <div>
-                      <span className="text-muted-foreground">Cụm sân:</span>{" "}
+                      <span className="text-muted-foreground">
+                        {t("errors.sportCenterLabel", "Cụm sân:")}
+                      </span>{" "}
                       <span className="font-medium text-foreground">
-                        {selectedBooking.centerName || "Sân chưa rõ"}
+                        {selectedBooking.centerName ||
+                          t("errors.sportCenterUnknown", "Sân chưa rõ")}
                       </span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Ngày đặt:</span>{" "}
+                      <span className="text-muted-foreground">
+                        {t("activitySchedule.thTime")}:
+                      </span>{" "}
                       <span className="font-medium text-foreground">
                         {selectedBooking.date
                           ? formatDate(selectedBooking.date)
@@ -640,7 +703,9 @@ export function GroupCourtBookingsSection({
                       </span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Tổng tiền:</span>{" "}
+                      <span className="text-muted-foreground">
+                        {t("activitySchedule.thCost")}:
+                      </span>{" "}
                       <span className="font-bold text-primary tabular-nums">
                         {selectedBooking.totalBookingCost
                           ? formatCurrencyVnd(selectedBooking.totalBookingCost)
@@ -653,7 +718,10 @@ export function GroupCourtBookingsSection({
                 {/* Booking items list */}
                 <div className="space-y-3">
                   <h4 className="border-b pb-1.5 font-bold text-foreground">
-                    Danh sách sân và khung giờ
+                    {t(
+                      "errors.courtsAndTimeList",
+                      "Danh sách sân và khung giờ"
+                    )}
                   </h4>
                   <div className="divide-y rounded-md border">
                     {selectedBooking.bookingItemsSnapshot?.map((bi, index) => (
@@ -666,14 +734,20 @@ export function GroupCourtBookingsSection({
                             {bi.courtName || `Sân #${index + 1}`}
                           </span>
                           <span className="block text-xs text-muted-foreground">
-                            Khung giờ: {bi.startTime} - {bi.endTime}
+                            {t("activitySchedule.bookingTimeLabel", {
+                              start: bi.startTime,
+                              end: bi.endTime,
+                            })}
                           </span>
                         </div>
                       </div>
                     ))}
                     {!selectedBooking.bookingItemsSnapshot?.length && (
                       <div className="p-4 text-center text-xs text-muted-foreground">
-                        Không có thông tin chi tiết từng sân.
+                        {t(
+                          "errors.noBookingItemsInfo",
+                          "Không có thông tin chi tiết từng sân."
+                        )}
                       </div>
                     )}
                   </div>
@@ -685,7 +759,7 @@ export function GroupCourtBookingsSection({
                   type="button"
                   onClick={() => setDetailDialogOpen(false)}
                 >
-                  Đóng
+                  {t("activitySchedule.btnClose")}
                 </Button>
               </DialogFooter>
             </div>

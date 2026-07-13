@@ -53,7 +53,7 @@ export function GroupDetailHeader({
 
         <div className="min-w-0 flex-1 space-y-2">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <h1 className="min-w-0 text-3xl font-bold tracking-tight wrap-break-word">
+            <h1 className="min-w-0 text-3xl font-bold tracking-tight wrap-break-word text-orange-500 dark:text-orange-400">
               {groupName}
             </h1>
             {archived && (

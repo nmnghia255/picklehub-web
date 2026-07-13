@@ -8,7 +8,7 @@ export const addGroupSchema = z.object({
 export type AddGroupFormData = z.infer<typeof addGroupSchema>
 
 export const inviteSchema = z.object({
-  email: z.string().email("Email không hợp lệ"),
+  email: z.string().email("errors.invalidEmail"),
 })
 
 export type InviteFormData = z.infer<typeof inviteSchema>

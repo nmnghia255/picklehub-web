@@ -1,6 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import { Users } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import {
   getGroupMembersClient,
@@ -24,17 +26,18 @@ import { GroupMemberActions } from "./group-member-actions"
 
 function getInitials(name: string) {
   const words = name.trim().split(/\s+/).filter(Boolean)
-  if (!words.length) return "TV"
+  if (!words.length) return "MB"
   if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
   return `${words[0][0] ?? ""}${words[1][0] ?? ""}`.toUpperCase()
 }
 
-function normalizeRole(role: string | null | undefined) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizeRole(role: string | null | undefined, t: any) {
   switch (role?.toLowerCase()) {
     case "owner":
-      return "Trưởng nhóm"
+      return t("dashboard.roleOwner", "Trưởng nhóm")
     case "member":
-      return "Thành viên"
+      return t("members")
     default:
       return role ?? "-"
   }
@@ -55,6 +58,7 @@ export function GroupMembersCard({
   currentUserRole,
   groupStatus,
 }: GroupMembersCardProps) {
+  const { t } = useGroupsTranslation()
   const queryKey = groupQueryKeys.members(groupId)
   useSyncGroupData(queryKey, initialMembers)
 
@@ -64,16 +68,26 @@ export function GroupMembersCard({
     initialData: initialMembers,
   })
 
-  const resolvedMembers = members ?? []
+  const resolvedMembers: Member[] = Array.isArray(members)
+    ? members
+    : members &&
+        typeof members === "object" &&
+        "data" in members &&
+        Array.isArray((members as Record<string, unknown>).data)
+      ? ((members as Record<string, unknown>).data as Member[])
+      : []
 
   const normalizedUserRole = currentUserRole?.toLowerCase()
   const canManageMembers =
     !isArchivedGroup(groupStatus) && normalizedUserRole === "owner"
 
   return (
-    <Card className="mt-6">
+    <Card className="mt-6 bg-orange-50 dark:bg-accent">
       <CardHeader>
-        <CardTitle>Thành viên</CardTitle>
+        <div className="flex items-center gap-2">
+          <Users className="size-5 text-base" />
+          <CardTitle>{t("members")}</CardTitle>
+        </div>
       </CardHeader>
       <CardContent>
         <Table>
@@ -86,12 +100,18 @@ export function GroupMembersCard({
           </colgroup>
           <TableHeader>
             <TableRow>
-              <TableHead>Tên</TableHead>
+              <TableHead>
+                {t("activitySchedule.formFieldName", "Tên")}
+              </TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Vai trò</TableHead>
-              <TableHead>Ngày tham gia</TableHead>
+              <TableHead>{t("dashboard.thRole", "Vai trò")}</TableHead>
+              <TableHead>
+                {t("dashboard.thJoinedAt", "Ngày tham gia")}
+              </TableHead>
               {canManageMembers && (
-                <TableHead className="text-right">Thao tác</TableHead>
+                <TableHead className="text-right">
+                  {t("activitySchedule.thAction", "Thao tác")}
+                </TableHead>
               )}
             </TableRow>
           </TableHeader>
@@ -112,8 +132,8 @@ export function GroupMembersCard({
                     <div className="flex items-center gap-2">
                       <span>{member.name}</span>
                       {member.userId === currentUserId && (
-                        <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                          Bạn
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-orange-500">
+                          {t("dashboard.badgeYou", "Bạn")}
                         </span>
                       )}
                     </div>
@@ -123,7 +143,7 @@ export function GroupMembersCard({
                   {member.email}
                 </TableCell>
                 <TableCell className="capitalize">
-                  {normalizeRole(member.role)}
+                  {normalizeRole(member.role, t)}
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   {new Date(member.joinedAt).toLocaleDateString("vi-VN", {

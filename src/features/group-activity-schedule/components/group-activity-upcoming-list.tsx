@@ -33,6 +33,7 @@ import {
   getStatusLabel,
   sortEventsByStart,
 } from "@/features/group-activity-schedule/group-activity-schedule.utils"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 interface GroupActivityUpcomingListProps {
   events: GroupActivity[]
@@ -47,15 +48,14 @@ export function GroupActivityUpcomingList({
   onEdit,
   onDelete,
 }: GroupActivityUpcomingListProps) {
+  const { t } = useGroupsTranslation()
   const upcomingEvents = sortEventsByStart(events)
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Danh sách hoạt động sắp tới</CardTitle>
-        <CardDescription>
-          Theo dõi các hoạt động social, buổi chơi và meetup trong nhóm.
-        </CardDescription>
+        <CardTitle>{t("activitySchedule.upcomingTitle")}</CardTitle>
+        <CardDescription>{t("activitySchedule.upcomingDesc")}</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -65,9 +65,9 @@ export function GroupActivityUpcomingList({
               <EmptyMedia variant="icon">
                 <Users className="size-5" />
               </EmptyMedia>
-              <EmptyTitle>Chưa có hoạt động phù hợp</EmptyTitle>
+              <EmptyTitle>{t("activitySchedule.emptyTitle")}</EmptyTitle>
               <EmptyDescription>
-                Thử đổi bộ lọc thời gian hoặc từ khóa để xem thêm dữ liệu.
+                {t("activitySchedule.emptyDesc")}
               </EmptyDescription>
             </EmptyHeader>
           </Empty>
@@ -77,11 +77,13 @@ export function GroupActivityUpcomingList({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Hoạt động</TableHead>
-                    <TableHead>Thời gian</TableHead>
-                    <TableHead>Địa điểm</TableHead>
-                    <TableHead>Trạng thái</TableHead>
-                    <TableHead className="text-right">Hành động</TableHead>
+                    <TableHead>{t("activitySchedule.thActivity")}</TableHead>
+                    <TableHead>{t("activitySchedule.thTime")}</TableHead>
+                    <TableHead>{t("activitySchedule.thLocation")}</TableHead>
+                    <TableHead>{t("activitySchedule.thStatus")}</TableHead>
+                    <TableHead className="text-right">
+                      {t("activitySchedule.thAction")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -96,7 +98,7 @@ export function GroupActivityUpcomingList({
                               event.activityType
                             )}
                           >
-                            {getActivityTypeLabel(event.activityType)}
+                            {t(getActivityTypeLabel(event.activityType))}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-muted-foreground">
@@ -123,7 +125,7 @@ export function GroupActivityUpcomingList({
                             variant="outline"
                             className={getStatusBadgeClass(event.status)}
                           >
-                            {getStatusLabel(event.status)}
+                            {t(getStatusLabel(event.status))}
                           </Badge>
                         </TableCell>
                         <TableCell className="space-x-2 text-right">
@@ -133,7 +135,7 @@ export function GroupActivityUpcomingList({
                             onClick={() => onOpenDetail(event)}
                           >
                             <Eye className="size-4" />
-                            Xem
+                            {t("activitySchedule.actionDetail")}
                           </Button>
                           <Button
                             variant="outline"
@@ -141,7 +143,7 @@ export function GroupActivityUpcomingList({
                             onClick={() => onEdit(event)}
                           >
                             <Edit className="size-4" />
-                            Sửa
+                            {t("activitySchedule.actionEdit")}
                           </Button>
                           <Button
                             variant="outline"
@@ -149,7 +151,7 @@ export function GroupActivityUpcomingList({
                             onClick={() => onDelete(event.id)}
                           >
                             <Trash2 className="size-4" />
-                            Xóa
+                            {t("activitySchedule.actionDelete")}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -176,7 +178,7 @@ export function GroupActivityUpcomingList({
                           event.activityType
                         )}
                       >
-                        {getActivityTypeLabel(event.activityType)}
+                        {t(getActivityTypeLabel(event.activityType))}
                       </Badge>
                     </div>
 
@@ -205,7 +207,7 @@ export function GroupActivityUpcomingList({
                         onClick={() => onOpenDetail(event)}
                       >
                         <Eye className="size-4" />
-                        Chi tiết
+                        {t("activitySchedule.actionDetail")}
                       </Button>
                       <Button
                         variant="outline"
@@ -213,7 +215,7 @@ export function GroupActivityUpcomingList({
                         onClick={() => onEdit(event)}
                       >
                         <Edit className="size-4" />
-                        Sửa
+                        {t("activitySchedule.actionEdit")}
                       </Button>
                       <Button
                         variant="outline"
@@ -221,7 +223,7 @@ export function GroupActivityUpcomingList({
                         onClick={() => onDelete(event.id)}
                       >
                         <Trash2 className="size-4" />
-                        Xóa
+                        {t("activitySchedule.actionDelete")}
                       </Button>
                     </div>
                   </div>

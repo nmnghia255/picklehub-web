@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import { inviteToGroupAction } from "../../actions"
 import { type InviteFormData, inviteSchema } from "../../schemas"
@@ -26,6 +27,7 @@ interface InviteDialogProps {
 }
 
 export function InviteDialog({ groupId }: InviteDialogProps) {
+  const { t } = useGroupsTranslation()
   const [open, setOpen] = useState(false)
   const router = useRouter()
   const [state, formAction, isPending] = useActionState(
@@ -59,19 +61,23 @@ export function InviteDialog({ groupId }: InviteDialogProps) {
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <Mail className="size-4" />
-          Mời qua email
+          {t("dashboard.inviteByEmailBtn", "Mời qua email")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <form onSubmit={onSubmit}>
           <DialogHeader>
-            <DialogTitle>Mời thành viên qua Email</DialogTitle>
+            <DialogTitle>
+              {t("dashboard.inviteByEmailTitle", "Mời thành viên qua Email")}
+            </DialogTitle>
           </DialogHeader>
 
           <div className="py-4">
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <FieldLabel htmlFor="email">
+                  {t("activitySchedule.formFieldEmail", "Email")}
+                </FieldLabel>
                 <Input
                   id="email"
                   type="email"
@@ -79,22 +85,26 @@ export function InviteDialog({ groupId }: InviteDialogProps) {
                   {...form.register("email")}
                   aria-invalid={!!form.formState.errors.email}
                 />
-                {form.formState.errors.email && (
+                {form.formState.errors.email?.message && (
                   <p className="text-sm text-destructive">
-                    {form.formState.errors.email.message}
+                    {t(form.formState.errors.email.message)}
                   </p>
                 )}
               </Field>
             </FieldGroup>
 
             {state.error && (
-              <p className="mt-2 text-sm text-destructive">{state.error}</p>
+              <p className="mt-2 text-sm text-destructive">
+                {t(state.error, state.error)}
+              </p>
             )}
           </div>
 
           <DialogFooter showCloseButton>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Đang gửi..." : "Gửi lời mời"}
+            <Button type="submit" disabled={isPending} variant="orangeCard">
+              {isPending
+                ? t("dashboard.sendingInvitationBtn", "Đang gửi...")
+                : t("dashboard.sendInvitationBtn", "Gửi lời mời")}
             </Button>
           </DialogFooter>
         </form>

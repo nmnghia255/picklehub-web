@@ -9,6 +9,7 @@ import { EditGroupDrawer } from "@/features/groups/components/details/edit-group
 import { GroupDetailActionsMenu } from "@/features/groups/components/details/group-detail-actions-menu"
 import { GroupDetailHeader } from "@/features/groups/components/details/group-detail-header"
 import { GroupDetailPanels } from "@/features/groups/components/details/group-detail-panels"
+import { GroupSubscriptionBanner } from "@/features/groups/components/details/group-subscription-banner"
 import { GroupInviteMemberButton } from "@/features/groups/components/members/group-invite-member-button"
 import { GroupFeedNotificationSender } from "@/features/notifications/components/group-feed-notification-sender"
 import { getSession } from "@/lib/session"
@@ -54,7 +55,7 @@ export default async function GroupDetailPage({
 
     const normalizedRole = group.role?.toLowerCase()
     isOwner = normalizedRole === "owner"
-    canManage = isOwner
+    canManage = isOwner || normalizedRole === "admin"
 
     invitations = canManage ? await getGroupInvitations(groupId) : []
   } catch (error) {
@@ -80,6 +81,7 @@ export default async function GroupDetailPage({
 
   return (
     <PageContainer variant="wide" className="space-y-6">
+      <GroupSubscriptionBanner group={group} currentUserRole={group.role} />
       <div className="flex flex-col gap-4 border-b pb-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6 lg:pb-5">
         <div className="min-w-0 flex-1">
           <GroupDetailHeader groupId={groupId} initialData={group} />
@@ -92,7 +94,7 @@ export default async function GroupDetailPage({
               canSend={canManage}
             />
           )}
-          {isOwner && <EditGroupDrawer group={group} />}
+          {canManage && <EditGroupDrawer group={group} />}
           {canManage && (
             <GroupInviteMemberButton groupId={groupId} groupName={group.name} />
           )}

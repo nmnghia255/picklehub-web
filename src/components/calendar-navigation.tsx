@@ -1,6 +1,7 @@
 "use client"
 
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import * as React from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -91,16 +92,13 @@ export function CalendarNavigation({
           value={String(currentDate.getMonth())}
           onValueChange={(val) => onMonthChange(parseInt(val))}
         >
-          <SelectTrigger
-            className="h-10 w-30 bg-background font-semibold text-foreground shadow-sm"
-            aria-label={t("calendar.monthSelectLabel")}
-          >
-            <SelectValue placeholder={t("calendar.monthPlaceholder")} />
+          <SelectTrigger className="h-10 w-30 bg-background font-semibold text-foreground shadow-sm">
+            <SelectValue placeholder={t("calendar.month", "Tháng")} />
           </SelectTrigger>
           <SelectContent>
             {months.map((m) => (
               <SelectItem key={m} value={String(m)}>
-                {t(`calendar.monthNames.${m}`)}
+                {t(`calendar.months.${m}`, `Tháng ${m + 1}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -108,7 +106,7 @@ export function CalendarNavigation({
 
         <div className="flex h-10 w-auto items-center gap-2 rounded-md border bg-background pl-3 shadow-sm transition-all focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
           <span className="text-sm font-semibold whitespace-nowrap text-foreground">
-            {t("calendar.yearLabel")}
+            {t("calendar.year", "Năm")}
           </span>
           <Combobox
             value={String(currentYear)}
