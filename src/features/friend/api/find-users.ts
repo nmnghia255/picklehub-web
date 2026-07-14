@@ -32,9 +32,11 @@ type SearchUsersResult = {
   meta: PaginationMeta
 }
 
-async function getCommonLocale() {
+async function getCommonLocale(): Promise<typeof enCommon> {
   const acceptLanguage = (await headers()).get("accept-language") ?? ""
-  return acceptLanguage.toLowerCase().startsWith("vi") ? viCommon : enCommon
+  return acceptLanguage.toLowerCase().startsWith("vi")
+    ? (viCommon as unknown as typeof enCommon)
+    : enCommon
 }
 
 function createAvatarUrl(seed: string) {

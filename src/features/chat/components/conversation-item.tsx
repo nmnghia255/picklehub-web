@@ -1,11 +1,16 @@
 "use client"
 
+import { BellOff } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 import type { Conversation } from "../types"
+import { getConversationTitle, isConversationMuted } from "../utils/chat-cache"
+import { formatChatTime, formatRelativeChatTime } from "../utils/chat-date"
 
 function getInitials(name: string) {
   const words = name.trim().split(/\s+/).filter(Boolean)
@@ -14,108 +19,113 @@ function getInitials(name: string) {
   return `${words[0][0] ?? ""}${words[1][0] ?? ""}`.toUpperCase()
 }
 
-function formatTime(
-  dateStr: string | null,
-  t: (key: string, options?: Record<string, unknown>) => string,
-  locale: string
-) {
-  if (!dateStr) return ""
-  const date = new Date(dateStr)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffMins = Math.floor(diffMs / 60000)
-  const diffHours = Math.floor(diffMs / 3600000)
-  const diffDays = Math.floor(diffMs / 86400000)
-
-  if (diffMins < 1) return t("chat.relativeTime.justNow")
-  if (diffMins < 60) {
-    return t("chat.relativeTime.minutesAgo", { count: diffMins })
-  }
-  if (diffHours < 24) {
-    return t("chat.relativeTime.hoursAgo", { count: diffHours })
-  }
-  if (diffDays === 1) return t("chat.relativeTime.yesterday")
-  if (diffDays < 7) {
-    return t("chat.relativeTime.daysAgo", { count: diffDays })
-  }
-  return date.toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", {
-    day: "2-digit",
-    month: "2-digit",
-  })
-}
-
-function getSourceLabel(
+function getConversationTypeLabel(
   conversation: Conversation,
-  t: (key: string, options?: Record<string, unknown>) => string
-): string | null {
-  if (conversation.type === "social" && conversation.sourceInfo) {
-    return t("chat.messages.socialPrefix", {
-      name: conversation.sourceInfo.name,
-    })
+  t: (key: string) => string
+) {
+  switch (conversation.type) {
+    case "GROUP":
+      return t("chat.conversationTypes.group")
+    case "SOCIAL":
+      return t("chat.conversationTypes.social")
+    case "TOURNAMENT":
+      return t("chat.conversationTypes.tournament")
+    default:
+      return t("chat.conversationTypes.direct")
   }
-  if (conversation.type === "group" && conversation.sourceInfo) {
-    return t("chat.messages.fromGroup", {
-      name: conversation.sourceInfo.name,
-    })
-  }
-  if (conversation.type === "group") {
-    return t("chat.messages.groupOnly")
-  }
-  return null
 }
 
 interface ConversationItemProps {
   conversation: Conversation
+  currentUserId: string | null
   isActive: boolean
   onClick: () => void
 }
 
 export function ConversationItem({
   conversation,
+  currentUserId,
   isActive,
   onClick,
 }: ConversationItemProps) {
   const { t, i18n } = useTranslation("common")
   const locale = i18n.resolvedLanguage?.startsWith("vi") ? "vi" : "en"
-  const sourceLabel = getSourceLabel(conversation, t)
+  const title =
+    conversation.type === "DIRECT"
+      ? getConversationTitle(conversation, currentUserId)
+      : getConversationTitle(conversation, null)
+  const muted = isConversationMuted(conversation, currentUserId ?? "")
+  const lastMessageAt = formatRelativeChatTime(
+    conversation.lastMessageAt,
+    locale
+  )
+  const lastMessageTime = formatChatTime(conversation.lastMessageAt, locale)
+  const preview =
+    conversation.lastMessage?.type === "MEDIA"
+      ? t("chat.labels.mediaMessage")
+      : conversation.lastMessage?.type === "SYSTEM"
+        ? (conversation.lastMessage?.body ?? t("chat.labels.systemMessage"))
+        : (conversation.lastMessage?.body ?? "")
 
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       onClick={onClick}
       className={cn(
-        "flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-accent/50",
-        isActive && "bg-accent"
+        "h-auto w-full justify-start rounded-none border-b px-4 py-3 text-left",
+        isActive && "bg-accent/70"
       )}
     >
-      <Avatar className="mt-0.5 h-10 w-10 shrink-0">
-        <AvatarFallback className="text-xs font-semibold">
-          {getInitials(conversation.name)}
-        </AvatarFallback>
-      </Avatar>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-baseline justify-between gap-2">
-          <span className="truncate text-sm font-medium">
-            {conversation.name}
-          </span>
-          <span className="shrink-0 text-[11px] text-muted-foreground">
-            {formatTime(conversation.lastMessageAt, t, locale)}
-          </span>
+      <div className="flex w-full items-start gap-3">
+        <Avatar className="mt-0.5 size-10 shrink-0">
+          <AvatarImage src="" alt={title} />
+          <AvatarFallback className="bg-muted text-xs font-semibold text-foreground">
+            {getInitials(title)}
+          </AvatarFallback>
+        </Avatar>
+
+        <div className="min-w-0 flex-1 space-y-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-foreground">
+                {title}
+              </p>
+              <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
+                  {getConversationTypeLabel(conversation, t)}
+                </Badge>
+                {muted && (
+                  <Badge
+                    variant="outline"
+                    className="h-5 gap-1 px-1.5 text-[10px]"
+                  >
+                    <BellOff className="size-3" />
+                    {t("chat.labels.muted")}
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            <div className="shrink-0 text-right">
+              <p className="text-[11px] text-muted-foreground">
+                {lastMessageAt || lastMessageTime}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-2">
+            <p className="line-clamp-1 text-sm text-muted-foreground">
+              {preview || t("chat.conversationList.noPreview")}
+            </p>
+            {conversation.unreadCount > 0 && (
+              <Badge className="h-5 min-w-5 justify-center rounded-full px-1.5 text-[10px]">
+                {conversation.unreadCount}
+              </Badge>
+            )}
+          </div>
         </div>
-        <p className="mt-0.5 truncate text-xs text-muted-foreground">
-          {conversation.lastMessage}
-        </p>
-        {sourceLabel && (
-          <p className="mt-0.5 truncate text-[11px] text-muted-foreground/70">
-            {sourceLabel}
-          </p>
-        )}
       </div>
-      {conversation.unreadCount > 0 && (
-        <span className="mt-1 flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-medium text-primary-foreground">
-          {conversation.unreadCount}
-        </span>
-      )}
-    </button>
+    </Button>
   )
 }

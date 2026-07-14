@@ -8,6 +8,7 @@ import {
   RotateCcw,
 } from "lucide-react"
 import { useActionState, useEffect, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -26,6 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { OpenChatButton } from "@/features/chat/components/open-chat-button"
 import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import {
@@ -48,6 +50,7 @@ export function GroupDetailActionsMenu({
   isArchived,
 }: GroupDetailActionsMenuProps) {
   const { t } = useGroupsTranslation()
+  const { t: tCommon } = useTranslation("common")
   const [archiveOpen, setArchiveOpen] = useState(false)
   const [leaveOpen, setLeaveOpen] = useState(false)
 
@@ -61,6 +64,14 @@ export function GroupDetailActionsMenu({
 
   return (
     <>
+      <OpenChatButton
+        kind="group"
+        targetId={groupId}
+        label={tCommon("chat.actions.openGroup")}
+        variant="secondary"
+        size="sm"
+      />
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="icon" className="size-9 shrink-0">

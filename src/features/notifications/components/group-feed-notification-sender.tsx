@@ -61,13 +61,14 @@ export function GroupFeedNotificationSender({
   groupName,
   canSend = true,
 }: GroupFeedNotificationSenderProps) {
-  const { t } = useGroupsTranslation()
+  const { i18n } = useTranslation("common")
+  const { t: tGroups } = useGroupsTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [, setNotifications] = useAtom(notificationFeedAtom)
   const [, setGroupNotifications] = useAtom(groupFeedNotificationsAtom)
   const { toast } = useToast()
-  const sendNotificationSchema = createSchema(t)
+  const sendNotificationSchema = createSchema(tGroups)
 
   const form = useForm<SendNotificationFormValues>({
     resolver: zodResolver(sendNotificationSchema),
@@ -80,11 +81,11 @@ export function GroupFeedNotificationSender({
   const onSubmit = async (data: SendNotificationFormValues) => {
     if (!canSend) {
       toast({
-        title: t(
+        title: tGroups(
           "notifications.noPermission",
           "Chỉ trưởng nhóm mới có thể gửi thông báo!"
         ),
-        description: t(
+        description: tGroups(
           "notifications.noPermissionDesc",
           "Chỉ trưởng nhóm mới có thể gửi thông báo!"
         ),
@@ -116,7 +117,7 @@ export function GroupFeedNotificationSender({
         actor: groupName,
         timeLabel,
         unread: true,
-        tags: [t("feed.tags.group"), t("feed.tags.notification")],
+        tags: [tGroups("feed.tags.group"), tGroups("feed.tags.notification")],
         actionHref: `/groups/${groupId}`,
       }
 
@@ -135,8 +136,8 @@ export function GroupFeedNotificationSender({
       ])
 
       toast({
-        title: t("notifications.sendSuccess", "Thành công"),
-        description: t(
+        title: tGroups("notifications.sendSuccess", "Thành công"),
+        description: tGroups(
           "notifications.sendSuccessDesc",
           "Thông báo đã được gửi đến tất cả thành viên nhóm."
         ),
@@ -148,10 +149,10 @@ export function GroupFeedNotificationSender({
       const errorMessage =
         error instanceof Error
           ? error.message
-          : t("notifications.sendFailed", "Không thể gửi thông báo")
+          : tGroups("notifications.sendFailed", "Không thể gửi thông báo")
 
       toast({
-        title: t("errors.defaultError", "Lỗi"),
+        title: tGroups("errors.defaultError", "Lỗi"),
         description: errorMessage,
         variant: "destructive",
       })
@@ -174,16 +175,16 @@ export function GroupFeedNotificationSender({
           className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
         >
           <Bell className="size-4" />
-          {t("notifications.sendBtn", "Gửi thông báo")}
+          {tGroups("notifications.sendBtn", "Gửi thông báo")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {t("notifications.sendDialogTitle", "Gửi thông báo cho nhóm")}
+            {tGroups("notifications.sendDialogTitle", "Gửi thông báo cho nhóm")}
           </DialogTitle>
           <DialogDescription>
-            {t(
+            {tGroups(
               "notifications.sendDialogDesc",
               'Gửi thông báo feed tới tất cả thành viên của nhóm "{{name}}"',
               { name: groupName }
@@ -199,11 +200,11 @@ export function GroupFeedNotificationSender({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    {t("notifications.formFieldTitle", "Tiêu đề")}
+                    {tGroups("notifications.formFieldTitle", "Tiêu đề")}
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder={t(
+                      placeholder={tGroups(
                         "notifications.formFieldTitlePlaceholder",
                         "Nhập tiêu đề thông báo..."
                       )}
@@ -212,7 +213,10 @@ export function GroupFeedNotificationSender({
                     />
                   </FormControl>
                   <FormDescription>
-                    {t("notifications.formFieldTitleDesc", "Tối đa 200 ký tự")}
+                    {tGroups(
+                      "notifications.formFieldTitleDesc",
+                      "Tối đa 200 ký tự"
+                    )}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -225,11 +229,11 @@ export function GroupFeedNotificationSender({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    {t("notifications.formFieldMessage", "Nội dung")}
+                    {tGroups("notifications.formFieldMessage", "Nội dung")}
                   </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder={t(
+                      placeholder={tGroups(
                         "notifications.formFieldMessagePlaceholder",
                         "Nhập nội dung thông báo..."
                       )}
@@ -239,7 +243,7 @@ export function GroupFeedNotificationSender({
                     />
                   </FormControl>
                   <FormDescription>
-                    {t(
+                    {tGroups(
                       "notifications.formFieldMessageDesc",
                       "Tối đa 1000 ký tự"
                     )}
@@ -256,11 +260,11 @@ export function GroupFeedNotificationSender({
                 onClick={() => setIsOpen(false)}
                 disabled={isLoading}
               >
-                {t("activitySchedule.btnCancel", "Hủy")}
+                {tGroups("activitySchedule.btnCancel", "Hủy")}
               </Button>
               <Button type="submit" disabled={isLoading} variant="orangeCard">
                 {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
-                {t("notifications.sendBtn", "Gửi thông báo")}
+                {tGroups("notifications.sendBtn", "Gửi thông báo")}
               </Button>
             </div>
           </form>

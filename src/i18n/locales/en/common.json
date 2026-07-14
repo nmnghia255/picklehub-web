@@ -125,6 +125,7 @@
     }
   },
   "back": "Back",
+  "cancel": "Cancel",
   "loading": "Loading...",
   "dialog": {
     "close": "Close"
@@ -179,16 +180,86 @@
   },
   "chat": {
     "pageTitle": "Chat",
-    "pageDescription": "Message friends, groups, and social sessions.",
-    "conversationList": {
-      "searchPlaceholder": "Search conversations...",
-      "emptyState": "No conversations found."
+    "pageDescription": "Message friends, groups, socials, and tournaments.",
+    "states": {
+      "loadingTitle": "Loading conversation...",
+      "emptyTitle": "Select a conversation to start",
+      "emptyDescription": "Message friends, groups, socials, and tournaments.",
+      "errorTitle": "Could not load chat",
+      "errorDescription": "An error occurred while loading chat data.",
+      "retry": "Try again"
     },
-    "emptyState": {
-      "title": "Select a conversation to start",
-      "description": "Message friends, groups, and social sessions."
+    "connection": {
+      "connected": "Connected",
+      "reconnecting": "Reconnecting...",
+      "offline": "Offline"
+    },
+    "list": {
+      "title": "Conversations",
+      "subtitle": "{{count}} unread"
+    },
+  "conversationList": {
+    "searchPlaceholder": "Search conversations...",
+    "emptyState": "No conversations found.",
+    "emptyHint": "Try a different keyword or start a new conversation.",
+    "loadMore": "Load more",
+    "noPreview": "No messages yet"
+  },
+  "emptyState": {
+    "title": "Select a conversation to start",
+    "description": "Message friends, groups, socials, and tournaments."
+  },
+  "conversationTypes": {
+    "direct": "Direct",
+    "group": "Group",
+    "social": "Social",
+      "tournament": "Tournament"
+    },
+    "meta": {
+      "direct": "Direct conversation",
+      "group": "Group conversation",
+      "social": "Social conversation",
+      "tournament": "Tournament conversation",
+      "groupMembers": "{{count}} members",
+      "socialParticipants": "{{count}} participants",
+      "tournamentParticipants": "{{count}} participants"
+    },
+    "labels": {
+      "unreadBadge": "{{count}} unread",
+      "muted": "Muted",
+      "typing": "is typing",
+      "edited": "Edited",
+      "sending": "Sending...",
+      "failed": "Failed to send",
+      "deletedMessage": "Message deleted",
+      "systemMessage": "System message",
+      "mediaMessage": "Photo sent",
+      "user": "User",
+      "someone": "Someone",
+      "lastMessageAt": "Last message at {{value}}"
+    },
+    "actions": {
+      "back": "Back",
+      "menu": "Conversation actions",
+      "mute": "Mute",
+      "unmute": "Unmute",
+      "hideConversation": "Hide conversation",
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save",
+      "opening": "Opening...",
+      "openDirect": "Message",
+      "openGroup": "Open chat",
+      "openSocial": "Open chat",
+      "openTournament": "Open chat",
+      "messageMenu": "Message actions"
     },
     "messages": {
+      "searchPlaceholder": "Search messages...",
+      "emptyTitle": "No messages yet",
+      "emptyDescription": "Say hello to start the conversation.",
+      "searchEmpty": "No messages matched your search.",
+      "loadOlder": "Load older messages",
       "groupMembers": "{{count}} members",
       "socialPrefix": "Social: {{name}}",
       "fromGroup": "From group: {{name}}",
@@ -196,11 +267,44 @@
       "groupPrefix": "Group: {{name}}",
       "you": "You"
     },
-    "composer": {
-      "imageButton": "Send image",
-      "emojiButton": "Emoji picker",
-      "messagePlaceholder": "Type a message...",
+  "composer": {
+    "imageButton": "Image",
+    "emojiButton": "Emoji",
+    "messagePlaceholder": "Type a message...",
+    "hint": "Press Ctrl+Enter to send.",
+    "remaining": "{{count}} characters left",
+    "uploadImage": "Upload image",
+    "placeholder": "Type a message...",
       "send": "Send"
+    },
+    "dialog": {
+      "editTitle": "Edit message",
+      "editDescription": "Update your message text. Only your own text messages can be edited.",
+      "deleteTitle": "Delete message",
+      "deleteDescription": "This removes the message for everyone in the conversation.",
+      "hideTitle": "Hide conversation",
+      "hideDescription": "This removes the conversation from your inbox only.",
+      "muteTitle": "Mute conversation",
+      "muteDescription": "Choose how long this conversation should stay muted."
+    },
+    "mute": {
+      "1h": "1 hour",
+      "8h": "8 hours",
+      "1d": "1 day"
+    },
+    "toasts": {
+      "messageUpdated": "Message updated",
+      "messageDeleted": "Message deleted",
+      "muted": "Conversation muted",
+      "unmuted": "Conversation unmuted",
+      "conversationHidden": "Conversation hidden from inbox"
+    },
+    "errors": {
+      "generic": "Could not complete the chat action.",
+      "invalidRequest": "The chat request was invalid.",
+      "unauthorized": "You need to sign in again.",
+      "forbidden": "You do not have permission to open this conversation.",
+      "notFound": "The conversation or message was not found."
     },
     "relativeTime": {
       "justNow": "Just now",

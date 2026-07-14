@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import {
@@ -18,6 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { OpenChatButton } from "@/features/chat/components/open-chat-button"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import {
@@ -45,6 +47,7 @@ export default function SocialSidebar({
   isEditable: boolean
 }) {
   const { t } = useSocialsTranslation()
+  const { t: tCommon } = useTranslation("common")
   const router = useRouter()
   const [isPublishing, setIsPublishing] = React.useState(false)
   const [isCompleting, setIsCompleting] = React.useState(false)
@@ -106,6 +109,8 @@ export default function SocialSidebar({
   }
 
   const host: Host = social.creator
+  const canOpenChat =
+    Boolean(social.isHost) || social.myParticipantInfo?.status === "CONFIRMED"
 
   if (!social) {
     return (
@@ -143,6 +148,16 @@ export default function SocialSidebar({
               </div>
             </div>
           </div>
+
+          {canOpenChat && (
+            <OpenChatButton
+              kind="social"
+              targetId={social.id}
+              label={tCommon("chat.actions.openSocial")}
+              variant="secondary"
+              className="w-full"
+            />
+          )}
 
           <Separator />
 

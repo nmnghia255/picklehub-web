@@ -35,65 +35,10 @@
     }
   },
   "calendar": {
-    "title": "Lịch của tôi",
-    "description": "Quản lý và theo dõi hoạt động pickleball cá nhân của bạn.",
-    "pageTitle": "Lịch của tôi",
-    "pageDescription": "Quản lý và theo dõi hoạt động pickleball cá nhân của bạn.",
     "today": "Hôm nay",
-    "previousMonth": "Tháng trước",
-    "nextMonth": "Tháng sau",
-    "monthPlaceholder": "Tháng",
-    "monthSelectLabel": "Chọn tháng",
-    "yearLabel": "Năm",
-    "yearSelectLabel": "Chọn năm",
-    "monthYear": "Tháng {{month}}, {{year}}",
-    "monthCaption": "{{month}} {{year}}",
-    "monthViewLabel": "Xem lịch dạng ô",
-    "viewModes": {
-      "month": "Xem lịch dạng ô"
-    },
-    "loading": "Đang tải...",
-    "dayDetailsTitle": "Chi tiết ngày {{date}}",
-    "dayDetailsDescription": "Danh sách hoạt động bạn đã đăng ký tham gia trong ngày này.",
-    "noDayActivitiesTitle": "Không có hoạt động",
-    "noDayActivitiesDescription": "Bạn không có lịch, đặt sân hay giải đấu nào trong ngày này.",
-    "activitiesCount": "Có {{count}} hoạt động",
-    "moreActivities": "+{{count}} hoạt động khác",
-    "participantsCount": "{{count}} người tham gia",
-    "monthEmptyTitle": "Bạn chưa có hoạt động nào",
-    "monthEmptyDescription": "Hiện tại bạn chưa đăng ký tham gia bất kỳ buổi chơi nào, đặt sân cá nhân hay giải đấu nào trong {{monthYear}}.",
-    "detailDescription": "Chi tiết lịch hoạt động cá nhân của bạn",
-    "time": "Thời gian",
-    "location": "Địa điểm",
-    "organizer": "Người tổ chức",
-    "participants": "Số người tham gia",
-    "participantsJoined": "{{count}} người đã tham gia",
-    "descriptionLabel": "Mô tả hoạt động",
-    "close": "Đóng",
-    "status": {
-      "completed": "Đã hoàn thành",
-      "live": "Đang diễn ra",
-      "upcoming": "Sắp diễn ra",
-      "pendingConfirm": "Chờ xác nhận",
-      "cancelled": "Đã hủy"
-    },
-    "types": {
-      "socialSession": "Buổi chơi",
-      "booking": "Đặt sân",
-      "tournament": "Giải đấu",
-      "matchPractice": "Luyện tập",
-      "matchTournament": "Trận đấu giải"
-    },
-    "weekdays": {
-      "monday": "T2",
-      "tuesday": "T3",
-      "wednesday": "T4",
-      "thursday": "T5",
-      "friday": "T6",
-      "saturday": "T7",
-      "sunday": "CN"
-    },
-    "monthNames": {
+    "month": "Tháng",
+    "year": "Năm",
+    "months": {
       "0": "Tháng 1",
       "1": "Tháng 2",
       "2": "Tháng 3",
@@ -107,21 +52,29 @@
       "10": "Tháng 11",
       "11": "Tháng 12"
     },
-    "aria": {
-      "nav": "Điều hướng lịch",
-      "grid": "Lưới lịch",
-      "gridcell": "Ngày trên lịch",
-      "monthDropdown": "Chọn tháng",
-      "yearDropdown": "Chọn năm",
-      "nextMonth": "Tháng sau",
-      "previousMonth": "Tháng trước",
-      "dayButtonToday": "{{date}} - hôm nay",
-      "dayButtonSelected": "{{date}} - đã chọn",
-      "dayButton": "{{date}}",
-      "weekday": "{{weekday}}",
-      "weekNumber": "Tuần {{weekNumber}}",
-      "weekNumberHeader": "Số tuần"
-    }
+    "themeSystemLabel": "Hệ thống",
+    "accountTitle": "Tài khoản",
+    "accountDesc": "Quản lý mật khẩu, liên kết hoặc hủy liên kết tài khoản mạng xã hội và đăng xuất.",
+    "profileCardTitle": "Thông tin hồ sơ",
+    "profileCardDesc": "Hồ sơ tài khoản đang được xác thực trong ứng dụng.",
+    "profileRole": "Vai trò",
+    "profileRoleFallback": "Không có",
+    "securityTitle": "Bảo mật",
+    "securityDesc": "Quản lý mật khẩu dùng để bảo vệ tài khoản của bạn.",
+    "linkedAccountsTitle": "Tài khoản đã liên kết",
+    "linkedAccountsDesc": "Kết nối hoặc ngắt kết nối đăng nhập Google và Facebook.",
+    "linkProviderHint": "Kết nối {{provider}} để dùng làm một cách đăng nhập khác.",
+    "noLinkedAccounts": "Chưa có tài khoản mạng xã hội nào được liên kết.",
+    "sessionCardTitle": "Đăng xuất",
+    "sessionCardDesc": "Đăng xuất khỏi thiết bị này khi bạn không còn sử dụng nữa.",
+    "logoutBtn": "Đăng xuất",
+    "languageTitle": "Ngôn ngữ",
+    "languageDesc": "Chọn ngôn ngữ hiển thị cho giao diện ứng dụng.",
+    "selectLanguagePlaceholder": "Chọn ngôn ngữ",
+    "languageOptionVi": "Tiếng Việt",
+    "languageOptionEn": "Tiếng Anh",
+    "vietnameseHint": "Giao diện đang được đặt ở tiếng Việt.",
+    "englishHint": "Giao diện đang được đặt ở tiếng Anh."
   },
   "saving": "Đang lưu...",
   "delete": "Xóa",
@@ -138,6 +91,7 @@
     "retry": "Thử lại"
   },
   "back": "Quay lại",
+  "cancel": "Hủy",
   "pagination": {
     "navigation": "Phân trang",
     "previous": "Trước",
@@ -183,25 +137,37 @@
     "pageDescription": "Nhắn tin với bạn bè, nhóm và các buổi buổi chơi.",
     "conversationList": {
       "searchPlaceholder": "Tìm cuộc trò chuyện...",
-      "emptyState": "Không tìm thấy cuộc trò chuyện nào."
+      "emptyState": "Không tìm thấy cuộc trò chuyện nào.",
+      "emptyHint": "Hãy thử từ khóa khác hoặc bắt đầu cuộc trò chuyện mới.",
+      "loadMore": "Tải thêm",
+      "noPreview": "Chưa có tin nhắn nào"
     },
     "emptyState": {
       "title": "Chọn một cuộc trò chuyện để bắt đầu",
       "description": "Nhắn tin với bạn bè, nhóm và các buổi buổi chơi."
     },
     "messages": {
-      "groupMembers": "Thành viên nhóm",
-      "socialPrefix": "Buổi chơi",
-      "fromGroup": "Từ nhóm",
-      "groupOnly": "Chỉ nhóm",
-      "groupPrefix": "Nhóm",
-      "you": "Bạn"
+      "groupMembers": "{{count}} thành viên",
+      "socialPrefix": "Social: {{name}}",
+      "fromGroup": "Từ nhóm: {{name}}",
+      "groupOnly": "Nhóm",
+      "groupPrefix": "Nhóm: {{name}}",
+      "you": "Bạn",
+      "searchPlaceholder": "Tìm tin nhắn...",
+      "emptyTitle": "Chưa có tin nhắn",
+      "emptyDescription": "Hãy nói lời chào để bắt đầu cuộc trò chuyện.",
+      "searchEmpty": "Không tìm thấy tin nhắn phù hợp.",
+      "loadOlder": "Tải tin cũ hơn"
     },
     "composer": {
       "imageButton": "Ảnh",
       "emojiButton": "Biểu tượng cảm xúc",
       "messagePlaceholder": "Nhập tin nhắn...",
-      "send": "Gửi"
+      "send": "Gửi",
+      "hint": "Nhấn Ctrl+Enter để gửi.",
+      "remaining": "Còn {{count}} ký tự",
+      "uploadImage": "Tải ảnh lên",
+      "placeholder": "Nhập tin nhắn..."
     },
     "relativeTime": {
       "justNow": "Vừa xong",
@@ -209,6 +175,97 @@
       "hoursAgo": "{{count}} giờ trước",
       "yesterday": "Hôm qua",
       "daysAgo": "{{count}} ngày trước"
+    },
+    "states": {
+      "loadingTitle": "Đang tải cuộc trò chuyện...",
+      "emptyTitle": "Chọn một cuộc trò chuyện để bắt đầu",
+      "emptyDescription": "Nhắn tin với bạn bè, nhóm, social và giải đấu.",
+      "errorTitle": "Không thể tải trò chuyện",
+      "errorDescription": "Đã xảy ra lỗi khi tải dữ liệu trò chuyện.",
+      "retry": "Thử lại"
+    },
+    "connection": {
+      "connected": "Đã kết nối",
+      "reconnecting": "Đang kết nối lại...",
+      "offline": "Ngoại tuyến"
+    },
+    "list": {
+      "title": "Cuộc trò chuyện",
+      "subtitle": "{{count}} chưa đọc"
+    },
+    "conversationTypes": {
+      "direct": "Riêng tư",
+      "group": "Nhóm",
+      "social": "Social",
+      "tournament": "Giải đấu"
+    },
+    "meta": {
+      "direct": "Cuộc trò chuyện riêng tư",
+      "group": "Cuộc trò chuyện nhóm",
+      "social": "Cuộc trò chuyện social",
+      "tournament": "Cuộc trò chuyện giải đấu",
+      "groupMembers": "{{count}} thành viên",
+      "socialParticipants": "{{count}} người tham gia",
+      "tournamentParticipants": "{{count}} người tham gia"
+    },
+    "labels": {
+      "unreadBadge": "{{count}} chưa đọc",
+      "muted": "Đã tắt thông báo",
+      "typing": "đang nhập",
+      "edited": "Đã chỉnh sửa",
+      "sending": "Đang gửi...",
+      "failed": "Gửi thất bại",
+      "deletedMessage": "Tin nhắn đã bị xóa",
+      "systemMessage": "Tin nhắn hệ thống",
+      "mediaMessage": "Đã gửi một ảnh",
+      "user": "Người dùng",
+      "someone": "Ai đó",
+      "lastMessageAt": "Tin nhắn cuối lúc {{value}}"
+    },
+    "actions": {
+      "back": "Quay lại",
+      "menu": "Thao tác cuộc trò chuyện",
+      "mute": "Tắt thông báo",
+      "unmute": "Bật thông báo",
+      "hideConversation": "Ẩn cuộc trò chuyện",
+      "edit": "Chỉnh sửa",
+      "delete": "Xóa",
+      "save": "Lưu",
+      "opening": "Đang mở...",
+      "openDirect": "Nhắn tin",
+      "openGroup": "Mở chat",
+      "openSocial": "Mở chat",
+      "openTournament": "Mở chat",
+      "messageMenu": "Thao tác tin nhắn"
+    },
+    "dialog": {
+      "editTitle": "Chỉnh sửa tin nhắn",
+      "editDescription": "Cập nhật nội dung tin nhắn. Chỉ có thể chỉnh sửa tin nhắn văn bản do bạn gửi.",
+      "deleteTitle": "Xóa tin nhắn",
+      "deleteDescription": "Thao tác này sẽ xóa tin nhắn cho tất cả mọi người trong cuộc trò chuyện.",
+      "hideTitle": "Ẩn cuộc trò chuyện",
+      "hideDescription": "Thao tác này chỉ xóa cuộc trò chuyện khỏi hộp thư của bạn.",
+      "muteTitle": "Tắt thông báo cuộc trò chuyện",
+      "muteDescription": "Chọn thời gian cuộc trò chuyện sẽ bị tắt thông báo."
+    },
+    "mute": {
+      "1h": "1 giờ",
+      "8h": "8 giờ",
+      "1d": "1 ngày"
+    },
+    "toasts": {
+      "messageUpdated": "Đã cập nhật tin nhắn",
+      "messageDeleted": "Đã xóa tin nhắn",
+      "muted": "Đã tắt thông báo cuộc trò chuyện",
+      "unmuted": "Đã bật thông báo cuộc trò chuyện",
+      "conversationHidden": "Đã ẩn cuộc trò chuyện khỏi hộp thư"
+    },
+    "errors": {
+      "generic": "Không thể hoàn tất thao tác trò chuyện.",
+      "invalidRequest": "Yêu cầu trò chuyện không hợp lệ.",
+      "unauthorized": "Bạn cần đăng nhập lại.",
+      "forbidden": "Bạn không có quyền mở cuộc trò chuyện này.",
+      "notFound": "Không tìm thấy cuộc trò chuyện hoặc tin nhắn."
     }
   },
   "previewImageAlt": "Ảnh xem trước",
@@ -1971,47 +2028,5 @@
     "sessionTitle": "Phiên đăng nhập",
     "sessionDesc": "Đăng xuất khỏi thiết bị này khi bạn không còn sử dụng nữa.",
     "logoutBtn": "Đăng xuất"
-  },
-  "calendar": {
-    "today": "Hôm nay",
-    "month": "Tháng",
-    "year": "Năm",
-    "months": {
-      "0": "Tháng 1",
-      "1": "Tháng 2",
-      "2": "Tháng 3",
-      "3": "Tháng 4",
-      "4": "Tháng 5",
-      "5": "Tháng 6",
-      "6": "Tháng 7",
-      "7": "Tháng 8",
-      "8": "Tháng 9",
-      "9": "Tháng 10",
-      "10": "Tháng 11",
-      "11": "Tháng 12"
-    },
-    "themeSystemLabel": "Hệ thống",
-    "accountTitle": "Tài khoản",
-    "accountDesc": "Quản lý mật khẩu, liên kết hoặc hủy liên kết tài khoản mạng xã hội và đăng xuất.",
-    "profileCardTitle": "Thông tin hồ sơ",
-    "profileCardDesc": "Hồ sơ tài khoản đang được xác thực trong ứng dụng.",
-    "profileRole": "Vai trò",
-    "profileRoleFallback": "Không có",
-    "securityTitle": "Bảo mật",
-    "securityDesc": "Quản lý mật khẩu dùng để bảo vệ tài khoản của bạn.",
-    "linkedAccountsTitle": "Tài khoản đã liên kết",
-    "linkedAccountsDesc": "Kết nối hoặc ngắt kết nối đăng nhập Google và Facebook.",
-    "linkProviderHint": "Kết nối {{provider}} để dùng làm một cách đăng nhập khác.",
-    "noLinkedAccounts": "Chưa có tài khoản mạng xã hội nào được liên kết.",
-    "sessionCardTitle": "Đăng xuất",
-    "sessionCardDesc": "Đăng xuất khỏi thiết bị này khi bạn không còn sử dụng nữa.",
-    "logoutBtn": "Đăng xuất",
-    "languageTitle": "Ngôn ngữ",
-    "languageDesc": "Chọn ngôn ngữ hiển thị cho giao diện ứng dụng.",
-    "selectLanguagePlaceholder": "Chọn ngôn ngữ",
-    "languageOptionVi": "Tiếng Việt",
-    "languageOptionEn": "Tiếng Anh",
-    "vietnameseHint": "Giao diện đang được đặt ở tiếng Việt.",
-    "englishHint": "Giao diện đang được đặt ở tiếng Anh."
   }
 }

@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { OpenChatButton } from "@/features/chat/components/open-chat-button"
 import type { FriendUser, SortKey, TabKey } from "@/features/friend/types"
 import {
   filterUsersByUsername,
@@ -415,20 +416,29 @@ export default function FriendClient({
                               )
 
                               return status === "FRIEND" ? (
-                                <Button
-                                  size="sm"
-                                  disabled
-                                  aria-label={t("friends.status.friend")}
-                                  className="bg-gray-100 text-gray-800 hover:bg-gray-100"
-                                >
-                                  <UserCheck
-                                    className="mr-2 size-5 text-emerald-700"
-                                    strokeWidth={1.8}
+                                <div className="flex flex-wrap gap-2">
+                                  <Button
+                                    size="sm"
+                                    disabled
+                                    aria-label={t("friends.status.friend")}
+                                    className="bg-gray-100 text-gray-800 hover:bg-gray-100"
+                                  >
+                                    <UserCheck
+                                      className="mr-2 size-5 text-emerald-700"
+                                      strokeWidth={1.8}
+                                    />
+                                    <span className="font-semibold text-gray-800">
+                                      {t("friends.status.friend")}
+                                    </span>
+                                  </Button>
+                                  <OpenChatButton
+                                    kind="direct"
+                                    targetId={user.id}
+                                    label={t("chat.actions.openDirect")}
+                                    variant="secondary"
+                                    size="sm"
                                   />
-                                  <span className="font-semibold text-gray-800">
-                                    {t("friends.status.friend")}
-                                  </span>
-                                </Button>
+                                </div>
                               ) : (
                                 <Button
                                   size="sm"
@@ -495,6 +505,13 @@ export default function FriendClient({
                                 <UserRoundX className="size-4" />
                                 {t("friends.actions.unfriend")}
                               </Button>
+                              <OpenChatButton
+                                kind="direct"
+                                targetId={user.id}
+                                label={t("chat.actions.openDirect")}
+                                variant="secondary"
+                                size="sm"
+                              />
                             </>
                           )}
                         </div>

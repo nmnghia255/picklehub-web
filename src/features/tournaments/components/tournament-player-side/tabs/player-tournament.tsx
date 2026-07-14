@@ -2,8 +2,10 @@
 
 import { useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { OpenChatButton } from "@/features/chat/components/open-chat-button"
 import type { User } from "@/features/profile/types"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 import { cn } from "@/lib/utils"
@@ -38,6 +40,7 @@ export function PlayerTournament({
   totalPrizes = 0,
 }: PlayerTournamentProps) {
   const { t } = useTournamentTranslation()
+  const { t: tCommon } = useTranslation("common")
   const searchParams = useSearchParams()
   const tabParam = searchParams.get("tab") || "overview"
   const [activeTab, setActiveTab] = useState(tabParam)
@@ -94,6 +97,12 @@ export function PlayerTournament({
   const hasRefereeAssignments = isReferee
 
   const myAssignments = refereeMatches
+  const canOpenChat = Boolean(
+    tournament?.id &&
+    (currentUserProfile?.id === String(tournament.organizerId) ||
+      isParticipant ||
+      hasRefereeAssignments)
+  )
 
   // Calculate dynamic grid cols class
   let colsClass = "grid-cols-3"
@@ -121,6 +130,17 @@ export function PlayerTournament({
     <div className="min-h-screen bg-background">
       {/* Hero Header */}
       <TournamentHero tournament={tournament} />
+
+      {canOpenChat && (
+        <div className="mx-auto mt-6 flex max-w-7xl justify-end px-4 sm:px-6 lg:px-8">
+          <OpenChatButton
+            kind="tournament"
+            targetId={String(tournament?.id)}
+            label={tCommon("chat.actions.openTournament")}
+            variant="secondary"
+          />
+        </div>
+      )}
 
       {/* Content Container */}
       <div className="mx-auto mt-8 max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
