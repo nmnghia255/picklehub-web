@@ -68,7 +68,7 @@ export function GroupDetailActionsMenu({
         kind="group"
         targetId={groupId}
         label={tCommon("chat.actions.openGroup")}
-        variant="secondary"
+        className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
         size="sm"
       />
 

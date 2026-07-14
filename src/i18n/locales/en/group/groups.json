@@ -490,6 +490,7 @@
     "totalAmountLabel": "Total amount:",
     "allocatedLabel": "Allocated: {{allocated}} / {{total}}",
     "splitEqually": "Split Equally",
+    "selectParticipantsOnly": "Select participating members",
     "receiptFile": "Receipt File",
     "btnCreateExpense": "Create Expense",
     "createExpenseDesc": "Record expense and allocate to members.",
