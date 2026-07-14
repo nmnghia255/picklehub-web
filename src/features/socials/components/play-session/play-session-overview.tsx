@@ -118,13 +118,16 @@ export default function PlaySessionOverview({
     }
   }
 
-  const hasAvailableSlots = session.joinedCount < session.maxSlot
+  // maxSlot == null means unlimited (rendered as "unlimited" on the stat card),
+  // so an uncapped session always has room.
+  const hasAvailableSlots =
+    session.maxSlot == null || session.joinedCount < session.maxSlot
   const currentUserId = sessionData?.user?.id
   const isParticipant = participants.some(
     (p) => p.userId === currentUserId && p.status !== "CANCELLED"
   )
 
-  const isEditable = true || (isHost && !isCompleted)
+  const isEditable = isHost && !isCompleted
 
   const myParticipant = participants.find((p) => p.userId === currentUserId)
   const totalMatchesCount = matches.length
