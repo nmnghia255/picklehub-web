@@ -6,6 +6,8 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type { FriendUser } from "../types"
 
+type FriendCommonLocale = Pick<typeof enCommon, "friends">
+
 interface FriendRequestApiItem {
   id: string
   senderId: string
@@ -56,7 +58,7 @@ function toDisplayName(name: string | null | undefined, email: string) {
 
 function mapSearchUser(
   item: GlobalUserSearchApiItem,
-  common: typeof enCommon
+  common: FriendCommonLocale
 ): FriendUser {
   const displayName = toDisplayName(item.name, item.email)
 
@@ -76,7 +78,7 @@ function mapSearchUser(
 
 function mapFriendship(
   item: FriendshipApiItem,
-  common: typeof enCommon
+  common: FriendCommonLocale
 ): FriendUser {
   const email = item.friend?.email ?? `${item.friendId}@unknown.local`
   const displayName = toDisplayName(item.friend?.name, email)
@@ -98,7 +100,7 @@ function mapFriendship(
 function mapRequest(
   item: FriendRequestApiItem,
   direction: "sent" | "received",
-  common: typeof enCommon
+  common: FriendCommonLocale
 ): FriendUser {
   const counterpart = direction === "sent" ? item.receiver : item.sender
   const counterpartId = direction === "sent" ? item.receiverId : item.senderId

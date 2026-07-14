@@ -5,7 +5,6 @@ import { useAtom } from "jotai"
 import { Bell, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
 import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -61,7 +60,7 @@ export function GroupFeedNotificationSender({
   groupName,
   canSend = true,
 }: GroupFeedNotificationSenderProps) {
-  const { t } = useGroupsTranslation()
+  const { t, i18n } = useGroupsTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [, setNotifications] = useAtom(notificationFeedAtom)
@@ -103,7 +102,7 @@ export function GroupFeedNotificationSender({
 
       const now = new Date()
       const timeLabel = now.toLocaleString(
-        i18n.language.startsWith("vi") ? "vi-VN" : i18n.language || undefined
+        i18n.language.startsWith("vi") ? "vi-VN" : "en-US"
       )
 
       const optimisticNotification: FeedNotification = {

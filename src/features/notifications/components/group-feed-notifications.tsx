@@ -1,7 +1,7 @@
 "use client"
 
+import type { TFunction } from "i18next"
 import { Bell, Clock } from "lucide-react"
-import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,8 +22,11 @@ interface GroupFeedNotificationsProps {
   isLoading?: boolean
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function formatDate(dateString: string, t: any): string {
+function formatDate(
+  dateString: string,
+  locale: string,
+  t: TFunction<"groups">
+): string {
   const date = new Date(dateString)
   if (Number.isNaN(date.getTime())) {
     return t("notifications.justNow", "Vừa xong")
@@ -57,7 +60,8 @@ export function GroupFeedNotifications({
   isLoading = false,
   className = "",
 }: GroupFeedNotificationsProps & { className?: string }) {
-  const { t } = useGroupsTranslation()
+  const { t, i18n } = useGroupsTranslation()
+  const locale = i18n.language.startsWith("vi") ? "vi-VN" : "en-US"
 
   if (isLoading) {
     return (
@@ -124,7 +128,7 @@ export function GroupFeedNotifications({
                   >
                     <Clock className="mr-1 size-3" />
                     {notification.timeLabel ??
-                      formatDate(notification.sentAt, t)}
+                      formatDate(notification.sentAt, locale, t)}
                   </Badge>
                 </div>
                 <p className="line-clamp-2 text-sm text-muted-foreground">
