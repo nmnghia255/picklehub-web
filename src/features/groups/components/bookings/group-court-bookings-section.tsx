@@ -625,7 +625,7 @@ export function GroupCourtBookingsSection({
         <DialogContent className="max-h-[85vh] overflow-y-auto bg-orange-50 sm:max-w-[600px] dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm">
           {selectedBooking && (
             <div>
-              <DialogHeader>
+              <DialogHeader className="bg-orange-50 dark:bg-accent">
                 <div className="mr-6 flex items-center justify-between gap-4">
                   <DialogTitle className="text-xl font-bold">
                     {selectedBooking.title}
@@ -754,7 +754,7 @@ export function GroupCourtBookingsSection({
                 </div>
               </div>
 
-              <DialogFooter className="border-t pt-4">
+              <DialogFooter className="border-t bg-orange-50 pt-4 dark:bg-accent">
                 <Button
                   type="button"
                   onClick={() => setDetailDialogOpen(false)}

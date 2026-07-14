@@ -47,7 +47,7 @@ export function GroupDetailTabs({
       >
         <TabsList
           variant="line"
-          className="w-full min-w-0 flex-wrap justify-start gap-1 overflow-x-auto pb-1"
+          className="w-full min-w-0 flex-nowrap justify-start gap-1 overflow-x-auto pb-1"
         >
           <TabsTrigger value="overview" className="sm:flex-none">
             {t("dashboard.tabOverview", "Tổng quan")}

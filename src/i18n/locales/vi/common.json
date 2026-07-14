@@ -180,28 +180,131 @@
   },
   "chat": {
     "pageTitle": "Trò chuyện",
-    "pageDescription": "Nhắn tin với bạn bè, nhóm và các buổi buổi chơi.",
+    "pageDescription": "Nhắn tin với bạn bè, nhóm, buổi chơi và giải đấu.",
+    "states": {
+      "loadingTitle": "Đang tải cuộc trò chuyện...",
+      "emptyTitle": "Chọn một cuộc trò chuyện để bắt đầu",
+      "emptyDescription": "Nhắn tin với bạn bè, nhóm, buổi chơi và giải đấu.",
+      "errorTitle": "Không thể tải cuộc trò chuyện",
+      "errorDescription": "Đã xảy ra lỗi khi tải dữ liệu cuộc trò chuyện.",
+      "retry": "Thử lại"
+    },
+    "connection": {
+      "connected": "Đã kết nối",
+      "reconnecting": "Đang kết nối lại...",
+      "offline": "Ngoại tuyến"
+    },
+    "list": {
+      "title": "Trò chuyện",
+      "subtitle": "{{count}} chưa đọc"
+    },
     "conversationList": {
       "searchPlaceholder": "Tìm cuộc trò chuyện...",
-      "emptyState": "Không tìm thấy cuộc trò chuyện nào."
+      "emptyState": "Không tìm thấy cuộc trò chuyện nào.",
+      "emptyHint": "Thử từ khóa khác hoặc bắt đầu một cuộc trò chuyện mới.",
+      "loadMore": "Tải thêm",
+      "noPreview": "Chưa có tin nhắn"
     },
     "emptyState": {
       "title": "Chọn một cuộc trò chuyện để bắt đầu",
-      "description": "Nhắn tin với bạn bè, nhóm và các buổi buổi chơi."
+      "description": "Nhắn tin với bạn bè, nhóm, buổi chơi và giải đấu."
+    },
+    "conversationTypes": {
+      "direct": "Trực tiếp",
+      "group": "Nhóm",
+      "social": "Buổi chơi",
+      "tournament": "Giải đấu"
+    },
+    "meta": {
+      "direct": "Trò chuyện trực tiếp",
+      "group": "Trò chuyện nhóm",
+      "social": "Trò chuyện buổi chơi",
+      "tournament": "Trò chuyện giải đấu",
+      "groupMembers": "{{count}} thành viên",
+      "socialParticipants": "{{count}} người tham gia",
+      "tournamentParticipants": "{{count}} người tham gia"
+    },
+    "labels": {
+      "unreadBadge": "{{count}} chưa đọc",
+      "muted": "Đã tắt tiếng",
+      "typing": "đang nhập tin nhắn",
+      "edited": "Đã chỉnh sửa",
+      "sending": "Đang gửi...",
+      "failed": "Gửi thất bại",
+      "deletedMessage": "Tin nhắn đã bị xóa",
+      "systemMessage": "Tin nhắn hệ thống",
+      "mediaMessage": "Đã gửi một ảnh",
+      "user": "Người dùng",
+      "someone": "Ai đó",
+      "lastMessageAt": "Tin nhắn cuối lúc {{value}}"
+    },
+    "actions": {
+      "back": "Quay lại",
+      "menu": "Thao tác cuộc trò chuyện",
+      "mute": "Tắt thông báo",
+      "unmute": "Bật thông báo",
+      "hideConversation": "Ẩn cuộc trò chuyện",
+      "edit": "Chỉnh sửa",
+      "delete": "Xóa",
+      "save": "Lưu",
+      "opening": "Đang mở...",
+      "openDirect": "Nhắn tin",
+      "openGroup": "Nhắn tin nhóm",
+      "openSocial": "Mở trò chuyện",
+      "openTournament": "Mở trò chuyện",
+      "messageMenu": "Thao tác tin nhắn"
     },
     "messages": {
-      "groupMembers": "Thành viên nhóm",
-      "socialPrefix": "Buổi chơi",
-      "fromGroup": "Từ nhóm",
-      "groupOnly": "Chỉ nhóm",
-      "groupPrefix": "Nhóm",
+      "searchPlaceholder": "Tìm tin nhắn...",
+      "emptyTitle": "Chưa có tin nhắn nào",
+      "emptyDescription": "Hãy gửi lời chào để bắt đầu cuộc trò chuyện.",
+      "searchEmpty": "Không tìm thấy tin nhắn nào phù hợp.",
+      "loadOlder": "Tải tin nhắn cũ hơn",
+      "groupMembers": "{{count}} thành viên",
+      "socialPrefix": "Buổi chơi: {{name}}",
+      "fromGroup": "Từ nhóm: {{name}}",
+      "groupOnly": "Nhóm",
+      "groupPrefix": "Nhóm: {{name}}",
       "you": "Bạn"
     },
     "composer": {
       "imageButton": "Ảnh",
       "emojiButton": "Biểu tượng cảm xúc",
       "messagePlaceholder": "Nhập tin nhắn...",
+      "hint": "Nhấn Ctrl+Enter để gửi.",
+      "remaining": "Còn lại {{count}} ký tự",
+      "uploadImage": "Tải ảnh lên",
+      "placeholder": "Nhập tin nhắn...",
       "send": "Gửi"
+    },
+    "dialog": {
+      "editTitle": "Chỉnh sửa tin nhắn",
+      "editDescription": "Cập nhật nội dung tin nhắn của bạn. Chỉ có thể chỉnh sửa tin nhắn văn bản do chính bạn gửi.",
+      "deleteTitle": "Xóa tin nhắn",
+      "deleteDescription": "Thao tác này sẽ xóa tin nhắn đối với tất cả thành viên trong cuộc trò chuyện.",
+      "hideTitle": "Ẩn cuộc trò chuyện",
+      "hideDescription": "Thao tác này chỉ ẩn cuộc trò chuyện khỏi hộp thư đến của bạn.",
+      "muteTitle": "Tắt tiếng cuộc trò chuyện",
+      "muteDescription": "Chọn thời gian tắt tiếng cuộc trò chuyện này."
+    },
+    "mute": {
+      "1h": "1 giờ",
+      "8h": "8 giờ",
+      "1d": "1 ngày"
+    },
+    "toasts": {
+      "messageUpdated": "Tin nhắn đã được cập nhật",
+      "messageDeleted": "Tin nhắn đã bị xóa",
+      "muted": "Đã tắt tiếng cuộc trò chuyện",
+      "unmuted": "Đã bật tiếng cuộc trò chuyện",
+      "conversationHidden": "Cuộc trò chuyện đã bị ẩn khỏi hộp thư đến"
+    },
+    "errors": {
+      "generic": "Không thể hoàn thành thao tác trò chuyện.",
+      "invalidRequest": "Yêu cầu trò chuyện không hợp lệ.",
+      "unauthorized": "Vui lòng đăng nhập lại.",
+      "forbidden": "Bạn không có quyền tham gia cuộc trò chuyện này.",
+      "notFound": "Không tìm thấy cuộc trò chuyện hoặc tin nhắn."
     },
     "relativeTime": {
       "justNow": "Vừa xong",
