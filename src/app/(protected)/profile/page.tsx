@@ -9,6 +9,10 @@ import {
   listMatches,
 } from "@/features/matches/api/matches-service"
 import type { Match, UserMatchStats } from "@/features/matches/types"
+import {
+  getMyDuprRating,
+  type MyDuprRating,
+} from "@/features/profile/api/dupr-service"
 import { getMyProfile } from "@/features/profile/api/profile-service"
 import { GroupCard } from "@/features/profile/components/group-card"
 import { MatchHistory } from "@/features/profile/components/match-history-card"
@@ -28,11 +32,21 @@ export default async function ProfilePage() {
   let recentMatches: Match[] = []
   let memberGroups: Group[] = []
 
+  let duprRating: MyDuprRating | null = null
+
   try {
     user = await getMyProfile()
   } catch {
     // Keep null and fallback to auth/session data.
     console.warn("Failed to fetch user profile, showing limited info.")
+  }
+
+  try {
+    // Read the DUPR link/rating straight from rating-service (source of truth)
+    // so link/unlink reflects immediately and NR/provisional flags are available.
+    duprRating = await getMyDuprRating()
+  } catch {
+    console.warn("Failed to fetch DUPR rating, showing not-linked state.")
   }
 
   try {
@@ -123,7 +137,7 @@ export default async function ProfilePage() {
           </div>
 
           {/* Right */}
-          <RightPanel user={user} />
+          <RightPanel user={user} duprRating={duprRating} editableDupr />
         </div>
       </PageContainer>
     </div>

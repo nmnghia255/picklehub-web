@@ -15,9 +15,10 @@ export interface User {
 
 export interface DuprProfile {
   duprId: string
-  rating: number
-  singlesRating: number
-  doublesRating: number
+  // Ratings are null until DUPR has rated the player (NR — not rated yet).
+  rating: number | null
+  singlesRating: number | null
+  doublesRating: number | null
   lastSyncedAt?: string
 }
 
