@@ -42,7 +42,10 @@ export function GroupCard({ group, actionLabel, showRole = false }: Props) {
   const archived = isArchivedGroup(group.status)
 
   return (
-    <Card key={group.id} className="bg-orange-50 dark:bg-accent">
+    <Card
+      key={group.id}
+      className="flex h-full flex-col bg-orange-50 dark:bg-accent"
+    >
       <CardHeader>
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
@@ -57,13 +60,13 @@ export function GroupCard({ group, actionLabel, showRole = false }: Props) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="flex flex-col gap-3">
+      <CardContent className="flex flex-1 flex-col gap-3">
         {group.description && (
           <p className="line-clamp-2 text-sm text-muted-foreground">
             {group.description}
           </p>
         )}
-        <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
+        <div className="mt-auto flex items-center justify-between gap-2 text-sm text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <Users className="size-4" />
             <span>

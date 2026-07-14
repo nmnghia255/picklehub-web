@@ -6,6 +6,8 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type { FriendUser } from "../types"
 
+type FriendCommonLocale = Pick<typeof enCommon, "friends">
+
 interface GlobalUserSearchApiItem {
   id: string
   name: string | null
@@ -49,7 +51,7 @@ function getUsernameFromEmail(email: string) {
 
 function mapUser(
   item: GlobalUserSearchApiItem,
-  common: typeof enCommon
+  common: FriendCommonLocale
 ): FriendUser {
   const fullName = item.name?.trim() || getUsernameFromEmail(item.email)
 

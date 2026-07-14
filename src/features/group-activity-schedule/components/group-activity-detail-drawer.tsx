@@ -470,7 +470,9 @@ export function GroupActivityDetailDrawer({
 
   const filteredRequests = useMemo(() => {
     const list = guestRequestsQuery.data?.data || []
-    if (guestFilterTab === "ALL") return list
+    if (guestFilterTab === "ALL") {
+      return list.filter((r) => r.guestStatus !== "REJECTED")
+    }
     if (guestFilterTab === "PENDING") {
       return list.filter((r) => r.guestStatus === "PENDING")
     }
@@ -956,15 +958,28 @@ export function GroupActivityDetailDrawer({
                             "activitySchedule.guestRequestInputPlaceholder"
                           )}
                         />
-                        {parseInt(guestCountInput) === currentCount && (
-                          <p className="mt-1.5 text-[11px] font-medium text-amber-600">
+                        {(isNaN(parseInt(guestCountInput)) ||
+                          parseInt(guestCountInput) < 1 ||
+                          parseInt(guestCountInput) > 10) && (
+                          <p className="mt-1.5 text-[11px] font-medium text-destructive">
                             {t(
-                              "activitySchedule.guestCountSameError",
-                              "Số khách mới phải khác số lượng hiện tại ({{count}} khách).",
-                              { count: currentCount }
+                              "activitySchedule.guestCountRangeError",
+                              "Số lượng khách phải từ 1 đến 10."
                             )}
                           </p>
                         )}
+                        {!isNaN(parseInt(guestCountInput)) &&
+                          parseInt(guestCountInput) >= 1 &&
+                          parseInt(guestCountInput) <= 10 &&
+                          parseInt(guestCountInput) === currentCount && (
+                            <p className="mt-1.5 text-[11px] font-medium text-amber-600">
+                              {t(
+                                "activitySchedule.guestCountSameError",
+                                "Số khách mới phải khác số lượng hiện tại ({{count}} khách).",
+                                { count: currentCount }
+                              )}
+                            </p>
+                          )}
                       </div>
                       <AlertDialogFooter className="gap-2 sm:gap-0">
                         <AlertDialogCancel
@@ -976,9 +991,12 @@ export function GroupActivityDetailDrawer({
                         <AlertDialogAction
                           onClick={() => {
                             const val = parseInt(guestCountInput || "1")
-                            if (isNaN(val) || val < 1) {
+                            if (isNaN(val) || val < 1 || val > 10) {
                               toast.error(
-                                t("activitySchedule.guestRequestError")
+                                t(
+                                  "activitySchedule.guestCountRangeError",
+                                  "Số lượng khách phải từ 1 đến 10."
+                                )
                               )
                               return
                             }
@@ -989,6 +1007,7 @@ export function GroupActivityDetailDrawer({
                             registerGuestsMutation.isPending ||
                             isNaN(parseInt(guestCountInput)) ||
                             parseInt(guestCountInput) < 1 ||
+                            parseInt(guestCountInput) > 10 ||
                             parseInt(guestCountInput) === currentCount
                           }
                           className="h-8 bg-[#6B46C1] text-xs text-white hover:bg-[#553C9A]"
@@ -1040,13 +1059,18 @@ export function GroupActivityDetailDrawer({
                                   </SelectItem>
                                 ))}
                               {(!courtBookingsQuery.data?.data ||
-                                courtBookingsQuery.data.data.length === 0) && (
+                                courtBookingsQuery.data.data.filter(
+                                  (b) => !b.isLinked
+                                ).length === 0) && (
                                 <SelectItem
                                   value="none"
                                   disabled
-                                  className="text-xs"
+                                  className="text-xs text-muted-foreground"
                                 >
-                                  {t("activitySchedule.quickLinkBookingEmpty")}
+                                  {t(
+                                    "activitySchedule.formLinkBookingEmpty",
+                                    "Không có lịch đặt sân nhóm nào có thể liên kết"
+                                  )}
                                 </SelectItem>
                               )}
                             </SelectContent>
@@ -1116,216 +1140,210 @@ export function GroupActivityDetailDrawer({
                           <Skeleton className="h-10 w-full" />
                           <Skeleton className="h-10 w-full" />
                         </div>
-                      ) : filteredRequests.length > 0 ? (
+                      ) : filteredRequests.filter(
+                          (req) =>
+                            guestFilterTab !== "ALL" ||
+                            req.guestStatus !== "REJECTED"
+                        ).length > 0 ? (
                         <div className="space-y-2.5">
-                          {filteredRequests.map((req) => {
-                            // Ưu tiên name từ requester object (changelog #3), fallback về tìm trong attendance
-                            const memberName =
-                              req.requester?.name ||
-                              req.name ||
-                              activity?.attendance?.find(
-                                (a) => a.memberId === req.memberId
-                              )?.member?.name ||
-                              `Thành viên (ID: ${req.memberId.slice(0, 8)})`
-                            const requesterAvatarUrl =
-                              req.requester?.avatarUrl || req.avatarUrl || null
-                            const requesterEmail =
-                              req.requester?.email || req.email || ""
-                            const hasPendingDraft =
-                              req.pendingGuestCount !== null &&
-                              req.pendingGuestCount !== undefined
+                          {filteredRequests
+                            .filter(
+                              (req) =>
+                                guestFilterTab !== "ALL" ||
+                                req.guestStatus !== "REJECTED"
+                            )
+                            .map((req) => {
+                              // Ưu tiên name từ requester object (changelog #3), fallback về tìm trong attendance
+                              const memberName =
+                                req.requester?.name ||
+                                req.name ||
+                                activity?.attendance?.find(
+                                  (a) => a.memberId === req.memberId
+                                )?.member?.name ||
+                                `Thành viên (ID: ${req.memberId.slice(0, 8)})`
+                              const requesterAvatarUrl =
+                                req.requester?.avatarUrl ||
+                                req.avatarUrl ||
+                                null
+                              const requesterEmail =
+                                req.requester?.email || req.email || ""
+                              const hasPendingDraft =
+                                req.pendingGuestCount !== null &&
+                                req.pendingGuestCount !== undefined
 
-                            return (
-                              <div
-                                key={req.memberId}
-                                className="relative flex w-full flex-col gap-2 rounded-lg border bg-card p-3 text-sm shadow-sm"
-                              >
-                                <div className="flex min-w-0 items-start justify-between gap-2 pr-6">
-                                  <div className="flex min-w-0 items-center gap-2">
-                                    {requesterAvatarUrl ? (
-                                      <img
-                                        src={requesterAvatarUrl}
-                                        alt={memberName}
-                                        className="size-7 shrink-0 rounded-full object-cover"
-                                      />
-                                    ) : (
-                                      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
-                                        {memberName.charAt(0).toUpperCase()}
-                                      </div>
-                                    )}
-                                    <div className="min-w-0">
-                                      <span className="block truncate text-sm font-bold text-foreground">
-                                        {t(
-                                          "activitySchedule.guestRequestLabel",
-                                          { name: memberName }
-                                        )}
-                                      </span>
-                                      {requesterEmail && (
-                                        <span className="block truncate text-xs text-muted-foreground">
-                                          {requesterEmail}
+                              return (
+                                <div
+                                  key={req.memberId}
+                                  className="relative flex w-full flex-col gap-2 rounded-lg border bg-card p-3 text-sm shadow-sm"
+                                >
+                                  <div className="flex min-w-0 items-start justify-between gap-2 pr-6">
+                                    <div className="flex min-w-0 items-center gap-2">
+                                      {requesterAvatarUrl ? (
+                                        <img
+                                          src={requesterAvatarUrl}
+                                          alt={memberName}
+                                          className="size-7 shrink-0 rounded-full object-cover"
+                                        />
+                                      ) : (
+                                        <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
+                                          {memberName.charAt(0).toUpperCase()}
+                                        </div>
+                                      )}
+                                      <div className="min-w-0">
+                                        <span className="block truncate text-sm font-bold text-foreground">
+                                          {t(
+                                            "activitySchedule.guestRequestLabel",
+                                            { name: memberName }
+                                          )}
                                         </span>
+                                        {requesterEmail && (
+                                          <span className="block truncate text-xs text-muted-foreground">
+                                            {requesterEmail}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="flex shrink-0 items-center gap-1.5">
+                                      {hasPendingDraft ? (
+                                        <Badge
+                                          variant="outline"
+                                          className="border-amber-200 bg-amber-50 px-1.5 py-0 text-xs text-amber-700"
+                                        >
+                                          {t(
+                                            "activitySchedule.guestStatusBadgeChange"
+                                          )}
+                                        </Badge>
+                                      ) : req.guestStatus === "PENDING" ? (
+                                        <Badge
+                                          variant="outline"
+                                          className="border-amber-200 bg-amber-50 px-1.5 py-0 text-xs text-amber-700"
+                                        >
+                                          {t(
+                                            "activitySchedule.guestStatusBadgePending"
+                                          )}
+                                        </Badge>
+                                      ) : req.guestStatus === "APPROVED" ? (
+                                        <Badge
+                                          variant="outline"
+                                          className="border-emerald-200 bg-emerald-50 px-1.5 py-0 text-xs text-emerald-700"
+                                        >
+                                          {t(
+                                            "activitySchedule.guestStatusBadgeApproved"
+                                          )}
+                                        </Badge>
+                                      ) : req.guestStatus === "REJECTED" ? (
+                                        <Badge
+                                          variant="outline"
+                                          className="border-rose-200 bg-rose-50 px-1.5 py-0 text-xs text-rose-700"
+                                        >
+                                          {t(
+                                            "activitySchedule.guestStatusBadgeRejected"
+                                          )}
+                                        </Badge>
+                                      ) : null}
+                                    </div>
+                                  </div>
+
+                                  {/* Card Kebab Menu for Host Administration */}
+                                  {isHost && (
+                                    <div className="absolute top-2 right-2">
+                                      <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-7 w-7 shrink-0 rounded-full"
+                                          >
+                                            <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                                          </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                          <DropdownMenuItem
+                                            className="text-xs font-semibold text-destructive focus:bg-destructive/10 focus:text-destructive"
+                                            onClick={() => {
+                                              setSelectedRequestForCancel(req)
+                                              setIsCancelRequestDialogOpen(true)
+                                            }}
+                                          >
+                                            {t(
+                                              "activitySchedule.guestActionCancel"
+                                            )}
+                                          </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                      </DropdownMenu>
+                                    </div>
+                                  )}
+
+                                  <div className="flex w-full min-w-0 items-center justify-between gap-2 text-xs text-muted-foreground">
+                                    <div className="min-w-0 text-left text-xs">
+                                      {hasPendingDraft ? (
+                                        <p className="truncate">
+                                          {t(
+                                            "activitySchedule.guestInfoChange",
+                                            {
+                                              pendingCount:
+                                                req.pendingGuestCount,
+                                              count: req.guestCount,
+                                            }
+                                          )}
+                                        </p>
+                                      ) : (
+                                        <p className="truncate">
+                                          {t(
+                                            "activitySchedule.guestInfoCount",
+                                            {
+                                              count: req.guestCount,
+                                            }
+                                          )}
+                                        </p>
+                                      )}
+                                    </div>
+
+                                    <div className="flex shrink-0 items-center gap-1">
+                                      {(req.guestStatus === "PENDING" ||
+                                        hasPendingDraft) && (
+                                        <>
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="flex h-7 items-center gap-1 border-emerald-200 px-2.5 text-xs font-semibold text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+                                            onClick={() =>
+                                              approveGuestMutation.mutate({
+                                                memberId: req.memberId,
+                                                status: "APPROVED",
+                                              })
+                                            }
+                                            disabled={
+                                              approveGuestMutation.isPending
+                                            }
+                                          >
+                                            <Check className="h-3 w-3" />
+                                            {t("activitySchedule.btnApprove")}
+                                          </Button>
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="flex h-7 items-center gap-1 border-rose-200 px-2.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                                            onClick={() =>
+                                              approveGuestMutation.mutate({
+                                                memberId: req.memberId,
+                                                status: "REJECTED",
+                                              })
+                                            }
+                                            disabled={
+                                              approveGuestMutation.isPending
+                                            }
+                                          >
+                                            <X className="h-3 w-3" />
+                                            {t("activitySchedule.btnReject")}
+                                          </Button>
+                                        </>
                                       )}
                                     </div>
                                   </div>
-                                  <div className="flex shrink-0 items-center gap-1.5">
-                                    {hasPendingDraft ? (
-                                      <Badge
-                                        variant="outline"
-                                        className="border-amber-200 bg-amber-50 px-1.5 py-0 text-xs text-amber-700"
-                                      >
-                                        {t(
-                                          "activitySchedule.guestStatusBadgeChange"
-                                        )}
-                                      </Badge>
-                                    ) : req.guestStatus === "PENDING" ? (
-                                      <Badge
-                                        variant="outline"
-                                        className="border-amber-200 bg-amber-50 px-1.5 py-0 text-xs text-amber-700"
-                                      >
-                                        {t(
-                                          "activitySchedule.guestStatusBadgePending"
-                                        )}
-                                      </Badge>
-                                    ) : req.guestStatus === "APPROVED" ? (
-                                      <Badge
-                                        variant="outline"
-                                        className="border-emerald-200 bg-emerald-50 px-1.5 py-0 text-xs text-emerald-700"
-                                      >
-                                        {t(
-                                          "activitySchedule.guestStatusBadgeApproved"
-                                        )}
-                                      </Badge>
-                                    ) : req.guestStatus === "REJECTED" ? (
-                                      <Badge
-                                        variant="outline"
-                                        className="border-rose-200 bg-rose-50 px-1.5 py-0 text-xs text-rose-700"
-                                      >
-                                        {t(
-                                          "activitySchedule.guestStatusBadgeRejected"
-                                        )}
-                                      </Badge>
-                                    ) : null}
-                                  </div>
                                 </div>
-
-                                {/* Card Kebab Menu for Host Administration */}
-                                {isHost && (
-                                  <div className="absolute top-2 right-2">
-                                    <DropdownMenu>
-                                      <DropdownMenuTrigger asChild>
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          className="h-7 w-7 shrink-0 rounded-full"
-                                        >
-                                          <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-                                        </Button>
-                                      </DropdownMenuTrigger>
-                                      <DropdownMenuContent align="end">
-                                        <DropdownMenuItem
-                                          className="text-xs font-semibold text-destructive focus:bg-destructive/10 focus:text-destructive"
-                                          onClick={() => {
-                                            setSelectedRequestForCancel(req)
-                                            setIsCancelRequestDialogOpen(true)
-                                          }}
-                                        >
-                                          {t(
-                                            "activitySchedule.guestActionCancel"
-                                          )}
-                                        </DropdownMenuItem>
-                                      </DropdownMenuContent>
-                                    </DropdownMenu>
-                                  </div>
-                                )}
-
-                                <div className="flex w-full min-w-0 items-center justify-between gap-2 text-xs text-muted-foreground">
-                                  <div className="min-w-0 text-left text-xs">
-                                    {hasPendingDraft ? (
-                                      <p className="truncate">
-                                        {t("activitySchedule.guestInfoChange", {
-                                          pendingCount: req.pendingGuestCount,
-                                          count: req.guestCount,
-                                        })}
-                                      </p>
-                                    ) : (
-                                      <p className="truncate">
-                                        {t("activitySchedule.guestInfoCount", {
-                                          count: req.guestCount,
-                                        })}
-                                      </p>
-                                    )}
-                                  </div>
-
-                                  <div className="flex shrink-0 items-center gap-1">
-                                    {(req.guestStatus === "PENDING" ||
-                                      hasPendingDraft) && (
-                                      <>
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          className="flex h-7 items-center gap-1 border-emerald-200 px-2.5 text-xs font-semibold text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
-                                          onClick={() =>
-                                            approveGuestMutation.mutate({
-                                              memberId: req.memberId,
-                                              status: "APPROVED",
-                                            })
-                                          }
-                                          disabled={
-                                            approveGuestMutation.isPending
-                                          }
-                                        >
-                                          <Check className="h-3 w-3" />
-                                          {t("activitySchedule.btnApprove")}
-                                        </Button>
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          className="flex h-7 items-center gap-1 border-rose-200 px-2.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-                                          onClick={() =>
-                                            approveGuestMutation.mutate({
-                                              memberId: req.memberId,
-                                              status: "REJECTED",
-                                            })
-                                          }
-                                          disabled={
-                                            approveGuestMutation.isPending
-                                          }
-                                        >
-                                          <X className="h-3 w-3" />
-                                          {t("activitySchedule.btnReject")}
-                                        </Button>
-                                      </>
-                                    )}
-
-                                    {req.guestStatus === "REJECTED" && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-7 border-amber-200 px-2.5 text-xs font-semibold text-amber-600 hover:bg-amber-50 hover:text-amber-700"
-                                        onClick={() => {
-                                          if (
-                                            confirm(
-                                              t(
-                                                "activitySchedule.confirmReinvite",
-                                                { name: memberName }
-                                              )
-                                            )
-                                          ) {
-                                            deleteGuestMutation.mutate(
-                                              req.memberId
-                                            )
-                                          }
-                                        }}
-                                        disabled={deleteGuestMutation.isPending}
-                                      >
-                                        {t("activitySchedule.btnReinvite")}
-                                      </Button>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            )
-                          })}
+                              )
+                            })}
                         </div>
                       ) : (
                         <p className="py-4 text-center text-xs text-muted-foreground">

@@ -35,7 +35,10 @@ export default async function ProtectedLayout({
       phoneNumber: profile.phoneNumber ?? session.user.phoneNumber,
       avatarUrl: profile.avatarUrl ?? session.user.avatarUrl,
     }
-  } catch {
+  } catch (err) {
+    if (err instanceof Error && err.message === "Session expired") {
+      redirect("/api/auth/logout")
+    }
     // Profile fetch failed — fall back to session data
   }
 
