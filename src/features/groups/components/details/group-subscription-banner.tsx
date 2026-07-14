@@ -27,6 +27,13 @@ export function GroupSubscriptionBanner({
     const sub = group.subscription
     if (!sub) return null
 
+    if (!sub.hasAccess) {
+      return {
+        type: "expired" as const,
+        days: 0,
+      }
+    }
+
     const expiresAt = sub.expiresAt
     if (!expiresAt) return null
 
@@ -35,9 +42,7 @@ export function GroupSubscriptionBanner({
     const diffTime = expiresDate.getTime() - now.getTime()
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
-    const isExpired = diffDays <= 0 || !sub.hasAccess
-
-    if (isExpired) {
+    if (diffDays <= 0) {
       return {
         type: "expired" as const,
         days: 0,

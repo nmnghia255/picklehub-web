@@ -1,5 +1,7 @@
 export const dynamic = "force-dynamic"
 
+import { redirect } from "next/navigation"
+
 import { getMyGroups } from "@/features/groups/api/groups-service"
 import { GroupsPageContent } from "@/features/groups/components/dashboard/groups-page-content"
 
@@ -9,7 +11,10 @@ export default async function GroupsPage() {
 
   try {
     myGroups = await getMyGroups()
-  } catch {
+  } catch (err) {
+    if (err instanceof Error && err.message === "Session expired") {
+      redirect("/api/auth/logout")
+    }
     myGroupsError = true
   }
 
