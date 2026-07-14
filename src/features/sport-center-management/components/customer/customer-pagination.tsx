@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 export interface CustomerManagementPaginationView {
   currentPage: number
@@ -18,6 +19,8 @@ export function CustomerManagementPagination({
   onPreviousPage,
   onNextPage,
 }: CustomerManagementPaginationProps) {
+  const { t } = useSportCenterManagementTranslation()
+
   if (pagination.totalPages <= 1) {
     return null
   }
@@ -31,11 +34,14 @@ export function CustomerManagementPagination({
           disabled={!pagination.hasPreviousPage}
           onClick={onPreviousPage}
         >
-          Trước
+          {t("customer.pagination.previous")}
         </Button>
 
         <span className="min-w-28 text-center text-muted-foreground">
-          Trang {pagination.currentPage} / {pagination.totalPages}
+          {t("customer.pagination.pageInfo", {
+            currentPage: pagination.currentPage,
+            totalPages: pagination.totalPages,
+          })}
         </span>
 
         <Button
@@ -44,7 +50,7 @@ export function CustomerManagementPagination({
           disabled={!pagination.hasNextPage}
           onClick={onNextPage}
         >
-          Sau
+          {t("customer.pagination.next")}
         </Button>
       </div>
     </div>

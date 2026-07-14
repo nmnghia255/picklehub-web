@@ -75,7 +75,7 @@ export default function CustomerManagementPage() {
     }
   }, [customers.length, currentPage, pagination?.limit, pagination?.total])
 
-  const hasActiveFilters = keyword.trim().length > 0
+  const hasActiveFilters = keyword.trim().length > 0 || centerFilterId != null
 
   const isPageLoading = loadingSportCenters || isLoading
   const selectedCenterName = selectedCenter?.name ?? t("common.all")

@@ -6,6 +6,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import {
+  canJoinPlaySession,
+  canLeavePlaySession,
+  getPlaySessionCapacityText,
+  getPlaySessionJoinedCount,
+  hasAvailablePlaySessionSlots,
+  isActiveSocialParticipantStatus,
+  isFullPlaySession,
+} from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
@@ -36,8 +45,26 @@ export default function PlaySessionSidebar({
   const { t } = useSocialsTranslation()
   const host = social.creator
   const isParticipant =
-    social.myParticipantInfo?.joinedSessionIds?.includes(session.id as never) ??
-    false
+    isActiveSocialParticipantStatus(social.myParticipantInfo?.status) &&
+    (social.myParticipantInfo?.joinedSessionIds?.includes(session.id) ?? false)
+  const joinedCount = getPlaySessionJoinedCount(session.joinedCount)
+  const hasAvailableSlots = hasAvailablePlaySessionSlots(
+    session.joinedCount,
+    session.maxSlot
+  )
+  const canJoin = canJoinPlaySession(
+    session.status,
+    session.joinedCount,
+    session.maxSlot,
+    isParticipant
+  )
+  const canLeave = canLeavePlaySession(session.status, isParticipant)
+  const isFull = isFullPlaySession(
+    session.status,
+    session.joinedCount,
+    session.maxSlot,
+    isParticipant
+  )
 
   return (
     <Card className="sticky top-16 h-fit p-0">
@@ -47,17 +74,33 @@ export default function PlaySessionSidebar({
             {t("sidebar.participants")}
           </p>
           <h2 className="mt-1 text-3xl font-semibold">
-            {session.joinedCount} / {social.maxSlots}
+            {getPlaySessionCapacityText(
+              session.joinedCount,
+              session.maxSlot,
+              t("playSessionOverview.unlimited")
+            )}
           </h2>
           <div className="mt-3 space-y-2">
             <ProgressBar
-              value={(session.joinedCount / social.maxSlots) * 100}
+              value={
+                session.maxSlot == null
+                  ? 0
+                  : (joinedCount / session.maxSlot) * 100
+              }
             />
-            <p className="text-xs text-muted-foreground">
-              {t("sidebar.spotsRemaining", {
-                count: social.maxSlots - session.joinedCount,
-              })}
-            </p>
+            {session.maxSlot == null ? (
+              <p className="text-xs text-muted-foreground">
+                {t("playSessionOverview.unlimited")}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                {hasAvailableSlots
+                  ? t("sidebar.spotsRemaining", {
+                      count: session.maxSlot - joinedCount,
+                    })
+                  : t("sidebar.full")}
+              </p>
+            )}
           </div>
         </div>
 
@@ -139,20 +182,19 @@ export default function PlaySessionSidebar({
           </>
         )}
 
-        {!isParticipant && social.status === "PUBLISHED" && (
-          <Button
-            className="w-full"
-            size="lg"
-            disabled={!social.hasAvailableSlots}
-            onClick={onJoin}
-          >
-            {social.hasAvailableSlots
-              ? t("sidebar.joinSession")
-              : t("sidebar.full")}
+        {canJoin && (
+          <Button className="w-full" size="lg" onClick={onJoin}>
+            {t("sidebar.joinSession")}
           </Button>
         )}
 
-        {isParticipant && (
+        {isFull && (
+          <Button className="w-full" size="lg" disabled>
+            {t("sidebar.full")}
+          </Button>
+        )}
+
+        {canLeave && (
           <Button
             className="w-full"
             size="lg"

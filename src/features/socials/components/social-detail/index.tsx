@@ -12,6 +12,7 @@ import type {
   SocialDetail,
   SocialParticipant,
 } from "@/features/socials/types/social"
+import { isActiveSocialParticipantStatus } from "@/features/socials/utils"
 import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
@@ -86,7 +87,8 @@ export default function SocialDetail({
     new Date(social.startTime)
   )
   const isParticipant = Boolean(
-    social.myParticipantInfo && social.myParticipantInfo.status !== "CANCELLED"
+    social.myParticipantInfo &&
+    isActiveSocialParticipantStatus(social.myParticipantInfo.status)
   )
 
   const socialParticipants = initialParticipants

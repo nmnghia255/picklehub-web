@@ -5,6 +5,7 @@ import type {
   CustomerListItem,
   CustomerListResponse,
 } from "@/features/sport-center-management/types/customer"
+import i18n from "@/i18n/client"
 
 interface CustomerManagementState {
   centerFilterId: string | null
@@ -93,7 +94,9 @@ export const useCustomerManagementStore = create<CustomerManagementState>(
           loadError:
             error instanceof Error
               ? error.message
-              : "Không thể tải danh sách khách hàng",
+              : i18n.t("customer.detail.page.loadError", {
+                  ns: "sport-center-management",
+                }),
         })
       } finally {
         if (get().requestId === nextRequestId) {

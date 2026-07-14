@@ -5,7 +5,7 @@ export interface PlaySession {
   title: string
   socialId: string
   bookingIds: string[]
-  joinedCount: number
+  joinedCount: number | null
   numberOfCourts: number
   courtNames: string[]
   courtSchedule: string | null
@@ -17,7 +17,7 @@ export interface PlaySession {
   startTime: string
   endTime: string
   status: string
-  maxSlot: number
+  maxSlot: number | null
   isHost: boolean
   creatorId: string
   createdAt: string

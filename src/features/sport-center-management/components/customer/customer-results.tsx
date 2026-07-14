@@ -44,7 +44,7 @@ export function CustomerManagementResults({
       <CustomerEmptyState
         title={t("customer.empty.loadErrorTitle")}
         description={loadError}
-        actionLabel={t("customer.empty.loadErrorAction")}
+        actionLabel={t("customer.empty.refresh")}
         onAction={onRefreshCustomers}
       />
     )
@@ -65,7 +65,7 @@ export function CustomerManagementResults({
         }
         actionLabel={
           hasActiveFilters
-            ? t("bookingList.empty.reset")
+            ? t("customer.filters.reset")
             : t("customer.empty.refresh")
         }
         onAction={hasActiveFilters ? onResetFilters : onRefreshCustomers}

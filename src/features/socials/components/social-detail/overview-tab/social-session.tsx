@@ -15,6 +15,11 @@ import {
 } from "@/components/ui/empty"
 import ProgressBar from "@/features/socials/components/social-listing/progress-bar"
 import type { PlaySession } from "@/features/socials/types/play-session"
+import {
+  getPlaySessionCapacityText,
+  getPlaySessionJoinedCount,
+  hasAvailablePlaySessionSlots,
+} from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
@@ -64,6 +69,18 @@ export default function SocialSessions({
           ) : (
             <div className="space-y-4">
               {sessions.map((session) => {
+                const joinedCount = getPlaySessionJoinedCount(
+                  session.joinedCount
+                )
+                const hasSlots = hasAvailablePlaySessionSlots(
+                  session.joinedCount,
+                  session.maxSlot
+                )
+                const progressValue =
+                  session.maxSlot == null
+                    ? 0
+                    : (joinedCount / session.maxSlot) * 100
+
                 return (
                   <Card
                     key={session.id}
@@ -119,14 +136,19 @@ export default function SocialSessions({
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span>{t("sessions.participants")}</span>
                           <span>
-                            {session.joinedCount} /{" "}
-                            {session.maxSlot ??
-                              t("playSessionOverview.unlimited")}
+                            {getPlaySessionCapacityText(
+                              session.joinedCount,
+                              session.maxSlot,
+                              t("playSessionOverview.unlimited")
+                            )}
                           </span>
                         </div>
-                        <ProgressBar
-                          value={(session.joinedCount / session.maxSlot) * 100}
-                        />
+                        <ProgressBar value={progressValue} />
+                        {!hasSlots && session.maxSlot != null && (
+                          <p className="text-xs text-destructive">
+                            {t("sidebar.full")}
+                          </p>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
