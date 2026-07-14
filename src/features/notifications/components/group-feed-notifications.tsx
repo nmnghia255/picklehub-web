@@ -23,7 +23,7 @@ interface GroupFeedNotificationsProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function formatDate(dateString: string, t: any): string {
+function formatDate(dateString: string, t: any, language?: string): string {
   const date = new Date(dateString)
   if (Number.isNaN(date.getTime())) {
     return t("notifications.justNow", "Vừa xong")
@@ -49,7 +49,9 @@ function formatDate(dateString: string, t: any): string {
       count: diffDays,
     })
 
-  return date.toLocaleDateString(locale)
+  return date.toLocaleDateString(
+    language?.startsWith("vi") ? "vi-VN" : language || undefined
+  )
 }
 
 export function GroupFeedNotifications({
@@ -57,7 +59,7 @@ export function GroupFeedNotifications({
   isLoading = false,
   className = "",
 }: GroupFeedNotificationsProps & { className?: string }) {
-  const { t } = useGroupsTranslation()
+  const { t, i18n } = useGroupsTranslation()
 
   if (isLoading) {
     return (
@@ -124,7 +126,7 @@ export function GroupFeedNotifications({
                   >
                     <Clock className="mr-1 size-3" />
                     {notification.timeLabel ??
-                      formatDate(notification.sentAt, t)}
+                      formatDate(notification.sentAt, t, i18n.language)}
                   </Badge>
                 </div>
                 <p className="line-clamp-2 text-sm text-muted-foreground">

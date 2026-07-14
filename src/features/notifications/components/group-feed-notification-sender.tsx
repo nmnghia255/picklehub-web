@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAtom } from "jotai"
@@ -61,7 +61,7 @@ export function GroupFeedNotificationSender({
   groupName,
   canSend = true,
 }: GroupFeedNotificationSenderProps) {
-  const { t } = useGroupsTranslation()
+  const { t, i18n } = useGroupsTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [, setNotifications] = useAtom(notificationFeedAtom)

@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 
 import { getSession } from "@/lib/session"
 
-export async function POST() {
+async function performLogout() {
   const session = await getSession()
   if (session.refreshToken) {
     try {
@@ -16,6 +16,10 @@ export async function POST() {
     }
   }
   session.destroy()
+}
+
+export async function POST() {
+  await performLogout()
 
   return NextResponse.json(
     { message: "Logged out successfully" },
@@ -26,4 +30,15 @@ export async function POST() {
       },
     }
   )
+}
+
+export async function GET(request: Request) {
+  await performLogout()
+
+  const response = NextResponse.redirect(new URL("/login", request.url))
+  response.headers.set(
+    "Set-Cookie",
+    `picklehub-session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 UTC; HttpOnly; SameSite=Lax`
+  )
+  return response
 }
