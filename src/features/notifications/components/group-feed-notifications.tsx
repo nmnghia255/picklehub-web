@@ -1,7 +1,6 @@
 "use client"
 
 import { Bell, Clock } from "lucide-react"
-import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"

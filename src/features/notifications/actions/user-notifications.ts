@@ -6,12 +6,17 @@ import type {
   FeedNotification,
   FeedNotificationType,
 } from "@/features/feed/types"
-import enCommon from "@/i18n/locales/en/common.json"
-import viCommon from "@/i18n/locales/vi/common.json"
+import {
+  type CommonLocale,
+  getNotificationsCommonSection,
+} from "@/i18n/common-locale"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
-async function getCommonLocale() {
+async function getCommonLocale(): Promise<CommonLocale> {
   const acceptLanguage = (await headers()).get("accept-language") ?? ""
+  const { default: enCommon } = await import("@/i18n/locales/en/common.json")
+  const { default: viCommon } = await import("@/i18n/locales/vi/common.json")
+
   return acceptLanguage.toLowerCase().startsWith("vi") ? viCommon : enCommon
 }
 
@@ -21,7 +26,7 @@ async function getCommonLocale() {
  */
 export async function fetchMyNotifications(): Promise<FeedNotification[]> {
   try {
-    const common = await getCommonLocale()
+    const common = getNotificationsCommonSection(await getCommonLocale())
     const axios = await getAuthenticatedAxios()
     const res = await axios.get("/api/notification")
 
@@ -31,7 +36,6 @@ export async function fetchMyNotifications(): Promise<FeedNotification[]> {
 
     const items = Array.isArray(payload) ? payload : (payload.data ?? [])
 
-    // Map backend notification shape to FeedNotification used in UI
     const mapped: FeedNotification[] = items.map(
       (it: Record<string, unknown>) => {
         const type =
@@ -40,7 +44,6 @@ export async function fetchMyNotifications(): Promise<FeedNotification[]> {
           "system"
 
         const section = (() => {
-          // Simple heuristic by date
           const created = new Date(
             (it["createdAt"] ?? it["sentAt"] ?? Date.now()) as string | number
           )
@@ -63,11 +66,11 @@ export async function fetchMyNotifications(): Promise<FeedNotification[]> {
           section,
           title: (it["title"] ??
             it["subject"] ??
-            common.notifications.defaults.title) as string,
+            common.defaults.title) as string,
           description: (it["message"] ?? it["description"] ?? "") as string,
           actor: (it["actorName"] ??
             it["sender"] ??
-            common.notifications.defaults.actor) as string,
+            common.defaults.actor) as string,
           timeLabel: new Date(
             (it["createdAt"] ?? it["sentAt"] ?? Date.now()) as string | number
           ).toLocaleString(),
@@ -91,4 +94,22 @@ export async function fetchMyNotifications(): Promise<FeedNotification[]> {
     }
     return []
   }
+}
+
+export async function markUserNotificationsRead(notificationIds: string[]) {
+  const axios = await getAuthenticatedAxios()
+  const common = getNotificationsCommonSection(await getCommonLocale())
+
+  if (notificationIds.length === 0) {
+    return {
+      success: true,
+      message: common.defaults.title,
+    }
+  }
+
+  const response = await axios.patch("/api/notifications/read", {
+    ids: notificationIds,
+  })
+
+  return response.data
 }
