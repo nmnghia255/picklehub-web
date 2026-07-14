@@ -146,16 +146,19 @@ export default function PlaySessionDetail({
 
   const handleJoin = async () => {
     if (!socialId || !sessionId) return
-    toast.promise(
-      joinPlaySessionAction(socialId, sessionId).then(() => {
-        router.refresh()
-      }),
-      {
-        loading: t("sessions.joining"),
-        success: t("sessions.joinSuccess"),
-        error: (err: Error) => t("sessions.joinError") || err.message,
-      }
-    )
+    const toastId = toast.loading(t("sessions.joining"))
+    const result = await joinPlaySessionAction(socialId, sessionId)
+
+    if (result.success) {
+      toast.success(t("sessions.joinSuccess"), { id: toastId })
+      router.refresh()
+      return
+    }
+
+    // Prefer the backend's specific reason (e.g. the DUPR rating-restriction
+    // rejection) over the generic fallback, per the `message || t(fallback)`
+    // convention used across this feature.
+    toast.error(result.error || t("sessions.joinError"), { id: toastId })
   }
 
   const handleLeave = async () => {
