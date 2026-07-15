@@ -24,10 +24,10 @@ import { useScoreStore } from "@/features/score/stores/use-score-store"
 import { listMyAssignmentsAction } from "@/features/tournaments/actions/referee-actions"
 import { updateFixtureResultAction } from "@/features/tournaments/actions/schedule-actions"
 import { getTeamEventsAction } from "@/features/tournaments/actions/team-actions"
-import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
+import { useScoreTranslation } from "@/i18n/use-score-translation"
 
 function PickleballTracker() {
-  const { t } = useTournamentTranslation()
+  const { t } = useScoreTranslation()
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -85,8 +85,8 @@ function PickleballTracker() {
     initialize({
       team1: team1Param,
       team2: team2Param,
-      defaultTeam1Label: t("referee.tracker.teamADefault"),
-      defaultTeam2Label: t("referee.tracker.teamBDefault"),
+      defaultTeam1Label: t("tracker.teamADefault"),
+      defaultTeam2Label: t("tracker.teamBDefault"),
       isMatchServiceMatch,
       isViewOnly,
     })
@@ -129,7 +129,10 @@ function PickleballTracker() {
               ? `${getPlayerName(pB1)} / ${getPlayerName(pB2)}`
               : getPlayerName(pB1)
 
-            setTeamNames(t1Name || "Đội A", t2Name || "Đội B")
+            setTeamNames(
+              t1Name || t("tracker.teamADefault", { defaultValue: "Đội A" }),
+              t2Name || t("tracker.teamBDefault", { defaultValue: "Đội B" })
+            )
             setPlayerNames({
               A1: getPlayerName(pA1) || "A1",
               A2: getPlayerName(pA2) || "",
@@ -291,7 +294,7 @@ function PickleballTracker() {
 
       if (success) {
         toast.success(
-          t("referee.tracker.successMessage", {
+          t("tracker.successMessage", {
             defaultValue: "Cập nhật tỷ số trận đấu thành công!",
           })
         )
@@ -299,7 +302,7 @@ function PickleballTracker() {
       } else {
         toast.error(
           errorMsg ||
-            t("referee.tracker.errorMessage", {
+            t("tracker.errorMessage", {
               defaultValue: "Không thể cập nhật tỷ số",
             })
         )
@@ -307,7 +310,7 @@ function PickleballTracker() {
     } catch (err) {
       console.error(err)
       toast.error(
-        t("referee.tracker.unexpectedErrorMessage", {
+        t("tracker.unexpectedErrorMessage", {
           defaultValue: "Đã xảy ra lỗi không mong muốn",
         })
       )
@@ -369,12 +372,12 @@ function PickleballTracker() {
           isMatchOver && (
             <div className="animate-fade-in flex flex-col items-center justify-center space-y-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50/50 p-6 text-center shadow-sm dark:bg-emerald-950/20">
               <h3 className="text-xl font-black tracking-widest text-emerald-800 uppercase dark:text-emerald-300">
-                {t("referee.tracker.gameOverTitle", {
+                {t("tracker.gameOverTitle", {
                   defaultValue: "Match is over",
                 })}
               </h3>
               <p className="text-2xl font-black text-gray-900 dark:text-white">
-                {t("referee.tracker.winnerIs", {
+                {t("tracker.winnerIs", {
                   defaultValue: `Winner: ${winnerName}`,
                   name: winnerName,
                 })}
@@ -396,7 +399,7 @@ function PickleballTracker() {
               onClick={() => setShowTossWizard(true)}
               className="h-14 w-full rounded-xl bg-emerald-600 text-lg font-black tracking-widest text-white shadow-lg transition-transform hover:bg-emerald-700 active:scale-[0.99]"
             >
-              {t("referee.actions.startMatch", { defaultValue: "Bắt đầu" })}
+              {t("actions.startMatch", { defaultValue: "Bắt đầu" })}
             </Button>
           )}
         </div>
@@ -414,13 +417,13 @@ function PickleballTracker() {
         ) : (
           <div className="animate-fade-in flex flex-col items-center justify-center space-y-4 rounded-2xl border-2 border-amber-500 bg-amber-50/50 p-6 text-center shadow-sm dark:bg-amber-950/20">
             <h3 className="text-xl font-black tracking-widest text-amber-800 uppercase dark:text-amber-300">
-              {t("referee.tracker.setCompletedTitle", {
+              {t("tracker.setCompletedTitle", {
                 defaultValue: `Set ${currentSetId} kết thúc`,
                 set: currentSetId,
               })}
             </h3>
             <p className="text-2xl font-black text-gray-900 dark:text-white">
-              {t("referee.tracker.winnerIs", {
+              {t("tracker.winnerIs", {
                 defaultValue: `Chiến thắng: ${teamAScore > teamBScore ? teamAName : teamBName}`,
                 name: teamAScore > teamBScore ? teamAName : teamBName,
               })}
@@ -435,14 +438,14 @@ function PickleballTracker() {
                 className="h-12 flex-1 font-bold"
                 onClick={() => handleUndo(isMatchServiceMatch, matchId)}
               >
-                {t("referee.tracker.undo", { defaultValue: "Hoàn tác (Undo)" })}
+                {t("tracker.undo", { defaultValue: "Hoàn tác (Undo)" })}
               </Button>
               <Button
                 type="button"
                 className="h-12 flex-1 animate-pulse rounded-xl bg-amber-600 font-extrabold text-white hover:bg-amber-700"
                 onClick={startNextSet}
               >
-                {t("referee.tracker.startNextSetBtn", {
+                {t("tracker.startNextSetBtn", {
                   defaultValue: `Bắt đầu Set ${currentSetId + 1}`,
                   nextSet: currentSetId + 1,
                 })}
@@ -472,10 +475,10 @@ function PickleballTracker() {
 }
 
 export function ScoreboardFallback() {
-  const { t } = useTournamentTranslation()
+  const { t } = useScoreTranslation()
   return (
     <div className="p-8 text-center text-gray-500">
-      {t("loadingScoreboard") || "Loading scoreboard..."}
+      {t("tracker.loading", { defaultValue: "Loading scoreboard..." })}
     </div>
   )
 }

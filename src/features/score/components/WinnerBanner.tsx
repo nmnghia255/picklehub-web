@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
+import { useScoreTranslation } from "@/i18n/use-score-translation"
 
 import { useScoreStore } from "../stores/use-score-store"
 
@@ -24,18 +24,18 @@ export function WinnerBanner({
   handleConfirmScore,
   isSaving,
 }: WinnerBannerProps) {
-  const { t } = useTournamentTranslation()
+  const { t } = useScoreTranslation()
   const { handleUndo, sets } = useScoreStore()
 
   return (
     <div className="animate-fade-in flex flex-col items-center justify-center space-y-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50/50 p-6 text-center shadow-sm dark:bg-emerald-950/20">
       <h3 className="text-xl font-black tracking-widest text-emerald-800 uppercase dark:text-emerald-300">
-        {t("referee.tracker.gameOverTitle", {
+        {t("tracker.gameOverTitle", {
           defaultValue: "Game Over",
         })}
       </h3>
       <p className="text-2xl font-black text-gray-900 dark:text-white">
-        {t("referee.tracker.winnerIs", {
+        {t("tracker.winnerIs", {
           defaultValue: `Winner: ${winnerName}`,
           name: winnerName,
         })}
@@ -52,7 +52,7 @@ export function WinnerBanner({
                 key={idx}
                 className="rounded bg-neutral-100 px-2 py-0.5 dark:bg-zinc-800"
               >
-                {t("referee.tracker.setNumber", {
+                {t("tracker.setNumber", {
                   number: idx + 1,
                   defaultValue: `Set ${idx + 1}`,
                 })}
@@ -60,7 +60,7 @@ export function WinnerBanner({
               </span>
             ))}
             <span className="animate-pulse rounded bg-emerald-100 px-2 py-0.5 font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-              {t("referee.tracker.setNumber", {
+              {t("tracker.setNumber", {
                 number: sets.length + 1,
                 defaultValue: `Set ${sets.length + 1}`,
               })}
@@ -77,7 +77,7 @@ export function WinnerBanner({
           className="h-12 flex-1 font-bold"
           onClick={() => handleUndo(isMatchServiceMatch, matchId)}
         >
-          {t("referee.tracker.undo", { defaultValue: "Undo" })}
+          {t("tracker.undo", { defaultValue: "Undo" })}
         </Button>
 
         <Button
@@ -87,10 +87,10 @@ export function WinnerBanner({
           disabled={isSaving}
         >
           {isSaving
-            ? t("referee.tracker.savingResult", {
+            ? t("tracker.savingResult", {
                 defaultValue: "Saving...",
               })
-            : t("referee.tracker.confirmResult", {
+            : t("tracker.confirmResult", {
                 defaultValue: "Confirm & Save",
               })}
         </Button>
