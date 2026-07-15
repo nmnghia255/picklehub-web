@@ -22,6 +22,17 @@ import {
   completePlaySession,
   startPlaySession,
 } from "@/features/socials/actions/play-session"
+import {
+  canJoinPlaySession,
+  canLeavePlaySession,
+  getPlaySessionCapacityText,
+  isActiveSocialParticipantStatus,
+  isCancelledPlaySessionStatus,
+  isCompletedPlaySessionStatus,
+  isFullPlaySession,
+  isInProgressPlaySessionStatus,
+  isOpenPlaySessionStatus,
+} from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
@@ -82,12 +93,15 @@ export default function PlaySessionOverview({
   const [isPending, setIsPending] = useState(false)
   const sessionData = useSession()
 
-  const isCompleted = session.status === "COMPLETED"
-  const isActive = session.status === "LIVE" || session.status === "IN_PROGRESS"
-  const isNotStarted = !isCompleted && !isActive
+  const isCompleted = isCompletedPlaySessionStatus(session.status)
+  const isCancelled = isCancelledPlaySessionStatus(session.status)
+  const isActive = isInProgressPlaySessionStatus(session.status)
+  const canStart =
+    isHost && isOpenPlaySessionStatus(session.status) && !isCancelled
+  const canComplete = isHost && !isCompleted && !isCancelled && isActive
 
   const handleStart = async () => {
-    if (!socialId) return
+    if (!socialId || !canStart) return
     setIsPending(true)
     try {
       await startPlaySession(socialId, session.id)
@@ -103,7 +117,7 @@ export default function PlaySessionOverview({
   }
 
   const handleComplete = async () => {
-    if (!socialId) return
+    if (!socialId || !canComplete) return
     setIsPending(true)
     try {
       await completePlaySession(socialId, session.id)
@@ -118,13 +132,25 @@ export default function PlaySessionOverview({
     }
   }
 
-  const hasAvailableSlots = session.joinedCount < session.maxSlot
   const currentUserId = sessionData?.user?.id
   const isParticipant = participants.some(
-    (p) => p.userId === currentUserId && p.status !== "CANCELLED"
+    (p) =>
+      p.userId === currentUserId && isActiveSocialParticipantStatus(p.status)
   )
-
-  const isEditable = true || (isHost && !isCompleted)
+  const canJoin = canJoinPlaySession(
+    session.status,
+    session.joinedCount,
+    session.maxSlot,
+    isParticipant
+  )
+  const canLeave = canLeavePlaySession(session.status, isParticipant)
+  const isFull = isFullPlaySession(
+    session.status,
+    session.joinedCount,
+    session.maxSlot,
+    isParticipant
+  )
+  const hasActions = canStart || canComplete || canJoin || canLeave || isFull
 
   const myParticipant = participants.find((p) => p.userId === currentUserId)
   const totalMatchesCount = matches.length
@@ -146,7 +172,11 @@ export default function PlaySessionOverview({
       <div className="grid grid-cols-2 gap-10 md:grid-cols-4">
         <StatCard value={duration} label={t("playSessionOverview.minutes")} />
         <StatCard
-          value={`${session.joinedCount} / ${session.maxSlot ?? t("playSessionOverview.unlimited")}`}
+          value={getPlaySessionCapacityText(
+            session.joinedCount,
+            session.maxSlot,
+            t("playSessionOverview.unlimited")
+          )}
           label={t("playSessionOverview.participants", {})}
         />
         <StatCard
@@ -194,11 +224,11 @@ export default function PlaySessionOverview({
         )}
       </div>
 
-      {(isEditable || session.status === "PUBLISHED" || isParticipant) && (
+      {hasActions && (
         <>
           <Separator className="my-6" />
           <div className="flex flex-wrap items-center gap-3">
-            {isEditable && !isCompleted && isNotStarted && (
+            {canStart && (
               <Button
                 onClick={handleStart}
                 disabled={isPending}
@@ -212,7 +242,7 @@ export default function PlaySessionOverview({
                 {t("sessions.startSession")}
               </Button>
             )}
-            {isHost && !isCompleted && isActive && (
+            {canComplete && (
               <Button
                 onClick={handleComplete}
                 disabled={isPending}
@@ -227,19 +257,19 @@ export default function PlaySessionOverview({
               </Button>
             )}
 
-            {!isParticipant && session.status === "PUBLISHED" && (
-              <Button
-                disabled={!hasAvailableSlots}
-                onClick={onJoin}
-                className="gap-2"
-              >
-                {hasAvailableSlots
-                  ? t("sidebar.joinSession")
-                  : t("sidebar.full")}
+            {canJoin && (
+              <Button onClick={onJoin} className="gap-2">
+                {t("sidebar.joinSession")}
               </Button>
             )}
 
-            {isParticipant && session.status === "PUBLISHED" && (
+            {isFull && (
+              <Button disabled className="gap-2">
+                {t("sidebar.full")}
+              </Button>
+            )}
+
+            {canLeave && (
               <Button variant="destructive" onClick={onLeave} className="gap-2">
                 {t("sidebar.leaveSession")}
               </Button>

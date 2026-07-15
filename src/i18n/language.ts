@@ -1,7 +1,11 @@
 "use client"
 
 import i18n from "./client"
-import { defaultLanguage, languageStorageKey } from "./settings"
+import {
+  defaultLanguage,
+  languageCookieKey,
+  languageStorageKey,
+} from "./settings"
 
 export type SupportedLanguage = "en" | "vi"
 
@@ -28,6 +32,7 @@ export function getStoredLanguage(): SupportedLanguage {
 export async function setLanguagePreference(language: SupportedLanguage) {
   if (typeof window !== "undefined") {
     window.localStorage.setItem(languageStorageKey, language)
+    window.document.cookie = `${languageCookieKey}=${language}; path=/; max-age=31536000; samesite=lax`
     document.documentElement.lang = language
   }
 

@@ -269,6 +269,40 @@
                 "loadingCenters": "Đang tải...",
                 "noCenters": "Không có sân nào"
             }
+        },
+        "page": {
+            "badge": "Khu vực quản lý khách hàng",
+            "title": "Quản lý khách hàng",
+            "subtitle": "Theo dõi khách hàng, lịch sử ghé thăm và chi tiêu trên các trung tâm bạn quản lý."
+        },
+        "filters": {
+            "title": "Bộ lọc",
+            "keywordLabel": "Từ khóa",
+            "keywordPlaceholder": "Tìm tên khách hàng, số điện thoại, email hoặc mã đặt sân",
+            "centerLabel": "Trung tâm",
+            "reset": "Đặt lại"
+        },
+        "empty": {
+            "loadErrorTitle": "Không thể tải khách hàng",
+            "loadErrorAction": "Tải lại",
+            "noCustomersTitle": "Chưa có khách hàng nào",
+            "noCustomersDescription": "Dữ liệu khách hàng sẽ xuất hiện ở đây khi có người bắt đầu đặt sân tại các trung tâm của bạn.",
+            "noResultsTitle": "Không có khách hàng phù hợp",
+            "noResultsDescription": "Thử từ khóa khác hoặc chuyển sang bộ lọc trung tâm khác.",
+            "refresh": "Tải lại"
+        },
+        "pagination": {
+            "previous": "Trước",
+            "next": "Sau",
+            "pageInfo": "Trang {{currentPage}} / {{totalPages}}"
+        },
+        "table": {
+            "customer": "Khách hàng",
+            "contact": "Liên hệ",
+            "visits": "Lượt ghé",
+            "bookings": "Đặt sân",
+            "spend": "Chi tiêu",
+            "lastVisit": "Lần ghé gần nhất"
         }
     },
     "courts": {

@@ -2,11 +2,14 @@
 
 import { useMemo } from "react"
 
+import { useScoreTranslation } from "@/i18n/use-score-translation"
+
 import { getTeamASlots, getTeamBSlots } from "../constants/team-constants"
 import { useScoreStore } from "../stores/use-score-store"
 import { CourtSlot } from "./CourtSlot"
 
 export function PickleballCourt() {
+  const { t } = useScoreTranslation()
   const {
     playerNames,
     activeServer,
@@ -75,7 +78,9 @@ export function PickleballCourt() {
         {/* Shaded NVZ / Kitchen Center Zone */}
         <div className="absolute top-0 right-[35%] bottom-0 left-[35%] flex items-center justify-center bg-[#1b4e31]/80">
           <span className="vertical-text text-[10px] font-black tracking-[0.3em] text-white/10 uppercase select-none sm:text-xs">
-            Non-Volley Zone (Kitchen)
+            {t("tracker.kitchen", {
+              defaultValue: "Non-Volley Zone (Kitchen)",
+            })}
           </span>
         </div>
 

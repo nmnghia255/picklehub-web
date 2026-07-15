@@ -273,6 +273,40 @@
         "loadingCenters": "Loading centers...",
         "noCenters": "No centers available"
       }
+    },
+    "page": {
+      "badge": "Customer management workspace",
+      "title": "Customer Management",
+      "subtitle": "Track customers, visit history, and spending across the centers you manage."
+    },
+    "filters": {
+      "title": "Filters",
+      "keywordLabel": "Keyword",
+      "keywordPlaceholder": "Search customer name, phone, email, or booking code",
+      "centerLabel": "Sport center",
+      "reset": "Reset"
+    },
+    "empty": {
+      "loadErrorTitle": "Could not load customers",
+      "loadErrorAction": "Refresh",
+      "noCustomersTitle": "No customers yet",
+      "noCustomersDescription": "Customer records will appear here once people start booking at your centers.",
+      "noResultsTitle": "No matching customers",
+      "noResultsDescription": "Try another keyword or switch to a different center filter.",
+      "refresh": "Refresh"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "pageInfo": "Page {{currentPage}} / {{totalPages}}"
+    },
+    "table": {
+      "customer": "Customer",
+      "contact": "Contact",
+      "visits": "Visits",
+      "bookings": "Bookings",
+      "spend": "Spend",
+      "lastVisit": "Last visit"
     }
   },
   "courts": {

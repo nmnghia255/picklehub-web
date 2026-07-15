@@ -4,13 +4,24 @@ import type { PlaySession } from "./play-session"
 export type GenderPolicy = "ANY" | "MALE_ONLY" | "FEMALE_ONLY" | "MIXED_ONLY"
 export type AgeGroup = "ANY" | "JUNIOR" | "ADULT" | "SENIOR"
 export type SocialFormat = "SINGLES" | "SOCIAL"
-export type SocialStatus = "PUBLISHED" | "COMPLETED" | "CANCELED" | "DRAFT"
+export type SocialStatus =
+  | "PUBLISHED"
+  | "COMPLETED"
+  | "CANCELED"
+  | "CANCELLED"
+  | "DRAFT"
 export type HostRole = "HOST_AND_PLAY" | "HOST_ONLY" | "PLAY_ONLY"
 export type SocialParticipantStatus =
+  | "PENDING"
+  | "APPROVED"
   | "CONFIRMED"
+  | "JOINED"
+  | "ACTIVE"
   | "WAITLISTED"
   | "ON_HOLD"
+  | "REJECTED"
   | "CANCELLED"
+  | "LEFT"
 
 export interface CreateSocialRequest {
   title: string

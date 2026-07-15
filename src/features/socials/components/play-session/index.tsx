@@ -8,6 +8,7 @@ import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useSession } from "@/features/auth/hooks/use-session"
 import { joinPlaySessionAction } from "@/features/socials/actions/join-play-session"
 import { leavePlaySessionAction } from "@/features/socials/actions/leave-play-session"
 import usePlaySessionStore from "@/features/socials/stores/play-session-store"
@@ -19,6 +20,11 @@ import type {
   PlaySession,
   PlaySessionParticipant,
 } from "@/features/socials/types/play-session"
+import {
+  canJoinPlaySession,
+  canLeavePlaySession,
+  isActiveSocialParticipantStatus,
+} from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import PlaySessionMatches from "./play-session-matches"
@@ -39,15 +45,32 @@ export default function PlaySessionDetail({
   const params = useParams()
   const router = useRouter()
   const { t } = useSocialsTranslation()
+  const sessionData = useSession()
   const tabValue = usePlaySessionStore((s) => s.tabValue)
   const setTabValue = usePlaySessionStore((s) => s.setTabValue)
 
   const socialId = params.socialId as string | undefined
   const sessionId = params.playSessionId as string | undefined
   const session = initialSession
-  const participants = initialParticipants.filter(
-    (p) => p.status !== "CANCELLED"
+  const participants = initialParticipants.filter((p) =>
+    isActiveSocialParticipantStatus(p.status)
   )
+  const currentUserId = sessionData?.user?.id
+  const isParticipant = participants.some(
+    (p) =>
+      p.userId === currentUserId && isActiveSocialParticipantStatus(p.status)
+  )
+  const canJoin = session
+    ? canJoinPlaySession(
+        session.status,
+        session.joinedCount,
+        session.maxSlot,
+        isParticipant
+      )
+    : false
+  const canLeave = session
+    ? canLeavePlaySession(session.status, isParticipant)
+    : false
 
   const matches = useMemo(() => {
     return initialMatches.map((m) => {
@@ -114,7 +137,7 @@ export default function PlaySessionDetail({
         refereeId: m.refereeId,
       }
     })
-  }, [initialMatches, participants])
+  }, [initialMatches, participants, t])
 
   if (!session) {
     return (
@@ -123,7 +146,7 @@ export default function PlaySessionDetail({
         <p className="mt-2 text-sm text-muted-foreground">
           {t("detail.notFoundDescription")}
         </p>
-        <Button className="mt-6" onClick={() => router.push("/socials")}>
+        <Button className="mt-6" onClick={() => router.back()}>
           {t("detail.backToSocials")}
         </Button>
       </div>
@@ -145,7 +168,7 @@ export default function PlaySessionDetail({
   )
 
   const handleJoin = async () => {
-    if (!socialId || !sessionId) return
+    if (!socialId || !sessionId || !canJoin) return
     toast.promise(
       joinPlaySessionAction(socialId, sessionId).then(() => {
         router.refresh()
@@ -159,7 +182,7 @@ export default function PlaySessionDetail({
   }
 
   const handleLeave = async () => {
-    if (!socialId || !sessionId) return
+    if (!socialId || !sessionId || !canLeave) return
     toast.promise(
       leavePlaySessionAction(socialId, sessionId).then(() => {
         router.refresh()
@@ -234,10 +257,7 @@ export default function PlaySessionDetail({
                 )}
 
                 {tabValue === "1" && (
-                  <PlaySessionParticipants
-                    participants={participants}
-                    socialId={socialId || ""}
-                  />
+                  <PlaySessionParticipants participants={participants} />
                 )}
 
                 {tabValue === "2" && (

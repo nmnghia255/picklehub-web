@@ -17,6 +17,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
+import { isConfirmedLikeSocialParticipantStatus } from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import {
@@ -122,7 +123,9 @@ export default function SocialParticipantsTab({
                     <div className="mt-2 flex flex-wrap gap-2">
                       <Badge
                         className={
-                          participant.status === "CONFIRMED"
+                          isConfirmedLikeSocialParticipantStatus(
+                            participant.status
+                          )
                             ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
                             : participant.status === "WAITLISTED"
                               ? "border-amber-500/30 bg-amber-500/10 text-amber-600"
@@ -150,7 +153,8 @@ export default function SocialParticipantsTab({
 
                   {isEditable && !participant.isHost && (
                     <div className="flex items-center gap-2">
-                      {participant.status === "ON_HOLD" && (
+                      {(participant.status === "ON_HOLD" ||
+                        participant.status === "PENDING") && (
                         <Button
                           size="sm"
                           variant="outline"
@@ -170,9 +174,12 @@ export default function SocialParticipantsTab({
                         </Button>
                       )}
 
-                      {(participant.status === "CONFIRMED" ||
+                      {(isConfirmedLikeSocialParticipantStatus(
+                        participant.status
+                      ) ||
                         participant.status === "WAITLISTED" ||
-                        participant.status === "ON_HOLD") && (
+                        participant.status === "ON_HOLD" ||
+                        participant.status === "PENDING") && (
                         <Button
                           size="sm"
                           variant="ghost"

@@ -1,7 +1,6 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -13,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { startMatchAction } from "@/features/matches/actions"
-import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
+import { useScoreTranslation } from "@/i18n/use-score-translation"
 
 import { useScoreStore } from "../stores/use-score-store"
 
@@ -22,9 +21,7 @@ interface StartMatchControlsProps {
 }
 
 export function StartMatchControls({ matchId }: StartMatchControlsProps) {
-  const { t: tTournament } = useTournamentTranslation()
-  const t = tTournament
-  const { t: tScore } = useTranslation("score")
+  const { t } = useScoreTranslation()
   const {
     teamAName,
     teamBName,
@@ -50,7 +47,7 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
     setTossWinner(null)
     setTossChoice(null)
     setFlipResultText(
-      t("referee.tracker.tossFlipping", {
+      t("tracker.tossFlipping", {
         defaultValue: "Đang xoay đồng xu...",
       })
     )
@@ -60,7 +57,7 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
       const winnerName = winner === "A" ? teamAName : teamBName
       setTossWinner(winner)
       setFlipResultText(
-        t("referee.tracker.tossWinnerResult", {
+        t("tracker.tossWinnerResult", {
           defaultValue: `Kết quả: Đội ${winnerName} thắng tung đồng xu!`,
           name: winnerName,
         })
@@ -73,7 +70,7 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
     setTossWinner(winner)
     const winnerName = winner === "A" ? teamAName : teamBName
     setFlipResultText(
-      t("referee.tracker.tossWinnerManual", {
+      t("tracker.tossWinnerManual", {
         defaultValue: `Đội ${winnerName} thắng tung đồng xu!`,
         name: winnerName,
       })
@@ -105,7 +102,7 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
 
       if (res.success) {
         toast.success(
-          t("referee.tracker.startMatchSuccess", {
+          t("tracker.startMatchSuccess", {
             defaultValue: "Khởi động trận đấu thành công!",
           })
         )
@@ -117,7 +114,7 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
       } else {
         toast.error(
           res.error ||
-            t("referee.tracker.startMatchError", {
+            t("tracker.startMatchError", {
               defaultValue: "Không thể khởi động trận đấu",
             })
         )
@@ -125,7 +122,7 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
     } catch (err) {
       console.error("Failed to start match:", err)
       toast.error(
-        t("referee.tracker.startMatchConnectionError", {
+        t("tracker.startMatchConnectionError", {
           defaultValue: "Lỗi kết nối khi khởi động trận đấu",
         })
       )
@@ -147,12 +144,12 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
     <div className="animate-fade-in flex flex-col gap-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
       <div className="text-center">
         <h3 className="text-lg font-black tracking-widest text-emerald-800 uppercase dark:text-emerald-300">
-          {t("referee.tracker.matchStartConfig", {
+          {t("tracker.matchStartConfig", {
             defaultValue: "Cấu hình bắt đầu trận đấu",
           })}
         </h3>
         <p className="mt-1 text-xs text-muted-foreground">
-          {t("referee.tracker.matchStartDesc", {
+          {t("tracker.matchStartDesc", {
             defaultValue:
               "Chọn đội giao bóng trước để bắt đầu ghi điểm trận đấu.",
           })}
@@ -163,7 +160,7 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
       <div className="border-gray-150 grid gap-4 rounded-xl border bg-gray-50/40 p-4 sm:grid-cols-2 dark:border-zinc-800 dark:bg-zinc-950/20">
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-black tracking-wider text-muted-foreground uppercase">
-            {tScore("config.setsToWin", {
+            {t("config.setsToWin", {
               defaultValue: "Số set thắng để thắng trận",
             })}
           </label>
@@ -176,13 +173,13 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="1">
-                {tScore("config.bo1", { defaultValue: "1 set (BO1)" })}
+                {t("config.bo1", { defaultValue: "1 set (BO1)" })}
               </SelectItem>
               <SelectItem value="2">
-                {tScore("config.bo3", { defaultValue: "Thắng 2 set (BO3)" })}
+                {t("config.bo3", { defaultValue: "Thắng 2 set (BO3)" })}
               </SelectItem>
               <SelectItem value="3">
-                {tScore("config.bo5", { defaultValue: "Thắng 3 set (BO5)" })}
+                {t("config.bo5", { defaultValue: "Thắng 3 set (BO5)" })}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -190,7 +187,7 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
 
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-black tracking-wider text-muted-foreground uppercase">
-            {tScore("config.goalScore", {
+            {t("config.goalScore", {
               defaultValue: "Điểm mục tiêu mỗi set",
             })}
           </label>
@@ -203,19 +200,19 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="11">
-                {tScore("config.points", {
+                {t("config.points", {
                   defaultValue: "11 điểm",
                   count: 11,
                 })}
               </SelectItem>
               <SelectItem value="15">
-                {tScore("config.points", {
+                {t("config.points", {
                   defaultValue: "15 điểm",
                   count: 15,
                 })}
               </SelectItem>
               <SelectItem value="21">
-                {tScore("config.points", {
+                {t("config.points", {
                   defaultValue: "21 điểm",
                   count: 21,
                 })}
@@ -307,7 +304,7 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
                 setTossWinner("A")
                 setTossChoice("serve")
                 setFlipResultText(
-                  t("referee.tracker.teamServeFirst", {
+                  t("referee.tracker.teamServeFirstDesc", {
                     team: "A",
                     defaultValue: "Chỉ định Đội A giao bóng trước.",
                   })
@@ -316,7 +313,7 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
               className="h-9 flex-1 border border-blue-200 bg-blue-50 text-xs font-bold text-blue-800 hover:bg-blue-100 dark:border-blue-900/50 dark:bg-blue-950/20 dark:text-blue-300"
             >
               🎾{" "}
-              {t("referee.tracker.teamServeFirst", {
+              {t("referee.tracker.teamServeFirstBtn", {
                 team: "A",
                 defaultValue: "Đội A giao trước",
               })}
@@ -328,7 +325,7 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
                 setTossWinner("B")
                 setTossChoice("serve")
                 setFlipResultText(
-                  t("referee.tracker.teamServeFirst", {
+                  t("referee.tracker.teamServeFirstDesc", {
                     team: "B",
                     defaultValue: "Chỉ định Đội B giao bóng trước.",
                   })
@@ -337,7 +334,7 @@ export function StartMatchControls({ matchId }: StartMatchControlsProps) {
               className="h-9 flex-1 border border-emerald-200 bg-emerald-50 text-xs font-bold text-emerald-800 hover:bg-emerald-100 dark:border-emerald-900/50 dark:bg-emerald-950/20 dark:text-emerald-300"
             >
               🎾{" "}
-              {t("referee.tracker.teamServeFirst", {
+              {t("referee.tracker.teamServeFirstBtn", {
                 team: "B",
                 defaultValue: "Đội B giao trước",
               })}

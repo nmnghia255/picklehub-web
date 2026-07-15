@@ -346,6 +346,60 @@
     "loggingOut": "Logging out...",
     "defaultUser": "User"
   },
+  "home": {
+    "welcome": {
+      "title": "Welcome, {{name}}! 👋",
+      "description": "This is your home dashboard, where you can manage groups and friends."
+    },
+    "groups": {
+      "title": "My groups",
+      "description": "Groups you manage or have joined."
+    }
+  },
+  "dashboard": {
+    "stats": {
+      "groups": "Groups",
+      "members": "Members",
+      "pendingInvites": "Pending invites"
+    },
+    "quickActions": {
+      "createGroup": {
+        "title": "Create a new group",
+        "description": "Start a new group for your community.",
+        "button": "Create group"
+      },
+      "myGroups": {
+        "title": "My groups",
+        "description": "See every group you belong to.",
+        "button": "View groups"
+      },
+      "profile": {
+        "title": "Profile",
+        "description": "Manage your personal information.",
+        "button": "View profile"
+      }
+    },
+    "groups": {
+      "loading": "Loading group data...",
+      "emptyTitle": "No groups yet",
+      "emptyDescription": "Start by creating a group to share with friends.",
+      "createButton": "Create a group",
+      "viewDetails": "View details",
+      "settings": "Settings",
+      "members": "{{count}} members",
+      "role": {
+        "owner": "Owner",
+        "member": "Member"
+      }
+    },
+    "pendingInvites": {
+      "loading": "Loading group invites...",
+      "title": "Pending invites to review",
+      "description": "You have {{count}} pending invites from other groups.",
+      "invitedBy": "Invite from {{name}}",
+      "noInvites": "No pending invites."
+    }
+  },
   "landing": {
     "header": {
       "switchToLight": "Switch to light mode",

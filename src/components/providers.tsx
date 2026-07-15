@@ -13,6 +13,7 @@ import { Toaster } from "sonner"
 
 import { I18nProvider } from "@/components/i18n-provider"
 import { ThemeEffects } from "@/components/theme-effects"
+import { ThemeSync } from "@/components/theme-sync"
 
 if (typeof window !== "undefined") {
   let googleVal: unknown = undefined
@@ -72,7 +73,13 @@ if (typeof window !== "undefined") {
   })
 }
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({
+  children,
+  initialLanguage,
+}: {
+  children: React.ReactNode
+  initialLanguage?: string
+}) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -94,7 +101,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
       <QueryClientProvider client={queryClient}>
         <JotaiProvider>
-          <I18nProvider>
+          <I18nProvider initialLanguage={initialLanguage}>
             <ThemeProvider
               enableSystem
               disableTransitionOnChange
@@ -103,6 +110,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
               defaultTheme="system"
               attribute="class"
             >
+              <ThemeSync />
               <ThemeEffects />
               <AppProgressProvider
                 color="#2563eb"

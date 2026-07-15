@@ -11,14 +11,14 @@
         "sessionCount_other": "{{count}} phiên",
         "organizerCount_one": "{{count}} người tổ chức",
         "organizerCount_other": "{{count}} người tổ chức",
-        "noResultsTitle": "Không tìm thấy Social nào",
+        "noResultsTitle": "Không tìm thấy buổi chơi nào",
         "noResultsDescription": "Thử xóa bộ lọc hoặc tìm kiếm một sự kiện khác.",
         "participants": "người tham gia",
         "free": "Miễn phí"
     },
     "mySocials": {
-        "title": "Social của tôi",
-        "subtitle": "Danh sách các Social bạn đã tham gia hoặc tạo"
+        "title": "Buổi chơi của tôi",
+        "subtitle": "Danh sách các buổi chơi bạn đã tham gia hoặc tạo"
     },
     "filters": {
         "title": "Bộ lọc",
