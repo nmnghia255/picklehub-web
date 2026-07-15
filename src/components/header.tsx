@@ -131,7 +131,9 @@ export function Header({ user }: HeaderProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-88 p-0">
-          <div className="border-b px-4 py-3">
+          <div
+            className={`px-4 py-3 ${notifications.length > 0 ? "border-b" : ""}`}
+          >
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold">
@@ -164,91 +166,93 @@ export function Header({ user }: HeaderProps) {
             </div>
           </div>
 
-          <div className="max-h-96 space-y-2 overflow-auto p-2">
-            {notifications.slice(0, 6).map((notification) => {
-              const isPendingInvitation =
-                notification.type === "invitation" &&
-                notification.status === "pending"
+          {notifications.length > 0 && (
+            <div className="max-h-96 space-y-2 overflow-auto p-2">
+              {notifications.slice(0, 6).map((notification) => {
+                const isPendingInvitation =
+                  notification.type === "invitation" &&
+                  notification.status === "pending"
 
-              return (
-                <div
-                  key={notification.id}
-                  className="rounded-2xl border px-3 py-3 transition-colors hover:bg-accent/50"
-                >
-                  <button
-                    type="button"
-                    onClick={() => handleMarkRead(notification.id)}
-                    className="flex w-full items-start gap-3 text-left"
+                return (
+                  <div
+                    key={notification.id}
+                    className="rounded-2xl border px-3 py-3 transition-colors hover:bg-accent/50"
                   >
-                    <span
-                      className={`mt-1 size-2 rounded-full ${
-                        notification.unread ? "bg-primary" : "bg-transparent"
-                      }`}
-                    />
-                    <span className="min-w-0 flex-1 space-y-1">
-                      <span className="block text-sm leading-5 font-medium text-foreground">
-                        {notification.title}
+                    <button
+                      type="button"
+                      onClick={() => handleMarkRead(notification.id)}
+                      className="flex w-full items-start gap-3 text-left"
+                    >
+                      <span
+                        className={`mt-1 size-2 rounded-full ${
+                          notification.unread ? "bg-primary" : "bg-transparent"
+                        }`}
+                      />
+                      <span className="min-w-0 flex-1 space-y-1">
+                        <span className="block text-sm leading-5 font-medium text-foreground">
+                          {notification.title}
+                        </span>
+                        <span className="block text-xs leading-5 text-muted-foreground">
+                          {notification.description}
+                        </span>
+                        <span className="block text-[11px] text-muted-foreground">
+                          {notification.timeLabel}
+                        </span>
                       </span>
-                      <span className="block text-xs leading-5 text-muted-foreground">
-                        {notification.description}
-                      </span>
-                      <span className="block text-[11px] text-muted-foreground">
-                        {notification.timeLabel}
-                      </span>
-                    </span>
-                  </button>
+                    </button>
 
-                  {isPendingInvitation ? (
-                    <div className="mt-3 flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1"
-                        onClick={() =>
-                          handleResolveInvitation(notification.id, "declined")
-                        }
-                      >
-                        <XCircle className="size-4" />
-                        {t("header.decline")}
-                      </Button>
-                      <Button
-                        size="sm"
-                        className="flex-1"
-                        onClick={() =>
-                          handleResolveInvitation(notification.id, "accepted")
-                        }
-                      >
-                        <CheckCircle2 className="size-4" />
-                        {t("header.accept")}
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="mt-3 flex items-center gap-2">
-                      <Button
-                        asChild
-                        variant="outline"
-                        size="sm"
-                        className="flex-1"
-                      >
-                        <Link href={notification.actionHref ?? "/feed"}>
-                          {t("header.view")}
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="flex-1"
-                        onClick={() => handleMarkRead(notification.id)}
-                      >
-                        <CheckCheck className="size-4" />
-                        {t("header.markAsRead")}
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
+                    {isPendingInvitation ? (
+                      <div className="mt-3 flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() =>
+                            handleResolveInvitation(notification.id, "declined")
+                          }
+                        >
+                          <XCircle className="size-4" />
+                          {t("header.decline")}
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="flex-1"
+                          onClick={() =>
+                            handleResolveInvitation(notification.id, "accepted")
+                          }
+                        >
+                          <CheckCircle2 className="size-4" />
+                          {t("header.accept")}
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="mt-3 flex items-center gap-2">
+                        <Button
+                          asChild
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                        >
+                          <Link href={notification.actionHref ?? "/feed"}>
+                            {t("header.view")}
+                          </Link>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => handleMarkRead(notification.id)}
+                        >
+                          <CheckCheck className="size-4" />
+                          {t("header.markAsRead")}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -292,7 +296,7 @@ export function Header({ user }: HeaderProps) {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-auto min-w-72">
-          <DropdownMenuLabel className="flex flex-col space-y-1">
+          {/* <DropdownMenuLabel className="flex flex-col space-y-1">
             <span className="text-sm font-medium break-all">{user.email}</span>
             {(() => {
               const activeSubscriptions = subscriptions?.filter(
@@ -316,7 +320,7 @@ export function Header({ user }: HeaderProps) {
               return null
             })()}
           </DropdownMenuLabel>
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator /> */}
           <DropdownMenuGroup>
             <DropdownMenuItem asChild>
               <Link href="/profile">

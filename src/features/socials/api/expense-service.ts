@@ -31,7 +31,7 @@ export const ExpenseService = {
   ): Promise<Expense> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.post(
-      `/api/events/socials/${socialId}/expenses`,
+      `/api/events/api/socials/${socialId}/expenses`,
       {
         ...createExpenseRequest,
         amount: String(createExpenseRequest.amount),
@@ -44,7 +44,9 @@ export const ExpenseService = {
     socialId: string
   ): Promise<ListExpensesResponse[]> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.get(`/api/events/socials/${socialId}/expenses`)
+    const response = await axios.get(
+      `/api/events/api/socials/${socialId}/expenses`
+    )
     return unwrapApiResponse<ListExpensesResponse[]>(response.data)
   },
 
@@ -54,7 +56,7 @@ export const ExpenseService = {
   ): Promise<Expense> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.get(
-      `/api/events/socials/${socialId}/expenses/${expenseId}`
+      `/api/events/api/socials/${socialId}/expenses/${expenseId}`
     )
     return unwrapApiResponse<Expense>(response.data)
   },
@@ -66,7 +68,7 @@ export const ExpenseService = {
   ): Promise<Expense> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.patch(
-      `/api/events/socials/${socialId}/expenses/${expenseId}`,
+      `/api/events/api/socials/${socialId}/expenses/${expenseId}`,
       {
         ...updateExpenseRequest,
         amount: String(updateExpenseRequest.amount),
@@ -80,6 +82,8 @@ export const ExpenseService = {
     expenseId: string
   ): Promise<void> {
     const axios = await getAuthenticatedAxios()
-    await axios.delete(`/api/events/socials/${socialId}/expenses/${expenseId}`)
+    await axios.delete(
+      `/api/events/api/socials/${socialId}/expenses/${expenseId}`
+    )
   },
 }

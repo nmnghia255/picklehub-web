@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 
+import { Button } from "@/components/ui/button"
 import type {
   PlanType,
   Subscription,
@@ -57,13 +58,14 @@ export function ProfileSubscriptions({
             <h3 className="font-semibold text-foreground">
               {t("registeredSubscriptions")}
             </h3>
-            <button
+            <Button
               onClick={() => router.push("/subscriptions")}
-              className="flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm shadow-primary/10 transition-all hover:bg-primary/90"
+              size="sm"
+              className="rounded-xl font-semibold shadow-xs"
             >
               <Plus className="size-3.5" />
               {t("registerMore")}
-            </button>
+            </Button>
           </div>
           <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
             {subscriptions.map((sub) => {
@@ -84,7 +86,7 @@ export function ProfileSubscriptions({
                         {sub.plan.name}
                       </span>
                     </div>
-                    <span
+                    {/* <span
                       className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase ${
                         isActive
                           ? "border border-primary/20 bg-primary/10 text-primary"
@@ -92,7 +94,7 @@ export function ProfileSubscriptions({
                       }`}
                     >
                       {isActive ? t("active") : t("expired")}
-                    </span>
+                    </span> */}
                   </div>
                   <div className="my-1 h-px bg-border/40" />
                   <p className="text-xs text-muted-foreground">
@@ -125,10 +127,10 @@ export function ProfileSubscriptions({
                 </p>
               </div>
             </div>
-            <button className="flex shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/20 transition-all group-hover:translate-x-0.5 hover:bg-primary/90">
+            <Button className="shrink-0 rounded-xl font-semibold shadow-xs group-hover:translate-x-0.5">
               {t("upgradeNow")}
               <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </button>
+            </Button>
           </div>
         </div>
       )}

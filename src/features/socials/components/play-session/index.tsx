@@ -146,7 +146,7 @@ export default function PlaySessionDetail({
         <p className="mt-2 text-sm text-muted-foreground">
           {t("detail.notFoundDescription")}
         </p>
-        <Button className="mt-6" onClick={() => router.push("/socials")}>
+        <Button className="mt-6" onClick={() => router.back()}>
           {t("detail.backToSocials")}
         </Button>
       </div>
