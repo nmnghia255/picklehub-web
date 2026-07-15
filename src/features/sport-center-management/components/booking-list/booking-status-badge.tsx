@@ -2,6 +2,13 @@ import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-man
 
 import type { BookingStatus } from "../../types/booking"
 
+const BOOKING_STATUS_TRANSLATION_KEYS: Record<string, string> = {
+  PENDING: "bookingList.status.pending",
+  CONFIRMED: "bookingList.status.confirmed",
+  CANCELLED: "bookingList.status.cancelled",
+  COMPLETED: "bookingList.status.completed",
+}
+
 const statusStyles: Record<BookingStatus, string> = {
   PENDING:
     "border-amber-200 bg-amber-100 text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/60 dark:text-amber-200",
@@ -15,13 +22,13 @@ const statusStyles: Record<BookingStatus, string> = {
 
 export function BookingStatusBadge({ status }: { status: BookingStatus }) {
   const { t } = useSportCenterManagementTranslation()
-  const labelKey = `bookingList.status.${status.toLowerCase()}`
+  const labelKey = BOOKING_STATUS_TRANSLATION_KEYS[status]
 
   return (
     <span
       className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium ${statusStyles[status]}`}
     >
-      {t(labelKey)}
+      {labelKey ? t(labelKey) : status}
     </span>
   )
 }

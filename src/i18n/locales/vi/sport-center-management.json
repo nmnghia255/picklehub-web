@@ -139,6 +139,28 @@
         "noReviews": "Chưa có đánh giá"
     },
     "bookingList": {
+        "page": {
+            "badge": "Khu vực quản lý đặt sân",
+            "title": "Danh sách đặt sân",
+            "subtitle": "Quản lý các lượt đặt sân, xác nhận nhanh và theo dõi lịch trong ngày.",
+            "count_one": "{{count}} lượt đặt",
+            "count_other": "{{count}} lượt đặt"
+        },
+        "empty": {
+            "loadErrorTitle": "Không thể tải danh sách đặt sân",
+            "loadErrorAction": "Thử lại",
+            "noResultsTitle": "Không có kết quả phù hợp",
+            "noResultsDescription": "Thử thay đổi bộ lọc hoặc từ khóa để xem các lượt đặt khác.",
+            "reset": "Đặt lại bộ lọc",
+            "noBookingsTitle": "Chưa có lượt đặt nào",
+            "noBookingsDescription": "Các lượt đặt sân mới sẽ hiển thị tại đây để bạn quản lý.",
+            "refresh": "Làm mới"
+        },
+        "stats": {
+            "totalBookings": "Tổng lượt đặt",
+            "pendingBookings": "Chờ xác nhận",
+            "confirmedBookings": "Đã xác nhận"
+        },
         "filters": {
             "title": "Bộ lọc",
             "createdAtLabel": "Ngày tạo",
@@ -191,6 +213,7 @@
             "appliedCredit": "Số dư đã áp dụng",
             "createdAt": "Ngày tạo",
             "paymentProof": "Ảnh minh chứng",
+            "viewProof": "Xem minh chứng",
             "notPaid": "Chưa thanh toán",
             "confirm": "Xác nhận",
             "cancel": "Hủy",

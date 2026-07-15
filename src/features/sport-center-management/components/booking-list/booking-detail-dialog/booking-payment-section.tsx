@@ -30,11 +30,11 @@ export function BookingPaymentSection({ booking, variant = "card" }: Props) {
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <BookingDetailField
-          label={t("bookingList.detail.amountPaid")}
+          label={t("bookingList.detail.appliedCredit")}
           value={formatCurrency(booking.creditApplied)}
         />
         <BookingDetailField
-          label={t("bookingList.detail.amountDue")}
+          label={t("bookingList.detail.remainingBalance")}
           value={formatCurrency(booking.paymentRemaining)}
         />
         {booking.paymentProofUrl ? (

@@ -1,3 +1,5 @@
+import i18n from "@/i18n/client"
+
 import type { Booking, BookingStatus } from "../../types/booking"
 
 export type BookingCreatedAtFilter = "all" | `${number}-${number}-${number}`
@@ -15,6 +17,10 @@ function formatDateKey(date: Date) {
   const day = String(date.getDate()).padStart(2, "0")
 
   return `${year}-${month}-${day}`
+}
+
+function getIntlLocale() {
+  return i18n.resolvedLanguage === "vi" ? "vi-VN" : "en-US"
 }
 
 export function matchesCreatedAtFilter(
@@ -44,7 +50,7 @@ export function formatBookingDate(dateText: string) {
     return dateText
   }
 
-  return new Intl.DateTimeFormat("vi-VN", {
+  return new Intl.DateTimeFormat(getIntlLocale(), {
     weekday: "short",
     day: "2-digit",
     month: "2-digit",
@@ -56,14 +62,14 @@ export function formatBookingCreatedAt(timestamp?: string | null) {
   const parsed = parseLocalDateTime(timestamp)
   if (!parsed) return "—"
 
-  return new Intl.DateTimeFormat("vi-VN", {
+  return new Intl.DateTimeFormat(getIntlLocale(), {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(parsed)
 }
 
 export function formatCurrency(value?: number | null) {
-  return new Intl.NumberFormat("vi-VN", {
+  return new Intl.NumberFormat(getIntlLocale(), {
     style: "currency",
     currency: "VND",
     maximumFractionDigits: 0,

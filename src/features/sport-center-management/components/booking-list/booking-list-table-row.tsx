@@ -1,10 +1,8 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
 import { TableCell, TableRow } from "@/components/ui/table"
 import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 import { cn } from "@/lib/utils"
-import { formatDateTime, getDateOnly } from "@/utils/time-helper"
 
 import type { Booking } from "../../types/booking"
 import { BookingActionsDropdown } from "./booking-actions-dropdown"
@@ -55,7 +53,7 @@ export function BookingListTableRow({
 
       <TableCell className="w-[12%]">
         <p className="text-medium text-foreground">
-          {getDateOnly(booking.date)}
+          {formatBookingDate(booking.date)}
         </p>
       </TableCell>
 

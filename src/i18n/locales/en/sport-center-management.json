@@ -143,6 +143,28 @@
     "noReviews": "No reviews yet"
   },
   "bookingList": {
+    "page": {
+      "badge": "Booking management area",
+      "title": "Booking list",
+      "subtitle": "Manage court bookings, confirm quickly, and track the daily schedule.",
+      "count_one": "{{count}} booking",
+      "count_other": "{{count}} bookings"
+    },
+    "empty": {
+      "loadErrorTitle": "Could not load booking list",
+      "loadErrorAction": "Try again",
+      "noResultsTitle": "No matching results",
+      "noResultsDescription": "Try changing the filters or keyword to see other bookings.",
+      "reset": "Reset filters",
+      "noBookingsTitle": "No bookings yet",
+      "noBookingsDescription": "New court bookings will appear here for you to manage.",
+      "refresh": "Refresh"
+    },
+    "stats": {
+      "totalBookings": "Total bookings",
+      "pendingBookings": "Pending confirmation",
+      "confirmedBookings": "Confirmed"
+    },
     "filters": {
       "title": "Filters",
       "createdAtLabel": "Created date",
@@ -195,6 +217,7 @@
       "appliedCredit": "Applied credit",
       "createdAt": "Created at",
       "paymentProof": "Payment proof",
+      "viewProof": "View proof",
       "paymentProofAlt": "Payment proof image",
       "notPaid": "Not paid",
       "confirm": "Confirm",
