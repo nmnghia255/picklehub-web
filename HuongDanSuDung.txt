@@ -39,7 +39,6 @@ pnpm preview
 - Kiểm tra lỗi cú pháp: pnpm lint
 - Kiểm tra kiểu dữ liệu: pnpm check-types
 - Định dạng lại mã nguồn: pnpm format:write
-- Chạy kiểm thử E2E: pnpm test:e2e
 
 6. Ghi chú
 
