@@ -33,6 +33,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { notificationFeedAtom } from "@/features/feed/store/feed-store"
+import { markUserNotificationsRead } from "@/features/notifications/actions/user-notifications"
 import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import type { SessionUser } from "@/lib/session"
 
@@ -86,6 +87,8 @@ export function Header({ user }: HeaderProps) {
   ).length
 
   const handleMarkRead = (notificationId: string) => {
+    const previousNotifications = notifications
+
     setNotifications((current) =>
       current.map((notification) =>
         notification.id === notificationId
@@ -93,6 +96,10 @@ export function Header({ user }: HeaderProps) {
           : notification
       )
     )
+
+    void markUserNotificationsRead([notificationId]).catch(() => {
+      setNotifications(previousNotifications)
+    })
   }
 
   const handleResolveInvitation = (
@@ -109,9 +116,21 @@ export function Header({ user }: HeaderProps) {
   }
 
   const handleMarkAllRead = () => {
+    const unreadNotificationIds = notifications
+      .filter((notification) => notification.unread)
+      .map((notification) => notification.id)
+
+    if (unreadNotificationIds.length === 0) return
+
+    const previousNotifications = notifications
+
     setNotifications((current) =>
       current.map((notification) => ({ ...notification, unread: false }))
     )
+
+    void markUserNotificationsRead(unreadNotificationIds).catch(() => {
+      setNotifications(previousNotifications)
+    })
   }
 
   return (
