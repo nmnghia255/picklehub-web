@@ -1,46 +1,62 @@
-========================================
-HƯỚNG DẪN CÀI ĐẶT - PICKLEHUB WEB
-========================================
+HƯỚNG DẪN CÀI ĐẶT
 
-1. YÊU CẦU HỆ THỐNG
-- Hệ điều hành: Windows / macOS / Linux
-- Node.js: phiên bản 20 hoặc >= 22 (tải tại https://nodejs.org)
-- pnpm: phiên bản >= 9 (trình quản lý gói) - https://pnpm.io/installation
-- Trình duyệt web hiện đại (Chrome, Edge, Firefox...)
+1. Mục đích
 
-2. CÔNG CỤ / MÔI TRƯỜNG PHÁT TRIỂN (khuyến nghị)
-- Visual Studio Code (kèm extension ESLint, Prettier, Tailwind CSS IntelliSense)
+Tài liệu này hướng dẫn cài đặt môi trường tối thiểu để chạy và kiểm thử nhanh dự án PickleHub Web từ mã nguồn đã có sẵn.
 
-3. CÔNG NGHỆ / THƯ VIỆN CHÍNH
-- Framework: Next.js 16 (App Router)
-- Ngôn ngữ: TypeScript 5, React 19
-- Giao diện: Tailwind CSS 4, shadcn/ui, Radix UI, Base UI
-- Quản lý trạng thái: Jotai, Zustand
-- Data fetching: TanStack Query, Axios
-- Form & kiểm tra: React Hook Form, Zod
-- Xác thực: Google OAuth, iron-session
-- Realtime: socket.io-client
-- Biểu đồ: Recharts
-(Danh sách đầy đủ xem trong file package.json)
+2. Công cụ cần cài
 
-4. CÁC BƯỚC CÀI ĐẶT
+- Node.js 20 LTS hoặc mới hơn (khuyến nghị 20 hoặc từ 22 trở lên).
+- pnpm phiên bản 9 trở lên, dùng làm trình quản lý gói.
+- Visual Studio Code hoặc trình soạn thảo tương đương (khuyến nghị).
+- Trình duyệt web hiện đại như Chrome, Edge hoặc Firefox.
 
-Bước 1: Cài đặt Node.js (nếu chưa có), sau đó cài pnpm:
-    npm install -g pnpm
+3. Chuẩn bị mã nguồn
 
-Bước 2: Mở terminal tại thư mục mã nguồn và cài đặt các thư viện:
-    pnpm install
+Giải nén hoặc mở thư mục mã nguồn của dự án.
 
-Bước 3: Tạo file cấu hình môi trường.
-Sao chép file env.example thành .env.local:
-    cp env.example .env.local        (macOS/Linux)
-    copy env.example .env.local      (Windows)
+Mở terminal tại thư mục gốc của dự án, nơi có các file:
+- package.json
+- next.config.ts
+- env.example
+- thư mục src
 
-Sau đó mở file .env.local và điền các giá trị:
-    APP_URL=http://localhost:3000
-    NEXT_PUBLIC_API_GATEWAY_URL=http://localhost:8000   (địa chỉ API backend)
-    SESSION_SECRET=   (chuỗi bí mật, tối thiểu 32 ký tự)
-    NEXT_PUBLIC_GOOGLE_CLIENT_ID=   (Client ID lấy từ Google Cloud Console)
-    NEXT_PUBLIC_FACEBOOK_APP_ID=   (App ID lấy từ Facebook Developers)
+4. Cài đặt dependency
 
---> Hoàn tất cài đặt. Xem cách chạy chương trình trong file HuongDanSuDung.txt
+Nếu chưa có pnpm, cài đặt bằng lệnh:
+
+npm install -g pnpm
+
+Tại thư mục gốc dự án, chạy:
+
+pnpm install
+
+5. Cấu hình môi trường
+
+Tạo file .env.local từ file mẫu.
+
+Nếu dùng Windows:
+
+copy env.example .env.local
+
+Nếu dùng Linux/macOS:
+
+cp env.example .env.local
+
+Mở file .env.local và điền các giá trị:
+- APP_URL: địa chỉ ứng dụng, mặc định http://localhost:3000
+- NEXT_PUBLIC_API_GATEWAY_URL: địa chỉ API backend, mặc định http://localhost:8000
+- SESSION_SECRET: chuỗi bí mật, tối thiểu 32 ký tự
+- NEXT_PUBLIC_GOOGLE_CLIENT_ID: Client ID lấy từ Google Cloud Console
+- NEXT_PUBLIC_FACEBOOK_APP_ID: App ID lấy từ Facebook Developers
+
+Ứng dụng cần backend API tại NEXT_PUBLIC_API_GATEWAY_URL hoạt động để đăng nhập và sử dụng đầy đủ chức năng.
+
+6. Kiểm tra môi trường
+
+Kiểm tra phiên bản đã cài đặt:
+
+node --version
+pnpm --version
+
+Nếu hai lệnh trên trả về phiên bản, môi trường đã sẵn sàng để chạy dự án. Xem cách biên dịch và chạy trong file HuongDanSuDung.txt.

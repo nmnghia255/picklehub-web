@@ -1,44 +1,46 @@
-========================================
-HƯỚNG DẪN SỬ DỤNG - PICKLEHUB WEB
-========================================
+HƯỚNG DẪN SỬ DỤNG
 
-Lưu ý: Cần hoàn tất các bước trong file HuongDanCaiDat.txt trước
-(đã cài Node.js, pnpm, chạy "pnpm install" và tạo file .env.local).
+1. Mục đích
 
-----------------------------------------
-A. CHẠY Ở CHẾ ĐỘ PHÁT TRIỂN (Development)
-----------------------------------------
-Dùng khi lập trình, có tự động tải lại khi sửa code.
+Tài liệu này hướng dẫn cách biên dịch và chạy dự án PickleHub Web sau khi đã hoàn tất cài đặt.
 
-    pnpm dev
+2. Chuẩn bị
 
-Sau đó mở trình duyệt truy cập:
-    http://localhost:3000
+Đảm bảo đã hoàn tất các bước trong file HuongDanCaiDat.txt, bao gồm cài Node.js, pnpm, chạy pnpm install và tạo file .env.local.
 
-----------------------------------------
-B. BIÊN DỊCH & CHẠY BẢN CHÍNH THỨC (Production)
-----------------------------------------
-Bước 1: Biên dịch mã nguồn:
-    pnpm build
+Mở terminal tại thư mục gốc của dự án.
 
-Bước 2: Khởi chạy chương trình đã biên dịch:
-    pnpm start
+3. Chạy ở chế độ phát triển
 
-Truy cập ứng dụng tại: http://localhost:3000
+Dùng khi lập trình, ứng dụng tự động tải lại khi sửa mã nguồn. Tại thư mục gốc dự án, chạy:
 
-(Có thể gộp 2 bước trên bằng lệnh: pnpm preview)
+pnpm dev
 
-----------------------------------------
-C. CÁC LỆNH HỖ TRỢ KHÁC (tùy chọn)
-----------------------------------------
-- Kiểm tra lỗi cú pháp:        pnpm lint
-- Kiểm tra kiểu dữ liệu:       pnpm check-types
-- Định dạng lại mã nguồn:      pnpm format:write
-- Chạy kiểm thử E2E:           pnpm test:e2e
+Sau đó mở trình duyệt và truy cập:
 
-----------------------------------------
-D. GHI CHÚ
-----------------------------------------
-- Ứng dụng cần backend API (NEXT_PUBLIC_API_GATEWAY_URL) hoạt động
-  để đăng nhập và sử dụng đầy đủ chức năng.
-- Nếu cổng 3000 đã bị chiếm, Next.js sẽ tự đề nghị dùng cổng khác.
+http://localhost:3000
+
+4. Biên dịch và chạy bản chính thức
+
+Biên dịch mã nguồn:
+
+pnpm build
+
+Khởi chạy chương trình đã biên dịch:
+
+pnpm start
+
+Sau đó truy cập ứng dụng tại http://localhost:3000. Có thể gộp hai bước trên bằng một lệnh duy nhất:
+
+pnpm preview
+
+5. Các lệnh hỗ trợ khác
+
+- Kiểm tra lỗi cú pháp: pnpm lint
+- Kiểm tra kiểu dữ liệu: pnpm check-types
+- Định dạng lại mã nguồn: pnpm format:write
+- Chạy kiểm thử E2E: pnpm test:e2e
+
+6. Ghi chú
+
+Ứng dụng cần backend API tại NEXT_PUBLIC_API_GATEWAY_URL hoạt động để đăng nhập và sử dụng đầy đủ chức năng. Nếu cổng 3000 đã bị chiếm, Next.js sẽ tự đề nghị dùng cổng khác.
