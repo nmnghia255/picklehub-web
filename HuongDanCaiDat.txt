@@ -1,0 +1,46 @@
+========================================
+HƯỚNG DẪN CÀI ĐẶT - PICKLEHUB WEB
+========================================
+
+1. YÊU CẦU HỆ THỐNG
+- Hệ điều hành: Windows / macOS / Linux
+- Node.js: phiên bản 20 hoặc >= 22 (tải tại https://nodejs.org)
+- pnpm: phiên bản >= 9 (trình quản lý gói) - https://pnpm.io/installation
+- Trình duyệt web hiện đại (Chrome, Edge, Firefox...)
+
+2. CÔNG CỤ / MÔI TRƯỜNG PHÁT TRIỂN (khuyến nghị)
+- Visual Studio Code (kèm extension ESLint, Prettier, Tailwind CSS IntelliSense)
+
+3. CÔNG NGHỆ / THƯ VIỆN CHÍNH
+- Framework: Next.js 16 (App Router)
+- Ngôn ngữ: TypeScript 5, React 19
+- Giao diện: Tailwind CSS 4, shadcn/ui, Radix UI, Base UI
+- Quản lý trạng thái: Jotai, Zustand
+- Data fetching: TanStack Query, Axios
+- Form & kiểm tra: React Hook Form, Zod
+- Xác thực: Google OAuth, iron-session
+- Realtime: socket.io-client
+- Biểu đồ: Recharts
+(Danh sách đầy đủ xem trong file package.json)
+
+4. CÁC BƯỚC CÀI ĐẶT
+
+Bước 1: Cài đặt Node.js (nếu chưa có), sau đó cài pnpm:
+    npm install -g pnpm
+
+Bước 2: Mở terminal tại thư mục mã nguồn và cài đặt các thư viện:
+    pnpm install
+
+Bước 3: Tạo file cấu hình môi trường.
+Sao chép file env.example thành .env.local:
+    cp env.example .env.local        (macOS/Linux)
+    copy env.example .env.local      (Windows)
+
+Sau đó mở file .env.local và điền các giá trị:
+    APP_URL=http://localhost:3000
+    NEXT_PUBLIC_API_GATEWAY_URL=http://localhost:8000   (địa chỉ API backend)
+    SESSION_SECRET=   (chuỗi bí mật, tối thiểu 32 ký tự)
+    NEXT_PUBLIC_GOOGLE_CLIENT_ID=   (Client ID lấy từ Google Cloud Console)
+    NEXT_PUBLIC_FACEBOOK_APP_ID=   (App ID lấy từ Facebook Developers)
+
+--> Hoàn tất cài đặt. Xem cách chạy chương trình trong file HuongDanSuDung.txt

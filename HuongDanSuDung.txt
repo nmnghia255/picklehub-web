@@ -1,0 +1,44 @@
+========================================
+HƯỚNG DẪN SỬ DỤNG - PICKLEHUB WEB
+========================================
+
+Lưu ý: Cần hoàn tất các bước trong file HuongDanCaiDat.txt trước
+(đã cài Node.js, pnpm, chạy "pnpm install" và tạo file .env.local).
+
+----------------------------------------
+A. CHẠY Ở CHẾ ĐỘ PHÁT TRIỂN (Development)
+----------------------------------------
+Dùng khi lập trình, có tự động tải lại khi sửa code.
+
+    pnpm dev
+
+Sau đó mở trình duyệt truy cập:
+    http://localhost:3000
+
+----------------------------------------
+B. BIÊN DỊCH & CHẠY BẢN CHÍNH THỨC (Production)
+----------------------------------------
+Bước 1: Biên dịch mã nguồn:
+    pnpm build
+
+Bước 2: Khởi chạy chương trình đã biên dịch:
+    pnpm start
+
+Truy cập ứng dụng tại: http://localhost:3000
+
+(Có thể gộp 2 bước trên bằng lệnh: pnpm preview)
+
+----------------------------------------
+C. CÁC LỆNH HỖ TRỢ KHÁC (tùy chọn)
+----------------------------------------
+- Kiểm tra lỗi cú pháp:        pnpm lint
+- Kiểm tra kiểu dữ liệu:       pnpm check-types
+- Định dạng lại mã nguồn:      pnpm format:write
+- Chạy kiểm thử E2E:           pnpm test:e2e
+
+----------------------------------------
+D. GHI CHÚ
+----------------------------------------
+- Ứng dụng cần backend API (NEXT_PUBLIC_API_GATEWAY_URL) hoạt động
+  để đăng nhập và sử dụng đầy đủ chức năng.
+- Nếu cổng 3000 đã bị chiếm, Next.js sẽ tự đề nghị dùng cổng khác.
