@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -12,7 +12,7 @@ import { translateAuthMessage } from "../utils"
 
 function FacebookIcon() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-[18px]">
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5">
       <circle cx="12" cy="12" r="10" fill="#1877F2" />
       <path
         fill="#FFFFFF"
@@ -73,15 +73,15 @@ export function LinkFacebookButton() {
       disabled={loading}
       aria-busy={loading}
       onClick={handleFacebookLink}
-      className="relative flex h-10 w-full cursor-pointer items-center justify-center rounded-[4px] border border-[#dadce0] bg-white px-3 text-sm font-medium text-[#3c4043] transition-colors hover:bg-[#f8f9fa] disabled:opacity-50"
+      className="relative flex h-10 w-full cursor-pointer items-center justify-center rounded-[4px] border border-[#dadce0] bg-white px-4 text-sm font-normal text-[#3c4043] transition-colors hover:bg-[#f8f9fa] disabled:opacity-50"
     >
-      <div className="absolute left-3 flex items-center justify-center">
+      <div className="absolute left-4 flex items-center justify-center">
         <FacebookIcon />
       </div>
-      <span className="font-normal">
+      <span>
         {loading
           ? tCommon("auth.oauth.loading")
-          : tProfile("continueWithFacebook")}
+          : tProfile("edit.continueWithFacebook")}
       </span>
     </button>
   )

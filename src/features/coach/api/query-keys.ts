@@ -16,12 +16,14 @@ export const coachQueryKeys = {
     params !== undefined
       ? ([...coachQueryKeys.all, "my-classes", params] as const)
       : ([...coachQueryKeys.all, "my-classes"] as const),
-  myClass: (classId: string) => [...coachQueryKeys.all, "my-class", classId] as const,
+  myClass: (classId: string) =>
+    [...coachQueryKeys.all, "my-class", classId] as const,
   discoverClasses: (params?: Record<string, unknown>) =>
     params !== undefined
       ? ([...coachQueryKeys.all, "discover-classes", params] as const)
       : ([...coachQueryKeys.all, "discover-classes"] as const),
-  classDetail: (classId: string) => [...coachQueryKeys.all, "class-detail", classId] as const,
+  classDetail: (classId: string) =>
+    [...coachQueryKeys.all, "class-detail", classId] as const,
   schedule: (params?: Record<string, unknown>) =>
     params !== undefined
       ? ([...coachQueryKeys.all, "schedule", params] as const)
@@ -32,9 +34,12 @@ export const coachQueryKeys = {
       ? ([...coachQueryKeys.all, "learners", params] as const)
       : ([...coachQueryKeys.all, "learners"] as const),
   learnerDashboard: () => [...coachQueryKeys.all, "learner-dashboard"] as const,
-  learner: (learnerId: string) => [...coachQueryKeys.all, "learner", learnerId] as const,
-  enrollments: (classId: string) => [...coachQueryKeys.all, "enrollments", classId] as const,
-  reviews: (coachId: string) => [...coachQueryKeys.all, "reviews", coachId] as const,
+  learner: (learnerId: string) =>
+    [...coachQueryKeys.all, "learner", learnerId] as const,
+  enrollments: (classId: string) =>
+    [...coachQueryKeys.all, "enrollments", classId] as const,
+  reviews: (coachId: string) =>
+    [...coachQueryKeys.all, "reviews", coachId] as const,
   revenueSummary: (params?: Record<string, unknown>) =>
     params !== undefined
       ? ([...coachQueryKeys.all, "revenue-summary", params] as const)

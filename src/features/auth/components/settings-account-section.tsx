@@ -27,6 +27,7 @@ import { LinkGoogleButton } from "@/features/auth/components/link-google-button"
 import { SetPasswordForm } from "@/features/auth/components/set-password-form"
 import { UnlinkSocialAccountButton } from "@/features/auth/components/unlink-social-account-button"
 import type { LinkedProvider, SocialProvider } from "@/features/auth/types"
+import type { User } from "@/features/profile/types"
 import { useProfileTranslation } from "@/i18n/use-profile-translation"
 
 type PasswordMode = "change" | "set"
@@ -49,12 +50,30 @@ function PasswordDialog({
   onOpenChange: (open: boolean) => void
 }) {
   const { t } = useTranslation("common")
-  const title =
-    mode === "change"
+  const [isSuccess, setIsSuccess] = useState(false)
+
+  const title = isSuccess
+    ? mode === "change"
+      ? t("auth.changePassword.successTitle", {
+          defaultValue: "Đổi mật khẩu thành công",
+        })
+      : t("auth.setPassword.successTitle", {
+          defaultValue: "Tạo mật khẩu thành công",
+        })
+    : mode === "change"
       ? t("auth.changePassword.title")
       : t("auth.setPassword.title")
-  const description =
-    mode === "change"
+  const description = isSuccess
+    ? mode === "change"
+      ? t("auth.changePassword.successDesc", {
+          defaultValue:
+            "Mật khẩu của bạn đã được thay đổi thành công. Vui lòng đăng nhập lại với mật khẩu mới.",
+        })
+      : t("auth.setPassword.successDesc", {
+          defaultValue:
+            "Mật khẩu của bạn đã được tạo thành công. Vui lòng đăng nhập lại với mật khẩu mới.",
+        })
+    : mode === "change"
       ? t("auth.changePassword.subtitle")
       : t("auth.setPassword.subtitle")
 
@@ -62,24 +81,42 @@ function PasswordDialog({
     <Dialog
       open={open}
       onOpenChange={(nextOpen) => {
+        if (isSuccess) return
         if (!nextOpen) {
           onOpenChange(false)
         }
       }}
     >
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent
+        className="sm:max-w-xl"
+        onPointerDownOutside={(e) => {
+          if (isSuccess) e.preventDefault()
+        }}
+        onEscapeKeyDown={(e) => {
+          if (isSuccess) e.preventDefault()
+        }}
+      >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
-        {mode === "change" ? (
+        {isSuccess ? (
+          <div className="mt-4 flex justify-end gap-3">
+            <form action={logoutAction} className="w-full sm:w-auto">
+              <Button type="submit" className="w-full sm:w-auto">
+                {t("auth.loginLink", { defaultValue: "Đăng nhập lại" })}
+              </Button>
+            </form>
+          </div>
+        ) : mode === "change" ? (
           <ChangePasswordForm
             hideHeader
+            stayOnPage
             showCancelButton
             cancelLabel={t("dialog.close")}
             onCancel={() => onOpenChange(false)}
-            onSuccess={() => onOpenChange(false)}
+            onSuccess={() => setIsSuccess(true)}
           />
         ) : (
           <SetPasswordForm
@@ -88,7 +125,7 @@ function PasswordDialog({
             showCancelButton
             cancelLabel={t("dialog.close")}
             onCancel={() => onOpenChange(false)}
-            onSuccess={() => onOpenChange(false)}
+            onSuccess={() => setIsSuccess(true)}
           />
         )}
       </DialogContent>
@@ -96,42 +133,33 @@ function PasswordDialog({
   )
 }
 
-function PasswordSecurityCard() {
+export function PasswordSecuritySection({ user }: { user: User | null }) {
   const { t } = useTranslation("common")
   const [dialogMode, setDialogMode] = useState<PasswordMode | null>(null)
 
   const dialogOpen = dialogMode !== null
+  const hasPassword = user?.hasPassword ?? false
 
   return (
-    <>
-      <Card className="h-fit">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <KeyRound className="size-4" />
-            {t("settingsPage.securityTitle")}
-          </CardTitle>
-          <CardDescription>{t("settingsPage.securityDesc")}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button
-              type="button"
-              onClick={() => setDialogMode("change")}
-              className="w-full sm:w-auto"
-            >
-              {t("auth.changePassword.submit")}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setDialogMode("set")}
-              className="w-full sm:w-auto"
-            >
-              {t("auth.setPassword.submit")}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <Button
+          type="button"
+          onClick={() => setDialogMode("change")}
+          className="w-full sm:w-auto"
+        >
+          {t("auth.changePassword.submit")}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setDialogMode("set")}
+          className="w-full sm:w-auto"
+          disabled={hasPassword}
+        >
+          {t("auth.setPassword.submit")}
+        </Button>
+      </div>
 
       {dialogMode && (
         <PasswordDialog
@@ -144,7 +172,26 @@ function PasswordSecurityCard() {
           }}
         />
       )}
-    </>
+    </div>
+  )
+}
+
+export function PasswordSecurityCard({ user }: { user: User | null }) {
+  const { t } = useTranslation("common")
+
+  return (
+    <Card className="h-fit">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <KeyRound className="size-4" />
+          {t("settingsPage.securityTitle")}
+        </CardTitle>
+        <CardDescription>{t("settingsPage.securityDesc")}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <PasswordSecuritySection user={user} />
+      </CardContent>
+    </Card>
   )
 }
 
@@ -208,7 +255,7 @@ function SocialProviderCard({
   )
 }
 
-function SessionActionsCard() {
+export function SessionActionsCard() {
   const { t } = useTranslation("common")
 
   return (
@@ -235,10 +282,12 @@ function SessionActionsCard() {
   )
 }
 
-export function SettingsAccountSection({
+export function LinkedAccountsCard({
   linkedProviders,
+  className,
 }: {
   linkedProviders: LinkedProvider[]
+  className?: string
 }) {
   const { t } = useTranslation("common")
   const googleLinked = linkedProviders.find(
@@ -247,6 +296,39 @@ export function SettingsAccountSection({
   const facebookLinked = linkedProviders.find(
     (provider) => provider.provider === "facebook"
   )
+
+  return (
+    <Card className={className}>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Link2 className="size-4" />
+          {t("settingsPage.linkedAccountsTitle")}
+        </CardTitle>
+        <CardDescription>
+          {t("settingsPage.linkedAccountsDesc")}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-col gap-4">
+          <SocialProviderCard provider="google" linkedProvider={googleLinked} />
+          <SocialProviderCard
+            provider="facebook"
+            linkedProvider={facebookLinked}
+          />
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+export function SettingsAccountSection({
+  linkedProviders,
+  user,
+}: {
+  linkedProviders: LinkedProvider[]
+  user: User | null
+}) {
+  const { t } = useTranslation("common")
 
   return (
     <section className="space-y-4" id="account">
@@ -260,37 +342,9 @@ export function SettingsAccountSection({
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <PasswordSecurityCard />
+        <PasswordSecurityCard user={user} />
 
-        <Card className="h-fit">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Link2 className="size-4" />
-              {t("settingsPage.linkedAccountsTitle")}
-            </CardTitle>
-            <CardDescription>
-              {t("settingsPage.linkedAccountsDesc")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <SocialProviderCard
-                provider="google"
-                linkedProvider={googleLinked}
-              />
-              <SocialProviderCard
-                provider="facebook"
-                linkedProvider={facebookLinked}
-              />
-            </div>
-
-            {linkedProviders.length === 0 && (
-              <p className="text-sm text-muted-foreground">
-                {t("settingsPage.noLinkedAccounts")}
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        <LinkedAccountsCard linkedProviders={linkedProviders} />
 
         <SessionActionsCard />
       </div>

@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   experimental: {
     workerThreads: true,
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
   },
 }
 

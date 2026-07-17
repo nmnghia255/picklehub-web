@@ -74,7 +74,12 @@
       "urlDesc": "Paste a public image link from the internet.",
       "urlLabel": "Avatar URL",
       "placeholder": "https://example.com/avatar.jpg",
-      "done": "Done"
+      "done": "Done",
+      "updateSuccess": "Avatar updated successfully.",
+      "updateError": "Failed to update avatar. Please try again.",
+      "uploadError": "Failed to upload image. Please try again.",
+      "selectFile": "Select file",
+      "noFileSelected": "No file selected"
     },
     "googleProvider": "Google",
     "facebookProvider": "Facebook",
@@ -109,6 +114,7 @@
     "notLinked": "Not linked",
     "linkedAt": "Linked at {{date}}",
     "noLinked": "No linked accounts yet.",
-    "continueWithFacebook": "Continue with Facebook"
+    "continueWithFacebook": "Continue with Facebook",
+    "continueWithGoogle": "Continue with Google"
   }
 }

@@ -9,6 +9,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Provider as JotaiProvider } from "jotai"
 import { ThemeProvider } from "next-themes"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Toaster } from "sonner"
 
 import { I18nProvider } from "@/components/i18n-provider"
@@ -73,6 +74,22 @@ if (typeof window !== "undefined") {
   })
 }
 
+function GoogleOAuthProviderWrapper({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const { i18n } = useTranslation()
+  return (
+    <GoogleOAuthProvider
+      clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+      locale={i18n.language}
+    >
+      {children}
+    </GoogleOAuthProvider>
+  )
+}
+
 export function Providers({
   children,
   initialLanguage,
@@ -98,10 +115,10 @@ export function Providers({
   )
 
   return (
-    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
-      <QueryClientProvider client={queryClient}>
-        <JotaiProvider>
-          <I18nProvider initialLanguage={initialLanguage}>
+    <QueryClientProvider client={queryClient}>
+      <JotaiProvider>
+        <I18nProvider initialLanguage={initialLanguage}>
+          <GoogleOAuthProviderWrapper>
             <ThemeProvider
               enableSystem
               disableTransitionOnChange
@@ -125,10 +142,10 @@ export function Providers({
               <Analytics />
               <SpeedInsights />
             </ThemeProvider>
-          </I18nProvider>
-        </JotaiProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </GoogleOAuthProvider>
+          </GoogleOAuthProviderWrapper>
+        </I18nProvider>
+      </JotaiProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   )
 }

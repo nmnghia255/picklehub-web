@@ -1908,6 +1908,7 @@
       "noAccount": "Don't have an account?",
       "registerLink": "Register",
       "facebookButton": "Login with Facebook",
+      "googleButton": "Login with Google",
       "error": "Login failed. Please try again."
     },
     "register": {
@@ -1925,6 +1926,7 @@
       "hasAccount": "Already have an account?",
       "loginLink": "Login",
       "facebookButton": "Register with Facebook",
+      "googleButton": "Register with Google",
       "error": "Registration failed. Please try again."
     },
     "magicLink": {
@@ -1945,7 +1947,7 @@
       "passwordPlaceholder": "Enter your password",
       "confirmPasswordLabel": "Confirm password",
       "confirmPasswordPlaceholder": "Confirm your password",
-      "submit": "Save password",
+      "submit": "Create password",
       "submitting": "Saving...",
       "success": "Password set successfully.",
       "error": "Failed to set password. Please try again."

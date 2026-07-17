@@ -1,13 +1,25 @@
 "use client"
 
-import type { LucideIcon } from "lucide-react"
-import { MonitorCog, MoonStar, SunMedium } from "lucide-react"
+import {
+  KeyRound,
+  type LucideIcon,
+  MonitorCog,
+  MoonStar,
+  Settings,
+  SunMedium,
+} from "lucide-react"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { PageContainer } from "@/components/page-container"
-import { Card, CardContent } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import {
   Select,
   SelectContent,
@@ -15,8 +27,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { SettingsAccountSection } from "@/features/auth/components/settings-account-section"
+import { Separator } from "@/components/ui/separator"
+import {
+  LinkedAccountsCard,
+  PasswordSecuritySection,
+  SessionActionsCard,
+} from "@/features/auth/components/settings-account-section"
 import type { LinkedProvider } from "@/features/auth/types"
+import type { User } from "@/features/profile/types"
 import {
   getStoredLanguage,
   setLanguagePreference,
@@ -27,9 +45,13 @@ type ThemeValue = "light" | "dark" | "system"
 
 interface SettingsContentProps {
   linkedProviders: LinkedProvider[]
+  user: User | null
 }
 
-export function SettingsContent({ linkedProviders }: SettingsContentProps) {
+export function SettingsContent({
+  linkedProviders,
+  user,
+}: SettingsContentProps) {
   const { t, i18n } = useTranslation("common")
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
@@ -117,24 +139,39 @@ export function SettingsContent({ linkedProviders }: SettingsContentProps) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="space-y-4" id="appearance">
-          <div>
-            <h2 className="text-xl font-semibold tracking-tight">
-              {t("settingsPage.themeTitle")}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {t("settingsPage.themeDesc")}
-            </p>
-          </div>
-
-          <Card>
-            <CardContent className="pt-6">
+        {/* Left Column: Theme, Language, Security inside a single Card */}
+        <Card className="h-full">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="size-4" />
+              {t("settingsPage.generalSettingsAndSecurityTitle", {
+                defaultValue: "Cài đặt chung & Bảo mật",
+              })}
+            </CardTitle>
+            <CardDescription>
+              {t("settingsPage.generalSettingsAndSecurityDesc", {
+                defaultValue:
+                  "Cấu hình giao diện, ngôn ngữ hiển thị và quản lý bảo mật mật khẩu của bạn.",
+              })}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Theme Section */}
+            <div className="space-y-3">
+              <div>
+                <h3 className="text-sm leading-none font-medium">
+                  {t("settingsPage.themeTitle")}
+                </h3>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {t("settingsPage.themeDesc")}
+                </p>
+              </div>
               <div className="grid gap-3 sm:grid-cols-[minmax(0,260px)_1fr] sm:items-center">
                 <Select
                   value={themeValue}
                   onValueChange={(value) => setTheme(value as ThemeValue)}
                 >
-                  <SelectTrigger className="w-full sm:max-w-xs">
+                  <SelectTrigger className="w-full">
                     <SelectValue
                       placeholder={t("settingsPage.selectThemePlaceholder")}
                     />
@@ -155,7 +192,7 @@ export function SettingsContent({ linkedProviders }: SettingsContentProps) {
                   </SelectContent>
                 </Select>
 
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {!mounted || themeValue === "system"
                     ? t("settingsPage.themeSystemHint")
                     : themeValue === "dark"
@@ -163,22 +200,20 @@ export function SettingsContent({ linkedProviders }: SettingsContentProps) {
                       : t("settingsPage.themeLightHint")}
                 </p>
               </div>
-            </CardContent>
-          </Card>
-        </section>
+            </div>
 
-        <section className="space-y-4" id="language">
-          <div>
-            <h2 className="text-xl font-semibold tracking-tight">
-              {t("settingsPage.languageTitle")}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {t("settingsPage.languageDesc")}
-            </p>
-          </div>
+            <Separator />
 
-          <Card>
-            <CardContent className="pt-6">
+            {/* Language Section */}
+            <div className="space-y-3">
+              <div>
+                <h3 className="text-sm leading-none font-medium">
+                  {t("settingsPage.languageTitle")}
+                </h3>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {t("settingsPage.languageDesc")}
+                </p>
+              </div>
               <div className="grid gap-3 sm:grid-cols-[minmax(0,260px)_1fr] sm:items-center">
                 <Select
                   value={languageValue}
@@ -189,7 +224,7 @@ export function SettingsContent({ linkedProviders }: SettingsContentProps) {
                     }
                   }}
                 >
-                  <SelectTrigger className="w-full sm:max-w-xs">
+                  <SelectTrigger className="w-full">
                     <SelectValue
                       placeholder={t("settingsPage.selectLanguagePlaceholder")}
                     />
@@ -203,14 +238,37 @@ export function SettingsContent({ linkedProviders }: SettingsContentProps) {
                   </SelectContent>
                 </Select>
 
-                <p className="text-sm text-muted-foreground">{languageHint}</p>
+                <p className="text-xs text-muted-foreground">{languageHint}</p>
               </div>
-            </CardContent>
-          </Card>
-        </section>
+            </div>
 
+            <Separator />
+
+            {/* Security Section */}
+            <div className="space-y-3">
+              <div>
+                <h3 className="flex items-center gap-2 text-sm leading-none font-medium">
+                  <KeyRound className="size-4" />
+                  {t("settingsPage.securityTitle")}
+                </h3>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {t("settingsPage.securityDesc")}
+                </p>
+              </div>
+              <PasswordSecuritySection user={user} />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Right Column: Social Accounts Link */}
+        <LinkedAccountsCard
+          linkedProviders={linkedProviders}
+          className="h-full"
+        />
+
+        {/* Full Width Bottom: Logout Section */}
         <div className="lg:col-span-2">
-          <SettingsAccountSection linkedProviders={linkedProviders} />
+          <SessionActionsCard />
         </div>
       </div>
     </PageContainer>

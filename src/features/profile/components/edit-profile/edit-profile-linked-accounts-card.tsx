@@ -74,7 +74,7 @@ export function EditProfileLinkedAccountsCard({
         <CardDescription>{t("edit.linkedAccountsDesc")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 overflow-hidden">
-        <div className="grid grid-cols-2 gap-6">
+        <div className="flex flex-col gap-4">
           <div className="overflow-hidden rounded-lg border p-4">
             <div className="mb-3 flex items-start justify-between gap-3">
               <div>
