@@ -21,6 +21,7 @@ export interface SendInAppNotificationDto {
   userIds: string[]
   title: string
   message: string
+  metadata?: Record<string, unknown>
 }
 
 export interface SendInAppNotificationResponse {
@@ -29,6 +30,7 @@ export interface SendInAppNotificationResponse {
     userIds: string[]
     title: string
     message: string
+    metadata?: Record<string, unknown>
   }
 }
 

@@ -6,6 +6,7 @@ import { userAtom } from "@/features/auth/store/auth-store"
 import type { SessionUser } from "@/features/auth/types"
 import { notificationFeedAtom } from "@/features/feed/store/feed-store"
 import type { FeedNotification } from "@/features/feed/types"
+import { NotificationRealtimeListener } from "@/features/notifications/components/notification-realtime-listener"
 
 interface AuthInitializerProps {
   user: SessionUser | null
@@ -17,5 +18,6 @@ export function AuthInitializer({ user, notifications }: AuthInitializerProps) {
     [userAtom, user],
     [notificationFeedAtom, notifications],
   ])
-  return null
+
+  return user ? <NotificationRealtimeListener /> : null
 }

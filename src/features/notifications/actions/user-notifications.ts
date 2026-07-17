@@ -12,6 +12,8 @@ import {
 } from "@/i18n/common-locale"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
+import { deriveNotificationActionHref } from "../utils/notification-click-target"
+
 async function getCommonLocale(): Promise<CommonLocale> {
   const acceptLanguage = (await headers()).get("accept-language") ?? ""
   const { default: enCommon } = await import("@/i18n/locales/en/common.json")
@@ -38,6 +40,7 @@ export async function fetchMyNotifications(): Promise<FeedNotification[]> {
 
     const mapped: FeedNotification[] = items.map(
       (it: Record<string, unknown>) => {
+        const metadata = it["metadata"]
         const type =
           (it["type"] as FeedNotificationType) ||
           (it["category"] as FeedNotificationType) ||
@@ -80,9 +83,9 @@ export async function fetchMyNotifications(): Promise<FeedNotification[]> {
             it["unread"] === true,
           status: (it["status"] ?? undefined) as undefined | string,
           tags: Array.isArray(it["tags"]) ? (it["tags"] as string[]) : [],
-          actionHref: (it["actionHref"] ?? it["url"] ?? undefined) as
-            | string
-            | undefined,
+          actionHref: (it["actionHref"] ??
+            it["url"] ??
+            deriveNotificationActionHref(metadata)) as string | undefined,
         }
       }
     )
