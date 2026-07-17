@@ -26,3 +26,22 @@ export interface ServiceRequest {
   imageUrl: string
   isActive: boolean
 }
+
+export interface CreateServiceDtoRequest {
+  name: string
+  description?: string
+  type: string
+  price: number
+  unit?: string
+  imageUrl?: string
+}
+
+export interface UpdateServiceDtoRequest {
+  name?: string
+  description?: string
+  type?: string
+  price?: number
+  unit?: string
+  imageUrl?: string
+  isActive?: boolean
+}

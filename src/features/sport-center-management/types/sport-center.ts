@@ -4,6 +4,25 @@ import type { Service } from "./service"
 
 export type SportCenterStatus = "ACTIVE" | "INACTIVE"
 
+export interface CreateSportCenterRequest {
+  name: string
+  address: string
+  phone: string
+  email?: string
+  description?: string
+  images?: string[]
+  rules?: string[]
+  openTime: string
+  closeTime: string
+  basePrice: number
+  status?: SportCenterStatus
+  amenities?: string[]
+  paymentAccountName: string
+  paymentAccountNumber: string
+  paymentBankName: string
+  paymentQrUrl?: string
+}
+
 export interface SportCenterResponse {
   id: string
   ownerId: string

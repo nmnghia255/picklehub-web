@@ -475,7 +475,8 @@
     "drawer": {
       "courtCost": "Court cost",
       "netRevenue": "Net revenue"
-    }
+    },
+    "permissionDenied": "You do not have permission to view this section."
   },
   "inventory": {
     "page": {
@@ -591,5 +592,152 @@
       "activeCount_one": "{{count}} active",
       "activeCount_other": "{{count}} active"
     }
+  },
+  "createCenter": {
+    "page": {
+      "badge": "Sport center wizard",
+      "title": "Create Sport Center",
+      "subtitle": "Create the center first, then configure pricing, policies, courts, services, and products in a guided wizard."
+    },
+    "detail": {
+      "badge": "Management detail",
+      "title": "Sport center detail",
+      "subtitle": "Review the latest server state and jump to the management tabs.",
+      "loadError": "Could not load center detail."
+    },
+    "steps": {
+      "center": "Center info",
+      "pricing": "Price slots",
+      "policy": "Cancellation policy",
+      "courts": "Courts",
+      "inventory": "Products & services",
+      "review": "Review"
+    },
+    "sections": {
+      "centerInfo": "Center information",
+      "priceSlots": "Price slots",
+      "policy": "Cancellation policy",
+      "courts": "Courts",
+      "inventory": "Products & services",
+      "review": "Review and finish"
+    },
+    "fields": {
+      "name": "Center name",
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email",
+      "description": "Description",
+      "openTime": "Opening time",
+      "closeTime": "Closing time",
+      "basePrice": "Base price per hour",
+      "paymentAccountName": "Account holder name",
+      "paymentAccountNumber": "Account number",
+      "paymentBankName": "Bank name",
+      "paymentQrUrl": "Payment QR URL",
+      "images": "Image URLs",
+      "amenities": "Amenities",
+      "rules": "Rules",
+      "startTime": "Start time",
+      "endTime": "End time",
+      "pricePerHour": "Price per hour",
+      "allowCancellation": "Allow cancellation",
+      "minDaysBeforeStart": "Minimum days before start",
+      "refundPercent": "Refund percent",
+      "courtName": "Court name",
+      "courtType": "Court type",
+      "courtStatus": "Status",
+      "serviceName": "Service name",
+      "serviceType": "Service type",
+      "price": "Price",
+      "unit": "Unit",
+      "imageUrl": "Image URL",
+      "stock": "Stock",
+      "productName": "Product name",
+      "productType": "Product type"
+    },
+    "placeholders": {
+      "name": "PickleHub District 1",
+      "address": "123 Nguyen Hue, District 1",
+      "phone": "+84901234567",
+      "email": "hello@example.com",
+      "description": "Short center description",
+      "listHint": "One item per line",
+      "courtName": "Court 1"
+    },
+    "labels": {
+      "slot": "Slot {{index}}",
+      "tier": "Tier {{index}}"
+    },
+    "help": {
+      "allowCancellation": "Enable preservation credit refund tiers for confirmed bookings."
+    },
+    "actions": {
+      "addSlot": "Add price slot",
+      "addTier": "Add tier",
+      "addCourt": "Add court",
+      "addService": "Add service",
+      "addProduct": "Add product",
+      "skip": "Skip",
+      "finish": "Finish"
+    },
+    "tabs": {
+      "services": "Services",
+      "products": "Products"
+    },
+    "review": {
+      "center": "Center",
+      "pricing": "Price slots",
+      "policy": "Cancellation policy",
+      "courts": "Courts",
+      "services": "Services",
+      "products": "Products",
+      "skippedCourts": "No courts configured yet.",
+      "skippedInventory": "No items configured yet.",
+      "noteTitle": "Review before finishing",
+      "note": "The wizard will sync the latest server state before navigating to the management detail page."
+    },
+    "toast": {
+      "centerCreated": "Sport center created successfully.",
+      "centerUpdated": "Sport center saved successfully.",
+      "priceSlotsSaved": "Price slots saved.",
+      "policySaved": "Cancellation policy saved.",
+      "finalSuccess": "Sport center setup completed."
+    },
+    "validation": {
+      "requiredFields": "Please fill in all required fields.",
+      "timeOrder": "Opening time must be earlier than closing time.",
+      "priceInvalid": "Base price is invalid.",
+      "invalidUrl": "Please enter a valid URL.",
+      "atLeastOneSlot": "Please add at least one price slot.",
+      "invalidTime": "Please enter a valid time.",
+      "noOverlap": "Price slots cannot overlap.",
+      "invalidTier": "Please correct the cancellation policy tiers.",
+      "tierOrder": "Cancellation policy tiers must not duplicate thresholds.",
+      "courtNameRequired": "Please enter a court name.",
+      "serviceRequired": "Please enter a valid service name and price.",
+      "productRequired": "Please enter a valid product name, price and stock.",
+      "centerMissing": "Sport center data is missing.",
+      "centerSaveFailed": "Could not save the sport center.",
+      "finalSaveFailed": "Could not complete setup."
+    },
+    "enums": {
+      "courtType": {
+        "indoor": "Indoor",
+        "outdoor": "Outdoor"
+      },
+      "serviceType": {
+        "equipmentRental": "Equipment rental",
+        "coaching": "Coaching",
+        "facilityAddOn": "Facility add-on"
+      },
+      "productType": {
+        "beverage": "Beverage",
+        "consumable": "Consumable",
+        "equipment": "Equipment",
+        "clothing": "Clothing"
+      }
+    },
+    "stepLabel": "Step",
+    "errorTitle": "Could not continue"
   }
 }

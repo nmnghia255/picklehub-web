@@ -28,3 +28,24 @@ export interface ProductRequest {
   stock: number
   isActive: boolean
 }
+
+export interface CreateProductDtoRequest {
+  name: string
+  description?: string
+  type: string
+  price: number
+  unit?: string
+  imageUrl?: string
+  stock?: number
+}
+
+export interface UpdateProductDtoRequest {
+  name?: string
+  description?: string
+  type?: string
+  price?: number
+  unit?: string
+  imageUrl?: string
+  stock?: number
+  isActive?: boolean
+}

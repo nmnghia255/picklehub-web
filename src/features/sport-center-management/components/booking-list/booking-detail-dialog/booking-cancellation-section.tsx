@@ -43,7 +43,7 @@ export function BookingCancellationSection({
           }
         />
         <BookingDetailField
-          label={t("bookingList.detail.cancellationReason")}
+          label={t("bookingList.detail.cancelReason")}
           value={booking.cancelReason || displayNote || t("common.noReason")}
         />
       </div>
