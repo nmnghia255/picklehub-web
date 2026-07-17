@@ -8,6 +8,9 @@ type NotificationClickSupport = {
   bookingId?: unknown
   coachProfileId?: unknown
   coachId?: unknown
+  tab?: unknown
+  requestId?: unknown
+  userId?: unknown
   href?: unknown
 }
 
@@ -41,6 +44,7 @@ function isSupportedNotificationHref(href: string) {
   return (
     pathname === "/chat" ||
     pathname === "/feed" ||
+    pathname === "/friend" ||
     pathname.startsWith("/groups/") ||
     pathname.startsWith("/socials/") ||
     pathname.startsWith("/tournaments/") ||
@@ -65,6 +69,7 @@ export function deriveNotificationActionHref(metadata: unknown) {
   const socialId = getString(onClickSupport.socialId)
   const tournamentId = getString(onClickSupport.tournamentId)
   const bookingId = getString(onClickSupport.bookingId)
+  const friendTab = getString(onClickSupport.tab)
   const coachId =
     getString(onClickSupport.coachProfileId) ??
     getString(onClickSupport.coachId)
@@ -81,6 +86,15 @@ export function deriveNotificationActionHref(metadata: unknown) {
     return `/tournaments/${tournamentId}`
   if (type === "booking" && bookingId) return `/bookings/${bookingId}`
   if (type === "coach" && coachId) return `/coaches/${coachId}`
+  if (type === "friend") {
+    const tab =
+      friendTab === "received" ||
+      friendTab === "sent" ||
+      friendTab === "friends"
+        ? friendTab
+        : "friends"
+    return `/friend?tab=${tab}`
+  }
 
   if (conversationId) {
     const params = new URLSearchParams({ conversationId })
