@@ -216,7 +216,7 @@ function SocialProviderCard({
             <ShieldCheck className="size-4 text-muted-foreground" />
             <p className="font-medium">{providerLabel}</p>
           </div>
-          <p className="text-sm break-words text-muted-foreground">
+          <p className="text-sm wrap-break-word text-muted-foreground">
             {linkedProvider
               ? tProfile("edit.linkedAt", {
                   date: new Date(linkedProvider.linkedAt).toLocaleString(
