@@ -600,7 +600,6 @@
     }
   },
   "centerList": {
-    "statusLabel": "Status",
     "badge": "Owner workspace",
     "title": "Manage Sport Centers",
     "subtitle": "View and manage the Sport Centers owned by your account.",
@@ -768,9 +767,8 @@
     }
   },
   "createCenter": {
-    "statusLabel": "Center status",
-    "statusInvalid": "Choose a valid center status.",
-    "status": { "active": "Active", "inactive": "Inactive" },
+    "statusLabel": "Status",
+    "status": { "active": "Active" },
     "page": {
       "badge": "Sport center wizard",
       "title": "Create Sport Center",

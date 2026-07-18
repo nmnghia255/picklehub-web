@@ -64,7 +64,6 @@ type EditFormState = {
   openTime: string
   closeTime: string
   basePrice: string
-  status: SportCenter["status"]
 }
 
 function getEditForm(center: SportCenter): EditFormState {
@@ -76,7 +75,6 @@ function getEditForm(center: SportCenter): EditFormState {
     openTime: center.openTime,
     closeTime: center.closeTime,
     basePrice: String(center.basePrice),
-    status: center.status,
   }
 }
 
@@ -310,7 +308,6 @@ export function SportCenterManagementPage() {
         openTime: editForm.openTime,
         closeTime: editForm.closeTime,
         basePrice: Number(editForm.basePrice),
-        status: editForm.status,
       },
     })
   }
@@ -535,29 +532,6 @@ export function SportCenterManagementPage() {
                     setEditForm({ ...editForm, basePrice: event.target.value })
                   }
                 />
-              </div>
-              <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="center-edit-status">
-                  {t("centerList.statusLabel")}
-                </Label>
-                <select
-                  id="center-edit-status"
-                  value={editForm.status}
-                  onChange={(event) =>
-                    setEditForm({
-                      ...editForm,
-                      status: event.target.value as SportCenter["status"],
-                    })
-                  }
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                >
-                  <option value="ACTIVE">
-                    {t("centerList.status.active")}
-                  </option>
-                  <option value="INACTIVE">
-                    {t("centerList.status.inactive")}
-                  </option>
-                </select>
               </div>
             </div>
           )}

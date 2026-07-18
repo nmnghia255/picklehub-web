@@ -58,7 +58,6 @@ type CenterDraft = {
   openTime: string
   closeTime: string
   basePrice: string
-  status: SportCenterStatus
   paymentAccountName: string
   paymentAccountNumber: string
   paymentBankName: string
@@ -189,7 +188,6 @@ export function CreateSportCenterWizard() {
     openTime: "06:00",
     closeTime: "22:00",
     basePrice: "",
-    status: "INACTIVE",
     paymentAccountName: "",
     paymentAccountNumber: "",
     paymentBankName: "",
@@ -283,7 +281,6 @@ export function CreateSportCenterWizard() {
         openTime: centerDraft.openTime,
         closeTime: centerDraft.closeTime,
         basePrice: Number(centerDraft.basePrice),
-        status: centerDraft.status,
         amenities: splitLines(centerDraft.amenitiesText),
         paymentAccountName: centerDraft.paymentAccountName.trim(),
         paymentAccountNumber: centerDraft.paymentAccountNumber.trim(),
@@ -295,7 +292,10 @@ export function CreateSportCenterWizard() {
         return sportCenterWizardClient.updateSportCenter(centerId, payload)
       }
 
-      return sportCenterWizardClient.createSportCenter(payload)
+      return sportCenterWizardClient.createSportCenter({
+        ...payload,
+        status: "ACTIVE",
+      })
     },
     onSuccess: (data) => {
       setCenterId(data.id)
@@ -607,7 +607,6 @@ export function CreateSportCenterWizard() {
     centerDraft.openTime &&
     centerDraft.closeTime &&
     centerDraft.basePrice &&
-    centerDraft.status &&
     centerDraft.paymentAccountName.trim() &&
     centerDraft.paymentAccountNumber.trim() &&
     centerDraft.paymentBankName.trim()
@@ -617,15 +616,6 @@ export function CreateSportCenterWizard() {
       setGlobalError(
         t("createCenter.validation.requiredFields", {
           defaultValue: "Please fill in all required fields.",
-        })
-      )
-      return false
-    }
-
-    if (centerDraft.status !== "ACTIVE" && centerDraft.status !== "INACTIVE") {
-      setGlobalError(
-        t("createCenter.statusInvalid", {
-          defaultValue: "Choose a valid center status.",
         })
       )
       return false
@@ -1195,35 +1185,6 @@ export function CreateSportCenterWizard() {
                       }
                       placeholder="80000"
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="center-status">
-                      {t("createCenter.statusLabel", {
-                        defaultValue: "Status",
-                      })}
-                    </Label>
-                    <select
-                      id="center-status"
-                      value={centerDraft.status}
-                      onChange={(event) =>
-                        setCenterDraft((current) => ({
-                          ...current,
-                          status: event.target.value as SportCenterStatus,
-                        }))
-                      }
-                      className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                    >
-                      <option value="ACTIVE">
-                        {t("createCenter.status.active", {
-                          defaultValue: "Active",
-                        })}
-                      </option>
-                      <option value="INACTIVE">
-                        {t("createCenter.status.inactive", {
-                          defaultValue: "Inactive",
-                        })}
-                      </option>
-                    </select>
                   </div>
                   <div className="space-y-2">
                     <Label>
@@ -2178,15 +2139,9 @@ export function CreateSportCenterWizard() {
                           defaultValue: "Status",
                         })}
                         :{" "}
-                        {t(
-                          `createCenter.status.${(
-                            centerSnapshot?.status ?? centerDraft.status
-                          ).toLowerCase()}`,
-                          {
-                            defaultValue:
-                              centerSnapshot?.status ?? centerDraft.status,
-                          }
-                        )}
+                        {t("createCenter.status.active", {
+                          defaultValue: "Active",
+                        })}
                       </p>
                       <p>
                         {centerSnapshot?.paymentBankName ??

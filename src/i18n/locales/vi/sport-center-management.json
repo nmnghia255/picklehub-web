@@ -600,7 +600,6 @@
     "logoAlt": "{{name}} logo"
   },
   "centerList": {
-    "statusLabel": "Trạng thái",
     "badge": "Không gian quản lý",
     "title": "Quản lý Sport Center",
     "subtitle": "Xem và quản lý các Sport Center thuộc tài khoản của bạn.",
@@ -768,9 +767,8 @@
     }
   },
   "createCenter": {
-    "statusLabel": "Trạng thái trung tâm",
-    "statusInvalid": "Vui lòng chọn trạng thái trung tâm hợp lệ.",
-    "status": { "active": "Đang hoạt động", "inactive": "Không hoạt động" },
+    "statusLabel": "Trạng thái",
+    "status": { "active": "Đang hoạt động" },
     "page": {
       "badge": "Trợ lý tạo trung tâm",
       "title": "Tạo Sport Center",

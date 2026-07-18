@@ -119,7 +119,6 @@ export interface UpdateSportCenterRequest {
   openTime?: string
   closeTime?: string
   basePrice?: number
-  status?: SportCenterStatus
   amenities?: string[]
   paymentAccountName?: string
   paymentAccountNumber?: string
