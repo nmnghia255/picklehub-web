@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { getSportCenterRouteError } from "@/features/sport-center-management/api/route-error"
 import { SportCenterOwnerService } from "@/features/sport-center-management/api/sport-center-service"
 
 type RouteContext = {
@@ -12,15 +13,10 @@ export async function GET(_request: Request, context: RouteContext) {
     const data = await SportCenterOwnerService.getCancellationPolicy(centerId)
     return NextResponse.json({ data }, { status: 200 })
   } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Failed to load cancellation policy"
-    const status =
-      message === "Not authenticated" || message === "Session expired"
-        ? 401
-        : 500
-
+    const { message, status } = getSportCenterRouteError(
+      error,
+      "Failed to load cancellation policy"
+    )
     return NextResponse.json({ message }, { status })
   }
 }
@@ -35,15 +31,10 @@ export async function PATCH(request: Request, context: RouteContext) {
     )
     return NextResponse.json({ data }, { status: 200 })
   } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Failed to update cancellation policy"
-    const status =
-      message === "Not authenticated" || message === "Session expired"
-        ? 401
-        : 500
-
+    const { message, status } = getSportCenterRouteError(
+      error,
+      "Failed to update cancellation policy"
+    )
     return NextResponse.json({ message }, { status })
   }
 }

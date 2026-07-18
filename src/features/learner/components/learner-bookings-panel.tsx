@@ -34,7 +34,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
-import { Input } from "@/components/ui/input"
 import {
   Pagination,
   PaginationContent,
@@ -47,6 +46,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useSession } from "@/features/auth/hooks/use-session"
 import type { Booking } from "@/features/coach/types/coach"
+import { PaymentProofUploader } from "@/features/learner/components/payment-proof-uploader"
 import {
   useCancelMyBooking,
   useMyBookings,
@@ -209,6 +209,7 @@ export function LearnerBookingsPanel() {
     null
   )
   const [paymentProofUrl, setPaymentProofUrl] = useState("")
+  const [isUploadingPaymentProof, setIsUploadingPaymentProof] = useState(false)
 
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
   const [cancellingBookingId, setCancellingBookingId] = useState<string | null>(
@@ -259,14 +260,14 @@ export function LearnerBookingsPanel() {
   }
 
   function handleUpload() {
-    if (!uploadingBookingId || !paymentProofUrl.trim()) {
-      toast.error(t("learner.bookings.uploadProofUrlRequired"))
+    if (!uploadingBookingId || !paymentProofUrl) {
+      toast.error(t("learner.bookings.uploadProofRequired"))
       return
     }
     uploadProofMutation.mutate(
       {
         bookingId: uploadingBookingId,
-        paymentProofUrl: paymentProofUrl.trim(),
+        paymentProofUrl,
       },
       {
         onSuccess: () => {
@@ -502,7 +503,16 @@ export function LearnerBookingsPanel() {
         </TabsContent>
       </Tabs>
 
-      <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+      <Dialog
+        open={uploadDialogOpen}
+        onOpenChange={(nextOpen) => {
+          setUploadDialogOpen(nextOpen)
+          if (!nextOpen) {
+            setPaymentProofUrl("")
+            setUploadingBookingId(null)
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
@@ -514,12 +524,12 @@ export function LearnerBookingsPanel() {
           </DialogHeader>
           <div className="space-y-2">
             <label className="text-sm font-medium">
-              {t("learner.bookings.uploadProofUrlLabel")}
+              {t("learner.bookings.uploadProofLabel")}
             </label>
-            <Input
-              placeholder={t("learner.bookings.uploadProofUrlPlaceholder")}
+            <PaymentProofUploader
               value={paymentProofUrl}
-              onChange={(e) => setPaymentProofUrl(e.target.value)}
+              onChange={setPaymentProofUrl}
+              onUploadingChange={setIsUploadingPaymentProof}
             />
           </div>
           <DialogFooter>
@@ -531,7 +541,11 @@ export function LearnerBookingsPanel() {
             </Button>
             <Button
               onClick={handleUpload}
-              disabled={uploadProofMutation.isPending}
+              disabled={
+                uploadProofMutation.isPending ||
+                isUploadingPaymentProof ||
+                !paymentProofUrl
+              }
             >
               {uploadProofMutation.isPending
                 ? t("learner.bookings.uploading")

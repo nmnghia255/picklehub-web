@@ -18,6 +18,8 @@ import {
   CalendarDays,
   CheckCircle2,
   DollarSign,
+  ImagePlus,
+  Loader2,
   MapPin,
   Pencil,
   Plus,
@@ -70,6 +72,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { useSession } from "@/features/auth/hooks/use-session"
+import { CoachMediaService } from "@/features/coach/api/media-service"
 import { CourtBookingLocationFields } from "@/features/coach/components/court-booking-location-fields"
 import {
   useAddScheduleSlot,
@@ -221,6 +224,9 @@ export default function CoachClassDetailPage() {
   const [capacity, setCapacity] = useState(0)
   const [priceVnd, setPriceVnd] = useState(0)
   const [locationDescription, setLocationDescription] = useState("")
+  const [coverImageUrl, setCoverImageUrl] = useState("")
+  const [coverImageUploading, setCoverImageUploading] = useState(false)
+  const [coverImageError, setCoverImageError] = useState("")
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
 
@@ -298,6 +304,7 @@ export default function CoachClassDetailPage() {
       setCapacity(classData.capacity ?? 0)
       setPriceVnd(classData.priceVnd ?? 0)
       setLocationDescription(classData.locationDescription ?? "")
+      setCoverImageUrl(classData.coverImageUrl ?? "")
       setStartDate(
         classData.startDate
           ? dayjs(classData.startDate).format("YYYY-MM-DD")
@@ -437,7 +444,35 @@ export default function CoachClassDetailPage() {
   const isCancellable =
     classData.status !== "COMPLETED" && classData.status !== "CANCELLED"
 
+  const handleCoverImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0]
+    event.target.value = ""
+    if (!file) return
+    setCoverImageError("")
+    if (!file.type.startsWith("image/")) {
+      setCoverImageError(t("coach.classes.uploadInvalidImage"))
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setCoverImageError(t("coach.classes.uploadImageTooLarge"))
+      return
+    }
+
+    setCoverImageUploading(true)
+    try {
+      const uploadedUrl = await CoachMediaService.uploadImage(file)
+      setCoverImageUrl(uploadedUrl)
+    } catch {
+      setCoverImageError(t("coach.classes.uploadError"))
+    } finally {
+      setCoverImageUploading(false)
+    }
+  }
+
   const handleUpdate = () => {
+    if (coverImageUploading) return
     updateClass.mutate(
       {
         classId,
@@ -448,6 +483,7 @@ export default function CoachClassDetailPage() {
           capacity,
           priceVnd,
           locationDescription: locationDescription || undefined,
+          coverImageUrl: coverImageUrl || undefined,
           startDate: startDate || undefined,
           endDate: endDate || undefined,
         },
@@ -1432,11 +1468,48 @@ export default function CoachClassDetailPage() {
                   rows={4}
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="coverImageUpload">
+                  {t("coach.classes.detail.coverImageLabel")}
+                </Label>
+                {coverImageUrl ? (
+                  <img
+                    src={coverImageUrl}
+                    alt={t("coach.classes.detail.coverImageLabel")}
+                    className="h-40 w-full max-w-xl rounded-xl border object-cover"
+                  />
+                ) : null}
+                {canEdit ? (
+                  <label className="flex w-fit cursor-pointer items-center gap-2 rounded-xl border border-dashed px-3 py-2 text-sm">
+                    {coverImageUploading ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <ImagePlus className="size-4" />
+                    )}
+                    <span>
+                      {coverImageUploading
+                        ? t("coach.profile.uploading")
+                        : t("coach.classes.detail.uploadCoverImage")}
+                    </span>
+                    <Input
+                      id="coverImageUpload"
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      className="hidden"
+                      onChange={handleCoverImageChange}
+                      disabled={coverImageUploading}
+                    />
+                  </label>
+                ) : null}
+                {coverImageError ? (
+                  <p className="text-xs text-destructive">{coverImageError}</p>
+                ) : null}
+              </div>
               {canEdit && (
                 <div className="flex justify-end">
                   <Button
                     onClick={handleUpdate}
-                    disabled={updateClass.isPending}
+                    disabled={updateClass.isPending || coverImageUploading}
                   >
                     {updateClass.isPending
                       ? t("coach.classes.detail.saving")

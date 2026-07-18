@@ -139,8 +139,16 @@ export const useServicesProductsStore = create<ServicesProductsState>(
       set({ selectedCenterId: centerId, services: [], products: [] }),
 
     fetchServices: async () => {
-      const { selectedCenterId } = get()
+      const { centers, selectedCenterId } = get()
       if (!selectedCenterId) return
+
+      const selectedCenter = centers.find(
+        (center) => center.id === selectedCenterId
+      )
+      if (selectedCenter?.status !== "ACTIVE") {
+        set({ services: [], loadingServices: false, permissionDenied: false })
+        return
+      }
 
       set({ loadingServices: true })
 
@@ -161,8 +169,16 @@ export const useServicesProductsStore = create<ServicesProductsState>(
     },
 
     fetchProducts: async () => {
-      const { selectedCenterId } = get()
+      const { centers, selectedCenterId } = get()
       if (!selectedCenterId) return
+
+      const selectedCenter = centers.find(
+        (center) => center.id === selectedCenterId
+      )
+      if (selectedCenter?.status !== "ACTIVE") {
+        set({ products: [], loadingProducts: false, permissionDenied: false })
+        return
+      }
 
       set({ loadingProducts: true })
 

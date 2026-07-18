@@ -474,7 +474,7 @@ function ClassesTab() {
                       <span className="flex items-center gap-1">
                         <User className="size-3.5 text-muted-foreground" />
                         {item.enrolledLearnerCount ?? 0}{" "}
-                        {t("coach.discovery.enrolledCount", {
+                        {t("coach.income.enrolledCount", {
                           count: item.enrolledLearnerCount ?? 0,
                         })}
                       </span>

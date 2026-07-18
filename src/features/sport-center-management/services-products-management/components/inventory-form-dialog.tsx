@@ -176,6 +176,7 @@ export function InventoryFormDialog({
           price,
           description: description || undefined,
           unit: unit || undefined,
+          imageUrl: form.imageUrl || undefined,
         })
       } else if (item) {
         success = await updateService(item.id, {
@@ -184,6 +185,7 @@ export function InventoryFormDialog({
           price,
           description: description || null,
           unit: unit || null,
+          ...(form.imageUrl ? { imageUrl: form.imageUrl } : {}),
           isActive: form.isActive,
         })
       }
@@ -211,7 +213,7 @@ export function InventoryFormDialog({
           price,
           description: description || null,
           unit: unit || null,
-          imageUrl: form.imageUrl || null,
+          ...(form.imageUrl ? { imageUrl: form.imageUrl } : {}),
           stock,
           isActive: form.isActive,
         })
@@ -355,20 +357,27 @@ export function InventoryFormDialog({
             />
           </div>
 
-          {isProduct ? (
-            <div className="space-y-2">
-              <Label>{t("inventory.form.imageLabel")}</Label>
+          <div className="space-y-2">
+              <Label>
+                {isProduct
+                  ? t("inventory.form.imageLabel")
+                  : t("inventory.form.serviceImageLabel")}
+              </Label>
               {form.imageUrl ? (
                 <div className="relative w-fit">
                   {}
                   <img
                     src={form.imageUrl}
-                    alt={t("inventory.form.imageLabel")}
+                    alt={t(
+                      isProduct
+                        ? "inventory.form.imageLabel"
+                        : "inventory.form.serviceImageLabel"
+                    )}
                     className="h-32 w-32 rounded-xl border object-cover"
                   />
                   <button
                     type="button"
-                    onClick={() => updateField("imageUrl", "")}
+                    onClick={() => updateField("imageUrl", item?.imageUrl ?? "")}
                     className="absolute -top-2 -right-2 rounded-full bg-background p-1 shadow-sm ring-1 ring-border"
                   >
                     <X className="size-3.5" />
@@ -399,7 +408,6 @@ export function InventoryFormDialog({
                 {t("inventory.form.imageHint")}
               </p>
             </div>
-          ) : null}
 
           {mode === "edit" ? (
             <div className="flex items-center justify-between rounded-2xl border bg-muted/20 p-3">

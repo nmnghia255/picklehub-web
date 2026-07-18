@@ -1,8 +1,13 @@
 import type {
   CancellationPolicy,
   UpdateCancellationPolicyRequest,
+  UpdatedCancellationPolicy,
 } from "../types/cancellation-policy"
-import type { CourtResponse, CreateCourtRequest } from "../types/court"
+import type {
+  CourtResponse,
+  CreateCourtRequest,
+  UpdateCourtRequest,
+} from "../types/court"
 import type {
   CreateCenterPriceSlotRequest,
   PriceSlot,
@@ -50,6 +55,9 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 export const sportCenterWizardClient = {
+  listOwnerSportCenters: () =>
+    requestJson<SportCenter[]>("/api/sport-centers/me"),
+
   createSportCenter: (request: CreateSportCenterRequest) =>
     requestJson<SportCenter>("/api/sport-centers", {
       method: "POST",
@@ -60,6 +68,11 @@ export const sportCenterWizardClient = {
     requestJson<SportCenter>(`/api/sport-centers/${centerId}`, {
       method: "PATCH",
       body: JSON.stringify(request),
+    }),
+
+  deleteSportCenter: (centerId: string) =>
+    requestJson<SportCenter>(`/api/sport-centers/${centerId}`, {
+      method: "DELETE",
     }),
 
   getSportCenter: (centerId: string) =>
@@ -74,6 +87,25 @@ export const sportCenterWizardClient = {
       body: JSON.stringify(request),
     }),
 
+  updateCourt: (
+    centerId: string,
+    courtId: string,
+    request: UpdateCourtRequest
+  ) =>
+    requestJson<CourtResponse>(
+      `/api/sport-centers/${centerId}/courts/${courtId}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(request),
+      }
+    ),
+
+  deleteCourt: (centerId: string, courtId: string) =>
+    requestJson<CourtResponse>(
+      `/api/sport-centers/${centerId}/courts/${courtId}`,
+      { method: "DELETE" }
+    ),
+
   listPriceSlots: (centerId: string) =>
     requestJson<PriceSlot[]>(`/api/sport-centers/${centerId}/price-slots`),
 
@@ -87,7 +119,7 @@ export const sportCenterWizardClient = {
     centerId: string,
     request: UpdateCenterPriceSlotsRequest
   ) =>
-    requestJson<PriceSlot[]>(`/api/sport-centers/${centerId}/price-slots`, {
+    requestJson<void>(`/api/sport-centers/${centerId}/price-slots`, {
       method: "PATCH",
       body: JSON.stringify(request),
     }),
@@ -101,7 +133,7 @@ export const sportCenterWizardClient = {
     centerId: string,
     request: UpdateCancellationPolicyRequest
   ) =>
-    requestJson<CancellationPolicy>(
+    requestJson<UpdatedCancellationPolicy>(
       `/api/sport-centers/${centerId}/cancellation-policy`,
       {
         method: "PATCH",

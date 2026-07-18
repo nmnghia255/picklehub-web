@@ -532,6 +532,7 @@
       "descriptionLabel": "Description",
       "descriptionPlaceholder": "Short description...",
       "imageLabel": "Product image",
+      "serviceImageLabel": "Service image",
       "imageHint": "PNG, JPEG, JPG ? up to 5MB",
       "uploading": "Uploading...",
       "uploadImage": "Upload image",
@@ -593,6 +594,130 @@
       "activeCount_other": "{{count}} active"
     }
   },
+  "centerList": {
+    "badge": "Owner workspace",
+    "title": "Manage Sport Centers",
+    "subtitle": "View and manage the Sport Centers owned by your account.",
+    "imageAlt": "{{name}} image",
+    "noImage": "No image",
+    "courts": "{{count}} courts",
+    "created": "Created {{date}}",
+    "status": { "active": "Active", "inactive": "Inactive" },
+    "actions": {
+      "create": "Create Sport Center",
+      "view": "View details",
+      "manageCourts": "Manage courts",
+      "edit": "Edit",
+      "delete": "Delete",
+      "retry": "Try again",
+      "cancel": "Cancel",
+      "confirmDelete": "Delete center",
+      "deleting": "Deleting...",
+      "save": "Save changes",
+      "saving": "Saving..."
+    },
+    "empty": {
+      "title": "No Sport Centers yet",
+      "description": "Create your first Sport Center to start managing courts, bookings, and inventory.",
+      "action": "Create your first Sport Center"
+    },
+    "error": {
+      "title": "Unable to load Sport Centers",
+      "description": "Something went wrong while loading your Sport Centers."
+    },
+    "delete": {
+      "title": "Delete Sport Center?",
+      "description": "Are you sure you want to delete {{name}}? This action will be processed by the server."
+    },
+    "edit": {
+      "title": "Edit Sport Center",
+      "description": "Update the basic information for this Sport Center."
+    },
+    "fields": {
+      "name": "Name",
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email",
+      "openTime": "Opening time",
+      "closeTime": "Closing time",
+      "basePrice": "Base price"
+    },
+    "toast": {
+      "updated": "Sport Center updated successfully.",
+      "updateFailed": "Unable to update Sport Center.",
+      "deleted": "Sport Center deleted successfully.",
+      "deleteFailed": "Unable to delete Sport Center."
+    }
+  },
+  "managementDetail": {
+    "tabs": {
+      "overview": "Overview",
+      "courts": "Courts"
+    },
+    "actions": {
+      "manageCourts": "Manage courts"
+    }
+  },
+  "courtManagement": {
+    "title": "Court management",
+    "subtitle": "Create and manage the courts belonging to this Sport Center.",
+    "updated": "Updated {{date}}",
+    "types": {
+      "INDOOR": "Indoor",
+      "OUTDOOR": "Outdoor"
+    },
+    "status": {
+      "active": "Active",
+      "maintenance": "Maintenance",
+      "archived": "Archived",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "add": "Add court",
+      "addFirst": "Add the first court",
+      "edit": "Edit",
+      "archive": "Archive",
+      "retry": "Retry",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "save": "Save",
+      "archiving": "Archiving...",
+      "confirmArchive": "Archive court"
+    },
+    "empty": {
+      "title": "No courts yet",
+      "description": "You can add courts at any time after finishing the Sport Center setup."
+    },
+    "error": {
+      "load": "Unable to load the court list."
+    },
+    "form": {
+      "createTitle": "Add court",
+      "editTitle": "Edit court",
+      "description": "Enter the court information below."
+    },
+    "fields": {
+      "name": "Court name",
+      "namePlaceholder": "Example: Court 1",
+      "type": "Court type",
+      "status": "Court status"
+    },
+    "archive": {
+      "title": "Archive court?",
+      "description": "Are you sure you want to archive {{name}}? It will no longer be available for management."
+    },
+    "validation": {
+      "nameRequired": "Enter a court name."
+    },
+    "toast": {
+      "created": "Court created successfully.",
+      "createFailed": "Unable to create the court.",
+      "updated": "Court updated successfully.",
+      "updateFailed": "Unable to update the court.",
+      "archived": "Court archived successfully.",
+      "archiveFailed": "Unable to archive the court."
+    }
+  },
   "createCenter": {
     "page": {
       "badge": "Sport center wizard",
@@ -633,8 +758,8 @@
       "paymentAccountName": "Account holder name",
       "paymentAccountNumber": "Account number",
       "paymentBankName": "Bank name",
-      "paymentQrUrl": "Payment QR URL",
-      "images": "Image URLs",
+      "paymentQrUrl": "Payment QR image",
+      "images": "Center images",
       "amenities": "Amenities",
       "rules": "Rules",
       "startTime": "Start time",
@@ -650,7 +775,7 @@
       "serviceType": "Service type",
       "price": "Price",
       "unit": "Unit",
-      "imageUrl": "Image URL",
+      "imageUrl": "Image",
       "stock": "Stock",
       "productName": "Product name",
       "productType": "Product type"
@@ -662,7 +787,7 @@
       "email": "hello@example.com",
       "description": "Short center description",
       "listHint": "One item per line",
-      "courtName": "Court 1"
+      "courtName": "Court {{index}}"
     },
     "labels": {
       "slot": "Slot {{index}}",
@@ -691,7 +816,7 @@
       "courts": "Courts",
       "services": "Services",
       "products": "Products",
-      "skippedCourts": "No courts configured yet.",
+      "skippedCourts": "No courts configured yet. You can configure courts later from the management detail page.",
       "skippedInventory": "No items configured yet.",
       "noteTitle": "Review before finishing",
       "note": "The wizard will sync the latest server state before navigating to the management detail page."

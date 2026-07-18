@@ -482,7 +482,7 @@
             "generateSuccess": "Trận đấu đã được tạo thành công!",
             "generateError": "Đã xảy ra lỗi khi tạo trận đấu. Vui lòng thử lại sau.",
             "successConfirm": "Xác nhận thành công!",
-            "confirmError": "Đã xảy ra lỗi khi xác nhận. Vui lòng thử lại sau.",
+            "confirmError": "Đã xảy ra lỗi khi xác nhận. Vui lòng thử lại.",
             "incompleteWarningTitle": "Trận đấu chưa hoàn chỉnh",
             "incompleteWarningDescription": "Có các trận đấu chưa hoàn tất ở Lượt trận: {{sessions}}. Bạn có chắc chắn muốn tiếp tục không?",
             "playerAlreadyInSession": "Cầu thủ này đã có trong phiên chơi hiện tại. Không thể thêm vào trận khác trong cùng phiên."

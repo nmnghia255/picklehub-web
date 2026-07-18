@@ -19,7 +19,7 @@ export async function uploadImageAction(
   const axios = await getAuthenticatedAxios()
 
   const response = await axios.post(`/api/media/images`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
+    headers: { "Content-Type": undefined },
   })
 
   const body = response.data as ApiResponse<{ url?: string }> | { url?: string }

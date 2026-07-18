@@ -1,6 +1,6 @@
 "use client"
 
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   ArrowLeft,
   ArrowRight,
@@ -27,12 +27,15 @@ import { Textarea } from "@/components/ui/textarea"
 import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import { sportCenterWizardClient } from "../../api/sport-center-wizard-client"
+import { sportCenterOwnerListQueryKey } from "../../queries"
 import type {
   ProductType,
   ServiceType,
 } from "../../services-products-management/types"
 import type { CancellationTier } from "../../types/cancellation-policy"
 import type { CourtLifecycleStatus, CourtType } from "../../types/court"
+import type { SportCenterStatus } from "../../types/sport-center"
+import { ImageUploadControl } from "../image-upload-control"
 
 type WizardStep = 1 | 2 | 3 | 4 | 5 | 6
 
@@ -49,7 +52,7 @@ type CenterDraft = {
   paymentAccountNumber: string
   paymentBankName: string
   paymentQrUrl: string
-  imagesText: string
+  images: string[]
   amenitiesText: string
   rulesText: string
 }
@@ -142,6 +145,7 @@ function draftProductLabel(index: number) {
 export function CreateSportCenterWizard() {
   const router = useRouter()
   const { t } = useSportCenterManagementTranslation()
+  const queryClient = useQueryClient()
 
   const [currentStep, setCurrentStep] = useState<WizardStep>(1)
   const [centerId, setCenterId] = useState<string | null>(null)
@@ -161,7 +165,7 @@ export function CreateSportCenterWizard() {
     amenities?: string[]
     rules?: string[]
     description?: string | null
-    status?: string
+    status?: SportCenterStatus
   } | null>(null)
 
   const [centerDraft, setCenterDraft] = useState<CenterDraft>({
@@ -177,7 +181,7 @@ export function CreateSportCenterWizard() {
     paymentAccountNumber: "",
     paymentBankName: "",
     paymentQrUrl: "",
-    imagesText: "",
+    images: [],
     amenitiesText: "",
     rulesText: "",
   })
@@ -237,6 +241,10 @@ export function CreateSportCenterWizard() {
   const [productDrafts, setProductDrafts] = useState<ProductDraft[]>([])
 
   const [globalError, setGlobalError] = useState<string | null>(null)
+  const [centerImagesUploading, setCenterImagesUploading] = useState(false)
+  const [paymentQrUploading, setPaymentQrUploading] = useState(false)
+  const [serviceImageUploading, setServiceImageUploading] = useState(false)
+  const [productImageUploading, setProductImageUploading] = useState(false)
 
   const priceSlotDefaults = useMemo(
     () => ({
@@ -255,7 +263,7 @@ export function CreateSportCenterWizard() {
         phone: centerDraft.phone.trim(),
         email: centerDraft.email.trim() || undefined,
         description: centerDraft.description.trim() || undefined,
-        images: splitLines(centerDraft.imagesText),
+        images: centerDraft.images,
         rules: splitLines(centerDraft.rulesText),
         openTime: centerDraft.openTime,
         closeTime: centerDraft.closeTime,
@@ -276,6 +284,11 @@ export function CreateSportCenterWizard() {
     onSuccess: (data) => {
       setCenterId(data.id)
       setCenterSnapshot(data)
+      setCenterDraft((current) => ({
+        ...current,
+        paymentQrUrl: data.paymentQrUrl ?? current.paymentQrUrl,
+        images: data.images ?? current.images,
+      }))
       toast.success(
         centerId
           ? t("createCenter.toast.centerUpdated", {
@@ -449,17 +462,32 @@ export function CreateSportCenterWizard() {
         throw new Error(failures.join(" | "))
       }
 
-      return {
-        center: await sportCenterWizardClient.getSportCenter(centerId),
-        courts: await sportCenterWizardClient.listCourts(centerId),
-        priceSlots: await sportCenterWizardClient.listPriceSlots(centerId),
-        policy: await sportCenterWizardClient.getCancellationPolicy(centerId),
-        services: await sportCenterWizardClient.listServices(centerId),
-        products: await sportCenterWizardClient.listProducts(centerId),
-      }
+      const center = await sportCenterWizardClient.getSportCenter(centerId)
+
+      const [courts, priceSlots, policy] = await Promise.all([
+        courtDrafts.length > 0
+          ? sportCenterWizardClient.listCourts(centerId)
+          : Promise.resolve([]),
+        sportCenterWizardClient.listPriceSlots(centerId),
+        sportCenterWizardClient.getCancellationPolicy(centerId),
+      ])
+
+      // The documented list endpoints return active catalog entries only.
+      // A newly created center is INACTIVE by default, so querying these
+      // endpoints before activation produces the backend's 404 response.
+      const [services, products] =
+        center.status === "ACTIVE"
+          ? await Promise.all([
+              sportCenterWizardClient.listServices(centerId),
+              sportCenterWizardClient.listProducts(centerId),
+            ])
+          : [[], []]
+
+      return { center, courts, priceSlots, policy, services, products }
     },
     onSuccess: (result) => {
       setCenterSnapshot(result.center)
+      queryClient.invalidateQueries({ queryKey: sportCenterOwnerListQueryKey })
       toast.success(
         t("createCenter.toast.finalSuccess", {
           defaultValue: "Sport center setup completed.",
@@ -672,6 +700,14 @@ export function CreateSportCenterWizard() {
     setGlobalError(null)
 
     if (currentStep === 1) {
+      if (centerImagesUploading || paymentQrUploading) {
+        setGlobalError(
+          t("createCenter.validation.imageUploadPending", {
+            defaultValue: "Please wait for image uploads to finish.",
+          })
+        )
+        return
+      }
       if (!validateCenterStep()) return
       await centerMutation.mutateAsync()
       return
@@ -729,6 +765,14 @@ export function CreateSportCenterWizard() {
   }
 
   const addServiceDraft = () => {
+    if (serviceImageUploading) {
+      setGlobalError(
+        t("createCenter.validation.imageUploadPending", {
+          defaultValue: "Please wait for image uploads to finish.",
+        })
+      )
+      return
+    }
     if (
       !serviceDraft.name.trim() ||
       !serviceDraft.price ||
@@ -749,6 +793,14 @@ export function CreateSportCenterWizard() {
   }
 
   const addProductDraft = () => {
+    if (productImageUploading) {
+      setGlobalError(
+        t("createCenter.validation.imageUploadPending", {
+          defaultValue: "Please wait for image uploads to finish.",
+        })
+      )
+      return
+    }
     if (
       !productDraft.name.trim() ||
       !productDraft.price ||
@@ -1110,15 +1162,18 @@ export function CreateSportCenterWizard() {
                         defaultValue: "Payment QR URL",
                       })}
                     </Label>
-                    <Input
+                    <ImageUploadControl
                       value={centerDraft.paymentQrUrl}
-                      onChange={(e) =>
+                      label={t("createCenter.actions.uploadQr", {
+                        defaultValue: "Upload payment QR",
+                      })}
+                      onChange={(value) =>
                         setCenterDraft((current) => ({
                           ...current,
-                          paymentQrUrl: e.target.value,
+                          paymentQrUrl: typeof value === "string" ? value : value[0] ?? "",
                         }))
                       }
-                      placeholder="https://..."
+                      onUploadingChange={setPaymentQrUploading}
                     />
                   </div>
                 </div>
@@ -1129,19 +1184,22 @@ export function CreateSportCenterWizard() {
                   <div className="space-y-2">
                     <Label>
                       {t("createCenter.fields.images", {
-                        defaultValue: "Image URLs",
+                        defaultValue: "Center images",
                       })}
                     </Label>
-                    <Textarea
-                      value={centerDraft.imagesText}
-                      onChange={(e) =>
+                    <ImageUploadControl
+                      value={centerDraft.images}
+                      multiple
+                      label={t("createCenter.actions.uploadImage", {
+                        defaultValue: "Upload image",
+                      })}
+                      onChange={(value) =>
                         setCenterDraft((current) => ({
                           ...current,
-                          imagesText: e.target.value,
+                          images: Array.isArray(value) ? value : value ? [value] : [],
                         }))
                       }
-                      placeholder="https://..."
-                      className="min-h-28"
+                      onUploadingChange={setCenterImagesUploading}
                     />
                   </div>
                   <div className="space-y-2">
@@ -1271,6 +1329,7 @@ export function CreateSportCenterWizard() {
                       </Button>
                       <Badge variant="secondary">
                         {t("createCenter.labels.slot", {
+                          index: index + 1,
                           defaultValue: `Slot ${index + 1}`,
                         })}
                       </Badge>
@@ -1390,6 +1449,7 @@ export function CreateSportCenterWizard() {
                         </Button>
                         <Badge variant="secondary">
                           {t("createCenter.labels.tier", {
+                            index: index + 1,
                             defaultValue: `Tier ${index + 1}`,
                           })}
                         </Badge>
@@ -1428,9 +1488,7 @@ export function CreateSportCenterWizard() {
                 <div className="grid gap-4 md:grid-cols-3">
                   <div className="space-y-2">
                     <Label>
-                      {t("createCenter.fields.courtName", {
-                        defaultValue: "Court name",
-                      })}
+                      {t("createCenter.fields.courtName")}
                     </Label>
                     <Input
                       value={courtDraft.name}
@@ -1441,15 +1499,13 @@ export function CreateSportCenterWizard() {
                         }))
                       }
                       placeholder={t("createCenter.placeholders.courtName", {
-                        defaultValue: draftCourtLabel(courtDrafts.length),
+                        index: courtDrafts.length + 1,
                       })}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>
-                      {t("createCenter.fields.courtType", {
-                        defaultValue: "Court type",
-                      })}
+                      {t("createCenter.fields.courtType")}
                     </Label>
                     <select
                       className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
@@ -1462,22 +1518,16 @@ export function CreateSportCenterWizard() {
                       }
                     >
                       <option value="INDOOR">
-                        {t("createCenter.enums.courtType.indoor", {
-                          defaultValue: "Indoor",
-                        })}
+                        {t("courtManagement.types.INDOOR")}
                       </option>
                       <option value="OUTDOOR">
-                        {t("createCenter.enums.courtType.outdoor", {
-                          defaultValue: "Outdoor",
-                        })}
+                        {t("courtManagement.types.OUTDOOR")}
                       </option>
                     </select>
                   </div>
                   <div className="space-y-2">
                     <Label>
-                      {t("createCenter.fields.courtStatus", {
-                        defaultValue: "Status",
-                      })}
+                      {t("createCenter.fields.courtStatus")}
                     </Label>
                     <select
                       className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
@@ -1489,9 +1539,15 @@ export function CreateSportCenterWizard() {
                         }))
                       }
                     >
-                      <option value="ACTIVE">ACTIVE</option>
-                      <option value="MAINTENANCE">MAINTENANCE</option>
-                      <option value="ARCHIVED">ARCHIVED</option>
+                      <option value="ACTIVE">
+                        {t("courtManagement.status.active")}
+                      </option>
+                      <option value="MAINTENANCE">
+                        {t("courtManagement.status.maintenance")}
+                      </option>
+                      <option value="ARCHIVED">
+                        {t("courtManagement.status.archived")}
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -1499,19 +1555,14 @@ export function CreateSportCenterWizard() {
                 <div className="flex justify-end">
                   <Button type="button" onClick={addCourtDraft}>
                     <Plus className="mr-2 size-4" />
-                    {t("createCenter.actions.addCourt", {
-                      defaultValue: "Add court",
-                    })}
+                    {t("createCenter.actions.addCourt")}
                   </Button>
                 </div>
 
                 <div className="space-y-3">
                   {courtDrafts.length === 0 ? (
                     <div className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">
-                      {t("createCenter.review.skippedCourts", {
-                        defaultValue:
-                          "No courts added yet. You can skip this step.",
-                      })}
+                      {t("createCenter.review.skippedCourts")}
                     </div>
                   ) : (
                     courtDrafts.map((item) => (
@@ -1522,7 +1573,9 @@ export function CreateSportCenterWizard() {
                         <div>
                           <p className="font-medium">{item.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {item.type} • {item.status}
+                            {t(`courtManagement.types.${item.type}`)} · {t(
+                              `courtManagement.status.${item.status.toLowerCase()}`
+                            )}
                           </p>
                         </div>
                         <Button
@@ -1657,17 +1710,22 @@ export function CreateSportCenterWizard() {
                       <div className="space-y-2">
                         <Label>
                           {t("createCenter.fields.imageUrl", {
-                            defaultValue: "Image URL",
+                            defaultValue: "Service image",
                           })}
                         </Label>
-                        <Input
+                        <ImageUploadControl
                           value={serviceDraft.imageUrl}
-                          onChange={(e) =>
+                          label={t("createCenter.actions.uploadImage", {
+                            defaultValue: "Upload image",
+                          })}
+                          onChange={(value) =>
                             setServiceDraft((current) => ({
                               ...current,
-                              imageUrl: e.target.value,
+                              imageUrl:
+                                typeof value === "string" ? value : value[0] ?? "",
                             }))
                           }
+                          onUploadingChange={setServiceImageUploading}
                         />
                       </div>
                     </div>
@@ -1848,17 +1906,22 @@ export function CreateSportCenterWizard() {
                       <div className="space-y-2">
                         <Label>
                           {t("createCenter.fields.imageUrl", {
-                            defaultValue: "Image URL",
+                            defaultValue: "Product image",
                           })}
                         </Label>
-                        <Input
+                        <ImageUploadControl
                           value={productDraft.imageUrl}
-                          onChange={(e) =>
+                          label={t("createCenter.actions.uploadImage", {
+                            defaultValue: "Upload image",
+                          })}
+                          onChange={(value) =>
                             setProductDraft((current) => ({
                               ...current,
-                              imageUrl: e.target.value,
+                              imageUrl:
+                                typeof value === "string" ? value : value[0] ?? "",
                             }))
                           }
+                          onUploadingChange={setProductImageUploading}
                         />
                       </div>
                       <div className="space-y-2">

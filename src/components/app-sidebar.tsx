@@ -73,8 +73,8 @@ const sidebarItems: SidebarItem[] = [
 
 const sportCenterManagementMenuItems = [
   {
-    titleKey: "createCenter",
-    href: "/sport-center-management/create",
+    titleKey: "manageCenters",
+    href: "/sport-center-management",
   },
   {
     titleKey: "courtManagement",

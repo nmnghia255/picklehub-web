@@ -23,6 +23,7 @@ import {
   type FormEvent,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react"
 import { useTranslation } from "react-i18next"
@@ -46,6 +47,7 @@ import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
 import { useSession } from "@/features/auth/hooks/use-session"
+import { CoachMediaService } from "@/features/coach/api/media-service"
 
 import {
   useAddCertification,
@@ -146,9 +148,12 @@ export function CoachProfileForm() {
   const [locationCity, setLocationCity] = useState("")
   const [yearsExperience, setYearsExperience] = useState("0")
   const [avatarUrl, setAvatarUrl] = useState("")
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState("")
   const [avatarFileName, setAvatarFileName] = useState(
     t("coach.profile.noAvatarUploaded")
   )
+  const [avatarUploading, setAvatarUploading] = useState(false)
+  const [avatarUploadError, setAvatarUploadError] = useState("")
 
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
   const [certDialogOpen, setCertDialogOpen] = useState(false)
@@ -156,7 +161,28 @@ export function CoachProfileForm() {
   const [certOrg, setCertOrg] = useState("")
   const [certIssuedAt, setCertIssuedAt] = useState("")
   const [certFileUrl, setCertFileUrl] = useState("")
+  const [certPreviewUrl, setCertPreviewUrl] = useState("")
   const [certFileName, setCertFileName] = useState("")
+  const [certUploading, setCertUploading] = useState(false)
+  const [certUploadError, setCertUploadError] = useState("")
+  const avatarInputRef = useRef<HTMLInputElement>(null)
+  const certInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreviewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(avatarPreviewUrl)
+      }
+    }
+  }, [avatarPreviewUrl])
+
+  useEffect(() => {
+    return () => {
+      if (certPreviewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(certPreviewUrl)
+      }
+    }
+  }, [certPreviewUrl])
 
   const certifications = certs ?? []
   const skillOptions = getSkillOptions(t)
@@ -169,6 +195,7 @@ export function CoachProfileForm() {
       setLocationCity(profile.locationCity ?? "")
       setYearsExperience(String(profile.yearsExperience ?? 0))
       setAvatarUrl(profile.avatarUrl ?? "")
+      setAvatarPreviewUrl(profile.avatarUrl ?? "")
       setSelectedSkills(profile.specialties ?? [])
     }
   }, [profile])
@@ -194,21 +221,47 @@ export function CoachProfileForm() {
     setLocationCity(profile?.locationCity ?? "")
     setYearsExperience(String(profile?.yearsExperience ?? 0))
     setAvatarUrl(profile?.avatarUrl ?? "")
+    setAvatarPreviewUrl(profile?.avatarUrl ?? "")
     setAvatarFileName(t("coach.profile.noAvatarUploaded"))
+    setAvatarUploadError("")
     setIsEditingBasicInfo(true)
   }
 
-  const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
+    event.target.value = ""
     if (!file) return
-    setAvatarUrl(URL.createObjectURL(file))
+
+    setAvatarUploadError("")
+    if (!file.type.startsWith("image/")) {
+      setAvatarUploadError(t("coach.profile.invalidImage"))
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setAvatarUploadError(t("coach.profile.imageTooLarge"))
+      return
+    }
+
+    const localPreviewUrl = URL.createObjectURL(file)
+    setAvatarPreviewUrl(localPreviewUrl)
     setAvatarFileName(file.name)
+    setAvatarUploading(true)
+    try {
+      const uploadedUrl = await CoachMediaService.uploadImage(file)
+      setAvatarUrl(uploadedUrl)
+      setAvatarPreviewUrl(uploadedUrl)
+    } catch {
+      setAvatarUploadError(t("coach.profile.uploadError"))
+    } finally {
+      setAvatarUploading(false)
+    }
   }
 
   const handleBasicInfoSave = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const expYears = Number(yearsExperience)
     if (Number.isNaN(expYears) || expYears < 0) return
+    if (avatarUploading) return
 
     updateProfile.mutate({
       displayName: displayName.trim() || undefined,
@@ -222,6 +275,10 @@ export function CoachProfileForm() {
 
   const handleBasicInfoCancel = () => {
     setIsEditingBasicInfo(false)
+    setAvatarUrl(profile?.avatarUrl ?? "")
+    setAvatarPreviewUrl(profile?.avatarUrl ?? "")
+    setAvatarUploadError("")
+    if (avatarInputRef.current) avatarInputRef.current.value = ""
   }
 
   const handleSkillToggle = (value: string) => {
@@ -243,7 +300,9 @@ export function CoachProfileForm() {
     setCertOrg("")
     setCertIssuedAt(new Date().toISOString().slice(0, 10))
     setCertFileUrl("")
+    setCertPreviewUrl("")
     setCertFileName("")
+    setCertUploadError("")
     setCertDialogOpen(true)
   }
 
@@ -251,9 +310,32 @@ export function CoachProfileForm() {
     event: ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0]
+    event.target.value = ""
     if (!file) return
-    setCertFileUrl(URL.createObjectURL(file))
+
+    setCertUploadError("")
+    if (!file.type.startsWith("image/")) {
+      setCertUploadError(t("coach.profile.invalidCertificationFile"))
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setCertUploadError(t("coach.profile.imageTooLarge"))
+      return
+    }
+
+    const localPreviewUrl = URL.createObjectURL(file)
+    setCertPreviewUrl(localPreviewUrl)
     setCertFileName(file.name)
+    setCertUploading(true)
+    CoachMediaService.uploadImage(file)
+      .then((uploadedUrl) => {
+        setCertFileUrl(uploadedUrl)
+        setCertPreviewUrl(uploadedUrl)
+      })
+      .catch(() => {
+        setCertUploadError(t("coach.profile.uploadError"))
+      })
+      .finally(() => setCertUploading(false))
   }
 
   const handleCertificationSave = (event: FormEvent<HTMLFormElement>) => {
@@ -261,6 +343,10 @@ export function CoachProfileForm() {
     const name = certName.trim()
     const org = certOrg.trim()
     if (!name) return
+    if (certUploading || (certFileName && !certFileUrl)) {
+      setCertUploadError(t("coach.profile.uploadPending"))
+      return
+    }
 
     addCert.mutate({
       name,
@@ -416,7 +502,7 @@ export function CoachProfileForm() {
                   <div className="grid gap-5 lg:grid-cols-[auto_1fr] lg:items-start">
                     <div className="space-y-3">
                       <Avatar size="lg" className="size-24 rounded-3xl border">
-                        <AvatarImage src={avatarUrl} alt={displayName} />
+                        <AvatarImage src={avatarPreviewUrl} alt={displayName} />
                         <AvatarFallback className="rounded-3xl text-lg font-semibold">
                           {getInitials(displayName || "?")}
                         </AvatarFallback>
@@ -426,15 +512,24 @@ export function CoachProfileForm() {
                         <Label htmlFor="avatarUpload">
                           {t("coach.profile.uploadAvatar")}
                         </Label>
-                        <Input
-                          id="avatarUpload"
-                          type="file"
-                          accept="image/*"
-                          onChange={handleAvatarChange}
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          {avatarFileName}
-                        </p>
+                          <Input
+                            id="avatarUpload"
+                            ref={avatarInputRef}
+                            type="file"
+                            accept="image/png,image/jpeg,image/jpg,image/webp"
+                            onChange={handleAvatarChange}
+                            disabled={avatarUploading}
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            {avatarUploading
+                              ? t("coach.profile.uploading")
+                              : avatarFileName}
+                          </p>
+                          {avatarUploadError ? (
+                            <p className="text-xs text-destructive">
+                              {avatarUploadError}
+                            </p>
+                          ) : null}
                       </div>
                     </div>
 
@@ -497,7 +592,7 @@ export function CoachProfileForm() {
                     <Button
                       type="submit"
                       className="rounded-full"
-                      disabled={updateProfile.isPending}
+                      disabled={updateProfile.isPending || avatarUploading}
                     >
                       <Save className="size-4" />
                       {updateProfile.isPending
@@ -760,7 +855,10 @@ export function CoachProfileForm() {
             setCertOrg("")
             setCertIssuedAt("")
             setCertFileUrl("")
+            setCertPreviewUrl("")
             setCertFileName("")
+            setCertUploadError("")
+            if (certInputRef.current) certInputRef.current.value = ""
           }
         }}
       >
@@ -817,16 +915,30 @@ export function CoachProfileForm() {
                 </Label>
                 <Input
                   id="certFile"
+                  ref={certInputRef}
                   type="file"
-                  accept="application/pdf,image/*"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
                   onChange={handleCertificationFileChange}
+                  disabled={certUploading}
                 />
                 <div className="flex items-center gap-2 rounded-2xl border border-dashed px-3 py-2 text-sm text-muted-foreground">
                   <ImageIcon className="size-4" />
                   <span>
-                    {certFileName || t("coach.profile.noFileSelected")}
+                    {certUploading
+                      ? t("coach.profile.uploading")
+                      : certFileName || t("coach.profile.noFileSelected")}
                   </span>
                 </div>
+                {certPreviewUrl ? (
+                  <img
+                    src={certPreviewUrl}
+                    alt={t("coach.profile.certPreviewAlt")}
+                    className="h-32 w-32 rounded-xl border object-cover"
+                  />
+                ) : null}
+                {certUploadError ? (
+                  <p className="text-xs text-destructive">{certUploadError}</p>
+                ) : null}
               </div>
             </div>
 
@@ -840,7 +952,12 @@ export function CoachProfileForm() {
               </Button>
               <Button
                 type="submit"
-                disabled={addCert.isPending || !certName.trim()}
+                disabled={
+                  addCert.isPending ||
+                  certUploading ||
+                  !certName.trim() ||
+                  Boolean(certFileName && !certFileUrl)
+                }
               >
                 <Save className="size-4" />
                 {addCert.isPending

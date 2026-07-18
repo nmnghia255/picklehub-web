@@ -528,6 +528,7 @@
       "descriptionLabel": "Mô tả",
       "descriptionPlaceholder": "Mô tả ngắn gọn...",
       "imageLabel": "Ảnh sản phẩm",
+      "serviceImageLabel": "Ảnh dịch vụ",
       "imageHint": "PNG, JPEG, JPG · tối đa 5MB",
       "uploading": "Đang tải...",
       "uploadImage": "Tải ảnh lên",
@@ -593,6 +594,130 @@
     "coverAlt": "{{name}} ảnh bìa",
     "logoAlt": "{{name}} logo"
   },
+  "centerList": {
+    "badge": "Không gian quản lý",
+    "title": "Quản lý Sport Center",
+    "subtitle": "Xem và quản lý các Sport Center thuộc tài khoản của bạn.",
+    "imageAlt": "Ảnh {{name}}",
+    "noImage": "Chưa có ảnh",
+    "courts": "{{count}} sân",
+    "created": "Tạo ngày {{date}}",
+    "status": { "active": "Đang hoạt động", "inactive": "Chưa hoạt động" },
+    "actions": {
+      "create": "Tạo Sport Center",
+      "view": "Xem chi tiết",
+      "manageCourts": "Quản lý sân",
+      "edit": "Chỉnh sửa",
+      "delete": "Xóa",
+      "retry": "Thử lại",
+      "cancel": "Hủy",
+      "confirmDelete": "Xóa trung tâm",
+      "deleting": "Đang xóa...",
+      "save": "Lưu thay đổi",
+      "saving": "Đang lưu..."
+    },
+    "empty": {
+      "title": "Chưa có Sport Center",
+      "description": "Hãy tạo Sport Center đầu tiên để bắt đầu quản lý sân, đặt sân và kho hàng.",
+      "action": "Tạo Sport Center đầu tiên"
+    },
+    "error": {
+      "title": "Không thể tải danh sách Sport Center",
+      "description": "Đã xảy ra lỗi khi tải các Sport Center của bạn."
+    },
+    "delete": {
+      "title": "Xóa Sport Center?",
+      "description": "Bạn có chắc muốn xóa {{name}} không? Thao tác sẽ được xử lý bởi máy chủ."
+    },
+    "edit": {
+      "title": "Chỉnh sửa Sport Center",
+      "description": "Cập nhật thông tin cơ bản của Sport Center này."
+    },
+    "fields": {
+      "name": "Tên",
+      "address": "Địa chỉ",
+      "phone": "Số điện thoại",
+      "email": "Email",
+      "openTime": "Giờ mở cửa",
+      "closeTime": "Giờ đóng cửa",
+      "basePrice": "Giá cơ bản"
+    },
+    "toast": {
+      "updated": "Đã cập nhật Sport Center.",
+      "updateFailed": "Không thể cập nhật Sport Center.",
+      "deleted": "Đã xóa Sport Center.",
+      "deleteFailed": "Không thể xóa Sport Center."
+    }
+  },
+  "managementDetail": {
+    "tabs": {
+      "overview": "Tổng quan",
+      "courts": "Sân"
+    },
+    "actions": {
+      "manageCourts": "Quản lý sân"
+    }
+  },
+  "courtManagement": {
+    "title": "Quản lý sân",
+    "subtitle": "Tạo và quản lý các sân thuộc Sport Center này.",
+    "updated": "Cập nhật {{date}}",
+    "types": {
+      "INDOOR": "Trong nhà",
+      "OUTDOOR": "Ngoài trời"
+    },
+    "status": {
+      "active": "Đang hoạt động",
+      "maintenance": "Đang bảo trì",
+      "archived": "Đã lưu trữ",
+      "inactive": "Không hoạt động"
+    },
+    "actions": {
+      "add": "Thêm sân",
+      "addFirst": "Thêm sân đầu tiên",
+      "edit": "Chỉnh sửa",
+      "archive": "Lưu trữ sân",
+      "retry": "Thử lại",
+      "cancel": "Hủy",
+      "saving": "Đang lưu...",
+      "save": "Lưu",
+      "archiving": "Đang lưu trữ...",
+      "confirmArchive": "Lưu trữ sân"
+    },
+    "empty": {
+      "title": "Chưa có sân",
+      "description": "Bạn có thể thêm sân bất kỳ lúc nào sau khi hoàn tất thiết lập Sport Center."
+    },
+    "error": {
+      "load": "Không thể tải danh sách sân."
+    },
+    "form": {
+      "createTitle": "Thêm sân",
+      "editTitle": "Chỉnh sửa sân",
+      "description": "Nhập thông tin sân bên dưới."
+    },
+    "fields": {
+      "name": "Tên sân",
+      "namePlaceholder": "Ví dụ: Sân 1",
+      "type": "Loại sân",
+      "status": "Trạng thái sân"
+    },
+    "archive": {
+      "title": "Lưu trữ sân?",
+      "description": "Bạn có chắc muốn lưu trữ {{name}} không? Sân sẽ không còn khả dụng để quản lý."
+    },
+    "validation": {
+      "nameRequired": "Vui lòng nhập tên sân."
+    },
+    "toast": {
+      "created": "Đã tạo sân thành công.",
+      "createFailed": "Không thể tạo sân.",
+      "updated": "Đã cập nhật sân thành công.",
+      "updateFailed": "Không thể cập nhật sân.",
+      "archived": "Đã lưu trữ sân thành công.",
+      "archiveFailed": "Không thể lưu trữ sân."
+    }
+  },
   "createCenter": {
     "page": {
       "badge": "Trợ lý tạo trung tâm",
@@ -635,8 +760,8 @@
       "paymentAccountName": "Tên chủ tài khoản",
       "paymentAccountNumber": "Số tài khoản",
       "paymentBankName": "Tên ngân hàng",
-      "paymentQrUrl": "URL mã QR thanh toán",
-      "images": "URL ảnh",
+      "paymentQrUrl": "Ảnh QR thanh toán",
+      "images": "Ảnh trung tâm",
       "amenities": "Tiện ích",
       "rules": "Quy định",
       "startTime": "Giờ bắt đầu",
@@ -652,7 +777,7 @@
       "serviceType": "Loại dịch vụ",
       "price": "Giá",
       "unit": "Đơn vị",
-      "imageUrl": "URL ảnh",
+      "imageUrl": "Ảnh",
       "stock": "Tồn kho",
       "productName": "Tên sản phẩm",
       "productType": "Loại sản phẩm"
@@ -664,7 +789,7 @@
       "email": "hello@example.com",
       "description": "Mô tả ngắn gọn về trung tâm",
       "listHint": "Mỗi dòng một mục",
-      "courtName": "Sân 1"
+      "courtName": "Sân {{index}}"
     },
     "labels": {
       "slot": "Khung {{index}}",
@@ -693,7 +818,7 @@
       "courts": "Sân",
       "services": "Dịch vụ",
       "products": "Sản phẩm",
-      "skippedCourts": "Chưa cấu hình sân nào.",
+      "skippedCourts": "Chưa cấu hình sân nào. Bạn có thể thiết lập sau từ trang chi tiết quản lý.",
       "skippedInventory": "Chưa cấu hình mục nào.",
       "noteTitle": "Kiểm tra trước khi hoàn tất",
       "note": "Wizard sẽ đồng bộ trạng thái mới nhất từ server trước khi chuyển sang trang chi tiết quản lý."

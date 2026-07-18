@@ -516,7 +516,9 @@ function ScheduleItemCard({
               {formatScheduleTime(item.endsAt, locale)}
             </span>
             <span>
-              ({item.durationMinutes} {t("coach.bookings.minutes")})
+              ({item.durationMinutes} {t("coach.bookings.minutes", {
+                count: item.durationMinutes,
+              })})
             </span>
             {coachName && (
               <span className="flex items-center gap-1">

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { getSportCenterRouteError } from "@/features/sport-center-management/api/route-error"
 import { SportCenterOwnerService } from "@/features/sport-center-management/api/sport-center-service"
 
 type RouteContext = {
@@ -14,12 +15,10 @@ export async function GET(request: Request, context: RouteContext) {
     const data = await SportCenterOwnerService.listCourts(centerId, queryParams)
     return NextResponse.json({ data }, { status: 200 })
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to load courts"
-    const status =
-      message === "Not authenticated" || message === "Session expired"
-        ? 401
-        : 500
+    const { message, status } = getSportCenterRouteError(
+      error,
+      "Failed to load courts"
+    )
 
     return NextResponse.json({ message }, { status })
   }
@@ -32,12 +31,10 @@ export async function POST(request: Request, context: RouteContext) {
     const data = await SportCenterOwnerService.createCourt(centerId, body)
     return NextResponse.json({ data }, { status: 201 })
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to create court"
-    const status =
-      message === "Not authenticated" || message === "Session expired"
-        ? 401
-        : 500
+    const { message, status } = getSportCenterRouteError(
+      error,
+      "Failed to create court"
+    )
 
     return NextResponse.json({ message }, { status })
   }

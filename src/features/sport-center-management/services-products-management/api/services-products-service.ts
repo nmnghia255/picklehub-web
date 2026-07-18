@@ -142,10 +142,23 @@ export async function uploadProductImage(
     "/api/media/images",
     formData,
     {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      headers: { "Content-Type": undefined },
     }
   )
-  return response.data
+
+  const payload = response.data as
+    | MediaUploadResult
+    | { data?: MediaUploadResult }
+  let result: MediaUploadResult | undefined
+  if (typeof payload === "object" && payload !== null && "data" in payload) {
+    result = payload.data
+  } else {
+    result = payload as MediaUploadResult
+  }
+
+  if (!result?.url) {
+    throw new Error("Upload response missing url")
+  }
+
+  return result
 }

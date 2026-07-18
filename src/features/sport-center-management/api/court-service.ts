@@ -1,6 +1,6 @@
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
-import type { Court, CourtRequest } from "../types/court"
+import type { Court, CourtRequest, UpdateCourtRequest } from "../types/court"
 
 interface ApiResponse<T> {
   success: boolean
@@ -46,10 +46,10 @@ export const CourtService = {
   updateCourt: async function updateCourt(
     centerId: string,
     courtId: string,
-    courtData: CourtRequest
+    courtData: UpdateCourtRequest
   ): Promise<Court> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.put<Court>(
+    const response = await axios.patch<Court>(
       `/api/sport-centers/${centerId}/courts/${courtId}`,
       courtData
     )

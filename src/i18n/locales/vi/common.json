@@ -170,6 +170,7 @@
     "bookingHistory": "Lịch sử đặt sân",
     "centerManagement": "Quản lý trung tâm",
     "createCenter": "Tạo trung tâm",
+    "manageCenters": "Quản lý Sport Center",
     "courtManagement": "Quản lý sân",
     "customerManagement": "Quản lý khách hàng",
     "bookingList": "Danh sách đặt sân",
@@ -625,6 +626,7 @@
       "bioPlaceholder": "Mô tả ngắn về kinh nghiệm và phong cách huấn luyện",
       "avatarLabel": "URL ảnh đại diện",
       "avatarPlaceholder": "https://example.com/avatar.jpg",
+      "avatarUploadLabel": "Ảnh đại diện",
       "levelLabel": "Cấp độ",
       "levelPlaceholder": "Chọn cấp độ",
       "level": {
@@ -655,6 +657,7 @@
       "paymentBankNamePlaceholder": "Vietcombank",
       "qrUrlLabel": "URL mã QR thanh toán",
       "paymentQrUrlPlaceholder": "https://example.com/qr.png",
+      "qrUploadLabel": "Ảnh QR thanh toán",
       "specialtyBeginner": "Dạy người mới",
       "specialtyAdvanced": "Dạy nâng cao",
       "specialtyKids": "Dạy trẻ em",
@@ -711,6 +714,13 @@
       }
     },
     "profile": {
+      "invalidImage": "Vui lòng chọn tệp ảnh.",
+      "imageTooLarge": "Ảnh phải có dung lượng tối đa 5 MB.",
+      "uploadError": "Tải ảnh lên thất bại. Vui lòng thử lại.",
+      "uploadPending": "Vui lòng chờ tải tệp hoàn tất.",
+      "uploading": "Đang tải lên...",
+      "invalidCertificationFile": "Vui lòng chọn ảnh chứng chỉ.",
+      "certPreviewAlt": "Ảnh xem trước chứng chỉ",
       "pageTitle": "Hồ sơ chuyên môn huấn luyện viên",
       "pageDescription": "Cập nhật thông tin cơ bản, chứng chỉ, chuyên môn và mô tả phương pháp giảng dạy trong một màn hình duy nhất.",
       "verifiedCerts": "Chứng chỉ đã xác minh",
@@ -731,7 +741,8 @@
       "locationLabel": "Khu vực giảng dạy",
       "locationPlaceholder": "TP.HCM",
       "experienceLabel": "Số năm kinh nghiệm",
-      "uploadAvatar": "Upload avatar",
+      "uploadAvatar": "Tải ảnh đại diện lên",
+      "uploadQr": "Tải QR thanh toán lên",
       "noAvatarUploaded": "Chưa tải ảnh mới",
       "coachBadge": "HLV Pickleball",
       "noName": "Chưa có tên",
@@ -814,6 +825,9 @@
       "locationLabel": "Địa điểm",
       "locationPlaceholder": "Ví dụ: Sân PickleHub Quận 1",
       "coverImageLabel": "Ảnh bìa",
+      "uploadCoverImage": "Tải ảnh bìa lên",
+      "uploadInvalidImage": "Vui lòng chọn tệp ảnh.",
+      "uploadImageTooLarge": "Ảnh phải có dung lượng tối đa 5 MB.",
       "uploadSuccess": "Tải ảnh lên thành công",
       "uploadError": "Tải ảnh lên thất bại",
       "startDateLabel": "Ngày bắt đầu",
@@ -838,6 +852,10 @@
       "errorTitle": "Không thể tải danh sách lớp học",
       "detailError": "Lớp học không tồn tại",
       "detail": {
+        "coverImageLabel": "Ảnh bìa",
+        "uploadCoverImage": "Tải ảnh bìa lên",
+        "uploadInvalidImage": "Vui lòng chọn tệp ảnh.",
+        "uploadImageTooLarge": "Ảnh phải có dung lượng tối đa 5 MB.",
         "infoTab": "Thông tin lớp",
         "scheduleTab": "Lịch học",
         "studentsTab": "Học viên",
@@ -1047,6 +1065,7 @@
       "manualLocationRequired": "Vui lòng nhập mô tả địa điểm."
     },
     "income": {
+      "enrolledCount": "{{count}} học viên",
       "overviewTitle": "Tổng quan thu nhập",
       "overviewErrorTitle": "Không thể tải tổng quan thu nhập",
       "noData": "Chưa có dữ liệu thu nhập. Vui lòng quay lại sau.",
@@ -1405,6 +1424,17 @@
     }
   },
   "learner": {
+    "upload": {
+      "choose": "Chọn ảnh",
+      "replace": "Thay ảnh",
+      "remove": "Xóa ảnh",
+      "uploading": "Đang tải lên...",
+      "uploadError": "Tải ảnh lên thất bại. Vui lòng thử lại.",
+      "invalidImage": "Vui lòng chọn tệp ảnh.",
+      "imageTooLarge": "Ảnh phải có dung lượng tối đa 5 MB.",
+      "imageHint": "PNG, JPG hoặc WEBP, tối đa 5 MB.",
+      "previewAlt": "Ảnh xem trước minh chứng thanh toán"
+    },
     "schedule": {
       "pageTitle": "Lịch của tôi",
       "errorTitle": "Không thể tải lịch",
@@ -1535,6 +1565,8 @@
     },
     "enrollments": {
       "errorTitle": "Không thể tải danh sách lớp đã đăng ký",
+      "uploadProofRequired": "Vui lòng chọn ảnh minh chứng thanh toán",
+      "uploadProofLabel": "Ảnh minh chứng thanh toán",
       "uploadProofUrlRequired": "Vui lòng nhập URL bằng chứng thanh toán",
       "uploadProofSuccess": "Tải lên bằng chứng thanh toán thành công",
       "uploadProofError": "Tải lên bằng chứng thanh toán thất bại",
@@ -1578,6 +1610,8 @@
     },
     "bookings": {
       "errorTitle": "Không thể tải danh sách đặt lịch",
+      "uploadProofRequired": "Vui lòng chọn ảnh minh chứng thanh toán",
+      "uploadProofLabel": "Ảnh minh chứng thanh toán",
       "tabAll": "Tất cả",
       "tabPendingConfirmation": "Chờ xác nhận",
       "tabConfirmed": "Đã xác nhận",

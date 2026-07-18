@@ -28,7 +28,10 @@ i18n.use(initReactI18next).init({
   initImmediate: false,
   resources: {
     en: {
-      common: enCommon,
+      common: {
+        ...enCommon,
+        coach: enCommon.landing.coach,
+      },
       groups: enGroups,
       socials: enSocials,
       profile: enProfile,

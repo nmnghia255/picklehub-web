@@ -1,6 +1,10 @@
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
-import type { CancellationPolicy } from "../types/cancellation-policy"
+import type {
+  CancellationPolicy,
+  UpdateCancellationPolicyRequest,
+  UpdatedCancellationPolicy,
+} from "../types/cancellation-policy"
 import type { CourtResponse, CreateCourtRequest } from "../types/court"
 import type {
   AddPriceSlotRequest,
@@ -83,7 +87,7 @@ export const SportCenterOwnerService = {
     request: UpdateSportCenterRequest
   ): Promise<SportCenter> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.put<SportCenter>(
+    const response = await axios.patch<SportCenter>(
       `/api/sport-centers/${centerId}`,
       request
     )
@@ -127,13 +131,12 @@ export const SportCenterOwnerService = {
   updatePriceSlots: async function updatePriceSlots(
     centerId: string,
     request: UpdateCenterPriceSlotsRequest
-  ): Promise<PriceSlot[]> {
+  ): Promise<void> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.patch<PriceSlot[]>(
+    await axios.patch<PriceSlot[]>(
       `/api/sport-centers/${centerId}/price-slots`,
       request
     )
-    return unwrapApiResponse(response.data)
   },
 
   deleteSportCenter: async function deleteSportCenter(
@@ -163,7 +166,7 @@ export const SportCenterOwnerService = {
     priceSlot: UpdatePriceSlotRequest
   ): Promise<PriceSlot> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.put<PriceSlot>(
+    const response = await axios.patch<PriceSlot>(
       `/api/sport-centers/${centerId}/price-slots`,
       priceSlot
     )
@@ -193,10 +196,10 @@ export const SportCenterOwnerService = {
 
   updateCancellationPolicy: async function updateCancellationPolicy(
     centerId: string,
-    policy: CancellationPolicy
-  ): Promise<CancellationPolicy> {
+    policy: UpdateCancellationPolicyRequest
+  ): Promise<UpdatedCancellationPolicy> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.put<CancellationPolicy>(
+    const response = await axios.patch<UpdatedCancellationPolicy>(
       `/api/sport-centers/${centerId}/cancellation-policy`,
       policy
     )
