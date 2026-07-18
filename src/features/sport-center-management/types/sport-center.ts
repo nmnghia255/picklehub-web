@@ -15,7 +15,7 @@ export interface CreateSportCenterRequest {
   openTime: string
   closeTime: string
   basePrice: number
-  status?: SportCenterStatus
+  status: SportCenterStatus
   amenities?: string[]
   paymentAccountName: string
   paymentAccountNumber: string
@@ -119,6 +119,7 @@ export interface UpdateSportCenterRequest {
   openTime?: string
   closeTime?: string
   basePrice?: number
+  status?: SportCenterStatus
   amenities?: string[]
   paymentAccountName?: string
   paymentAccountNumber?: string

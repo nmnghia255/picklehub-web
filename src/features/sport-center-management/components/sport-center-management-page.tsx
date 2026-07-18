@@ -7,7 +7,6 @@ import {
   Clock3,
   Edit3,
   MapPin,
-  MapPinned,
   MoreHorizontal,
   Phone,
   Plus,
@@ -65,6 +64,7 @@ type EditFormState = {
   openTime: string
   closeTime: string
   basePrice: string
+  status: SportCenter["status"]
 }
 
 function getEditForm(center: SportCenter): EditFormState {
@@ -76,6 +76,7 @@ function getEditForm(center: SportCenter): EditFormState {
     openTime: center.openTime,
     closeTime: center.closeTime,
     basePrice: String(center.basePrice),
+    status: center.status,
   }
 }
 
@@ -197,14 +198,6 @@ function SportCenterManagementCard({
               {t("centerList.actions.view")}
             </Link>
           </Button>
-          <Button asChild size="sm" variant="outline">
-            <Link href={`/sport-center-management/${center.id}?tab=courts`}>
-              <MapPinned />
-              <span className="sr-only sm:not-sr-only">
-                {t("centerList.actions.manageCourts")}
-              </span>
-            </Link>
-          </Button>
           <Button
             type="button"
             size="sm"
@@ -225,7 +218,11 @@ function SportCenterManagementCard({
             disabled={deleting}
             aria-label={t("centerList.actions.delete")}
           >
-            {deleting ? <MoreHorizontal className="animate-pulse" /> : <Trash2 />}
+            {deleting ? (
+              <MoreHorizontal className="animate-pulse" />
+            ) : (
+              <Trash2 />
+            )}
             <span className="sr-only sm:not-sr-only">
               {t("centerList.actions.delete")}
             </span>
@@ -258,7 +255,9 @@ export function SportCenterManagementPage() {
     }) => sportCenterWizardClient.updateSportCenter(centerId, request),
     onSuccess: async (center) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: sportCenterOwnerListQueryKey }),
+        queryClient.invalidateQueries({
+          queryKey: sportCenterOwnerListQueryKey,
+        }),
         queryClient.invalidateQueries({ queryKey: detailQueryKey(center.id) }),
       ])
       setEditTarget(null)
@@ -267,7 +266,9 @@ export function SportCenterManagementPage() {
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error ? error.message : t("centerList.toast.updateFailed")
+        error instanceof Error
+          ? error.message
+          : t("centerList.toast.updateFailed")
       )
     },
   })
@@ -276,14 +277,18 @@ export function SportCenterManagementPage() {
     mutationFn: (centerId: string) =>
       sportCenterWizardClient.deleteSportCenter(centerId),
     onSuccess: async (_, centerId) => {
-      await queryClient.invalidateQueries({ queryKey: sportCenterOwnerListQueryKey })
+      await queryClient.invalidateQueries({
+        queryKey: sportCenterOwnerListQueryKey,
+      })
       queryClient.removeQueries({ queryKey: detailQueryKey(centerId) })
       setDeleteTarget(null)
       toast.success(t("centerList.toast.deleted"))
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error ? error.message : t("centerList.toast.deleteFailed")
+        error instanceof Error
+          ? error.message
+          : t("centerList.toast.deleteFailed")
       )
     },
   })
@@ -305,6 +310,7 @@ export function SportCenterManagementPage() {
         openTime: editForm.openTime,
         closeTime: editForm.closeTime,
         basePrice: Number(editForm.basePrice),
+        status: editForm.status,
       },
     })
   }
@@ -344,7 +350,11 @@ export function SportCenterManagementPage() {
                 {t("centerList.error.description")}
               </p>
             </div>
-            <Button type="button" variant="outline" onClick={() => centersQuery.refetch()}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => centersQuery.refetch()}
+            >
               <RefreshCw />
               {t("centerList.actions.retry")}
             </Button>
@@ -407,7 +417,9 @@ export function SportCenterManagementPage() {
             <AlertDialogAction
               variant="destructive"
               disabled={!deleteTarget || deleteMutation.isPending}
-              onClick={() => deleteTarget && deleteMutation.mutate(deleteTarget.id)}
+              onClick={() =>
+                deleteTarget && deleteMutation.mutate(deleteTarget.id)
+              }
             >
               {deleteMutation.isPending
                 ? t("centerList.actions.deleting")
@@ -429,12 +441,16 @@ export function SportCenterManagementPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t("centerList.edit.title")}</DialogTitle>
-            <DialogDescription>{t("centerList.edit.description")}</DialogDescription>
+            <DialogDescription>
+              {t("centerList.edit.description")}
+            </DialogDescription>
           </DialogHeader>
           {editForm && (
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="center-edit-name">{t("centerList.fields.name")}</Label>
+                <Label htmlFor="center-edit-name">
+                  {t("centerList.fields.name")}
+                </Label>
                 <Input
                   id="center-edit-name"
                   value={editForm.name}
@@ -444,7 +460,9 @@ export function SportCenterManagementPage() {
                 />
               </div>
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="center-edit-address">{t("centerList.fields.address")}</Label>
+                <Label htmlFor="center-edit-address">
+                  {t("centerList.fields.address")}
+                </Label>
                 <Input
                   id="center-edit-address"
                   value={editForm.address}
@@ -454,7 +472,9 @@ export function SportCenterManagementPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="center-edit-phone">{t("centerList.fields.phone")}</Label>
+                <Label htmlFor="center-edit-phone">
+                  {t("centerList.fields.phone")}
+                </Label>
                 <Input
                   id="center-edit-phone"
                   value={editForm.phone}
@@ -464,7 +484,9 @@ export function SportCenterManagementPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="center-edit-email">{t("centerList.fields.email")}</Label>
+                <Label htmlFor="center-edit-email">
+                  {t("centerList.fields.email")}
+                </Label>
                 <Input
                   id="center-edit-email"
                   type="email"
@@ -475,7 +497,9 @@ export function SportCenterManagementPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="center-edit-open">{t("centerList.fields.openTime")}</Label>
+                <Label htmlFor="center-edit-open">
+                  {t("centerList.fields.openTime")}
+                </Label>
                 <Input
                   id="center-edit-open"
                   type="time"
@@ -486,7 +510,9 @@ export function SportCenterManagementPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="center-edit-close">{t("centerList.fields.closeTime")}</Label>
+                <Label htmlFor="center-edit-close">
+                  {t("centerList.fields.closeTime")}
+                </Label>
                 <Input
                   id="center-edit-close"
                   type="time"
@@ -497,7 +523,9 @@ export function SportCenterManagementPage() {
                 />
               </div>
               <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="center-edit-price">{t("centerList.fields.basePrice")}</Label>
+                <Label htmlFor="center-edit-price">
+                  {t("centerList.fields.basePrice")}
+                </Label>
                 <Input
                   id="center-edit-price"
                   type="number"
@@ -507,6 +535,29 @@ export function SportCenterManagementPage() {
                     setEditForm({ ...editForm, basePrice: event.target.value })
                   }
                 />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="center-edit-status">
+                  {t("centerList.statusLabel")}
+                </Label>
+                <select
+                  id="center-edit-status"
+                  value={editForm.status}
+                  onChange={(event) =>
+                    setEditForm({
+                      ...editForm,
+                      status: event.target.value as SportCenter["status"],
+                    })
+                  }
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="ACTIVE">
+                    {t("centerList.status.active")}
+                  </option>
+                  <option value="INACTIVE">
+                    {t("centerList.status.inactive")}
+                  </option>
+                </select>
               </div>
             </div>
           )}
@@ -522,7 +573,11 @@ export function SportCenterManagementPage() {
             >
               {t("centerList.actions.cancel")}
             </Button>
-            <Button type="button" onClick={submitEdit} disabled={updateMutation.isPending}>
+            <Button
+              type="button"
+              onClick={submitEdit}
+              disabled={updateMutation.isPending}
+            >
               {updateMutation.isPending
                 ? t("centerList.actions.saving")
                 : t("centerList.actions.save")}

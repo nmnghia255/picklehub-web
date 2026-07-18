@@ -1,6 +1,8 @@
 "use client"
 
 import { ChevronDown, MapPinned, PackageOpen, ShieldAlert } from "lucide-react"
+import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 
@@ -17,7 +19,6 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,8 +47,17 @@ function matchesStatus(
   return filter === "active" ? isActive : !isActive
 }
 
-export function ServicesProductsManagementPage() {
+export function ServicesProductsManagementPage({
+  lockedCenterId,
+  lockedCenterActive = true,
+}: {
+  lockedCenterId?: string
+  lockedCenterActive?: boolean
+} = {}) {
   const { t } = useSportCenterManagementTranslation()
+  const searchParams = useSearchParams()
+  const isLocked = Boolean(lockedCenterId)
+  const requestedCenterId = lockedCenterId ?? searchParams.get("centerId")
   const centers = useServicesProductsStore((state) => state.centers)
   const loadingCenters = useServicesProductsStore(
     (state) => state.loadingCenters
@@ -120,22 +130,50 @@ export function ServicesProductsManagementPage() {
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
-    fetchCenters()
-  }, [fetchCenters])
+    if (!isLocked) fetchCenters()
+  }, [fetchCenters, isLocked])
 
   useEffect(() => {
-    if (selectedCenterId) {
-      fetchAll()
+    if (
+      !isLocked &&
+      requestedCenterId &&
+      centers.some(
+        (center) =>
+          center.id === requestedCenterId && center.status === "ACTIVE"
+      ) &&
+      selectedCenterId !== requestedCenterId
+    ) {
+      setSelectedCenter(requestedCenterId)
     }
-  }, [selectedCenterId, fetchAll])
+  }, [
+    centers,
+    isLocked,
+    requestedCenterId,
+    selectedCenterId,
+    setSelectedCenter,
+  ])
+
+  useEffect(() => {
+    const activeCenterId = lockedCenterId ?? selectedCenterId
+    if (activeCenterId && (!isLocked || lockedCenterActive)) {
+      fetchAll(activeCenterId)
+    }
+  }, [fetchAll, isLocked, lockedCenterActive, lockedCenterId, selectedCenterId])
 
   useEffect(() => {
     if (!error) return
     toast.error(error)
-    clearError()
-  }, [error, clearError])
+  }, [error])
 
   const selectedCenter = centers.find((c) => c.id === selectedCenterId)
+  const activeCenterId = lockedCenterId ?? selectedCenterId
+
+  const retryLoad = () => {
+    clearError()
+    if (activeCenterId && (!isLocked || lockedCenterActive)) {
+      void fetchAll(activeCenterId)
+    }
+  }
 
   const filteredServices = useMemo(() => {
     const keyword = serviceSearch.trim().toLowerCase()
@@ -198,8 +236,8 @@ export function ServicesProductsManagementPage() {
     setDeleting(true)
     const success =
       deleteTarget.kind === "service"
-        ? await deleteService(deleteTarget.item.id)
-        : await deleteProduct(deleteTarget.item.id)
+        ? await deleteService(deleteTarget.item.id, activeCenterId ?? undefined)
+        : await deleteProduct(deleteTarget.item.id, activeCenterId ?? undefined)
     setDeleting(false)
 
     if (success) {
@@ -212,80 +250,76 @@ export function ServicesProductsManagementPage() {
     }
   }
 
-  const productSummary = useMemo(
-    () => ({
-      total: products.length,
-      active: products.filter((item) => item.isActive).length,
-    }),
-    [products]
-  )
-
-  const serviceSummary = useMemo(
-    () => ({
-      total: services.length,
-      active: services.filter((item) => item.isActive).length,
-    }),
-    [services]
-  )
-
   return (
     <PageContainer variant="wide" className="space-y-6 pb-10">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
-            <PackageOpen className="size-4 text-sky-500" />
-            {t("inventory.page.badge")}
+      {!isLocked ? (
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
+              <PackageOpen className="size-4 text-sky-500" />
+              {t("inventory.page.badge")}
+            </div>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {t("inventory.page.title")}
+            </h1>
+            <p className="max-w-2xl text-sm text-muted-foreground">
+              {t("inventory.page.subtitle")}
+            </p>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {t("inventory.page.title")}
-          </h1>
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            {t("inventory.page.subtitle")}
-          </p>
-        </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="flex items-center gap-2"
-              disabled={loadingCenters}
-            >
-              <MapPinned className="size-4" />
-              <span>
-                {selectedCenter?.name ?? t("inventory.center.selected")}
-              </span>
-              <ChevronDown className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-64">
-            {loadingCenters ? (
-              <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                {t("inventory.center.loading")}
-              </div>
-            ) : centers.length === 0 ? (
-              <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                {t("inventory.center.noCenters")}
-              </div>
-            ) : (
-              centers.map((center) => (
-                <DropdownMenuItem
-                  key={center.id}
-                  onClick={() => setSelectedCenter(center.id)}
-                  className="flex flex-col items-start"
-                >
-                  <span className="font-medium">{center.name}</span>
-                  {center.address ? (
-                    <span className="text-xs text-muted-foreground">
-                      {center.address}
-                    </span>
-                  ) : null}
-                </DropdownMenuItem>
-              ))
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="flex items-center gap-2"
+                disabled={loadingCenters}
+              >
+                <MapPinned className="size-4" />
+                <span>
+                  {selectedCenter?.name ?? t("inventory.center.selected")}
+                </span>
+                <ChevronDown className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64">
+              {loadingCenters ? (
+                <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                  {t("inventory.center.loading")}
+                </div>
+              ) : centers.length === 0 ? (
+                <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                  {t("inventory.center.noCenters")}
+                </div>
+              ) : (
+                centers.map((center) => (
+                  <DropdownMenuItem
+                    key={center.id}
+                    disabled={center.status !== "ACTIVE"}
+                    onClick={() => setSelectedCenter(center.id)}
+                    className="flex flex-col items-start"
+                  >
+                    <span className="font-medium">{center.name}</span>
+                    {center.address ? (
+                      <span className="text-xs text-muted-foreground">
+                        {center.address}
+                      </span>
+                    ) : null}
+                  </DropdownMenuItem>
+                ))
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      ) : null}
+
+      {error ? (
+        <div className="flex flex-col gap-3 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive sm:flex-row sm:items-center sm:justify-between">
+          <span>{error}</span>
+          <Button variant="outline" onClick={retryLoad}>
+            {t("centerList.actions.retry")}
+          </Button>
+        </div>
+      ) : null}
 
       {permissionDenied ? (
         <div className="flex items-center gap-3 rounded-2xl border border-dashed bg-muted/30 p-4 text-sm text-muted-foreground">
@@ -294,97 +328,85 @@ export function ServicesProductsManagementPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardContent className="space-y-2 p-4">
-            <p className="text-sm text-muted-foreground">
+      {!isLocked && !loadingCenters && centers.length === 0 ? (
+        <div className="rounded-2xl border border-dashed p-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            {t("inventory.center.noCenters")}
+          </p>
+          <Button asChild className="mt-4">
+            <Link href="/sport-center-management/create">
+              {t("centerList.actions.create")}
+            </Link>
+          </Button>
+        </div>
+      ) : null}
+
+      {!isLocked && !loadingCenters && centers.length > 0 && !activeCenterId ? (
+        <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+          {t("inventory.center.noActive")}
+        </div>
+      ) : null}
+
+      {activeCenterId && (!isLocked || lockedCenterActive) ? (
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as InventoryKind)}
+          className="gap-4"
+        >
+          <TabsList>
+            <TabsTrigger value="product" className="gap-2">
               {t("servicesProducts.page.product")}
-            </p>
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-2xl font-semibold">{productSummary.total}</p>
-              <Badge variant="secondary">
-                {t("servicesProducts.page.activeCount", {
-                  count: productSummary.active,
-                })}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="space-y-2 p-4">
-            <p className="text-sm text-muted-foreground">
+              <Badge variant="secondary">{products.length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="service" className="gap-2">
               {t("servicesProducts.page.service")}
-            </p>
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-2xl font-semibold">{serviceSummary.total}</p>
-              <Badge variant="secondary">
-                {t("servicesProducts.page.activeCount", {
-                  count: serviceSummary.active,
-                })}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+              <Badge variant="secondary">{services.length}</Badge>
+            </TabsTrigger>
+          </TabsList>
 
-      <Tabs
-        value={activeTab}
-        onValueChange={(value) => setActiveTab(value as InventoryKind)}
-        className="gap-4"
-      >
-        <TabsList>
-          <TabsTrigger value="product" className="gap-2">
-            {t("servicesProducts.page.product")}
-            <Badge variant="secondary">{products.length}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="service" className="gap-2">
-            {t("servicesProducts.page.service")}
-            <Badge variant="secondary">{services.length}</Badge>
-          </TabsTrigger>
-        </TabsList>
+          <TabsContent value="product" className="space-y-4">
+            <InventoryFilters
+              kind="product"
+              search={productSearch}
+              type={productType}
+              status={productStatus}
+              onSearchChange={setProductSearch}
+              onTypeChange={setProductType}
+              onStatusChange={setProductStatus}
+              onCreate={() => openCreate("product")}
+            />
+            <InventoryTable
+              kind="product"
+              items={filteredProducts}
+              loading={loadingProducts}
+              onView={(item) => openDetail("product", item)}
+              onEdit={(item) => openEdit("product", item)}
+              onDelete={(item) => setDeleteTarget({ kind: "product", item })}
+            />
+          </TabsContent>
 
-        <TabsContent value="product" className="space-y-4">
-          <InventoryFilters
-            kind="product"
-            search={productSearch}
-            type={productType}
-            status={productStatus}
-            onSearchChange={setProductSearch}
-            onTypeChange={setProductType}
-            onStatusChange={setProductStatus}
-            onCreate={() => openCreate("product")}
-          />
-          <InventoryTable
-            kind="product"
-            items={filteredProducts}
-            loading={loadingProducts}
-            onView={(item) => openDetail("product", item)}
-            onEdit={(item) => openEdit("product", item)}
-            onDelete={(item) => setDeleteTarget({ kind: "product", item })}
-          />
-        </TabsContent>
-
-        <TabsContent value="service" className="space-y-4">
-          <InventoryFilters
-            kind="service"
-            search={serviceSearch}
-            type={serviceType}
-            status={serviceStatus}
-            onSearchChange={setServiceSearch}
-            onTypeChange={setServiceType}
-            onStatusChange={setServiceStatus}
-            onCreate={() => openCreate("service")}
-          />
-          <InventoryTable
-            kind="service"
-            items={filteredServices}
-            loading={loadingServices}
-            onView={(item) => openDetail("service", item)}
-            onEdit={(item) => openEdit("service", item)}
-            onDelete={(item) => setDeleteTarget({ kind: "service", item })}
-          />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="service" className="space-y-4">
+            <InventoryFilters
+              kind="service"
+              search={serviceSearch}
+              type={serviceType}
+              status={serviceStatus}
+              onSearchChange={setServiceSearch}
+              onTypeChange={setServiceType}
+              onStatusChange={setServiceStatus}
+              onCreate={() => openCreate("service")}
+            />
+            <InventoryTable
+              kind="service"
+              items={filteredServices}
+              loading={loadingServices}
+              onView={(item) => openDetail("service", item)}
+              onEdit={(item) => openEdit("service", item)}
+              onDelete={(item) => setDeleteTarget({ kind: "service", item })}
+            />
+          </TabsContent>
+        </Tabs>
+      ) : null}
 
       <InventoryFormDialog
         key={`${dialogKind}-${dialogMode}-${dialogItem?.id ?? "new"}`}
@@ -393,6 +415,7 @@ export function ServicesProductsManagementPage() {
         item={dialogItem}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
+        centerId={activeCenterId ?? undefined}
       />
 
       <InventoryDetailSheet

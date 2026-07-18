@@ -1,5 +1,6 @@
 "use client"
 
+import { format } from "date-fns"
 import { enUS, vi } from "date-fns/locale"
 import {
   ChevronDownIcon,
@@ -256,7 +257,7 @@ function CalendarDayButton({
       variant="ghost"
       size="icon"
       disabled={modifiers.disabled}
-      data-day={day.date.toLocaleDateString()}
+      data-day={format(day.date, "yyyy-MM-dd")}
       data-selected-single={
         modifiers.selected &&
         !modifiers.range_start &&

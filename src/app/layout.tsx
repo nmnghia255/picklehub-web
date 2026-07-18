@@ -2,6 +2,7 @@ import "@/styles/globals.css"
 
 import type { Metadata, Viewport } from "next"
 import { cookies } from "next/headers"
+import Script from "next/script"
 
 import { FacebookSDKScript } from "@/components/facebook-sdk-script"
 import { Providers } from "@/components/providers"
@@ -82,11 +83,16 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <FacebookSDKScript />
+        <Script
+          id="facebook-jssdk"
+          src="https://connect.facebook.net/en_US/sdk.js"
+          strategy="afterInteractive"
+        />
       </head>
 
       <body>
         <Providers initialLanguage={initialLanguage}>
+          <FacebookSDKScript />
           <AuthInitializer
             user={session.user ?? null}
             notifications={notifications}

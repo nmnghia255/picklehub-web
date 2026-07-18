@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
+import { formatDateOnly, parseDateOnly } from "@/lib/date-only"
 
 import type { Court } from "../../types/court"
 import { SportCenterSelector } from "./sport-center-selector"
@@ -29,7 +30,8 @@ export function Filters({
   setCourtFilter,
   courts,
 }: FiltersProps) {
-  const { t } = useSportCenterManagementTranslation()
+  const { t, i18n } = useSportCenterManagementTranslation()
+  const locale = i18n.language.startsWith("vi") ? "vi-VN" : "en-US"
   return (
     <div className="dark:bg-surface flex items-center justify-between border-b border-border bg-background p-4">
       <div className="flex items-center gap-4">
@@ -46,7 +48,7 @@ export function Filters({
                 <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">
                   {date
-                    ? new Date(date).toLocaleDateString()
+                    ? formatDateOnly(date, locale)
                     : t("courts.filters.datePlaceholder")}
                 </span>
                 <ChevronDown className="h-4 w-4" />
@@ -56,7 +58,7 @@ export function Filters({
             <DropdownMenuContent className="p-2">
               <Calendar
                 mode="single"
-                selected={date ? new Date(date) : undefined}
+                selected={date ? parseDateOnly(date) : undefined}
                 onSelect={(d) => {
                   if (d) {
                     setDate(format(d, "yyyy-MM-dd"))

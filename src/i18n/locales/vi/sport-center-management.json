@@ -122,6 +122,7 @@
     "delete": "Xóa",
     "emailNotUpdated": "Email chưa cập nhật",
     "loading": "Đang tải...",
+    "saving": "Đang lưu...",
     "no": "Không",
     "noNote": "Không có ghi chú",
     "noReason": "Không có lý do",
@@ -481,6 +482,10 @@
       "subtitle": "Quản lý dịch vụ và sản phẩm theo từng trung tâm."
     },
     "center": {
+      "noActive": "Không có Sport Center đang hoạt động để quản lý sản phẩm và dịch vụ.",
+      "inactive": "Hãy chọn Sport Center đang hoạt động để quản lý sản phẩm và dịch vụ.",
+      "notFound": "Sport Center này không còn tồn tại.",
+      "permissionDenied": "Bạn không có quyền quản lý Sport Center này.",
       "loading": "Đang tải...",
       "noCenters": "Không có trung tâm nào",
       "selected": "Chọn trung tâm"
@@ -595,6 +600,7 @@
     "logoAlt": "{{name}} logo"
   },
   "centerList": {
+    "statusLabel": "Trạng thái",
     "badge": "Không gian quản lý",
     "title": "Quản lý Sport Center",
     "subtitle": "Xem và quản lý các Sport Center thuộc tài khoản của bạn.",
@@ -652,10 +658,53 @@
   "managementDetail": {
     "tabs": {
       "overview": "Tổng quan",
-      "courts": "Sân"
+      "courts": "Sân",
+      "priceSlots": "Giá thuê sân",
+      "policy": "Chính sách hủy",
+      "inventory": "Sản phẩm & dịch vụ"
     },
     "actions": {
       "manageCourts": "Quản lý sân"
+    },
+    "priceSlots": {
+      "title": "Giá thuê sân",
+      "startTime": "Giờ bắt đầu",
+      "endTime": "Giờ kết thúc",
+        "pricePerHour": "Giá mỗi giờ",
+        "add": "Thêm khung giá",
+        "createTitle": "Thêm khung giá",
+        "createDescription": "Nhập khoảng thời gian và giá thuê theo giờ cho khung giá này.",
+        "confirmAdd": "Thêm khung giá",
+      "save": "Lưu thay đổi",
+      "delete": "Xóa khung giá",
+      "deleteTitle": "Xóa khung giá?",
+      "deleteDescription": "Khung giá này sẽ được xóa khỏi Sport Center.",
+      "confirmDelete": "Xóa",
+      "empty": "Chưa có khung giá.",
+      "invalid": "Hãy nhập khoảng thời gian và mức giá hợp lệ.",
+      "saveSuccess": "Đã lưu khung giá.",
+      "saveError": "Không thể lưu khung giá.",
+      "deleteSuccess": "Đã xóa khung giá.",
+      "deleteError": "Không thể xóa khung giá."
+    },
+    "policy": {
+      "title": "Chính sách hủy",
+      "allowCancellation": "Cho phép hủy",
+      "description": "Cấu hình các mức hoàn tiền cho đặt sân đủ điều kiện.",
+      "minDays": "Số ngày tối thiểu trước giờ bắt đầu",
+      "refundPercent": "Tỷ lệ hoàn tiền",
+      "addTier": "Thêm mức",
+      "removeTier": "Xóa mức",
+      "save": "Lưu thay đổi",
+        "saveSuccess": "Đã lưu chính sách hủy.",
+        "saveError": "Không thể lưu chính sách hủy.",
+        "invalid": "Hãy nhập số ngày và tỷ lệ hoàn tiền hợp lệ.",
+        "createTitle": "Thêm mức chính sách",
+        "createDescription": "Nhập ngưỡng hủy và tỷ lệ hoàn tiền.",
+        "confirmAdd": "Thêm mức",
+        "deleteTitle": "Xóa mức chính sách?",
+        "deleteDescription": "Mức này sẽ bị xóa khỏi các thay đổi chính sách chưa lưu.",
+        "confirmDelete": "Xóa mức"
     }
   },
   "courtManagement": {
@@ -719,6 +768,9 @@
     }
   },
   "createCenter": {
+    "statusLabel": "Trạng thái trung tâm",
+    "statusInvalid": "Vui lòng chọn trạng thái trung tâm hợp lệ.",
+    "status": { "active": "Đang hoạt động", "inactive": "Không hoạt động" },
     "page": {
       "badge": "Trợ lý tạo trung tâm",
       "title": "Tạo Sport Center",

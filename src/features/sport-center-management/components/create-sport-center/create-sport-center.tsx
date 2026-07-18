@@ -14,6 +14,16 @@ import { useMemo, useState } from "react"
 import { toast } from "sonner"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -48,6 +58,7 @@ type CenterDraft = {
   openTime: string
   closeTime: string
   basePrice: string
+  status: SportCenterStatus
   paymentAccountName: string
   paymentAccountNumber: string
   paymentBankName: string
@@ -59,6 +70,7 @@ type CenterDraft = {
 
 type PriceSlotDraft = {
   id: string
+  serverId?: string
   startTime: string
   endTime: string
   pricePerHour: string
@@ -177,6 +189,7 @@ export function CreateSportCenterWizard() {
     openTime: "06:00",
     closeTime: "22:00",
     basePrice: "",
+    status: "INACTIVE",
     paymentAccountName: "",
     paymentAccountNumber: "",
     paymentBankName: "",
@@ -194,6 +207,8 @@ export function CreateSportCenterWizard() {
       pricePerHour: "",
     },
   ])
+  const [priceSlotDeleteTarget, setPriceSlotDeleteTarget] =
+    useState<PriceSlotDraft | null>(null)
 
   const [policy, setPolicy] = useState<PolicyDraft>({
     allowCancellation: true,
@@ -268,6 +283,7 @@ export function CreateSportCenterWizard() {
         openTime: centerDraft.openTime,
         closeTime: centerDraft.closeTime,
         basePrice: Number(centerDraft.basePrice),
+        status: centerDraft.status,
         amenities: splitLines(centerDraft.amenitiesText),
         paymentAccountName: centerDraft.paymentAccountName.trim(),
         paymentAccountNumber: centerDraft.paymentAccountNumber.trim(),
@@ -321,11 +337,24 @@ export function CreateSportCenterWizard() {
         pricePerHour: Number(slot.pricePerHour),
       }))
 
-      return sportCenterWizardClient.updatePriceSlots(centerId, {
+      await sportCenterWizardClient.updatePriceSlots(centerId, {
         priceSlots: normalized,
       })
+
+      return sportCenterWizardClient.listPriceSlots(centerId)
     },
-    onSuccess: () => {
+    onSuccess: (savedSlots) => {
+      setPriceSlots((current) =>
+        current.map((slot) => {
+          const saved = savedSlots.find(
+            (item) =>
+              item.startTime === slot.startTime &&
+              item.endTime === slot.endTime &&
+              item.pricePerHour === Number(slot.pricePerHour)
+          )
+          return saved ? { ...slot, serverId: saved.id } : slot
+        })
+      )
       toast.success(
         t("createCenter.toast.priceSlotsSaved", {
           defaultValue: "Price slots saved.",
@@ -335,6 +364,38 @@ export function CreateSportCenterWizard() {
     },
     onError: (error) => {
       setGlobalError(error instanceof Error ? error.message : "Failed to save")
+    },
+  })
+
+  const deletePriceSlotMutation = useMutation({
+    mutationFn: async (slotId: string) => {
+      if (!centerId) throw new Error(t("createCenter.validation.centerMissing"))
+      return sportCenterWizardClient.deletePriceSlot(centerId, slotId)
+    },
+    onSuccess: () => {
+      const target = priceSlotDeleteTarget
+      if (target) {
+        setPriceSlots((current) =>
+          current.filter(
+            (slot) => slot.id !== target.id && slot.serverId !== target.serverId
+          )
+        )
+      }
+      setPriceSlotDeleteTarget(null)
+      toast.success(
+        t("createCenter.toast.priceSlotDeleted", {
+          defaultValue: "Price slot deleted.",
+        })
+      )
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("createCenter.toast.priceSlotDeleteFailed", {
+              defaultValue: "Could not delete the price slot.",
+            })
+      )
     },
   })
 
@@ -546,6 +607,7 @@ export function CreateSportCenterWizard() {
     centerDraft.openTime &&
     centerDraft.closeTime &&
     centerDraft.basePrice &&
+    centerDraft.status &&
     centerDraft.paymentAccountName.trim() &&
     centerDraft.paymentAccountNumber.trim() &&
     centerDraft.paymentBankName.trim()
@@ -555,6 +617,15 @@ export function CreateSportCenterWizard() {
       setGlobalError(
         t("createCenter.validation.requiredFields", {
           defaultValue: "Please fill in all required fields.",
+        })
+      )
+      return false
+    }
+
+    if (centerDraft.status !== "ACTIVE" && centerDraft.status !== "INACTIVE") {
+      setGlobalError(
+        t("createCenter.statusInvalid", {
+          defaultValue: "Choose a valid center status.",
         })
       )
       return false
@@ -749,6 +820,23 @@ export function CreateSportCenterWizard() {
         pricePerHour: priceSlotDefaults.pricePerHour,
       },
     ])
+  }
+
+  const removePriceSlot = (slot: PriceSlotDraft) => {
+    setPriceSlotDeleteTarget(slot)
+  }
+
+  const confirmRemovePriceSlot = () => {
+    const target = priceSlotDeleteTarget
+    if (!target) return
+
+    if (target.serverId) {
+      deletePriceSlotMutation.mutate(target.serverId)
+      return
+    }
+
+    setPriceSlots((current) => current.filter((item) => item.id !== target.id))
+    setPriceSlotDeleteTarget(null)
   }
 
   const addCourtDraft = () => {
@@ -1109,6 +1197,35 @@ export function CreateSportCenterWizard() {
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="center-status">
+                      {t("createCenter.statusLabel", {
+                        defaultValue: "Status",
+                      })}
+                    </Label>
+                    <select
+                      id="center-status"
+                      value={centerDraft.status}
+                      onChange={(event) =>
+                        setCenterDraft((current) => ({
+                          ...current,
+                          status: event.target.value as SportCenterStatus,
+                        }))
+                      }
+                      className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    >
+                      <option value="ACTIVE">
+                        {t("createCenter.status.active", {
+                          defaultValue: "Active",
+                        })}
+                      </option>
+                      <option value="INACTIVE">
+                        {t("createCenter.status.inactive", {
+                          defaultValue: "Inactive",
+                        })}
+                      </option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
                     <Label>
                       {t("createCenter.fields.paymentAccountName", {
                         defaultValue: "Account holder name",
@@ -1170,7 +1287,10 @@ export function CreateSportCenterWizard() {
                       onChange={(value) =>
                         setCenterDraft((current) => ({
                           ...current,
-                          paymentQrUrl: typeof value === "string" ? value : value[0] ?? "",
+                          paymentQrUrl:
+                            typeof value === "string"
+                              ? value
+                              : (value[0] ?? ""),
                         }))
                       }
                       onUploadingChange={setPaymentQrUploading}
@@ -1196,7 +1316,11 @@ export function CreateSportCenterWizard() {
                       onChange={(value) =>
                         setCenterDraft((current) => ({
                           ...current,
-                          images: Array.isArray(value) ? value : value ? [value] : [],
+                          images: Array.isArray(value)
+                            ? value
+                            : value
+                              ? [value]
+                              : [],
                         }))
                       }
                       onUploadingChange={setCenterImagesUploading}
@@ -1318,12 +1442,11 @@ export function CreateSportCenterWizard() {
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() =>
-                          setPriceSlots((current) =>
-                            current.filter((item) => item.id !== slot.id)
-                          )
+                        onClick={() => removePriceSlot(slot)}
+                        disabled={
+                          priceSlots.length === 1 ||
+                          deletePriceSlotMutation.isPending
                         }
-                        disabled={priceSlots.length === 1}
                       >
                         <Trash2 className="size-4" />
                       </Button>
@@ -1345,6 +1468,47 @@ export function CreateSportCenterWizard() {
                 </Button>
               </div>
             )}
+
+            <AlertDialog
+              open={Boolean(priceSlotDeleteTarget)}
+              onOpenChange={(open) => {
+                if (!open && !deletePriceSlotMutation.isPending) {
+                  setPriceSlotDeleteTarget(null)
+                }
+              }}
+            >
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    {t("createCenter.priceSlotDelete.title", {
+                      defaultValue: "Delete price slot?",
+                    })}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {t("createCenter.priceSlotDelete.description", {
+                      defaultValue:
+                        "This action removes the selected price slot from this sport center.",
+                    })}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel
+                    disabled={deletePriceSlotMutation.isPending}
+                  >
+                    {t("common.cancel")}
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    variant="destructive"
+                    disabled={deletePriceSlotMutation.isPending}
+                    onClick={confirmRemovePriceSlot}
+                  >
+                    {deletePriceSlotMutation.isPending
+                      ? t("common.saving")
+                      : t("common.delete")}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
 
             {currentStep === 3 && (
               <div className="space-y-6">
@@ -1487,9 +1651,7 @@ export function CreateSportCenterWizard() {
               <div className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-3">
                   <div className="space-y-2">
-                    <Label>
-                      {t("createCenter.fields.courtName")}
-                    </Label>
+                    <Label>{t("createCenter.fields.courtName")}</Label>
                     <Input
                       value={courtDraft.name}
                       onChange={(e) =>
@@ -1504,9 +1666,7 @@ export function CreateSportCenterWizard() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>
-                      {t("createCenter.fields.courtType")}
-                    </Label>
+                    <Label>{t("createCenter.fields.courtType")}</Label>
                     <select
                       className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                       value={courtDraft.type}
@@ -1526,9 +1686,7 @@ export function CreateSportCenterWizard() {
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <Label>
-                      {t("createCenter.fields.courtStatus")}
-                    </Label>
+                    <Label>{t("createCenter.fields.courtStatus")}</Label>
                     <select
                       className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                       value={courtDraft.status}
@@ -1573,7 +1731,8 @@ export function CreateSportCenterWizard() {
                         <div>
                           <p className="font-medium">{item.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {t(`courtManagement.types.${item.type}`)} · {t(
+                            {t(`courtManagement.types.${item.type}`)} ·{" "}
+                            {t(
                               `courtManagement.status.${item.status.toLowerCase()}`
                             )}
                           </p>
@@ -1722,7 +1881,9 @@ export function CreateSportCenterWizard() {
                             setServiceDraft((current) => ({
                               ...current,
                               imageUrl:
-                                typeof value === "string" ? value : value[0] ?? "",
+                                typeof value === "string"
+                                  ? value
+                                  : (value[0] ?? ""),
                             }))
                           }
                           onUploadingChange={setServiceImageUploading}
@@ -1918,7 +2079,9 @@ export function CreateSportCenterWizard() {
                             setProductDraft((current) => ({
                               ...current,
                               imageUrl:
-                                typeof value === "string" ? value : value[0] ?? "",
+                                typeof value === "string"
+                                  ? value
+                                  : (value[0] ?? ""),
                             }))
                           }
                           onUploadingChange={setProductImageUploading}
@@ -2009,6 +2172,21 @@ export function CreateSportCenterWizard() {
                       <p>
                         {centerSnapshot?.openTime ?? centerDraft.openTime} -{" "}
                         {centerSnapshot?.closeTime ?? centerDraft.closeTime}
+                      </p>
+                      <p>
+                        {t("createCenter.statusLabel", {
+                          defaultValue: "Status",
+                        })}
+                        :{" "}
+                        {t(
+                          `createCenter.status.${(
+                            centerSnapshot?.status ?? centerDraft.status
+                          ).toLowerCase()}`,
+                          {
+                            defaultValue:
+                              centerSnapshot?.status ?? centerDraft.status,
+                          }
+                        )}
                       </p>
                       <p>
                         {centerSnapshot?.paymentBankName ??
@@ -2191,6 +2369,7 @@ export function CreateSportCenterWizard() {
                   currentStep === 1 ||
                   centerMutation.isPending ||
                   priceSlotsMutation.isPending ||
+                  deletePriceSlotMutation.isPending ||
                   policyMutation.isPending ||
                   finalizeMutation.isPending
                 }
@@ -2224,6 +2403,7 @@ export function CreateSportCenterWizard() {
                   disabled={
                     centerMutation.isPending ||
                     priceSlotsMutation.isPending ||
+                    deletePriceSlotMutation.isPending ||
                     policyMutation.isPending ||
                     finalizeMutation.isPending
                   }

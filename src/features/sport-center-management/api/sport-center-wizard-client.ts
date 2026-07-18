@@ -124,6 +124,12 @@ export const sportCenterWizardClient = {
       body: JSON.stringify(request),
     }),
 
+  deletePriceSlot: (centerId: string, slotId: string) =>
+    requestJson<PriceSlot>(
+      `/api/sport-centers/${centerId}/price-slots/${slotId}`,
+      { method: "DELETE" }
+    ),
+
   getCancellationPolicy: (centerId: string) =>
     requestJson<CancellationPolicy>(
       `/api/sport-centers/${centerId}/cancellation-policy`

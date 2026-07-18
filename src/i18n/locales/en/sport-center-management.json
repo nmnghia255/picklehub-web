@@ -126,6 +126,7 @@
     "delete": "Delete",
     "emailNotUpdated": "Email not updated",
     "loading": "Loading...",
+    "saving": "Saving...",
     "no": "No",
     "noNote": "No note",
     "noReason": "No reason provided",
@@ -487,7 +488,11 @@
     "center": {
       "loading": "Loading...",
       "noCenters": "No centers available",
-      "selected": "Select a center"
+      "selected": "Select a center",
+      "inactive": "Select an active Sport Center to manage products and services.",
+      "notFound": "This Sport Center is no longer available.",
+      "permissionDenied": "You do not have permission to manage this Sport Center.",
+      "noActive": "No active Sport Center is available for product and service management."
     },
     "toast": {
       "deleteServiceSuccess": "Service deleted successfully.",
@@ -595,6 +600,7 @@
     }
   },
   "centerList": {
+    "statusLabel": "Status",
     "badge": "Owner workspace",
     "title": "Manage Sport Centers",
     "subtitle": "View and manage the Sport Centers owned by your account.",
@@ -652,10 +658,53 @@
   "managementDetail": {
     "tabs": {
       "overview": "Overview",
-      "courts": "Courts"
+      "courts": "Courts",
+      "priceSlots": "Price slots",
+      "policy": "Cancellation policy",
+      "inventory": "Products & services"
     },
     "actions": {
       "manageCourts": "Manage courts"
+    },
+    "priceSlots": {
+      "title": "Price slots",
+      "startTime": "Start time",
+      "endTime": "End time",
+        "pricePerHour": "Price per hour",
+        "add": "Add price slot",
+        "createTitle": "Add price slot",
+        "createDescription": "Enter the time range and hourly price for this slot.",
+        "confirmAdd": "Add price slot",
+      "save": "Save changes",
+      "delete": "Delete price slot",
+      "deleteTitle": "Delete price slot?",
+      "deleteDescription": "This price slot will be removed from the Sport Center.",
+      "confirmDelete": "Delete",
+      "empty": "No price slots configured.",
+      "invalid": "Enter a valid time range and price.",
+      "saveSuccess": "Price slots saved successfully.",
+      "saveError": "Could not save price slots.",
+      "deleteSuccess": "Price slot deleted successfully.",
+      "deleteError": "Could not delete the price slot."
+    },
+    "policy": {
+      "title": "Cancellation policy",
+      "allowCancellation": "Allow cancellation",
+      "description": "Configure refund tiers for eligible bookings.",
+      "minDays": "Minimum days before start",
+      "refundPercent": "Refund percent",
+      "addTier": "Add tier",
+      "removeTier": "Remove tier",
+      "save": "Save changes",
+        "saveSuccess": "Cancellation policy saved successfully.",
+        "saveError": "Could not save the cancellation policy.",
+        "invalid": "Enter a valid number of days and refund percentage.",
+        "createTitle": "Add policy tier",
+        "createDescription": "Enter the cancellation threshold and refund percentage.",
+        "confirmAdd": "Add tier",
+        "deleteTitle": "Remove policy tier?",
+        "deleteDescription": "This tier will be removed from the unsaved policy changes.",
+        "confirmDelete": "Remove tier"
     }
   },
   "courtManagement": {
@@ -719,6 +768,9 @@
     }
   },
   "createCenter": {
+    "statusLabel": "Center status",
+    "statusInvalid": "Choose a valid center status.",
+    "status": { "active": "Active", "inactive": "Inactive" },
     "page": {
       "badge": "Sport center wizard",
       "title": "Create Sport Center",
