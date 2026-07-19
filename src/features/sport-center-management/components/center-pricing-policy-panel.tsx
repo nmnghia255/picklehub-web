@@ -1,8 +1,17 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Plus, Save, Trash2 } from "lucide-react"
+import {
+  AlertCircle,
+  Plus,
+  RefreshCw,
+  Save,
+  Sparkles,
+  Trash2,
+  TrendingUp,
+} from "lucide-react"
 import { useState } from "react"
+import ReactMarkdown from "react-markdown"
 import { toast } from "sonner"
 
 import {
@@ -27,7 +36,9 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
+import { useSportCenterAi } from "@/features/ai/hooks/use-ai-queries"
 import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import { sportCenterWizardClient } from "../api/sport-center-wizard-client"
@@ -63,10 +74,12 @@ export function CenterPricingPolicyPanel({
   initialPriceSlots,
   initialPolicy,
 }: Props) {
-  const { t } = useSportCenterManagementTranslation()
+  const { t, i18n } = useSportCenterManagementTranslation()
+  const isVi = i18n.language === "vi"
   const queryClient = useQueryClient()
   const [newSlot, setNewSlot] = useState<NewSlot>(emptySlot)
   const [slotDialogOpen, setSlotDialogOpen] = useState(false)
+  const [aiDialogOpen, setAiDialogOpen] = useState(false)
   const [slotDrafts, setSlotDrafts] = useState<PriceSlot[]>(initialPriceSlots)
   const [deleteTarget, setDeleteTarget] = useState<PriceSlot | null>(null)
   const [tierDeleteTarget, setTierDeleteTarget] =
@@ -98,6 +111,10 @@ export function CenterPricingPolicyPanel({
     queryFn: () => sportCenterWizardClient.getCancellationPolicy(centerId),
     enabled: section === "policy" && Boolean(centerId),
     initialData: initialPolicy,
+  })
+
+  const aiQuery = useSportCenterAi(centerId, isVi ? "vi" : "en", {
+    enabled: aiDialogOpen && Boolean(centerId),
   })
 
   const invalidateDetail = async (queryKey: string) => {
@@ -255,6 +272,15 @@ export function CenterPricingPolicyPanel({
           <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle>{t("managementDetail.priceSlots.title")}</CardTitle>
             <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="border-indigo-200 bg-indigo-50/5 text-indigo-600 hover:bg-indigo-50/10 dark:border-indigo-900 dark:text-indigo-400"
+                onClick={() => setAiDialogOpen(true)}
+              >
+                <Sparkles className="mr-2 size-4 animate-pulse fill-indigo-500 text-indigo-500" />
+                {isVi ? "Gợi ý giá từ AI" : "AI Suggestions"}
+              </Button>
               <Button
                 type="button"
                 variant="outline"
@@ -481,6 +507,202 @@ export function CenterPricingPolicyPanel({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <Dialog
+          open={aiDialogOpen}
+          onOpenChange={(open) => {
+            if (!aiQuery.isFetching) setAiDialogOpen(open)
+          }}
+        >
+          <DialogContent className="flex max-h-[85vh] max-w-2xl flex-col overflow-hidden p-0">
+            <DialogHeader className="p-6 pb-2">
+              <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+                <Sparkles className="size-5 animate-pulse fill-indigo-500 text-indigo-500" />
+                {isVi ? "Gợi ý định giá từ AI" : "AI Pricing Suggestions"}
+              </DialogTitle>
+              <DialogDescription>
+                {isVi
+                  ? "Phân tích xu hướng đặt sân trong 30 ngày qua và đề xuất tối ưu hóa giá."
+                  : "Analyzes 30-day historical booking data for this sport center to suggest optimized pricing slots."}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="flex-1 space-y-6 overflow-y-auto px-6 pb-6">
+              {aiQuery.isLoading ? (
+                <div className="space-y-4 py-8">
+                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                    <RefreshCw className="size-5 animate-spin text-indigo-500" />
+                    <span>
+                      {isVi
+                        ? "Đang thu thập và phân tích dữ liệu đặt sân..."
+                        : "Aggregating and analyzing booking data..."}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-5/6" />
+                    <Skeleton className="h-4 w-4/6" />
+                  </div>
+                </div>
+              ) : aiQuery.error ? (
+                <div className="flex flex-col items-center justify-center space-y-3 py-8 text-center">
+                  <AlertCircle className="size-10 animate-bounce text-destructive" />
+                  <p className="text-sm font-medium text-destructive">
+                    {isVi
+                      ? "Không thể lấy gợi ý từ AI."
+                      : "Failed to load AI suggestions."}
+                  </p>
+                  <p className="max-w-sm text-xs text-muted-foreground">
+                    {aiQuery.error instanceof Error
+                      ? aiQuery.error.message
+                      : ""}
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => aiQuery.refetch()}
+                  >
+                    {isVi ? "Thử lại" : "Try Again"}
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  {/* Trend Analysis */}
+                  <div className="space-y-2">
+                    <h4 className="flex items-center gap-1.5 text-sm font-bold text-indigo-900 dark:text-indigo-200">
+                      <TrendingUp className="size-4 text-indigo-500" />
+                      {isVi
+                        ? "Phân tích xu hướng đặt sân"
+                        : "Booking Trend Analysis"}
+                    </h4>
+                    <div className="rounded-lg border border-indigo-100/50 bg-indigo-50/20 p-4 text-sm leading-relaxed text-foreground/90 dark:border-indigo-900/50 dark:bg-indigo-950/20 [&_h3]:mt-3 [&_h3]:text-base [&_h3]:font-bold [&_li]:mb-1 [&_ol]:list-decimal [&_ol]:pl-4 [&_p]:mb-2 [&_strong]:font-semibold [&_ul]:list-disc [&_ul]:pl-4">
+                      <ReactMarkdown>
+                        {aiQuery.data?.data?.trendAnalysis}
+                      </ReactMarkdown>
+                    </div>
+                  </div>
+
+                  {/* Recommendations */}
+                  {aiQuery.data?.data?.recommendations &&
+                    aiQuery.data?.data?.recommendations.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-bold text-foreground">
+                          {isVi
+                            ? "Khuyến nghị tối ưu doanh thu"
+                            : "Revenue Optimization Recommendations"}
+                        </h4>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                          {aiQuery.data?.data?.recommendations.map((rec, i) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-[10px] font-bold text-indigo-600 dark:bg-indigo-950/80 dark:text-indigo-400">
+                                {i + 1}
+                              </span>
+                              <span className="leading-snug">{rec}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                  {/* Suggested Pricing Slots */}
+                  {aiQuery.data?.data?.suggestedPriceSlots &&
+                    aiQuery.data?.data?.suggestedPriceSlots.length > 0 && (
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-bold text-foreground">
+                          {isVi
+                            ? "Các khung giờ đề xuất"
+                            : "Suggested Dynamic Price Slots"}
+                        </h4>
+                        <div className="overflow-hidden rounded-lg border">
+                          <table className="w-full border-collapse text-left text-sm">
+                            <thead>
+                              <tr className="border-b bg-muted/50">
+                                <th className="p-3 font-semibold">
+                                  {isVi ? "Giờ bắt đầu" : "Start Time"}
+                                </th>
+                                <th className="p-3 font-semibold">
+                                  {isVi ? "Giờ kết thúc" : "End Time"}
+                                </th>
+                                <th className="p-3 text-right font-semibold">
+                                  {isVi
+                                    ? "Giá gợi ý (VND/giờ)"
+                                    : "Suggested Price/Hr"}
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {aiQuery.data?.data?.suggestedPriceSlots.map(
+                                (slot, index) => (
+                                  <tr
+                                    key={index}
+                                    className="border-b last:border-0 hover:bg-muted/20"
+                                  >
+                                    <td className="p-3">{slot.startTime}</td>
+                                    <td className="p-3">{slot.endTime}</td>
+                                    <td className="p-3 text-right font-semibold text-indigo-600 dark:text-indigo-400">
+                                      {isVi
+                                        ? new Intl.NumberFormat("vi-VN", {
+                                            style: "currency",
+                                            currency: "VND",
+                                          }).format(slot.pricePerHour)
+                                        : new Intl.NumberFormat("en-US", {
+                                            style: "currency",
+                                            currency: "USD",
+                                          }).format(slot.pricePerHour)}
+                                    </td>
+                                  </tr>
+                                )
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                </>
+              )}
+            </div>
+
+            <DialogFooter className="gap-2 border-t bg-muted/20 p-6 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setAiDialogOpen(false)}
+              >
+                {isVi ? "Đóng" : "Close"}
+              </Button>
+              {aiQuery.data?.success &&
+                aiQuery.data?.data?.suggestedPriceSlots && (
+                  <Button
+                    type="button"
+                    className="bg-indigo-600 text-white hover:bg-indigo-700"
+                    onClick={() => {
+                      const suggested =
+                        aiQuery.data?.data?.suggestedPriceSlots || []
+                      const mapped = suggested.map((slot, idx) => ({
+                        id: `ai-suggested-${idx}-${Date.now()}`,
+                        centerId,
+                        startTime: slot.startTime,
+                        endTime: slot.endTime,
+                        pricePerHour: slot.pricePerHour,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                      }))
+                      setSlotDrafts(mapped)
+                      setAiDialogOpen(false)
+                      toast.success(
+                        isVi
+                          ? "Đã áp dụng các khung giá gợi ý từ AI làm bản thảo. Hãy bấm Lưu để lưu lại."
+                          : "AI suggested slots applied to drafts. Please click Save to persist."
+                      )
+                    }}
+                  >
+                    <Sparkles className="mr-2 size-4 fill-yellow-300 text-yellow-300" />
+                    {isVi ? "Áp dụng giá gợi ý từ AI" : "Apply AI Suggestions"}
+                  </Button>
+                )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </>
     )
   }

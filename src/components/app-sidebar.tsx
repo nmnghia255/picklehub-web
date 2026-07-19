@@ -144,11 +144,6 @@ export function AppSidebar() {
   const hasCoachPlan = subscriptions.some(
     (sub) => sub.status === "ACTIVE" && sub.plan.type === "COACH"
   )
-  console.log("subscriptions", subscriptions)
-
-  console.log("hasSportCenterManagerPlan", hasSportCenterManagerPlan)
-  console.log("hasTournamentOrganizerPlan", hasTournamentOrganizerPlan)
-  console.log("hasCoachPlan", hasCoachPlan)
   const unreadCount = notifications.filter(
     (notification) => notification.unread
   ).length

@@ -6,14 +6,11 @@ import type {
   AiResponseDto,
   ChatCompletionResponseData,
   ChatRequestDto,
-  DocumentIngestRequestDto,
-  EmbeddingsRequestDto,
   RecommendationRequestDto,
-  SearchRequestDto,
   SwingAnalysisRequestDto,
-  TrendAnalysisRequestDto,
 } from "../types/chat"
 import type { RecommendationResponse } from "../types/recommendation"
+import type { SportCenterAIResponse } from "../types/sport-center-analysis"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL || ""
 
@@ -73,68 +70,6 @@ export const AiService = {
     return response.data
   },
 
-  // --- Internal Service Endpoints ---
-
-  /**
-   * Ingest knowledge documents (rules, regulations, tutorials) into pgvector.
-   */
-  ingestDocument: async (
-    payload: DocumentIngestRequestDto,
-    customToken?: string
-  ): Promise<AiResponseDto> => {
-    const client = getInternalAxios(customToken)
-    const response = await client.post<AiResponseDto>(
-      "/api/ai/internal/documents",
-      payload
-    )
-    return response.data
-  },
-
-  /**
-   * Perform similarity searches on rulebooks and equipment data to fetch context for RAG.
-   */
-  search: async (
-    payload: SearchRequestDto,
-    customToken?: string
-  ): Promise<AiResponseDto> => {
-    const client = getInternalAxios(customToken)
-    const response = await client.post<AiResponseDto>(
-      "/api/ai/internal/search",
-      payload
-    )
-    return response.data
-  },
-
-  /**
-   * Create 768-dimension vector embeddings from text inputs.
-   */
-  generateEmbeddings: async (
-    payload: EmbeddingsRequestDto,
-    customToken?: string
-  ): Promise<AiResponseDto> => {
-    const client = getInternalAxios(customToken)
-    const response = await client.post<AiResponseDto>(
-      "/api/ai/internal/embeddings",
-      payload
-    )
-    return response.data
-  },
-
-  /**
-   * Identify peak hours and user booking patterns on 30-day historical data.
-   */
-  analyzeTrends: async (
-    payload: TrendAnalysisRequestDto,
-    customToken?: string
-  ): Promise<AiResponseDto> => {
-    const client = getInternalAxios(customToken)
-    const response = await client.post<AiResponseDto>(
-      "/api/ai/internal/analyses/trends",
-      payload
-    )
-    return response.data
-  },
-
   /**
    * Call this endpoint to get a personalized Pickleball training roadmap for the authenticated user.
    * The service automatically aggregates the user's profile (bio, preferred hand, DUPR rating, match statistics) and
@@ -150,6 +85,18 @@ export const AiService = {
     const axios = await getAuthenticatedAxios()
     const response = await axios.get<RecommendationResponse>(
       `/api/users/me/recommendations?category=${category}&limit=${limit}`
+    )
+    return response.data
+  },
+
+  // Aggregates 30-day booking data for a sport center and retrieves AI-powered trend analysis and dynamic pricing suggestions.
+  getAiForCenter: async (
+    centerId: string,
+    language: string // vi or en
+  ): Promise<SportCenterAIResponse> => {
+    const authenticatedAxios = await getAuthenticatedAxios()
+    const response = await authenticatedAxios.get<SportCenterAIResponse>(
+      `/api/sport-centers/owner/dashboard/overview/${centerId}/trends?language=${language}`
     )
     return response.data
   },
