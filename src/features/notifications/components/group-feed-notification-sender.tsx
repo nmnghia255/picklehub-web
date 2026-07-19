@@ -1,6 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import { Bell, Loader2 } from "lucide-react"
 import { useState } from "react"
@@ -29,6 +30,11 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { notificationFeedAtom } from "@/features/feed/store/feed-store"
 import type { FeedNotification } from "@/features/feed/types"
+import {
+  getGroupClient,
+  groupQueryKeys,
+} from "@/features/groups/api/groups-client"
+import { useActionGuard } from "@/features/groups/hooks/use-action-guard"
 import { sendGroupFeedNotificationAction } from "@/features/notifications/actions/notifications"
 import { groupFeedNotificationsAtom } from "@/features/notifications/store/group-feed-store"
 import { useToast } from "@/hooks/use-toast"
@@ -66,6 +72,15 @@ export function GroupFeedNotificationSender({
   const [, setNotifications] = useAtom(notificationFeedAtom)
   const [, setGroupNotifications] = useAtom(groupFeedNotificationsAtom)
   const { toast } = useToast()
+  const { data: group } = useQuery({
+    queryKey: groupQueryKeys.detail(groupId),
+    queryFn: () => getGroupClient(groupId),
+    enabled: !!groupId,
+  })
+  const { guardWriteAction, PermissionDialog } = useActionGuard(
+    group,
+    group?.role
+  )
   const sendNotificationSchema = createSchema(t)
 
   const form = useForm<SendNotificationFormValues>({
@@ -166,105 +181,117 @@ export function GroupFeedNotificationSender({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button
-          size="sm"
-          className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-        >
-          <Bell className="size-4" />
-          {t("notifications.sendBtn", "Gửi thông báo")}
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>
-            {t("notifications.sendDialogTitle", "Gửi thông báo cho nhóm")}
-          </DialogTitle>
-          <DialogDescription>
-            {t(
-              "notifications.sendDialogDesc",
-              'Gửi thông báo feed tới tất cả thành viên của nhóm "{{name}}"',
-              { name: groupName }
-            )}
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <Button
+        onClick={() => {
+          guardWriteAction(() => setIsOpen(true), {
+            featureName: "gửi thông báo nhóm",
+          })
+        }}
+        size="sm"
+        className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+      >
+        <Bell className="size-4" />
+        {t("notifications.sendBtn", "Gửi thông báo")}
+      </Button>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    {t("notifications.formFieldTitle", "Tiêu đề")}
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={t(
-                        "notifications.formFieldTitlePlaceholder",
-                        "Nhập tiêu đề thông báo..."
-                      )}
-                      disabled={isLoading}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    {t("notifications.formFieldTitleDesc", "Tối đa 200 ký tự")}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="group-feature-root max-w-md bg-card">
+          <DialogHeader>
+            <DialogTitle>
+              {t("notifications.sendDialogTitle", "Gửi thông báo cho nhóm")}
+            </DialogTitle>
+            <DialogDescription>
+              {t(
+                "notifications.sendDialogDesc",
+                'Gửi thông báo feed tới tất cả thành viên của nhóm "{{name}}"',
+                { name: groupName }
               )}
-            />
+            </DialogDescription>
+          </DialogHeader>
 
-            <FormField
-              control={form.control}
-              name="message"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    {t("notifications.formFieldMessage", "Nội dung")}
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder={t(
-                        "notifications.formFieldMessagePlaceholder",
-                        "Nhập nội dung thông báo..."
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("notifications.formFieldTitle", "Tiêu đề")}
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={t(
+                          "notifications.formFieldTitlePlaceholder",
+                          "Nhập tiêu đề thông báo..."
+                        )}
+                        disabled={isLoading}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      {t(
+                        "notifications.formFieldTitleDesc",
+                        "Tối đa 200 ký tự"
                       )}
-                      disabled={isLoading}
-                      rows={4}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    {t(
-                      "notifications.formFieldMessageDesc",
-                      "Tối đa 1000 ký tự"
-                    )}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsOpen(false)}
-                disabled={isLoading}
-              >
-                {t("activitySchedule.btnCancel", "Hủy")}
-              </Button>
-              <Button type="submit" disabled={isLoading} variant="orangeCard">
-                {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
-                {t("notifications.sendBtn", "Gửi thông báo")}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+              <FormField
+                control={form.control}
+                name="message"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("notifications.formFieldMessage", "Nội dung")}
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder={t(
+                          "notifications.formFieldMessagePlaceholder",
+                          "Nhập nội dung thông báo..."
+                        )}
+                        disabled={isLoading}
+                        rows={4}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      {t(
+                        "notifications.formFieldMessageDesc",
+                        "Tối đa 1000 ký tự"
+                      )}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsOpen(false)}
+                  disabled={isLoading}
+                >
+                  {t("activitySchedule.btnCancel", "Hủy")}
+                </Button>
+                <Button type="submit" disabled={isLoading} variant="orangeCard">
+                  {isLoading && (
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                  )}
+                  {t("notifications.sendBtn", "Gửi thông báo")}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+      <PermissionDialog />
+    </>
   )
 }

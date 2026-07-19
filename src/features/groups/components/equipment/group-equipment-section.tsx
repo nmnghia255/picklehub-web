@@ -68,6 +68,8 @@ import {
   updateEquipmentClient,
   updateEquipmentFavoriteClient,
 } from "../../api/equipment-client"
+import { getGroupClient, groupQueryKeys } from "../../api/groups-client"
+import { useActionGuard } from "../../hooks/use-action-guard"
 import type {
   CreateEquipmentInput,
   Equipment,
@@ -1020,6 +1022,17 @@ export function GroupEquipmentSection({
   const { t } = useGroupsTranslation()
   const queryClient = useQueryClient()
 
+  const { data: group } = useQuery({
+    queryKey: groupQueryKeys.detail(groupId),
+    queryFn: () => getGroupClient(groupId),
+    enabled: !!groupId,
+  })
+
+  const { guardWriteAction, PermissionDialog } = useActionGuard(
+    group,
+    group?.role
+  )
+
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState("")
   const [conditionFilter, setConditionFilter] = useState("")
@@ -1117,21 +1130,41 @@ export function GroupEquipmentSection({
   })
 
   function handleAdd() {
-    setEditingItem(null)
-    setFormOpen(true)
+    guardWriteAction(
+      () => {
+        setEditingItem(null)
+        setFormOpen(true)
+      },
+      { featureName: "thêm vật dụng mới" }
+    )
   }
 
   function handleEdit(item: Equipment) {
-    setEditingItem(item)
-    setFormOpen(true)
+    guardWriteAction(
+      () => {
+        setEditingItem(item)
+        setFormOpen(true)
+      },
+      { featureName: "chỉnh sửa vật dụng" }
+    )
   }
 
   function handleDelete(item: Equipment) {
-    setDeleteItem(item)
+    guardWriteAction(
+      () => {
+        setDeleteItem(item)
+      },
+      { featureName: "xóa vật dụng" }
+    )
   }
 
   function handleLogUsage(item: Equipment) {
-    setLogUsageItem(item)
+    guardWriteAction(
+      () => {
+        setLogUsageItem(item)
+      },
+      { featureName: "ghi nhận sử dụng vật dụng" }
+    )
   }
 
   function handleViewHistory(item: Equipment) {
@@ -1139,11 +1172,21 @@ export function GroupEquipmentSection({
   }
 
   function handleEditFavorite(item: EquipmentFavorite) {
-    setEditingFavorite(item)
+    guardWriteAction(
+      () => {
+        setEditingFavorite(item)
+      },
+      { featureName: "chỉnh sửa mẫu yêu thích" }
+    )
   }
 
   function handleDeleteFavorite(item: EquipmentFavorite) {
-    setDeleteFavorite(item)
+    guardWriteAction(
+      () => {
+        setDeleteFavorite(item)
+      },
+      { featureName: "xóa mẫu yêu thích" }
+    )
   }
 
   const errorMessage =
@@ -1336,10 +1379,17 @@ export function GroupEquipmentSection({
                                     }
                                     disabled={toggleFavoriteMutation.isPending}
                                     onClick={() =>
-                                      toggleFavoriteMutation.mutate({
-                                        id: item.id,
-                                        isFavorite: !item.isFavorite,
-                                      })
+                                      guardWriteAction(
+                                        () =>
+                                          toggleFavoriteMutation.mutate({
+                                            id: item.id,
+                                            isFavorite: !item.isFavorite,
+                                          }),
+                                        {
+                                          featureName:
+                                            "thay đổi trạng thái yêu thích",
+                                        }
+                                      )
                                     }
                                   >
                                     <Star
@@ -1628,6 +1678,7 @@ export function GroupEquipmentSection({
         groupId={groupId}
         item={deleteFavorite}
       />
+      <PermissionDialog />
     </>
   )
 }

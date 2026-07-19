@@ -66,9 +66,9 @@ export function GroupDetailHeader({
 
       {/* Avatar & Title Row */}
       <div className="relative px-2 pt-0 sm:px-4">
-        <div className="-mt-12 mb-2 flex flex-col gap-4 sm:-mt-16 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
-          <div className="flex min-w-0 items-end gap-4">
-            <Avatar className="size-20 shrink-0 border-4 border-background shadow-lg sm:size-24 md:size-28">
+        <div className="mb-2 flex flex-col gap-4 md:flex-row md:items-end md:justify-between md:gap-6">
+          <div className="flex min-w-60 flex-1 items-end gap-4">
+            <Avatar className="-mt-12 size-20 shrink-0 border-4 border-background shadow-lg sm:size-24 md:-mt-16 md:size-28">
               <AvatarFallback className="bg-emerald-100 text-2xl font-extrabold text-emerald-800 sm:text-3xl md:text-4xl dark:bg-emerald-950 dark:text-emerald-300">
                 {getGroupInitials(groupName)}
               </AvatarFallback>

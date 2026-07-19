@@ -105,6 +105,7 @@ interface GroupActivityDetailDrawerProps {
   currentUserRole?: string | null
   currentUserId?: string
   onEdit?: () => void
+  readOnly?: boolean
 }
 
 const formatBookingTime = (isoString?: string) => {
@@ -153,6 +154,7 @@ export function GroupActivityDetailDrawer({
   currentUserRole,
   currentUserId,
   onEdit,
+  readOnly = false,
 }: GroupActivityDetailDrawerProps) {
   const { t, i18n } = useGroupsTranslation()
   const queryClient = useQueryClient()
@@ -498,6 +500,7 @@ export function GroupActivityDetailDrawer({
       <Button
         variant="outline"
         disabled={
+          readOnly ||
           !canToggleAbsence ||
           reportAbsenceMutation.isPending ||
           cancelAbsenceMutation.isPending
@@ -517,6 +520,10 @@ export function GroupActivityDetailDrawer({
         {btnLabel}
       </Button>
     )
+
+    if (readOnly) {
+      return buttonEl
+    }
 
     if (!canToggleAbsence) {
       return (
@@ -583,7 +590,7 @@ export function GroupActivityDetailDrawer({
       >
         {/* Top-right Actions Bar (Kebab + Custom Close button in a single row) */}
         <div className="absolute top-4 right-4 z-50 flex items-center gap-1">
-          {isHost && (
+          {isHost && !readOnly && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -853,7 +860,7 @@ export function GroupActivityDetailDrawer({
                           )
                           setIsGuestDialogOpen(true)
                         }}
-                        disabled={registerGuestsMutation.isPending}
+                        disabled={readOnly || registerGuestsMutation.isPending}
                         className="flex h-9 w-full items-center justify-center gap-2 bg-[#6B46C1] text-xs font-semibold text-white shadow-sm transition-all hover:bg-[#553C9A]"
                       >
                         {registerGuestsMutation.isPending && (
@@ -1313,6 +1320,7 @@ export function GroupActivityDetailDrawer({
                                               })
                                             }
                                             disabled={
+                                              readOnly ||
                                               approveGuestMutation.isPending
                                             }
                                           >
@@ -1330,6 +1338,7 @@ export function GroupActivityDetailDrawer({
                                               })
                                             }
                                             disabled={
+                                              readOnly ||
                                               approveGuestMutation.isPending
                                             }
                                           >
@@ -1487,41 +1496,43 @@ export function GroupActivityDetailDrawer({
                                   .replace("❌", "")
                                   .trim()}
                           </Badge>
-                          {isHost && member.attendanceStatus === "ABSENT" && (
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon-xs"
-                                  className="h-6 w-6 text-muted-foreground hover:bg-muted"
+                          {isHost &&
+                            !readOnly &&
+                            member.attendanceStatus === "ABSENT" && (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    className="h-6 w-6 text-muted-foreground hover:bg-muted"
+                                  >
+                                    <MoreHorizontal className="size-3.5" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                  align="end"
+                                  className="text-xs"
                                 >
-                                  <MoreHorizontal className="size-3.5" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent
-                                align="end"
-                                className="text-xs"
-                              >
-                                <DropdownMenuItem
-                                  className="cursor-pointer font-semibold text-destructive"
-                                  onClick={() => {
-                                    setSelectedMemberForCancelAbsence({
-                                      memberId: member.memberId,
-                                      userId: member.userId,
-                                      name: member.name,
-                                    })
-                                    setIsCancelMemberAbsenceDialogOpen(true)
-                                  }}
-                                  disabled={cancelAbsenceMutation.isPending}
-                                >
-                                  {t(
-                                    "activitySchedule.btnCancelAbsenceShort",
-                                    "Huỷ báo vắng"
-                                  )}
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          )}
+                                  <DropdownMenuItem
+                                    className="cursor-pointer font-semibold text-destructive"
+                                    onClick={() => {
+                                      setSelectedMemberForCancelAbsence({
+                                        memberId: member.memberId,
+                                        userId: member.userId,
+                                        name: member.name,
+                                      })
+                                      setIsCancelMemberAbsenceDialogOpen(true)
+                                    }}
+                                    disabled={cancelAbsenceMutation.isPending}
+                                  >
+                                    {t(
+                                      "activitySchedule.btnCancelAbsenceShort",
+                                      "Huỷ báo vắng"
+                                    )}
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
                         </div>
                       </div>
                     ))}

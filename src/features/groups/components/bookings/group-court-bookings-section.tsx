@@ -44,6 +44,7 @@ import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import {
+  getGroupClient,
   getMyBookingsClient,
   groupQueryKeys,
   linkGroupCourtBookingClient,
@@ -51,6 +52,7 @@ import {
   unlinkGroupCourtBookingClient,
   useGroupInvalidation,
 } from "../../api/groups-client"
+import { useActionGuard } from "../../hooks/use-action-guard"
 import type { GroupCourtBooking } from "../../types"
 
 interface GroupCourtBookingsSectionProps {
@@ -91,6 +93,17 @@ export function GroupCourtBookingsSection({
 }: GroupCourtBookingsSectionProps) {
   const { t } = useGroupsTranslation()
   const { invalidateCourtBookings } = useGroupInvalidation(groupId)
+
+  const { data: group } = useQuery({
+    queryKey: groupQueryKeys.detail(groupId),
+    queryFn: () => getGroupClient(groupId),
+    enabled: !!groupId,
+  })
+
+  const { guardWriteAction, PermissionDialog } = useActionGuard(
+    group,
+    currentUserRole
+  )
 
   const normalizedRole = currentUserRole?.toUpperCase() ?? ""
   const isOwner = normalizedRole === "OWNER"
@@ -258,7 +271,11 @@ export function GroupCourtBookingsSection({
             </EmptyDescription>
             {isOwner && !isArchived && (
               <Button
-                onClick={() => setLinkDialogOpen(true)}
+                onClick={() =>
+                  guardWriteAction(() => setLinkDialogOpen(true), {
+                    featureName: "liên kết đặt sân",
+                  })
+                }
                 size="sm"
                 className="mt-4 border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
               >
@@ -379,15 +396,30 @@ export function GroupCourtBookingsSection({
                 )}
 
                 <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-2.5 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <User className="size-3" />
-                    {t("errors.linkedBy", "Người liên kết: {{name}}", {
-                      name: item.creator?.name || t("members"),
-                    })}
-                  </span>
-                  <span className="flex items-center gap-1">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                    {item.creator?.name && (
+                      <span className="flex items-center gap-1">
+                        <User className="size-3" />
+                        {t("errors.linkedBy", "Người liên kết: {{name}}", {
+                          name: item.creator.name,
+                        })}
+                      </span>
+                    )}
+                    {item.linkedActivity && (
+                      <span className="flex items-center gap-1 font-semibold text-muted-foreground/80 dark:text-emerald-400">
+                        {t(
+                          "activitySchedule.linkedActivityLabel",
+                          "Hoạt động: {{title}}",
+                          {
+                            title: item.linkedActivity.title,
+                          }
+                        )}
+                      </span>
+                    )}
+                  </div>
+                  <span className="flex items-center gap-1 text-muted-foreground/80">
                     <Clock className="size-3" />
-                    {t("errors.linkedAt", "Thời gian liên kết: {{time}}", {
+                    {t("errors.linkedAt", "Thời gian liên kết nhóm: {{time}}", {
                       time: formatDateTime(item.createdAt),
                     })}
                   </span>
@@ -451,7 +483,11 @@ export function GroupCourtBookingsSection({
         </div>
         {isOwner && !isArchived && (
           <Button
-            onClick={() => setLinkDialogOpen(true)}
+            onClick={() =>
+              guardWriteAction(() => setLinkDialogOpen(true), {
+                featureName: "liên kết đặt sân",
+              })
+            }
             size="sm"
             className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
           >
@@ -650,15 +686,7 @@ export function GroupCourtBookingsSection({
                 <div className="grid gap-3 rounded-lg border bg-muted/20 p-4 sm:grid-cols-2">
                   <div>
                     <span className="block text-xs text-muted-foreground uppercase">
-                      {t("errors.linker", "Người liên kết")}
-                    </span>
-                    <span className="font-semibold text-foreground">
-                      {selectedBooking.creator?.name || t("members")}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-xs text-muted-foreground uppercase">
-                      {t("errors.linkedTime", "Thời gian liên kết")}
+                      {t("errors.linkedTime", "Thời gian liên kết nhóm")}
                     </span>
                     <span className="font-semibold text-foreground">
                       {formatDateTime(selectedBooking.createdAt)}
@@ -766,6 +794,7 @@ export function GroupCourtBookingsSection({
           )}
         </DialogContent>
       </Dialog>
+      <PermissionDialog />
     </div>
   )
 }

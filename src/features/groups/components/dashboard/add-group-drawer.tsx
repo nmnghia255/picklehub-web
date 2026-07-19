@@ -34,6 +34,7 @@ import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import { addGroupAction } from "../../actions"
 import { type AddGroupFormData, addGroupSchema } from "../../schemas"
+import { PermissionDialog } from "../details/permission-dialog"
 
 export function AddGroupDrawer() {
   const { t } = useGroupsTranslation()
@@ -98,7 +99,7 @@ export function AddGroupDrawer() {
       </Button>
 
       <Drawer direction="right" open={open} onOpenChange={setOpen}>
-        <DrawerContent>
+        <DrawerContent className="group-feature-root bg-card sm:max-w-md">
           <form className="flex h-full flex-col" onSubmit={onSubmit}>
             <DrawerHeader>
               <DrawerTitle>
@@ -197,32 +198,17 @@ export function AddGroupDrawer() {
         </DrawerContent>
       </Drawer>
 
-      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-emerald-600 dark:text-emerald-400">
-              {t("dashboard.subscriptionRequiredTitle", "Yêu cầu đăng ký gói")}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {t(
-                "dashboard.subscriptionRequiredDesc",
-                "Bạn cần đăng ký gói dịch vụ Trưởng nhóm để có thể tạo nhóm mới."
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>
-              {t("activitySchedule.btnCancel", "Hủy")}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-emerald-600! text-white hover:bg-emerald-700!"
-              onClick={() => router.push("/subscriptions")}
-            >
-              {t("dashboard.subscribeBtn", "Đăng ký ngay")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <PermissionDialog
+        open={isAlertOpen}
+        onOpenChange={setIsAlertOpen}
+        title={t("dashboard.subscriptionRequiredTitle", "Yêu cầu đăng ký gói")}
+        description={t(
+          "dashboard.subscriptionRequiredDesc",
+          "Bạn cần đăng ký gói dịch vụ Trưởng nhóm để có thể tạo nhóm mới."
+        )}
+        showUpgradeButton={true}
+        onUpgrade={() => router.push("/subscriptions")}
+      />
     </>
   )
 }

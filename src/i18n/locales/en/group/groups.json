@@ -101,19 +101,19 @@
     "btnLink": "Link",
     "linkedBadge": "Linked",
     "bookingDetailDesc": "Details of the linked court booking.",
-    "linker": "Linked by",
-    "linkedTime": "Linked at",
+    "linkedTime": "Linked to group time",
     "linkedNote": "Link Note",
     "sportCenterLabel": "Sport Center:",
     "courtsAndTimeList": "Courts and Time List",
     "noBookingItemsInfo": "No detailed court information.",
-    "linkedBy": "Linked by: {{name}}",
-    "linkedAt": "Linked at: {{time}}",
+    "linkedAt": "Linked to group: {{time}}",
     "groupNoBookingsLinked": "No court bookings linked to this group yet.",
     "sportCenterUnknown": "Unknown Court"
   },
   "activitySchedule": {
     "calendarTitle": "Activity Schedule",
+    "linkedActivity": "Linked Activity",
+    "linkedActivityLabel": "Activity: {{title}}",
     "tabMonth": "Month",
     "tabWeek": "Week",
     "tabAgenda": "Agenda",
@@ -344,6 +344,19 @@
     "roleOwner": "Owner",
     "roleAdmin": "Admin",
     "roleMember": "Member",
+    "permissionRequiredTitle": "🔒 Subscription Renewal Required",
+    "permissionExpiredTitle": "🔒 Group Subscription Expired",
+    "permissionExpiredDesc": "To {{feature}}, the group needs to renew its subscription.",
+    "permissionExpiredOwnerSuffix": " Please renew now to continue using all features.",
+    "permissionExpiredMemberSuffix": " Please contact the Group Owner to renew.",
+    "permissionNoAccessTitle": "⛔ Access Denied",
+    "permissionNoAccessDesc": "You are not a member of this group.",
+    "subscriptionBenefitsTitle": "Benefits when renewing the group subscription:",
+    "benefitActivities": "Manage & track group activities schedule",
+    "benefitBookings": "Link court bookings from court clusters",
+    "benefitEquipment": "Manage equipments and template suggestions",
+    "benefitFinance": "Track expenses, transactions and group finances",
+    "benefitMembers": "Invite members and assign roles/permissions",
     "membersCount": "{{count}} members",
     "groupInfoTitle": "Group Infomation",
     "groupArchivedNotice": "This group has been archived and is no longer active",
@@ -562,7 +575,13 @@
     "formFieldTitleDesc": "Maximum 200 characters",
     "formFieldMessage": "Content",
     "formFieldMessagePlaceholder": "Enter notification content...",
-    "formFieldMessageDesc": "Maximum 1000 characters"
+    "formFieldMessageDesc": "Maximum 1000 characters",
+    "sender": {
+      "validation": {
+        "title": "Please enter a notification title.",
+        "message": "Please enter a notification message."
+      }
+    }
   },
   "equipment": {
     "title": "Equipments",

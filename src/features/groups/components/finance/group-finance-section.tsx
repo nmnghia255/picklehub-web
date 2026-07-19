@@ -31,7 +31,12 @@ import {
   listGroupDebtsClient,
   listTransactionsClient,
 } from "../../api/finance-client"
-import { getGroupMembersClient, groupQueryKeys } from "../../api/groups-client"
+import {
+  getGroupClient,
+  getGroupMembersClient,
+  groupQueryKeys,
+} from "../../api/groups-client"
+import { useActionGuard } from "../../hooks/use-action-guard"
 import { useGroupDebts } from "../../hooks/use-group-debts"
 import type { Member } from "../../types"
 import { isArchivedGroup } from "../../utils/group-status"
@@ -191,11 +196,21 @@ export function GroupFinanceSection({
 }) {
   const { t } = useGroupsTranslation()
   const activeTab = useGroupDetailActiveTab()
+  const isFinanceActive = activeTab === "finance"
+
+  const { data: group } = useQuery({
+    queryKey: groupQueryKeys.detail(groupId),
+    queryFn: () => getGroupClient(groupId),
+    enabled: isFinanceActive,
+  })
+
+  const { guardWriteAction, PermissionDialog } = useActionGuard(
+    group,
+    currentUserRole
+  )
   const normalizedRole = currentUserRole?.toLowerCase() ?? ""
   const isOwner = normalizedRole === "owner"
   const canManage = !isArchivedGroup(groupStatus) && normalizedRole === "owner"
-
-  const isFinanceActive = activeTab === "finance"
 
   const summaryQuery = useQuery({
     queryKey: financeQueryKeys.summary(groupId),
@@ -315,16 +330,33 @@ export function GroupFinanceSection({
           </div>
           {!isArchivedGroup(groupStatus) && (
             <div className="flex flex-wrap gap-2">
-              <CreateTransactionButton groupId={groupId} />
+              <CreateTransactionButton
+                groupId={groupId}
+                onClick={(open) =>
+                  guardWriteAction(open, {
+                    featureName: "gửi thanh toán mới",
+                  })
+                }
+              />
               {canManage && (
                 <>
                   <CreateExpenseButton
                     groupId={groupId}
                     members={resolvedMembers}
+                    onClick={(open) =>
+                      guardWriteAction(open, {
+                        featureName: "tạo khoản chi mới",
+                      })
+                    }
                   />
                   <RemindDebtButton
                     groupId={groupId}
                     members={resolvedMembers}
+                    onClick={(open) =>
+                      guardWriteAction(open, {
+                        featureName: "gửi nhắc nợ thành viên",
+                      })
+                    }
                   />
                 </>
               )}
@@ -1226,6 +1258,7 @@ export function GroupFinanceSection({
           </TabsContent>
         </Tabs>
       </CardContent>
+      <PermissionDialog />
     </Card>
   )
 }
