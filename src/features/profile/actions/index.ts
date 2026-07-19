@@ -9,6 +9,7 @@ import {
   type UpdateMyProfilePayload,
 } from "@/features/profile/api/profile-service"
 import type { User } from "@/features/profile/types"
+import { uploadImageAction } from "@/features/sport-center/actions/upload-image-action"
 
 export interface UpdateProfileState {
   error?: string
@@ -35,22 +36,31 @@ export async function updateAvatarAction(
       ? avatarFileField
       : null
 
-  if (avatarFile) {
-    return {
-      error:
-        "User service hiện chỉ hỗ trợ cập nhật avatar bằng avatarUrl. Vui lòng dùng Avatar URL.",
-    }
-  }
-
-  const parsed = updateAvatarSchema.safeParse({
-    avatarUrl: formData.get("avatarUrl"),
-  })
-
-  if (!parsed.success) {
-    return { error: parsed.error.errors[0].message }
-  }
-
   try {
+    let avatarUrl = formData.get("avatarUrl") as string | null
+
+    if (avatarFile) {
+      try {
+        avatarUrl = await uploadImageAction(avatarFile)
+      } catch (uploadError) {
+        if (
+          axios.isAxiosError(uploadError) &&
+          uploadError.response?.data?.message
+        ) {
+          return { error: uploadError.response.data.message }
+        }
+        return { error: "edit.avatar.uploadError" }
+      }
+    }
+
+    const parsed = updateAvatarSchema.safeParse({
+      avatarUrl,
+    })
+
+    if (!parsed.success) {
+      return { error: parsed.error.errors[0].message }
+    }
+
     const currentProfile = await getMyProfile()
     const payload: UpdateMyProfilePayload = {
       fullName: currentProfile.fullName,
@@ -65,19 +75,17 @@ export async function updateAvatarAction(
 
     return {
       success: true,
-      message: "Cập nhật ảnh đại diện thành công.",
+      message: "edit.avatar.updateSuccess",
       user: updatedUser,
     }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
-        error:
-          error.response?.data?.message ||
-          "Không thể cập nhật ảnh đại diện. Vui lòng thử lại.",
+        error: error.response?.data?.message || "edit.avatar.updateError",
       }
     }
 
-    return { error: "Đã có lỗi xảy ra. Vui lòng thử lại." }
+    return { error: "edit.genericError" }
   }
 }
 

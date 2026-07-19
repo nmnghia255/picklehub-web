@@ -121,7 +121,7 @@ export function EditPlayerInfoForm({
       }}
       className="space-y-4"
     >
-      <FieldGroup>
+      <FieldGroup className="gap-5">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field>
             <FieldLabel htmlFor="name">{t("edit.displayName")}</FieldLabel>
@@ -132,20 +132,7 @@ export function EditPlayerInfoForm({
               defaultValue={initialValues?.name ?? ""}
             />
           </Field>
-        </div>
 
-        <Field>
-          <FieldLabel htmlFor="bio">{t("about")}</FieldLabel>
-          <Textarea
-            id="bio"
-            name="bio"
-            placeholder={t("edit.bioPlaceholder")}
-            defaultValue={initialValues?.bio ?? ""}
-            rows={4}
-          />
-        </Field>
-
-        <div className="grid gap-4 sm:grid-cols-3">
           <Field>
             <FieldLabel htmlFor="gender">{t("gender")}</FieldLabel>
             <NativeSelect
@@ -167,7 +154,9 @@ export function EditPlayerInfoForm({
               </NativeSelectOption>
             </NativeSelect>
           </Field>
+        </div>
 
+        <div className="grid gap-4 sm:grid-cols-2">
           <Field>
             <FieldLabel htmlFor="selfRating">{t("selfRating")}</FieldLabel>
             <NativeSelect
@@ -211,6 +200,17 @@ export function EditPlayerInfoForm({
             </NativeSelect>
           </Field>
         </div>
+
+        <Field>
+          <FieldLabel htmlFor="bio">{t("about")}</FieldLabel>
+          <Textarea
+            id="bio"
+            name="bio"
+            placeholder={t("edit.bioPlaceholder")}
+            defaultValue={initialValues?.bio ?? ""}
+            rows={3}
+          />
+        </Field>
 
         <div className="flex items-start gap-2 rounded-lg border border-dashed p-3 text-sm text-muted-foreground">
           <Camera className="mt-0.5 size-4 shrink-0" />

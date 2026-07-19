@@ -8,6 +8,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { ChatBot } from "@/features/ai/components/chat-bot"
 import { getMyProfile } from "@/features/profile/api/profile-service"
 import type { SessionUser } from "@/lib/session"
 import { getSession } from "@/lib/session"
@@ -55,6 +56,7 @@ export default async function ProtectedLayout({
         </header>
         <div className="flex flex-1 flex-col">{children}</div>
       </SidebarInset>
+      <ChatBot />
     </SidebarProvider>
   )
 }

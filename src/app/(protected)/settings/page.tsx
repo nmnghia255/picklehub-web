@@ -1,5 +1,9 @@
 import type { LinkedProvider } from "@/features/auth/types"
-import { getMyLinkedProviders } from "@/features/profile/api/profile-service"
+import {
+  getMyLinkedProviders,
+  getMyProfile,
+} from "@/features/profile/api/profile-service"
+import type { User } from "@/features/profile/types"
 
 import { SettingsContent } from "./settings-content"
 
@@ -7,12 +11,24 @@ export const dynamic = "force-dynamic"
 
 export default async function SettingsPage() {
   let linkedProviders: LinkedProvider[] = []
+  let user: User | null = null
 
   try {
-    linkedProviders = await getMyLinkedProviders()
+    const [providersResult, profileResult] = await Promise.allSettled([
+      getMyLinkedProviders(),
+      getMyProfile(),
+    ])
+
+    if (providersResult.status === "fulfilled") {
+      linkedProviders = providersResult.value
+    }
+
+    if (profileResult.status === "fulfilled") {
+      user = profileResult.value
+    }
   } catch {
-    // Keep the page usable even if social linkage data is unavailable.
+    // Keep the page usable even if API calls fail.
   }
 
-  return <SettingsContent linkedProviders={linkedProviders} />
+  return <SettingsContent linkedProviders={linkedProviders} user={user} />
 }

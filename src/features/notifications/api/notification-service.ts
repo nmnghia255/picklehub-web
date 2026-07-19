@@ -41,6 +41,7 @@ export async function sendInAppNotification(
       userIds: dto.userIds,
       title: dto.title,
       message: dto.message,
+      ...(dto.metadata ? { metadata: dto.metadata } : {}),
     }
   )
   return response.data

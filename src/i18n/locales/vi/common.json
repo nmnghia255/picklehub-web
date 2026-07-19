@@ -1890,6 +1890,7 @@
       "noAccount": "Bạn chưa có tài khoản?",
       "registerLink": "Đăng ký",
       "facebookButton": "Đăng nhập với Facebook",
+      "googleButton": "Đăng nhập với Google",
       "error": "Đăng nhập thất bại. Vui lòng thử lại."
     },
     "register": {
@@ -1907,6 +1908,7 @@
       "hasAccount": "Bạn đã có tài khoản?",
       "loginLink": "Đăng nhập",
       "facebookButton": "Đăng ký với Facebook",
+      "googleButton": "Đăng ký với Google",
       "error": "Đăng ký thất bại. Vui lòng thử lại."
     },
     "magicLink": {
@@ -1927,7 +1929,7 @@
       "passwordPlaceholder": "Nhập mật khẩu",
       "confirmPasswordLabel": "Nhập lại mật khẩu",
       "confirmPasswordPlaceholder": "Nhập lại mật khẩu",
-      "submit": "Lưu mật khẩu",
+      "submit": "Tạo mật khẩu",
       "submitting": "Đang lưu...",
       "success": "Đã đặt mật khẩu thành công.",
       "error": "Đặt mật khẩu thất bại. Vui lòng thử lại."

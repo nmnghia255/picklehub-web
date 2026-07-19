@@ -1,4 +1,4 @@
-import type { EnrollmentStatus, PaymentStatus } from '../coach'
+import type { EnrollmentStatus, PaymentStatus } from "../coach"
 
 // GET /api/learner/class-enrollments response item
 export interface EnrollmentListItemDTO {

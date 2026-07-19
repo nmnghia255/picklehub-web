@@ -52,12 +52,14 @@ function getFriendLevelLabel(
 
 export default function FriendClient({
   initialUsersByTab,
+  initialActiveTab = "find",
 }: {
   initialUsersByTab: UsersByTab
+  initialActiveTab?: TabKey
 }) {
   const { t } = useTranslation("common")
 
-  const [activeTab, setActiveTab] = useState<TabKey>("find")
+  const [activeTab, setActiveTab] = useState<TabKey>(initialActiveTab)
   const [search, setSearch] = useState("")
   const [sortBy, setSortBy] = useState<SortKey>("alphabet")
   const [usersByTab, setUsersByTab] = useState<UsersByTab>(initialUsersByTab)

@@ -64,16 +64,20 @@ export function EditProfileContent({
         <p className="text-sm text-muted-foreground">{t("edit.subtitle")}</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <EditProfileAccountCard
-          avatarUrl={profileUser?.avatarUrl}
-          displayName={displayNameValue}
-          email={sessionEmail}
-        />
-        <EditProfileAccountSettingsCard />
-      </div>
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-1">
+          <EditProfileAccountCard
+            avatarUrl={profileUser?.avatarUrl}
+            displayName={displayNameValue}
+            email={sessionEmail}
+          />
+          <EditProfileAccountSettingsCard />
+        </div>
 
-      <EditProfilePlayerInfoCard user={profileUser} />
+        <div className="lg:col-span-2">
+          <EditProfilePlayerInfoCard user={profileUser} />
+        </div>
+      </div>
     </PageContainer>
   )
 }

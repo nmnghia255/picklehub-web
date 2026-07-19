@@ -308,7 +308,7 @@ export function Header({ user }: HeaderProps) {
                 src={user.avatarUrl || undefined}
                 alt={user.name || undefined}
               />
-              <AvatarFallback className="text-xs font-semibold">
+              <AvatarFallback className="!bg-indigo-500 text-xs font-semibold !text-white">
                 {initials || "U"}
               </AvatarFallback>
             </Avatar>

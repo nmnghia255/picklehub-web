@@ -8,6 +8,7 @@ export type PlanType =
   | "GROUP_OWNER"
   | "SOCIAL_HOST"
   | "TOURNAMENT_ORGANIZER"
+  | "COACH"
 export type BillingCycles = "MONTHLY" | "QUARTERLY" | "YEARLY"
 
 export interface AvailableSubscriptionPlan extends SubscriptionPlan {
