@@ -62,7 +62,7 @@ export function GroupFeedNotifications({
 
   if (isLoading) {
     return (
-      <Card className={"mt-6 " + className}>
+      <Card className={"group-feature-root mt-6 " + className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Bell className="size-5" />
@@ -80,7 +80,7 @@ export function GroupFeedNotifications({
 
   if (notifications.length === 0) {
     return (
-      <Card className={"mt-6 bg-orange-50 dark:bg-accent" + className}>
+      <Card className={"group-feature-root mt-6 " + className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Bell className="size-5" />
@@ -100,7 +100,7 @@ export function GroupFeedNotifications({
   }
 
   return (
-    <Card className={`mt-6 ${className} bg-orange-50 dark:bg-accent`}>
+    <Card className={`group-feature-root mt-6 ${className}`}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Bell className="size-5" />
@@ -112,7 +112,7 @@ export function GroupFeedNotifications({
           {notifications.map((notification) => (
             <div
               key={notification.id}
-              className="rounded-r-lg border-l-2 border-primary/50 py-2 pl-4 transition-colors hover:bg-muted/50"
+              className="rounded-r-lg border-l-2 border-emerald-500/50 py-2 pl-4 transition-colors hover:bg-muted/50"
             >
               <div className="space-y-1">
                 <div className="flex items-start justify-between gap-2">

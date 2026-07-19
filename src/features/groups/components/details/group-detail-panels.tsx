@@ -48,7 +48,7 @@ export async function GroupDetailPanels({
       <GroupFeedNotificationsContainer groupId={groupId} />
 
       {canManage && (
-        <Card className="bg-orange-50 dark:bg-accent">
+        <Card className="group-feature-root">
           <CardContent>
             <InvitationsTable
               groupId={groupId}

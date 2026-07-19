@@ -100,7 +100,7 @@ export function EditGroupDrawer({ group }: EditGroupDrawerProps) {
           {t("dashboard.editGroupBtn", "Chỉnh sửa nhóm")}
         </Button>
       </DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent className="bg-card">
         <form className="flex h-full flex-col" onSubmit={onSubmit}>
           <DrawerHeader>
             <DrawerTitle>

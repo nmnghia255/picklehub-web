@@ -82,7 +82,7 @@ export function GroupMembersCard({
     !isArchivedGroup(groupStatus) && normalizedUserRole === "owner"
 
   return (
-    <Card className="mt-6 bg-orange-50 dark:bg-accent">
+    <Card className="group-feature-root mt-6">
       <CardHeader>
         <div className="flex items-center gap-2">
           <Users className="size-5 text-base" />
@@ -132,7 +132,7 @@ export function GroupMembersCard({
                     <div className="flex items-center gap-2">
                       <span>{member.name}</span>
                       {member.userId === currentUserId && (
-                        <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-orange-500">
+                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
                           {t("dashboard.badgeYou", "Bạn")}
                         </span>
                       )}

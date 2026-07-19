@@ -23,6 +23,8 @@ export interface Group {
 export interface CreateGroupInput {
   name: string
   description: string
+  avatarUrl?: string | null
+  maxMembers?: number
 }
 
 export interface UpdateGroupInput {

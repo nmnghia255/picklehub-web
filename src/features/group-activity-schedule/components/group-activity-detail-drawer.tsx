@@ -579,7 +579,7 @@ export function GroupActivityDetailDrawer({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="flex h-[600px] max-h-[90vh] max-w-md flex-col overflow-hidden bg-orange-50 p-5 md:max-w-lg md:p-6 dark:bg-zinc-800 dark:shadow-sm"
+        className="flex h-[600px] max-h-[90vh] max-w-md flex-col overflow-hidden bg-background p-5 md:max-w-lg md:p-6 dark:bg-zinc-900 dark:shadow-sm"
       >
         {/* Top-right Actions Bar (Kebab + Custom Close button in a single row) */}
         <div className="absolute top-4 right-4 z-50 flex items-center gap-1">
@@ -601,7 +601,6 @@ export function GroupActivityDetailDrawer({
                 {/* 1. Edit Option: Always shown for hosts */}
                 <DropdownMenuItem
                   onClick={() => {
-                    onOpenChange(false)
                     onEdit?.()
                   }}
                   className="cursor-pointer text-sm"
@@ -680,8 +679,8 @@ export function GroupActivityDetailDrawer({
           </div>
         ) : activity ? (
           <div className="flex h-full w-full min-w-0 flex-col overflow-hidden text-foreground">
-            <DialogHeader className="px-0 pr-10 pb-3">
-              <DialogTitle className="text-xl font-extrabold text-[#1A56DB]">
+            <DialogHeader className="px-0 pr-10 pb-3 dark:bg-zinc-900">
+              <DialogTitle className="text-xl font-extrabold text-foreground">
                 {activity.title}
               </DialogTitle>
               <DialogDescription className="text-xs">
@@ -721,7 +720,7 @@ export function GroupActivityDetailDrawer({
               defaultValue="details"
               className="flex flex-1 flex-col overflow-hidden"
             >
-              <TabsList className="mb-3 grid w-full grid-cols-2 rounded-lg bg-muted/40 p-1">
+              <TabsList className="mb-3 grid w-full grid-cols-2 rounded-lg bg-muted p-1">
                 <TabsTrigger value="details" className="text-xs font-semibold">
                   {t("activitySchedule.tabDetails", "Chi tiết")}
                 </TabsTrigger>
@@ -737,7 +736,7 @@ export function GroupActivityDetailDrawer({
                 <div className="w-full space-y-4 overflow-x-hidden pr-0.5 pb-2">
                   {/* 1. Member Information & Absence Button */}
                   {currentUserId && (
-                    <div className="flex w-full min-w-0 items-center justify-between rounded-lg border border-muted/50 bg-muted/20 px-3 py-2">
+                    <div className="flex w-full min-w-0 items-center justify-between rounded-lg border border-muted/50 bg-muted px-3 py-2">
                       <div className="mr-2 flex flex-col gap-0.5 truncate text-xs text-muted-foreground">
                         <div className="flex items-center gap-2">
                           <User className="size-6 shrink-0 text-muted-foreground" />
@@ -1403,8 +1402,8 @@ export function GroupActivityDetailDrawer({
                         className={cn(
                           "h-7 shrink-0 rounded-md px-3 text-xs font-semibold transition-all",
                           isActive
-                            ? "hover:bg-orange-150 bg-orange-100 font-bold text-orange-700 dark:bg-orange-950/40 dark:text-orange-400"
-                            : "text-muted-foreground hover:bg-orange-100/50 hover:text-orange-700 dark:hover:bg-orange-950/20 dark:hover:text-orange-400"
+                            ? "bg-emerald-100 font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
+                            : "text-muted-foreground hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-400"
                         )}
                         onClick={() => setMemberFilter(tab)}
                       >
@@ -1445,7 +1444,7 @@ export function GroupActivityDetailDrawer({
                             <p className="flex items-center gap-1.5 truncate text-sm font-semibold text-foreground">
                               {member.name}
                               {member.userId === currentUserId && (
-                                <span className="rounded-md bg-primary/10 px-1.5 py-px text-[10px] font-semibold text-orange-500">
+                                <span className="rounded-md bg-emerald-100 px-1.5 py-px text-[10px] font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
                                   {t("activitySchedule.you", "Bạn")}
                                 </span>
                               )}
@@ -1459,7 +1458,7 @@ export function GroupActivityDetailDrawer({
                           {member.guestCount > 0 && (
                             <Badge
                               variant="secondary"
-                              className="hover:bg-orange-105 h-5 border-none bg-orange-100 text-[10px] text-orange-700 dark:bg-orange-950/40 dark:text-orange-400"
+                              className="h-5 border-none bg-purple-100 text-[10px] text-purple-700 dark:bg-purple-950/40 dark:text-purple-300"
                             >
                               {t(
                                 "activitySchedule.guestCountIndicator",

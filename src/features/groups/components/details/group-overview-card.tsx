@@ -35,7 +35,7 @@ export function GroupOverviewCard({
   const archived = isArchivedGroup(group.status)
 
   return (
-    <Card className="bg-orange-50 dark:bg-accent">
+    <Card className="group-feature-root">
       <CardHeader>
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">

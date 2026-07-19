@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 
 import {
@@ -19,11 +19,22 @@ import {
 interface GroupDetailHeaderProps {
   groupId: string
   initialData: Group
+  actions?: React.ReactNode
+}
+
+function getGroupInitials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("")
 }
 
 export function GroupDetailHeader({
   groupId,
   initialData,
+  actions,
 }: GroupDetailHeaderProps) {
   const queryKey = groupQueryKeys.detail(groupId)
   useSyncGroupData(queryKey, initialData)
@@ -39,32 +50,52 @@ export function GroupDetailHeader({
   const avatarUrl = data?.avatarUrl || initialData.avatarUrl
 
   const archived = isArchivedGroup(groupStatus)
-  const initial = groupName.trim().slice(0, 1).toUpperCase() || "G"
+  const coverSrc = avatarUrl || "/group-default.jpeg"
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex min-w-0 items-start gap-4">
-        <Avatar className="mt-1 size-16 bg-muted md:size-20">
-          <AvatarImage src={avatarUrl ?? ""} alt={groupName} />
-          <AvatarFallback className="bg-muted text-2xl font-semibold text-foreground md:text-3xl">
-            {initial}
-          </AvatarFallback>
-        </Avatar>
+      {/* Banner Cover Header */}
+      <div className="relative h-44 w-full overflow-hidden rounded-xl bg-slate-900 shadow-sm sm:h-56 md:h-64">
+        <img
+          src={coverSrc}
+          alt={groupName}
+          className="h-full w-full object-cover opacity-85"
+        />
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/15 to-transparent" />
+      </div>
 
-        <div className="min-w-0 flex-1 space-y-2">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <h1 className="min-w-0 text-3xl font-bold tracking-tight wrap-break-word text-orange-500 dark:text-orange-400">
-              {groupName}
-            </h1>
-            {archived && (
-              <Badge
-                variant="secondary"
-                className="bg-muted text-muted-foreground"
-              >
-                {getArchivedGroupLabel()}
-              </Badge>
-            )}
+      {/* Avatar & Title Row */}
+      <div className="relative px-2 pt-0 sm:px-4">
+        <div className="-mt-12 mb-2 flex flex-col gap-4 sm:-mt-16 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+          <div className="flex min-w-0 items-end gap-4">
+            <Avatar className="size-20 shrink-0 border-4 border-background shadow-lg sm:size-24 md:size-28">
+              <AvatarFallback className="bg-emerald-100 text-2xl font-extrabold text-emerald-800 sm:text-3xl md:text-4xl dark:bg-emerald-950 dark:text-emerald-300">
+                {getGroupInitials(groupName)}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="min-w-0 flex-1 space-y-1 pb-1">
+              <div className="flex min-w-0 flex-wrap items-center gap-2">
+                <h1 className="min-w-0 text-2xl font-bold tracking-tight wrap-break-word text-foreground sm:text-3xl md:text-4xl">
+                  {groupName}
+                </h1>
+                {archived && (
+                  <Badge
+                    variant="secondary"
+                    className="bg-muted text-muted-foreground"
+                  >
+                    {getArchivedGroupLabel()}
+                  </Badge>
+                )}
+              </div>
+            </div>
           </div>
+
+          {actions ? (
+            <div className="flex shrink-0 flex-wrap items-center gap-2 pb-1">
+              {actions}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

@@ -346,7 +346,7 @@ export function GroupActivitySchedulePage({
                 return (
                   <Card
                     key={event.id}
-                    className="cursor-pointer border bg-orange-50 shadow-sm transition-all hover:bg-orange-100 hover:shadow-md dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm dark:hover:border-accent-foreground/15 dark:hover:bg-accent-foreground/10"
+                    className="group-feature-root cursor-pointer border shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
                     onClick={() => openDetailDrawer(event)}
                   >
                     <CardContent className="space-y-3 p-4">
@@ -600,7 +600,7 @@ export function GroupActivitySchedulePage({
                       return (
                         <div
                           key={event.id}
-                          className="group relative cursor-pointer rounded-lg border bg-orange-50 p-3 shadow-sm transition-all hover:bg-orange-100 hover:shadow-md dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm dark:hover:border-accent-foreground/15 dark:hover:bg-accent-foreground/10"
+                          className="group-feature-root group relative cursor-pointer rounded-xl border bg-card p-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
                           onClick={() => openDetailDrawer(event)}
                         >
                           <div className="mb-2 flex items-start justify-between gap-2">
@@ -709,7 +709,7 @@ export function GroupActivitySchedulePage({
         open={cancelActivityConfirmOpen}
         onOpenChange={setCancelActivityConfirmOpen}
       >
-        <DialogContent className="sm:max-w-[450px]">
+        <DialogContent className="group-feature-root sm:max-w-[450px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="size-5" />
@@ -733,7 +733,7 @@ export function GroupActivitySchedulePage({
                       )}
                     </div>
                   ) : cancellationEligibility ? (
-                    <p className="rounded-md border border-amber-200 bg-muted/60 p-2.5 text-xs text-amber-800">
+                    <p className="rounded-md border border-amber-200 bg-muted p-2.5 text-xs text-amber-800">
                       {cancellationEligibility.warningMessage}
                     </p>
                   ) : null}

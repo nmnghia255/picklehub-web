@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useGroupsTranslation } from "@/i18n/use-groups-translation"
+import { cn } from "@/lib/utils"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import {
@@ -151,9 +152,7 @@ function SummaryCard({
   valueClassName?: string
 }) {
   return (
-    <Card
-      className={`bg-orange-50 ${className} dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm`}
-    >
+    <Card className={cn("group-feature-root", className)}>
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium text-foreground dark:text-white">
           {title}
@@ -161,7 +160,7 @@ function SummaryCard({
       </CardHeader>
       <CardContent>
         <div
-          className={`text-2xl font-bold ${valueClassName || "text-orange-500"}`}
+          className={`text-2xl font-bold ${valueClassName || "text-emerald-600 dark:text-emerald-400"}`}
         >
           {value}
         </div>
@@ -369,7 +368,7 @@ export function GroupFinanceSection({
                   </span>
                 }
                 className=""
-                valueClassName="text-orange-600 dark:text-orange-400"
+                valueClassName="text-emerald-600 dark:text-emerald-400"
               />
               <SummaryCard
                 title={t("finance.totalCollected", "Tổng đã thu")}
@@ -406,7 +405,7 @@ export function GroupFinanceSection({
                   <p className="text-xs text-muted-foreground uppercase">
                     {t("finance.totalSpent", "Tổng chi")}
                   </p>
-                  <p className="text-lg font-bold text-orange-500">
+                  <p className="text-lg font-bold text-rose-600 dark:text-rose-400">
                     {formatCurrency(monthlyStats.totalSpent)}
                   </p>
                 </div>
@@ -649,7 +648,7 @@ export function GroupFinanceSection({
                             <span className="text-sm font-semibold">
                               {formatCurrency(item.guestFee || 0)}
                             </span>
-                            <span className="text-xs font-semibold text-orange-700 dark:text-orange-400">
+                            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                               {t("finance.guestCount", "{{count}} khách", {
                                 count: item.guestCount,
                               })}
@@ -657,7 +656,7 @@ export function GroupFinanceSection({
                           </div>
                         ) : item.isGuestPayment ? (
                           <div className="flex flex-col gap-0.5">
-                            <span className="text-xs font-semibold text-orange-700 dark:text-orange-400">
+                            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                               {t("finance.guestCount", "{{count}} khách", {
                                 count: 1,
                               })}
@@ -1005,7 +1004,7 @@ export function GroupFinanceSection({
                                           {payment.guestCount &&
                                           payment.guestCount > 0 ? (
                                             <div className="flex flex-col gap-0.5">
-                                              <span className="text-xs font-semibold text-orange-700 dark:text-orange-400">
+                                              <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                                                 {t(
                                                   "finance.guestCount",
                                                   "{{count}} khách",
@@ -1022,7 +1021,7 @@ export function GroupFinanceSection({
                                             </div>
                                           ) : payment.isGuestPayment ? (
                                             <div className="flex flex-col gap-0.5">
-                                              <span className="text-xs font-semibold text-orange-700 dark:text-orange-400">
+                                              <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                                                 {t(
                                                   "finance.guestCount",
                                                   "{{count}} khách",

@@ -310,7 +310,7 @@ export function GroupCourtBookingsSection({
           return (
             <Card
               key={item.id}
-              className="flex cursor-pointer flex-col gap-6 rounded-xl border bg-orange-50 py-6 text-card-foreground shadow-sm transition-all hover:bg-orange-100 hover:shadow-md dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm dark:hover:border-accent-foreground/15 dark:hover:bg-accent-foreground/10"
+              className="flex cursor-pointer flex-col gap-6 rounded-xl border bg-muted py-6 text-card-foreground shadow-sm transition-all hover:shadow-md"
               onClick={() => handleOpenDetail(item)}
             >
               <CardHeader className="pb-3">
@@ -622,10 +622,10 @@ export function GroupCourtBookingsSection({
 
       {/* Detail Dialog */}
       <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto bg-orange-50 sm:max-w-[600px] dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm">
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[600px]">
           {selectedBooking && (
             <div>
-              <DialogHeader className="bg-orange-50 dark:bg-accent">
+              <DialogHeader>
                 <div className="mr-6 flex items-center justify-between gap-4">
                   <DialogTitle className="text-xl font-bold">
                     {selectedBooking.title}
@@ -754,7 +754,7 @@ export function GroupCourtBookingsSection({
                 </div>
               </div>
 
-              <DialogFooter className="border-t bg-orange-50 pt-4 dark:bg-accent">
+              <DialogFooter className="border-t pt-4">
                 <Button
                   type="button"
                   onClick={() => setDetailDialogOpen(false)}
