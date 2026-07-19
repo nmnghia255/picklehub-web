@@ -101,19 +101,19 @@
     "btnLink": "Liên kết",
     "linkedBadge": "Đã liên kết",
     "bookingDetailDesc": "Chi tiết thông tin lịch đặt sân đã liên kết.",
-    "linker": "Người liên kết",
-    "linkedTime": "Thời gian liên kết",
+    "linkedTime": "Thời gian liên kết nhóm",
     "linkedNote": "Ghi chú liên kết",
     "sportCenterLabel": "Cụm sân:",
     "courtsAndTimeList": "Danh sách sân và khung giờ",
     "noBookingItemsInfo": "Không có thông tin chi tiết từng sân.",
-    "linkedBy": "Người liên kết: {{name}}",
     "linkedAt": "Thời gian liên kết: {{time}}",
     "groupNoBookingsLinked": "Nhóm chưa liên kết bất kỳ lịch đặt sân nào.",
     "sportCenterUnknown": "Sân chưa rõ"
   },
   "activitySchedule": {
     "calendarTitle": "Lịch hoạt động",
+    "linkedActivity": "Hoạt động",
+    "linkedActivityLabel": "Hoạt động: {{title}}",
     "tabMonth": "Tháng",
     "tabWeek": "Tuần",
     "tabAgenda": "Lịch trình",
@@ -343,6 +343,19 @@
     "roleOwner": "Trưởng nhóm",
     "roleAdmin": "Quản trị viên",
     "roleMember": "Thành viên",
+    "permissionRequiredTitle": "🔒 Yêu cầu gia hạn gói dịch vụ",
+    "permissionExpiredTitle": "🔒 Gói dịch vụ nhóm đã hết hạn",
+    "permissionExpiredDesc": "Để {{feature}}, nhóm cần gia hạn gói dịch vụ.",
+    "permissionExpiredOwnerSuffix": " Hãy gia hạn ngay để tiếp tục sử dụng tất cả tính năng.",
+    "permissionExpiredMemberSuffix": " Vui lòng liên hệ Chủ nhóm để gia hạn.",
+    "permissionNoAccessTitle": "⛔ Không có quyền truy cập",
+    "permissionNoAccessDesc": "Bạn không phải là thành viên của nhóm này.",
+    "subscriptionBenefitsTitle": "Quyền lợi khi gia hạn gói dịch vụ nhóm:",
+    "benefitActivities": "Quản lý & điểm danh lịch hoạt động nhóm",
+    "benefitBookings": "Liên kết lịch đặt sân từ cụm sân",
+    "benefitEquipment": "Quản lý dụng cụ và template dụng cụ",
+    "benefitFinance": "Theo dõi thu chi, hóa đơn và tài chính",
+    "benefitMembers": "Mời thành viên và phân quyền",
     "membersCount": "{{count}} thành viên",
     "groupInfoTitle": "Thông tin nhóm",
     "groupArchivedNotice": "Nhóm này đã được lưu trữ và không còn hoạt động",
@@ -561,7 +574,13 @@
     "formFieldTitleDesc": "Tối đa 200 ký tự",
     "formFieldMessage": "Nội dung",
     "formFieldMessagePlaceholder": "Nhập nội dung thông báo...",
-    "formFieldMessageDesc": "Tối đa 1000 ký tự"
+    "formFieldMessageDesc": "Tối đa 1000 ký tự",
+    "sender": {
+      "validation": {
+        "title": "Vui lòng nhập tiêu đề thông báo.",
+        "message": "Vui lòng nhập nội dung thông báo."
+      }
+    }
   },
   "equipment": {
     "title": "Vật dụng",

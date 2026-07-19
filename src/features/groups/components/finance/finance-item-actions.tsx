@@ -1096,7 +1096,13 @@ function DeleteForm({
   )
 }
 
-export function CreateTransactionButton({ groupId }: { groupId: string }) {
+export function CreateTransactionButton({
+  groupId,
+  onClick,
+}: {
+  groupId: string
+  onClick?: (openDialog: () => void) => void
+}) {
   const { t } = useGroupsTranslation()
   const [open, setOpen] = useState(false)
   const invalidation = useFinanceInvalidation(groupId)
@@ -1104,7 +1110,13 @@ export function CreateTransactionButton({ groupId }: { groupId: string }) {
   return (
     <>
       <Button
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          if (onClick) {
+            onClick(() => setOpen(true))
+          } else {
+            setOpen(true)
+          }
+        }}
         size="sm"
         className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
       >
@@ -1135,9 +1147,11 @@ export function CreateTransactionButton({ groupId }: { groupId: string }) {
 export function CreateExpenseButton({
   groupId,
   members,
+  onClick,
 }: {
   groupId: string
   members: Member[]
+  onClick?: (openDialog: () => void) => void
 }) {
   const { t } = useGroupsTranslation()
   const [open, setOpen] = useState(false)
@@ -1146,7 +1160,13 @@ export function CreateExpenseButton({
   return (
     <>
       <Button
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          if (onClick) {
+            onClick(() => setOpen(true))
+          } else {
+            setOpen(true)
+          }
+        }}
         size="sm"
         className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
       >
@@ -1180,9 +1200,11 @@ export function CreateExpenseButton({
 export function RemindDebtButton({
   groupId,
   members,
+  onClick,
 }: {
   groupId: string
   members: Member[]
+  onClick?: (openDialog: () => void) => void
 }) {
   const { t } = useGroupsTranslation()
   const [open, setOpen] = useState(false)
@@ -1273,7 +1295,13 @@ export function RemindDebtButton({
   return (
     <>
       <Button
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          if (onClick) {
+            onClick(() => setOpen(true))
+          } else {
+            setOpen(true)
+          }
+        }}
         size="sm"
         className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
       >

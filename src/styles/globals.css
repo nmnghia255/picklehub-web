@@ -161,4 +161,6 @@
 .group-feature-root {
   --card: var(--muted);
   --card-foreground: var(--foreground);
+  --color-card: var(--muted) !important;
+  --color-card-foreground: var(--foreground) !important;
 }

@@ -36,8 +36,10 @@ import {
 import {
   cancelCourtBookingClient,
   checkCancelEligibilityClient,
+  getGroupClient,
   groupQueryKeys,
 } from "@/features/groups/api/groups-client"
+import { useActionGuard } from "@/features/groups/hooks/use-action-guard"
 import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import {
@@ -112,6 +114,15 @@ export function GroupActivitySchedulePage({
   const [checkingEligibility, setCheckingEligibility] = useState(false)
 
   // Queries
+  const { data: group } = useQuery({
+    queryKey: groupQueryKeys.detail(groupId),
+    queryFn: () => getGroupClient(groupId),
+    enabled: !!groupId,
+  })
+
+  const { guardWriteAction, PermissionDialog, hasValidSubscription } =
+    useActionGuard(group, currentUserRole)
+
   const { data: activitiesResponse, isLoading } = useQuery({
     queryKey: activityQueryKeys.list(groupId, { limit: 1000 }), // Get all for calendar
     queryFn: () => listActivitiesClient(groupId, { limit: 1000 }),
@@ -227,28 +238,33 @@ export function GroupActivitySchedulePage({
     updateMutation.mutate({ activityId, payload })
   }
 
-  const handleDeleteClick = async (event: GroupActivity) => {
-    setActivityToCancel(event)
-    setCancelCourtBookingChecked(false)
-    setCancellationEligibility(null)
+  const handleDeleteClick = (event: GroupActivity) => {
+    guardWriteAction(
+      async () => {
+        setActivityToCancel(event)
+        setCancelCourtBookingChecked(false)
+        setCancellationEligibility(null)
 
-    if (event.bookingId) {
-      setCancelActivityConfirmOpen(true)
-      setCheckingEligibility(true)
-      try {
-        const elig = await checkCancelEligibilityClient(
-          groupId,
-          event.bookingId
-        )
-        setCancellationEligibility(elig)
-      } catch (err) {
-        console.error("Error checking cancel eligibility:", err)
-      } finally {
-        setCheckingEligibility(false)
-      }
-    } else {
-      setCancelActivityConfirmOpen(true)
-    }
+        if (event.bookingId) {
+          setCancelActivityConfirmOpen(true)
+          setCheckingEligibility(true)
+          try {
+            const elig = await checkCancelEligibilityClient(
+              groupId,
+              event.bookingId
+            )
+            setCancellationEligibility(elig)
+          } catch (err) {
+            console.error("Error checking cancel eligibility:", err)
+          } finally {
+            setCheckingEligibility(false)
+          }
+        } else {
+          setCancelActivityConfirmOpen(true)
+        }
+      },
+      { featureName: "hủy hoạt động này" }
+    )
   }
 
   const handleConfirmCancellation = () => {
@@ -488,7 +504,11 @@ export function GroupActivitySchedulePage({
 
           {canManageActivities && (
             <Button
-              onClick={openCreateDialog}
+              onClick={() =>
+                guardWriteAction(openCreateDialog, {
+                  featureName: "tạo hoạt động mới",
+                })
+              }
               className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
             >
               <Plus className="mr-2 size-4" />
@@ -533,7 +553,11 @@ export function GroupActivitySchedulePage({
               {canManageActivities && (
                 <Button
                   className="w-full border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-                  onClick={openCreateDialog}
+                  onClick={() =>
+                    guardWriteAction(openCreateDialog, {
+                      featureName: "tạo hoạt động mới",
+                    })
+                  }
                 >
                   <Plus className="mr-2 size-4" />
                   {t("activitySchedule.btnCreateActivity")}
@@ -697,12 +721,20 @@ export function GroupActivitySchedulePage({
           groupId={groupId}
           currentUserRole={currentUserRole}
           currentUserId={currentUserId}
+          readOnly={!hasValidSubscription}
           onEdit={() => {
-            setEditingEvent(selectedEventForDetail)
-            setFormOpen(true)
+            guardWriteAction(
+              () => {
+                setEditingEvent(selectedEventForDetail)
+                setFormOpen(true)
+              },
+              { featureName: "chỉnh sửa hoạt động" }
+            )
           }}
         />
       )}
+
+      <PermissionDialog />
 
       {/* Cascade Cancel Confirmation Dialog */}
       <Dialog
