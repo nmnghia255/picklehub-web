@@ -1596,7 +1596,8 @@
       "schedule": "Schedule",
       "enrollments": "Enrolled classes",
       "bookings": "Private bookings",
-      "discovery": "Discover coaches"
+      "discovery": "Discover coaches",
+      "aiSupport": "AI Support"
     },
     "recommendation": {
       "button": "Recommend to a friend",

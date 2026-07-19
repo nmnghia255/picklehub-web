@@ -30,6 +30,8 @@ export interface SubscriptionPlan {
   durationInDays: number
   isActive: boolean
   sortOrder: number
+  createdAt: string
+  updatedAt: string
 }
 
 export interface Subscription {

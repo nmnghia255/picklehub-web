@@ -17,7 +17,11 @@ async function fetchMySubscriptions(): Promise<Subscription[]> {
     const locale = getSubscriptionLocale()
     throw new Error(errorData.message || locale.errorOccurred)
   }
-  return response.json()
+  const json = await response.json()
+  if (json && typeof json === "object" && "success" in json && "data" in json) {
+    return json.data as Subscription[]
+  }
+  return json as Subscription[]
 }
 
 function getSubscriptionLocale() {
@@ -32,7 +36,5 @@ export function useMySubscriptions() {
   return useQuery({
     queryKey: subscriptionQueryKeys.me(),
     queryFn: fetchMySubscriptions,
-    staleTime: Infinity, // Keep the cached subscription data fresh indefinitely (session-like storage)
-    gcTime: Infinity, // Prevent garbage collection of subscription cache
   })
 }

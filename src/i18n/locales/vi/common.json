@@ -35,6 +35,22 @@
     }
   },
   "calendar": {
+    "month": "Tháng",
+    "year": "Năm",
+    "months": {
+      "0": "Tháng 1",
+      "1": "Tháng 2",
+      "2": "Tháng 3",
+      "3": "Tháng 4",
+      "4": "Tháng 5",
+      "5": "Tháng 6",
+      "6": "Tháng 7",
+      "7": "Tháng 8",
+      "8": "Tháng 9",
+      "9": "Tháng 10",
+      "10": "Tháng 11",
+      "11": "Tháng 12"
+    },
     "title": "Lịch của tôi",
     "description": "Quản lý và theo dõi hoạt động pickleball cá nhân của bạn.",
     "pageTitle": "Lịch của tôi",
@@ -1543,7 +1559,8 @@
       "schedule": "Lịch",
       "enrollments": "Lớp đã đăng ký",
       "bookings": "Đặt lịch riêng",
-      "discovery": "Khám phá HLV"
+      "discovery": "Khám phá HLV",
+      "aiSupport": "Hỗ trợ AI"
     },
     "recommendation": {
       "button": "Giới thiệu cho bạn bè",
@@ -2130,24 +2147,5 @@
     "sessionCardTitle": "Đăng xuất",
     "sessionCardDesc": "Đăng xuất khỏi thiết bị này khi bạn không còn sử dụng nữa.",
     "logoutBtn": "Đăng xuất"
-  },
-  "calendar": {
-    "today": "Hôm nay",
-    "month": "Tháng",
-    "year": "Năm",
-    "months": {
-      "0": "Tháng 1",
-      "1": "Tháng 2",
-      "2": "Tháng 3",
-      "3": "Tháng 4",
-      "4": "Tháng 5",
-      "5": "Tháng 6",
-      "6": "Tháng 7",
-      "7": "Tháng 8",
-      "8": "Tháng 9",
-      "9": "Tháng 10",
-      "10": "Tháng 11",
-      "11": "Tháng 12"
-    }
   }
 }

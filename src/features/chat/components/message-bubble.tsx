@@ -80,13 +80,22 @@ export function MessageBubble({
       )}
     >
       {!isOwn ? (
-        <Avatar className="size-8 shrink-0 self-end">
+        // <Avatar className="size-8 shrink-0 self-end">
+        //   <AvatarImage
+        //     src=""
+        //     alt={message.sender?.name ?? t("chat.labels.user")}
+        //   />
+        //   <AvatarFallback className="bg-muted text-[10px] font-semibold">
+        //     {getInitials(message.sender?.name ?? "")}
+        //   </AvatarFallback>
+        // </Avatar>
+        <Avatar className="mt-0.5 size-10 shrink-0">
           <AvatarImage
             src=""
             alt={message.sender?.name ?? t("chat.labels.user")}
           />
-          <AvatarFallback className="bg-muted text-[10px] font-semibold">
-            {getInitials(message.sender?.name ?? "")}
+          <AvatarFallback className="bg-indigo-500! text-xs font-semibold text-white!">
+            {getInitials(message.sender?.name ?? "") || "U"}
           </AvatarFallback>
         </Avatar>
       ) : (
@@ -97,8 +106,8 @@ export function MessageBubble({
         className={cn(
           "group relative max-w-[min(42rem,calc(100%-3rem))] rounded-2xl px-3 py-2 text-sm shadow-sm",
           isOwn
-            ? "bg-primary text-primary-foreground"
-            : "border bg-card text-foreground"
+            ? "bg-emerald-600 text-white dark:bg-emerald-700 dark:text-emerald-50"
+            : "bg-muted text-foreground"
         )}
       >
         {showOwnActions && (
@@ -112,7 +121,7 @@ export function MessageBubble({
                   className={cn(
                     "size-7 rounded-full",
                     isOwn
-                      ? "text-primary-foreground hover:bg-primary-foreground/10"
+                      ? "text-white hover:bg-white/10"
                       : "text-muted-foreground hover:bg-muted"
                   )}
                   aria-label={t("chat.actions.messageMenu")}
@@ -141,13 +150,13 @@ export function MessageBubble({
           </div>
         )}
 
-        {!isOwn && (
+        {/* {!isOwn && (
           <div className="mb-1 flex items-center gap-1">
             <p className="text-xs font-medium text-muted-foreground">
               {message.sender?.name ?? currentUserName ?? t("chat.labels.user")}
             </p>
           </div>
-        )}
+        )} */}
 
         {message.deletedAt ? (
           <div className="flex items-center gap-2 text-muted-foreground">
@@ -155,7 +164,7 @@ export function MessageBubble({
             <p>{t("chat.labels.deletedMessage")}</p>
           </div>
         ) : message.type === "SYSTEM" ? (
-          <p className="text-sm break-words whitespace-pre-wrap italic">
+          <p className="text-sm wrap-break-word whitespace-pre-wrap italic">
             {message.body ?? t("chat.labels.systemMessage")}
           </p>
         ) : message.type === "MEDIA" &&
@@ -163,7 +172,9 @@ export function MessageBubble({
           !mediaLoadFailed ? (
           <div className="space-y-2">
             {message.body ? (
-              <p className="break-words whitespace-pre-wrap">{message.body}</p>
+              <p className="wrap-break-word whitespace-pre-wrap">
+                {message.body}
+              </p>
             ) : null}
             <div className="overflow-hidden rounded-xl border bg-background/40">
               <img
@@ -178,18 +189,20 @@ export function MessageBubble({
         ) : message.type === "MEDIA" ? (
           <div className="flex items-center gap-2">
             <ImageOff className="size-4 shrink-0" />
-            <p className="break-words whitespace-pre-wrap">
+            <p className="wrap-break-word whitespace-pre-wrap">
               {message.body || t("chat.labels.mediaMessage")}
             </p>
           </div>
         ) : (
-          <p className="break-words whitespace-pre-wrap">{message.body}</p>
+          <p className="wrap-break-word whitespace-pre-wrap">{message.body}</p>
         )}
 
         <div
           className={cn(
             "mt-1 flex items-center justify-end gap-2 text-[11px]",
-            isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
+            isOwn
+              ? "text-white/70 dark:text-emerald-200/70"
+              : "text-muted-foreground"
           )}
         >
           {message.editedAt && (

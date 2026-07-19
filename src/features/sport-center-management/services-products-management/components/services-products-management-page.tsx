@@ -50,9 +50,11 @@ function matchesStatus(
 export function ServicesProductsManagementPage({
   lockedCenterId,
   lockedCenterActive = true,
+  noContainer = false,
 }: {
   lockedCenterId?: string
   lockedCenterActive?: boolean
+  noContainer?: boolean
 } = {}) {
   const { t } = useSportCenterManagementTranslation()
   const searchParams = useSearchParams()
@@ -250,8 +252,8 @@ export function ServicesProductsManagementPage({
     }
   }
 
-  return (
-    <PageContainer variant="wide" className="space-y-6 pb-10">
+  const content = (
+    <>
       {!isLocked ? (
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-2">
@@ -465,6 +467,16 @@ export function ServicesProductsManagementPage({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </>
+  )
+
+  if (noContainer) {
+    return <div className="space-y-6">{content}</div>
+  }
+
+  return (
+    <PageContainer variant="wide" className="space-y-6 pb-10">
+      {content}
     </PageContainer>
   )
 }

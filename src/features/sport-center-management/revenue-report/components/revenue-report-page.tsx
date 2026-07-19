@@ -22,7 +22,9 @@ import { RevenueSummaryCards } from "./revenue-summary-cards"
 import { RevenueTransactionDrawer } from "./revenue-transaction-drawer"
 import { RevenueTransactionsTable } from "./revenue-transactions-table"
 
-export function RevenueReportPage() {
+export function RevenueReportPage({
+  noContainer = false,
+}: { noContainer?: boolean } = {}) {
   const { t } = useSportCenterManagementTranslation()
   const { toast } = useToast()
   const filters = useRevenueReportStore((state) => state.filters)
@@ -163,8 +165,8 @@ export function RevenueReportPage() {
 
   const loadingAll = loadingOverview && loadingTransactions
 
-  return (
-    <PageContainer variant="wide" className="space-y-8 pb-10">
+  const content = (
+    <>
       <div className="relative overflow-hidden rounded-3xl bg-card/70 px-6 py-6">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_42%),radial-gradient(circle_at_top_right,rgba(45,212,191,0.16),transparent_36%)]" />
         <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -275,12 +277,16 @@ export function RevenueReportPage() {
           </TabsContent>
         </Tabs>
       )}
+    </>
+  )
 
-      <RevenueTransactionDrawer
-        transaction={selectedTransaction}
-        open={detailOpen}
-        onOpenChange={setDetailOpen}
-      />
+  if (noContainer) {
+    return <div className="space-y-8">{content}</div>
+  }
+
+  return (
+    <PageContainer variant="wide" className="space-y-8 pb-10">
+      {content}
     </PageContainer>
   )
 }

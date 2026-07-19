@@ -69,38 +69,12 @@ const sidebarItems: SidebarItem[] = [
   { titleKey: "notifications", href: "/feed", icon: BellRing },
   { titleKey: "learner", href: "/learner", icon: BookOpen },
   { titleKey: "coach", href: "/coach", icon: Shield },
-]
-
-const sportCenterManagementMenuItems = [
   {
-    titleKey: "manageCenters",
+    titleKey: "centerManagement",
     href: "/sport-center-management",
-  },
-  {
-    titleKey: "courtManagement",
-    href: "/sport-center-management/courts-management",
-  },
-  {
-    titleKey: "customerManagement",
-    href: "/sport-center-management/customer",
-  },
-  {
-    titleKey: "bookingList",
-    href: "/sport-center-management/booking-list",
-    icon: CalendarClock,
-  },
-  {
-    titleKey: "servicesProducts",
-    href: "/sport-center-management/services-products",
-  },
-  {
-    titleKey: "revenueReport",
-    href: "/sport-center-management/analytics",
+    icon: MapPinned,
   },
 ]
-
-const SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY =
-  "isSportCenterManagementMenuOpen"
 
 function isActivePath(pathname: string, href: string) {
   if (pathname === href) {
@@ -170,54 +144,14 @@ export function AppSidebar() {
   const hasCoachPlan = subscriptions.some(
     (sub) => sub.status === "ACTIVE" && sub.plan.type === "COACH"
   )
-  const [isSportCenterManagementMenuOpen, setIsSportCenterManagementMenuOpen] =
-    useState(false)
+  console.log("subscriptions", subscriptions)
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsSportCenterManagementMenuOpen(
-      window.sessionStorage.getItem(
-        SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY
-      ) === "true"
-    )
-  }, [])
-  const isSportCenterManagementPath = isActivePath(
-    pathname,
-    "/sport-center-management"
-  )
-  const shouldShowSportCenterManagementMenu =
-    isSportCenterManagementPath || isSportCenterManagementMenuOpen
+  console.log("hasSportCenterManagerPlan", hasSportCenterManagerPlan)
+  console.log("hasTournamentOrganizerPlan", hasTournamentOrganizerPlan)
+  console.log("hasCoachPlan", hasCoachPlan)
   const unreadCount = notifications.filter(
     (notification) => notification.unread
   ).length
-
-  const handleSportCenterManagementMenuToggle = () => {
-    setIsSportCenterManagementMenuOpen((prev) => {
-      const next = !prev
-
-      if (typeof window !== "undefined") {
-        window.sessionStorage.setItem(
-          SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY,
-          String(next)
-        )
-      }
-
-      return next
-    })
-  }
-
-  const handlePrimaryItemClick = () => {
-    if (isSportCenterManagementMenuOpen) {
-      setIsSportCenterManagementMenuOpen(false)
-
-      if (typeof window !== "undefined") {
-        window.sessionStorage.setItem(
-          SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY,
-          "false"
-        )
-      }
-    }
-  }
 
   return (
     <Sidebar collapsible="icon">
@@ -237,6 +171,9 @@ export function AppSidebar() {
                   if (item.href === "/coach") {
                     return hasCoachPlan
                   }
+                  if (item.href === "/sport-center-management") {
+                    return hasSportCenterManagerPlan
+                  }
                   return true
                 })
                 .map((item) => {
@@ -246,11 +183,10 @@ export function AppSidebar() {
                         asChild
                         isActive={isActivePath(pathname, item.href)}
                         tooltip={t(`sidebar.${item.titleKey}`)}
-                        className="h-10 rounded-xl px-3 text-slate-700 transition-all duration-200 hover:bg-slate-100 data-[active=true]:!bg-emerald-600 data-[active=true]:!text-white data-[active=true]:shadow-xs data-[active=true]:hover:!bg-emerald-700 data-[active=true]:hover:!text-white dark:text-zinc-300 dark:hover:bg-zinc-900 [&>span:last-child]:truncate [&>svg]:size-[18px] [&>svg]:shrink-0"
+                        className="h-10 rounded-xl px-3 text-slate-700 transition-all duration-200 hover:bg-slate-100 data-[active=true]:bg-emerald-600! data-[active=true]:text-white! data-[active=true]:shadow-xs data-[active=true]:hover:bg-emerald-700! data-[active=true]:hover:text-white! dark:text-zinc-300 dark:hover:bg-zinc-900 [&>span:last-child]:truncate [&>svg]:size-[18px] [&>svg]:shrink-0"
                       >
                         <Link
                           href={item.href}
-                          onClick={handlePrimaryItemClick}
                           className="flex w-full items-center"
                         >
                           <span className="relative inline-flex shrink-0 items-center justify-center">
@@ -272,46 +208,6 @@ export function AppSidebar() {
                     </SidebarMenuItem>
                   )
                 })}
-
-              {hasSportCenterManagerPlan && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    isActive={shouldShowSportCenterManagementMenu}
-                    tooltip={t("sidebar.centerManagement")}
-                    onClick={handleSportCenterManagementMenuToggle}
-                    className="h-10 rounded-xl px-3 text-slate-700 transition-all duration-200 hover:bg-slate-100 data-[active=true]:!bg-emerald-600 data-[active=true]:!text-white data-[active=true]:shadow-xs data-[active=true]:hover:!bg-emerald-700 data-[active=true]:hover:!text-white dark:text-zinc-300 dark:hover:bg-zinc-900 [&>svg]:size-[18px]"
-                  >
-                    <MapPinned className="size-[18px]" />
-                    <span>{t("sidebar.centerManagement")}</span>
-                    <ChevronDown
-                      className={cn(
-                        "ml-auto size-4 transition-transform",
-                        shouldShowSportCenterManagementMenu && "rotate-180"
-                      )}
-                    />
-                  </SidebarMenuButton>
-                  {shouldShowSportCenterManagementMenu && (
-                    <SidebarMenuSub className="ml-4 border-l border-slate-200 pl-2 dark:border-zinc-800">
-                      {sportCenterManagementMenuItems.map((item) => (
-                        <SidebarMenuSubItem key={item.href}>
-                          <SidebarMenuSubButton
-                            asChild
-                            isActive={isActivePath(pathname, item.href)}
-                            className="h-8 rounded-lg px-3 text-slate-600 transition-all duration-200 hover:bg-slate-100 data-[active=true]:!bg-emerald-50 data-[active=true]:font-medium data-[active=true]:!text-emerald-600 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:data-[active=true]:!bg-emerald-950/40 dark:data-[active=true]:!text-emerald-400"
-                          >
-                            <Link
-                              href={item.href}
-                              onClick={handlePrimaryItemClick}
-                            >
-                              <span>{t(`sidebar.${item.titleKey}`)}</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  )}
-                </SidebarMenuItem>
-              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

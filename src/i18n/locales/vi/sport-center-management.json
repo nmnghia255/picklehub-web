@@ -482,13 +482,13 @@
       "subtitle": "Quản lý dịch vụ và sản phẩm theo từng trung tâm."
     },
     "center": {
-      "noActive": "Không có Sport Center đang hoạt động để quản lý sản phẩm và dịch vụ.",
-      "inactive": "Hãy chọn Sport Center đang hoạt động để quản lý sản phẩm và dịch vụ.",
-      "notFound": "Sport Center này không còn tồn tại.",
-      "permissionDenied": "Bạn không có quyền quản lý Sport Center này.",
+      "noActive": "Không có sân đang hoạt động.",
+      "inactive": "Hãy chọn sân đang hoạt động.",
+      "notFound": "Sân này không còn tồn tại.",
+      "permissionDenied": "Bạn không có quyền quản lý sân này.",
       "loading": "Đang tải...",
-      "noCenters": "Không có trung tâm nào",
-      "selected": "Chọn trung tâm"
+      "noCenters": "Không có sân nào",
+      "selected": "Chọn sân"
     },
     "toast": {
       "deleteServiceSuccess": "Đã xóa dịch vụ.",
@@ -601,15 +601,18 @@
   },
   "centerList": {
     "badge": "Không gian quản lý",
-    "title": "Quản lý Sport Center",
-    "subtitle": "Xem và quản lý các Sport Center thuộc tài khoản của bạn.",
+    "title": "Quản lý sân",
+    "subtitle": "Xem và quản lý các sân thuộc tài khoản của bạn.",
     "imageAlt": "Ảnh {{name}}",
     "noImage": "Chưa có ảnh",
     "courts": "{{count}} sân",
     "created": "Tạo ngày {{date}}",
-    "status": { "active": "Đang hoạt động", "inactive": "Chưa hoạt động" },
+    "status": {
+      "active": "Đang hoạt động",
+      "inactive": "Chưa hoạt động"
+    },
     "actions": {
-      "create": "Tạo Sport Center",
+      "create": "Tạo sân",
       "view": "Xem chi tiết",
       "manageCourts": "Quản lý sân",
       "edit": "Chỉnh sửa",
@@ -622,25 +625,25 @@
       "saving": "Đang lưu..."
     },
     "empty": {
-      "title": "Chưa có Sport Center",
-      "description": "Hãy tạo Sport Center đầu tiên để bắt đầu quản lý sân, đặt sân và kho hàng.",
-      "action": "Tạo Sport Center đầu tiên"
+      "title": "Chưa có sân",
+      "description": "Hãy tạo sân đầu tiên để bắt đầu quản lý sân, đặt sân và kho hàng.",
+      "action": "Tạo sân đầu tiên"
     },
     "error": {
-      "title": "Không thể tải danh sách Sport Center",
-      "description": "Đã xảy ra lỗi khi tải các Sport Center của bạn."
+      "title": "Không thể tải danh sách sân",
+      "description": "Đã xảy ra lỗi khi tải các sân của bạn."
     },
     "delete": {
-      "title": "Xóa Sport Center?",
+      "title": "Xóa sân?",
       "description": "Bạn có chắc muốn xóa {{name}} không? Thao tác sẽ được xử lý bởi máy chủ."
     },
     "edit": {
-      "title": "Chỉnh sửa Sport Center",
-      "description": "Cập nhật thông tin của Sport Center này.",
-      "loading": "Đang tải chi tiết Sport Center...",
-      "loadError": "Không thể tải chi tiết Sport Center mới nhất.",
+      "title": "Chỉnh sửa sân",
+      "description": "Cập nhật thông tin của sân này.",
+      "loading": "Đang tải chi tiết sân...",
+      "loadError": "Không thể tải chi tiết sân mới nhất.",
       "removeTitle": "Xóa mục này?",
-      "removeDescription": "Bạn có chắc muốn xóa {{name}} khỏi Sport Center này không?",
+      "removeDescription": "Bạn có chắc muốn xóa {{name}} khỏi sân này không?",
       "confirmRemove": "Xóa"
     },
     "fields": {
@@ -674,10 +677,10 @@
       "imageUrl": "Ảnh phải được tải lên thành công trước khi lưu."
     },
     "toast": {
-      "updated": "Đã cập nhật Sport Center.",
-      "updateFailed": "Không thể cập nhật Sport Center.",
-      "deleted": "Đã xóa Sport Center.",
-      "deleteFailed": "Không thể xóa Sport Center."
+      "updated": "Đã cập nhật sân.",
+      "updateFailed": "Không thể cập nhật sân.",
+      "deleted": "Đã xóa sân.",
+      "deleteFailed": "Không thể xóa sân."
     }
   },
   "managementDetail": {
@@ -700,8 +703,8 @@
       "noAmenities": "Chưa có tiện ích nào.",
       "rules": "Quy định",
       "noRules": "Chưa có quy định nào.",
-      "images": "Ảnh Sport Center",
-      "noImages": "Chưa có ảnh Sport Center.",
+      "images": "Ảnh sân",
+      "noImages": "Chưa có ảnh sân.",
       "imageAlt": "Ảnh {{name}}",
       "payment": "Thông tin thanh toán",
       "accountName": "Tên chủ tài khoản",
@@ -720,15 +723,15 @@
       "title": "Giá thuê sân",
       "startTime": "Giờ bắt đầu",
       "endTime": "Giờ kết thúc",
-        "pricePerHour": "Giá mỗi giờ",
-        "add": "Thêm khung giá",
-        "createTitle": "Thêm khung giá",
-        "createDescription": "Nhập khoảng thời gian và giá thuê theo giờ cho khung giá này.",
-        "confirmAdd": "Thêm khung giá",
+      "pricePerHour": "Giá mỗi giờ",
+      "add": "Thêm khung giá",
+      "createTitle": "Thêm khung giá",
+      "createDescription": "Nhập khoảng thời gian và giá thuê theo giờ cho khung giá này.",
+      "confirmAdd": "Thêm khung giá",
       "save": "Lưu thay đổi",
       "delete": "Xóa khung giá",
       "deleteTitle": "Xóa khung giá?",
-      "deleteDescription": "Khung giá này sẽ được xóa khỏi Sport Center.",
+      "deleteDescription": "Khung giá này sẽ được xóa khỏi sân.",
       "confirmDelete": "Xóa",
       "empty": "Chưa có khung giá.",
       "invalid": "Hãy nhập khoảng thời gian và mức giá hợp lệ.",
@@ -746,20 +749,20 @@
       "addTier": "Thêm mức",
       "removeTier": "Xóa mức",
       "save": "Lưu thay đổi",
-        "saveSuccess": "Đã lưu chính sách hủy.",
-        "saveError": "Không thể lưu chính sách hủy.",
-        "invalid": "Hãy nhập số ngày và tỷ lệ hoàn tiền hợp lệ.",
-        "createTitle": "Thêm mức chính sách",
-        "createDescription": "Nhập ngưỡng hủy và tỷ lệ hoàn tiền.",
-        "confirmAdd": "Thêm mức",
-        "deleteTitle": "Xóa mức chính sách?",
-        "deleteDescription": "Mức này sẽ bị xóa khỏi các thay đổi chính sách chưa lưu.",
-        "confirmDelete": "Xóa mức"
+      "saveSuccess": "Đã lưu chính sách hủy.",
+      "saveError": "Không thể lưu chính sách hủy.",
+      "invalid": "Hãy nhập số ngày và tỷ lệ hoàn tiền hợp lệ.",
+      "createTitle": "Thêm mức chính sách",
+      "createDescription": "Nhập ngưỡng hủy và tỷ lệ hoàn tiền.",
+      "confirmAdd": "Thêm mức",
+      "deleteTitle": "Xóa mức chính sách?",
+      "deleteDescription": "Mức này sẽ bị xóa khỏi các thay đổi chính sách chưa lưu.",
+      "confirmDelete": "Xóa mức"
     }
   },
   "courtManagement": {
     "title": "Quản lý sân",
-    "subtitle": "Tạo và quản lý các sân thuộc Sport Center này.",
+    "subtitle": "Tạo và quản lý các sân thuộc trung tâm này.",
     "updated": "Cập nhật {{date}}",
     "types": {
       "INDOOR": "Trong nhà",
@@ -785,7 +788,7 @@
     },
     "empty": {
       "title": "Chưa có sân",
-      "description": "Bạn có thể thêm sân bất kỳ lúc nào sau khi hoàn tất thiết lập Sport Center."
+      "description": "Bạn có thể thêm sân bất kỳ lúc nào sau khi hoàn tất thiết lập trung tâm."
     },
     "error": {
       "load": "Không thể tải danh sách sân."
@@ -819,10 +822,12 @@
   },
   "createCenter": {
     "statusLabel": "Trạng thái",
-    "status": { "active": "Đang hoạt động" },
+    "status": {
+      "active": "Đang hoạt động"
+    },
     "page": {
       "badge": "Trợ lý tạo trung tâm",
-      "title": "Tạo Sport Center",
+      "title": "Tạo trung tâm",
       "subtitle": "Tạo trung tâm trước, sau đó cấu hình giá, chính sách hủy, sân, dịch vụ và sản phẩm theo từng bước."
     },
     "detail": {
@@ -965,5 +970,14 @@
         "clothing": "Quần áo"
       }
     }
+  },
+  "tabs": {
+    "centerManagement": "Quản lý trung tâm",
+    "centerList": "Danh sách trung tâm",
+    "courtManagement": "Quản lý sân",
+    "bookingList": "Danh sách đặt sân",
+    "customerManagement": "Quản lý khách hàng",
+    "servicesProducts": "Dịch vụ & Sản phẩm",
+    "revenueReport": "Báo cáo doanh thu"
   }
 }

@@ -13,6 +13,7 @@ import type {
   SwingAnalysisRequestDto,
   TrendAnalysisRequestDto,
 } from "../types/chat"
+import type { RecommendationResponse } from "../types/recommendation"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL || ""
 
@@ -130,6 +131,25 @@ export const AiService = {
     const response = await client.post<AiResponseDto>(
       "/api/ai/internal/analyses/trends",
       payload
+    )
+    return response.data
+  },
+
+  /**
+   * Call this endpoint to get a personalized Pickleball training roadmap for the authenticated user.
+   * The service automatically aggregates the user's profile (bio, preferred hand, DUPR rating, match statistics) and
+   * forwards it to the AI Service, which uses a combination of retrieved tactical documents (RAG) and expert
+   * coaching knowledge to generate a structured training plan.
+   * Supported categories:
+   * training (default) — Personalized training roadmap with skills, drills, step-by-step execution, and coaching tips
+   */
+  personalizedRecommendations: async (
+    category: string,
+    limit: number
+  ): Promise<RecommendationResponse> => {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.get<RecommendationResponse>(
+      `/api/users/me/recommendations?category=${category}&limit=${limit}`
     )
     return response.data
   },

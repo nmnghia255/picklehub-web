@@ -42,6 +42,123 @@ export function ChatBot() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [userInitials, setUserInitials] = useState("U")
 
+  // Dragging logic for the floating chatbot button
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const [isPointerDown, setIsPointerDown] = useState(false)
+  const dragStartRef = useRef<{
+    startX: number
+    startY: number
+    posX: number
+    posY: number
+  } | null>(null)
+  const isDraggingRef = useRef(false)
+
+  const startDrag = (clientX: number, clientY: number) => {
+    dragStartRef.current = {
+      startX: clientX,
+      startY: clientY,
+      posX: position.x,
+      posY: position.y,
+    }
+    isDraggingRef.current = false
+    setIsDragging(false)
+    setIsPointerDown(true)
+  }
+
+  const moveDrag = (clientX: number, clientY: number) => {
+    if (!dragStartRef.current) return
+    const dx = clientX - dragStartRef.current.startX
+    const dy = clientY - dragStartRef.current.startY
+
+    // Consider it a drag if moved more than 5 pixels
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+      isDraggingRef.current = true
+      setIsDragging(true)
+    }
+
+    const buttonSize = 56 // size-14 is 56px
+    const margin = 24 // right-6, bottom-6 is 24px
+    const originalX = window.innerWidth - margin - buttonSize
+    const originalY = window.innerHeight - margin - buttonSize
+
+    const minX = -originalX
+    const maxX = window.innerWidth - buttonSize - originalX
+    const minY = -originalY
+    const maxY = window.innerHeight - buttonSize - originalY
+
+    const boundedX = Math.max(
+      minX,
+      Math.min(maxX, dragStartRef.current.posX + dx)
+    )
+    const boundedY = Math.max(
+      minY,
+      Math.min(maxY, dragStartRef.current.posY + dy)
+    )
+
+    setPosition({
+      x: boundedX,
+      y: boundedY,
+    })
+  }
+
+  const endDrag = () => {
+    dragStartRef.current = null
+    setIsPointerDown(false)
+    // Use setTimeout to clear dragging status so click events can be correctly ignored
+    setTimeout(() => {
+      isDraggingRef.current = false
+      setIsDragging(false)
+    }, 50)
+  }
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return // Left click only
+    startDrag(e.clientX, e.clientY)
+  }
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0]
+    if (touch) {
+      startDrag(touch.clientX, touch.clientY)
+    }
+  }
+
+  useEffect(() => {
+    if (!isPointerDown) return
+
+    const handleMouseMove = (e: MouseEvent) => {
+      moveDrag(e.clientX, e.clientY)
+    }
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const touch = e.touches[0]
+      if (touch) {
+        moveDrag(touch.clientX, touch.clientY)
+      }
+    }
+
+    const handleMouseUp = () => {
+      endDrag()
+    }
+
+    const handleTouchEnd = () => {
+      endDrag()
+    }
+
+    window.addEventListener("mousemove", handleMouseMove)
+    window.addEventListener("mouseup", handleMouseUp)
+    window.addEventListener("touchmove", handleTouchMove, { passive: false })
+    window.addEventListener("touchend", handleTouchEnd)
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove)
+      window.removeEventListener("mouseup", handleMouseUp)
+      window.removeEventListener("touchmove", handleTouchMove)
+      window.removeEventListener("touchend", handleTouchEnd)
+    }
+  }, [isPointerDown])
+
   // Load user profile for initials and avatar
   useEffect(() => {
     async function loadProfile() {
@@ -278,11 +395,24 @@ export function ChatBot() {
   return (
     <>
       {/* Floating Action Button */}
-      <div className="fixed right-6 bottom-6 z-40 flex items-center justify-center">
+      <div
+        className="fixed z-40 flex touch-none items-center justify-center select-none"
+        style={{
+          right: "24px",
+          bottom: "24px",
+          transform: `translate(${position.x}px, ${position.y}px)`,
+          cursor: isDragging ? "grabbing" : "grab",
+        }}
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+      >
         {/* Subtle decorative ping ring for premium visual feedback */}
         <span className="absolute inline-flex size-14 h-full w-full animate-ping rounded-full bg-emerald-400 opacity-20"></span>
         <Button
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            if (isDraggingRef.current) return
+            setOpen(true)
+          }}
           className="relative flex size-14 cursor-pointer items-center justify-center rounded-full border-none bg-linear-to-tr from-emerald-500 to-teal-600 text-white shadow-xl transition-all duration-300 hover:scale-105 hover:from-emerald-600 hover:to-teal-700 hover:text-white"
         >
           <MessageCircle className="size-6" />

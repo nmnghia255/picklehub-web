@@ -1,9 +1,10 @@
-﻿"use client"
+"use client"
 
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { LearnerAiSupportPanel } from "@/features/learner/components/learner-ai-support-panel"
 import { LearnerBookingsPanel } from "@/features/learner/components/learner-bookings-panel"
 import { LearnerCoachDiscovery } from "@/features/learner/components/learner-coach-discovery"
 import { LearnerEnrollmentsPanel } from "@/features/learner/components/learner-enrollments-panel"
@@ -14,6 +15,7 @@ export type LearnerTabValue =
   | "enrollments"
   | "bookings"
   | "discovery"
+  | "aiSupport"
 
 export function LearnerDetailTabs() {
   const { t } = useTranslation("common")
@@ -41,6 +43,9 @@ export function LearnerDetailTabs() {
         <TabsTrigger value="discovery" className="sm:flex-none">
           {t("learner.tabs.discovery")}
         </TabsTrigger>
+        <TabsTrigger value="aiSupport" className="sm:flex-none">
+          {t("learner.tabs.aiSupport")}
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="schedule" className="mt-6 w-full min-w-0">
@@ -57,6 +62,10 @@ export function LearnerDetailTabs() {
 
       <TabsContent value="discovery" className="mt-6 w-full min-w-0">
         <LearnerCoachDiscovery />
+      </TabsContent>
+
+      <TabsContent value="aiSupport" className="mt-6 w-full min-w-0">
+        <LearnerAiSupportPanel />
       </TabsContent>
     </Tabs>
   )

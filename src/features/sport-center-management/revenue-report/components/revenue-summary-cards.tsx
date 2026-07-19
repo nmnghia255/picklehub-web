@@ -68,17 +68,18 @@ export function RevenueSummaryCards({
   }
 
   return (
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {CARD_CONFIG.map((card) => {
         const Icon = card.icon
-        const rawValue = summary ? summary[card.key] : 0
+        const rawValue = summary ? (summary[card.key] ?? 0) : 0
+        const numericValue = isNaN(Number(rawValue)) ? 0 : Number(rawValue)
         const value =
           card.key === "totalSettledRevenue" ||
           card.key === "totalPendingRevenue" ||
           card.key === "courtCostVnd" ||
           card.key === "netRevenueVnd"
-            ? formatCurrencyVnd(Number(rawValue))
-            : String(rawValue ?? 0)
+            ? formatCurrencyVnd(numericValue)
+            : String(numericValue)
 
         return (
           <Card

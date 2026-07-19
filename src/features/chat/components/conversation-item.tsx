@@ -73,26 +73,45 @@ export function ConversationItem({
       variant="ghost"
       onClick={onClick}
       className={cn(
-        "h-auto w-full justify-start rounded-none border-b px-4 py-3 text-left",
-        isActive && "bg-accent/70"
+        "h-auto w-full justify-start rounded-none border-b px-4 py-3 text-left transition-colors",
+        isActive
+          ? "bg-emerald-100 text-emerald-950 dark:bg-emerald-950/35 dark:text-emerald-50"
+          : "hover:bg-accent/40"
       )}
     >
       <div className="flex w-full items-start gap-3">
-        <Avatar className="mt-0.5 size-10 shrink-0">
+        {/* <Avatar className="mt-0.5 size-10 shrink-0">
           <AvatarImage src="" alt={title} />
           <AvatarFallback className="bg-muted text-xs font-semibold text-foreground">
             {getInitials(title)}
+          </AvatarFallback>
+        </Avatar> */}
+
+        <Avatar className="mt-0.5 size-10 shrink-0">
+          <AvatarImage src="" alt={title} />
+          <AvatarFallback className="bg-indigo-500! text-xs font-semibold text-white!">
+            {getInitials(title) || "U"}
           </AvatarFallback>
         </Avatar>
 
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-foreground">
+              <p
+                className={cn(
+                  "truncate text-sm font-medium",
+                  isActive
+                    ? "text-emerald-950 dark:text-emerald-50"
+                    : "text-foreground"
+                )}
+              >
                 {title}
               </p>
               <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
+                <Badge
+                  variant="secondary"
+                  className="h-5 bg-gray-200 px-1.5 text-[10px] dark:bg-gray-700"
+                >
                   {getConversationTypeLabel(conversation, t)}
                 </Badge>
                 {muted && (
@@ -108,14 +127,28 @@ export function ConversationItem({
             </div>
 
             <div className="shrink-0 text-right">
-              <p className="text-[11px] text-muted-foreground">
+              <p
+                className={cn(
+                  "text-[11px]",
+                  isActive
+                    ? "text-emerald-800/80 dark:text-emerald-400/80"
+                    : "text-muted-foreground"
+                )}
+              >
                 {lastMessageAt || lastMessageTime}
               </p>
             </div>
           </div>
 
           <div className="flex items-center justify-between gap-2">
-            <p className="line-clamp-1 text-sm text-muted-foreground">
+            <p
+              className={cn(
+                "line-clamp-1 text-sm",
+                isActive
+                  ? "text-emerald-900/80 dark:text-emerald-300/80"
+                  : "text-muted-foreground"
+              )}
+            >
               {preview || t("chat.conversationList.noPreview")}
             </p>
             {conversation.unreadCount > 0 && (

@@ -134,7 +134,7 @@ function CoachCard({
       onClick={() => onSelect(coach.id)}
       className="block w-full text-left"
     >
-      <Card className="h-full transition-shadow hover:shadow-md">
+      <Card className="h-full pt-0 pb-4 transition-shadow hover:shadow-md">
         <CardContent className="flex flex-col gap-3 pt-6">
           <div className="flex items-center gap-3">
             <Avatar size="lg">

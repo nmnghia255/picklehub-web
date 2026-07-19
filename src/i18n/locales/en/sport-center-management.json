@@ -965,5 +965,14 @@
     },
     "stepLabel": "Step",
     "errorTitle": "Could not continue"
+  },
+  "tabs": {
+    "centerManagement": "Center Management",
+    "manageCenters": "Manage Sport Centers",
+    "courtManagement": "Court Management",
+    "bookingList": "Booking List",
+    "customerManagement": "Customer Management",
+    "servicesProducts": "Services & Products",
+    "revenueReport": "Revenue Report"
   }
 }
