@@ -45,12 +45,15 @@ export function FavoriteTemplatesSelector({
     )
   }
 
+  const hasNoFavorites = templates.length === 0
+
   return (
     <div className="space-y-2">
       <label className="text-sm font-medium">
         {t("equipment.selectFromFavorite", "Chọn từ mẫu yêu thích")}
       </label>
       <Select
+        disabled={hasNoFavorites}
         onValueChange={(value) => {
           const selected = templates.find((t) => t.id === value)
           if (selected) {
@@ -60,14 +63,15 @@ export function FavoriteTemplatesSelector({
       >
         <SelectTrigger className="w-full">
           <SelectValue
-            placeholder={t(
-              "equipment.selectFromFavorite",
-              "Chọn từ mẫu yêu thích"
-            )}
+            placeholder={
+              hasNoFavorites
+                ? t("equipment.noFavorites", "Chưa có mẫu yêu thích nào")
+                : t("equipment.selectFromFavorite", "Chọn từ mẫu yêu thích")
+            }
           />
         </SelectTrigger>
         <SelectContent>
-          {templates.length === 0 ? (
+          {hasNoFavorites ? (
             <div className="p-2 text-center text-sm text-muted-foreground">
               {t("equipment.noFavorites", "Chưa có mẫu yêu thích nào")}
             </div>

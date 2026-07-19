@@ -335,6 +335,19 @@ function GroupActivityFormFields({
           "activitySchedule.formValidationRemindAt",
           "Thời gian nhắc phải nằm trong tương lai"
         )
+      } else if (values.date && values.startTime) {
+        const { startAt } = buildEventDateRange(
+          values.date,
+          values.startTime,
+          values.endTime
+        )
+        const startTimeMs = new Date(startAt).getTime()
+        if (remindTime >= startTimeMs) {
+          nextErrors.remindAt = t(
+            "activitySchedule.formValidationReminderBeforeStart",
+            "Thời gian nhắc nhở phải trước thời gian bắt đầu hoạt động"
+          )
+        }
       }
     }
 

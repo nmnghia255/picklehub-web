@@ -131,14 +131,14 @@ export function PaymentReceiptPreview({ receiptUrl }: { receiptUrl: string }) {
         type="button"
         variant="outline"
         size="xs"
-        className="h-7 rounded-full bg-orange-100 px-2.5 dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm"
+        className="h-7 rounded-full bg-emerald-100 px-2.5 text-emerald-800 hover:bg-emerald-200 dark:border-emerald-800/40 dark:bg-emerald-950/40 dark:text-emerald-300 dark:shadow-sm"
         onClick={() => setOpen(true)}
       >
         {t("finance.viewReceipt", "Xem chứng từ")}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] overflow-hidden p-0 sm:max-w-4xl">
+        <DialogContent className="group-feature-root max-h-[90vh] overflow-hidden p-0 sm:max-w-4xl">
           <div className="grid max-h-[90vh] gap-0 overflow-hidden md:grid-cols-[minmax(0,1fr)_280px]">
             <div className="flex items-center justify-center bg-black/90 p-4 md:min-h-[70vh]">
               {isImage ? (
@@ -267,7 +267,7 @@ function FinanceDialogShell({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="group-feature-root max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader className={headerClassName}>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>

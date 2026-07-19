@@ -58,9 +58,16 @@ export async function addGroupAction(
   _prevState: GroupActionState,
   formData: FormData
 ): Promise<GroupActionState> {
+  const avatarFileField = formData.get("avatarFile")
+  const avatarFile =
+    avatarFileField instanceof File && avatarFileField.size > 0
+      ? avatarFileField
+      : null
+
   const parsed = addGroupSchema.safeParse({
     name: formData.get("name"),
     description: formData.get("description"),
+    avatarUrl: formData.get("avatarUrl") || undefined,
   })
 
   if (!parsed.success) {
@@ -68,7 +75,18 @@ export async function addGroupAction(
   }
 
   try {
-    await createGroup(parsed.data)
+    let avatarUrl = parsed.data.avatarUrl || undefined
+
+    if (avatarFile) {
+      const uploadResult = await uploadFinanceReceiptFile(avatarFile)
+      avatarUrl = uploadResult.url
+    }
+
+    await createGroup({
+      name: parsed.data.name,
+      description: parsed.data.description,
+      ...(avatarUrl ? { avatarUrl } : {}),
+    })
     revalidatePath("/groups")
     return { success: true }
   } catch (error) {

@@ -82,29 +82,35 @@ export default async function GroupDetailPage({
   return (
     <PageContainer variant="wide" className="space-y-6">
       <GroupSubscriptionBanner group={group} currentUserRole={group.role} />
-      <div className="flex flex-col gap-4 border-b pb-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6 lg:pb-5">
-        <div className="min-w-0 flex-1">
-          <GroupDetailHeader groupId={groupId} initialData={group} />
-        </div>
-        <div className="flex shrink-0 flex-wrap items-center justify-start gap-2 lg:justify-end">
-          {canManage && (
-            <GroupFeedNotificationSender
-              groupId={groupId}
-              groupName={group.name}
-              canSend={canManage}
-            />
-          )}
-          {canManage && <EditGroupDrawer group={group} />}
-          {canManage && (
-            <GroupInviteMemberButton groupId={groupId} groupName={group.name} />
-          )}
-          <GroupDetailActionsMenu
-            groupId={groupId}
-            groupName={group.name}
-            isOwner={isOwner}
-            isArchived={group.status === "ARCHIVED"}
-          />
-        </div>
+      <div className="border-b pb-4 lg:pb-5">
+        <GroupDetailHeader
+          groupId={groupId}
+          initialData={group}
+          actions={
+            <>
+              {canManage && (
+                <GroupFeedNotificationSender
+                  groupId={groupId}
+                  groupName={group.name}
+                  canSend={canManage}
+                />
+              )}
+              {canManage && <EditGroupDrawer group={group} />}
+              {canManage && (
+                <GroupInviteMemberButton
+                  groupId={groupId}
+                  groupName={group.name}
+                />
+              )}
+              <GroupDetailActionsMenu
+                groupId={groupId}
+                groupName={group.name}
+                isOwner={isOwner}
+                isArchived={group.status === "ARCHIVED"}
+              />
+            </>
+          }
+        />
       </div>
 
       <div className="w-full min-w-0">

@@ -192,26 +192,26 @@ function ArchiveGroupConfirmDialog({
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            <div className="flex items-start gap-2.5 rounded-lg border border-rose-200 bg-rose-50/20 p-3">
+            <div className="flex items-start gap-2.5 rounded-lg border border-rose-200 bg-rose-50/50 p-3 dark:border-rose-900/50 dark:bg-rose-950/40">
               <Checkbox
                 id="confirm-archive"
                 checked={archiveConfirmChecked}
                 onCheckedChange={(checked) =>
                   setArchiveConfirmChecked(!!checked)
                 }
-                className="mt-0.5 border-rose-300 data-[state=checked]:bg-destructive data-[state=checked]:text-white"
+                className="mt-0.5 border-rose-300 data-[state=checked]:bg-destructive data-[state=checked]:text-white dark:border-rose-700"
               />
               <div className="grid gap-1.5 leading-none">
                 <label
                   htmlFor="confirm-archive"
-                  className="cursor-pointer text-xs font-bold text-rose-800 select-none"
+                  className="cursor-pointer text-xs font-bold text-rose-900 select-none dark:text-rose-200"
                 >
                   {t(
                     "dashboard.archiveGroupCheckLabel",
                     "Tôi xác nhận muốn lưu trữ nhóm này."
                   )}
                 </label>
-                <p className="text-[10px] text-rose-600">
+                <p className="text-[10px] text-rose-700 dark:text-rose-300">
                   {t(
                     "dashboard.archiveGroupCheckDesc",
                     "Toàn bộ thành viên và thông tin nhóm sẽ không thể tương tác cho đến khi được khôi phục."
@@ -378,19 +378,19 @@ function RestoreGroupConfirmDialog({
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            <div className="flex items-start gap-2.5 rounded-lg border border-emerald-200 bg-emerald-50/20 p-3">
+            <div className="flex items-start gap-2.5 rounded-lg border border-emerald-200 bg-emerald-50/50 p-3 dark:border-emerald-900/50 dark:bg-emerald-950/40">
               <Checkbox
                 id="confirm-restore"
                 checked={restoreConfirmChecked}
                 onCheckedChange={(checked) =>
                   setRestoreConfirmChecked(!!checked)
                 }
-                className="mt-0.5 border-emerald-300 data-[state=checked]:bg-emerald-600 data-[state=checked]:text-white"
+                className="mt-0.5 border-emerald-300 data-[state=checked]:bg-emerald-600 data-[state=checked]:text-white dark:border-emerald-700"
               />
               <div className="grid gap-1.5 leading-none">
                 <label
                   htmlFor="confirm-restore"
-                  className="cursor-pointer text-xs font-bold text-emerald-800 select-none"
+                  className="cursor-pointer text-xs font-bold text-emerald-900 select-none dark:text-emerald-200"
                 >
                   {t(
                     "dashboard.restoreGroupCheckLabel",

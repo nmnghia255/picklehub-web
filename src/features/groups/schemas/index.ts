@@ -3,6 +3,12 @@ import { z } from "zod"
 export const addGroupSchema = z.object({
   name: z.string().min(1, "Tên nhóm không được để trống"),
   description: z.string().min(1, "Mô tả không được để trống"),
+  avatarUrl: z
+    .string()
+    .url("URL ảnh không hợp lệ")
+    .optional()
+    .or(z.literal("")),
+  avatarFile: z.any().optional(),
 })
 
 export type AddGroupFormData = z.infer<typeof addGroupSchema>

@@ -245,7 +245,7 @@ export function InvitationsTable({
           }
         }}
       >
-        <DialogContent>
+        <DialogContent className="group-feature-root">
           <DialogHeader>
             <DialogTitle>
               {t("dashboard.revokeInvitationDialogTitle", "Thu hồi lời mời")}
