@@ -75,8 +75,21 @@ export const sportCenterWizardClient = {
       method: "DELETE",
     }),
 
-  getSportCenter: (centerId: string) =>
-    requestJson<SportCenter>(`/api/sport-centers/${centerId}`),
+  getSportCenter: async (centerId: string) => {
+    const result = await requestJson<SportCenter | ApiEnvelope<SportCenter>>(
+      `/api/sport-centers/${centerId}`
+    )
+    const center =
+      result && typeof result === "object" && "data" in result
+        ? result.data
+        : result
+
+    if (!center || typeof center !== "object" || !("id" in center)) {
+      throw new Error("Sport Center details are unavailable.")
+    }
+
+    return center as SportCenter
+  },
 
   listCourts: (centerId: string) =>
     requestJson<CourtResponse[]>(`/api/sport-centers/${centerId}/courts`),

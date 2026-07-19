@@ -14,7 +14,7 @@ import {
   Trash2,
 } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
 import { FallbackImage } from "@/components/fallback-image"
@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import { sportCenterWizardClient } from "../api/sport-center-wizard-client"
@@ -49,10 +50,17 @@ import type {
   SportCenter,
   UpdateSportCenterRequest,
 } from "../types/sport-center"
+import { ImageUploadControl } from "./image-upload-control"
 
-const detailQueryKey = (centerId: string) => [
+const managementDetailQueryKey = (centerId: string) => [
   "sport-center-management",
   "detail",
+  centerId,
+]
+
+const editDetailQueryKey = (centerId: string) => [
+  "sport-center-management",
+  "edit-detail",
   centerId,
 ]
 
@@ -61,9 +69,23 @@ type EditFormState = {
   address: string
   phone: string
   email: string
+  description: string
   openTime: string
   closeTime: string
   basePrice: string
+  images: string[]
+  rules: string[]
+  amenities: string[]
+  paymentAccountName: string
+  paymentAccountNumber: string
+  paymentBankName: string
+  paymentQrUrl: string
+}
+
+type PendingEditRemoval = {
+  kind: "rule" | "amenity"
+  index: number
+  label: string
 }
 
 function getEditForm(center: SportCenter): EditFormState {
@@ -72,9 +94,26 @@ function getEditForm(center: SportCenter): EditFormState {
     address: center.address,
     phone: center.phone,
     email: center.email ?? "",
+    description: center.description ?? "",
     openTime: center.openTime,
     closeTime: center.closeTime,
     basePrice: String(center.basePrice),
+    images: [...(center.images ?? [])],
+    rules: [...(center.rules ?? [])],
+    amenities: [...(center.amenities ?? [])],
+    paymentAccountName: center.paymentAccountName ?? "",
+    paymentAccountNumber: center.paymentAccountNumber ?? "",
+    paymentBankName: center.paymentBankName ?? "",
+    paymentQrUrl: center.paymentQrUrl ?? "",
+  }
+}
+
+function isValidHttpUrl(value: string) {
+  try {
+    const url = new URL(value)
+    return url.protocol === "http:" || url.protocol === "https:"
+  } catch {
+    return false
   }
 }
 
@@ -237,11 +276,33 @@ export function SportCenterManagementPage() {
   const [deleteTarget, setDeleteTarget] = useState<SportCenter | null>(null)
   const [editTarget, setEditTarget] = useState<SportCenter | null>(null)
   const [editForm, setEditForm] = useState<EditFormState | null>(null)
+  const [editImagesUploading, setEditImagesUploading] = useState(false)
+  const [editQrUploading, setEditQrUploading] = useState(false)
+  const [pendingEditRemoval, setPendingEditRemoval] =
+    useState<PendingEditRemoval | null>(null)
+  const hydratedEditId = useRef<string | null>(null)
 
   const centersQuery = useQuery({
     queryKey: sportCenterOwnerListQueryKey,
     queryFn: sportCenterWizardClient.listOwnerSportCenters,
   })
+
+  const editDetailQuery = useQuery({
+    queryKey: editDetailQueryKey(editTarget?.id ?? ""),
+    queryFn: () => sportCenterWizardClient.getSportCenter(editTarget!.id),
+    enabled: Boolean(editTarget?.id),
+  })
+
+  useEffect(() => {
+    if (
+      editTarget &&
+      editDetailQuery.data &&
+      hydratedEditId.current !== editTarget.id
+    ) {
+      setEditForm(getEditForm(editDetailQuery.data))
+      hydratedEditId.current = editTarget.id
+    }
+  }, [editDetailQuery.data, editTarget])
 
   const updateMutation = useMutation({
     mutationFn: async ({
@@ -256,7 +317,12 @@ export function SportCenterManagementPage() {
         queryClient.invalidateQueries({
           queryKey: sportCenterOwnerListQueryKey,
         }),
-        queryClient.invalidateQueries({ queryKey: detailQueryKey(center.id) }),
+        queryClient.invalidateQueries({
+          queryKey: managementDetailQueryKey(center.id),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: editDetailQueryKey(center.id),
+        }),
       ])
       setEditTarget(null)
       setEditForm(null)
@@ -278,7 +344,10 @@ export function SportCenterManagementPage() {
       await queryClient.invalidateQueries({
         queryKey: sportCenterOwnerListQueryKey,
       })
-      queryClient.removeQueries({ queryKey: detailQueryKey(centerId) })
+      queryClient.removeQueries({
+        queryKey: managementDetailQueryKey(centerId),
+      })
+      queryClient.removeQueries({ queryKey: editDetailQueryKey(centerId) })
       setDeleteTarget(null)
       toast.success(t("centerList.toast.deleted"))
     },
@@ -293,23 +362,97 @@ export function SportCenterManagementPage() {
 
   const openEdit = (center: SportCenter) => {
     setEditTarget(center)
-    setEditForm(getEditForm(center))
+    setEditForm(null)
+    hydratedEditId.current = null
+    setEditImagesUploading(false)
+    setEditQrUploading(false)
   }
 
   const submitEdit = () => {
     if (!editTarget || !editForm) return
+
+    const name = editForm.name.trim()
+    const address = editForm.address.trim()
+    const phone = editForm.phone.trim()
+    const email = editForm.email.trim()
+    const openTime = editForm.openTime
+    const closeTime = editForm.closeTime
+    const basePrice = Number(editForm.basePrice)
+    const rules = editForm.rules.map((item) => item.trim()).filter(Boolean)
+    const amenities = editForm.amenities
+      .map((item) => item.trim())
+      .filter(Boolean)
+    const images = editForm.images.filter(
+      (url) => isValidHttpUrl(url) && !url.startsWith("blob:")
+    )
+    const paymentQrUrl = editForm.paymentQrUrl.trim()
+
+    if (!name || !address || !phone) {
+      toast.error(t("centerList.validation.required"))
+      return
+    }
+    if (email && !/^\S+@\S+\.\S+$/.test(email)) {
+      toast.error(t("centerList.validation.email"))
+      return
+    }
+    if (!openTime || !closeTime || openTime >= closeTime) {
+      toast.error(t("centerList.validation.time"))
+      return
+    }
+    if (!Number.isFinite(basePrice) || basePrice < 0) {
+      toast.error(t("centerList.validation.basePrice"))
+      return
+    }
+    if (images.length !== editForm.images.length) {
+      toast.error(t("centerList.validation.imageUrl"))
+      return
+    }
+    if (paymentQrUrl && !isValidHttpUrl(paymentQrUrl)) {
+      toast.error(t("centerList.validation.imageUrl"))
+      return
+    }
+
     updateMutation.mutate({
       centerId: editTarget.id,
       request: {
-        name: editForm.name.trim(),
-        address: editForm.address.trim(),
-        phone: editForm.phone.trim(),
-        email: editForm.email.trim() || undefined,
-        openTime: editForm.openTime,
-        closeTime: editForm.closeTime,
-        basePrice: Number(editForm.basePrice),
+        name,
+        address,
+        phone,
+        email: email || undefined,
+        description: editForm.description.trim() || undefined,
+        images,
+        rules,
+        openTime,
+        closeTime,
+        basePrice,
+        amenities,
+        paymentAccountName: editForm.paymentAccountName.trim(),
+        paymentAccountNumber: editForm.paymentAccountNumber.trim(),
+        paymentBankName: editForm.paymentBankName.trim(),
+        paymentQrUrl: paymentQrUrl || editTarget.paymentQrUrl || undefined,
       },
     })
+  }
+
+  const confirmEditRemoval = () => {
+    if (!pendingEditRemoval || !editForm) return
+
+    if (pendingEditRemoval.kind === "rule") {
+      setEditForm({
+        ...editForm,
+        rules: editForm.rules.filter(
+          (_, index) => index !== pendingEditRemoval.index
+        ),
+      })
+    } else {
+      setEditForm({
+        ...editForm,
+        amenities: editForm.amenities.filter(
+          (_, index) => index !== pendingEditRemoval.index
+        ),
+      })
+    }
+    setPendingEditRemoval(null)
   }
 
   const locale = typeof navigator === "undefined" ? "en-US" : navigator.language
@@ -427,7 +570,7 @@ export function SportCenterManagementPage() {
       </AlertDialog>
 
       <Dialog
-        open={Boolean(editTarget && editForm)}
+        open={Boolean(editTarget)}
         onOpenChange={(open) => {
           if (!open && !updateMutation.isPending) {
             setEditTarget(null)
@@ -435,14 +578,32 @@ export function SportCenterManagementPage() {
           }
         }}
       >
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle>{t("centerList.edit.title")}</DialogTitle>
             <DialogDescription>
               {t("centerList.edit.description")}
             </DialogDescription>
           </DialogHeader>
-          {editForm && (
+          {editDetailQuery.isLoading && !editForm ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              {t("centerList.edit.loading")}
+            </p>
+          ) : editDetailQuery.isError ? (
+            <div className="space-y-3 py-6 text-center">
+              <p className="text-sm text-destructive">
+                {t("centerList.edit.loadError")}
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => editDetailQuery.refetch()}
+              >
+                <RefreshCw />
+                {t("centerList.actions.retry")}
+              </Button>
+            </div>
+          ) : editForm ? (
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="center-edit-name">
@@ -533,7 +694,206 @@ export function SportCenterManagementPage() {
                   }
                 />
               </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="center-edit-description">
+                  {t("centerList.fields.description")}
+                </Label>
+                <Textarea
+                  id="center-edit-description"
+                  value={editForm.description}
+                  onChange={(event) =>
+                    setEditForm({
+                      ...editForm,
+                      description: event.target.value,
+                    })
+                  }
+                  className="min-h-24"
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>{t("centerList.fields.images")}</Label>
+                <ImageUploadControl
+                  value={editForm.images}
+                  multiple
+                  label={t("centerList.fields.chooseImages")}
+                  onChange={(value) =>
+                    setEditForm({
+                      ...editForm,
+                      images: Array.isArray(value)
+                        ? value
+                        : value
+                          ? [value]
+                          : [],
+                    })
+                  }
+                  onUploadingChange={setEditImagesUploading}
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>{t("centerList.fields.rules")}</Label>
+                <div className="space-y-2">
+                  {editForm.rules.map((rule, index) => (
+                    <div key={`rule-${index}`} className="flex gap-2">
+                      <Input
+                        value={rule}
+                        onChange={(event) =>
+                          setEditForm({
+                            ...editForm,
+                            rules: editForm.rules.map((item, itemIndex) =>
+                              itemIndex === index ? event.target.value : item
+                            ),
+                          })
+                        }
+                      />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="outline"
+                        onClick={() =>
+                          setPendingEditRemoval({
+                            kind: "rule",
+                            index,
+                            label: rule.trim() || t("centerList.fields.rules"),
+                          })
+                        }
+                        aria-label={t("centerList.fields.removeRule")}
+                      >
+                        <Trash2 />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      setEditForm({
+                        ...editForm,
+                        rules: [...editForm.rules, ""],
+                      })
+                    }
+                  >
+                    <Plus />
+                    {t("centerList.fields.addRule")}
+                  </Button>
+                </div>
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>{t("centerList.fields.amenities")}</Label>
+                <div className="space-y-2">
+                  {editForm.amenities.map((amenity, index) => (
+                    <div key={`amenity-${index}`} className="flex gap-2">
+                      <Input
+                        value={amenity}
+                        onChange={(event) =>
+                          setEditForm({
+                            ...editForm,
+                            amenities: editForm.amenities.map(
+                              (item, itemIndex) =>
+                                itemIndex === index ? event.target.value : item
+                            ),
+                          })
+                        }
+                      />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="outline"
+                        onClick={() =>
+                          setPendingEditRemoval({
+                            kind: "amenity",
+                            index,
+                            label:
+                              amenity.trim() ||
+                              t("centerList.fields.amenities"),
+                          })
+                        }
+                        aria-label={t("centerList.fields.removeAmenity")}
+                      >
+                        <Trash2 />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      setEditForm({
+                        ...editForm,
+                        amenities: [...editForm.amenities, ""],
+                      })
+                    }
+                  >
+                    <Plus />
+                    {t("centerList.fields.addAmenity")}
+                  </Button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="center-edit-account-name">
+                  {t("centerList.fields.paymentAccountName")}
+                </Label>
+                <Input
+                  id="center-edit-account-name"
+                  value={editForm.paymentAccountName}
+                  onChange={(event) =>
+                    setEditForm({
+                      ...editForm,
+                      paymentAccountName: event.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="center-edit-account-number">
+                  {t("centerList.fields.paymentAccountNumber")}
+                </Label>
+                <Input
+                  id="center-edit-account-number"
+                  value={editForm.paymentAccountNumber}
+                  onChange={(event) =>
+                    setEditForm({
+                      ...editForm,
+                      paymentAccountNumber: event.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="center-edit-bank-name">
+                  {t("centerList.fields.paymentBankName")}
+                </Label>
+                <Input
+                  id="center-edit-bank-name"
+                  value={editForm.paymentBankName}
+                  onChange={(event) =>
+                    setEditForm({
+                      ...editForm,
+                      paymentBankName: event.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>{t("centerList.fields.paymentQrUrl")}</Label>
+                <ImageUploadControl
+                  value={editForm.paymentQrUrl}
+                  label={t("centerList.fields.chooseQr")}
+                  onChange={(value) =>
+                    setEditForm({
+                      ...editForm,
+                      paymentQrUrl: Array.isArray(value)
+                        ? (value[0] ?? "")
+                        : value,
+                    })
+                  }
+                  onUploadingChange={setEditQrUploading}
+                />
+              </div>
             </div>
+          ) : (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              {t("centerList.edit.loading")}
+            </p>
           )}
           <DialogFooter>
             <Button
@@ -543,14 +903,22 @@ export function SportCenterManagementPage() {
                 setEditTarget(null)
                 setEditForm(null)
               }}
-              disabled={updateMutation.isPending}
+              disabled={
+                updateMutation.isPending ||
+                editImagesUploading ||
+                editQrUploading
+              }
             >
               {t("centerList.actions.cancel")}
             </Button>
             <Button
               type="button"
               onClick={submitEdit}
-              disabled={updateMutation.isPending}
+              disabled={
+                updateMutation.isPending ||
+                editImagesUploading ||
+                editQrUploading
+              }
             >
               {updateMutation.isPending
                 ? t("centerList.actions.saving")
@@ -559,6 +927,35 @@ export function SportCenterManagementPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={Boolean(pendingEditRemoval)}
+        onOpenChange={(open) => !open && setPendingEditRemoval(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("centerList.edit.removeTitle")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("centerList.edit.removeDescription", {
+                name: pendingEditRemoval?.label ?? "",
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              {t("centerList.actions.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={confirmEditRemoval}
+            >
+              {t("centerList.edit.confirmRemove")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

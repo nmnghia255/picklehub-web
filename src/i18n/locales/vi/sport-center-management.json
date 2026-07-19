@@ -636,16 +636,42 @@
     },
     "edit": {
       "title": "Chỉnh sửa Sport Center",
-      "description": "Cập nhật thông tin cơ bản của Sport Center này."
+      "description": "Cập nhật thông tin của Sport Center này.",
+      "loading": "Đang tải chi tiết Sport Center...",
+      "loadError": "Không thể tải chi tiết Sport Center mới nhất.",
+      "removeTitle": "Xóa mục này?",
+      "removeDescription": "Bạn có chắc muốn xóa {{name}} khỏi Sport Center này không?",
+      "confirmRemove": "Xóa"
     },
     "fields": {
       "name": "Tên",
       "address": "Địa chỉ",
       "phone": "Số điện thoại",
       "email": "Email",
+      "description": "Mô tả",
       "openTime": "Giờ mở cửa",
       "closeTime": "Giờ đóng cửa",
-      "basePrice": "Giá cơ bản"
+      "basePrice": "Giá cơ bản",
+      "images": "Ảnh trung tâm",
+      "chooseImages": "Chọn ảnh",
+      "rules": "Nội quy",
+      "addRule": "Thêm nội quy",
+      "removeRule": "Xóa nội quy",
+      "amenities": "Tiện ích",
+      "addAmenity": "Thêm tiện ích",
+      "removeAmenity": "Xóa tiện ích",
+      "paymentAccountName": "Tên chủ tài khoản",
+      "paymentAccountNumber": "Số tài khoản",
+      "paymentBankName": "Tên ngân hàng",
+      "paymentQrUrl": "Ảnh QR thanh toán",
+      "chooseQr": "Chọn ảnh QR"
+    },
+    "validation": {
+      "required": "Vui lòng nhập tên, địa chỉ và số điện thoại.",
+      "email": "Vui lòng nhập địa chỉ email hợp lệ.",
+      "time": "Giờ mở cửa phải sớm hơn giờ đóng cửa.",
+      "basePrice": "Giá cơ bản phải là số không âm hợp lệ.",
+      "imageUrl": "Ảnh phải được tải lên thành công trước khi lưu."
     },
     "toast": {
       "updated": "Đã cập nhật Sport Center.",
@@ -664,6 +690,31 @@
     },
     "actions": {
       "manageCourts": "Quản lý sân"
+    },
+    "overview": {
+      "amenities": "Tiện ích",
+      "phone": "Số điện thoại",
+      "email": "Email",
+      "basePrice": "Giá cơ bản theo giờ",
+      "noDescription": "Chưa có mô tả.",
+      "noAmenities": "Chưa có tiện ích nào.",
+      "rules": "Quy định",
+      "noRules": "Chưa có quy định nào.",
+      "images": "Ảnh Sport Center",
+      "noImages": "Chưa có ảnh Sport Center.",
+      "imageAlt": "Ảnh {{name}}",
+      "payment": "Thông tin thanh toán",
+      "accountName": "Tên chủ tài khoản",
+      "accountNumber": "Số tài khoản",
+      "bankName": "Ngân hàng",
+      "qrAlt": "Mã QR thanh toán",
+      "noQr": "Chưa cấu hình mã QR thanh toán.",
+      "statistics": "Thống kê trung tâm",
+      "courtsCount": "Số sân",
+      "averageRating": "Đánh giá trung bình",
+      "reviewCount": "Lượt đánh giá",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Cập nhật lần cuối"
     },
     "priceSlots": {
       "title": "Giá thuê sân",

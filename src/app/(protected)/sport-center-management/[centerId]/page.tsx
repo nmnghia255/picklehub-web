@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 
+import { FallbackImage } from "@/components/fallback-image"
 import { PageContainer } from "@/components/page-container"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -27,6 +28,9 @@ export default function SportCenterManagementDetailPage() {
   )
     ? requestedTab
     : "overview"
+
+  const cleanList = (items: string[] | null | undefined) =>
+    (items ?? []).map((item) => item.trim()).filter(Boolean)
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["sport-center-management", "detail", centerId],
@@ -96,7 +100,7 @@ export default function SportCenterManagementDetailPage() {
               : t("createCenter.detail.loadError")}
           </CardContent>
         </Card>
-      ) : data ? (
+      ) : data?.center ? (
         <>
           <div className="flex gap-2 border-b pb-2">
             <Button
@@ -186,9 +190,24 @@ export default function SportCenterManagementDetailPage() {
                       {data.center.address}
                     </p>
                     <p>
+                      {t("managementDetail.overview.phone")}:{" "}
+                      {data.center.phone}
+                    </p>
+                    <p>
+                      {t("managementDetail.overview.email")}:{" "}
+                      {data.center.email || t("common.notAvailable")}
+                    </p>
+                    <p className="text-muted-foreground">
+                      {data.center.description ||
+                        t("managementDetail.overview.noDescription")}
+                    </p>
+                    <p>
                       {data.center.openTime} - {data.center.closeTime}
                     </p>
-                    <p>{data.center.paymentBankName}</p>
+                    <p>
+                      {t("managementDetail.overview.basePrice")}:{" "}
+                      {data.center.basePrice}
+                    </p>
                     <Badge
                       variant={
                         data.center.status === "ACTIVE"
@@ -300,6 +319,179 @@ export default function SportCenterManagementDetailPage() {
               <div className="grid gap-4 xl:grid-cols-2">
                 <Card>
                   <CardHeader>
+                    <CardTitle>
+                      {t("managementDetail.overview.amenities")}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {cleanList(data.center.amenities).length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        {t("managementDetail.overview.noAmenities")}
+                      </p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {cleanList(data.center.amenities).map((amenity) => (
+                          <Badge key={amenity} variant="secondary">
+                            {amenity}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>
+                      {t("managementDetail.overview.rules")}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {cleanList(data.center.rules).length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        {t("managementDetail.overview.noRules")}
+                      </p>
+                    ) : (
+                      <ol className="list-decimal space-y-2 pl-5 text-sm">
+                        {cleanList(data.center.rules).map((rule) => (
+                          <li key={rule}>{rule}</li>
+                        ))}
+                      </ol>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="grid gap-4 xl:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>
+                      {t("managementDetail.overview.images")}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {cleanList(data.center.images).length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        {t("managementDetail.overview.noImages")}
+                      </p>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                        {cleanList(data.center.images).map((image) => (
+                          <FallbackImage
+                            key={image}
+                            src={image}
+                            alt={t("managementDetail.overview.imageAlt", {
+                              name: data.center.name,
+                            })}
+                            className="aspect-video w-full rounded-xl object-cover"
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>
+                      {t("managementDetail.overview.payment")}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm">
+                    <p>
+                      <span className="font-medium">
+                        {t("managementDetail.overview.accountName")}:
+                      </span>{" "}
+                      {data.center.paymentAccountName ||
+                        t("common.notAvailable")}
+                    </p>
+                    <p>
+                      <span className="font-medium">
+                        {t("managementDetail.overview.accountNumber")}:
+                      </span>{" "}
+                      {data.center.paymentAccountNumber ||
+                        t("common.notAvailable")}
+                    </p>
+                    <p>
+                      <span className="font-medium">
+                        {t("managementDetail.overview.bankName")}:
+                      </span>{" "}
+                      {data.center.paymentBankName || t("common.notAvailable")}
+                    </p>
+                    {data.center.paymentQrUrl ? (
+                      <FallbackImage
+                        src={data.center.paymentQrUrl}
+                        alt={t("managementDetail.overview.qrAlt")}
+                        className="mt-3 size-32 rounded-xl object-cover"
+                      />
+                    ) : (
+                      <p className="text-muted-foreground">
+                        {t("managementDetail.overview.noQr")}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    {t("managementDetail.overview.statistics")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
+                  <div>
+                    <p className="text-muted-foreground">
+                      {t("managementDetail.overview.courtsCount")}
+                    </p>
+                    <p className="text-xl font-semibold">
+                      {data.center._count?.courts ?? data.courts.length}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">
+                      {t("managementDetail.overview.averageRating")}
+                    </p>
+                    <p className="text-xl font-semibold">
+                      {data.center.averageRating ?? t("common.notAvailable")}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">
+                      {t("managementDetail.overview.reviewCount")}
+                    </p>
+                    <p className="text-xl font-semibold">
+                      {data.center.reviewCount ?? 0}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">
+                      {t("managementDetail.overview.updatedAt")}
+                    </p>
+                    <p className="font-medium">
+                      {new Intl.DateTimeFormat(
+                        typeof navigator === "undefined"
+                          ? "en-US"
+                          : navigator.language,
+                        { dateStyle: "medium" }
+                      ).format(new Date(data.center.updatedAt))}
+                    </p>
+                    <p className="mt-2 text-muted-foreground">
+                      {t("managementDetail.overview.createdAt")}:{" "}
+                      {new Intl.DateTimeFormat(
+                        typeof navigator === "undefined"
+                          ? "en-US"
+                          : navigator.language,
+                        { dateStyle: "medium" }
+                      ).format(new Date(data.center.createdAt))}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="grid gap-4 xl:grid-cols-2">
+                <Card>
+                  <CardHeader>
                     <CardTitle>{t("createCenter.review.services")}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
@@ -347,7 +539,13 @@ export default function SportCenterManagementDetailPage() {
             </div>
           )}
         </>
-      ) : null}
+      ) : (
+        <Card>
+          <CardContent className="p-6 text-sm text-destructive">
+            {t("createCenter.detail.loadError")}
+          </CardContent>
+        </Card>
+      )}
     </PageContainer>
   )
 }

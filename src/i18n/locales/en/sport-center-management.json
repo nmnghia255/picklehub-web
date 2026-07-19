@@ -636,16 +636,42 @@
     },
     "edit": {
       "title": "Edit Sport Center",
-      "description": "Update the basic information for this Sport Center."
+      "description": "Update the information for this Sport Center.",
+      "loading": "Loading Sport Center details...",
+      "loadError": "Could not load the latest Sport Center details.",
+      "removeTitle": "Remove item?",
+      "removeDescription": "Are you sure you want to remove {{name}} from this Sport Center?",
+      "confirmRemove": "Remove"
     },
     "fields": {
       "name": "Name",
       "address": "Address",
       "phone": "Phone",
       "email": "Email",
+      "description": "Description",
       "openTime": "Opening time",
       "closeTime": "Closing time",
-      "basePrice": "Base price"
+      "basePrice": "Base price",
+      "images": "Center images",
+      "chooseImages": "Choose images",
+      "rules": "Rules",
+      "addRule": "Add rule",
+      "removeRule": "Remove rule",
+      "amenities": "Amenities",
+      "addAmenity": "Add amenity",
+      "removeAmenity": "Remove amenity",
+      "paymentAccountName": "Account holder name",
+      "paymentAccountNumber": "Account number",
+      "paymentBankName": "Bank name",
+      "paymentQrUrl": "Payment QR image",
+      "chooseQr": "Choose QR image"
+    },
+    "validation": {
+      "required": "Name, address, and phone are required.",
+      "email": "Enter a valid email address.",
+      "time": "Opening time must be earlier than closing time.",
+      "basePrice": "Base price must be a valid non-negative number.",
+      "imageUrl": "Images must be uploaded successfully before saving."
     },
     "toast": {
       "updated": "Sport Center updated successfully.",
@@ -664,6 +690,31 @@
     },
     "actions": {
       "manageCourts": "Manage courts"
+    },
+    "overview": {
+      "amenities": "Amenities",
+      "phone": "Phone",
+      "email": "Email",
+      "basePrice": "Base price per hour",
+      "noDescription": "No description provided.",
+      "noAmenities": "No amenities configured.",
+      "rules": "Rules",
+      "noRules": "No rules configured.",
+      "images": "Center images",
+      "noImages": "No center images configured.",
+      "imageAlt": "{{name}} image",
+      "payment": "Payment information",
+      "accountName": "Account holder",
+      "accountNumber": "Account number",
+      "bankName": "Bank",
+      "qrAlt": "Payment QR code",
+      "noQr": "Payment QR code is not configured.",
+      "statistics": "Center statistics",
+      "courtsCount": "Courts",
+      "averageRating": "Average rating",
+      "reviewCount": "Reviews",
+      "createdAt": "Created",
+      "updatedAt": "Last updated"
     },
     "priceSlots": {
       "title": "Price slots",
