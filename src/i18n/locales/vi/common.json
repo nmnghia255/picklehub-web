@@ -1437,6 +1437,67 @@
         "pro": "Chuyên nghiệp"
       },
       "currencyCode": "VND"
+      ,"swingAnalysis": {
+        "tab": "Phân tích kỹ thuật",
+        "title": "Phân tích kỹ thuật",
+        "description": "Tải lên hình ảnh hoặc video cú đánh để nhận hướng dẫn rõ ràng cho học viên.",
+        "inputTitle": "Thiết lập phân tích",
+        "inputDescription": "Chọn hình ảnh rõ nét hoặc video ngắn, sau đó chọn kỹ thuật cần xem lại.",
+        "mediaLabel": "Hình ảnh/video kỹ thuật",
+        "previewAlt": "Xem trước kỹ thuật",
+        "unknownFileType": "Không rõ loại tệp",
+        "changeFile": "Thay đổi",
+        "removeFile": "Xóa tệp",
+        "chooseFile": "Chọn hình ảnh hoặc video",
+        "fileHint": "Tệp sẽ được tải lên trước khi AI phân tích.",
+        "typeLabel": "Loại kỹ thuật",
+        "types": {
+          "general": "Phân tích tổng quát",
+          "serve": "Giao bóng",
+          "drive": "Drive",
+          "dink": "Dink",
+          "volley": "Volley"
+        },
+        "promptLabel": "Yêu cầu bổ sung (không bắt buộc)",
+        "promptPlaceholder": "Ví dụ: Tập trung phân tích bộ chân, điểm tiếp xúc bóng và động tác kết thúc.",
+        "fileRequired": "Vui lòng chọn hình ảnh hoặc video hợp lệ trước khi phân tích.",
+        "invalidFile": "Vui lòng chọn tệp hình ảnh hoặc video.",
+        "promptTooLong": "Yêu cầu bổ sung không được dài quá 1000 ký tự.",
+        "uploading": "Đang tải tệp lên...",
+        "analyzing": "Đang phân tích kỹ thuật...",
+        "processing": "Đang xử lý...",
+        "analyzeButton": "Phân tích kỹ thuật",
+        "completed": "Phân tích kỹ thuật hoàn tất.",
+        "errorTitle": "Phân tích thất bại",
+        "invalidInput": "Dữ liệu đầu vào không hợp lệ. Hãy kiểm tra tệp, loại kỹ thuật, URL tải lên và yêu cầu bổ sung.",
+        "unauthorized": "Phiên đăng nhập không còn hợp lệ. Vui lòng đăng nhập lại nếu cần.",
+        "timeout": "Phân tích đã quá thời gian. Hãy thử video ngắn hơn, ảnh rõ nét hơn hoặc thử lại sau.",
+        "genericError": "Đã có lỗi xảy ra. Vui lòng thử lại.",
+        "retry": "Thử lại",
+        "emptyTitle": "Kết quả huấn luyện sẽ hiển thị tại đây",
+        "emptyDescription": "Tải lên hình ảnh hoặc video kỹ thuật đánh để bắt đầu phân tích.",
+        "overallAssessment": "Đánh giá tổng quan",
+        "aiSummary": "Tóm tắt hướng dẫn từ AI",
+        "findings": "Các phát hiện kỹ thuật",
+        "findingCount": "{{count}} phát hiện",
+        "noFindings": "Không có phát hiện cụ thể nào cho tệp này.",
+        "unknownFinding": "Phát hiện kỹ thuật",
+        "confidence": "độ tin cậy",
+        "observation": "Quan sát",
+        "correction": "Hướng dẫn điều chỉnh",
+        "drill": "Bài tập đề xuất",
+        "labels": {
+          "contact_point": "Điểm tiếp xúc bóng",
+          "follow_through": "Động tác kết thúc",
+          "stance": "Tư thế",
+          "paddle_angle": "Góc mặt vợt"
+        },
+        "priority": {
+          "high": "Cần ưu tiên sửa",
+          "medium": "Nên cải thiện",
+          "low": "Ghi chú nhỏ"
+        }
+      }
     }
   },
   "learner": {
