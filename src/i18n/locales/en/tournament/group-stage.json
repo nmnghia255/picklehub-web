@@ -36,6 +36,15 @@
     "stageSwitcher": {
       "group": "Group Stage",
       "knockout": "Knockout Stage"
-    }
+    },
+    "scheduledMatchesTitle": "Group Stage Schedule",
+    "completed": "Completed",
+    "inProgress": "In progress",
+    "ready": "Ready",
+    "scheduled": "Scheduled",
+    "unscheduled": "Unscheduled",
+    "noScheduledMatches": "No group stage matches scheduled",
+    "noScheduledMatchesHostDesc": "Please schedule the group stage matches",
+    "noScheduledMatchesUserDesc": "No group stage matches are scheduled yet. Please contact the organizer."
   }
 }

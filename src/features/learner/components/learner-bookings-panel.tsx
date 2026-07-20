@@ -53,6 +53,7 @@ import {
   useUploadBookingPaymentProof,
 } from "@/features/learner/hooks/use-learner-queries"
 import { getErrorMessage } from "@/lib/api-client"
+import { formatCurrency } from "@/utils/expense-utils"
 
 function getLocaleCode(language: string) {
   return language.startsWith("vi") ? "vi-VN" : "en-US"
@@ -304,13 +305,6 @@ export function LearnerBookingsPanel() {
 
   function getInitial(name: string) {
     return name.charAt(0).toUpperCase()
-  }
-
-  function formatCurrency(vnd: number) {
-    return new Intl.NumberFormat(locale, {
-      style: "currency",
-      currency: "VND",
-    }).format(vnd)
   }
 
   return (

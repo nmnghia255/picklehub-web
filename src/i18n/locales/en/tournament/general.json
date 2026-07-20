@@ -1,4 +1,10 @@
 {
+  "permission": {
+    "accessDenied": "Access denied",
+    "hostPlanRequired": "A Host plan is required to organize tournaments",
+    "goBack": "Go back",
+    "upgradeAccount": "Upgrade account"
+  },
   "loadingScoreboard": "Loading scoreboard...",
   "loadingTournamentInfo": "Loading tournament information...",
   "manager": {

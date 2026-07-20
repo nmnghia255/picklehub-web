@@ -34,6 +34,7 @@ import type {
   DiscoveryTabValue,
 } from "@/features/coach/types/coach"
 import { getErrorMessage } from "@/lib/api-client"
+import { formatCurrency } from "@/utils/expense-utils"
 
 const PAGE_LIMIT = 12
 
@@ -111,10 +112,6 @@ function verificationBadge(
   }
 }
 
-function formatCurrency(amount: number, locale: string) {
-  return new Intl.NumberFormat(locale).format(amount)
-}
-
 function CoachCard({
   coach,
   onSelect,
@@ -190,8 +187,7 @@ function CoachCard({
           </div>
           <div className="mt-auto">
             <p className="text-sm font-bold text-primary">
-              {formatCurrency(coach.hourlyRateVnd, locale)}{" "}
-              {t("coach.discovery.currencyCode")}
+              {formatCurrency(coach.hourlyRateVnd, "VND", locale)}
               <span className="text-xs font-normal text-muted-foreground">
                 {" "}
                 {t("coach.discovery.perHour")}

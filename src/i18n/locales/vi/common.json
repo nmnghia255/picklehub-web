@@ -1,5 +1,6 @@
 {
   "brand": "PickleHub",
+  "cancel": "Hủy",
   "settings": {
     "title": "Cài đặt",
     "description": "Điều chỉnh ngôn ngữ, giao diện và đăng xuất khỏi thiết bị này.",
@@ -476,7 +477,8 @@
       "description": "Bạn có {{count}} lời mời chờ từ các nhóm khác.",
       "invitedBy": "Lời mời từ {{name}}",
       "decline": "Từ chối",
-      "accept": "Chấp nhận"
+      "accept": "Chấp nhận",
+      "noInvites": "Không có lời mời đang chờ"
     }
   },
   "feed": {
@@ -570,6 +572,7 @@
     }
   },
   "notifications": {
+    "senderPrefix": "Từ:",
     "defaults": {
       "title": "Thông báo",
       "description": "Chi tiết thông báo",
@@ -1302,7 +1305,7 @@
       "noResults": "Không tìm thấy huấn luyện viên nào",
       "noResultsHint": "Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác.",
       "perHour": "/ giờ",
-      "noSpecialties": "",
+      "noSpecialties": "Chưa cập nhật chuyên môn",
       "verificationVerified": "Đã xác thực",
       "verificationPending": "Chờ xác thực",
       "verificationRejected": "Từ chối",

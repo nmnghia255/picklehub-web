@@ -69,6 +69,7 @@ import type {
   CreateCoachClassDto,
 } from "@/features/coach/types/coach"
 import { getErrorMessage } from "@/lib/api-client"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 const STATUS_TABS: { value: ClassStatus | "ALL" }[] = [
   { value: "ALL" },
@@ -107,13 +108,6 @@ const LEVEL_OPTIONS = [
   { value: "Advanced" },
   { value: "Pro" },
 ]
-
-function formatPrice(vnd: number) {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(vnd)
-}
 
 function formatDate(dateStr: string | null | undefined) {
   if (!dateStr) return "—"
@@ -181,7 +175,7 @@ function ClassCard({
         />
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <DollarSign className="size-4" />
-          <span>{formatPrice(cls.priceVnd)}</span>
+          <span>{formatCurrencyVnd(cls.priceVnd)}</span>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <CalendarDays className="size-4" />

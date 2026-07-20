@@ -969,6 +969,7 @@
   "tabs": {
     "centerManagement": "Center Management",
     "manageCenters": "Manage Sport Centers",
+    "centerList": "Sport Center List",
     "courtManagement": "Court Management",
     "bookingList": "Booking List",
     "customerManagement": "Customer Management",

@@ -40,21 +40,13 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useSession } from "@/features/auth/hooks/use-session"
 import { getErrorMessage } from "@/lib/api-client"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import {
   useBookingRevenue,
   useClassRevenue,
   useRevenueSummary,
 } from "../hooks/use-coach-queries"
-
-function formatVnd(amount: number) {
-  const safeAmount =
-    typeof amount === "number" && !Number.isNaN(amount) ? amount : 0
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(safeAmount)
-}
 
 function safeFormatDateTime(value?: string) {
   if (!value) return "-"
@@ -155,7 +147,7 @@ function OverviewTab() {
               <TrendingUp className="size-3.5" />
             </div>
             <p className="mt-1 text-xl font-semibold tracking-tight">
-              {formatVnd(totalRevenueVnd)}
+              {formatCurrencyVnd(totalRevenueVnd)}
             </p>
           </CardContent>
         </Card>
@@ -166,7 +158,7 @@ function OverviewTab() {
               <BookOpen className="size-3.5" />
             </div>
             <p className="mt-1 text-xl font-semibold tracking-tight">
-              {formatVnd(classRevenueVnd)}
+              {formatCurrencyVnd(classRevenueVnd)}
             </p>
           </CardContent>
         </Card>
@@ -179,7 +171,7 @@ function OverviewTab() {
               <CalendarDays className="size-3.5" />
             </div>
             <p className="mt-1 text-xl font-semibold tracking-tight">
-              {formatVnd(bookingRevenueVnd)}
+              {formatCurrencyVnd(bookingRevenueVnd)}
             </p>
           </CardContent>
         </Card>
@@ -203,7 +195,7 @@ function OverviewTab() {
               <DollarSign className="size-3.5" />
             </div>
             <p className="mt-1 text-xl font-semibold tracking-tight">
-              {formatVnd(courtCostVnd)}
+              {formatCurrencyVnd(courtCostVnd)}
             </p>
           </CardContent>
         </Card>
@@ -214,7 +206,7 @@ function OverviewTab() {
               <TrendingUp className="size-3.5" />
             </div>
             <p className="mt-1 text-xl font-semibold tracking-tight">
-              {formatVnd(netRevenueVnd)}
+              {formatCurrencyVnd(netRevenueVnd)}
             </p>
           </CardContent>
         </Card>
@@ -282,14 +274,14 @@ function OverviewTab() {
                   <div className="flex gap-4 text-sm text-muted-foreground">
                     <span>
                       {t("coach.income.classLabel")}:{" "}
-                      {formatVnd(bucket.classRevenueVnd)}
+                      {formatCurrencyVnd(bucket.classRevenueVnd)}
                     </span>
                     <span>
                       {t("coach.income.bookingLabel")}:{" "}
-                      {formatVnd(bucket.bookingRevenueVnd)}
+                      {formatCurrencyVnd(bucket.bookingRevenueVnd)}
                     </span>
                     <span className="font-semibold text-foreground">
-                      {formatVnd(bucket.totalRevenueVnd)}
+                      {formatCurrencyVnd(bucket.totalRevenueVnd)}
                     </span>
                   </div>
                 </div>
@@ -354,7 +346,7 @@ function ClassesTab() {
               {t("coach.income.totalClassRevenue")}
             </p>
             <p className="mt-0.5 text-lg font-semibold">
-              {formatVnd(totals?.settledRevenueVnd ?? 0)}
+              {formatCurrencyVnd(totals?.settledRevenueVnd ?? 0)}
             </p>
           </CardContent>
         </Card>
@@ -442,7 +434,7 @@ function ClassesTab() {
                       <div className="flex items-start justify-between gap-2">
                         <h3 className="leading-tight font-semibold">{title}</h3>
                         <p className="shrink-0 font-bold text-primary">
-                          {formatVnd(item.settledRevenueVnd)}
+                          {formatCurrencyVnd(item.settledRevenueVnd)}
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
@@ -625,7 +617,7 @@ function BookingsTab() {
               {t("coach.income.totalBookingRevenue")}
             </p>
             <p className="mt-0.5 text-lg font-semibold">
-              {formatVnd(totals?.settledRevenueVnd ?? 0)}
+              {formatCurrencyVnd(totals?.settledRevenueVnd ?? 0)}
             </p>
           </CardContent>
         </Card>
@@ -758,18 +750,18 @@ function BookingsTab() {
                   </div>
                   <div className="flex flex-col items-end gap-1 sm:shrink-0">
                     <p className="font-bold text-primary">
-                      {formatVnd(item.priceVnd)}
+                      {formatCurrencyVnd(item.priceVnd)}
                     </p>
                     <div className="space-y-0.5 text-right text-xs text-muted-foreground">
                       <p>
                         {t("coach.income.courtCost")}:{" "}
                         {item.courtCostVnd !== null
-                          ? formatVnd(item.courtCostVnd)
+                          ? formatCurrencyVnd(item.courtCostVnd)
                           : t("coach.income.notApplicable")}
                       </p>
                       <p>
                         {t("coach.income.netRevenue")}:{" "}
-                        {formatVnd(item.netRevenueVnd)}
+                        {formatCurrencyVnd(item.netRevenueVnd)}
                       </p>
                     </div>
                     <p className="text-xs text-muted-foreground">

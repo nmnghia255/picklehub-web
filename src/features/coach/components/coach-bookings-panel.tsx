@@ -55,6 +55,7 @@ import {
 } from "@/features/coach/hooks/use-coach-queries"
 import type { Booking, PaginationMeta } from "@/features/coach/types/coach"
 import { getErrorMessage } from "@/lib/api-client"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 const STATUS_TABS: { value: string }[] = [
   { value: "" },
@@ -74,13 +75,6 @@ const STATUS_VARIANT: Record<
   COMPLETED: "default",
   REJECTED: "destructive",
   CANCELLED: "outline",
-}
-
-function formatCurrency(vnd: number) {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(vnd)
 }
 
 function BookingSkeleton() {
@@ -605,7 +599,7 @@ export function CoachBookingsPanel() {
                     </span>
                     <span className="flex items-center gap-1">
                       <DollarSign className="size-3.5" />
-                      {formatCurrency(booking.priceVnd)}
+                      {formatCurrencyVnd(booking.priceVnd)}
                     </span>
                   </div>
 

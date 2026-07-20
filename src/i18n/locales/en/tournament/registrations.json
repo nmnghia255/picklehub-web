@@ -19,7 +19,12 @@
       "date": "Date",
       "actions": "Actions",
       "paid": "Paid",
-      "pending": "Pending"
+      "pending": "Pending",
+      "actionsMenu": {
+        "view": "View details",
+        "approve": "Approve",
+        "reject": "Reject"
+      }
     },
     "noRegistrations": "No registrations found",
     "profile": {

@@ -1,14 +1,32 @@
 export type PaymentStatus = "paid" | "unpaid" | "refunded"
 
 // Backwards-compatible alias used across the expense components
-export function formatCurrencyVnd(value: number) {
-  return new Intl.NumberFormat("vi-VN", {
+export function formatCurrency(
+  value: number | string | null | undefined,
+  currency = "VND",
+  locale = "vi-VN"
+) {
+  const parsedValue = typeof value === "string" ? Number(value) : value
+
+  if (
+    parsedValue === null ||
+    parsedValue === undefined ||
+    !Number.isFinite(parsedValue)
+  ) {
+    return "—"
+  }
+
+  return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
+    currency,
+    maximumFractionDigits: currency === "VND" ? 0 : 2,
   })
-    .format(value)
+    .format(parsedValue)
     .replace(/[\u202f\u00a0\s]/g, " ")
+}
+
+export function formatCurrencyVnd(value: number | string | null | undefined) {
+  return formatCurrency(value)
 }
 
 export function getPaymentStatusTone(status: string) {

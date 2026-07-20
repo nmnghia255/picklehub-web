@@ -55,16 +55,10 @@ import {
   useUploadEnrollmentPaymentProof,
 } from "@/features/learner/hooks/use-learner-queries"
 import { getErrorMessage } from "@/lib/api-client"
+import { formatCurrency } from "@/utils/expense-utils"
 
 function getLocaleCode(language: string) {
   return language.startsWith("vi") ? "vi-VN" : "en-US"
-}
-
-function formatAmount(amount: number, locale: string) {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: "VND",
-  }).format(amount)
 }
 
 function EnrollmentSkeleton() {
@@ -381,7 +375,7 @@ export function LearnerEnrollmentsPanel() {
                     </Badge>
                   )}
                   <span className="text-sm font-semibold">
-                    {formatAmount(enrollment.amountVnd, locale)}
+                    {formatCurrency(enrollment.amountVnd, "VND", locale)}
                   </span>
                 </div>
               </div>

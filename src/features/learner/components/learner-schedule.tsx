@@ -49,6 +49,7 @@ import { useLearnerSchedule } from "@/features/learner/hooks/use-learner-queries
 import { getTranslationStringArray } from "@/i18n/get-translation-array"
 import { getErrorMessage } from "@/lib/api-client"
 import { cn } from "@/lib/utils"
+import { formatCurrency } from "@/utils/expense-utils"
 
 type ViewMode = "calendar" | "agenda" | "list"
 
@@ -197,13 +198,6 @@ function getSourceStatusLabel(status: string, t: (key: string) => string) {
   }
 }
 
-function formatCurrency(vnd: number, locale: string) {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: "VND",
-  }).format(vnd)
-}
-
 function getActionLabel(action: string, t: (key: string) => string) {
   switch (action) {
     case "VIEW_CLASS":
@@ -345,7 +339,7 @@ function CalendarEventCard({
       </p>
       {item.priceVnd !== null && (
         <p className="truncate text-muted-foreground">
-          {formatCurrency(item.priceVnd, locale)}
+          {formatCurrency(item.priceVnd, "VND", locale)}
         </p>
       )}
       {item.coachProfile?.displayName && (
@@ -440,7 +434,7 @@ function DetailDialog({
           {item.priceVnd !== null && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <DollarSign className="size-4" />
-              {formatCurrency(item.priceVnd, locale)}
+              {formatCurrency(item.priceVnd, "VND", locale)}
             </div>
           )}
 
@@ -1009,7 +1003,7 @@ function AgendaItemCard({
             {item.priceVnd !== null && (
               <span className="flex items-center gap-1">
                 <DollarSign className="size-3.5" />
-                {formatCurrency(item.priceVnd, locale)}
+                {formatCurrency(item.priceVnd, "VND", locale)}
               </span>
             )}
           </div>
@@ -1294,7 +1288,7 @@ function ListCard({
                   variant="outline"
                   className="rounded-full px-2 py-0 text-[10px]"
                 >
-                  {formatCurrency(item.priceVnd, locale)}
+                  {formatCurrency(item.priceVnd, "VND", locale)}
                 </Badge>
               )}
             </div>

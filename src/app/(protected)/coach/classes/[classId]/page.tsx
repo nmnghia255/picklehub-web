@@ -28,13 +28,13 @@ import {
   Users,
   XCircle,
 } from "lucide-react"
-import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { CalendarNavigation } from "@/components/calendar-navigation"
+import { BackButton } from "@/components/common/back-button"
 import { PageContainer } from "@/components/page-container"
 import {
   AlertDialog,
@@ -95,6 +95,7 @@ import type {
   PaymentStatus,
 } from "@/features/coach/types/coach"
 import { getTranslationStringArray } from "@/i18n/get-translation-array"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 const statusVariant: Record<
   ClassStatus,
@@ -1323,19 +1324,17 @@ export default function CoachClassDetailPage() {
 
   return (
     <PageContainer variant="wide" className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/coach?tab=classes">
-              {t("coach.classes.detail.backLink")}
-            </Link>
-          </Button>
-          <h1 className="text-2xl font-semibold tracking-tight">
+      <div className="flex flex-col gap-4 border-b pb-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
             {classData.title}
           </h1>
           <Badge variant={statusVariant[classData.status]}>
             {statusLabel[classData.status]}
           </Badge>
+        </div>
+        <div className="flex shrink-0 items-center gap-2 md:ml-auto">
+          <BackButton to="/coach?tab=classes" />
         </div>
       </div>
 
@@ -1588,7 +1587,7 @@ export default function CoachClassDetailPage() {
                     {t("coach.classes.detail.tuition")}
                   </p>
                   <p className="text-lg font-semibold">
-                    {classData.priceVnd.toLocaleString("vi-VN")}₫
+                    {formatCurrencyVnd(classData.priceVnd)}
                   </p>
                 </div>
               </div>
@@ -2028,10 +2027,9 @@ export default function CoachClassDetailPage() {
                                     name:
                                       enrollment.learnerProfile?.name ??
                                       t("coach.students.noName"),
-                                    amount:
-                                      enrollment?.amountVnd?.toLocaleString(
-                                        "vi-VN"
-                                      ) ?? "0",
+                                    amount: formatCurrencyVnd(
+                                      enrollment?.amountVnd ?? 0
+                                    ),
                                   }
                                 )}
                               </AlertDialogDescription>
