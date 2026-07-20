@@ -32,6 +32,7 @@
   },
   "common": {
     "loading": "Loading...",
+    "previewImageAlt": "Preview image",
     "saving": "Saving...",
     "deleting": "Deleting..."
   },
@@ -119,6 +120,7 @@
   },
   "referee": {
     "score": "Score",
+    "notUpdate": "Unable to update referee profile",
     "actions": {
       "startMatch": "Start Match"
     },

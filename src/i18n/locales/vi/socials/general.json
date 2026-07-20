@@ -1,4 +1,5 @@
 {
+    "courts": { "court1": "Sân 1", "court2": "Sân 2", "court3": "Sân 3" },
     "common": {
         "na": "Không áp dụng",
         "level": "Cấp độ",
@@ -22,7 +23,8 @@
         "cancel": "Hủy",
         "proceed": "Tiếp tục",
         "currency": "VND",
-        "validationError": "Vui lòng kiểm tra các lỗi bên dưới:"
+        "validationError": "Vui lòng kiểm tra các lỗi bên dưới:",
+        "playSession": "Phiên chơi"
     },
     "labels": {
         "published": "Đã đăng",

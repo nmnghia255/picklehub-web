@@ -6,6 +6,7 @@ import { useAtom } from "jotai"
 import { Bell, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -37,7 +38,6 @@ import { useActionGuard } from "@/features/groups/hooks/use-action-guard"
 import { sendGroupFeedNotificationAction } from "@/features/notifications/actions/notifications"
 import { groupFeedNotificationsAtom } from "@/features/notifications/store/group-feed-store"
 import { useToast } from "@/hooks/use-toast"
-import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 function createSchema(t: (key: string) => string) {
   return z.object({
@@ -65,7 +65,7 @@ export function GroupFeedNotificationSender({
   groupName,
   canSend = true,
 }: GroupFeedNotificationSenderProps) {
-  const { t, i18n } = useGroupsTranslation()
+  const { t, i18n } = useTranslation("common")
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [, setNotifications] = useAtom(notificationFeedAtom)

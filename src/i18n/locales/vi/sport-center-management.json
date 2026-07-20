@@ -247,6 +247,15 @@
       "loadFailed": "Không thể tải danh sách lượt đặt.",
       "confirmFailed": "Không thể xác nhận đặt sân",
       "cancelFailed": "Không thể hủy đặt sân"
+    },
+    "table": {
+      "customer": "Khách hàng",
+      "phone": "Số điện thoại",
+      "bookingDate": "Ngày đặt sân",
+      "totalPrice": "Tổng tiền",
+      "createdAt": "Ngày tạo",
+      "status": "Trạng thái",
+      "actions": "Thao tác"
     }
   },
   "customer": {

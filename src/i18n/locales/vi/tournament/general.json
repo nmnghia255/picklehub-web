@@ -26,6 +26,7 @@
     },
     "common": {
         "loading": "Đang tải...",
+        "previewImageAlt": "Ảnh xem trước",
         "saving": "Đang lưu...",
         "deleting": "Đang xóa..."
     },
@@ -112,6 +113,7 @@
         }
     },
     "referee": {
+        "notUpdate": "Không thể cập nhật hồ sơ trọng tài",
         "score": "Tỉ số",
         "actions": {
             "startMatch": "Bắt đầu"

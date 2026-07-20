@@ -251,6 +251,15 @@
       "loadFailed": "Failed to load bookings.",
       "confirmFailed": "Failed to confirm booking",
       "cancelFailed": "Failed to cancel booking"
+    },
+    "table": {
+      "customer": "Customer",
+      "phone": "Phone",
+      "bookingDate": "Booking date",
+      "totalPrice": "Total amount",
+      "createdAt": "Created at",
+      "status": "Status",
+      "actions": "Actions"
     }
   },
   "customer": {

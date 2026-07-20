@@ -1,4 +1,5 @@
 {
+  "courts": { "court1": "Court 1", "court2": "Court 2", "court3": "Court 3" },
   "common": {
     "na": "N/A",
     "level": "Level",
@@ -22,7 +23,8 @@
     "cancel": "Cancel",
     "proceed": "Proceed",
     "currency": "VND",
-    "validationError": "Please check the errors below:"
+    "validationError": "Please check the errors below:",
+    "playSession": "Play session"
   },
   "labels": {
     "published": "Published",

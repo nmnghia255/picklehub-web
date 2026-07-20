@@ -2,10 +2,10 @@
 
 import type { TFunction } from "i18next"
 import { Bell, Clock } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 export interface GroupFeedNotificationItem {
   id: string
@@ -24,7 +24,7 @@ interface GroupFeedNotificationsProps {
 
 function formatDate(
   dateString: string,
-  t: TFunction<"groups">,
+  t: TFunction<"common">,
   language?: string
 ): string {
   const date = new Date(dateString)
@@ -62,7 +62,7 @@ export function GroupFeedNotifications({
   isLoading = false,
   className = "",
 }: GroupFeedNotificationsProps & { className?: string }) {
-  const { t, i18n } = useGroupsTranslation()
+  const { t, i18n } = useTranslation("common")
 
   if (isLoading) {
     return (

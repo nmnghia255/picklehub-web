@@ -488,6 +488,7 @@
     },
     "controlPanel": {
       "title": "Match setup",
+      "generateError": "Failed to generate matches.",
       "totalMatches": "Total matches",
       "courts": "Courts",
       "generate": "Generate matches",
@@ -541,7 +542,8 @@
       },
       "matchesCount_one": "{{count}} match",
       "matchesCount_other": "{{count}} matches",
-      "noPlayers": "No players available to show stats."
+      "noPlayers": "No players available to show stats.",
+      "matchesCount": "{{count}} matches"
     },
     "header": {
       "changeToDoubles": "Switch to doubles",

@@ -276,7 +276,8 @@
             "itemsTitle": "Chi tiết dịch vụ và sản phẩm",
             "noExtraServices": "Không có dịch vụ bổ sung.",
             "noExtraProducts": "Không có sản phẩm kèm theo.",
-            "scheduleTitle": "Lịch đặt",
+    "scheduleTitle": "Lịch đặt",
+    "noDate": "Chưa chọn ngày",
             "slotsCount_one": "{{count}} khung giờ",
             "slotsCount_other": "{{count}} khung giờ"
         }

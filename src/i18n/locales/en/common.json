@@ -282,9 +282,18 @@
       "dayButton": "{{date}}",
       "weekday": "{{weekday}}",
       "weekNumber": "Week {{weekNumber}}",
-      "weekNumberHeader": "Week number"
-    }
+    "weekNumberHeader": "Week number",
+    "errorTitle": "Unable to load calendar",
+    "errorDescription": "Something went wrong while loading your calendar.",
+    "retry": "Try again"
+    },
+    "errorTitle": "Unable to load calendar",
+    "errorDescription": "Something went wrong while loading your calendar.",
+    "retry": "Try again"
   },
+  "calendarErrorTitle": "Unable to load calendar",
+  "calendarErrorDescription": "Something went wrong while loading your calendar.",
+  "calendarRetry": "Try again",
   "back": "Back",
   "cancel": "Cancel",
   "loading": "Loading...",
@@ -1206,11 +1215,20 @@
           "studentName": "Name",
           "studentJoinedAt": "Joined at",
           "studentStatus": "Status",
-          "studentPayment": "Payment"
+          "studentPayment": "Payment",
+          "updateLocationSuccess": "Booking location updated",
+          "updateLocationError": "Failed to update booking location"
         }
       },
       "bookings": {
         "errorTitle": "Cannot load bookings",
+        "updateLocationSuccess": "Booking location updated",
+        "updateLocationError": "Failed to update booking location",
+        "editLocationButton": "Edit location",
+        "editLocationDialogTitle": "Edit booking location",
+        "editLocationDialogDescription": "Update the location for this booking.",
+        "updatingLocation": "Updating location...",
+        "saveLocation": "Save location",
         "totalLabel": "total",
         "noBookings": "No booking requests yet",
         "studentLabel": "Learner",

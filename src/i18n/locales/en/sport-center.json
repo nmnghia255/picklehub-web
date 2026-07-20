@@ -276,7 +276,8 @@
       "itemsTitle": "Service and product details",
       "noExtraServices": "No extra services.",
       "noExtraProducts": "No extra products.",
-      "scheduleTitle": "Booking schedule",
+    "scheduleTitle": "Booking schedule",
+    "noDate": "No date selected",
       "slotsCount_one": "{{count}} time slot",
       "slotsCount_other": "{{count}} time slots"
     }

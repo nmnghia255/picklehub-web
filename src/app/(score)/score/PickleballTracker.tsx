@@ -399,7 +399,7 @@ function PickleballTracker() {
               onClick={() => setShowTossWizard(true)}
               className="h-14 w-full rounded-xl bg-emerald-600 text-lg font-black tracking-widest text-white shadow-lg transition-transform hover:bg-emerald-700 active:scale-[0.99]"
             >
-              {t("actions.startMatch", { defaultValue: "Bắt đầu" })}
+              {t("tracker.actions.startMatch", { defaultValue: "Bắt đầu" })}
             </Button>
           )}
         </div>

@@ -113,7 +113,16 @@
     "noBookingItemsInfo": "No detailed court information.",
     "linkedAt": "Linked to group: {{time}}",
     "groupNoBookingsLinked": "No court bookings linked to this group yet.",
-    "sportCenterUnknown": "Unknown Court"
+    "sportCenterUnknown": "Unknown Court",
+    "linkBookingSuccess": "Booking linked successfully",
+    "unlinkBookingSuccess": "Booking unlinked successfully",
+    "linkBookingEmpty": "Please select a booking to link",
+    "linkedBy": "Linked by {{name}}",
+    "archiveGroupSuccess": "Group archived successfully",
+    "leaveGroupSuccess": "You left the group",
+    "inviteMemberSuccess": "Invitation sent successfully",
+    "kickMemberSuccess": "Member removed successfully",
+    "revokeInvitationSuccess": "Invitation revoked successfully"
   },
   "activitySchedule": {
     "calendarTitle": "Activity Schedule",
@@ -316,7 +325,27 @@
     "viewModeCalendar": "Calendar",
     "viewModeList": "List",
     "viewModeAgenda": "Agenda",
-    "noActivitiesDay": "No activities today"
+    "noActivitiesDay": "No activities today",
+    "weekdays": { "mon": "Mon", "tue": "Tue", "wed": "Wed", "thu": "Thu", "fri": "Fri", "sat": "Sat", "sun": "Sun" },
+    "guestCountRangeError": "Guest count must be between {{min}} and {{max}}",
+    "formValidationDate": "Please select a date",
+    "formValidationLocation": "Please enter a location",
+    "formValidationDescription": "Please enter a description",
+    "formValidationRemindAt": "Please select a reminder time",
+    "participantsSummaryShort": "{{count}} participants",
+    "participantsSummaryMembersOnly": "{{count}} members",
+    "participantsSummaryTotal": "{{members}} members, {{guests}} guests",
+    "viewMode": "View mode",
+    "linkedBookingNotice": "This activity has a linked court booking.",
+    "checkingCancellationPolicy": "Checking cancellation policy...",
+    "cancelBookingCascade": "Cancel linked court booking at sport center?",
+    "formFieldEmail": "Email",
+    "formFieldName": "Name",
+    "btnNo": "No",
+    "thTimeRange": "Time",
+    "filterPrev": "Previous",
+    "pageInfo": "Page {{page}} of {{total}}",
+    "filterNext": "Next"
   },
   "dashboard": {
     "myGroupsTitle": "Groups",
@@ -418,7 +447,15 @@
     "restoringGroupBtn": "Restoring...",
     "restoreGroupActionBtn": "Restore",
     "restoreGroupSuccess": "Group \"{{name}}\" has been restored.",
-    "restoreGroupFailed": "Failed to restore group. Please try again."
+  "restoreGroupFailed": "Failed to restore group. Please try again.",
+  "noDescription": "No description",
+  "yourGroupsTab": "Your groups",
+  "noArchivedGroupsTitle": "No archived groups",
+  "noActiveGroupsTitle": "No active groups",
+  "contactOwnerWarning": "Please contact the group owner",
+  "revokeInvitationAction": "Revoke invitation",
+  "inviteByEmailBtn": "Invite by email",
+  "inviteByEmailTitle": "Invite member by email"
   },
   "inviteLinks": {
     "open": "Invite via link",

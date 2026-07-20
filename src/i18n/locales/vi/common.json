@@ -137,8 +137,14 @@
       "dayButton": "{{date}}",
       "weekday": "{{weekday}}",
       "weekNumber": "Tuần {{weekNumber}}",
-      "weekNumberHeader": "Số tuần"
-    }
+    "weekNumberHeader": "Số tuần",
+    "errorTitle": "Không thể tải lịch",
+    "errorDescription": "Đã xảy ra lỗi khi tải lịch của bạn.",
+    "retry": "Thử lại"
+    },
+    "errorTitle": "Không thể tải lịch",
+    "errorDescription": "Đã xảy ra lỗi khi tải lịch của bạn.",
+    "retry": "Thử lại"
   },
   "saving": "Đang lưu...",
   "delete": "Xóa",
@@ -154,6 +160,9 @@
     "description": "Đã có lỗi xảy ra. Vui lòng thử lại sau.",
     "retry": "Thử lại"
   },
+  "calendarErrorTitle": "Không thể tải lịch",
+  "calendarErrorDescription": "Đã xảy ra lỗi khi tải lịch của bạn.",
+  "calendarRetry": "Thử lại",
   "back": "Quay lại",
   "pagination": {
     "navigation": "Phân trang",
@@ -993,7 +1002,9 @@
         "studentName": "Tên",
         "studentJoinedAt": "Tham gia",
         "studentStatus": "Trạng thái",
-        "studentPayment": "Thanh toán",
+          "studentPayment": "Thanh toán",
+          "updateLocationSuccess": "Đã cập nhật địa điểm đặt lịch",
+          "updateLocationError": "Không thể cập nhật địa điểm đặt lịch",
         "pageTitle": "Chi tiết lớp học",
         "notFound": "Lớp học không tồn tại",
         "sessionCount": "{{count}} buổi",
@@ -1013,6 +1024,13 @@
     },
     "bookings": {
       "errorTitle": "Không thể tải danh sách đặt lịch",
+      "updateLocationSuccess": "Đã cập nhật địa điểm đặt sân",
+      "updateLocationError": "Không thể cập nhật địa điểm đặt sân",
+      "editLocationButton": "Sửa địa điểm",
+      "editLocationDialogTitle": "Sửa địa điểm đặt sân",
+      "editLocationDialogDescription": "Cập nhật địa điểm cho lịch đặt sân này.",
+      "updatingLocation": "Đang cập nhật địa điểm...",
+      "saveLocation": "Lưu địa điểm",
       "totalLabel": "tổng số",
       "noBookings": "Chưa có yêu cầu đặt lịch nào",
       "studentLabel": "Học viên",

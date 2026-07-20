@@ -113,7 +113,16 @@
     "noBookingItemsInfo": "Không có thông tin chi tiết từng sân.",
     "linkedAt": "Thời gian liên kết: {{time}}",
     "groupNoBookingsLinked": "Nhóm chưa liên kết bất kỳ lịch đặt sân nào.",
-    "sportCenterUnknown": "Sân chưa rõ"
+    "sportCenterUnknown": "Sân chưa rõ",
+    "linkBookingSuccess": "Liên kết đặt sân thành công",
+    "unlinkBookingSuccess": "Hủy liên kết đặt sân thành công",
+    "linkBookingEmpty": "Vui lòng chọn đặt sân để liên kết",
+    "linkedBy": "Được liên kết bởi {{name}}",
+    "archiveGroupSuccess": "Lưu trữ nhóm thành công",
+    "leaveGroupSuccess": "Bạn đã rời nhóm",
+    "inviteMemberSuccess": "Gửi lời mời thành công",
+    "kickMemberSuccess": "Đã xóa thành viên",
+    "revokeInvitationSuccess": "Thu hồi lời mời thành công"
   },
   "activitySchedule": {
     "calendarTitle": "Lịch hoạt động",
@@ -316,7 +325,27 @@
     "viewModeCalendar": "Lịch",
     "viewModeList": "Danh sách",
     "viewModeAgenda": "Lịch trình",
-    "noActivitiesDay": "Không có hoạt động nào hôm nay"
+    "noActivitiesDay": "Không có hoạt động nào hôm nay",
+    "weekdays": { "mon": "T2", "tue": "T3", "wed": "T4", "thu": "T5", "fri": "T6", "sat": "T7", "sun": "CN" },
+    "guestCountRangeError": "Số khách phải từ {{min}} đến {{max}}",
+    "formValidationDate": "Vui lòng chọn ngày",
+    "formValidationLocation": "Vui lòng nhập địa điểm",
+    "formValidationDescription": "Vui lòng nhập mô tả",
+    "formValidationRemindAt": "Vui lòng chọn thời gian nhắc",
+    "participantsSummaryShort": "{{count}} người tham gia",
+    "participantsSummaryMembersOnly": "{{count}} thành viên",
+    "participantsSummaryTotal": "{{members}} thành viên, {{guests}} khách",
+    "viewMode": "Chế độ xem",
+    "linkedBookingNotice": "Hoạt động này có đặt sân liên kết.",
+    "checkingCancellationPolicy": "Đang kiểm tra chính sách hủy...",
+    "cancelBookingCascade": "Hủy đặt sân liên kết tại cụm sân?",
+    "formFieldEmail": "Email",
+    "formFieldName": "Tên",
+    "btnNo": "Không",
+    "thTimeRange": "Thời gian",
+    "filterPrev": "Trước",
+    "pageInfo": "Trang {{page}} / {{total}}",
+    "filterNext": "Sau"
   },
   "dashboard": {
     "myGroupsTitle": "Nhóm",
@@ -418,7 +447,15 @@
     "restoringGroupBtn": "Đang khôi phục...",
     "restoreGroupActionBtn": "Khôi phục",
     "restoreGroupSuccess": "Đã khôi phục nhóm \"{{name}}\".",
-    "restoreGroupFailed": "Khôi phục nhóm thất bại. Vui lòng thử lại."
+  "restoreGroupFailed": "Khôi phục nhóm thất bại. Vui lòng thử lại.",
+  "noDescription": "Chưa có mô tả",
+  "yourGroupsTab": "Nhóm của bạn",
+  "noArchivedGroupsTitle": "Chưa có nhóm lưu trữ",
+  "noActiveGroupsTitle": "Chưa có nhóm đang hoạt động",
+  "contactOwnerWarning": "Vui lòng liên hệ chủ nhóm",
+  "revokeInvitationAction": "Thu hồi lời mời",
+  "inviteByEmailBtn": "Mời qua email",
+  "inviteByEmailTitle": "Mời thành viên qua email"
   },
   "inviteLinks": {
     "open": "Mời qua liên kết",
