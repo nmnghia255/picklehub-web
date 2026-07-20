@@ -123,6 +123,8 @@ export function GroupActivitySchedulePage({
   const { guardWriteAction, PermissionDialog, hasValidSubscription } =
     useActionGuard(group, currentUserRole)
 
+  const isArchived = group?.status === "ARCHIVED"
+
   const { data: activitiesResponse, isLoading } = useQuery({
     queryKey: activityQueryKeys.list(groupId, { limit: 1000 }), // Get all for calendar
     queryFn: () => listActivitiesClient(groupId, { limit: 1000 }),
@@ -502,7 +504,7 @@ export function GroupActivitySchedulePage({
             </Select>
           </div>
 
-          {canManageActivities && (
+          {canManageActivities && !isArchived && (
             <Button
               onClick={() =>
                 guardWriteAction(openCreateDialog, {
@@ -550,7 +552,7 @@ export function GroupActivitySchedulePage({
                 </p>
               </div>
 
-              {canManageActivities && (
+              {canManageActivities && !isArchived && (
                 <Button
                   className="w-full border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                   onClick={() =>
@@ -664,7 +666,7 @@ export function GroupActivitySchedulePage({
                               )}
                             </div>
 
-                            {canManageActivities && (
+                            {canManageActivities && !isArchived && (
                               <div
                                 className="flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100"
                                 onClick={(e) => e.stopPropagation()}
@@ -721,7 +723,7 @@ export function GroupActivitySchedulePage({
           groupId={groupId}
           currentUserRole={currentUserRole}
           currentUserId={currentUserId}
-          readOnly={!hasValidSubscription}
+          readOnly={!hasValidSubscription || isArchived}
           onEdit={() => {
             guardWriteAction(
               () => {
@@ -741,7 +743,10 @@ export function GroupActivitySchedulePage({
         open={cancelActivityConfirmOpen}
         onOpenChange={setCancelActivityConfirmOpen}
       >
-        <DialogContent className="group-feature-root sm:max-w-[450px]">
+        <DialogContent
+          className="group-feature-root sm:max-w-[450px]"
+          showCloseButton={false}
+        >
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="size-5" />

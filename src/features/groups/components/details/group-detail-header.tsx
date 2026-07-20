@@ -81,8 +81,8 @@ export function GroupDetailHeader({
                 </h1>
                 {archived && (
                   <Badge
-                    variant="secondary"
-                    className="bg-muted text-muted-foreground"
+                    variant="outline"
+                    className="border-rose-200 bg-rose-100 font-semibold text-rose-700 dark:border-rose-800/60 dark:bg-rose-950/40 dark:text-rose-400"
                   >
                     {getArchivedGroupLabel()}
                   </Badge>

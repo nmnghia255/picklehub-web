@@ -109,11 +109,17 @@ export function GroupFeedNotificationSender({
 
     setIsLoading(true)
     try {
-      await sendGroupFeedNotificationAction({
+      const res = await sendGroupFeedNotificationAction({
         groupId,
         title: data.title,
         message: data.message,
       })
+
+      if (!res.success) {
+        throw new Error(
+          res.error || t("notifications.sendFailed", "Không thể gửi thông báo")
+        )
+      }
 
       const now = new Date()
       const timeLabel = now.toLocaleString(
@@ -196,7 +202,10 @@ export function GroupFeedNotificationSender({
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="group-feature-root max-w-md bg-card">
+        <DialogContent
+          className="group-feature-root max-w-md bg-card"
+          showCloseButton={false}
+        >
           <DialogHeader>
             <DialogTitle>
               {t("notifications.sender.dialog.title")}

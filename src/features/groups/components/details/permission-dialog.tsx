@@ -37,7 +37,10 @@ export function PermissionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="group-feature-root sm:max-w-[480px]">
+      <DialogContent
+        className="group-feature-root sm:max-w-[480px]"
+        showCloseButton={false}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
             <Lock className="size-5 shrink-0" />

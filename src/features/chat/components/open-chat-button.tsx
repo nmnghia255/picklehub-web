@@ -23,6 +23,10 @@ interface OpenChatButtonProps {
   size?: ComponentProps<typeof Button>["size"]
   showIcon?: boolean
   disabled?: boolean
+  onClick?: (
+    e: React.MouseEvent<HTMLButtonElement>,
+    trigger: () => void
+  ) => void
 }
 
 function getChatErrorMessage(
@@ -65,6 +69,7 @@ export function OpenChatButton({
   size = "default",
   showIcon = true,
   disabled,
+  onClick,
 }: OpenChatButtonProps) {
   const { t } = useTranslation("common")
   const router = useRouter()
@@ -99,7 +104,13 @@ export function OpenChatButton({
       size={size}
       className={className}
       disabled={disabled || mutation.isPending}
-      onClick={() => mutation.mutate()}
+      onClick={(e) => {
+        if (onClick) {
+          onClick(e, () => mutation.mutate())
+        } else {
+          mutation.mutate()
+        }
+      }}
     >
       {showIcon && <MessageSquare className="mr-2 size-4" />}
       {mutation.isPending ? t("chat.actions.opening") : label}

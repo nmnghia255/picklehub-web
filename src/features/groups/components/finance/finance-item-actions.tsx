@@ -138,7 +138,10 @@ export function PaymentReceiptPreview({ receiptUrl }: { receiptUrl: string }) {
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="group-feature-root max-h-[90vh] overflow-hidden p-0 sm:max-w-4xl">
+        <DialogContent
+          className="group-feature-root max-h-[90vh] overflow-hidden p-0 sm:max-w-4xl"
+          showCloseButton={false}
+        >
           <div className="grid max-h-[90vh] gap-0 overflow-hidden md:grid-cols-[minmax(0,1fr)_280px]">
             <div className="flex items-center justify-center bg-black/90 p-4 md:min-h-[70vh]">
               {isImage ? (
@@ -267,7 +270,10 @@ function FinanceDialogShell({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="group-feature-root max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent
+        className="group-feature-root max-h-[90vh] overflow-y-auto sm:max-w-2xl"
+        showCloseButton={false}
+      >
         <DialogHeader className={headerClassName}>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>

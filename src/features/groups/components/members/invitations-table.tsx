@@ -36,6 +36,7 @@ import type { Invitation } from "../../types"
 interface InvitationsTableProps {
   groupId: string
   initialInvitations: Invitation[]
+  isArchived?: boolean
 }
 
 function getStatusClasses(status: string): string {
@@ -63,6 +64,7 @@ function getStatusClasses(status: string): string {
 export function InvitationsTable({
   groupId,
   initialInvitations,
+  isArchived = false,
 }: InvitationsTableProps) {
   const { t } = useGroupsTranslation()
   const invalidation = useGroupInvalidation(groupId)
@@ -199,7 +201,7 @@ export function InvitationsTable({
                       )}
                     </TableCell>
                     <TableCell className="pr-6 text-right">
-                      {invitation.status === "pending" && (
+                      {invitation.status === "pending" && !isArchived && (
                         <Button
                           variant="ghost"
                           size="icon"
@@ -245,7 +247,7 @@ export function InvitationsTable({
           }
         }}
       >
-        <DialogContent className="group-feature-root">
+        <DialogContent className="group-feature-root" showCloseButton={false}>
           <DialogHeader>
             <DialogTitle>
               {t("dashboard.revokeInvitationDialogTitle", "Thu hồi lời mời")}
