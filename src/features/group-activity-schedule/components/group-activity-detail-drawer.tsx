@@ -35,7 +35,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
@@ -71,7 +70,7 @@ import {
 import {
   groupQueryKeys,
   listGroupCourtBookingsClient,
-} from "@/features/groups/api/groups-client"
+} from "@/features/groups/public/group-activity-integration"
 import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 import { cn } from "@/lib/utils"
 
@@ -88,7 +87,6 @@ import {
   reportAbsenceClient,
   updateActivityClient,
 } from "../api/activities-client"
-import type { ActivityMember } from "../group-activity-schedule.types"
 import {
   formatDateTime,
   getActivityTypeBadgeClass,
@@ -156,9 +154,8 @@ export function GroupActivityDetailDrawer({
   onEdit,
   readOnly = false,
 }: GroupActivityDetailDrawerProps) {
-  const { t, i18n } = useGroupsTranslation()
+  const { t } = useGroupsTranslation()
   const queryClient = useQueryClient()
-  const dateLocale = i18n.language === "vi" ? "vi-VN" : "en-US"
   const [guestCountInput, setGuestCountInput] = useState("1")
   const [isGuestDialogOpen, setIsGuestDialogOpen] = useState(false)
 
@@ -166,7 +163,7 @@ export function GroupActivityDetailDrawer({
   const [isCancelActivityDialogOpen, setIsCancelActivityDialogOpen] =
     useState(false)
   const [cancelReason, setCancelReason] = useState("")
-  const [cancelConfirmChecked, setCancelConfirmChecked] = useState(false)
+  const [, setCancelConfirmChecked] = useState(false)
   const [isUnlinkBookingDialogOpen, setIsUnlinkBookingDialogOpen] =
     useState(false)
   const [isCancelMemberAbsenceDialogOpen, setIsCancelMemberAbsenceDialogOpen] =

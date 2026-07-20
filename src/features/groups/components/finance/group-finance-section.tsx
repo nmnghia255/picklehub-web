@@ -1,6 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import type { TFunction } from "i18next"
 import { ChevronDown, ChevronUp, Loader2, Search } from "lucide-react"
 import { useState } from "react"
 
@@ -81,8 +82,10 @@ function formatDateTime(value?: string | null) {
   })
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function formatTransactionStatus(status: string | null | undefined, t: any) {
+function formatTransactionStatus(
+  status: string | null | undefined,
+  t: TFunction<"groups">
+) {
   const normalized = status?.toUpperCase()
   if (normalized === "VERIFIED")
     return t("transactionStatuses.VERIFIED", "Đã xác nhận")
@@ -107,8 +110,10 @@ export function getStatusBadgeClass(status?: string | null) {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function formatDebtStatus(status: string | null | undefined, t: any) {
+function formatDebtStatus(
+  status: string | null | undefined,
+  t: TFunction<"groups">
+) {
   const normalized = status?.toUpperCase()
   if (normalized === "PAID") return t("debtStatuses.PAID", "Đã thanh toán")
   if (normalized === "PARTIALLY_PAID")

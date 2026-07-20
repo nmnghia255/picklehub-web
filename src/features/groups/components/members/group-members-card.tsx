@@ -1,6 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import type { TFunction } from "i18next"
 import { Users } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -31,8 +32,10 @@ function getInitials(name: string) {
   return `${words[0][0] ?? ""}${words[1][0] ?? ""}`.toUpperCase()
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function normalizeRole(role: string | null | undefined, t: any) {
+function normalizeRole(
+  role: string | null | undefined,
+  t: TFunction<"groups">
+) {
   switch (role?.toLowerCase()) {
     case "owner":
       return t("dashboard.roleOwner", "Trưởng nhóm")

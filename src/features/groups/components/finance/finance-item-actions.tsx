@@ -52,7 +52,7 @@ import {
   getActivityClient,
   getActivityMembersClient,
   listActivitiesClient,
-} from "@/features/group-activity-schedule/api/activities-client"
+} from "@/features/group-activity-schedule/activity-integration"
 import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 import { cn } from "@/lib/utils"
 import { formatCurrencyVnd } from "@/utils/expense-utils"

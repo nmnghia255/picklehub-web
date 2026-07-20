@@ -420,6 +420,19 @@
     "restoreGroupSuccess": "Group \"{{name}}\" has been restored.",
     "restoreGroupFailed": "Failed to restore group. Please try again."
   },
+  "inviteLinks": {
+    "open": "Invite via link",
+    "title": "Invite via Link",
+    "reload": "Reload",
+    "creating": "Creating...",
+    "create": "Create Invite Link",
+    "listTitle": "Invite Links",
+    "empty": "No invite links yet",
+    "revoke": "Revoke invite link",
+    "revokeSuccess": "Invite link revoked.",
+    "createCopied": "Invite link created and copied to clipboard!",
+    "createSuccess": "Invite link created: {{url}}"
+  },
   "invitationStatuses": {
     "pending": "pending",
     "accepted": "accepted",

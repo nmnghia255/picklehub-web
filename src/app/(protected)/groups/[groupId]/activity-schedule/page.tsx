@@ -1,4 +1,4 @@
-import { GroupActivitySchedulePage } from "@/features/group-activity-schedule/components/group-activity-schedule-page"
+import { GroupActivitySchedulePage } from "@/features/group-activity-schedule"
 import { getGroup } from "@/features/groups/api/groups-service"
 import { getSession } from "@/lib/session"
 

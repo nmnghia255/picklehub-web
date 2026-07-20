@@ -15,7 +15,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import {
   Form,
@@ -207,9 +206,7 @@ export function GroupFeedNotificationSender({
           showCloseButton={false}
         >
           <DialogHeader>
-            <DialogTitle>
-              {t("notifications.sender.dialog.title")}
-            </DialogTitle>
+            <DialogTitle>{t("notifications.sender.dialog.title")}</DialogTitle>
             <DialogDescription>
               {t(
                 "notifications.sender.dialog.description",

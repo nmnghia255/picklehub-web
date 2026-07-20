@@ -37,11 +37,11 @@ import {
   buildEventDateRange,
   formatISO,
 } from "@/features/group-activity-schedule/group-activity-schedule.utils"
+import type { GroupCourtBooking } from "@/features/groups/public/group-activity-integration"
 import {
   groupQueryKeys,
   listGroupCourtBookingsClient,
-} from "@/features/groups/api/groups-client"
-import type { GroupCourtBooking } from "@/features/groups/types"
+} from "@/features/groups/public/group-activity-integration"
 import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 const formatBookingTime = (isoString?: string) => {

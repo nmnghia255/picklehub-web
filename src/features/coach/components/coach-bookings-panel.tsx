@@ -93,6 +93,58 @@ function BookingSkeleton() {
   )
 }
 
+function BookingSummary({
+  total,
+  t,
+}: {
+  total: number
+  t: (key: string) => string
+}) {
+  return (
+    <div className="flex gap-4">
+      <div className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
+        <Calendar className="size-4 text-muted-foreground" />
+        <span className="font-medium">{total}</span>
+        <span className="text-muted-foreground">
+          {t("coach.bookings.totalLabel")}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function BookingStatusTabs({
+  value,
+  onChange,
+  t,
+}: {
+  value: string
+  onChange: (value: string) => void
+  t: (key: string) => string
+}) {
+  return (
+    <Tabs value={value} onValueChange={onChange}>
+      <TabsList>
+        {STATUS_TABS.map((tabItem) => (
+          <TabsTrigger key={tabItem.value} value={tabItem.value}>
+            {tabItem.value === "PENDING_CONFIRMATION"
+              ? t("coach.bookings.status.pendingConfirmation")
+              : tabItem.value === "CONFIRMED"
+                ? t("coach.bookings.status.confirmed")
+                : tabItem.value === "COMPLETED"
+                  ? t("coach.bookings.status.completed")
+                  : tabItem.value === "REJECTED"
+                    ? t("coach.bookings.status.rejected")
+                    : tabItem.value === "CANCELLED"
+                      ? t("coach.bookings.status.cancelled")
+                      : t("coach.bookings.status.all")}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
+  )
+}
+
 export function CoachBookingsPanel() {
   const session = useSession()
   const { t } = useTranslation("common")
@@ -486,43 +538,16 @@ export function CoachBookingsPanel() {
 
   return (
     <div className="space-y-6">
-      {meta && (
-        <div className="flex gap-4">
-          <div className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
-            <Calendar className="size-4 text-muted-foreground" />
-            <span className="font-medium">{meta.total}</span>
-            <span className="text-muted-foreground">
-              {t("coach.bookings.totalLabel")}
-            </span>
-          </div>
-        </div>
-      )}
+      {meta && <BookingSummary total={meta.total} t={t} />}
 
-      <Tabs
+      <BookingStatusTabs
         value={tab}
-        onValueChange={(v) => {
-          setTab(v)
+        onChange={(value) => {
+          setTab(value)
           setPage(1)
         }}
-      >
-        <TabsList>
-          {STATUS_TABS.map((tabItem) => (
-            <TabsTrigger key={tabItem.value} value={tabItem.value}>
-              {tabItem.value === "PENDING_CONFIRMATION"
-                ? t("coach.bookings.status.pendingConfirmation")
-                : tabItem.value === "CONFIRMED"
-                  ? t("coach.bookings.status.confirmed")
-                  : tabItem.value === "COMPLETED"
-                    ? t("coach.bookings.status.completed")
-                    : tabItem.value === "REJECTED"
-                      ? t("coach.bookings.status.rejected")
-                      : tabItem.value === "CANCELLED"
-                        ? t("coach.bookings.status.cancelled")
-                        : t("coach.bookings.status.all")}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+        t={t}
+      />
 
       {isLoading ? (
         <div className="space-y-3">

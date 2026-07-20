@@ -405,6 +405,23 @@
           "title": "Nhóm Chuyên Biệt",
           "description": "Tạo nhóm riêng cho huấn luyện, kinh doanh và tổ chức giải đấu phù hợp nhu cầu."
         }
+      },
+      "footer": {
+        "description": "Nền tảng toàn diện cho cộng đồng pickleball.",
+        "sections": {
+          "company": "Công ty",
+          "legal": "Pháp lý",
+          "support": "Hỗ trợ"
+        },
+        "links": {
+          "about": "Về chúng tôi",
+          "blog": "Blog",
+          "privacy": "Chính sách bảo mật",
+          "terms": "Điều khoản sử dụng",
+          "contact": "Liên hệ",
+          "faq": "Câu hỏi thường gặp"
+        },
+        "copyright": "© {{year}} PickleHub. Bảo lưu mọi quyền."
       }
     },
     "footer": {
@@ -595,7 +612,7 @@
       "trigger": "Gửi thông báo",
       "dialog": {
         "title": "Gửi thông báo cho nhóm",
-        "description": "Gửi thông báo feed tới tất cả thành viên của nhóm"
+        "description": "Gửi thông báo feed tới tất cả thành viên của nhóm \"{{name}}\""
       },
       "validation": {
         "title": "Tiêu đề không được để trống",
@@ -1439,8 +1456,8 @@
         "advanced": "Nâng cao",
         "pro": "Chuyên nghiệp"
       },
-      "currencyCode": "VND"
-      ,"swingAnalysis": {
+      "currencyCode": "VND",
+      "swingAnalysis": {
         "tab": "Phân tích kỹ thuật",
         "title": "Phân tích kỹ thuật",
         "description": "Tải lên hình ảnh hoặc video cú đánh để nhận hướng dẫn rõ ràng cho học viên.",

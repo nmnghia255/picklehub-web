@@ -180,6 +180,30 @@ function LoadingSkeleton() {
   )
 }
 
+function ClassPageHeader({
+  title,
+  status,
+  statusLabel,
+}: {
+  title: string
+  status: ClassStatus
+  statusLabel: string
+}) {
+  return (
+    <div className="flex flex-col gap-4 border-b pb-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          {title}
+        </h1>
+        <Badge variant={statusVariant[status]}>{statusLabel}</Badge>
+      </div>
+      <div className="flex shrink-0 items-center gap-2 md:ml-auto">
+        <BackButton to="/coach?tab=classes" />
+      </div>
+    </div>
+  )
+}
+
 export default function CoachClassDetailPage() {
   const session = useSession()
   const params = useParams()
@@ -1324,19 +1348,11 @@ export default function CoachClassDetailPage() {
 
   return (
     <PageContainer variant="wide" className="space-y-6">
-      <div className="flex flex-col gap-4 border-b pb-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            {classData.title}
-          </h1>
-          <Badge variant={statusVariant[classData.status]}>
-            {statusLabel[classData.status]}
-          </Badge>
-        </div>
-        <div className="flex shrink-0 items-center gap-2 md:ml-auto">
-          <BackButton to="/coach?tab=classes" />
-        </div>
-      </div>
+      <ClassPageHeader
+        title={classData.title}
+        status={classData.status}
+        statusLabel={statusLabel[classData.status]}
+      />
 
       <Tabs defaultValue="info">
         <TabsList>

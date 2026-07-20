@@ -73,9 +73,18 @@
     "quickActions": {
       "title": "Quick actions",
       "description": "Handle the items you need right now.",
-      "pendingInvites": {"title": "Pending invites", "description": "Reply directly from the feed"},
-      "upcomingSessions": {"title": "Upcoming sessions", "description": "Training reminders and events"},
-      "unread": {"title": "Unread notifications", "description": "Best handled before you leave"}
+      "pendingInvites": {
+        "title": "Pending invites",
+        "description": "Reply directly from the feed"
+      },
+      "upcomingSessions": {
+        "title": "Upcoming sessions",
+        "description": "Training reminders and events"
+      },
+      "unread": {
+        "title": "Unread notifications",
+        "description": "Best handled before you leave"
+      }
     },
     "legend": {
       "title": "Feed legend",
@@ -617,8 +626,19 @@
     },
     "footer": {
       "description": "Manage groups and share with ease.",
-      "sections": {"company": "Company", "legal": "Legal", "support": "Support"},
-      "links": {"about": "About Us", "blog": "Blog", "privacy": "Privacy Policy", "terms": "Terms of Service", "contact": "Contact", "faq": "FAQ"},
+      "sections": {
+        "company": "Company",
+        "legal": "Legal",
+        "support": "Support"
+      },
+      "links": {
+        "about": "About Us",
+        "blog": "Blog",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "contact": "Contact",
+        "faq": "FAQ"
+      },
       "copyright": "© {{year}} PickleHub. All rights reserved."
     },
     "home": {
@@ -667,14 +687,14 @@
           "member": "Member"
         }
       },
-    "pendingInvites": {
+      "pendingInvites": {
         "loading": "Loading group invites...",
         "title": "Pending invites to review",
         "description": "You have {{count}} pending invites from other groups.",
         "invitedBy": "Invite from {{name}}",
         "decline": "Decline",
-      "accept": "Accept",
-      "noInvites": "No pending invites"
+        "accept": "Accept",
+        "noInvites": "No pending invites"
       }
     },
     "feed": {
@@ -1344,15 +1364,7 @@
       },
       "schedule": {
         "errorTitle": "Cannot load schedule",
-        "weekDays": [
-          "Mon",
-          "Tue",
-          "Wed",
-          "Thu",
-          "Fri",
-          "Sat",
-          "Sun"
-        ],
+        "weekDays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
         "learnerCount": "{{count}} learners",
         "noLocation": "No location",
         "emptyDay": "Empty",

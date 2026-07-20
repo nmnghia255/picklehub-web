@@ -420,6 +420,19 @@
     "restoreGroupSuccess": "Đã khôi phục nhóm \"{{name}}\".",
     "restoreGroupFailed": "Khôi phục nhóm thất bại. Vui lòng thử lại."
   },
+  "inviteLinks": {
+    "open": "Mời qua liên kết",
+    "title": "Mời qua Link",
+    "reload": "Tải lại",
+    "creating": "Đang tạo...",
+    "create": "Tạo Invite Link",
+    "listTitle": "Danh sách Invite Links",
+    "empty": "Chưa có invite link nào",
+    "revoke": "Thu hồi invite link",
+    "revokeSuccess": "Invite link đã bị thu hồi.",
+    "createCopied": "Invite link đã được tạo và sao chép vào clipboard!",
+    "createSuccess": "Invite link đã được tạo: {{url}}"
+  },
   "invitationStatuses": {
     "pending": "đang chờ",
     "accepted": "đã chấp nhận",

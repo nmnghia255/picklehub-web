@@ -1,5 +1,6 @@
 "use client"
 
+import type { TFunction } from "i18next"
 import { Bell, Clock } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -21,8 +22,11 @@ interface GroupFeedNotificationsProps {
   isLoading?: boolean
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function formatDate(dateString: string, t: any, language?: string): string {
+function formatDate(
+  dateString: string,
+  t: TFunction<"groups">,
+  language?: string
+): string {
   const date = new Date(dateString)
   if (Number.isNaN(date.getTime())) {
     return t("notifications.groupFeed.time.justNow")

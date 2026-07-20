@@ -1,7 +1,8 @@
+import type { TFunction } from "i18next"
 import { Users } from "lucide-react"
 import Link from "next/link"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Group } from "@/features/groups/types"
@@ -15,8 +16,7 @@ type Props = {
   showRole?: boolean
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function formatRole(role: string | null | undefined, t: any) {
+function formatRole(role: string | null | undefined, t: TFunction<"groups">) {
   switch (role) {
     case "owner":
       return t("dashboard.roleOwner", "Trưởng nhóm")

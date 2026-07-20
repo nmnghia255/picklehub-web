@@ -38,8 +38,8 @@ import {
   checkCancelEligibilityClient,
   getGroupClient,
   groupQueryKeys,
-} from "@/features/groups/api/groups-client"
-import { useActionGuard } from "@/features/groups/hooks/use-action-guard"
+} from "@/features/groups/public/group-activity-integration"
+import { useActionGuard } from "@/features/groups/public/group-activity-integration"
 import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import {

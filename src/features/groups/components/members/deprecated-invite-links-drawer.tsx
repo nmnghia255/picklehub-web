@@ -14,6 +14,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer"
 import { Separator } from "@/components/ui/separator"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import {
   createInviteLinkAction,
@@ -27,6 +28,7 @@ interface InviteLinksDrawerProps {
 }
 
 export function InviteLinksDrawer({ groupId }: InviteLinksDrawerProps) {
+  const { t } = useGroupsTranslation()
   const [open, setOpen] = useState(false)
   const [links, setLinks] = useState<InviteLink[]>([])
   const [isCreating, startCreating] = useTransition()
@@ -53,7 +55,7 @@ export function InviteLinksDrawer({ groupId }: InviteLinksDrawerProps) {
     revokeInviteLinkAction(groupId, linkId).then((result) => {
       setRevokingId(null)
       if (result.success) {
-        toast.success("Invite link đã bị thu hồi.")
+        toast.success(t("inviteLinks.revokeSuccess"))
         fetchLinks()
       } else if (result.error) {
         toast.error(result.error)
@@ -67,9 +69,11 @@ export function InviteLinksDrawer({ groupId }: InviteLinksDrawerProps) {
       if (result.data) {
         try {
           await navigator.clipboard.writeText(result.data.inviteUrl)
-          toast.success("Invite link đã được tạo và sao chép vào clipboard!")
+          toast.success(t("inviteLinks.createCopied"))
         } catch {
-          toast.success(`Invite link đã được tạo: ${result.data.inviteUrl}`)
+          toast.success(
+            t("inviteLinks.createSuccess", { url: result.data.inviteUrl })
+          )
         }
         fetchLinks()
       } else if (result.error) {
@@ -83,18 +87,18 @@ export function InviteLinksDrawer({ groupId }: InviteLinksDrawerProps) {
       <DrawerTrigger asChild>
         <Button variant="outline">
           <Link2 className="size-4" />
-          Mời qua liên kết
+          {t("inviteLinks.open")}
         </Button>
       </DrawerTrigger>
       <DrawerContent className="flex flex-col">
         <DrawerHeader>
-          <DrawerTitle>Invite qua Link</DrawerTitle>
+          <DrawerTitle>{t("inviteLinks.title")}</DrawerTitle>
           {/* <Button
             variant="ghost"
             size="icon"
             onClick={fetchLinks}
             disabled={isFetching}
-            aria-label="Tải lại"
+            aria-label={t("inviteLinks.reload")}
           >
             <RefreshCw className={isFetching ? "animate-spin" : ""} />
           </Button> */}
@@ -111,20 +115,20 @@ export function InviteLinksDrawer({ groupId }: InviteLinksDrawerProps) {
             ) : (
               <Plus className="size-4" />
             )}
-            {isCreating ? "Đang tạo..." : "Tạo Invite Link"}
+            {isCreating ? t("inviteLinks.creating") : t("inviteLinks.create")}
           </Button>
 
           <Separator />
 
           <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium">Danh sách Invite Links</p>
+            <p className="text-sm font-medium">{t("inviteLinks.listTitle")}</p>
             {isFetching && links.length === 0 ? (
               <div className="flex justify-center py-6">
                 <Loader2 className="size-5 animate-spin text-muted-foreground" />
               </div>
             ) : links.length === 0 ? (
               <p className="py-6 text-center text-sm text-muted-foreground">
-                Chưa có invite link nào
+                {t("inviteLinks.empty")}
               </p>
             ) : (
               links.map((link) => (
@@ -150,7 +154,7 @@ export function InviteLinksDrawer({ groupId }: InviteLinksDrawerProps) {
                         className="size-7 text-muted-foreground hover:text-destructive"
                         disabled={revokingId === link.id}
                         onClick={() => handleRevoke(link.id)}
-                        aria-label="Revoke invite link"
+                        aria-label={t("inviteLinks.revoke")}
                       >
                         {revokingId === link.id ? (
                           <Loader2 className="size-3.5 animate-spin" />

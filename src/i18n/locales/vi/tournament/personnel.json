@@ -160,7 +160,7 @@
     "tracker": {
       "confirmAndStartMatch": "XÁC NHẬN & BẮT ĐẦU TRẬN ĐẤU",
       "doubles": "Đôi",
-      "doublesHelp": "Gọi điểm: Điểm đội giao bóng - Điểm đội nhận - Số lượt giao {{serverNumber}}. {{activeServerName}} đang giao bóng.",
+      "doublesHelp": "Gọi điểm: Điểm đội giao bóng {{servingScore}} - Điểm đội nhận {{receivingScore}} - Số lượt giao {{serverNumber}}. {{activeServerName}} đang giao bóng.",
       "endTimeoutBtn": "Tiếp tục trận đấu",
       "errorMessage": "Không thể cập nhật điểm số",
       "firstServingTeam": "Đội giao bóng đầu tiên: ",
@@ -178,7 +178,7 @@
       "setNumber": "Set {{number}}",
       "sideOutConsequence": "Mất quyền giao",
       "singles": "Đơn",
-      "singlesHelp": "Gọi điểm: Điểm đội giao bóng - Điểm đội nhận. {{activeServerName}} đang giao bóng.",
+      "singlesHelp": "Gọi điểm: Điểm đội giao bóng {{servingScore}} - Điểm đội nhận {{receivingScore}}. {{activeServerName}} đang giao bóng.",
       "startMatchConnectionError": "Đã xảy ra lỗi kết nối khi bắt đầu trận đấu",
       "startMatchError": "Không thể bắt đầu trận đấu",
       "startMatchSuccess": "Bắt đầu trận đấu thành công!",

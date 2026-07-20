@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { GroupActivitySchedulePage } from "@/features/group-activity-schedule/components/group-activity-schedule-page"
+import { GroupActivitySchedulePage } from "@/features/group-activity-schedule"
 import type { Group, Invitation, Member } from "@/features/groups/types"
 import { GroupFeedNotificationsContainer } from "@/features/notifications/components/group-feed-notifications-container"
 

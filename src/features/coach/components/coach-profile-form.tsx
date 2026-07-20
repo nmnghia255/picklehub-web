@@ -126,6 +126,45 @@ function getCertStatusIcon(status: string) {
   }
 }
 
+function CoachProfileLoadingState() {
+  return (
+    <div className="space-y-8">
+      <Skeleton className="h-48 rounded-3xl" />
+      <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+        <Skeleton className="h-96 rounded-2xl" />
+        <Skeleton className="h-96 rounded-2xl" />
+      </div>
+    </div>
+  )
+}
+
+function CertificationSummary({
+  verifiedCount,
+  pendingCount,
+  t,
+}: {
+  verifiedCount: number
+  pendingCount: number
+  t: (key: string) => string
+}) {
+  return (
+    <>
+      <div className="rounded-2xl border bg-background/80 p-4 backdrop-blur-sm">
+        <p className="text-xs tracking-wide text-muted-foreground uppercase">
+          {t("coach.profile.verifiedCerts")}
+        </p>
+        <p className="mt-1 text-2xl font-semibold">{verifiedCount}</p>
+      </div>
+      <div className="rounded-2xl border bg-background/80 p-4 backdrop-blur-sm">
+        <p className="text-xs tracking-wide text-muted-foreground uppercase">
+          {t("coach.profile.pendingCerts")}
+        </p>
+        <p className="mt-1 text-2xl font-semibold">{pendingCount}</p>
+      </div>
+    </>
+  )
+}
+
 export function CoachProfileForm() {
   const { t, i18n } = useTranslation("common")
   const locale = getLocaleCode(i18n.language)
@@ -362,15 +401,7 @@ export function CoachProfileForm() {
   }
 
   if (profileLoading || certsLoading) {
-    return (
-      <div className="space-y-8">
-        <Skeleton className="h-48 rounded-3xl" />
-        <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-          <Skeleton className="h-96 rounded-2xl" />
-          <Skeleton className="h-96 rounded-2xl" />
-        </div>
-      </div>
-    )
+    return <CoachProfileLoadingState />
   }
 
   return (
@@ -389,18 +420,11 @@ export function CoachProfileForm() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:min-w-90 lg:grid-cols-2">
-            <div className="rounded-2xl border bg-background/80 p-4 backdrop-blur-sm">
-              <p className="text-xs tracking-wide text-muted-foreground uppercase">
-                {t("coach.profile.verifiedCerts")}
-              </p>
-              <p className="mt-1 text-2xl font-semibold">{verifiedCount}</p>
-            </div>
-            <div className="rounded-2xl border bg-background/80 p-4 backdrop-blur-sm">
-              <p className="text-xs tracking-wide text-muted-foreground uppercase">
-                {t("coach.profile.pendingCerts")}
-              </p>
-              <p className="mt-1 text-2xl font-semibold">{pendingCount}</p>
-            </div>
+            <CertificationSummary
+              verifiedCount={verifiedCount}
+              pendingCount={pendingCount}
+              t={t}
+            />
             {profile?.status === "DRAFT" && (
               <Button
                 type="button"
@@ -512,24 +536,24 @@ export function CoachProfileForm() {
                         <Label htmlFor="avatarUpload">
                           {t("coach.profile.uploadAvatar")}
                         </Label>
-                          <Input
-                            id="avatarUpload"
-                            ref={avatarInputRef}
-                            type="file"
-                            accept="image/png,image/jpeg,image/jpg,image/webp"
-                            onChange={handleAvatarChange}
-                            disabled={avatarUploading}
-                          />
-                          <p className="text-xs text-muted-foreground">
-                            {avatarUploading
-                              ? t("coach.profile.uploading")
-                              : avatarFileName}
+                        <Input
+                          id="avatarUpload"
+                          ref={avatarInputRef}
+                          type="file"
+                          accept="image/png,image/jpeg,image/jpg,image/webp"
+                          onChange={handleAvatarChange}
+                          disabled={avatarUploading}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          {avatarUploading
+                            ? t("coach.profile.uploading")
+                            : avatarFileName}
+                        </p>
+                        {avatarUploadError ? (
+                          <p className="text-xs text-destructive">
+                            {avatarUploadError}
                           </p>
-                          {avatarUploadError ? (
-                            <p className="text-xs text-destructive">
-                              {avatarUploadError}
-                            </p>
-                          ) : null}
+                        ) : null}
                       </div>
                     </div>
 
