@@ -1559,7 +1559,7 @@ export function GroupActivityDetailDrawer({
           open={isCancelActivityDialogOpen}
           onOpenChange={setIsCancelActivityDialogOpen}
         >
-          <DialogContent className="p-6 sm:max-w-md">
+          <DialogContent className="p-6 sm:max-w-md" showCloseButton={false}>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-base font-bold text-destructive">
                 <AlertTriangle className="size-5" />

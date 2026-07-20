@@ -79,6 +79,8 @@ export default async function GroupDetailPage({
     )
   }
 
+  const archived = group.status === "ARCHIVED"
+
   return (
     <PageContainer variant="wide" className="space-y-6">
       <GroupSubscriptionBanner group={group} currentUserRole={group.role} />
@@ -88,25 +90,24 @@ export default async function GroupDetailPage({
           initialData={group}
           actions={
             <>
-              {canManage && (
+              {!archived && canManage && (
                 <GroupFeedNotificationSender
                   groupId={groupId}
                   groupName={group.name}
                   canSend={canManage}
                 />
               )}
-              {canManage && <EditGroupDrawer group={group} />}
-              {canManage && (
+              {!archived && canManage && <EditGroupDrawer group={group} />}
+              {!archived && canManage && (
                 <GroupInviteMemberButton
                   groupId={groupId}
                   groupName={group.name}
                 />
               )}
               <GroupDetailActionsMenu
-                groupId={groupId}
-                groupName={group.name}
+                group={group}
                 isOwner={isOwner}
-                isArchived={group.status === "ARCHIVED"}
+                isArchived={archived}
               />
             </>
           }
