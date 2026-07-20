@@ -31,6 +31,7 @@ export async function GroupDetailPanels({
   defaultTab,
 }: GroupDetailPanelsProps) {
   const normalizedRole = currentUserRole?.toLowerCase()
+  const isArchived = group.status === "ARCHIVED"
   const canManage = normalizedRole === "owner" || normalizedRole === "admin"
 
   const overviewPanel = (
@@ -53,6 +54,7 @@ export async function GroupDetailPanels({
             <InvitationsTable
               groupId={groupId}
               initialInvitations={invitations}
+              isArchived={isArchived}
             />
           </CardContent>
         </Card>
@@ -94,7 +96,10 @@ export async function GroupDetailPanels({
         </div>
       }
       equipment={
-        <GroupEquipmentSection groupId={groupId} canManage={canManage} />
+        <GroupEquipmentSection
+          groupId={groupId}
+          canManage={canManage && !isArchived}
+        />
       }
       defaultValue={
         defaultTab === "court-bookings" ? "court-bookings" : defaultTab

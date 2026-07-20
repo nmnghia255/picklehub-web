@@ -119,7 +119,7 @@ function InviteMemberDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent showCloseButton={false}>
         <form action={formAction}>
           <DialogHeader>
             <DialogTitle>

@@ -12,7 +12,7 @@ import { GroupCard } from "./group-card"
 import { GroupSearchControls } from "./group-search-controls"
 import { GroupsEmptyState } from "./groups-empty-state"
 
-type GroupListFilter = "all" | "active" | "archived"
+type GroupListFilter = "active" | "archived"
 
 type Props = {
   myGroups: Group[]
@@ -31,11 +31,7 @@ export function GroupsPageContent({ myGroups, myGroupsError = false }: Props) {
       return safeMyGroups.filter((group) => isArchivedGroup(group.status))
     }
 
-    if (groupFilter === "active") {
-      return safeMyGroups.filter((group) => !isArchivedGroup(group.status))
-    }
-
-    return safeMyGroups
+    return safeMyGroups.filter((group) => !isArchivedGroup(group.status))
   }, [groupFilter, myGroups])
 
   const filteredMyGroups = useMemo(() => {
@@ -105,9 +101,6 @@ export function GroupsPageContent({ myGroups, myGroupsError = false }: Props) {
           className="shrink-0"
         >
           <TabsList className="w-full sm:w-auto">
-            <TabsTrigger value="all">
-              {t("dashboard.tabAll", "Tất cả")}
-            </TabsTrigger>
             <TabsTrigger value="active">
               {t("dashboard.tabActive", "Đang hoạt động")}
             </TabsTrigger>

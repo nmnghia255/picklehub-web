@@ -192,7 +192,8 @@ export function GroupCourtBookingsSection({
 
     // Chỉ gửi title, note, bookingId theo API
     linkBookingMutation.mutate({
-      title: formTitle,
+      title:
+        formTitle.trim() || t("errors.defaultLinkBookingName", "Lịch đặt sân"),
       note: formNote,
       bookingId: formBookingId,
     })
@@ -501,7 +502,7 @@ export function GroupCourtBookingsSection({
 
       {/* Link Booking Dialog */}
       <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[500px]" showCloseButton={false}>
           <form onSubmit={handleLinkSubmit}>
             <DialogHeader>
               <DialogTitle>
@@ -518,13 +519,13 @@ export function GroupCourtBookingsSection({
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">
-                  {t("activitySchedule.formActivityName")}
+                  {t("errors.linkBookingName", "Tên liên kết đặt sân")}
                 </label>
                 <input
                   type="text"
                   placeholder={t(
-                    "activitySchedule.formActivityNamePlaceholder",
-                    "Ví dụ: Giao lưu sáng thứ 7"
+                    "errors.linkBookingNamePlaceholder",
+                    "Ví dụ: Giao lưu sáng thứ 7, Trận tối..."
                   )}
                   className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
                   value={formTitle}
@@ -534,11 +535,11 @@ export function GroupCourtBookingsSection({
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">
-                  {t("activitySchedule.formDescription")}
+                  {t("errors.linkBookingNote", "Ghi chú")}
                 </label>
                 <textarea
                   placeholder={t(
-                    "activitySchedule.formDescriptionPlaceholder",
+                    "errors.linkBookingNotePlaceholder",
                     "Nhập ghi chú cho nhóm nếu có..."
                   )}
                   className="min-h-20 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
@@ -622,7 +623,7 @@ export function GroupCourtBookingsSection({
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px]" showCloseButton={false}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="size-5" />
@@ -658,7 +659,10 @@ export function GroupCourtBookingsSection({
 
       {/* Detail Dialog */}
       <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[600px]">
+        <DialogContent
+          className="max-h-[85vh] overflow-y-auto sm:max-w-[600px]"
+          showCloseButton={false}
+        >
           {selectedBooking && (
             <div>
               <DialogHeader>

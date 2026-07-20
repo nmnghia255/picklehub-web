@@ -64,7 +64,7 @@ export function ArchiveGroupDialog({
           {t("dashboard.archiveGroupBtn", "Lưu trữ nhóm")}
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent showCloseButton={false}>
         <form action={formAction}>
           <DialogHeader>
             <DialogTitle>

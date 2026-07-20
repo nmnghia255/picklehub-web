@@ -345,9 +345,12 @@ function EquipmentFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[500px]">
+      <DialogContent
+        className="max-h-[90vh] overflow-y-auto sm:max-w-[500px]"
+        showCloseButton={false}
+      >
         <form onSubmit={handleSubmit}>
-          <DialogHeader>
+          <DialogHeader className="relative">
             <DialogTitle>
               {isEditing
                 ? t("equipment.editTitle", "Cập nhật vật dụng")
@@ -581,7 +584,7 @@ function EquipmentFormDialog({
             )}
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="relative">
             <Button
               type="button"
               variant="outline"
@@ -639,7 +642,7 @@ function DeleteConfirmDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-destructive">
             <AlertTriangle className="size-5" />
@@ -765,7 +768,7 @@ function LogUsageDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px]">
+      <DialogContent className="sm:max-w-[450px]" showCloseButton={false}>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>
@@ -901,7 +904,10 @@ function UsageHistoryDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[600px]">
+      <DialogContent
+        className="max-h-[85vh] overflow-y-auto sm:max-w-[600px]"
+        showCloseButton={false}
+      >
         <DialogHeader>
           <DialogTitle>
             {t("equipment.usageHistoryTitle", "Lịch sử sử dụng")}
@@ -1810,7 +1816,7 @@ function FavoriteFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px]">
+      <DialogContent className="sm:max-w-[450px]" showCloseButton={false}>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>
