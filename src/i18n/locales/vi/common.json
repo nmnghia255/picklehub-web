@@ -1492,9 +1492,9 @@
         "types": {
           "general": "Phân tích tổng quát",
           "serve": "Giao bóng",
-          "drive": "Drive",
-          "dink": "Dink",
-          "volley": "Volley"
+          "drive": "Cú đánh mạnh (Drive)",
+          "dink": "Cú đánh mềm (Dink)",
+          "volley": "Cú vô-lê (Volley)"
         },
         "promptLabel": "Yêu cầu bổ sung (không bắt buộc)",
         "promptPlaceholder": "Ví dụ: Tập trung phân tích bộ chân, điểm tiếp xúc bóng và động tác kết thúc.",
