@@ -68,7 +68,7 @@ import {
   updateEquipmentClient,
   updateEquipmentFavoriteClient,
 } from "../../api/equipment-client"
-import { getGroupClient, groupQueryKeys } from "../../api/groups-client"
+import { useGroupDetail } from "../../api/groups-client"
 import { useActionGuard } from "../../hooks/use-action-guard"
 import type {
   CreateEquipmentInput,
@@ -1028,11 +1028,7 @@ export function GroupEquipmentSection({
   const { t } = useGroupsTranslation()
   const queryClient = useQueryClient()
 
-  const { data: group } = useQuery({
-    queryKey: groupQueryKeys.detail(groupId),
-    queryFn: () => getGroupClient(groupId),
-    enabled: !!groupId,
-  })
+  const { data: group } = useGroupDetail(groupId)
 
   const { guardWriteAction, PermissionDialog } = useActionGuard(
     group,

@@ -1,13 +1,11 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
-
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 
 import {
-  getGroupClient,
   groupQueryKeys,
+  useGroupDetail,
   useSyncGroupData,
 } from "../../api/groups-client"
 import type { Group } from "../../types"
@@ -39,11 +37,7 @@ export function GroupDetailHeader({
   const queryKey = groupQueryKeys.detail(groupId)
   useSyncGroupData(queryKey, initialData)
 
-  const { data } = useQuery({
-    queryKey,
-    queryFn: () => getGroupClient(groupId),
-    initialData,
-  })
+  const { data } = useGroupDetail(groupId, initialData)
 
   const groupName = data?.name || initialData.name
   const groupStatus = data?.status || initialData.status

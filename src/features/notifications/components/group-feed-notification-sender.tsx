@@ -1,7 +1,6 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useQuery } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import { Bell, Loader2 } from "lucide-react"
 import { useState } from "react"
@@ -30,10 +29,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { notificationFeedAtom } from "@/features/feed/store/feed-store"
 import type { FeedNotification } from "@/features/feed/types"
-import {
-  getGroupClient,
-  groupQueryKeys,
-} from "@/features/groups/api/groups-client"
+import { useGroupDetail } from "@/features/groups/api/groups-client"
 import { useActionGuard } from "@/features/groups/hooks/use-action-guard"
 import { sendGroupFeedNotificationAction } from "@/features/notifications/actions/notifications"
 import { groupFeedNotificationsAtom } from "@/features/notifications/store/group-feed-store"
@@ -71,11 +67,7 @@ export function GroupFeedNotificationSender({
   const [, setNotifications] = useAtom(notificationFeedAtom)
   const [, setGroupNotifications] = useAtom(groupFeedNotificationsAtom)
   const { toast } = useToast()
-  const { data: group } = useQuery({
-    queryKey: groupQueryKeys.detail(groupId),
-    queryFn: () => getGroupClient(groupId),
-    enabled: !!groupId,
-  })
+  const { data: group } = useGroupDetail(groupId)
   const { guardWriteAction, PermissionDialog } = useActionGuard(
     group,
     group?.role

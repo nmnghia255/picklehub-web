@@ -7,6 +7,7 @@ import {
 } from "@/features/groups/api/groups-service"
 import { EditGroupDrawer } from "@/features/groups/components/details/edit-group-drawer"
 import { GroupDetailActionsMenu } from "@/features/groups/components/details/group-detail-actions-menu"
+import { GroupDetailDataProvider } from "@/features/groups/components/details/group-detail-data-provider"
 import { GroupDetailHeader } from "@/features/groups/components/details/group-detail-header"
 import { GroupDetailPanels } from "@/features/groups/components/details/group-detail-panels"
 import { GroupSubscriptionBanner } from "@/features/groups/components/details/group-subscription-banner"
@@ -83,48 +84,50 @@ export default async function GroupDetailPage({
 
   return (
     <PageContainer variant="wide" className="space-y-6">
-      <GroupSubscriptionBanner group={group} currentUserRole={group.role} />
-      <div className="border-b pb-4 lg:pb-5">
-        <GroupDetailHeader
-          groupId={groupId}
-          initialData={group}
-          actions={
-            <>
-              {!archived && canManage && (
-                <GroupFeedNotificationSender
-                  groupId={groupId}
-                  groupName={group.name}
-                  canSend={canManage}
+      <GroupDetailDataProvider groupId={groupId} group={group}>
+        <GroupSubscriptionBanner group={group} currentUserRole={group.role} />
+        <div className="border-b pb-4 lg:pb-5">
+          <GroupDetailHeader
+            groupId={groupId}
+            initialData={group}
+            actions={
+              <>
+                {!archived && canManage && (
+                  <GroupFeedNotificationSender
+                    groupId={groupId}
+                    groupName={group.name}
+                    canSend={canManage}
+                  />
+                )}
+                {!archived && canManage && <EditGroupDrawer group={group} />}
+                {!archived && canManage && (
+                  <GroupInviteMemberButton
+                    groupId={groupId}
+                    groupName={group.name}
+                  />
+                )}
+                <GroupDetailActionsMenu
+                  group={group}
+                  isOwner={isOwner}
+                  isArchived={archived}
                 />
-              )}
-              {!archived && canManage && <EditGroupDrawer group={group} />}
-              {!archived && canManage && (
-                <GroupInviteMemberButton
-                  groupId={groupId}
-                  groupName={group.name}
-                />
-              )}
-              <GroupDetailActionsMenu
-                group={group}
-                isOwner={isOwner}
-                isArchived={archived}
-              />
-            </>
-          }
-        />
-      </div>
+              </>
+            }
+          />
+        </div>
 
-      <div className="w-full min-w-0">
-        <GroupDetailPanels
-          groupId={groupId}
-          group={group}
-          members={members}
-          currentUserId={session.user?.id ?? ""}
-          currentUserRole={group.role ?? null}
-          invitations={invitations}
-          defaultTab={defaultTab}
-        />
-      </div>
+        <div className="w-full min-w-0">
+          <GroupDetailPanels
+            groupId={groupId}
+            group={group}
+            members={members}
+            currentUserId={session.user?.id ?? ""}
+            currentUserRole={group.role ?? null}
+            invitations={invitations}
+            defaultTab={defaultTab}
+          />
+        </div>
+      </GroupDetailDataProvider>
     </PageContainer>
   )
 }

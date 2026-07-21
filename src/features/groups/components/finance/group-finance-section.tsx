@@ -33,9 +33,9 @@ import {
   listTransactionsClient,
 } from "../../api/finance-client"
 import {
-  getGroupClient,
   getGroupMembersClient,
   groupQueryKeys,
+  useGroupDetail,
 } from "../../api/groups-client"
 import { useActionGuard } from "../../hooks/use-action-guard"
 import { useGroupDebts } from "../../hooks/use-group-debts"
@@ -203,9 +203,7 @@ export function GroupFinanceSection({
   const activeTab = useGroupDetailActiveTab()
   const isFinanceActive = activeTab === "finance"
 
-  const { data: group } = useQuery({
-    queryKey: groupQueryKeys.detail(groupId),
-    queryFn: () => getGroupClient(groupId),
+  const { data: group } = useGroupDetail(groupId, undefined, {
     enabled: isFinanceActive,
   })
 

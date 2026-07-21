@@ -36,8 +36,8 @@ import {
 import {
   cancelCourtBookingClient,
   checkCancelEligibilityClient,
-  getGroupClient,
   groupQueryKeys,
+  useGroupDetail,
 } from "@/features/groups/public/group-activity-integration"
 import { useActionGuard } from "@/features/groups/public/group-activity-integration"
 import { useGroupsTranslation } from "@/i18n/use-groups-translation"
@@ -114,11 +114,7 @@ export function GroupActivitySchedulePage({
   const [checkingEligibility, setCheckingEligibility] = useState(false)
 
   // Queries
-  const { data: group } = useQuery({
-    queryKey: groupQueryKeys.detail(groupId),
-    queryFn: () => getGroupClient(groupId),
-    enabled: !!groupId,
-  })
+  const { data: group } = useGroupDetail(groupId)
 
   const { guardWriteAction, PermissionDialog, hasValidSubscription } =
     useActionGuard(group, currentUserRole)

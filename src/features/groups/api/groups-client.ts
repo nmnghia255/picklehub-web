@@ -1,5 +1,12 @@
-import { useQueryClient } from "@tanstack/react-query"
-import { useCallback, useEffect } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import {
+  createContext,
+  createElement,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+} from "react"
 
 import type { Group, Invitation, Member, PaginatedResponse } from "../types"
 import { financeQueryKeys } from "./finance-client"
@@ -8,8 +15,69 @@ import { groupQueryKeys } from "./group-query-keys"
 
 export { groupQueryKeys }
 
-export async function getGroupClient(groupId: string): Promise<Group> {
-  return fetchGroupJson<Group>(`/api/groups/${groupId}`)
+interface GroupDetailDataProviderProps {
+  groupId: string
+  group: Group
+  children: ReactNode
+}
+
+interface GroupDetailContextValue {
+  groupId: string
+  group: Group
+}
+
+interface UseGroupDetailOptions {
+  enabled?: boolean
+}
+
+const GroupDetailContext = createContext<GroupDetailContextValue | null>(null)
+
+export function GroupDetailDataProvider({
+  groupId,
+  group,
+  children,
+}: GroupDetailDataProviderProps) {
+  const queryClient = useQueryClient()
+  const queryKey = groupQueryKeys.detail(groupId)
+
+  useEffect(() => {
+    queryClient.setQueryData(queryKey, group)
+  }, [group, queryClient, queryKey])
+
+  return createElement(
+    GroupDetailContext.Provider,
+    { value: { groupId, group } },
+    children
+  )
+}
+
+export function useGroupDetail(
+  groupId: string,
+  fallbackGroup?: Group,
+  options: UseGroupDetailOptions = {}
+): ReturnType<typeof useQuery<Group>> {
+  const queryClient = useQueryClient()
+  const context = useContext(GroupDetailContext)
+  const queryKey = groupQueryKeys.detail(groupId)
+  const cachedGroup = queryClient.getQueryData<Group>(queryKey)
+  const initialGroup =
+    context?.groupId === groupId ? context.group : fallbackGroup
+  const group = initialGroup ?? cachedGroup
+
+  return useQuery<Group>({
+    queryKey,
+    enabled: Boolean(groupId && group && options.enabled !== false),
+    initialData: group,
+    queryFn: async () => {
+      const currentGroup = queryClient.getQueryData<Group>(queryKey) ?? group
+
+      if (!currentGroup) {
+        throw new Error("Group detail data is unavailable")
+      }
+
+      return currentGroup
+    },
+  })
 }
 
 export async function getGroupMembersClient(

@@ -1,6 +1,5 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
 import { Mail } from "lucide-react"
 import { useActionState, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -19,11 +18,7 @@ import { Input } from "@/components/ui/input"
 import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import { type GroupActionState, inviteToGroupAction } from "../../actions"
-import {
-  getGroupClient,
-  groupQueryKeys,
-  useGroupInvalidation,
-} from "../../api/groups-client"
+import { useGroupDetail, useGroupInvalidation } from "../../api/groups-client"
 import { useActionGuard } from "../../hooks/use-action-guard"
 
 interface GroupInviteMemberButtonProps {
@@ -38,11 +33,7 @@ export function GroupInviteMemberButton({
   const { t } = useGroupsTranslation()
   const [open, setOpen] = useState(false)
 
-  const { data: group } = useQuery({
-    queryKey: groupQueryKeys.detail(groupId),
-    queryFn: () => getGroupClient(groupId),
-    enabled: !!groupId,
-  })
+  const { data: group } = useGroupDetail(groupId)
 
   const { guardWriteAction, PermissionDialog } = useActionGuard(
     group,

@@ -44,12 +44,12 @@ import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import {
-  getGroupClient,
   getMyBookingsClient,
   groupQueryKeys,
   linkGroupCourtBookingClient,
   listGroupCourtBookingsClient,
   unlinkGroupCourtBookingClient,
+  useGroupDetail,
   useGroupInvalidation,
 } from "../../api/groups-client"
 import { useActionGuard } from "../../hooks/use-action-guard"
@@ -94,11 +94,7 @@ export function GroupCourtBookingsSection({
   const { t } = useGroupsTranslation()
   const { invalidateCourtBookings } = useGroupInvalidation(groupId)
 
-  const { data: group } = useQuery({
-    queryKey: groupQueryKeys.detail(groupId),
-    queryFn: () => getGroupClient(groupId),
-    enabled: !!groupId,
-  })
+  const { data: group } = useGroupDetail(groupId)
 
   const { guardWriteAction, PermissionDialog } = useActionGuard(
     group,
