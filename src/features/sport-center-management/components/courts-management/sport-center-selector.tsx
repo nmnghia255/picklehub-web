@@ -31,7 +31,7 @@ export function SportCenterSelector() {
 
   useEffect(() => {
     fetchSportCenters()
-  }, [])
+  }, [fetchSportCenters])
 
   const selectedCenter = sportCenters.find((c) => c.id === centerId)
   const displayName =

@@ -32,10 +32,15 @@ interface OpenChatButtonProps {
 
 function getChatErrorMessage(
   error: unknown,
-  t: (key: string, options?: Record<string, unknown>) => string
+  t: (key: string, options?: Record<string, unknown>) => string,
+  kind: OpenChatKind
 ) {
   const chatError = error as ChatApiError | null
   const body = chatError?.body
+
+  if (kind === "social" && chatError?.status === 404) {
+    return t("chat.errors.socialNotFound")
+  }
 
   if (body && typeof body === "object" && "message" in body) {
     const message = body.message
@@ -101,7 +106,7 @@ export function OpenChatButton({
       router.push(`/chat?conversationId=${conversation.id}`)
     },
     onError: (error) => {
-      toast.error(getChatErrorMessage(error, t))
+      toast.error(getChatErrorMessage(error, t, kind))
     },
   })
 

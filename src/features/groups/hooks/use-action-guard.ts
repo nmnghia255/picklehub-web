@@ -99,7 +99,7 @@ export function useActionGuard(
         })
       }
     },
-    [canWrite, hasValidSubscription, isOwner, isMember]
+    [canWrite, hasValidSubscription, isOwner, isMember, t]
   )
 
   // Bound dialog component to render at root level of parent

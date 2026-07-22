@@ -154,47 +154,11 @@ export const chatClient = {
     }
   },
 
-  createSocialConversation: async (input: OpenSocialConversationInput) => {
-    try {
-      return await chatFetch<Conversation>("/conversations/social", {
-        method: "POST",
-        body: JSON.stringify(input),
-      })
-    } catch (err: unknown) {
-      const error = err as ChatApiError
-      if (error.status === 404) {
-        try {
-          return await chatFetch<Conversation>("/conversations/socials", {
-            method: "POST",
-            body: JSON.stringify(input),
-          })
-        } catch {
-          try {
-            return await chatFetch<Conversation>("/conversations", {
-              method: "POST",
-              body: JSON.stringify({
-                type: "SOCIAL",
-                socialId: input.socialId,
-              }),
-            })
-          } catch {
-            try {
-              const list = await chatClient.listConversations({ limit: 50 })
-              const existing = list.data?.find(
-                (c) =>
-                  c.socialId === input.socialId ||
-                  c.social?.id === input.socialId
-              )
-              if (existing) return existing
-            } catch {
-              // ignore
-            }
-          }
-        }
-      }
-      throw err
-    }
-  },
+  createSocialConversation: (input: OpenSocialConversationInput) =>
+    chatFetch<Conversation>("/conversations/social", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
 
   createTournamentConversation: async (
     input: OpenTournamentConversationInput

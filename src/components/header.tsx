@@ -28,13 +28,11 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { notificationFeedAtom } from "@/features/feed/store/feed-store"
 import { markUserNotificationsRead } from "@/features/notifications/actions/user-notifications"
-import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import type { SessionUser } from "@/lib/session"
 
 export interface HeaderProps {
@@ -49,8 +47,6 @@ export function Header({ user }: HeaderProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [notifications, setNotifications] = useAtom(notificationFeedAtom)
-
-  const { data: subscriptions } = useMySubscriptions()
 
   useLayoutEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect

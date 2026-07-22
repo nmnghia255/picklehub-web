@@ -223,7 +223,7 @@ export function CoachProfileForm() {
     }
   }, [certPreviewUrl])
 
-  const certifications = certs ?? []
+  const certifications = useMemo(() => certs ?? [], [certs])
   const skillOptions = getSkillOptions(t)
 
   useEffect(() => {

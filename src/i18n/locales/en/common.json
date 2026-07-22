@@ -361,6 +361,13 @@
       "errorDescription": "An error occurred while loading chat data.",
       "retry": "Try again"
     },
+    "errors": {
+      "socialNotFound": "Unable to open the conversation for this Social. Please try again later.",
+      "unauthorized": "You need to sign in to open this conversation.",
+      "forbidden": "You do not have permission to open this conversation.",
+      "invalidRequest": "The conversation request is invalid.",
+      "generic": "Unable to open the conversation. Please try again later."
+    },
     "connection": {
       "connected": "Connected",
       "reconnecting": "Reconnecting...",
@@ -1407,15 +1414,7 @@
       },
       "schedule": {
         "errorTitle": "Cannot load schedule",
-        "weekDays": [
-          "Mon",
-          "Tue",
-          "Wed",
-          "Thu",
-          "Fri",
-          "Sat",
-          "Sun"
-        ],
+        "weekDays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
         "learnerCount": "{{count}} learners",
         "noLocation": "No location",
         "emptyDay": "Empty",

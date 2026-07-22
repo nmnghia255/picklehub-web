@@ -405,7 +405,7 @@ export function LearnerSchedule() {
   const { data, isLoading, error, refetch } = useLearnerSchedule(params, {
     enabled: !!session?.user,
   })
-  const items = data?.data ?? []
+  const items = useMemo(() => data?.data ?? [], [data?.data])
   const pagination = data?.pagination
   const monthStart = useMemo(() => startOfMonth(currentDate), [currentDate])
   const monthEnd = useMemo(() => endOfMonth(currentDate), [currentDate])

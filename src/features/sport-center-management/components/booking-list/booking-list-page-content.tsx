@@ -115,6 +115,7 @@ export function BookingListPageContent({
     setBookings,
     setIsLoadingBookings,
     setLoadError,
+    t,
   ])
 
   const selectedCenter = useMemo(

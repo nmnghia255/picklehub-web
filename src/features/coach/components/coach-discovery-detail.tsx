@@ -736,7 +736,7 @@ function ScheduleTab({ coachId }: { coachId: string }) {
     if (toDate)
       result = result.filter((it) => it.startsAt.slice(0, 10) <= toDate)
     return result
-  }, [data?.data, search, kind, state, fromDate, toDate])
+  }, [data?.data, search, kind, fromDate, toDate])
 
   /* ── Navigation handlers ── */
 

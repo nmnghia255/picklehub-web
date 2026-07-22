@@ -1,19 +1,9 @@
 "use client"
 
-import {
-  Activity,
-  ArrowRight,
-  CheckCircle2,
-  Play,
-  ShieldCheck,
-  Sparkles,
-  Trophy,
-  Users,
-} from "lucide-react"
+import { ArrowRight, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 
 export function LandingHero() {

@@ -269,7 +269,7 @@ export function CoachWeekSchedule() {
     { enabled: !!session?.user }
   )
 
-  const items = data?.data ?? []
+  const items = useMemo(() => data?.data ?? [], [data?.data])
   const totalPages = data?.pagination?.totalPages ?? 1
 
   const gridDays = useMemo(() => {
