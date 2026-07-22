@@ -123,28 +123,132 @@ export const chatClient = {
       body: JSON.stringify(input),
     }),
 
-  createGroupConversation: (input: OpenGroupConversationInput) =>
-    chatFetch<Conversation>("/conversations/group", {
-      method: "POST",
-      body: JSON.stringify(input),
-    }),
+  createGroupConversation: async (input: OpenGroupConversationInput) => {
+    try {
+      return await chatFetch<Conversation>("/conversations/group", {
+        method: "POST",
+        body: JSON.stringify(input),
+      })
+    } catch (err: unknown) {
+      const error = err as ChatApiError
+      if (error.status === 404) {
+        try {
+          return await chatFetch<Conversation>("/conversations/groups", {
+            method: "POST",
+            body: JSON.stringify(input),
+          })
+        } catch {
+          try {
+            const list = await chatClient.listConversations({ limit: 50 })
+            const existing = list.data?.find(
+              (c) =>
+                c.groupId === input.groupId || c.group?.id === input.groupId
+            )
+            if (existing) return existing
+          } catch {
+            // ignore
+          }
+        }
+      }
+      throw err
+    }
+  },
 
-  createSocialConversation: (input: OpenSocialConversationInput) =>
-    chatFetch<Conversation>("/conversations/social", {
-      method: "POST",
-      body: JSON.stringify(input),
-    }),
+  createSocialConversation: async (input: OpenSocialConversationInput) => {
+    try {
+      return await chatFetch<Conversation>("/conversations/social", {
+        method: "POST",
+        body: JSON.stringify(input),
+      })
+    } catch (err: unknown) {
+      const error = err as ChatApiError
+      if (error.status === 404) {
+        try {
+          return await chatFetch<Conversation>("/conversations/socials", {
+            method: "POST",
+            body: JSON.stringify(input),
+          })
+        } catch {
+          try {
+            return await chatFetch<Conversation>("/conversations", {
+              method: "POST",
+              body: JSON.stringify({
+                type: "SOCIAL",
+                socialId: input.socialId,
+              }),
+            })
+          } catch {
+            try {
+              const list = await chatClient.listConversations({ limit: 50 })
+              const existing = list.data?.find(
+                (c) =>
+                  c.socialId === input.socialId ||
+                  c.social?.id === input.socialId
+              )
+              if (existing) return existing
+            } catch {
+              // ignore
+            }
+          }
+        }
+      }
+      throw err
+    }
+  },
 
-  createTournamentConversation: (input: OpenTournamentConversationInput) =>
-    chatFetch<Conversation>("/conversations/tournament", {
-      method: "POST",
-      body: JSON.stringify(input),
-    }),
+  createTournamentConversation: async (
+    input: OpenTournamentConversationInput
+  ) => {
+    try {
+      return await chatFetch<Conversation>("/conversations/tournament", {
+        method: "POST",
+        body: JSON.stringify(input),
+      })
+    } catch (err: unknown) {
+      const error = err as ChatApiError
+      if (error.status === 404) {
+        try {
+          return await chatFetch<Conversation>("/conversations/tournaments", {
+            method: "POST",
+            body: JSON.stringify(input),
+          })
+        } catch {
+          try {
+            const list = await chatClient.listConversations({ limit: 50 })
+            const existing = list.data?.find(
+              (c) =>
+                c.tournamentId === input.tournamentId ||
+                c.tournament?.id === input.tournamentId
+            )
+            if (existing) return existing
+          } catch {
+            // ignore
+          }
+        }
+      }
+      throw err
+    }
+  },
 
-  getConversation: (conversationId: string) =>
-    chatFetch<Conversation>(`/conversations/${conversationId}`, {
-      method: "GET",
-    }),
+  getConversation: async (conversationId: string) => {
+    try {
+      return await chatFetch<Conversation>(`/conversations/${conversationId}`, {
+        method: "GET",
+      })
+    } catch (err: unknown) {
+      const error = err as ChatApiError
+      if (error.status === 404) {
+        try {
+          const list = await chatClient.listConversations({ limit: 50 })
+          const existing = list.data?.find((c) => c.id === conversationId)
+          if (existing) return existing
+        } catch {
+          // ignore
+        }
+      }
+      throw err
+    }
+  },
 
   hideConversation: (conversationId: string) =>
     chatFetch<{ message: string }>(`/conversations/${conversationId}`, {

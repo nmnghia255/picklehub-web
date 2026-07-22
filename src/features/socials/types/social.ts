@@ -1,4 +1,4 @@
-import type { PaymentStatus } from "./payment"
+import type { PaymentStatus, TransactionStatus } from "./payment"
 import type { PlaySession } from "./play-session"
 
 export type GenderPolicy = "ANY" | "MALE_ONLY" | "FEMALE_ONLY" | "MIXED_ONLY"
@@ -22,6 +22,8 @@ export type SocialParticipantStatus =
   | "REJECTED"
   | "CANCELLED"
   | "LEFT"
+
+export type TransactionType = "PAYMENT" | "REFUND"
 
 export interface CreateSocialRequest {
   title: string
@@ -203,7 +205,7 @@ export interface SocialDetail {
   hostRole: string
   cancellationFreezeHours: number | null
   maxSlots: number
-  joinedCount: 8
+  joinedCount: number
   status: SocialStatus
   creatorId: string
   createdAt: string
@@ -214,7 +216,7 @@ export interface SocialDetail {
     playSessions: number
   }
   playSessions: PlaySession[]
-  isHost: true
+  isHost: boolean
   myParticipantInfo: ParticipantInfo
 }
 
@@ -224,7 +226,7 @@ export interface Payment {
   amount: number
   receiptUrl: string | null
   status: PaymentStatus
-  transactionType: string
+  transactionType: TransactionType
   createdById: string
   verifiedById: string
   createdAt: string

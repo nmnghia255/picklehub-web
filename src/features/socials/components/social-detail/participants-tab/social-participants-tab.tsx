@@ -147,7 +147,7 @@ export default function SocialParticipantsTab({
                     suppressHydrationWarning
                   >
                     {t("detail.joinedOn", {
-                      date: format(new Date(participant.joinedAt), "MMM d"),
+                      date: format(new Date(participant.joinedAt), "dd/MM"),
                     })}
                   </p>
 

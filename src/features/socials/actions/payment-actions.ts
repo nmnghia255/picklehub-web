@@ -1,7 +1,7 @@
 "use server"
 
 import { PaymentService } from "../api/payment-service"
-import type { PaymentStatus } from "../types/payment"
+import type { TransactionStatus } from "../types/payment"
 
 export async function submitPaymentAction(
   socialId: string,
@@ -15,7 +15,7 @@ export async function verifyPaymentAction(
   socialId: string,
   participantId: string,
   paymentId: string,
-  status: PaymentStatus,
+  status: TransactionStatus,
   amountPaid: number
 ) {
   return PaymentService.verifyPayment(

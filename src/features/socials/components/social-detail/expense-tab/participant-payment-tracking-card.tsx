@@ -1,6 +1,5 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
 import { Check, HandCoins, MoreHorizontal, Search, Undo } from "lucide-react"
 import React, { useState } from "react"
 
@@ -37,7 +36,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { listSocialParticipantsAction } from "@/features/socials/actions/social-participant-actions"
 import { getPaymentStatusLabel } from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd, getPaymentStatusTone } from "@/utils/expense-utils"
@@ -205,11 +203,6 @@ export function ParticipantPaymentTrackingCard({
                     >
                       <TableCell className="px-6 py-4 font-medium">
                         {row.user.name || t("common.unknownUser")}
-                        {row.isHost && (
-                          <Badge variant="outline" className="ml-2 text-[10px]">
-                            {t("common.host")}
-                          </Badge>
-                        )}
                       </TableCell>
                       <TableCell className="px-6 py-4 text-muted-foreground">
                         {formatCurrencyVnd(row.totalFee)}
@@ -233,23 +226,6 @@ export function ParticipantPaymentTrackingCard({
                           >
                             {getPaymentStatusLabel(row.paymentStatus, t)}
                           </Badge>
-                          {row.payments?.[0]?.receiptUrl && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                openVerifyPayment(row)
-                              }}
-                              disabled={isCompleted}
-                              className="group relative flex h-7 w-6 items-center justify-center overflow-hidden rounded-[4px] border border-border/50 bg-muted/50 shadow-xs transition-colors hover:border-primary/50 disabled:pointer-events-none disabled:opacity-50"
-                              title={t("expenses.tracking.viewReceipt")}
-                            >
-                              <img
-                                src={row.payments[0].receiptUrl}
-                                alt={t("expenses.tracking.paymentProof")}
-                                className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
-                              />
-                            </button>
-                          )}
                         </div>
                       </TableCell>
                       <TableCell

@@ -136,7 +136,11 @@
       "results_one": "{{count}} result",
       "results_other": "{{count}} results",
       "stickyHeaderEnabled": "Sticky header enabled",
-      "unpaid": "Unpaid"
+      "unpaid": "Unpaid",
+      "paymentHistory": "Payment History",
+      "noPaymentHistory": "No payment transactions yet",
+      "transactionPayment": "Payment",
+      "transactionRefund": "Refund"
     },
     "verifyPaymentDialog": {
       "title": "Verify payment",

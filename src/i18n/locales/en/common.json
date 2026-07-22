@@ -1,5 +1,108 @@
 {
   "brand": "PickleHub",
+  "landing": {
+    "header": {
+      "signIn": "Sign In",
+      "getStarted": "Get Started",
+      "features": "Features",
+      "tournaments": "Tournaments",
+      "socials": "Social Play",
+      "courts": "Courts",
+      "themeToggle": "Toggle theme",
+      "switchToLight": "Switch to light theme",
+      "switchToDark": "Switch to dark theme",
+      "languageToggle": "Switch language"
+    },
+    "hero": {
+      "badge": "The Ultimate Pickleball Ecosystem",
+      "titlePrefix": "Connect, Play & Compete in the",
+      "titleHighlight": "Pickleball Revolution",
+      "description": "The modern platform for pickleball players, hosts, and tournament directors. Organize socials, book courts, track ratings, and manage tournaments effortlessly.",
+      "cta": "Get Started Free",
+      "secondaryCta": "Explore Social Play",
+      "stats": {
+        "players": "Active Players",
+        "tournaments": "Tournaments",
+        "courts": "Sport Centers",
+        "rating": "User Rating"
+      },
+      "preview": {
+        "liveSocial": "Live Social Session",
+        "joinedPlayers": "12/16 Joined",
+        "duprAvg": "3.5 DUPR Avg",
+        "matchStatus": "In Progress - Court 2",
+        "score": "11 - 9",
+        "verifiedBadge": "Instant Verification"
+      }
+    },
+    "features": {
+      "badge": "Everything You Need",
+      "title": "Built for Players, Hosts & Tournament Directors",
+      "description": "Comprehensive tools designed specifically for the fastest-growing sport in the world.",
+      "learnMore": "Learn more",
+      "items": {
+        "tournament": {
+          "title": "Tournaments & Brackets",
+          "description": "Automated double-elimination, round-robin brackets, referee management, and live match scoring."
+        },
+        "community": {
+          "title": "Social Play & Groups",
+          "description": "Easily organize social play sessions, track participant payments, and split expenses automatically."
+        },
+        "analytics": {
+          "title": "Performance Analytics",
+          "description": "Track win ratios, DUPR rating sync, match history, and detailed player performance metrics."
+        },
+        "ai": {
+          "title": "Smart Matchmaking",
+          "description": "AI-powered skill matching ensures balanced, competitive, and enjoyable play for all skill levels."
+        },
+        "equipment": {
+          "title": "Court & Center Booking",
+          "description": "Reserve courts instantly, manage sport center schedules, and view real-time availability."
+        },
+        "groups": {
+          "title": "Learner & Coach Hub",
+          "description": "Connect with certified IPTPA coaches, book private lessons, and join training programs."
+        }
+      }
+    },
+    "howItWorks": {
+      "badge": "Simple & Fast",
+      "title": "How PickleHub Works",
+      "subtitle": "Get on the court and start playing in three simple steps",
+      "stepLabel": "Step {{number}}",
+      "step1Title": "1. Create Your Profile",
+      "step1Desc": "Sign up in seconds, set your skill rating, and customize your playing preferences.",
+      "step2Title": "2. Join Socials or Book Courts",
+      "step2Desc": "Find nearby social sessions, join matches with players at your level, or reserve courts.",
+      "step3Title": "3. Play & Elevate Your Game",
+      "step3Desc": "Log match results, earn rating badges, and climb the local leaderboard."
+    },
+    "ctaSection": {
+      "badge": "Join the Community Today",
+      "title": "Ready to Elevate Your Pickleball Experience?",
+      "description": "Join thousands of players and directors on PickleHub today. Free to get started.",
+      "button": "Create Free Account Now"
+    },
+    "footer": {
+      "description": "PickleHub is the premier digital platform connecting pickleball players, coaches, hosts, and sport centers.",
+      "sections": {
+        "company": "Platform",
+        "legal": "Legal",
+        "support": "Support"
+      },
+      "links": {
+        "about": "About Us",
+        "blog": "Community Blog",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "contact": "Contact Us",
+        "faq": "Help & FAQ"
+      },
+      "copyright": "© {{year}} PickleHub. All rights reserved."
+    }
+  },
   "delete": "Delete",
   "settings": {
     "title": "Settings",
@@ -216,21 +319,21 @@
       "title": "Conversations",
       "subtitle": "{{count}} unread"
     },
-  "conversationList": {
-    "searchPlaceholder": "Search conversations...",
-    "emptyState": "No conversations found.",
-    "emptyHint": "Try a different keyword or start a new conversation.",
-    "loadMore": "Load more",
-    "noPreview": "No messages yet"
-  },
-  "emptyState": {
-    "title": "Select a conversation to start",
-    "description": "Message friends, groups, socials, and tournaments."
-  },
-  "conversationTypes": {
-    "direct": "Direct",
-    "group": "Group",
-    "social": "Social",
+    "conversationList": {
+      "searchPlaceholder": "Search conversations...",
+      "emptyState": "No conversations found.",
+      "emptyHint": "Try a different keyword or start a new conversation.",
+      "loadMore": "Load more",
+      "noPreview": "No messages yet"
+    },
+    "emptyState": {
+      "title": "Select a conversation to start",
+      "description": "Message friends, groups, socials, and tournaments."
+    },
+    "conversationTypes": {
+      "direct": "Direct",
+      "group": "Group",
+      "social": "Social",
       "tournament": "Tournament"
     },
     "meta": {
@@ -285,14 +388,14 @@
       "groupPrefix": "Group: {{name}}",
       "you": "You"
     },
-  "composer": {
-    "imageButton": "Image",
-    "emojiButton": "Emoji",
-    "messagePlaceholder": "Type a message...",
-    "hint": "Press Ctrl+Enter to send.",
-    "remaining": "{{count}} characters left",
-    "uploadImage": "Upload image",
-    "placeholder": "Type a message...",
+    "composer": {
+      "imageButton": "Image",
+      "emojiButton": "Emoji",
+      "messagePlaceholder": "Type a message...",
+      "hint": "Press Ctrl+Enter to send.",
+      "remaining": "{{count}} characters left",
+      "uploadImage": "Upload image",
+      "placeholder": "Type a message...",
       "send": "Send"
     },
     "dialog": {
@@ -416,120 +519,6 @@
       "description": "You have {{count}} pending invites from other groups.",
       "invitedBy": "Invite from {{name}}",
       "noInvites": "No pending invites."
-    }
-  },
-  "landing": {
-    "header": {
-      "switchToLight": "Switch to light mode",
-      "switchToDark": "Switch to dark mode",
-      "themeToggle": "Toggle theme"
-    },
-    "hero": {
-      "titlePrefix": "A Complete Platform For",
-      "titleHighlight": "The Pickleball Community",
-      "description": "PickleHub connects players, coaches, sports equipment businesses, and tournament organizers. With integrated AI and LLM support, the platform provides management, interaction, and advanced analytics services that create a more personalized and effective experience for every audience.",
-      "cta": "Join Now"
-    },
-    "features": {
-      "title": "Core Features",
-      "description": "A full-service platform that supports every role in the pickleball community.",
-      "items": {
-        "tournament": {
-          "title": "Tournament Management",
-          "description": "Create, manage, and track tournaments with smart brackets."
-        },
-        "community": {
-          "title": "Community Interaction",
-          "description": "Connect players, coaches, businesses, and tournament organizers."
-        },
-        "analytics": {
-          "title": "Performance Analytics",
-          "description": "Analyze match data, personal statistics, and performance trends in detail."
-        },
-        "ai": {
-          "title": "AI Assistant",
-          "description": "Get strategic guidance, advanced analysis, and management support from AI."
-        },
-        "equipment": {
-          "title": "Equipment Management",
-          "description": "Manage, sell, and share information about specialized sports equipment."
-        },
-        "groups": {
-          "title": "Specialized Groups",
-          "description": "Create dedicated groups for coaching, business, and tournament operations."
-  }
-    },
-    "footer": {
-      "description": "Manage groups and share with ease.",
-      "sections": {
-        "company": "Company",
-        "legal": "Legal",
-        "support": "Support"
-      },
-      "links": {
-        "about": "About Us",
-        "blog": "Blog",
-        "privacy": "Privacy Policy",
-        "terms": "Terms of Service",
-        "contact": "Contact",
-        "faq": "FAQ"
-      },
-      "copyright": "© {{year}} PickleHub. All rights reserved."
-    }
-  },
-  "home": {
-    "welcome": {
-      "title": "Welcome, {{name}}! 👋",
-      "description": "This is your home dashboard, where you can manage groups and friends."
-    },
-    "groups": {
-      "title": "My groups",
-      "description": "Groups you manage or have joined."
-    }
-  },
-  "dashboard": {
-    "stats": {
-      "groups": "Groups",
-      "members": "Members",
-      "pendingInvites": "Pending invites"
-    },
-    "quickActions": {
-      "createGroup": {
-        "title": "Create a new group",
-        "description": "Start a new group for your community.",
-        "button": "Create group"
-      },
-      "myGroups": {
-        "title": "My groups",
-        "description": "See every group you belong to.",
-        "button": "View groups"
-      },
-      "profile": {
-        "title": "Profile",
-        "description": "Manage your personal information.",
-        "button": "View profile"
-      }
-    },
-    "groups": {
-      "loading": "Loading group data...",
-      "emptyTitle": "No groups yet",
-      "emptyDescription": "Start by creating a group to share with friends.",
-      "createButton": "Create a group",
-      "viewDetails": "View details",
-      "settings": "Settings",
-      "members": "{{count}} members",
-      "role": {
-        "owner": "Owner",
-        "member": "Member"
-      }
-    },
-    "pendingInvites": {
-      "loading": "Loading group invites...",
-      "title": "Pending invites to review",
-      "description": "You have {{count}} pending invites from other groups.",
-      "invitedBy": "Invite from {{name}}",
-      "decline": "Decline",
-      "accept": "Accept"
     }
   },
   "feed": {
@@ -2202,5 +2191,4 @@
     "sessionCardDesc": "Log out of this device when you are no longer using it.",
     "logoutBtn": "Log Out"
   }
-}
 }

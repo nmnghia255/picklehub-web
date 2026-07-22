@@ -41,7 +41,7 @@ export default function SocialCard({ social, onClick }: SocialCardProps) {
 
         {social.isHost && (
           <Badge
-            className={`absolute top-3 left-3 border-sky-200 bg-sky-50 font-semibold text-sky-700`}
+            className={`absolute top-3 left-3 border-sky-200 bg-sky-50 font-semibold text-sky-700 dark:border-sky-800 dark:bg-sky-950/80 dark:text-sky-300`}
           >
             {t("badges.hosting")}
           </Badge>
@@ -59,7 +59,7 @@ export default function SocialCard({ social, onClick }: SocialCardProps) {
       <CardHeader className="space-y-0 pt-6 pb-0">
         <div className="flex items-start justify-between gap-3">
           <h2
-            className={`line-clamp-1 text-lg font-semibold tracking-tight transition-colors`}
+            className={`line-clamp-1 text-lg font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary dark:group-hover:text-emerald-400`}
           >
             {social.title}
           </h2>
@@ -85,7 +85,7 @@ export default function SocialCard({ social, onClick }: SocialCardProps) {
           {social.isFree && (
             <Badge
               variant="default"
-              className={`${TOURNAMENT_THEME.badge.success} hover:bg-emerald-100`}
+              className={`${TOURNAMENT_THEME.badge.success} hover:bg-emerald-100 dark:hover:bg-emerald-900/60`}
             >
               {t("listing.free")}
             </Badge>
@@ -94,19 +94,19 @@ export default function SocialCard({ social, onClick }: SocialCardProps) {
 
         <div className="space-y-3 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <Calendar className="size-4 text-blue-500" />
+            <Calendar className="size-4 text-blue-500 dark:text-blue-400" />
             <span>
               {format(new Date(social.startTime), "dd/MM/yyyy HH:mm")}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <Activity className="size-4 text-purple-500" />
+            <Activity className="size-4 text-purple-500 dark:text-purple-400" />
             <span>
               {t("listing.sessionCount", { count: social._count.playSessions })}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <Users className="size-4 text-emerald-500" />
+            <Users className="size-4 text-emerald-500 dark:text-emerald-400" />
             <span>
               {social.joinedCount} {t("listing.participants")}
             </span>
@@ -116,8 +116,12 @@ export default function SocialCard({ social, onClick }: SocialCardProps) {
 
       <CardFooter className="px-6 pt-0 pb-6">
         <Badge
-          className="w-full justify-center py-2 text-sm"
-          variant={social.hasAvailableSlots ? "default" : "secondary"}
+          className={`w-full justify-center py-2 text-sm font-semibold ${
+            social.hasAvailableSlots
+              ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/20 dark:text-emerald-400"
+              : "border border-border bg-muted text-muted-foreground"
+          }`}
+          variant="outline"
         >
           {social.hasAvailableSlots
             ? t("sidebar.available")

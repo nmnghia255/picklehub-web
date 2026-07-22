@@ -2,7 +2,7 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type {
   PaymentRecord,
-  PaymentStatus,
+  TransactionStatus,
   VerifyPaymentRequest,
 } from "../types/payment"
 
@@ -42,11 +42,11 @@ export const PaymentService = {
     socialId: string,
     participantId: string,
     paymentId: string,
-    status: PaymentStatus,
+    status: TransactionStatus,
     amountPaid: number
   ): Promise<VerifyPaymentRequest> {
     const axios = await getAuthenticatedAxios()
-    const response = await axios.post(
+    const response = await axios.patch(
       `/api/events/socials/${socialId}/participants/${participantId}/verify`,
       {
         paymentId,

@@ -9,7 +9,6 @@ import {
   CalendarCheck,
   CalendarClock,
   CalendarDays,
-  ChevronDown,
   Handshake,
   House,
   type LucideIcon,
@@ -35,9 +34,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar"
 import { notificationFeedAtom } from "@/features/feed/store/feed-store"
@@ -76,12 +72,17 @@ const sidebarItems: SidebarItem[] = [
   },
 ]
 
-function isActivePath(pathname: string, href: string) {
-  if (pathname === href) {
-    return true
+function isActivePath(pathname: string, href: string, allHrefs: string[]) {
+  if (pathname !== href && !pathname.startsWith(`${href}/`)) {
+    return false
   }
 
-  return pathname.startsWith(`${href}/`)
+  return !allHrefs.some(
+    (otherHref) =>
+      otherHref !== href &&
+      otherHref.length > href.length &&
+      (pathname === otherHref || pathname.startsWith(`${otherHref}/`))
+  )
 }
 
 function SidebarLogo() {
@@ -148,6 +149,8 @@ export function AppSidebar() {
     (notification) => notification.unread
   ).length
 
+  const allHrefs = sidebarItems.map((item) => item.href)
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -176,7 +179,7 @@ export function AppSidebar() {
                     <SidebarMenuItem key={item.href}>
                       <SidebarMenuButton
                         asChild
-                        isActive={isActivePath(pathname, item.href)}
+                        isActive={isActivePath(pathname, item.href, allHrefs)}
                         tooltip={t(`sidebar.${item.titleKey}`)}
                         className="h-10 rounded-xl px-3 text-slate-700 transition-all duration-200 hover:bg-slate-100 data-[active=true]:bg-emerald-600! data-[active=true]:text-white! data-[active=true]:shadow-xs data-[active=true]:hover:bg-emerald-700! data-[active=true]:hover:text-white! dark:text-zinc-300 dark:hover:bg-zinc-900 [&>span:last-child]:truncate [&>svg]:size-[18px] [&>svg]:shrink-0"
                       >
