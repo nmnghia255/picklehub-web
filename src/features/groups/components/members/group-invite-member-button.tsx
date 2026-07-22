@@ -18,7 +18,8 @@ import { Input } from "@/components/ui/input"
 import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import { type GroupActionState, inviteToGroupAction } from "../../actions"
-import { useGroupInvalidation } from "../../api/groups-client"
+import { useGroupDetail, useGroupInvalidation } from "../../api/groups-client"
+import { useActionGuard } from "../../hooks/use-action-guard"
 
 interface GroupInviteMemberButtonProps {
   groupId: string
@@ -32,10 +33,21 @@ export function GroupInviteMemberButton({
   const { t } = useGroupsTranslation()
   const [open, setOpen] = useState(false)
 
+  const { data: group } = useGroupDetail(groupId)
+
+  const { guardWriteAction, PermissionDialog } = useActionGuard(
+    group,
+    group?.role
+  )
+
   return (
     <>
       <Button
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          guardWriteAction(() => setOpen(true), {
+            featureName: "mời thành viên mới",
+          })
+        }}
         size="sm"
         className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
       >
@@ -49,6 +61,8 @@ export function GroupInviteMemberButton({
         open={open}
         onOpenChange={setOpen}
       />
+
+      <PermissionDialog />
     </>
   )
 }
@@ -96,7 +110,7 @@ function InviteMemberDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent showCloseButton={false}>
         <form action={formAction}>
           <DialogHeader>
             <DialogTitle>

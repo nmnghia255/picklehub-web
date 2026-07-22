@@ -79,9 +79,6 @@ async function proxyRequest(request: NextRequest, pathSegments: string[]) {
 
   const res = await fetch(url, init)
 
-  // Decode body by detecting compression magic bytes (NOT by content-encoding header)
-  const bodyText = await decodeBody(res)
-
   // Forward relevant response headers, stripping encoding/transport/length
   const respHeaders = new Headers()
   for (const [k, v] of res.headers.entries()) {
@@ -103,6 +100,18 @@ async function proxyRequest(request: NextRequest, pathSegments: string[]) {
     }
     respHeaders.set(k, v)
   }
+
+  // Check if response is a streaming event-stream
+  const contentType = res.headers.get("content-type") || ""
+  if (contentType.includes("text/event-stream")) {
+    return new NextResponse(res.body, {
+      status: res.status,
+      headers: respHeaders,
+    })
+  }
+
+  // Decode body by detecting compression magic bytes (NOT by content-encoding header)
+  const bodyText = await decodeBody(res)
 
   // Try JSON, fallback to raw text
   try {
@@ -159,9 +168,6 @@ export async function DELETE(
   return proxyRequest(request, path)
 }
 
-export async function OPTIONS(
-  _request: NextRequest,
-  _context: { params: Promise<{ path: string[] }> }
-) {
+export async function OPTIONS() {
   return new NextResponse(null, { status: 204 })
 }

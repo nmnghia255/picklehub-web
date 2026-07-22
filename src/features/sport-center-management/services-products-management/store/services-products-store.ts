@@ -7,6 +7,7 @@ import viManagement from "@/i18n/locales/vi/sport-center-management.json"
 
 import { listOwnerSportCentersAction } from "../../actions/sport-center-actions"
 import type { SportCenter } from "../../types/sport-center"
+import type { CatalogListResult } from "../api/services-products-service"
 // import type { SportCenter } from "@/features/sport-center-management/api/sport-center-service"
 // import { listOwnerSportCenters } from "@/features/sport-center-management/api/sport-center-service"
 import {
@@ -39,8 +40,30 @@ function getManagementLocale() {
 
 function isPermissionError(error: unknown) {
   if (!error || typeof error !== "object") return false
-  const status = (error as { response?: { status?: number } }).response?.status
+  const status =
+    (error as { status?: number }).status ??
+    (error as { response?: { status?: number } }).response?.status
   return status === 401 || status === 403
+}
+
+function getCatalogErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error && error.message ? error.message : fallback
+}
+
+function getCatalogResultMessage<T>(
+  result: CatalogListResult<T>,
+  messages: {
+    inactive: string
+    notFound: string
+    permissionDenied: string
+  },
+  fallback: string
+) {
+  if (result.ok) return null
+  if (result.code === "CENTER_NOT_ACTIVE") return messages.inactive
+  if (result.code === "CENTER_NOT_FOUND") return messages.notFound
+  if (result.code === "FORBIDDEN") return messages.permissionDenied
+  return fallback
 }
 
 export type ServicesProductsState = {
@@ -66,23 +89,31 @@ export type ServicesProductsState = {
 
   fetchCenters: () => Promise<void>
   setSelectedCenter: (centerId: string) => void
-  fetchServices: () => Promise<void>
-  fetchProducts: () => Promise<void>
-  fetchAll: () => Promise<void>
+  fetchServices: (centerId?: string) => Promise<void>
+  fetchProducts: (centerId?: string) => Promise<void>
+  fetchAll: (centerId?: string) => Promise<void>
 
-  createService: (payload: CreateServicePayload) => Promise<boolean>
+  createService: (
+    payload: CreateServicePayload,
+    centerId?: string
+  ) => Promise<boolean>
   updateService: (
     serviceId: string,
-    payload: UpdateServicePayload
+    payload: UpdateServicePayload,
+    centerId?: string
   ) => Promise<boolean>
-  deleteService: (serviceId: string) => Promise<boolean>
+  deleteService: (serviceId: string, centerId?: string) => Promise<boolean>
 
-  createProduct: (payload: CreateProductPayload) => Promise<boolean>
+  createProduct: (
+    payload: CreateProductPayload,
+    centerId?: string
+  ) => Promise<boolean>
   updateProduct: (
     productId: string,
-    payload: UpdateProductPayload
+    payload: UpdateProductPayload,
+    centerId?: string
   ) => Promise<boolean>
-  deleteProduct: (productId: string) => Promise<boolean>
+  deleteProduct: (productId: string, centerId?: string) => Promise<boolean>
 
   setServiceSearch: (value: string) => void
   setServiceType: (value: string) => void
@@ -121,79 +152,166 @@ export const useServicesProductsStore = create<ServicesProductsState>(
 
       try {
         const centers = await listOwnerSportCentersAction()
-        set({ centers })
-
-        const { selectedCenterId } = get()
-        if (!selectedCenterId && centers.length > 0) {
-          set({ selectedCenterId: centers[0].id })
-        }
+        const currentSelection = get().selectedCenterId
+        const currentCenter = centers.find(
+          (center) => center.id === currentSelection
+        )
+        const firstActiveCenter = centers.find(
+          (center) => center.status === "ACTIVE"
+        )
+        const selectedCenterId =
+          currentCenter?.status === "ACTIVE"
+            ? currentCenter.id
+            : (firstActiveCenter?.id ?? null)
+        set({
+          centers,
+          selectedCenterId,
+          services: [],
+          products: [],
+          error: null,
+        })
       } catch (error) {
-        console.error("[ServicesProducts] fetchCenters error:", error)
-        set({ centers: [] })
+        set({
+          centers: [],
+          selectedCenterId: null,
+          services: [],
+          products: [],
+          error: getCatalogErrorMessage(
+            error,
+            getManagementLocale().inventory.toast.loadError
+          ),
+        })
       } finally {
         set({ loadingCenters: false })
       }
     },
 
-    setSelectedCenter: (centerId) =>
-      set({ selectedCenterId: centerId, services: [], products: [] }),
+    setSelectedCenter: (centerId) => {
+      const center = get().centers.find((item) => item.id === centerId)
+      if (!center || center.status !== "ACTIVE") {
+        set({
+          selectedCenterId: null,
+          services: [],
+          products: [],
+          error: getManagementLocale().inventory.center.inactive,
+        })
+        return
+      }
+      set({
+        selectedCenterId: centerId,
+        services: [],
+        products: [],
+        error: null,
+      })
+    },
 
-    fetchServices: async () => {
-      const { selectedCenterId } = get()
-      if (!selectedCenterId) return
+    fetchServices: async (explicitCenterId) => {
+      const { centers, selectedCenterId } = get()
+      const centerId = explicitCenterId ?? selectedCenterId
+      if (!centerId) return
 
-      set({ loadingServices: true })
+      const selectedCenter = centers.find((center) => center.id === centerId)
+      if (!explicitCenterId && selectedCenter?.status !== "ACTIVE") {
+        set({ services: [], loadingServices: false, permissionDenied: false })
+        return
+      }
+
+      set({
+        loadingServices: true,
+        ...(explicitCenterId ? { services: [] } : {}),
+      })
 
       try {
-        const services = await listCenterServices(selectedCenterId)
-        set({ services, permissionDenied: false })
+        const result = await listCenterServices(centerId)
+        if (!result.ok) {
+          set({
+            services: [],
+            permissionDenied: result.code === "FORBIDDEN",
+            error: getCatalogResultMessage(
+              result,
+              getManagementLocale().inventory.center,
+              getManagementLocale().inventory.toast.loadError
+            ),
+          })
+          return
+        }
+        set({ services: result.data, permissionDenied: false, error: null })
       } catch (error) {
-        console.error("[ServicesProducts] fetchServices error:", error)
         const management = getManagementLocale()
         set({
           services: [],
           permissionDenied: isPermissionError(error),
-          error: management.inventory.toast.loadError,
+          error: getCatalogErrorMessage(
+            error,
+            management.inventory.toast.loadError
+          ),
         })
       } finally {
         set({ loadingServices: false })
       }
     },
 
-    fetchProducts: async () => {
-      const { selectedCenterId } = get()
-      if (!selectedCenterId) return
+    fetchProducts: async (explicitCenterId) => {
+      const { centers, selectedCenterId } = get()
+      const centerId = explicitCenterId ?? selectedCenterId
+      if (!centerId) return
 
-      set({ loadingProducts: true })
+      const selectedCenter = centers.find((center) => center.id === centerId)
+      if (!explicitCenterId && selectedCenter?.status !== "ACTIVE") {
+        set({ products: [], loadingProducts: false, permissionDenied: false })
+        return
+      }
+
+      set({
+        loadingProducts: true,
+        ...(explicitCenterId ? { products: [] } : {}),
+      })
 
       try {
-        const products = await listCenterProducts(selectedCenterId)
-        set({ products, permissionDenied: false })
+        const result = await listCenterProducts(centerId)
+        if (!result.ok) {
+          set({
+            products: [],
+            permissionDenied: result.code === "FORBIDDEN",
+            error: getCatalogResultMessage(
+              result,
+              getManagementLocale().inventory.center,
+              getManagementLocale().inventory.toast.loadError
+            ),
+          })
+          return
+        }
+        set({ products: result.data, permissionDenied: false, error: null })
       } catch (error) {
-        console.error("[ServicesProducts] fetchProducts error:", error)
         const management = getManagementLocale()
         set({
           products: [],
           permissionDenied: isPermissionError(error),
-          error: management.inventory.toast.loadError,
+          error: getCatalogErrorMessage(
+            error,
+            management.inventory.toast.loadError
+          ),
         })
       } finally {
         set({ loadingProducts: false })
       }
     },
 
-    fetchAll: async () => {
-      await Promise.all([get().fetchServices(), get().fetchProducts()])
+    fetchAll: async (centerId) => {
+      await Promise.all([
+        get().fetchServices(centerId),
+        get().fetchProducts(centerId),
+      ])
     },
 
-    createService: async (payload) => {
-      const { selectedCenterId } = get()
-      if (!selectedCenterId) return false
+    createService: async (payload, explicitCenterId) => {
+      const centerId = explicitCenterId ?? get().selectedCenterId
+      if (!centerId) return false
 
       set({ saving: true })
       try {
-        await createCenterService(selectedCenterId, payload)
-        await get().fetchServices()
+        await createCenterService(centerId, payload)
+        await get().fetchServices(centerId)
         return true
       } catch (error) {
         console.error("[ServicesProducts] createService error:", error)
@@ -205,14 +323,14 @@ export const useServicesProductsStore = create<ServicesProductsState>(
       }
     },
 
-    updateService: async (serviceId, payload) => {
-      const { selectedCenterId } = get()
-      if (!selectedCenterId) return false
+    updateService: async (serviceId, payload, explicitCenterId) => {
+      const centerId = explicitCenterId ?? get().selectedCenterId
+      if (!centerId) return false
 
       set({ saving: true })
       try {
-        await updateCenterService(selectedCenterId, serviceId, payload)
-        await get().fetchServices()
+        await updateCenterService(centerId, serviceId, payload)
+        await get().fetchServices(centerId)
         return true
       } catch (error) {
         console.error("[ServicesProducts] updateService error:", error)
@@ -224,13 +342,13 @@ export const useServicesProductsStore = create<ServicesProductsState>(
       }
     },
 
-    deleteService: async (serviceId) => {
-      const { selectedCenterId } = get()
-      if (!selectedCenterId) return false
+    deleteService: async (serviceId, explicitCenterId) => {
+      const centerId = explicitCenterId ?? get().selectedCenterId
+      if (!centerId) return false
 
       try {
-        await deleteCenterService(selectedCenterId, serviceId)
-        await get().fetchServices()
+        await deleteCenterService(centerId, serviceId)
+        await get().fetchServices(centerId)
         return true
       } catch (error) {
         console.error("[ServicesProducts] deleteService error:", error)
@@ -240,14 +358,14 @@ export const useServicesProductsStore = create<ServicesProductsState>(
       }
     },
 
-    createProduct: async (payload) => {
-      const { selectedCenterId } = get()
-      if (!selectedCenterId) return false
+    createProduct: async (payload, explicitCenterId) => {
+      const centerId = explicitCenterId ?? get().selectedCenterId
+      if (!centerId) return false
 
       set({ saving: true })
       try {
-        await createCenterProduct(selectedCenterId, payload)
-        await get().fetchProducts()
+        await createCenterProduct(centerId, payload)
+        await get().fetchProducts(centerId)
         return true
       } catch (error) {
         console.error("[ServicesProducts] createProduct error:", error)
@@ -259,14 +377,14 @@ export const useServicesProductsStore = create<ServicesProductsState>(
       }
     },
 
-    updateProduct: async (productId, payload) => {
-      const { selectedCenterId } = get()
-      if (!selectedCenterId) return false
+    updateProduct: async (productId, payload, explicitCenterId) => {
+      const centerId = explicitCenterId ?? get().selectedCenterId
+      if (!centerId) return false
 
       set({ saving: true })
       try {
-        await updateCenterProduct(selectedCenterId, productId, payload)
-        await get().fetchProducts()
+        await updateCenterProduct(centerId, productId, payload)
+        await get().fetchProducts(centerId)
         return true
       } catch (error) {
         console.error("[ServicesProducts] updateProduct error:", error)
@@ -278,13 +396,13 @@ export const useServicesProductsStore = create<ServicesProductsState>(
       }
     },
 
-    deleteProduct: async (productId) => {
-      const { selectedCenterId } = get()
-      if (!selectedCenterId) return false
+    deleteProduct: async (productId, explicitCenterId) => {
+      const centerId = explicitCenterId ?? get().selectedCenterId
+      if (!centerId) return false
 
       try {
-        await deleteCenterProduct(selectedCenterId, productId)
-        await get().fetchProducts()
+        await deleteCenterProduct(centerId, productId)
+        await get().fetchProducts(centerId)
         return true
       } catch (error) {
         console.error("[ServicesProducts] deleteProduct error:", error)

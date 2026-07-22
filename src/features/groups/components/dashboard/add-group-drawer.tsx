@@ -5,17 +5,8 @@ import { Plus } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { startTransition, useActionState, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import {
   Drawer,
@@ -33,6 +24,7 @@ import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import { addGroupAction } from "../../actions"
 import { type AddGroupFormData, addGroupSchema } from "../../schemas"
+import { PermissionDialog } from "../details/permission-dialog"
 
 export function AddGroupDrawer() {
   const { t } = useGroupsTranslation()
@@ -59,11 +51,14 @@ export function AddGroupDrawer() {
     defaultValues: {
       name: "",
       description: "",
+      avatarUrl: "",
     },
   })
 
   useEffect(() => {
     if (!state.success) return
+
+    toast.success(t("errors.createGroupSuccess", "Tạo nhóm thành công"))
 
     const id = setTimeout(() => {
       setOpen(false)
@@ -72,12 +67,13 @@ export function AddGroupDrawer() {
     })
 
     return () => clearTimeout(id)
-  }, [state.success, form, router])
+  }, [state.success, form, router, t])
 
   const onSubmit = form.handleSubmit((data) => {
     const fd = new FormData()
     fd.set("name", data.name)
     fd.set("description", data.description)
+    if (data.avatarFile) fd.set("avatarFile", data.avatarFile)
     startTransition(() => formAction(fd))
   })
 
@@ -86,14 +82,14 @@ export function AddGroupDrawer() {
       <Button
         onClick={handleTriggerClick}
         disabled={isLoading}
-        className="bg-orange-400 hover:bg-orange-500"
+        className="bg-emerald-600 hover:bg-emerald-700"
       >
         <Plus className="size-4" />
         {t("dashboard.createGroupBtn", "Tạo nhóm")}
       </Button>
 
       <Drawer direction="right" open={open} onOpenChange={setOpen}>
-        <DrawerContent>
+        <DrawerContent className="group-feature-root bg-card sm:max-w-md">
           <form className="flex h-full flex-col" onSubmit={onSubmit}>
             <DrawerHeader>
               <DrawerTitle>
@@ -144,6 +140,28 @@ export function AddGroupDrawer() {
                   )}
                 </Field>
 
+                <Field>
+                  <FieldLabel htmlFor="avatar">
+                    {t("dashboard.avatarLabel", "Ảnh đại diện")}
+                  </FieldLabel>
+                  <Input
+                    id="avatar"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        form.setValue("avatarFile", file)
+                      }
+                    }}
+                  />
+                  {form.formState.errors.avatarUrl && (
+                    <p className="text-sm text-destructive">
+                      {form.formState.errors.avatarUrl.message}
+                    </p>
+                  )}
+                </Field>
+
                 {state.error && (
                   <div className="rounded-md border border-red-200 bg-red-50 p-3">
                     <p className="text-sm text-red-600">
@@ -170,32 +188,17 @@ export function AddGroupDrawer() {
         </DrawerContent>
       </Drawer>
 
-      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-orange-500">
-              {t("dashboard.subscriptionRequiredTitle", "Yêu cầu đăng ký gói")}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {t(
-                "dashboard.subscriptionRequiredDesc",
-                "Bạn cần đăng ký gói dịch vụ Trưởng nhóm để có thể tạo nhóm mới."
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>
-              {t("activitySchedule.btnCancel", "Hủy")}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-orange-500! text-white hover:bg-orange-600!"
-              onClick={() => router.push("/subscriptions")}
-            >
-              {t("dashboard.subscribeBtn", "Đăng ký ngay")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <PermissionDialog
+        open={isAlertOpen}
+        onOpenChange={setIsAlertOpen}
+        title={t("dashboard.subscriptionRequiredTitle", "Yêu cầu đăng ký gói")}
+        description={t(
+          "dashboard.subscriptionRequiredDesc",
+          "Bạn cần đăng ký gói dịch vụ Trưởng nhóm để có thể tạo nhóm mới."
+        )}
+        showUpgradeButton={true}
+        onUpgrade={() => router.push("/subscriptions")}
+      />
     </>
   )
 }

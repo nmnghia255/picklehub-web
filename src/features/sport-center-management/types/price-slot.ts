@@ -8,6 +8,12 @@ export interface PriceSlot {
   updatedAt: string
 }
 
+export interface CreateCenterPriceSlotRequest {
+  startTime: string
+  endTime: string
+  pricePerHour: number
+}
+
 export interface AddPriceSlotRequest {
   startTime: string
   endTime: string
@@ -20,4 +26,8 @@ export interface UpdatePriceSlotRequest {
     endTime: string
     pricePerHour: number
   }[]
+}
+
+export interface UpdateCenterPriceSlotsRequest {
+  priceSlots: CreateCenterPriceSlotRequest[]
 }

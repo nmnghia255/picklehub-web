@@ -73,9 +73,9 @@ function DialogContent({
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            className="absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+            className="absolute top-4 right-4 z-50 flex size-8 items-center justify-center rounded-full border bg-background text-muted-foreground shadow-sm transition-all hover:bg-accent hover:text-accent-foreground focus:ring-2 focus:ring-ring focus:outline-hidden disabled:pointer-events-none"
           >
-            <XIcon />
+            <XIcon className="size-4" />
             <span className="sr-only">{t("dialog.close")}</span>
           </DialogPrimitive.Close>
         )}
@@ -89,7 +89,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="dialog-header"
       className={cn(
-        "sticky top-0 z-10 flex flex-col gap-2 bg-background py-1 text-center sm:text-left",
+        "sticky top-0 z-10 flex flex-col gap-2 bg-inherit py-1 text-center sm:text-left",
         className
       )}
       {...props}
@@ -111,7 +111,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "sticky bottom-0 z-10 flex flex-col-reverse gap-2 bg-background pt-4 sm:flex-row sm:justify-end",
+        "sticky bottom-0 z-10 flex flex-col-reverse gap-2 bg-inherit pt-4 sm:flex-row sm:justify-end",
         className
       )}
       {...props}

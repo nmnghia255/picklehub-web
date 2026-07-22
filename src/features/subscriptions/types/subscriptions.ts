@@ -8,6 +8,7 @@ export type PlanType =
   | "GROUP_OWNER"
   | "SOCIAL_HOST"
   | "TOURNAMENT_ORGANIZER"
+  | "COACH"
 export type BillingCycles = "MONTHLY" | "QUARTERLY" | "YEARLY"
 
 export interface AvailableSubscriptionPlan extends SubscriptionPlan {
@@ -29,6 +30,8 @@ export interface SubscriptionPlan {
   durationInDays: number
   isActive: boolean
   sortOrder: number
+  createdAt: string
+  updatedAt: string
 }
 
 export interface Subscription {

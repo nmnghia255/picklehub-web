@@ -8,6 +8,7 @@ import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useSession } from "@/features/auth/hooks/use-session"
 import { joinPlaySessionAction } from "@/features/socials/actions/join-play-session"
 import { leavePlaySessionAction } from "@/features/socials/actions/leave-play-session"
 import usePlaySessionStore from "@/features/socials/stores/play-session-store"
@@ -19,6 +20,11 @@ import type {
   PlaySession,
   PlaySessionParticipant,
 } from "@/features/socials/types/play-session"
+import {
+  canJoinPlaySession,
+  canLeavePlaySession,
+  isActiveSocialParticipantStatus,
+} from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import PlaySessionMatches from "./play-session-matches"
@@ -39,15 +45,32 @@ export default function PlaySessionDetail({
   const params = useParams()
   const router = useRouter()
   const { t } = useSocialsTranslation()
+  const sessionData = useSession()
   const tabValue = usePlaySessionStore((s) => s.tabValue)
   const setTabValue = usePlaySessionStore((s) => s.setTabValue)
 
   const socialId = params.socialId as string | undefined
   const sessionId = params.playSessionId as string | undefined
   const session = initialSession
-  const participants = initialParticipants.filter(
-    (p) => p.status !== "CANCELLED"
+  const participants = initialParticipants.filter((p) =>
+    isActiveSocialParticipantStatus(p.status)
   )
+  const currentUserId = sessionData?.user?.id
+  const isParticipant = participants.some(
+    (p) =>
+      p.userId === currentUserId && isActiveSocialParticipantStatus(p.status)
+  )
+  const canJoin = session
+    ? canJoinPlaySession(
+        session.status,
+        session.joinedCount,
+        session.maxSlot,
+        isParticipant
+      )
+    : false
+  const canLeave = session
+    ? canLeavePlaySession(session.status, isParticipant)
+    : false
 
   const matches = useMemo(() => {
     return initialMatches.map((m) => {
@@ -114,7 +137,7 @@ export default function PlaySessionDetail({
         refereeId: m.refereeId,
       }
     })
-  }, [initialMatches, participants])
+  }, [initialMatches, participants, t])
 
   if (!session) {
     return (
@@ -123,7 +146,7 @@ export default function PlaySessionDetail({
         <p className="mt-2 text-sm text-muted-foreground">
           {t("detail.notFoundDescription")}
         </p>
-        <Button className="mt-6" onClick={() => router.push("/socials")}>
+        <Button className="mt-6" onClick={() => router.back()}>
           {t("detail.backToSocials")}
         </Button>
       </div>
@@ -145,7 +168,7 @@ export default function PlaySessionDetail({
   )
 
   const handleJoin = async () => {
-    if (!socialId || !sessionId) return
+    if (!socialId || !sessionId || !canJoin) return
     const toastId = toast.loading(t("sessions.joining"))
     const result = await joinPlaySessionAction(socialId, sessionId)
 
@@ -162,7 +185,7 @@ export default function PlaySessionDetail({
   }
 
   const handleLeave = async () => {
-    if (!socialId || !sessionId) return
+    if (!socialId || !sessionId || !canLeave) return
     toast.promise(
       leavePlaySessionAction(socialId, sessionId).then(() => {
         router.refresh()
@@ -200,21 +223,21 @@ export default function PlaySessionDetail({
           <Card className="p-0">
             <CardContent className="space-y-4 p-0">
               <div className="px-6 pt-4">
-                <div className="inline-flex rounded-lg border border-border bg-background p-1 text-sm">
+                <div className="inline-flex rounded-lg border border-border bg-background p-1 text-sm font-medium">
                   <button
-                    className={`rounded-md px-3 py-1.5 ${tabValue === "0" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                    className={`rounded-md px-3 py-1.5 transition-colors ${tabValue === "0" ? "bg-emerald-600 text-white shadow-xs" : "text-muted-foreground hover:text-foreground"}`}
                     onClick={() => setTabValue("0")}
                   >
                     {t("detail.overview")}
                   </button>
                   <button
-                    className={`rounded-md px-3 py-1.5 ${tabValue === "1" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                    className={`rounded-md px-3 py-1.5 transition-colors ${tabValue === "1" ? "bg-emerald-600 text-white shadow-xs" : "text-muted-foreground hover:text-foreground"}`}
                     onClick={() => setTabValue("1")}
                   >
                     {t("detail.participants")}
                   </button>
                   <button
-                    className={`rounded-md px-3 py-1.5 ${tabValue === "2" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                    className={`rounded-md px-3 py-1.5 transition-colors ${tabValue === "2" ? "bg-emerald-600 text-white shadow-xs" : "text-muted-foreground hover:text-foreground"}`}
                     onClick={() => setTabValue("2")}
                   >
                     {t("matches.title")}
@@ -237,10 +260,7 @@ export default function PlaySessionDetail({
                 )}
 
                 {tabValue === "1" && (
-                  <PlaySessionParticipants
-                    participants={participants}
-                    socialId={socialId || ""}
-                  />
+                  <PlaySessionParticipants participants={participants} />
                 )}
 
                 {tabValue === "2" && (

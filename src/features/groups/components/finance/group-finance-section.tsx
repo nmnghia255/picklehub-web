@@ -1,6 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import type { TFunction } from "i18next"
 import { ChevronDown, ChevronUp, Loader2, Search } from "lucide-react"
 import { useState } from "react"
 
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useGroupsTranslation } from "@/i18n/use-groups-translation"
+import { cn } from "@/lib/utils"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 import {
@@ -30,7 +32,12 @@ import {
   listGroupDebtsClient,
   listTransactionsClient,
 } from "../../api/finance-client"
-import { getGroupMembersClient, groupQueryKeys } from "../../api/groups-client"
+import {
+  getGroupMembersClient,
+  groupQueryKeys,
+  useGroupDetail,
+} from "../../api/groups-client"
+import { useActionGuard } from "../../hooks/use-action-guard"
 import { useGroupDebts } from "../../hooks/use-group-debts"
 import type { Member } from "../../types"
 import { isArchivedGroup } from "../../utils/group-status"
@@ -75,8 +82,10 @@ function formatDateTime(value?: string | null) {
   })
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function formatTransactionStatus(status: string | null | undefined, t: any) {
+function formatTransactionStatus(
+  status: string | null | undefined,
+  t: TFunction<"groups">
+) {
   const normalized = status?.toUpperCase()
   if (normalized === "VERIFIED")
     return t("transactionStatuses.VERIFIED", "Đã xác nhận")
@@ -101,8 +110,10 @@ export function getStatusBadgeClass(status?: string | null) {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function formatDebtStatus(status: string | null | undefined, t: any) {
+function formatDebtStatus(
+  status: string | null | undefined,
+  t: TFunction<"groups">
+) {
   const normalized = status?.toUpperCase()
   if (normalized === "PAID") return t("debtStatuses.PAID", "Đã thanh toán")
   if (normalized === "PARTIALLY_PAID")
@@ -151,9 +162,7 @@ function SummaryCard({
   valueClassName?: string
 }) {
   return (
-    <Card
-      className={`bg-orange-50 ${className} dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm`}
-    >
+    <Card className={cn("group-feature-root", className)}>
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium text-foreground dark:text-white">
           {title}
@@ -161,7 +170,7 @@ function SummaryCard({
       </CardHeader>
       <CardContent>
         <div
-          className={`text-2xl font-bold ${valueClassName || "text-orange-500"}`}
+          className={`text-2xl font-bold ${valueClassName || "text-emerald-600 dark:text-emerald-400"}`}
         >
           {value}
         </div>
@@ -192,11 +201,19 @@ export function GroupFinanceSection({
 }) {
   const { t } = useGroupsTranslation()
   const activeTab = useGroupDetailActiveTab()
+  const isFinanceActive = activeTab === "finance"
+
+  const { data: group } = useGroupDetail(groupId, undefined, {
+    enabled: isFinanceActive,
+  })
+
+  const { guardWriteAction, PermissionDialog } = useActionGuard(
+    group,
+    currentUserRole
+  )
   const normalizedRole = currentUserRole?.toLowerCase() ?? ""
   const isOwner = normalizedRole === "owner"
   const canManage = !isArchivedGroup(groupStatus) && normalizedRole === "owner"
-
-  const isFinanceActive = activeTab === "finance"
 
   const summaryQuery = useQuery({
     queryKey: financeQueryKeys.summary(groupId),
@@ -316,16 +333,33 @@ export function GroupFinanceSection({
           </div>
           {!isArchivedGroup(groupStatus) && (
             <div className="flex flex-wrap gap-2">
-              <CreateTransactionButton groupId={groupId} />
+              <CreateTransactionButton
+                groupId={groupId}
+                onClick={(open) =>
+                  guardWriteAction(open, {
+                    featureName: "gửi thanh toán mới",
+                  })
+                }
+              />
               {canManage && (
                 <>
                   <CreateExpenseButton
                     groupId={groupId}
                     members={resolvedMembers}
+                    onClick={(open) =>
+                      guardWriteAction(open, {
+                        featureName: "tạo khoản chi mới",
+                      })
+                    }
                   />
                   <RemindDebtButton
                     groupId={groupId}
                     members={resolvedMembers}
+                    onClick={(open) =>
+                      guardWriteAction(open, {
+                        featureName: "gửi nhắc nợ thành viên",
+                      })
+                    }
                   />
                 </>
               )}
@@ -369,7 +403,7 @@ export function GroupFinanceSection({
                   </span>
                 }
                 className=""
-                valueClassName="text-orange-600 dark:text-orange-400"
+                valueClassName="text-emerald-600 dark:text-emerald-400"
               />
               <SummaryCard
                 title={t("finance.totalCollected", "Tổng đã thu")}
@@ -406,7 +440,7 @@ export function GroupFinanceSection({
                   <p className="text-xs text-muted-foreground uppercase">
                     {t("finance.totalSpent", "Tổng chi")}
                   </p>
-                  <p className="text-lg font-bold text-orange-500">
+                  <p className="text-lg font-bold text-rose-600 dark:text-rose-400">
                     {formatCurrency(monthlyStats.totalSpent)}
                   </p>
                 </div>
@@ -649,7 +683,7 @@ export function GroupFinanceSection({
                             <span className="text-sm font-semibold">
                               {formatCurrency(item.guestFee || 0)}
                             </span>
-                            <span className="text-xs font-semibold text-orange-700 dark:text-orange-400">
+                            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                               {t("finance.guestCount", "{{count}} khách", {
                                 count: item.guestCount,
                               })}
@@ -657,7 +691,7 @@ export function GroupFinanceSection({
                           </div>
                         ) : item.isGuestPayment ? (
                           <div className="flex flex-col gap-0.5">
-                            <span className="text-xs font-semibold text-orange-700 dark:text-orange-400">
+                            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                               {t("finance.guestCount", "{{count}} khách", {
                                 count: 1,
                               })}
@@ -1005,7 +1039,7 @@ export function GroupFinanceSection({
                                           {payment.guestCount &&
                                           payment.guestCount > 0 ? (
                                             <div className="flex flex-col gap-0.5">
-                                              <span className="text-xs font-semibold text-orange-700 dark:text-orange-400">
+                                              <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                                                 {t(
                                                   "finance.guestCount",
                                                   "{{count}} khách",
@@ -1022,7 +1056,7 @@ export function GroupFinanceSection({
                                             </div>
                                           ) : payment.isGuestPayment ? (
                                             <div className="flex flex-col gap-0.5">
-                                              <span className="text-xs font-semibold text-orange-700 dark:text-orange-400">
+                                              <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                                                 {t(
                                                   "finance.guestCount",
                                                   "{{count}} khách",
@@ -1227,6 +1261,7 @@ export function GroupFinanceSection({
           </TabsContent>
         </Tabs>
       </CardContent>
+      <PermissionDialog />
     </Card>
   )
 }

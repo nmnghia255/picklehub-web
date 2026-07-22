@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     backendFormData.append("file", file)
 
     const response = await axios.post("/api/media/images", backendFormData, {
-      headers: { "Content-Type": "multipart/form-data" },
+      headers: { "Content-Type": undefined },
     })
 
     return NextResponse.json(response.data)

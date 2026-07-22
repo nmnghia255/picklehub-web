@@ -18,6 +18,8 @@ import {
   CalendarDays,
   CheckCircle2,
   DollarSign,
+  ImagePlus,
+  Loader2,
   MapPin,
   Pencil,
   Plus,
@@ -26,13 +28,13 @@ import {
   Users,
   XCircle,
 } from "lucide-react"
-import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { CalendarNavigation } from "@/components/calendar-navigation"
+import { BackButton } from "@/components/common/back-button"
 import { PageContainer } from "@/components/page-container"
 import {
   AlertDialog,
@@ -70,6 +72,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { useSession } from "@/features/auth/hooks/use-session"
+import { CoachMediaService } from "@/features/coach/api/media-service"
 import { CourtBookingLocationFields } from "@/features/coach/components/court-booking-location-fields"
 import {
   useAddScheduleSlot,
@@ -92,6 +95,7 @@ import type {
   PaymentStatus,
 } from "@/features/coach/types/coach"
 import { getTranslationStringArray } from "@/i18n/get-translation-array"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 const statusVariant: Record<
   ClassStatus,
@@ -176,6 +180,30 @@ function LoadingSkeleton() {
   )
 }
 
+function ClassPageHeader({
+  title,
+  status,
+  statusLabel,
+}: {
+  title: string
+  status: ClassStatus
+  statusLabel: string
+}) {
+  return (
+    <div className="flex flex-col gap-4 border-b pb-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          {title}
+        </h1>
+        <Badge variant={statusVariant[status]}>{statusLabel}</Badge>
+      </div>
+      <div className="flex shrink-0 items-center gap-2 md:ml-auto">
+        <BackButton to="/coach?tab=classes" />
+      </div>
+    </div>
+  )
+}
+
 export default function CoachClassDetailPage() {
   const session = useSession()
   const params = useParams()
@@ -221,6 +249,9 @@ export default function CoachClassDetailPage() {
   const [capacity, setCapacity] = useState(0)
   const [priceVnd, setPriceVnd] = useState(0)
   const [locationDescription, setLocationDescription] = useState("")
+  const [coverImageUrl, setCoverImageUrl] = useState("")
+  const [coverImageUploading, setCoverImageUploading] = useState(false)
+  const [coverImageError, setCoverImageError] = useState("")
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
 
@@ -298,6 +329,7 @@ export default function CoachClassDetailPage() {
       setCapacity(classData.capacity ?? 0)
       setPriceVnd(classData.priceVnd ?? 0)
       setLocationDescription(classData.locationDescription ?? "")
+      setCoverImageUrl(classData.coverImageUrl ?? "")
       setStartDate(
         classData.startDate
           ? dayjs(classData.startDate).format("YYYY-MM-DD")
@@ -437,7 +469,35 @@ export default function CoachClassDetailPage() {
   const isCancellable =
     classData.status !== "COMPLETED" && classData.status !== "CANCELLED"
 
+  const handleCoverImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0]
+    event.target.value = ""
+    if (!file) return
+    setCoverImageError("")
+    if (!file.type.startsWith("image/")) {
+      setCoverImageError(t("coach.classes.uploadInvalidImage"))
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setCoverImageError(t("coach.classes.uploadImageTooLarge"))
+      return
+    }
+
+    setCoverImageUploading(true)
+    try {
+      const uploadedUrl = await CoachMediaService.uploadImage(file)
+      setCoverImageUrl(uploadedUrl)
+    } catch {
+      setCoverImageError(t("coach.classes.uploadError"))
+    } finally {
+      setCoverImageUploading(false)
+    }
+  }
+
   const handleUpdate = () => {
+    if (coverImageUploading) return
     updateClass.mutate(
       {
         classId,
@@ -448,6 +508,7 @@ export default function CoachClassDetailPage() {
           capacity,
           priceVnd,
           locationDescription: locationDescription || undefined,
+          coverImageUrl: coverImageUrl || undefined,
           startDate: startDate || undefined,
           endDate: endDate || undefined,
         },
@@ -1287,21 +1348,11 @@ export default function CoachClassDetailPage() {
 
   return (
     <PageContainer variant="wide" className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/coach?tab=classes">
-              {t("coach.classes.detail.backLink")}
-            </Link>
-          </Button>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {classData.title}
-          </h1>
-          <Badge variant={statusVariant[classData.status]}>
-            {statusLabel[classData.status]}
-          </Badge>
-        </div>
-      </div>
+      <ClassPageHeader
+        title={classData.title}
+        status={classData.status}
+        statusLabel={statusLabel[classData.status]}
+      />
 
       <Tabs defaultValue="info">
         <TabsList>
@@ -1432,11 +1483,48 @@ export default function CoachClassDetailPage() {
                   rows={4}
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="coverImageUpload">
+                  {t("coach.classes.detail.coverImageLabel")}
+                </Label>
+                {coverImageUrl ? (
+                  <img
+                    src={coverImageUrl}
+                    alt={t("coach.classes.detail.coverImageLabel")}
+                    className="h-40 w-full max-w-xl rounded-xl border object-cover"
+                  />
+                ) : null}
+                {canEdit ? (
+                  <label className="flex w-fit cursor-pointer items-center gap-2 rounded-xl border border-dashed px-3 py-2 text-sm">
+                    {coverImageUploading ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <ImagePlus className="size-4" />
+                    )}
+                    <span>
+                      {coverImageUploading
+                        ? t("coach.profile.uploading")
+                        : t("coach.classes.detail.uploadCoverImage")}
+                    </span>
+                    <Input
+                      id="coverImageUpload"
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      className="hidden"
+                      onChange={handleCoverImageChange}
+                      disabled={coverImageUploading}
+                    />
+                  </label>
+                ) : null}
+                {coverImageError ? (
+                  <p className="text-xs text-destructive">{coverImageError}</p>
+                ) : null}
+              </div>
               {canEdit && (
                 <div className="flex justify-end">
                   <Button
                     onClick={handleUpdate}
-                    disabled={updateClass.isPending}
+                    disabled={updateClass.isPending || coverImageUploading}
                   >
                     {updateClass.isPending
                       ? t("coach.classes.detail.saving")
@@ -1515,7 +1603,7 @@ export default function CoachClassDetailPage() {
                     {t("coach.classes.detail.tuition")}
                   </p>
                   <p className="text-lg font-semibold">
-                    {classData.priceVnd.toLocaleString("vi-VN")}₫
+                    {formatCurrencyVnd(classData.priceVnd)}
                   </p>
                 </div>
               </div>
@@ -1955,10 +2043,9 @@ export default function CoachClassDetailPage() {
                                     name:
                                       enrollment.learnerProfile?.name ??
                                       t("coach.students.noName"),
-                                    amount:
-                                      enrollment?.amountVnd?.toLocaleString(
-                                        "vi-VN"
-                                      ) ?? "0",
+                                    amount: formatCurrencyVnd(
+                                      enrollment?.amountVnd ?? 0
+                                    ),
                                   }
                                 )}
                               </AlertDialogDescription>

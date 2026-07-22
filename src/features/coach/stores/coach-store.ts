@@ -57,10 +57,12 @@ export const useCoachStore = create<CoachStore>((set) => ({
   setCoachClasses: (classes) => set({ coachClasses: classes }),
   setSelectedClass: (cls) => set({ selectedClass: cls }),
   setLearners: (learners) => set({ learners }),
-  setLearnersPagination: (pagination) => set({ learnersPagination: pagination }),
+  setLearnersPagination: (pagination) =>
+    set({ learnersPagination: pagination }),
   setLearnersSearch: (search) => set({ learnersSearch: search }),
   setBookings: (bookings) => set({ bookings }),
-  setBookingsPagination: (pagination) => set({ bookingsPagination: pagination }),
+  setBookingsPagination: (pagination) =>
+    set({ bookingsPagination: pagination }),
   setActiveBookingTab: (tab) => set({ activeBookingTab: tab }),
   setEnrollments: (enrollments) => set({ enrollments }),
   setActiveClassTab: (tab) => set({ activeClassTab: tab }),

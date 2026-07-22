@@ -84,12 +84,14 @@ export function InventoryFormDialog({
   item,
   open,
   onOpenChange,
+  centerId,
 }: {
   kind: InventoryKind
   mode: DialogMode
   item: InventoryRow | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  centerId?: string
 }) {
   const saving = useServicesProductsStore((state) => state.saving)
   const createService = useServicesProductsStore((state) => state.createService)
@@ -170,22 +172,31 @@ export function InventoryFormDialog({
 
     if (kind === "service") {
       if (mode === "create") {
-        success = await createService({
-          name,
-          type: form.type as ServiceType,
-          price,
-          description: description || undefined,
-          unit: unit || undefined,
-        })
+        success = await createService(
+          {
+            name,
+            type: form.type as ServiceType,
+            price,
+            description: description || undefined,
+            unit: unit || undefined,
+            imageUrl: form.imageUrl || undefined,
+          },
+          centerId
+        )
       } else if (item) {
-        success = await updateService(item.id, {
-          name,
-          type: form.type as ServiceType,
-          price,
-          description: description || null,
-          unit: unit || null,
-          isActive: form.isActive,
-        })
+        success = await updateService(
+          item.id,
+          {
+            name,
+            type: form.type as ServiceType,
+            price,
+            description: description || null,
+            unit: unit || null,
+            ...(form.imageUrl ? { imageUrl: form.imageUrl } : {}),
+            isActive: form.isActive,
+          },
+          centerId
+        )
       }
     } else {
       const stock = form.stock.trim() === "" ? undefined : Number(form.stock)
@@ -195,26 +206,33 @@ export function InventoryFormDialog({
       }
 
       if (mode === "create") {
-        success = await createProduct({
-          name,
-          type: form.type as ProductType,
-          price,
-          description: description || undefined,
-          unit: unit || undefined,
-          imageUrl: form.imageUrl || undefined,
-          stock,
-        })
+        success = await createProduct(
+          {
+            name,
+            type: form.type as ProductType,
+            price,
+            description: description || undefined,
+            unit: unit || undefined,
+            imageUrl: form.imageUrl || undefined,
+            stock,
+          },
+          centerId
+        )
       } else if (item) {
-        success = await updateProduct(item.id, {
-          name,
-          type: form.type as ProductType,
-          price,
-          description: description || null,
-          unit: unit || null,
-          imageUrl: form.imageUrl || null,
-          stock,
-          isActive: form.isActive,
-        })
+        success = await updateProduct(
+          item.id,
+          {
+            name,
+            type: form.type as ProductType,
+            price,
+            description: description || null,
+            unit: unit || null,
+            ...(form.imageUrl ? { imageUrl: form.imageUrl } : {}),
+            stock,
+            isActive: form.isActive,
+          },
+          centerId
+        )
       }
     }
 
@@ -355,51 +373,57 @@ export function InventoryFormDialog({
             />
           </div>
 
-          {isProduct ? (
-            <div className="space-y-2">
-              <Label>{t("inventory.form.imageLabel")}</Label>
-              {form.imageUrl ? (
-                <div className="relative w-fit">
-                  {}
-                  <img
-                    src={form.imageUrl}
-                    alt={t("inventory.form.imageLabel")}
-                    className="h-32 w-32 rounded-xl border object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => updateField("imageUrl", "")}
-                    className="absolute -top-2 -right-2 rounded-full bg-background p-1 shadow-sm ring-1 ring-border"
-                  >
-                    <X className="size-3.5" />
-                  </button>
-                </div>
-              ) : (
-                <label className="flex h-32 w-32 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed bg-muted/20 text-xs text-muted-foreground transition-colors hover:bg-muted/40">
-                  {uploading ? (
-                    <Loader2 className="size-5 animate-spin" />
-                  ) : (
-                    <ImagePlus className="size-5" />
+          <div className="space-y-2">
+            <Label>
+              {isProduct
+                ? t("inventory.form.imageLabel")
+                : t("inventory.form.serviceImageLabel")}
+            </Label>
+            {form.imageUrl ? (
+              <div className="relative w-fit">
+                {}
+                <img
+                  src={form.imageUrl}
+                  alt={t(
+                    isProduct
+                      ? "inventory.form.imageLabel"
+                      : "inventory.form.serviceImageLabel"
                   )}
-                  <span>
-                    {uploading
-                      ? t("inventory.form.uploading")
-                      : t("inventory.form.uploadImage")}
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/png,image/jpeg,image/jpg"
-                    className="hidden"
-                    onChange={handleImageChange}
-                    disabled={uploading}
-                  />
-                </label>
-              )}
-              <p className="text-xs text-muted-foreground">
-                {t("inventory.form.imageHint")}
-              </p>
-            </div>
-          ) : null}
+                  className="h-32 w-32 rounded-xl border object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => updateField("imageUrl", item?.imageUrl ?? "")}
+                  className="absolute -top-2 -right-2 rounded-full bg-background p-1 shadow-sm ring-1 ring-border"
+                >
+                  <X className="size-3.5" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex h-32 w-32 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed bg-muted/20 text-xs text-muted-foreground transition-colors hover:bg-muted/40">
+                {uploading ? (
+                  <Loader2 className="size-5 animate-spin" />
+                ) : (
+                  <ImagePlus className="size-5" />
+                )}
+                <span>
+                  {uploading
+                    ? t("inventory.form.uploading")
+                    : t("inventory.form.uploadImage")}
+                </span>
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg"
+                  className="hidden"
+                  onChange={handleImageChange}
+                  disabled={uploading}
+                />
+              </label>
+            )}
+            <p className="text-xs text-muted-foreground">
+              {t("inventory.form.imageHint")}
+            </p>
+          </div>
 
           {mode === "edit" ? (
             <div className="flex items-center justify-between rounded-2xl border bg-muted/20 p-3">

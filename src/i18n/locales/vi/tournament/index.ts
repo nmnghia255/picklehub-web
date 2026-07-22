@@ -26,6 +26,20 @@ const viTournament = {
   ...booking,
   ...groupStage,
   ...personnel,
+  referee: {
+    ...general.referee,
+    ...liveControl.referee,
+    ...personnel.referee,
+    actions: {
+      ...general.referee.actions,
+      ...liveControl.referee.actions,
+      ...personnel.referee.actions,
+    },
+    tracker: {
+      ...general.referee.tracker,
+      ...personnel.referee.tracker,
+    },
+  },
 }
 
 export default viTournament

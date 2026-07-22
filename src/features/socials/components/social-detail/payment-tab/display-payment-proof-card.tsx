@@ -30,12 +30,12 @@ export function DisplayPaymentProofCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="flex justify-center p-6">
-        <div className="relative max-w-md overflow-hidden rounded-lg border border-border bg-muted/20">
+        <div className="relative w-full overflow-hidden rounded-lg border border-border bg-muted/20">
           {}
           <img
             src={imageUrl}
             alt={t("expenses.tracking.paymentProof")}
-            className="h-auto max-h-[400px] w-full object-contain"
+            className="h-auto max-h-100 w-full object-contain"
           />
         </div>
       </CardContent>

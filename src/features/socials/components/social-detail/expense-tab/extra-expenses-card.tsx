@@ -94,12 +94,7 @@ export function ExtraExpensesCard({
                 {t("expenses.extra.description")}
               </CardDescription>
             </div>
-            <Button
-              variant="outline"
-              className="gap-2"
-              onClick={openAdd}
-              disabled={isLocked}
-            >
+            <Button variant="outline" className="gap-2" onClick={openAdd}>
               <Plus className="size-4" />
               {t("expenses.actions.addExpense")}
             </Button>
@@ -132,7 +127,7 @@ export function ExtraExpensesCard({
                       <TableCell className="px-6 py-4 font-medium">
                         {expense.title}
                       </TableCell>
-                      <TableCell className="px-6 py-4 text-muted-foreground">
+                      <TableCell className="px-6 py-4 text-ellipsis text-muted-foreground">
                         {expense.description || "-"}
                       </TableCell>
                       <TableCell className="px-6 py-4 text-right font-medium">
@@ -143,7 +138,6 @@ export function ExtraExpensesCard({
                           variant="ghost"
                           size="icon"
                           onClick={() => openEdit(expense)}
-                          disabled={isLocked}
                         >
                           <Edit className="size-4" />
                         </Button>
@@ -152,10 +146,6 @@ export function ExtraExpensesCard({
                           size="icon"
                           className="text-destructive hover:text-destructive"
                           onClick={() => confirmDelete(expense.id)}
-                          disabled={
-                            isLocked ||
-                            (isDeleting && expenseToDelete === expense.id)
-                          }
                         >
                           <Trash2 className="size-4" />
                         </Button>

@@ -1,10 +1,11 @@
 "use client"
 
+import type { TFunction } from "i18next"
 import { Bell, Clock } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 export interface GroupFeedNotificationItem {
   id: string
@@ -21,11 +22,14 @@ interface GroupFeedNotificationsProps {
   isLoading?: boolean
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function formatDate(dateString: string, t: any, language?: string): string {
+function formatDate(
+  dateString: string,
+  t: TFunction<"common">,
+  language?: string
+): string {
   const date = new Date(dateString)
   if (Number.isNaN(date.getTime())) {
-    return t("notifications.justNow", "Vừa xong")
+    return t("notifications.groupFeed.time.justNow")
   }
 
   const now = new Date()
@@ -34,17 +38,17 @@ function formatDate(dateString: string, t: any, language?: string): string {
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)
 
-  if (diffMins < 1) return t("notifications.justNow", "Vừa xong")
+  if (diffMins < 1) return t("notifications.groupFeed.time.justNow")
   if (diffMins < 60)
-    return t("notifications.minutesAgo", "{{count}} phút trước", {
+    return t("notifications.groupFeed.time.minutesAgo", {
       count: diffMins,
     })
   if (diffHours < 24)
-    return t("notifications.hoursAgo", "{{count}} giờ trước", {
+    return t("notifications.groupFeed.time.hoursAgo", {
       count: diffHours,
     })
   if (diffDays < 7)
-    return t("notifications.daysAgo", "{{count}} ngày trước", {
+    return t("notifications.groupFeed.time.daysAgo", {
       count: diffDays,
     })
 
@@ -58,20 +62,20 @@ export function GroupFeedNotifications({
   isLoading = false,
   className = "",
 }: GroupFeedNotificationsProps & { className?: string }) {
-  const { t, i18n } = useGroupsTranslation()
+  const { t, i18n } = useTranslation("common")
 
   if (isLoading) {
     return (
-      <Card className={"mt-6 " + className}>
+      <Card className={"group-feature-root mt-6 " + className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Bell className="size-5" />
-            {t("notifications.title", "Thông báo nhóm")}
+            {t("notifications.groupFeed.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="py-8 text-center text-sm text-muted-foreground">
-            {t("notifications.loading", "Đang tải thông báo...")}
+            {t("notifications.groupFeed.loading")}
           </div>
         </CardContent>
       </Card>
@@ -80,17 +84,17 @@ export function GroupFeedNotifications({
 
   if (notifications.length === 0) {
     return (
-      <Card className={"mt-6 bg-orange-50 dark:bg-accent" + className}>
+      <Card className={"group-feature-root mt-6 " + className}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Bell className="size-5" />
-            {t("notifications.title", "Thông báo nhóm")}
+            {t("notifications.groupFeed.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="py-8 text-center text-sm text-muted-foreground">
             {t(
-              "notifications.empty",
+              "notifications.groupFeed.empty",
               "Chưa có thông báo nào được gửi tới nhóm"
             )}
           </div>
@@ -100,11 +104,11 @@ export function GroupFeedNotifications({
   }
 
   return (
-    <Card className={`mt-6 ${className} bg-orange-50 dark:bg-accent`}>
+    <Card className={`group-feature-root mt-6 ${className}`}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Bell className="size-5" />
-          {t("notifications.title", "Thông báo nhóm")}
+          {t("notifications.groupFeed.title")}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -112,7 +116,7 @@ export function GroupFeedNotifications({
           {notifications.map((notification) => (
             <div
               key={notification.id}
-              className="rounded-r-lg border-l-2 border-primary/50 py-2 pl-4 transition-colors hover:bg-muted/50"
+              className="rounded-r-lg border-l-2 border-emerald-500/50 py-2 pl-4 transition-colors hover:bg-muted/50"
             >
               <div className="space-y-1">
                 <div className="flex items-start justify-between gap-2">

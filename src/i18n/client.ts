@@ -28,7 +28,20 @@ i18n.use(initReactI18next).init({
   initImmediate: false,
   resources: {
     en: {
-      common: enCommon,
+      common: {
+        ...enCommon,
+        saving: enCommon.landing.saving,
+        coach: enCommon.landing.coach,
+        learner: enCommon.landing.learner,
+        friends: enCommon.landing.friends,
+        equipment: enCommon.landing.equipment,
+        auth: enCommon.landing.auth,
+        invitation: enCommon.landing.invitation,
+        breadcrumb: enCommon.landing.breadcrumb,
+        carousel: enCommon.landing.carousel,
+        spinner: enCommon.landing.spinner,
+        settingsPage: enCommon.landing.settingsPage,
+      },
       groups: enGroups,
       socials: enSocials,
       profile: enProfile,

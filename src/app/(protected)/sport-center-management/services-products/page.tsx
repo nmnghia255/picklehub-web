@@ -1,5 +1,5 @@
-import { ServicesProductsManagementPage } from "@/features/sport-center-management/services-products-management/components/services-products-management-page"
+import { redirect } from "next/navigation"
 
-export default function Page() {
-  return <ServicesProductsManagementPage />
+export default function ServicesProductsRedirectPage() {
+  redirect("/sport-center-management?tab=services")
 }

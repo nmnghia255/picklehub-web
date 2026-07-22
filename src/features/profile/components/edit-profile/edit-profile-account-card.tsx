@@ -1,5 +1,6 @@
-﻿"use client"
+"use client"
 
+import { useQueryClient } from "@tanstack/react-query"
 import { UserRound } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { startTransition, useActionState, useEffect, useState } from "react"
@@ -55,13 +56,17 @@ export function EditProfileAccountCard({
   const setUser = useProfileEditStore((state) => state.setUser)
 
   const [state, formAction, isPending] = useActionState(updateAvatarAction, {})
+  const [selectedFileName, setSelectedFileName] = useState("")
+
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     if (state.success && state.user) {
       setUser(state.user)
+      queryClient.invalidateQueries({ queryKey: ["my-profile"] })
       router.refresh()
     }
-  }, [setUser, state.success, state.user, router])
+  }, [setUser, state.success, state.user, router, queryClient])
 
   const initials = displayName
     .split(" ")
@@ -107,7 +112,15 @@ export function EditProfileAccountCard({
           </div>
         </div>
 
-        <Dialog open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen}>
+        <Dialog
+          open={avatarDialogOpen}
+          onOpenChange={(open) => {
+            setAvatarDialogOpen(open)
+            if (!open) {
+              setSelectedFileName("")
+            }
+          }}
+        >
           <DialogContent className="sm:max-w-xl">
             <form
               onSubmit={(event) => {
@@ -169,12 +182,37 @@ export function EditProfileAccountCard({
                     <FieldLabel htmlFor="avatarFile">
                       {t("edit.avatar.file")}
                     </FieldLabel>
-                    <Input
-                      id="avatarFile"
-                      name="avatarFile"
-                      type="file"
-                      accept="image/*"
-                    />
+                    <div className="mt-1.5 flex items-center gap-2">
+                      <Button
+                        asChild
+                        variant="outline"
+                        type="button"
+                        className="h-9"
+                      >
+                        <label htmlFor="avatarFile" className="cursor-pointer">
+                          {t("edit.avatar.selectFile", {
+                            defaultValue: "Chọn tệp",
+                          })}
+                        </label>
+                      </Button>
+                      <span className="max-w-[240px] truncate text-sm text-muted-foreground">
+                        {selectedFileName ||
+                          t("edit.avatar.noFileSelected", {
+                            defaultValue: "Chưa chọn tệp",
+                          })}
+                      </span>
+                      <input
+                        id="avatarFile"
+                        name="avatarFile"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          setSelectedFileName(file ? file.name : "")
+                        }}
+                      />
+                    </div>
                   </Field>
                 ) : (
                   <Field>
@@ -221,15 +259,6 @@ export function EditProfileAccountCard({
             </form>
           </DialogContent>
         </Dialog>
-
-        <div>
-          <p className="text-sm text-muted-foreground">{t("name")}</p>
-          <p className="font-medium">{displayName}</p>
-        </div>
-        <div>
-          <p className="text-sm text-muted-foreground">{t("email")}</p>
-          <p className="font-medium">{email}</p>
-        </div>
       </CardContent>
     </Card>
   )

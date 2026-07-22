@@ -12,6 +12,8 @@ import {
 } from "@/i18n/common-locale"
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
+import { deriveNotificationActionHref } from "../utils/notification-click-target"
+
 async function getCommonLocale(): Promise<CommonLocale> {
   const acceptLanguage = (await headers()).get("accept-language") ?? ""
   const { default: enCommon } = await import("@/i18n/locales/en/common.json")
@@ -38,10 +40,13 @@ export async function fetchMyNotifications(): Promise<FeedNotification[]> {
 
     const mapped: FeedNotification[] = items.map(
       (it: Record<string, unknown>) => {
-        const type =
-          (it["type"] as FeedNotificationType) ||
-          (it["category"] as FeedNotificationType) ||
-          "system"
+        const metadata = it["metadata"]
+        const rawType = String(it["type"] ?? it["category"] ?? "")
+        const type: FeedNotificationType = (
+          ["invitation", "session", "group", "system"] as const
+        ).includes(rawType as FeedNotificationType)
+          ? (rawType as FeedNotificationType)
+          : "system"
 
         const section = (() => {
           const created = new Date(
@@ -64,13 +69,21 @@ export async function fetchMyNotifications(): Promise<FeedNotification[]> {
             | string
             | undefined,
           section,
-          title: (it["title"] ??
-            it["subject"] ??
-            common.defaults.title) as string,
-          description: (it["message"] ?? it["description"] ?? "") as string,
-          actor: (it["actorName"] ??
-            it["sender"] ??
-            common.defaults.actor) as string,
+          title:
+            typeof (it["title"] ?? it["subject"]) === "string" &&
+            String(it["title"] ?? it["subject"]).trim()
+              ? String(it["title"] ?? it["subject"])
+              : common.defaults.title,
+          description:
+            typeof (it["message"] ?? it["description"]) === "string" &&
+            String(it["message"] ?? it["description"]).trim()
+              ? String(it["message"] ?? it["description"])
+              : common.defaults.description,
+          actor:
+            typeof (it["actorName"] ?? it["sender"]) === "string" &&
+            String(it["actorName"] ?? it["sender"]).trim()
+              ? String(it["actorName"] ?? it["sender"])
+              : common.defaults.actor,
           timeLabel: new Date(
             (it["createdAt"] ?? it["sentAt"] ?? Date.now()) as string | number
           ).toLocaleString(),
@@ -80,9 +93,9 @@ export async function fetchMyNotifications(): Promise<FeedNotification[]> {
             it["unread"] === true,
           status: (it["status"] ?? undefined) as undefined | string,
           tags: Array.isArray(it["tags"]) ? (it["tags"] as string[]) : [],
-          actionHref: (it["actionHref"] ?? it["url"] ?? undefined) as
-            | string
-            | undefined,
+          actionHref: (it["actionHref"] ??
+            it["url"] ??
+            deriveNotificationActionHref(metadata)) as string | undefined,
         }
       }
     )

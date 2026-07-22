@@ -1,5 +1,7 @@
 "use server"
 
+import axios from "axios"
+
 import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type {
@@ -22,7 +24,9 @@ function unwrapArray<T>(payload: unknown): T[] {
   ) {
     return (payload as { data: T[] }).data
   }
-  return []
+  throw new Error(
+    "Expected an array response from the Sport Center catalog API"
+  )
 }
 
 function unwrapObject<T>(payload: unknown): T {
@@ -37,16 +41,82 @@ function unwrapObject<T>(payload: unknown): T {
   return payload as T
 }
 
+function rethrowCatalogError(error: unknown, fallback: string): never {
+  if (axios.isAxiosError(error)) {
+    const responseData = error.response?.data as
+      | { message?: string }
+      | undefined
+    const normalized = new Error(responseData?.message ?? fallback)
+    Object.assign(normalized, { status: error.response?.status })
+    throw normalized
+  }
+
+  throw error instanceof Error ? error : new Error(fallback)
+}
+
+export type CatalogListResult<T> =
+  | { ok: true; data: T[] }
+  | {
+      ok: false
+      code:
+        | "CENTER_NOT_FOUND"
+        | "CENTER_NOT_ACTIVE"
+        | "FORBIDDEN"
+        | "REQUEST_FAILED"
+      status?: number
+      message: string
+    }
+
+function catalogListFailure(
+  error: unknown,
+  fallback: string
+): CatalogListResult<never> {
+  try {
+    rethrowCatalogError(error, fallback)
+  } catch (normalizedError) {
+    const status =
+      normalizedError && typeof normalizedError === "object"
+        ? (normalizedError as { status?: number }).status
+        : undefined
+    const message =
+      normalizedError instanceof Error ? normalizedError.message : fallback
+    const lowerMessage = message.toLowerCase()
+    const code =
+      status === 403
+        ? "FORBIDDEN"
+        : status === 404 && lowerMessage.includes("active")
+          ? "CENTER_NOT_ACTIVE"
+          : status === 404
+            ? "CENTER_NOT_FOUND"
+            : "REQUEST_FAILED"
+    return { ok: false, code, status, message }
+  }
+
+  return { ok: false, code: "REQUEST_FAILED", message: fallback }
+}
+
 // ============================================================================
 // Services
 // ============================================================================
 
 export async function listCenterServices(
   centerId: string
-): Promise<SportCenterService[]> {
-  const axios = await getAuthenticatedAxios()
-  const response = await axios.get(`/api/sport-centers/${centerId}/services`)
-  return unwrapArray<SportCenterService>(response.data)
+): Promise<CatalogListResult<SportCenterService>> {
+  if (!centerId.trim()) {
+    return {
+      ok: false,
+      code: "CENTER_NOT_FOUND",
+      message: "Sport Center ID is required",
+    }
+  }
+
+  try {
+    const client = await getAuthenticatedAxios()
+    const response = await client.get(`/api/sport-centers/${centerId}/services`)
+    return { ok: true, data: unwrapArray<SportCenterService>(response.data) }
+  } catch (error) {
+    return catalogListFailure(error, "Failed to load services")
+  }
 }
 
 export async function createCenterService(
@@ -88,10 +158,22 @@ export async function deleteCenterService(
 
 export async function listCenterProducts(
   centerId: string
-): Promise<SportCenterProduct[]> {
-  const axios = await getAuthenticatedAxios()
-  const response = await axios.get(`/api/sport-centers/${centerId}/products`)
-  return unwrapArray<SportCenterProduct>(response.data)
+): Promise<CatalogListResult<SportCenterProduct>> {
+  if (!centerId.trim()) {
+    return {
+      ok: false,
+      code: "CENTER_NOT_FOUND",
+      message: "Sport Center ID is required",
+    }
+  }
+
+  try {
+    const client = await getAuthenticatedAxios()
+    const response = await client.get(`/api/sport-centers/${centerId}/products`)
+    return { ok: true, data: unwrapArray<SportCenterProduct>(response.data) }
+  } catch (error) {
+    return catalogListFailure(error, "Failed to load products")
+  }
 }
 
 export async function createCenterProduct(
@@ -142,10 +224,23 @@ export async function uploadProductImage(
     "/api/media/images",
     formData,
     {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      headers: { "Content-Type": undefined },
     }
   )
-  return response.data
+
+  const payload = response.data as
+    | MediaUploadResult
+    | { data?: MediaUploadResult }
+  let result: MediaUploadResult | undefined
+  if (typeof payload === "object" && payload !== null && "data" in payload) {
+    result = payload.data
+  } else {
+    result = payload as MediaUploadResult
+  }
+
+  if (!result?.url) {
+    throw new Error("Upload response missing url")
+  }
+
+  return result
 }

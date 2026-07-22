@@ -60,7 +60,7 @@ export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
 
     fetchCourts()
     fetchBookings()
-  }, [date, selectedCenter])
+  }, [date, fetchBookings, fetchCourts, selectedCenter])
 
   if (!selectedCenter) {
     return (

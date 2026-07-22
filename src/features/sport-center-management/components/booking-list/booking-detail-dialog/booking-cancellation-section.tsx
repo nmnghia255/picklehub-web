@@ -5,6 +5,7 @@ import { ShieldX } from "lucide-react"
 import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { Booking } from "../../../types/booking"
+import { formatBookingCreatedAt } from "../booking-list.utils"
 import { BookingDetailField } from "./booking-detail-field"
 
 interface Props {
@@ -37,17 +38,13 @@ export function BookingCancellationSection({
           label={t("bookingList.detail.cancelledAt")}
           value={
             booking.cancelledAt
-              ? new Date(booking.cancelledAt).toLocaleString()
-              : t("bookingList.detail.notCancelled")
+              ? formatBookingCreatedAt(booking.cancelledAt)
+              : t("common.notAvailable")
           }
         />
         <BookingDetailField
-          label={t("bookingList.detail.cancellationReason")}
-          value={
-            booking.cancelReason ||
-            displayNote ||
-            t("bookingList.detail.noCancellationReason")
-          }
+          label={t("bookingList.detail.cancelReason")}
+          value={booking.cancelReason || displayNote || t("common.noReason")}
         />
       </div>
     </section>

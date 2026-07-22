@@ -29,7 +29,10 @@ import type {
   FeedNotificationStatus,
   FeedNotificationType,
 } from "@/features/feed/types"
-import { fetchMyNotifications } from "@/features/notifications/actions/user-notifications"
+import {
+  fetchMyNotifications,
+  markUserNotificationsRead,
+} from "@/features/notifications/actions/user-notifications"
 import { cn } from "@/lib/utils"
 
 import { notificationFeedAtom } from "../store/feed-store"
@@ -430,6 +433,8 @@ export function FeedPage() {
   )
 
   const handleMarkRead = (id: string) => {
+    const previousNotifications = notifications
+
     setNotifications((current) =>
       current.map((notification) =>
         notification.id === id
@@ -437,12 +442,28 @@ export function FeedPage() {
           : notification
       )
     )
+
+    void markUserNotificationsRead([id]).catch(() => {
+      setNotifications(previousNotifications)
+    })
   }
 
   const handleMarkAllRead = () => {
+    const unreadNotificationIds = notifications
+      .filter((notification) => notification.unread)
+      .map((notification) => notification.id)
+
+    if (unreadNotificationIds.length === 0) return
+
+    const previousNotifications = notifications
+
     setNotifications((current) =>
       current.map((notification) => ({ ...notification, unread: false }))
     )
+
+    void markUserNotificationsRead(unreadNotificationIds).catch(() => {
+      setNotifications(previousNotifications)
+    })
   }
 
   const handleDeleteReadNotifications = () => {

@@ -64,6 +64,15 @@ function normalizePasswordActionError(
   const normalizedMessage = (backendMessage || "").toLowerCase()
 
   if (status === 401) {
+    if (
+      action === "change" &&
+      (normalizedMessage.includes("old password") ||
+        normalizedMessage.includes("current password") ||
+        normalizedMessage.includes("incorrect") ||
+        normalizedMessage.includes("invalid password"))
+    ) {
+      return { error: "auth.errors.invalidCurrentPassword" }
+    }
     return { error: "auth.errors.unauthorized" }
   }
 

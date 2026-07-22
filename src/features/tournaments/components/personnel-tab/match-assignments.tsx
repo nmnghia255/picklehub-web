@@ -390,7 +390,7 @@ export function MatchAssignments({
           selectedEventId === "all" || String(m.eventId) === selectedEventId
         return matchesSearch && matchesEvent
       })
-  }, [matches, matchSearch, selectedEventId, scheduleMap, getTeamLabel])
+  }, [matches, matchSearch, selectedEventId, getTeamLabel])
 
   // Get current assignments for selected referee
   const refereeAssignments = useMemo(() => {

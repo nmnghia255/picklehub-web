@@ -37,11 +37,11 @@ import {
   buildEventDateRange,
   formatISO,
 } from "@/features/group-activity-schedule/group-activity-schedule.utils"
+import type { GroupCourtBooking } from "@/features/groups/public/group-activity-integration"
 import {
   groupQueryKeys,
   listGroupCourtBookingsClient,
-} from "@/features/groups/api/groups-client"
-import type { GroupCourtBooking } from "@/features/groups/types"
+} from "@/features/groups/public/group-activity-integration"
 import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 const formatBookingTime = (isoString?: string) => {
@@ -216,7 +216,10 @@ export function GroupActivityFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent
+        className="max-h-[90vh] overflow-y-auto sm:max-w-2xl"
+        showCloseButton={false}
+      >
         <DialogHeader>
           <DialogTitle>{dialogTitle}</DialogTitle>
           <DialogDescription>{dialogDescription}</DialogDescription>
@@ -335,6 +338,19 @@ function GroupActivityFormFields({
           "activitySchedule.formValidationRemindAt",
           "Thời gian nhắc phải nằm trong tương lai"
         )
+      } else if (values.date && values.startTime) {
+        const { startAt } = buildEventDateRange(
+          values.date,
+          values.startTime,
+          values.endTime
+        )
+        const startTimeMs = new Date(startAt).getTime()
+        if (remindTime >= startTimeMs) {
+          nextErrors.remindAt = t(
+            "activitySchedule.formValidationReminderBeforeStart",
+            "Thời gian nhắc nhở phải trước thời gian bắt đầu hoạt động"
+          )
+        }
       }
     }
 

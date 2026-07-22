@@ -44,6 +44,13 @@
       "refName": "Ref: {{refName}}",
       "vs": "vs"
     },
+    "completedMatches": {
+      "title": "Completed Matches",
+      "titleWithCount": "Completed Matches ({{count}})",
+      "noMatches": "No completed matches",
+      "refName": "Ref: {{refName}}",
+      "vs": "vs"
+    },
     "matchQueue": {
       "title": "Match Queue",
       "titleWithCount": "Scheduled Queue ({{count}})",
@@ -52,7 +59,15 @@
       "tbd": "TBD",
       "ready": "Ready",
       "scheduled": "Scheduled",
-      "waiting": "Waiting"
+      "waiting": "Waiting",
+      "vs": "vs"
+    },
+    "readyMatches": {
+      "title": "Ready Matches",
+      "titleWithCount": "Ready Matches ({{count}})",
+      "noMatches": "No ready matches",
+      "noCourt": "No Court",
+      "vs": "vs"
     },
     "courtStatus": {
       "title": "Court Status",

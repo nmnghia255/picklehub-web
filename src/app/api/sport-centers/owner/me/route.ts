@@ -1,19 +1,17 @@
 import { NextResponse } from "next/server"
 
-import { getAuthenticatedAxios } from "@/lib/server-api"
+import { getSportCenterRouteError } from "@/features/sport-center-management/api/route-error"
+import { SportCenterOwnerService } from "@/features/sport-center-management/api/sport-center-service"
 
 export async function GET() {
   try {
-    const client = await getAuthenticatedAxios()
-    const response = await client.get(`/api/sport-centers/owner/me`)
-    return NextResponse.json(response.data, { status: 200 })
+    const data = await SportCenterOwnerService.listOwnerSportCenters()
+    return NextResponse.json({ data }, { status: 200 })
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to load sport centers"
-    const status =
-      message === "Not authenticated" || message === "Session expired"
-        ? 401
-        : 500
+    const { message, status } = getSportCenterRouteError(
+      error,
+      "Failed to load sport centers"
+    )
     return NextResponse.json({ message }, { status })
   }
 }

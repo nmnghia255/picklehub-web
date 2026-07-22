@@ -2,12 +2,12 @@ import { TableCell, TableRow } from "@/components/ui/table"
 import type { BookingResponse } from "@/features/sport-center/types/booking"
 import {
   formatBookingCreatedAt,
+  formatBookingDate,
   formatCurrency,
 } from "@/features/sport-center-management/components/booking-list/booking-list.utils"
 import { BookingStatusBadge } from "@/features/sport-center-management/components/booking-list/booking-status-badge"
 import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
 import { cn } from "@/lib/utils"
-import { getDateOnly } from "@/utils/time-helper"
 
 import { getBookingHistoryItems } from "./booking-history.utils"
 import { BookingHistoryActionsDropdown } from "./booking-history-actions-dropdown"
@@ -47,7 +47,7 @@ export function BookingHistoryTableRow({
       <TableCell className="w-[15%] whitespace-normal">
         <div className="space-y-1">
           <p className="font-medium text-foreground">
-            {getDateOnly(booking.date)}
+            {formatBookingDate(booking.date)}
           </p>
           <p className="text-sm text-muted-foreground">
             {items.length > 0

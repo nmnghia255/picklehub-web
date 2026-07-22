@@ -70,7 +70,7 @@ export function RegistrationManagement({
     } finally {
       setIsLoading(false)
     }
-  }, [tournamentId, selectedEventId])
+  }, [tournamentId, selectedEventId, t])
 
   useEffect(() => {
     if (tournamentId) {

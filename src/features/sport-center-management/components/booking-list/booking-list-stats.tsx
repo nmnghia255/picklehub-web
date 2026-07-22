@@ -1,6 +1,7 @@
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
+import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 interface BookingListStatsProps {
   bookingCounts: {
@@ -24,11 +25,22 @@ function StatCard({ label, value }: { label: string; value: number }) {
 }
 
 export function BookingListStats({ bookingCounts }: BookingListStatsProps) {
+  const { t } = useSportCenterManagementTranslation()
+
   return (
     <section className="grid gap-3 sm:grid-cols-3">
-      <StatCard label="Tổng lượt đặt" value={bookingCounts.total} />
-      <StatCard label="Chờ xác nhận" value={bookingCounts.pending} />
-      <StatCard label="Đã xác nhận" value={bookingCounts.confirmed} />
+      <StatCard
+        label={t("bookingList.stats.totalBookings")}
+        value={bookingCounts.total}
+      />
+      <StatCard
+        label={t("bookingList.stats.pendingBookings")}
+        value={bookingCounts.pending}
+      />
+      <StatCard
+        label={t("bookingList.stats.confirmedBookings")}
+        value={bookingCounts.confirmed}
+      />
     </section>
   )
 }

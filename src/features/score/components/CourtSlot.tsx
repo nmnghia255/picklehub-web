@@ -1,6 +1,6 @@
 "use client"
 
-import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
+import { useScoreTranslation } from "@/i18n/use-score-translation"
 import { cn } from "@/lib/utils"
 
 import { TEAM_COLOR } from "../constants/team-constants"
@@ -21,7 +21,7 @@ export function CourtSlot({
   isServing,
   isReceiving = false,
 }: CourtSlotProps) {
-  const { t } = useTournamentTranslation()
+  const { t } = useScoreTranslation()
   const teamColor = TEAM_COLOR[team]
 
   if (!playerName) {
@@ -59,7 +59,7 @@ export function CourtSlot({
               badgeColor
             )}
           >
-            {t("referee.tracker.serving", { defaultValue: "Giao" })}
+            {t("tracker.serving", { defaultValue: "Giao" })}
           </span>
         )}
         {isReceiving && (
@@ -69,7 +69,7 @@ export function CourtSlot({
               badgeColor
             )}
           >
-            {t("referee.tracker.receiving", { defaultValue: "Nhận" })}
+            {t("tracker.receiving", { defaultValue: "Nhận" })}
           </span>
         )}
       </div>

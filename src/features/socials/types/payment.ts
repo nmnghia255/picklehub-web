@@ -5,9 +5,11 @@ export type PaymentStatus =
   | "OVERPAID"
   | "REFUNDED"
 
+export type TransactionStatus = "PENDING_REVIEW" | "CONFIRMED" | "REJECTED"
+
 export interface VerifyPaymentRequest {
   paymentId: string
-  status: PaymentStatus
+  status: TransactionStatus
   amountPaid: number
 }
 

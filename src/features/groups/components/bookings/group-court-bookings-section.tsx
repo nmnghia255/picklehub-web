@@ -49,8 +49,10 @@ import {
   linkGroupCourtBookingClient,
   listGroupCourtBookingsClient,
   unlinkGroupCourtBookingClient,
+  useGroupDetail,
   useGroupInvalidation,
 } from "../../api/groups-client"
+import { useActionGuard } from "../../hooks/use-action-guard"
 import type { GroupCourtBooking } from "../../types"
 
 interface GroupCourtBookingsSectionProps {
@@ -91,6 +93,13 @@ export function GroupCourtBookingsSection({
 }: GroupCourtBookingsSectionProps) {
   const { t } = useGroupsTranslation()
   const { invalidateCourtBookings } = useGroupInvalidation(groupId)
+
+  const { data: group } = useGroupDetail(groupId)
+
+  const { guardWriteAction, PermissionDialog } = useActionGuard(
+    group,
+    currentUserRole
+  )
 
   const normalizedRole = currentUserRole?.toUpperCase() ?? ""
   const isOwner = normalizedRole === "OWNER"
@@ -179,7 +188,8 @@ export function GroupCourtBookingsSection({
 
     // Chỉ gửi title, note, bookingId theo API
     linkBookingMutation.mutate({
-      title: formTitle,
+      title:
+        formTitle.trim() || t("errors.defaultLinkBookingName", "Lịch đặt sân"),
       note: formNote,
       bookingId: formBookingId,
     })
@@ -258,7 +268,11 @@ export function GroupCourtBookingsSection({
             </EmptyDescription>
             {isOwner && !isArchived && (
               <Button
-                onClick={() => setLinkDialogOpen(true)}
+                onClick={() =>
+                  guardWriteAction(() => setLinkDialogOpen(true), {
+                    featureName: "liên kết đặt sân",
+                  })
+                }
                 size="sm"
                 className="mt-4 border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
               >
@@ -310,7 +324,7 @@ export function GroupCourtBookingsSection({
           return (
             <Card
               key={item.id}
-              className="flex cursor-pointer flex-col gap-6 rounded-xl border bg-orange-50 py-6 text-card-foreground shadow-sm transition-all hover:bg-orange-100 hover:shadow-md dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm dark:hover:border-accent-foreground/15 dark:hover:bg-accent-foreground/10"
+              className="flex cursor-pointer flex-col gap-6 rounded-xl border bg-muted py-6 text-card-foreground shadow-sm transition-all hover:shadow-md"
               onClick={() => handleOpenDetail(item)}
             >
               <CardHeader className="pb-3">
@@ -379,15 +393,30 @@ export function GroupCourtBookingsSection({
                 )}
 
                 <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-2.5 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <User className="size-3" />
-                    {t("errors.linkedBy", "Người liên kết: {{name}}", {
-                      name: item.creator?.name || t("members"),
-                    })}
-                  </span>
-                  <span className="flex items-center gap-1">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                    {item.creator?.name && (
+                      <span className="flex items-center gap-1">
+                        <User className="size-3" />
+                        {t("errors.linkedBy", "Người liên kết: {{name}}", {
+                          name: item.creator.name,
+                        })}
+                      </span>
+                    )}
+                    {item.linkedActivity && (
+                      <span className="flex items-center gap-1 font-semibold text-muted-foreground/80 dark:text-emerald-400">
+                        {t(
+                          "activitySchedule.linkedActivityLabel",
+                          "Hoạt động: {{title}}",
+                          {
+                            title: item.linkedActivity.title,
+                          }
+                        )}
+                      </span>
+                    )}
+                  </div>
+                  <span className="flex items-center gap-1 text-muted-foreground/80">
                     <Clock className="size-3" />
-                    {t("errors.linkedAt", "Thời gian liên kết: {{time}}", {
+                    {t("errors.linkedAt", "Thời gian liên kết nhóm: {{time}}", {
                       time: formatDateTime(item.createdAt),
                     })}
                   </span>
@@ -451,7 +480,11 @@ export function GroupCourtBookingsSection({
         </div>
         {isOwner && !isArchived && (
           <Button
-            onClick={() => setLinkDialogOpen(true)}
+            onClick={() =>
+              guardWriteAction(() => setLinkDialogOpen(true), {
+                featureName: "liên kết đặt sân",
+              })
+            }
             size="sm"
             className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
           >
@@ -465,7 +498,7 @@ export function GroupCourtBookingsSection({
 
       {/* Link Booking Dialog */}
       <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[500px]" showCloseButton={false}>
           <form onSubmit={handleLinkSubmit}>
             <DialogHeader>
               <DialogTitle>
@@ -482,13 +515,13 @@ export function GroupCourtBookingsSection({
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">
-                  {t("activitySchedule.formActivityName")}
+                  {t("errors.linkBookingName", "Tên liên kết đặt sân")}
                 </label>
                 <input
                   type="text"
                   placeholder={t(
-                    "activitySchedule.formActivityNamePlaceholder",
-                    "Ví dụ: Giao lưu sáng thứ 7"
+                    "errors.linkBookingNamePlaceholder",
+                    "Ví dụ: Giao lưu sáng thứ 7, Trận tối..."
                   )}
                   className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
                   value={formTitle}
@@ -498,11 +531,11 @@ export function GroupCourtBookingsSection({
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">
-                  {t("activitySchedule.formDescription")}
+                  {t("errors.linkBookingNote", "Ghi chú")}
                 </label>
                 <textarea
                   placeholder={t(
-                    "activitySchedule.formDescriptionPlaceholder",
+                    "errors.linkBookingNotePlaceholder",
                     "Nhập ghi chú cho nhóm nếu có..."
                   )}
                   className="min-h-20 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
@@ -586,7 +619,7 @@ export function GroupCourtBookingsSection({
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px]" showCloseButton={false}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="size-5" />
@@ -622,7 +655,10 @@ export function GroupCourtBookingsSection({
 
       {/* Detail Dialog */}
       <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto bg-orange-50 sm:max-w-[600px] dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm">
+        <DialogContent
+          className="max-h-[85vh] overflow-y-auto sm:max-w-[600px]"
+          showCloseButton={false}
+        >
           {selectedBooking && (
             <div>
               <DialogHeader>
@@ -650,15 +686,7 @@ export function GroupCourtBookingsSection({
                 <div className="grid gap-3 rounded-lg border bg-muted/20 p-4 sm:grid-cols-2">
                   <div>
                     <span className="block text-xs text-muted-foreground uppercase">
-                      {t("errors.linker", "Người liên kết")}
-                    </span>
-                    <span className="font-semibold text-foreground">
-                      {selectedBooking.creator?.name || t("members")}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-xs text-muted-foreground uppercase">
-                      {t("errors.linkedTime", "Thời gian liên kết")}
+                      {t("errors.linkedTime", "Thời gian liên kết nhóm")}
                     </span>
                     <span className="font-semibold text-foreground">
                       {formatDateTime(selectedBooking.createdAt)}
@@ -766,6 +794,7 @@ export function GroupCourtBookingsSection({
           )}
         </DialogContent>
       </Dialog>
+      <PermissionDialog />
     </div>
   )
 }

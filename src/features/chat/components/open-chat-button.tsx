@@ -1,6 +1,6 @@
 "use client"
 
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { MessageSquare } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { ComponentProps } from "react"
@@ -10,6 +10,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 
 import { chatClient } from "../api/chat-client"
+import { chatQueryKeys } from "../api/chat-keys"
 import type { ChatApiError } from "../types"
 
 type OpenChatKind = "direct" | "group" | "social" | "tournament"
@@ -23,14 +24,33 @@ interface OpenChatButtonProps {
   size?: ComponentProps<typeof Button>["size"]
   showIcon?: boolean
   disabled?: boolean
+  onClick?: (
+    e: React.MouseEvent<HTMLButtonElement>,
+    trigger: () => void
+  ) => void
 }
 
 function getChatErrorMessage(
   error: unknown,
-  t: (key: string, options?: Record<string, unknown>) => string
+  t: (key: string, options?: Record<string, unknown>) => string,
+  kind: OpenChatKind
 ) {
   const chatError = error as ChatApiError | null
   const body = chatError?.body
+
+  if (
+    kind === "tournament" &&
+    body &&
+    typeof body === "object" &&
+    "errorCode" in body &&
+    body.errorCode === "INVALID_TOURNAMENT_ID"
+  ) {
+    return t("chat.errors.invalidTournamentId")
+  }
+
+  if (kind === "social" && chatError?.status === 404) {
+    return t("chat.errors.socialNotFound")
+  }
 
   if (body && typeof body === "object" && "message" in body) {
     const message = body.message
@@ -65,9 +85,11 @@ export function OpenChatButton({
   size = "default",
   showIcon = true,
   disabled,
+  onClick,
 }: OpenChatButtonProps) {
   const { t } = useTranslation("common")
   const router = useRouter()
+  const queryClient = useQueryClient()
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -85,10 +107,16 @@ export function OpenChatButton({
       }
     },
     onSuccess: (conversation) => {
+      if (conversation?.id) {
+        queryClient.setQueryData(
+          chatQueryKeys.conversation(conversation.id),
+          conversation
+        )
+      }
       router.push(`/chat?conversationId=${conversation.id}`)
     },
     onError: (error) => {
-      toast.error(getChatErrorMessage(error, t))
+      toast.error(getChatErrorMessage(error, t, kind))
     },
   })
 
@@ -99,7 +127,13 @@ export function OpenChatButton({
       size={size}
       className={className}
       disabled={disabled || mutation.isPending}
-      onClick={() => mutation.mutate()}
+      onClick={(e) => {
+        if (onClick) {
+          onClick(e, () => mutation.mutate())
+        } else {
+          mutation.mutate()
+        }
+      }}
     >
       {showIcon && <MessageSquare className="mr-2 size-4" />}
       {mutation.isPending ? t("chat.actions.opening") : label}

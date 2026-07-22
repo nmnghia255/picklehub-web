@@ -24,6 +24,7 @@ import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import { updateGroupAction } from "../../actions"
 import { useGroupInvalidation } from "../../api/groups-client"
+import { useActionGuard } from "../../hooks/use-action-guard"
 import { type UpdateGroupFormData, updateGroupSchema } from "../../schemas"
 import type { Group } from "../../types"
 
@@ -37,6 +38,11 @@ export function EditGroupDrawer({ group }: EditGroupDrawerProps) {
   const invalidation = useGroupInvalidation(group.id)
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
+
+  const { guardWriteAction, PermissionDialog } = useActionGuard(
+    group,
+    group.role
+  )
 
   const form = useForm<UpdateGroupFormData>({
     resolver: zodResolver(updateGroupSchema),
@@ -90,123 +96,133 @@ export function EditGroupDrawer({ group }: EditGroupDrawerProps) {
   })
 
   return (
-    <Drawer direction="right" open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>
-        <Button
-          size="sm"
-          className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-600"
-        >
-          <Settings2 className="size-4" />
-          {t("dashboard.editGroupBtn", "Chỉnh sửa nhóm")}
-        </Button>
-      </DrawerTrigger>
-      <DrawerContent>
-        <form className="flex h-full flex-col" onSubmit={onSubmit}>
-          <DrawerHeader>
-            <DrawerTitle>
-              {t("dashboard.editGroupTitle", "Chỉnh sửa thông tin nhóm")}
-            </DrawerTitle>
-          </DrawerHeader>
+    <>
+      <Button
+        onClick={() => {
+          guardWriteAction(() => setOpen(true), {
+            featureName: "chỉnh sửa thông tin nhóm",
+          })
+        }}
+        size="sm"
+        className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-600"
+      >
+        <Settings2 className="size-4" />
+        {t("dashboard.editGroupBtn", "Chỉnh sửa nhóm")}
+      </Button>
 
-          <div className="flex-1 overflow-y-auto px-4">
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="edit-name">
-                  {t("dashboard.groupNameLabel", "Tên nhóm")}
-                </FieldLabel>
-                <Input
-                  id="edit-name"
-                  placeholder={t(
-                    "dashboard.groupNamePlaceholder",
-                    "Nhập tên nhóm"
+      <Drawer direction="right" open={open} onOpenChange={setOpen}>
+        <DrawerContent className="group-feature-root bg-card sm:max-w-md">
+          <form className="flex h-full flex-col" onSubmit={onSubmit}>
+            <DrawerHeader>
+              <DrawerTitle>
+                {t("dashboard.editGroupTitle", "Chỉnh sửa thông tin nhóm")}
+              </DrawerTitle>
+            </DrawerHeader>
+
+            <div className="flex-1 overflow-y-auto px-4">
+              <FieldGroup>
+                <Field>
+                  <FieldLabel htmlFor="edit-name">
+                    {t("dashboard.groupNameLabel", "Tên nhóm")}
+                  </FieldLabel>
+                  <Input
+                    id="edit-name"
+                    placeholder={t(
+                      "dashboard.groupNamePlaceholder",
+                      "Nhập tên nhóm"
+                    )}
+                    {...form.register("name")}
+                    aria-invalid={!!form.formState.errors.name}
+                  />
+                  {form.formState.errors.name && (
+                    <p className="text-sm text-destructive">
+                      {form.formState.errors.name.message}
+                    </p>
                   )}
-                  {...form.register("name")}
-                  aria-invalid={!!form.formState.errors.name}
-                />
-                {form.formState.errors.name && (
-                  <p className="text-sm text-destructive">
-                    {form.formState.errors.name.message}
-                  </p>
-                )}
-              </Field>
+                </Field>
 
-              <Field>
-                <FieldLabel htmlFor="edit-description">
-                  {t("dashboard.descriptionLabel", "Mô tả")}
-                </FieldLabel>
-                <Textarea
-                  id="edit-description"
-                  placeholder={t(
-                    "dashboard.descriptionPlaceholder",
-                    "Nhập mô tả nhóm"
+                <Field>
+                  <FieldLabel htmlFor="edit-description">
+                    {t("dashboard.descriptionLabel", "Mô tả")}
+                  </FieldLabel>
+                  <Textarea
+                    id="edit-description"
+                    placeholder={t(
+                      "dashboard.descriptionPlaceholder",
+                      "Nhập mô tả nhóm"
+                    )}
+                    rows={4}
+                    {...form.register("description")}
+                    aria-invalid={!!form.formState.errors.description}
+                  />
+                  {form.formState.errors.description && (
+                    <p className="text-sm text-destructive">
+                      {form.formState.errors.description.message}
+                    </p>
                   )}
-                  rows={4}
-                  {...form.register("description")}
-                  aria-invalid={!!form.formState.errors.description}
-                />
-                {form.formState.errors.description && (
-                  <p className="text-sm text-destructive">
-                    {form.formState.errors.description.message}
-                  </p>
-                )}
-              </Field>
+                </Field>
 
-              <Field>
-                <FieldLabel htmlFor="edit-avatar">
-                  {t("dashboard.avatarLabel", "Ảnh đại diện")}
-                </FieldLabel>
-                <Input
-                  id="edit-avatar"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0]
-                    if (file) {
-                      form.setValue("avatarFile", file)
-                    }
-                  }}
-                />
-                {form.formState.errors.avatarUrl && (
-                  <p className="text-sm text-destructive">
-                    {form.formState.errors.avatarUrl.message}
-                  </p>
-                )}
-              </Field>
+                <Field>
+                  <FieldLabel htmlFor="edit-avatar">
+                    {t("dashboard.avatarLabel", "Ảnh đại diện")}
+                  </FieldLabel>
+                  <Input
+                    id="edit-avatar"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        form.setValue("avatarFile", file)
+                      }
+                    }}
+                  />
+                  {form.formState.errors.avatarUrl && (
+                    <p className="text-sm text-destructive">
+                      {form.formState.errors.avatarUrl.message}
+                    </p>
+                  )}
+                </Field>
 
-              <Field>
-                <FieldLabel htmlFor="edit-maxMembers">
-                  {t("dashboard.maxMembersLabel", "Số lượng thành viên tối đa")}
-                </FieldLabel>
-                <Input
-                  id="edit-maxMembers"
-                  type="number"
-                  placeholder="50"
-                  {...form.register("maxMembers")}
-                  aria-invalid={!!form.formState.errors.maxMembers}
-                />
-                {form.formState.errors.maxMembers && (
-                  <p className="text-sm text-destructive">
-                    {form.formState.errors.maxMembers.message}
-                  </p>
-                )}
-              </Field>
-            </FieldGroup>
-          </div>
+                <Field>
+                  <FieldLabel htmlFor="edit-maxMembers">
+                    {t(
+                      "dashboard.maxMembersLabel",
+                      "Số lượng thành viên tối đa"
+                    )}
+                  </FieldLabel>
+                  <Input
+                    id="edit-maxMembers"
+                    type="number"
+                    placeholder="50"
+                    {...form.register("maxMembers")}
+                    aria-invalid={!!form.formState.errors.maxMembers}
+                  />
+                  {form.formState.errors.maxMembers && (
+                    <p className="text-sm text-destructive">
+                      {form.formState.errors.maxMembers.message}
+                    </p>
+                  )}
+                </Field>
+              </FieldGroup>
+            </div>
 
-          <DrawerFooter>
-            <Button type="submit" disabled={isPending} variant="orangeCard">
-              {isPending
-                ? t("dashboard.updatingGroupBtn", "Đang cập nhật...")
-                : t("dashboard.saveChangesBtn", "Lưu thay đổi")}
-            </Button>
-            <DrawerClose asChild>
-              <Button variant="outline" type="button">
-                {t("activitySchedule.btnCancel")}
+            <DrawerFooter>
+              <Button type="submit" disabled={isPending} variant="orangeCard">
+                {isPending
+                  ? t("dashboard.updatingGroupBtn", "Đang cập nhật...")
+                  : t("dashboard.saveChangesBtn", "Lưu thay đổi")}
               </Button>
-            </DrawerClose>
-          </DrawerFooter>
-        </form>
-      </DrawerContent>
-    </Drawer>
+              <DrawerClose asChild>
+                <Button variant="outline" type="button">
+                  {t("activitySchedule.btnCancel")}
+                </Button>
+              </DrawerClose>
+            </DrawerFooter>
+          </form>
+        </DrawerContent>
+      </Drawer>
+      <PermissionDialog />
+    </>
   )
 }

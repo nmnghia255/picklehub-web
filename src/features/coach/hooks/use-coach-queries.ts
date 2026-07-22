@@ -3,9 +3,23 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 import { CoachClient } from "../api/coach-client"
+import { CoachMediaService } from "../api/media-service"
 import { coachQueryKeys, learnerQueryKeys } from "../api/query-keys"
+import { SwingAnalysisService } from "../api/swing-analysis-service"
 import type * as CoachTypes from "../types/coach"
+import type { SwingAnalysisRequest } from "../types/swing-analysis"
 import { mapDiscoverClass } from "../utils/mappers/discover-class-mapper"
+
+export function useUploadSwingMedia() {
+  return useMutation({ mutationFn: CoachMediaService.uploadMedia })
+}
+
+export function useAnalyzeSwing() {
+  return useMutation({
+    mutationFn: (request: SwingAnalysisRequest) =>
+      SwingAnalysisService.analyze(request),
+  })
+}
 
 export function useCoachList(params?: {
   city?: string

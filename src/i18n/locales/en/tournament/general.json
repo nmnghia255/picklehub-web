@@ -1,4 +1,10 @@
 {
+  "permission": {
+    "accessDenied": "Access denied",
+    "hostPlanRequired": "A Host plan is required to organize tournaments",
+    "goBack": "Go back",
+    "upgradeAccount": "Upgrade account"
+  },
   "loadingScoreboard": "Loading scoreboard...",
   "loadingTournamentInfo": "Loading tournament information...",
   "manager": {
@@ -26,6 +32,7 @@
   },
   "common": {
     "loading": "Loading...",
+    "previewImageAlt": "Preview image",
     "saving": "Saving...",
     "deleting": "Deleting..."
   },
@@ -113,6 +120,10 @@
   },
   "referee": {
     "score": "Score",
+    "notUpdate": "Unable to update referee profile",
+    "actions": {
+      "startMatch": "Start Match"
+    },
     "tracker": {
       "loading": "Loading scoreboard...",
       "teamADefault": "Team A",
@@ -140,7 +151,57 @@
       "rallyWon": "{{team}} won the rally",
       "successMessage": "Match score updated successfully!",
       "errorMessage": "Unable to update the score",
-      "unexpectedErrorMessage": "An unexpected error occurred"
+      "unexpectedErrorMessage": "An unexpected error occurred",
+      "matchNotStarted": "Match not started",
+      "matchNotStartedDesc": "Please wait for the referee to prepare and click the start match button at the court.",
+      "gameOverTitle": "Match is over",
+      "winnerIs": "Winner: {{name}}",
+      "setCompletedTitle": "Set {{set}} completed",
+      "startNextSetBtn": "Start Set {{nextSet}}",
+      "serving": "Serve",
+      "receiving": "Receive",
+      "kitchen": "Non-Volley Zone (Kitchen)",
+      "doubles": "Doubles",
+      "singles": "Singles",
+      "set": "Set",
+      "targetScore": "Target Score",
+      "scoreCallFormatLabel": "Score Call",
+      "doublesHelp": "Call Score: Serving score {{servingScore}} - Receiving score {{receivingScore}} - Server number {{serverNumber}}. {{activeServerName}} is serving.",
+      "singlesHelp": "Call Score: Serving score {{servingScore}} - Receiving score {{receivingScore}}. {{activeServerName}} is serving.",
+      "setNumber": "Set {{number}}",
+      "bo1": "BO1",
+      "bo3": "BO3",
+      "bo5": "BO5",
+      "bestOf": "Best of {{count}}",
+      "gainPoint": "+1 point",
+      "sideOutConsequence": "Side Out",
+      "server2Consequence": "Server 2",
+      "techTimeout": "Technical Timeout",
+      "teamTimeout": "Timeout {{name}}",
+      "endTimeoutBtn": "Resume Match",
+      "timeoutTeam": "Timeout {{name}}",
+      "timeoutTechnical": "Technical Timeout",
+      "tossFlipping": "Coin flipping...",
+      "tossWinnerResult": "Result: {{name}} won the coin toss!",
+      "tossWinnerManual": "Team {{name}} won the coin toss!",
+      "startMatchSuccess": "Match started successfully!",
+      "startMatchError": "Failed to start match",
+      "startMatchConnectionError": "Connection error when starting match",
+      "matchStartConfig": "Match Start Configuration",
+      "matchStartDesc": "Choose the first serving team to start scoring the match.",
+      "tossFlow": "Coin Toss Wizard",
+      "tossFlowDesc": "Simulate a random coin toss or select the physical coin toss winner.",
+      "tossRandom": "Random coin toss",
+      "teamWonToss": "Team {{team}} wins",
+      "quickSelect": "Quick select",
+      "quickSelectDesc": "Directly assign the first serving team of the match.",
+      "teamServeFirstDesc": "Assign Team {{team}} to serve first.",
+      "teamServeFirstBtn": "Team {{team}} serves first",
+      "tossServeChoice": "🎾 Serve first (Serve)",
+      "tossReceiveChoice": "🛡️ Receive first (Receive)",
+      "firstServingTeam": "👉 First serving team: ",
+      "startingMatch": "STARTING MATCH...",
+      "confirmAndStartMatch": "🚀 CONFIRM & START MATCH"
     }
   }
 }

@@ -1,32 +1,22 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { listSocialParticipantsAction } from "@/features/socials/actions/social-participant-actions"
+import { isConfirmedLikeSocialParticipantStatus } from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import type { PlaySessionParticipant } from "../../types/play-session"
-import type { User } from "../../types/social"
 import { getParticipantStatusLabel } from "../../utils"
 
 export default function PlaySessionParticipants({
   participants,
-  socialId,
 }: {
   participants: Array<PlaySessionParticipant>
-  socialId: string
 }) {
   const { t } = useSocialsTranslation()
-
-  const { data: socialParticipants = [] } = useQuery({
-    queryKey: ["socialParticipants", socialId],
-    queryFn: () => listSocialParticipantsAction(socialId),
-    enabled: !!socialId,
-  })
 
   return (
     <div className="space-y-4">
@@ -75,7 +65,9 @@ export default function PlaySessionParticipants({
                       <div className="mt-2 flex flex-wrap gap-2">
                         <Badge
                           className={
-                            participant.status === "CONFIRMED"
+                            isConfirmedLikeSocialParticipantStatus(
+                              participant.status
+                            )
                               ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
                               : participant.status === "WAITLISTED"
                                 ? "border-amber-500/30 bg-amber-500/10 text-amber-600"

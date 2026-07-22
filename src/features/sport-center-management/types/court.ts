@@ -3,13 +3,14 @@ import type { SportCenter } from "./sport-center"
 export type CourtType = "INDOOR" | "OUTDOOR"
 
 export type CourtStatus = "ACTIVE" | "INACTIVE"
+export type CourtLifecycleStatus = "ACTIVE" | "MAINTENANCE" | "ARCHIVED"
 
 export interface Court {
   id: string
   centerId: string
   name: string
   type: CourtType
-  status: CourtStatus
+  status: CourtStatus | CourtLifecycleStatus
   createdAt: string
   updatedAt: string
 
@@ -19,7 +20,7 @@ export interface Court {
 export interface CourtRequest {
   name: string
   type: CourtType
-  status: CourtStatus
+  status?: CourtLifecycleStatus
 }
 
 export interface CourtResponse {
@@ -27,9 +28,21 @@ export interface CourtResponse {
   centerId: string
   name: string
   type: CourtType
-  status: CourtStatus
+  status: CourtStatus | CourtLifecycleStatus
   createdAt: string
   updatedAt: string
+}
+
+export interface CreateCourtRequest {
+  name: string
+  type: CourtType
+  status?: CourtLifecycleStatus
+}
+
+export interface UpdateCourtRequest {
+  name?: string
+  type?: CourtType
+  status?: CourtLifecycleStatus
 }
 
 export interface CourtSlot {

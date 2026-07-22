@@ -206,6 +206,12 @@
       "reset": "Reset",
       "statusTitle": "Status",
       "allStatus": "All statuses",
+      "pending": "Pending",
+      "pendingApproval": "Pending approval",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "rejected": "Rejected",
       "viewDetail": "View details",
       "cancelBooking": "Cancel booking",
       "cancelErrorDesc": "Could not cancel the booking",
@@ -270,7 +276,8 @@
       "itemsTitle": "Service and product details",
       "noExtraServices": "No extra services.",
       "noExtraProducts": "No extra products.",
-      "scheduleTitle": "Booking schedule",
+    "scheduleTitle": "Booking schedule",
+    "noDate": "No date selected",
       "slotsCount_one": "{{count}} time slot",
       "slotsCount_other": "{{count}} time slots"
     }

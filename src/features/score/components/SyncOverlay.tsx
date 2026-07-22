@@ -1,6 +1,6 @@
 "use client"
 
-import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
+import { useScoreTranslation } from "@/i18n/use-score-translation"
 
 import { useScoreStore } from "../stores/use-score-store"
 
@@ -9,7 +9,7 @@ type SyncOverlayProps = {
 }
 
 export function SyncOverlay({ isMatchServiceMatch }: SyncOverlayProps) {
-  const { t } = useTournamentTranslation()
+  const { t } = useScoreTranslation()
   const { isConnected, isSyncing } = useScoreStore()
 
   if (!isMatchServiceMatch || (isConnected && !isSyncing)) {
@@ -23,20 +23,20 @@ export function SyncOverlay({ isMatchServiceMatch }: SyncOverlayProps) {
           <>
             <span className="animate-bounce text-4xl">⚠️</span>
             <h3 className="text-lg font-bold text-destructive">
-              {t("referee.tracker.disconnected")}
+              {t("tracker.disconnected")}
             </h3>
             <p className="text-sm text-muted-foreground">
-              {t("referee.tracker.disconnectedDesc")}
+              {t("tracker.disconnectedDesc")}
             </p>
           </>
         ) : (
           <>
             <div className="size-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
             <h3 className="text-lg font-bold text-foreground">
-              {t("referee.tracker.syncing")}
+              {t("tracker.syncing")}
             </h3>
             <p className="text-sm text-muted-foreground">
-              {t("referee.tracker.syncingDesc")}
+              {t("tracker.syncingDesc")}
             </p>
           </>
         )}

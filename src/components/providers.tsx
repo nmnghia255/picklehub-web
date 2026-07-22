@@ -9,10 +9,12 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Provider as JotaiProvider } from "jotai"
 import { ThemeProvider } from "next-themes"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Toaster } from "sonner"
 
 import { I18nProvider } from "@/components/i18n-provider"
 import { ThemeEffects } from "@/components/theme-effects"
+import { ThemeSync } from "@/components/theme-sync"
 
 if (typeof window !== "undefined") {
   let googleVal: unknown = undefined
@@ -72,7 +74,29 @@ if (typeof window !== "undefined") {
   })
 }
 
-export function Providers({ children }: { children: React.ReactNode }) {
+function GoogleOAuthProviderWrapper({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const { i18n } = useTranslation()
+  return (
+    <GoogleOAuthProvider
+      clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+      locale={i18n.language}
+    >
+      {children}
+    </GoogleOAuthProvider>
+  )
+}
+
+export function Providers({
+  children,
+  initialLanguage,
+}: {
+  children: React.ReactNode
+  initialLanguage?: string
+}) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -91,10 +115,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   )
 
   return (
-    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
-      <QueryClientProvider client={queryClient}>
-        <JotaiProvider>
-          <I18nProvider>
+    <QueryClientProvider client={queryClient}>
+      <JotaiProvider>
+        <I18nProvider initialLanguage={initialLanguage}>
+          <GoogleOAuthProviderWrapper>
             <ThemeProvider
               enableSystem
               disableTransitionOnChange
@@ -103,6 +127,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
               defaultTheme="system"
               attribute="class"
             >
+              <ThemeSync />
               <ThemeEffects />
               <AppProgressProvider
                 color="#2563eb"
@@ -117,10 +142,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
               <Analytics />
               <SpeedInsights />
             </ThemeProvider>
-          </I18nProvider>
-        </JotaiProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </GoogleOAuthProvider>
+          </GoogleOAuthProviderWrapper>
+        </I18nProvider>
+      </JotaiProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   )
 }

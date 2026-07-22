@@ -1,6 +1,7 @@
-﻿"use client"
+"use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useRouter } from "next/navigation"
 import { startTransition, useActionState, useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -9,7 +10,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { changePasswordAction } from "@/features/auth/actions"
+import { changePasswordAction, logoutAction } from "@/features/auth/actions"
 import { translateAuthMessage } from "@/features/auth/utils"
 import { cn } from "@/lib/utils"
 
@@ -22,6 +23,7 @@ export function ChangePasswordForm({
   onCancel,
   onSuccess,
   cancelLabel,
+  stayOnPage = false,
 }: {
   className?: string
   hideHeader?: boolean
@@ -29,8 +31,10 @@ export function ChangePasswordForm({
   onCancel?: () => void
   onSuccess?: () => void
   cancelLabel?: string
+  stayOnPage?: boolean
 }) {
   const { t } = useTranslation("common")
+  const router = useRouter()
   const [state, formAction, isPending] = useActionState(
     changePasswordAction,
     {}
@@ -52,7 +56,15 @@ export function ChangePasswordForm({
     toast.success(translateAuthMessage(t, state.message))
     form.reset()
     onSuccess?.()
-  }, [form, onSuccess, state.message, state.success, t])
+
+    if (stayOnPage) return
+
+    const timer = setTimeout(() => {
+      void logoutAction()
+    }, 1500)
+
+    return () => clearTimeout(timer)
+  }, [form, onSuccess, state.message, state.success, t, router, stayOnPage])
 
   useEffect(() => {
     if (!state.error || state.error === lastErrorRef.current) return

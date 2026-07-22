@@ -32,6 +32,13 @@ import { SportCenterSelector } from "../courts-management/sport-center-selector"
 import type { BookingCreatedAtFilter } from "./booking-list.utils"
 import { formatBookingDate } from "./booking-list.utils"
 
+const BOOKING_STATUS_LABEL_KEYS: Record<string, string> = {
+  PENDING: "bookingList.status.pending",
+  CONFIRMED: "bookingList.status.confirmed",
+  CANCELLED: "bookingList.status.cancelled",
+  COMPLETED: "bookingList.status.completed",
+}
+
 interface BookingFiltersProps {
   createdAtFilter: BookingCreatedAtFilter
   statusFilter: "all" | BookingStatus
@@ -142,7 +149,9 @@ export function BookingFilters({
                 <span>
                   {statusFilter === "all"
                     ? t("bookingList.filters.allStatuses")
-                    : t(`bookingList.status.${statusFilter.toLowerCase()}`)}
+                    : t(
+                        BOOKING_STATUS_LABEL_KEYS[statusFilter] ?? statusFilter
+                      )}
                 </span>
 
                 <ChevronDown className="h-4 w-4" />

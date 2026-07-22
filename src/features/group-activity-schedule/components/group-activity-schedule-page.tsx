@@ -37,7 +37,9 @@ import {
   cancelCourtBookingClient,
   checkCancelEligibilityClient,
   groupQueryKeys,
-} from "@/features/groups/api/groups-client"
+  useGroupDetail,
+} from "@/features/groups/public/group-activity-integration"
+import { useActionGuard } from "@/features/groups/public/group-activity-integration"
 import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import {
@@ -112,6 +114,13 @@ export function GroupActivitySchedulePage({
   const [checkingEligibility, setCheckingEligibility] = useState(false)
 
   // Queries
+  const { data: group } = useGroupDetail(groupId)
+
+  const { guardWriteAction, PermissionDialog, hasValidSubscription } =
+    useActionGuard(group, currentUserRole)
+
+  const isArchived = group?.status === "ARCHIVED"
+
   const { data: activitiesResponse, isLoading } = useQuery({
     queryKey: activityQueryKeys.list(groupId, { limit: 1000 }), // Get all for calendar
     queryFn: () => listActivitiesClient(groupId, { limit: 1000 }),
@@ -227,28 +236,33 @@ export function GroupActivitySchedulePage({
     updateMutation.mutate({ activityId, payload })
   }
 
-  const handleDeleteClick = async (event: GroupActivity) => {
-    setActivityToCancel(event)
-    setCancelCourtBookingChecked(false)
-    setCancellationEligibility(null)
+  const handleDeleteClick = (event: GroupActivity) => {
+    guardWriteAction(
+      async () => {
+        setActivityToCancel(event)
+        setCancelCourtBookingChecked(false)
+        setCancellationEligibility(null)
 
-    if (event.bookingId) {
-      setCancelActivityConfirmOpen(true)
-      setCheckingEligibility(true)
-      try {
-        const elig = await checkCancelEligibilityClient(
-          groupId,
-          event.bookingId
-        )
-        setCancellationEligibility(elig)
-      } catch (err) {
-        console.error("Error checking cancel eligibility:", err)
-      } finally {
-        setCheckingEligibility(false)
-      }
-    } else {
-      setCancelActivityConfirmOpen(true)
-    }
+        if (event.bookingId) {
+          setCancelActivityConfirmOpen(true)
+          setCheckingEligibility(true)
+          try {
+            const elig = await checkCancelEligibilityClient(
+              groupId,
+              event.bookingId
+            )
+            setCancellationEligibility(elig)
+          } catch (err) {
+            console.error("Error checking cancel eligibility:", err)
+          } finally {
+            setCheckingEligibility(false)
+          }
+        } else {
+          setCancelActivityConfirmOpen(true)
+        }
+      },
+      { featureName: "hủy hoạt động này" }
+    )
   }
 
   const handleConfirmCancellation = () => {
@@ -346,7 +360,7 @@ export function GroupActivitySchedulePage({
                 return (
                   <Card
                     key={event.id}
-                    className="cursor-pointer border bg-orange-50 shadow-sm transition-all hover:bg-orange-100 hover:shadow-md dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm dark:hover:border-accent-foreground/15 dark:hover:bg-accent-foreground/10"
+                    className="group-feature-root cursor-pointer border shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
                     onClick={() => openDetailDrawer(event)}
                   >
                     <CardContent className="space-y-3 p-4">
@@ -486,9 +500,13 @@ export function GroupActivitySchedulePage({
             </Select>
           </div>
 
-          {canManageActivities && (
+          {canManageActivities && !isArchived && (
             <Button
-              onClick={openCreateDialog}
+              onClick={() =>
+                guardWriteAction(openCreateDialog, {
+                  featureName: "tạo hoạt động mới",
+                })
+              }
               className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
             >
               <Plus className="mr-2 size-4" />
@@ -530,10 +548,14 @@ export function GroupActivitySchedulePage({
                 </p>
               </div>
 
-              {canManageActivities && (
+              {canManageActivities && !isArchived && (
                 <Button
                   className="w-full border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-                  onClick={openCreateDialog}
+                  onClick={() =>
+                    guardWriteAction(openCreateDialog, {
+                      featureName: "tạo hoạt động mới",
+                    })
+                  }
                 >
                   <Plus className="mr-2 size-4" />
                   {t("activitySchedule.btnCreateActivity")}
@@ -600,7 +622,7 @@ export function GroupActivitySchedulePage({
                       return (
                         <div
                           key={event.id}
-                          className="group relative cursor-pointer rounded-lg border bg-orange-50 p-3 shadow-sm transition-all hover:bg-orange-100 hover:shadow-md dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm dark:hover:border-accent-foreground/15 dark:hover:bg-accent-foreground/10"
+                          className="group-feature-root group relative cursor-pointer rounded-xl border bg-card p-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
                           onClick={() => openDetailDrawer(event)}
                         >
                           <div className="mb-2 flex items-start justify-between gap-2">
@@ -640,7 +662,7 @@ export function GroupActivitySchedulePage({
                               )}
                             </div>
 
-                            {canManageActivities && (
+                            {canManageActivities && !isArchived && (
                               <div
                                 className="flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100"
                                 onClick={(e) => e.stopPropagation()}
@@ -697,19 +719,30 @@ export function GroupActivitySchedulePage({
           groupId={groupId}
           currentUserRole={currentUserRole}
           currentUserId={currentUserId}
+          readOnly={!hasValidSubscription || isArchived}
           onEdit={() => {
-            setEditingEvent(selectedEventForDetail)
-            setFormOpen(true)
+            guardWriteAction(
+              () => {
+                setEditingEvent(selectedEventForDetail)
+                setFormOpen(true)
+              },
+              { featureName: "chỉnh sửa hoạt động" }
+            )
           }}
         />
       )}
+
+      <PermissionDialog />
 
       {/* Cascade Cancel Confirmation Dialog */}
       <Dialog
         open={cancelActivityConfirmOpen}
         onOpenChange={setCancelActivityConfirmOpen}
       >
-        <DialogContent className="sm:max-w-[450px]">
+        <DialogContent
+          className="group-feature-root sm:max-w-[450px]"
+          showCloseButton={false}
+        >
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="size-5" />
@@ -733,7 +766,7 @@ export function GroupActivitySchedulePage({
                       )}
                     </div>
                   ) : cancellationEligibility ? (
-                    <p className="rounded-md border border-amber-200 bg-muted/60 p-2.5 text-xs text-amber-800">
+                    <p className="rounded-md border border-amber-200 bg-muted p-2.5 text-xs text-amber-800">
                       {cancellationEligibility.warningMessage}
                     </p>
                   ) : null}

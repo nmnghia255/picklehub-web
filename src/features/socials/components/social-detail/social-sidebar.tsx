@@ -27,6 +27,7 @@ import {
   updateSocialAction,
 } from "../../actions/social-form-actions"
 import type { SocialDetail, User as Host } from "../../types/social"
+import { isConfirmedLikeSocialParticipantStatus } from "../../utils"
 
 function SettingRow({ label, value }: { label: string; value: string }) {
   return (
@@ -110,7 +111,8 @@ export default function SocialSidebar({
 
   const host: Host = social.creator
   const canOpenChat =
-    Boolean(social.isHost) || social.myParticipantInfo?.status === "CONFIRMED"
+    Boolean(social.isHost) ||
+    isConfirmedLikeSocialParticipantStatus(social.myParticipantInfo?.status)
 
   if (!social) {
     return (

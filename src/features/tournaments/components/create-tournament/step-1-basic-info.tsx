@@ -3,6 +3,7 @@
 import { Loader2, Upload, X } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { Input } from "@/components/ui/input"
@@ -15,6 +16,7 @@ import { useCreateTournamentStore } from "../../stores/create-tournament-store"
 
 export function Step1BasicInfo() {
   const { t } = useTournamentTranslation()
+  const { t: tCommon } = useTranslation("common")
   const formValues = useCreateTournamentStore((state) => state.formValues)
   const setFormValue = useCreateTournamentStore((state) => state.setFormValue)
   const [isUploading, setIsUploading] = useState(false)
@@ -90,7 +92,7 @@ export function Step1BasicInfo() {
             <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-gray-200 bg-white">
               <Image
                 src={formValues.banner}
-                alt={t("common.previewImageAlt")}
+                alt={tCommon("previewImageAlt")}
                 fill
                 className="object-cover"
                 unoptimized

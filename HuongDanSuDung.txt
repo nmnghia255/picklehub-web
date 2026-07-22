@@ -1,0 +1,45 @@
+HƯỚNG DẪN SỬ DỤNG
+
+1. Mục đích
+
+Tài liệu này hướng dẫn cách biên dịch và chạy dự án PickleHub Web sau khi đã hoàn tất cài đặt.
+
+2. Chuẩn bị
+
+Đảm bảo đã hoàn tất các bước trong file HuongDanCaiDat.txt, bao gồm cài Node.js, pnpm, chạy pnpm install và tạo file .env.local.
+
+Mở terminal tại thư mục gốc của dự án.
+
+3. Chạy ở chế độ phát triển
+
+Dùng khi lập trình, ứng dụng tự động tải lại khi sửa mã nguồn. Tại thư mục gốc dự án, chạy:
+
+pnpm dev
+
+Sau đó mở trình duyệt và truy cập:
+
+http://localhost:3000
+
+4. Biên dịch và chạy bản chính thức
+
+Biên dịch mã nguồn:
+
+pnpm build
+
+Khởi chạy chương trình đã biên dịch:
+
+pnpm start
+
+Sau đó truy cập ứng dụng tại http://localhost:3000. Có thể gộp hai bước trên bằng một lệnh duy nhất:
+
+pnpm preview
+
+5. Các lệnh hỗ trợ khác
+
+- Kiểm tra lỗi cú pháp: pnpm lint
+- Kiểm tra kiểu dữ liệu: pnpm check-types
+- Định dạng lại mã nguồn: pnpm format:write
+
+6. Ghi chú
+
+Ứng dụng cần backend API tại NEXT_PUBLIC_API_GATEWAY_URL hoạt động để đăng nhập và sử dụng đầy đủ chức năng. Nếu cổng 3000 đã bị chiếm, Next.js sẽ tự đề nghị dùng cổng khác.

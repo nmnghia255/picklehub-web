@@ -9,7 +9,6 @@ import {
   CalendarCheck,
   CalendarClock,
   CalendarDays,
-  ChevronDown,
   Handshake,
   House,
   type LucideIcon,
@@ -35,11 +34,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar"
-import { useSidebar } from "@/components/ui/sidebar"
 import { notificationFeedAtom } from "@/features/feed/store/feed-store"
 import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { cn } from "@/lib/utils"
@@ -69,41 +65,24 @@ const sidebarItems: SidebarItem[] = [
   { titleKey: "notifications", href: "/feed", icon: BellRing },
   { titleKey: "learner", href: "/learner", icon: BookOpen },
   { titleKey: "coach", href: "/coach", icon: Shield },
-]
-
-const sportCenterManagementMenuItems = [
   {
-    titleKey: "courtManagement",
-    href: "/sport-center-management/courts-management",
-  },
-  {
-    titleKey: "customerManagement",
-    href: "/sport-center-management/customer",
-  },
-  {
-    titleKey: "bookingList",
-    href: "/sport-center-management/booking-list",
-    icon: CalendarClock,
-  },
-  {
-    titleKey: "servicesProducts",
-    href: "/sport-center-management/services-products",
-  },
-  {
-    titleKey: "revenueReport",
-    href: "/sport-center-management/analytics",
+    titleKey: "centerManagement",
+    href: "/sport-center-management",
+    icon: MapPinned,
   },
 ]
 
-const SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY =
-  "isSportCenterManagementMenuOpen"
-
-function isActivePath(pathname: string, href: string) {
-  if (pathname === href) {
-    return true
+function isActivePath(pathname: string, href: string, allHrefs: string[]) {
+  if (pathname !== href && !pathname.startsWith(`${href}/`)) {
+    return false
   }
 
-  return pathname.startsWith(`${href}/`)
+  return !allHrefs.some(
+    (otherHref) =>
+      otherHref !== href &&
+      otherHref.length > href.length &&
+      (pathname === otherHref || pathname.startsWith(`${otherHref}/`))
+  )
 }
 
 function SidebarLogo() {
@@ -163,54 +142,14 @@ export function AppSidebar() {
   const hasTournamentOrganizerPlan = subscriptions.some(
     (sub) => sub.status === "ACTIVE" && sub.plan.type === "TOURNAMENT_ORGANIZER"
   )
-  const [isSportCenterManagementMenuOpen, setIsSportCenterManagementMenuOpen] =
-    useState(false)
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsSportCenterManagementMenuOpen(
-      window.sessionStorage.getItem(
-        SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY
-      ) === "true"
-    )
-  }, [])
-  const isSportCenterManagementPath = isActivePath(
-    pathname,
-    "/sport-center-management"
+  const hasCoachPlan = subscriptions.some(
+    (sub) => sub.status === "ACTIVE" && sub.plan.type === "COACH"
   )
-  const shouldShowSportCenterManagementMenu =
-    isSportCenterManagementPath || isSportCenterManagementMenuOpen
   const unreadCount = notifications.filter(
     (notification) => notification.unread
   ).length
 
-  const handleSportCenterManagementMenuToggle = () => {
-    setIsSportCenterManagementMenuOpen((prev) => {
-      const next = !prev
-
-      if (typeof window !== "undefined") {
-        window.sessionStorage.setItem(
-          SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY,
-          String(next)
-        )
-      }
-
-      return next
-    })
-  }
-
-  const handlePrimaryItemClick = () => {
-    if (isSportCenterManagementMenuOpen) {
-      setIsSportCenterManagementMenuOpen(false)
-
-      if (typeof window !== "undefined") {
-        window.sessionStorage.setItem(
-          SPORT_CENTER_MANAGEMENT_MENU_STORAGE_KEY,
-          "false"
-        )
-      }
-    }
-  }
+  const allHrefs = sidebarItems.map((item) => item.href)
 
   return (
     <Sidebar collapsible="icon">
@@ -223,70 +162,50 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {sidebarItems
-                .filter(
-                  (item) =>
-                    item.href !== "/tournament-management" ||
-                    hasTournamentOrganizerPlan
-                )
+                .filter((item) => {
+                  if (item.href === "/tournament-management") {
+                    return hasTournamentOrganizerPlan
+                  }
+                  if (item.href === "/coach") {
+                    return hasCoachPlan
+                  }
+                  if (item.href === "/sport-center-management") {
+                    return hasSportCenterManagerPlan
+                  }
+                  return true
+                })
                 .map((item) => {
                   return (
                     <SidebarMenuItem key={item.href}>
                       <SidebarMenuButton
                         asChild
-                        isActive={isActivePath(pathname, item.href)}
+                        isActive={isActivePath(pathname, item.href, allHrefs)}
                         tooltip={t(`sidebar.${item.titleKey}`)}
+                        className="h-10 rounded-xl px-3 text-slate-700 transition-all duration-200 hover:bg-slate-100 data-[active=true]:bg-emerald-600! data-[active=true]:text-white! data-[active=true]:shadow-xs data-[active=true]:hover:bg-emerald-700! data-[active=true]:hover:text-white! dark:text-zinc-300 dark:hover:bg-zinc-900 [&>span:last-child]:truncate [&>svg]:size-[18px] [&>svg]:shrink-0"
                       >
-                        <Link href={item.href} onClick={handlePrimaryItemClick}>
-                          <span className="relative inline-flex items-center justify-center">
-                            <item.icon className="size-4" />
+                        <Link
+                          href={item.href}
+                          className="flex w-full items-center"
+                        >
+                          <span className="relative inline-flex shrink-0 items-center justify-center">
+                            <item.icon className="size-[18px]" />
                             {item.href === "/feed" && unreadCount > 0 && (
                               <span className="ring-sidebar-background absolute -top-1 -right-1 size-2 rounded-full bg-red-500 ring-2" />
                             )}
                           </span>
-                          <span>{t(`sidebar.${item.titleKey}`)}</span>
+                          <span className="ml-3 flex-1 truncate">
+                            {t(`sidebar.${item.titleKey}`)}
+                          </span>
+                          {item.href === "/feed" && unreadCount > 0 && (
+                            <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-slate-100 px-1 text-[10px] font-medium text-slate-600 group-data-[collapsible=icon]:hidden dark:bg-zinc-800 dark:text-zinc-400">
+                              {unreadCount}
+                            </span>
+                          )}
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   )
                 })}
-
-              {hasSportCenterManagerPlan && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    isActive={shouldShowSportCenterManagementMenu}
-                    tooltip={t("sidebar.centerManagement")}
-                    onClick={handleSportCenterManagementMenuToggle}
-                  >
-                    <MapPinned className="size-4" />
-                    <span>{t("sidebar.centerManagement")}</span>
-                    <ChevronDown
-                      className={cn(
-                        "ml-auto size-4 transition-transform",
-                        shouldShowSportCenterManagementMenu && "rotate-180"
-                      )}
-                    />
-                  </SidebarMenuButton>
-                  {shouldShowSportCenterManagementMenu && (
-                    <SidebarMenuSub>
-                      {sportCenterManagementMenuItems.map((item) => (
-                        <SidebarMenuSubItem key={item.href}>
-                          <SidebarMenuSubButton
-                            asChild
-                            isActive={isActivePath(pathname, item.href)}
-                          >
-                            <Link
-                              href={item.href}
-                              onClick={handlePrimaryItemClick}
-                            >
-                              <span>{t(`sidebar.${item.titleKey}`)}</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  )}
-                </SidebarMenuItem>
-              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

@@ -21,5 +21,5 @@ export interface CreateExpenseRequest {
 }
 
 export interface ListExpensesResponse extends Expense {
-  user: User
+  createdBy: User
 }

@@ -1,5 +1,5 @@
-import { RevenueReportPage } from "@/features/sport-center-management/revenue-report/components/revenue-report-page"
+import { redirect } from "next/navigation"
 
-export default function SportCenterRevenueReportPage() {
-  return <RevenueReportPage />
+export default function AnalyticsRedirectPage() {
+  redirect("/sport-center-management?tab=analytics")
 }

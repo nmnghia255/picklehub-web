@@ -1,13 +1,15 @@
 import "@/styles/globals.css"
 
 import type { Metadata, Viewport } from "next"
+import { cookies } from "next/headers"
+import Script from "next/script"
 
 import { FacebookSDKScript } from "@/components/facebook-sdk-script"
 import { Providers } from "@/components/providers"
 import { META_THEME_COLORS, SITE_INFO } from "@/config/site"
 import { AuthInitializer } from "@/features/auth/components/auth-initializer"
 import { fetchMyNotifications } from "@/features/notifications/actions/user-notifications"
-import { defaultLanguage } from "@/i18n/settings"
+import { defaultLanguage, languageCookieKey } from "@/i18n/settings"
 import { getSession } from "@/lib/session"
 
 export const metadata: Metadata = {
@@ -60,17 +62,37 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const cookieStore = await cookies()
+  const storedLanguage = cookieStore.get(languageCookieKey)?.value
+  const storedTheme = cookieStore.get("theme")?.value
+  const initialLanguage =
+    storedLanguage === "en" || storedLanguage === "vi"
+      ? storedLanguage
+      : defaultLanguage
+  const initialTheme =
+    storedTheme === "dark" || storedTheme === "light" ? storedTheme : undefined
+
   const session = await getSession()
   const notifications = session.user ? await fetchMyNotifications() : []
 
   return (
-    <html lang={defaultLanguage} suppressHydrationWarning>
+    <html
+      lang={initialLanguage}
+      className={initialTheme}
+      style={initialTheme ? { colorScheme: initialTheme } : undefined}
+      suppressHydrationWarning
+    >
       <head>
-        <FacebookSDKScript />
+        <Script
+          id="facebook-jssdk"
+          src="https://connect.facebook.net/en_US/sdk.js"
+          strategy="afterInteractive"
+        />
       </head>
 
       <body>
-        <Providers>
+        <Providers initialLanguage={initialLanguage}>
+          <FacebookSDKScript />
           <AuthInitializer
             user={session.user ?? null}
             notifications={notifications}

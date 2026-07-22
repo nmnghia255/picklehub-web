@@ -7,8 +7,6 @@ import {
   BarChart3,
   BookOpen,
   Calendar,
-  ChevronLeft,
-  ChevronRight,
   Clock,
   Filter,
   Globe,
@@ -80,6 +78,7 @@ import {
 } from "@/features/learner/hooks/use-learner-queries"
 import { getTranslationStringArray } from "@/i18n/get-translation-array"
 import { cn } from "@/lib/utils"
+import { formatCurrency as formatCurrencyValue } from "@/utils/expense-utils"
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -151,13 +150,6 @@ function isSameDay(a: Date, b: Date) {
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate()
   )
-}
-
-function formatCurrency(amount: number, locale: string) {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: "VND",
-  }).format(amount)
 }
 
 function getCertBadgeVariant(status: VerificationStatus) {
@@ -248,7 +240,7 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
               </p>
               <p className="flex items-center gap-1 font-medium">
                 <Clock className="size-4" />
-                {formatCurrency(coach.hourlyRateVnd, locale)}{" "}
+                {formatCurrencyValue(coach.hourlyRateVnd, "VND", locale)}{" "}
                 {t("coach.discovery.perHour")}
               </p>
             </div>
@@ -430,7 +422,7 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
                       </div>
                       <div className="flex flex-wrap items-center gap-4 text-sm">
                         <span className="text-muted-foreground">
-                          {formatCurrency(cls.priceVnd, locale)}
+                          {formatCurrencyValue(cls.priceVnd, "VND", locale)}
                         </span>
                         <span className="text-muted-foreground">
                           {t("coach.discovery.enrolledCount", {
@@ -516,7 +508,11 @@ function ScheduleItemCard({
               {formatScheduleTime(item.endsAt, locale)}
             </span>
             <span>
-              ({item.durationMinutes} {t("coach.bookings.minutes")})
+              ({item.durationMinutes}{" "}
+              {t("coach.bookings.minutes", {
+                count: item.durationMinutes,
+              })}
+              )
             </span>
             {coachName && (
               <span className="flex items-center gap-1">
@@ -643,13 +639,6 @@ function ScheduleTab({ coachId }: { coachId: string }) {
     { value: "booking", label: t("coach.discovery.scheduleBooking") },
   ]
 
-  const STATUS_LABEL: Record<string, string> = {
-    upcoming: t("coach.discovery.scheduleUpcoming"),
-    live: t("coach.discovery.scheduleLive"),
-    past: t("coach.discovery.schedulePast"),
-    pending: t("coach.discovery.schedulePending"),
-  }
-
   const [state, setState] = useState<string>("all")
   const { data, isLoading, error, refetch } = useLearnerSchedule(
     {
@@ -721,8 +710,9 @@ function ScheduleTab({ coachId }: { coachId: string }) {
     if (!data?.data) return map
     for (const item of data.data) {
       const key = item.startsAt.slice(0, 10)
-      if (!map.has(key)) map.set(key, [])
-      map.get(key)!.push(item)
+      const dayItems = map.get(key) ?? []
+      dayItems.push(item)
+      map.set(key, dayItems)
     }
     return map
   }, [data])
@@ -746,7 +736,7 @@ function ScheduleTab({ coachId }: { coachId: string }) {
     if (toDate)
       result = result.filter((it) => it.startsAt.slice(0, 10) <= toDate)
     return result
-  }, [data?.data, search, kind, state, fromDate, toDate])
+  }, [data?.data, search, kind, fromDate, toDate])
 
   /* ── Navigation handlers ── */
 
@@ -1030,8 +1020,9 @@ function ScheduleTab({ coachId }: { coachId: string }) {
                 const grouped = new Map<string, LearnerScheduleItem[]>()
                 for (const item of filteredItems) {
                   const key = item.startsAt.slice(0, 10)
-                  if (!grouped.has(key)) grouped.set(key, [])
-                  grouped.get(key)!.push(item)
+                  const dayItems = grouped.get(key) ?? []
+                  dayItems.push(item)
+                  grouped.set(key, dayItems)
                 }
                 const sortedDates = Array.from(grouped.keys()).sort()
                 return sortedDates.map((dateKey) => {
@@ -1500,7 +1491,7 @@ function ClassesTab({ coachId }: { coachId: string }) {
                 </div>
                 <div className="flex flex-wrap items-center gap-4 text-sm">
                   <span className="text-muted-foreground">
-                    {formatCurrency(cls.priceVnd, locale)}
+                    {formatCurrencyValue(cls.priceVnd, "VND", locale)}
                   </span>
                   <span className="text-muted-foreground">
                     {t("coach.discovery.enrolledCount", {
@@ -1576,7 +1567,7 @@ function InfoTab({ coach }: { coach: CoachProfile }) {
                 {t("coach.discovery.pricePerHourLabel")}
               </p>
               <p className="font-medium">
-                {formatCurrency(coach.hourlyRateVnd, locale)}
+                {formatCurrencyValue(coach.hourlyRateVnd, "VND", locale)}
               </p>
             </div>
             <div>
@@ -1702,8 +1693,7 @@ function InfoTab({ coach }: { coach: CoachProfile }) {
 }
 
 function StatsTab({ coach }: { coach: CoachProfile }) {
-  const { t, i18n } = useTranslation("common")
-  const locale = getLocaleCode(i18n.language)
+  const { t } = useTranslation("common")
   const { data: reviewsData } = useCoachReviews(coach.id)
   const { data: classes } = useCoachOpenClasses(coach.id)
   const totalReviews = reviewsData?.reviewCount ?? coach.reviewCount
@@ -1804,6 +1794,51 @@ const TABS = (t: (key: string) => string) => [
     icon: <Award className="size-4" />,
   },
 ]
+
+function DiscoveryLoadingState() {
+  return (
+    <div className="space-y-6">
+      <Skeleton className="h-8 w-32" />
+      <Skeleton className="h-48 w-full rounded-xl" />
+      <Skeleton className="h-32 w-full rounded-xl" />
+      <Skeleton className="h-40 w-full rounded-xl" />
+    </div>
+  )
+}
+
+function DiscoveryErrorState({
+  onBack,
+  t,
+}: {
+  onBack: () => void
+  t: (key: string) => string
+}) {
+  return (
+    <div className="space-y-6">
+      <Button
+        variant="ghost"
+        onClick={onBack}
+        className="flex items-center gap-1"
+      >
+        <ArrowLeft className="size-4" />
+        {t("coach.discovery.backToList")}
+      </Button>
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-16">
+          <p className="text-xl font-medium text-muted-foreground">
+            {t("coach.discovery.loadError")}
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {t("coach.discovery.loadErrorHint")}
+          </p>
+          <Button variant="outline" className="mt-4" onClick={onBack}>
+            {t("coach.discovery.backToList")}
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
 
 function CoachDiscoveryDetailInner({
   coachId,
@@ -1908,105 +1943,80 @@ function CoachDiscoveryDetailInner({
   }
 
   if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <Skeleton className="h-8 w-32" />
-        <Skeleton className="h-48 w-full rounded-xl" />
-        <Skeleton className="h-32 w-full rounded-xl" />
-        <Skeleton className="h-40 w-full rounded-xl" />
-      </div>
-    )
+    return <DiscoveryLoadingState />
   }
 
   if (error || !coach) {
-    return (
-      <div className="space-y-6">
-        <Button
-          variant="ghost"
-          onClick={onBack}
-          className="flex items-center gap-1"
-        >
-          <ArrowLeft className="size-4" />
-          {t("coach.discovery.backToList")}
-        </Button>
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <p className="text-xl font-medium text-muted-foreground">
-              {t("coach.discovery.loadError")}
-            </p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t("coach.discovery.loadErrorHint")}
-            </p>
-            <Button variant="outline" className="mt-4" onClick={onBack}>
-              {t("coach.discovery.backToList")}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    )
+    return <DiscoveryErrorState onBack={onBack} t={t} />
   }
 
   return (
     <div className="space-y-6">
-      <Button
-        variant="ghost"
-        onClick={onBack}
-        className="-ml-2 flex items-center gap-1"
-      >
-        <ArrowLeft className="size-4" />
-        {t("coach.discovery.backToList")}
-      </Button>
-
       <Card>
-        <CardContent className="flex items-start gap-6 pt-6">
-          <Avatar size="lg" className="size-24">
-            <AvatarImage src={coach.avatarUrl} alt={coach.displayName} />
-            <AvatarFallback>
-              {coach.displayName.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex flex-1 flex-col gap-2">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold">{coach.displayName}</h1>
-              <Badge variant="secondary">{getLevelLabel(t, coach.level)}</Badge>
-              {coach.verificationStatus === "VERIFIED" && (
-                <BadgeCheck className="size-5 text-blue-500" />
-              )}
-            </div>
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <MapPin className="size-4" />
-              <span>{coach.locationCity}</span>
-            </div>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-1">
-                <StarRating rating={coach.averageRating} />
-                <span className="ml-1 font-medium">
-                  {coach.averageRating.toFixed(1)}
-                </span>
-                <span className="text-muted-foreground">
-                  {t("coach.discovery.reviewCount", {
-                    count: coach.reviewCount,
-                  })}
-                </span>
+        <CardContent className="pt-6">
+          <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+            <div className="flex min-w-0 items-start gap-6">
+              <Avatar size="lg" className="size-24">
+                <AvatarImage src={coach.avatarUrl} alt={coach.displayName} />
+                <AvatarFallback>
+                  {coach.displayName.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex min-w-0 flex-1 flex-col gap-2">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h1 className="text-2xl font-bold">{coach.displayName}</h1>
+                  <Badge variant="secondary">
+                    {getLevelLabel(t, coach.level)}
+                  </Badge>
+                  {coach.verificationStatus === "VERIFIED" && (
+                    <BadgeCheck className="size-5 text-blue-500" />
+                  )}
+                </div>
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <MapPin className="size-4" />
+                  <span>{coach.locationCity}</span>
+                </div>
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-1">
+                    <StarRating rating={coach.averageRating} />
+                    <span className="ml-1 font-medium">
+                      {coach.averageRating.toFixed(1)}
+                    </span>
+                    <span className="text-muted-foreground">
+                      {t("coach.discovery.reviewCount", {
+                        count: coach.reviewCount,
+                      })}
+                    </span>
+                  </div>
+                  <span className="text-muted-foreground">·</span>
+                  <span className="font-medium text-primary">
+                    {formatCurrencyValue(coach.hourlyRateVnd, "VND", locale)}
+                    {t("coach.discovery.perHour")}
+                  </span>
+                </div>
+                {isLearner && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Button onClick={() => setBookingOpen(true)}>
+                      <Plus className="size-4" />
+                      {t("coach.discovery.bookButton")}
+                    </Button>
+                    <LearnerCoachRecommendationDialog
+                      coachId={coachId}
+                      coachName={coach.displayName}
+                    />
+                  </div>
+                )}
               </div>
-              <span className="text-muted-foreground">·</span>
-              <span className="font-medium text-primary">
-                {formatCurrency(coach.hourlyRateVnd, locale)}
-                {t("coach.discovery.perHour")}
-              </span>
             </div>
-            {isLearner && (
-              <div className="mt-2 flex gap-2">
-                <Button onClick={() => setBookingOpen(true)}>
-                  <Plus className="size-4" />
-                  {t("coach.discovery.bookButton")}
-                </Button>
-                <LearnerCoachRecommendationDialog
-                  coachId={coachId}
-                  coachName={coach.displayName}
-                />
-              </div>
-            )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0 gap-2 self-start"
+              onClick={onBack}
+            >
+              <ArrowLeft className="size-4" />
+              {t("coach.discovery.backToList")}
+            </Button>
           </div>
         </CardContent>
       </Card>

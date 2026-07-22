@@ -1,14 +1,135 @@
 import type { PlaySession } from "./types/play-session"
 import type { ListSocial as Social } from "./types/social"
 
+const ACTIVE_PARTICIPANT_STATUSES = [
+  "PENDING",
+  "APPROVED",
+  "CONFIRMED",
+  "JOINED",
+  "ACTIVE",
+  "WAITLISTED",
+  "ON_HOLD",
+] as const
+
+function toSafeCount(value: number | null | undefined) {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0
+}
+
+export function isActiveSocialParticipantStatus(status?: string | null) {
+  return Boolean(
+    status && ACTIVE_PARTICIPANT_STATUSES.includes(status as never)
+  )
+}
+
+export function isConfirmedLikeSocialParticipantStatus(status?: string | null) {
+  return (
+    status === "APPROVED" ||
+    status === "CONFIRMED" ||
+    status === "JOINED" ||
+    status === "ACTIVE"
+  )
+}
+
+export function isInactiveSocialParticipantStatus(status?: string | null) {
+  return (
+    status === "REJECTED" ||
+    status === "CANCELLED" ||
+    status === "CANCELED" ||
+    status === "LEFT"
+  )
+}
+
+export function isCancelledSocialStatus(status?: string | null) {
+  return status === "CANCELED" || status === "CANCELLED"
+}
+
+export function isCompletedSocialStatus(status?: string | null) {
+  return status === "COMPLETED"
+}
+
+export function isInProgressPlaySessionStatus(status?: string | null) {
+  return status === "IN_PROGRESS"
+}
+
+export function isCompletedPlaySessionStatus(status?: string | null) {
+  return status === "COMPLETED"
+}
+
+export function isCancelledPlaySessionStatus(status?: string | null) {
+  return status === "CANCELLED" || status === "CANCELED"
+}
+
+export function isOpenPlaySessionStatus(status?: PlaySession["status"]) {
+  return status === "ACTIVE"
+}
+
+export function hasAvailablePlaySessionSlots(
+  joinedCount: number | null | undefined,
+  maxSlot: number | null | undefined
+) {
+  if (maxSlot == null) return true
+  return toSafeCount(joinedCount) < maxSlot
+}
+
+export function canJoinPlaySession(
+  status: PlaySession["status"],
+  joinedCount: number | null | undefined,
+  maxSlot: number | null | undefined,
+  isParticipant: boolean
+) {
+  return (
+    isOpenPlaySessionStatus(status) &&
+    !isParticipant &&
+    hasAvailablePlaySessionSlots(joinedCount, maxSlot)
+  )
+}
+
+export function canLeavePlaySession(
+  status: PlaySession["status"],
+  isParticipant: boolean
+) {
+  return isOpenPlaySessionStatus(status) && isParticipant
+}
+
+export function isFullPlaySession(
+  status: PlaySession["status"],
+  joinedCount: number | null | undefined,
+  maxSlot: number | null | undefined,
+  isParticipant: boolean
+) {
+  return (
+    isOpenPlaySessionStatus(status) &&
+    !isParticipant &&
+    !hasAvailablePlaySessionSlots(joinedCount, maxSlot)
+  )
+}
+
+export function getPlaySessionJoinedCount(
+  joinedCount: number | null | undefined
+) {
+  return toSafeCount(joinedCount)
+}
+
+export function getPlaySessionCapacityText(
+  joinedCount: number | null | undefined,
+  maxSlot: number | null | undefined,
+  unlimitedLabel: string
+) {
+  const safeJoinedCount = toSafeCount(joinedCount)
+  return maxSlot == null
+    ? `${safeJoinedCount} / ${unlimitedLabel}`
+    : `${safeJoinedCount} / ${maxSlot}`
+}
+
 export function getStatusClasses(status: string) {
   switch (status) {
     case "PUBLISHED":
-      return "border-primary/30 bg-primary/10 text-primary"
+      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:border-emerald-400/30 dark:bg-emerald-400/15 dark:text-emerald-400"
     case "COMPLETED":
-      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
+      return "border-blue-500/30 bg-blue-500/10 text-blue-600 dark:border-blue-400/30 dark:bg-blue-400/15 dark:text-blue-400"
     case "CANCELLED":
-      return "border-destructive/30 bg-destructive/10 text-destructive"
+    case "CANCELED":
+      return "border-destructive/30 bg-destructive/10 text-destructive dark:border-destructive/40 dark:bg-destructive/20 dark:text-destructive"
     default:
       return "border-border bg-muted text-muted-foreground"
   }
@@ -21,6 +142,7 @@ export const getStatusLabel = (status: string, t: (key: string) => string) => {
     case "COMPLETED":
       return t("labels.completed")
     case "CANCELLED":
+    case "CANCELED":
       return t("labels.cancelled")
     default:
       return t("labels.draft")
@@ -43,9 +165,14 @@ export const getParticipantStatusLabel = (
   t: (key: string) => string
 ) => {
   switch (status) {
+    case "APPROVED":
     case "CONFIRMED":
+    case "JOINED":
+    case "ACTIVE":
       return t("participantStatus.confirmed")
     case "CANCELLED":
+    case "CANCELED":
+    case "LEFT":
       return t("participantStatus.cancelled")
     case "REJECTED":
       return t("participantStatus.rejected")
@@ -88,6 +215,7 @@ export function getSessionStatusLabel(
     case "COMPLETED":
       return t("labels.completed")
     case "CANCELLED":
+    case "CANCELED":
       return t("labels.cancelled")
     case "DRAFT":
       return t("labels.draft")
@@ -104,6 +232,7 @@ export function getSessionStatusClasses(status: string) {
     case "COMPLETED":
       return "border-emerald-600/30 bg-emerald-50/50 text-emerald-600 dark:bg-emerald-950/20"
     case "CANCELLED":
+    case "CANCELED":
       return "border-destructive/30 bg-destructive/10 text-destructive"
     case "PUBLISHED":
       return "border-primary/30 bg-primary/10 text-primary"
@@ -134,7 +263,7 @@ export const getPaymentStatusLabel = (
   status: string,
   t: (key: string) => string
 ) => {
-  switch (status) {
+  switch (status?.toUpperCase()) {
     case "PAID":
       return t("expenses.tracking.paid")
     case "UNPAID":
@@ -145,7 +274,15 @@ export const getPaymentStatusLabel = (
       return t("expenses.tracking.overpaid")
     case "REFUNDED":
       return t("expenses.tracking.refunded")
+    case "PENDING":
+    case "PENDING_REVIEW":
+      return t("expenses.tracking.participantStatus.pending")
+    case "CONFIRMED":
+    case "APPROVED":
+      return t("expenses.tracking.participantStatus.confirmed")
+    case "REJECTED":
+      return t("expenses.tracking.participantStatus.rejected")
     default:
-      return status
+      return status || ""
   }
 }

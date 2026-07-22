@@ -1,5 +1,6 @@
 "use client"
 
+import { useQueryClient } from "@tanstack/react-query"
 import {
   AlertCircle,
   Building2,
@@ -37,6 +38,7 @@ import {
 } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+import { subscriptionQueryKeys } from "../hooks/use-my-subscriptions"
 import { useSubscriptionTranslation } from "../hooks/use-subscription-translation"
 import type {
   AvailableSubscriptionPlan,
@@ -68,6 +70,7 @@ export function SubscriptionCards({
   const router = useRouter()
   const { t } = useSubscriptionTranslation()
   const [isPending, startTransition] = useTransition()
+  const queryClient = useQueryClient()
 
   // Tab selection for billing cycle
   const cycles = React.useMemo(() => {
@@ -173,6 +176,9 @@ export function SubscriptionCards({
       const res = await onCancelSubscription(subId)
       if (res.success) {
         toast.success(t("cancelSuccess"))
+        queryClient.invalidateQueries({
+          queryKey: subscriptionQueryKeys.me(),
+        })
         router.refresh()
       } else {
         toast.error(res.error || t("errorOccurred"))

@@ -55,6 +55,7 @@ import {
 } from "@/features/coach/hooks/use-coach-queries"
 import type { Booking, PaginationMeta } from "@/features/coach/types/coach"
 import { getErrorMessage } from "@/lib/api-client"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 const STATUS_TABS: { value: string }[] = [
   { value: "" },
@@ -76,13 +77,6 @@ const STATUS_VARIANT: Record<
   CANCELLED: "outline",
 }
 
-function formatCurrency(vnd: number) {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(vnd)
-}
-
 function BookingSkeleton() {
   return (
     <Card>
@@ -96,6 +90,58 @@ function BookingSkeleton() {
         <Skeleton className="h-8 w-24" />
       </CardContent>
     </Card>
+  )
+}
+
+function BookingSummary({
+  total,
+  t,
+}: {
+  total: number
+  t: (key: string) => string
+}) {
+  return (
+    <div className="flex gap-4">
+      <div className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
+        <Calendar className="size-4 text-muted-foreground" />
+        <span className="font-medium">{total}</span>
+        <span className="text-muted-foreground">
+          {t("coach.bookings.totalLabel")}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function BookingStatusTabs({
+  value,
+  onChange,
+  t,
+}: {
+  value: string
+  onChange: (value: string) => void
+  t: (key: string) => string
+}) {
+  return (
+    <Tabs value={value} onValueChange={onChange}>
+      <TabsList>
+        {STATUS_TABS.map((tabItem) => (
+          <TabsTrigger key={tabItem.value} value={tabItem.value}>
+            {tabItem.value === "PENDING_CONFIRMATION"
+              ? t("coach.bookings.status.pendingConfirmation")
+              : tabItem.value === "CONFIRMED"
+                ? t("coach.bookings.status.confirmed")
+                : tabItem.value === "COMPLETED"
+                  ? t("coach.bookings.status.completed")
+                  : tabItem.value === "REJECTED"
+                    ? t("coach.bookings.status.rejected")
+                    : tabItem.value === "CANCELLED"
+                      ? t("coach.bookings.status.cancelled")
+                      : t("coach.bookings.status.all")}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   )
 }
 
@@ -492,43 +538,16 @@ export function CoachBookingsPanel() {
 
   return (
     <div className="space-y-6">
-      {meta && (
-        <div className="flex gap-4">
-          <div className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
-            <Calendar className="size-4 text-muted-foreground" />
-            <span className="font-medium">{meta.total}</span>
-            <span className="text-muted-foreground">
-              {t("coach.bookings.totalLabel")}
-            </span>
-          </div>
-        </div>
-      )}
+      {meta && <BookingSummary total={meta.total} t={t} />}
 
-      <Tabs
+      <BookingStatusTabs
         value={tab}
-        onValueChange={(v) => {
-          setTab(v)
+        onChange={(value) => {
+          setTab(value)
           setPage(1)
         }}
-      >
-        <TabsList>
-          {STATUS_TABS.map((tabItem) => (
-            <TabsTrigger key={tabItem.value} value={tabItem.value}>
-              {tabItem.value === "PENDING_CONFIRMATION"
-                ? t("coach.bookings.status.pendingConfirmation")
-                : tabItem.value === "CONFIRMED"
-                  ? t("coach.bookings.status.confirmed")
-                  : tabItem.value === "COMPLETED"
-                    ? t("coach.bookings.status.completed")
-                    : tabItem.value === "REJECTED"
-                      ? t("coach.bookings.status.rejected")
-                      : tabItem.value === "CANCELLED"
-                        ? t("coach.bookings.status.cancelled")
-                        : t("coach.bookings.status.all")}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+        t={t}
+      />
 
       {isLoading ? (
         <div className="space-y-3">
@@ -605,7 +624,7 @@ export function CoachBookingsPanel() {
                     </span>
                     <span className="flex items-center gap-1">
                       <DollarSign className="size-3.5" />
-                      {formatCurrency(booking.priceVnd)}
+                      {formatCurrencyVnd(booking.priceVnd)}
                     </span>
                   </div>
 

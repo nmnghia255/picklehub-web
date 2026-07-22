@@ -4,7 +4,6 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type {
   CreditBalanceEntry,
-  DebtStatus,
   ExpenseItem,
   FinanceSummary,
   GroupDebtItem,

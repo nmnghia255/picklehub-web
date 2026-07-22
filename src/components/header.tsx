@@ -1,6 +1,6 @@
 "use client"
 
-import { useQueryClient } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import {
   BellRing,
@@ -28,12 +28,11 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { notificationFeedAtom } from "@/features/feed/store/feed-store"
-import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
+import { markUserNotificationsRead } from "@/features/notifications/actions/user-notifications"
 import type { SessionUser } from "@/lib/session"
 
 export interface HeaderProps {
@@ -48,8 +47,6 @@ export function Header({ user }: HeaderProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [notifications, setNotifications] = useAtom(notificationFeedAtom)
-
-  const { data: subscriptions } = useMySubscriptions()
 
   useLayoutEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -73,12 +70,35 @@ export function Header({ user }: HeaderProps) {
     }
   }
 
-  const displayName = user.email?.split("@")[0] || t("header.defaultUser")
+  const { data: userProfile } = useQuery({
+    queryKey: ["my-profile"],
+    queryFn: async () => {
+      const res = await fetch("/api/users/me")
+      if (!res.ok) return null
+      return res.json()
+    },
+    staleTime: 1000 * 60 * 5,
+  })
+
+  const activeAvatarUrl =
+    userProfile?.avatarUrl ??
+    userProfile?.avatar_url ??
+    userProfile?.avatar ??
+    user.avatarUrl ??
+    undefined
+
+  const displayName =
+    userProfile?.fullName ??
+    userProfile?.name ??
+    user.name ??
+    user.email?.split("@")[0] ??
+    t("header.defaultUser")
+
   const initials = displayName
     .split(/[\s._-]+/)
     .filter(Boolean)
     .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
+    .map((part: string) => part[0]?.toUpperCase() ?? "")
     .join("")
 
   const unreadCount = notifications.filter(
@@ -86,6 +106,8 @@ export function Header({ user }: HeaderProps) {
   ).length
 
   const handleMarkRead = (notificationId: string) => {
+    const previousNotifications = notifications
+
     setNotifications((current) =>
       current.map((notification) =>
         notification.id === notificationId
@@ -93,6 +115,10 @@ export function Header({ user }: HeaderProps) {
           : notification
       )
     )
+
+    void markUserNotificationsRead([notificationId]).catch(() => {
+      setNotifications(previousNotifications)
+    })
   }
 
   const handleResolveInvitation = (
@@ -109,9 +135,21 @@ export function Header({ user }: HeaderProps) {
   }
 
   const handleMarkAllRead = () => {
+    const unreadNotificationIds = notifications
+      .filter((notification) => notification.unread)
+      .map((notification) => notification.id)
+
+    if (unreadNotificationIds.length === 0) return
+
+    const previousNotifications = notifications
+
     setNotifications((current) =>
       current.map((notification) => ({ ...notification, unread: false }))
     )
+
+    void markUserNotificationsRead(unreadNotificationIds).catch(() => {
+      setNotifications(previousNotifications)
+    })
   }
 
   return (
@@ -131,7 +169,9 @@ export function Header({ user }: HeaderProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-88 p-0">
-          <div className="border-b px-4 py-3">
+          <div
+            className={`px-4 py-3 ${notifications.length > 0 ? "border-b" : ""}`}
+          >
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold">
@@ -164,91 +204,93 @@ export function Header({ user }: HeaderProps) {
             </div>
           </div>
 
-          <div className="max-h-96 space-y-2 overflow-auto p-2">
-            {notifications.slice(0, 6).map((notification) => {
-              const isPendingInvitation =
-                notification.type === "invitation" &&
-                notification.status === "pending"
+          {notifications.length > 0 && (
+            <div className="max-h-96 space-y-2 overflow-auto p-2">
+              {notifications.slice(0, 6).map((notification) => {
+                const isPendingInvitation =
+                  notification.type === "invitation" &&
+                  notification.status === "pending"
 
-              return (
-                <div
-                  key={notification.id}
-                  className="rounded-2xl border px-3 py-3 transition-colors hover:bg-accent/50"
-                >
-                  <button
-                    type="button"
-                    onClick={() => handleMarkRead(notification.id)}
-                    className="flex w-full items-start gap-3 text-left"
+                return (
+                  <div
+                    key={notification.id}
+                    className="rounded-2xl border px-3 py-3 transition-colors hover:bg-accent/50"
                   >
-                    <span
-                      className={`mt-1 size-2 rounded-full ${
-                        notification.unread ? "bg-primary" : "bg-transparent"
-                      }`}
-                    />
-                    <span className="min-w-0 flex-1 space-y-1">
-                      <span className="block text-sm leading-5 font-medium text-foreground">
-                        {notification.title}
+                    <button
+                      type="button"
+                      onClick={() => handleMarkRead(notification.id)}
+                      className="flex w-full items-start gap-3 text-left"
+                    >
+                      <span
+                        className={`mt-1 size-2 rounded-full ${
+                          notification.unread ? "bg-primary" : "bg-transparent"
+                        }`}
+                      />
+                      <span className="min-w-0 flex-1 space-y-1">
+                        <span className="block text-sm leading-5 font-medium text-foreground">
+                          {notification.title}
+                        </span>
+                        <span className="block text-xs leading-5 text-muted-foreground">
+                          {notification.description}
+                        </span>
+                        <span className="block text-[11px] text-muted-foreground">
+                          {notification.timeLabel}
+                        </span>
                       </span>
-                      <span className="block text-xs leading-5 text-muted-foreground">
-                        {notification.description}
-                      </span>
-                      <span className="block text-[11px] text-muted-foreground">
-                        {notification.timeLabel}
-                      </span>
-                    </span>
-                  </button>
+                    </button>
 
-                  {isPendingInvitation ? (
-                    <div className="mt-3 flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1"
-                        onClick={() =>
-                          handleResolveInvitation(notification.id, "declined")
-                        }
-                      >
-                        <XCircle className="size-4" />
-                        {t("header.decline")}
-                      </Button>
-                      <Button
-                        size="sm"
-                        className="flex-1"
-                        onClick={() =>
-                          handleResolveInvitation(notification.id, "accepted")
-                        }
-                      >
-                        <CheckCircle2 className="size-4" />
-                        {t("header.accept")}
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="mt-3 flex items-center gap-2">
-                      <Button
-                        asChild
-                        variant="outline"
-                        size="sm"
-                        className="flex-1"
-                      >
-                        <Link href={notification.actionHref ?? "/feed"}>
-                          {t("header.view")}
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="flex-1"
-                        onClick={() => handleMarkRead(notification.id)}
-                      >
-                        <CheckCheck className="size-4" />
-                        {t("header.markAsRead")}
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
+                    {isPendingInvitation ? (
+                      <div className="mt-3 flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() =>
+                            handleResolveInvitation(notification.id, "declined")
+                          }
+                        >
+                          <XCircle className="size-4" />
+                          {t("header.decline")}
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="flex-1"
+                          onClick={() =>
+                            handleResolveInvitation(notification.id, "accepted")
+                          }
+                        >
+                          <CheckCircle2 className="size-4" />
+                          {t("header.accept")}
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="mt-3 flex items-center gap-2">
+                        <Button
+                          asChild
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                        >
+                          <Link href={notification.actionHref ?? "/feed"}>
+                            {t("header.view")}
+                          </Link>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => handleMarkRead(notification.id)}
+                        >
+                          <CheckCheck className="size-4" />
+                          {t("header.markAsRead")}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -282,41 +324,16 @@ export function Header({ user }: HeaderProps) {
           <button className="flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-accent hover:text-accent-foreground">
             <Avatar size="sm">
               <AvatarImage
-                src={user.avatarUrl || undefined}
-                alt={user.name || undefined}
+                src={activeAvatarUrl || undefined}
+                alt={displayName}
               />
-              <AvatarFallback className="text-xs font-semibold">
+              <AvatarFallback className="bg-indigo-500! text-xs font-semibold text-white!">
                 {initials || "U"}
               </AvatarFallback>
             </Avatar>
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-auto min-w-72">
-          <DropdownMenuLabel className="flex flex-col space-y-1">
-            <span className="text-sm font-medium break-all">{user.email}</span>
-            {(() => {
-              const activeSubscriptions = subscriptions?.filter(
-                (sub) => sub.status === "ACTIVE"
-              )
-              if (activeSubscriptions && activeSubscriptions.length > 0) {
-                return (
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    {activeSubscriptions.map((sub) => (
-                      <Badge
-                        key={sub.id}
-                        variant="secondary"
-                        className="w-fit border-none bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary uppercase hover:bg-primary/20"
-                      >
-                        {sub.plan.name}
-                      </Badge>
-                    ))}
-                  </div>
-                )
-              }
-              return null
-            })()}
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem asChild>
               <Link href="/profile">

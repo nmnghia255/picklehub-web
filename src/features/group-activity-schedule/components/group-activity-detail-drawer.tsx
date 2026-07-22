@@ -35,7 +35,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
@@ -71,7 +70,7 @@ import {
 import {
   groupQueryKeys,
   listGroupCourtBookingsClient,
-} from "@/features/groups/api/groups-client"
+} from "@/features/groups/public/group-activity-integration"
 import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 import { cn } from "@/lib/utils"
 
@@ -88,7 +87,6 @@ import {
   reportAbsenceClient,
   updateActivityClient,
 } from "../api/activities-client"
-import type { ActivityMember } from "../group-activity-schedule.types"
 import {
   formatDateTime,
   getActivityTypeBadgeClass,
@@ -105,6 +103,7 @@ interface GroupActivityDetailDrawerProps {
   currentUserRole?: string | null
   currentUserId?: string
   onEdit?: () => void
+  readOnly?: boolean
 }
 
 const formatBookingTime = (isoString?: string) => {
@@ -153,10 +152,10 @@ export function GroupActivityDetailDrawer({
   currentUserRole,
   currentUserId,
   onEdit,
+  readOnly = false,
 }: GroupActivityDetailDrawerProps) {
-  const { t, i18n } = useGroupsTranslation()
+  const { t } = useGroupsTranslation()
   const queryClient = useQueryClient()
-  const dateLocale = i18n.language === "vi" ? "vi-VN" : "en-US"
   const [guestCountInput, setGuestCountInput] = useState("1")
   const [isGuestDialogOpen, setIsGuestDialogOpen] = useState(false)
 
@@ -164,7 +163,7 @@ export function GroupActivityDetailDrawer({
   const [isCancelActivityDialogOpen, setIsCancelActivityDialogOpen] =
     useState(false)
   const [cancelReason, setCancelReason] = useState("")
-  const [cancelConfirmChecked, setCancelConfirmChecked] = useState(false)
+  const [, setCancelConfirmChecked] = useState(false)
   const [isUnlinkBookingDialogOpen, setIsUnlinkBookingDialogOpen] =
     useState(false)
   const [isCancelMemberAbsenceDialogOpen, setIsCancelMemberAbsenceDialogOpen] =
@@ -498,6 +497,7 @@ export function GroupActivityDetailDrawer({
       <Button
         variant="outline"
         disabled={
+          readOnly ||
           !canToggleAbsence ||
           reportAbsenceMutation.isPending ||
           cancelAbsenceMutation.isPending
@@ -517,6 +517,10 @@ export function GroupActivityDetailDrawer({
         {btnLabel}
       </Button>
     )
+
+    if (readOnly) {
+      return buttonEl
+    }
 
     if (!canToggleAbsence) {
       return (
@@ -579,11 +583,11 @@ export function GroupActivityDetailDrawer({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="flex h-[600px] max-h-[90vh] max-w-md flex-col overflow-hidden bg-orange-50 p-5 md:max-w-lg md:p-6 dark:bg-zinc-800 dark:shadow-sm"
+        className="flex h-[600px] max-h-[90vh] max-w-md flex-col overflow-hidden bg-background p-5 md:max-w-lg md:p-6 dark:bg-zinc-900 dark:shadow-sm"
       >
         {/* Top-right Actions Bar (Kebab + Custom Close button in a single row) */}
         <div className="absolute top-4 right-4 z-50 flex items-center gap-1">
-          {isHost && (
+          {isHost && !readOnly && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -601,7 +605,6 @@ export function GroupActivityDetailDrawer({
                 {/* 1. Edit Option: Always shown for hosts */}
                 <DropdownMenuItem
                   onClick={() => {
-                    onOpenChange(false)
                     onEdit?.()
                   }}
                   className="cursor-pointer text-sm"
@@ -680,8 +683,8 @@ export function GroupActivityDetailDrawer({
           </div>
         ) : activity ? (
           <div className="flex h-full w-full min-w-0 flex-col overflow-hidden text-foreground">
-            <DialogHeader className="px-0 pr-10 pb-3">
-              <DialogTitle className="text-xl font-extrabold text-[#1A56DB]">
+            <DialogHeader className="px-0 pr-10 pb-3 dark:bg-zinc-900">
+              <DialogTitle className="text-xl font-extrabold text-foreground">
                 {activity.title}
               </DialogTitle>
               <DialogDescription className="text-xs">
@@ -721,7 +724,7 @@ export function GroupActivityDetailDrawer({
               defaultValue="details"
               className="flex flex-1 flex-col overflow-hidden"
             >
-              <TabsList className="mb-3 grid w-full grid-cols-2 rounded-lg bg-muted/40 p-1">
+              <TabsList className="mb-3 grid w-full grid-cols-2 rounded-lg bg-muted p-1">
                 <TabsTrigger value="details" className="text-xs font-semibold">
                   {t("activitySchedule.tabDetails", "Chi tiết")}
                 </TabsTrigger>
@@ -737,7 +740,7 @@ export function GroupActivityDetailDrawer({
                 <div className="w-full space-y-4 overflow-x-hidden pr-0.5 pb-2">
                   {/* 1. Member Information & Absence Button */}
                   {currentUserId && (
-                    <div className="flex w-full min-w-0 items-center justify-between rounded-lg border border-muted/50 bg-muted/20 px-3 py-2">
+                    <div className="flex w-full min-w-0 items-center justify-between rounded-lg border border-muted/50 bg-muted px-3 py-2">
                       <div className="mr-2 flex flex-col gap-0.5 truncate text-xs text-muted-foreground">
                         <div className="flex items-center gap-2">
                           <User className="size-6 shrink-0 text-muted-foreground" />
@@ -854,7 +857,7 @@ export function GroupActivityDetailDrawer({
                           )
                           setIsGuestDialogOpen(true)
                         }}
-                        disabled={registerGuestsMutation.isPending}
+                        disabled={readOnly || registerGuestsMutation.isPending}
                         className="flex h-9 w-full items-center justify-center gap-2 bg-[#6B46C1] text-xs font-semibold text-white shadow-sm transition-all hover:bg-[#553C9A]"
                       >
                         {registerGuestsMutation.isPending && (
@@ -1314,6 +1317,7 @@ export function GroupActivityDetailDrawer({
                                               })
                                             }
                                             disabled={
+                                              readOnly ||
                                               approveGuestMutation.isPending
                                             }
                                           >
@@ -1331,6 +1335,7 @@ export function GroupActivityDetailDrawer({
                                               })
                                             }
                                             disabled={
+                                              readOnly ||
                                               approveGuestMutation.isPending
                                             }
                                           >
@@ -1403,8 +1408,8 @@ export function GroupActivityDetailDrawer({
                         className={cn(
                           "h-7 shrink-0 rounded-md px-3 text-xs font-semibold transition-all",
                           isActive
-                            ? "hover:bg-orange-150 bg-orange-100 font-bold text-orange-700 dark:bg-orange-950/40 dark:text-orange-400"
-                            : "text-muted-foreground hover:bg-orange-100/50 hover:text-orange-700 dark:hover:bg-orange-950/20 dark:hover:text-orange-400"
+                            ? "bg-emerald-100 font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
+                            : "text-muted-foreground hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-400"
                         )}
                         onClick={() => setMemberFilter(tab)}
                       >
@@ -1445,7 +1450,7 @@ export function GroupActivityDetailDrawer({
                             <p className="flex items-center gap-1.5 truncate text-sm font-semibold text-foreground">
                               {member.name}
                               {member.userId === currentUserId && (
-                                <span className="rounded-md bg-primary/10 px-1.5 py-px text-[10px] font-semibold text-orange-500">
+                                <span className="rounded-md bg-emerald-100 px-1.5 py-px text-[10px] font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
                                   {t("activitySchedule.you", "Bạn")}
                                 </span>
                               )}
@@ -1459,7 +1464,7 @@ export function GroupActivityDetailDrawer({
                           {member.guestCount > 0 && (
                             <Badge
                               variant="secondary"
-                              className="hover:bg-orange-105 h-5 border-none bg-orange-100 text-[10px] text-orange-700 dark:bg-orange-950/40 dark:text-orange-400"
+                              className="h-5 border-none bg-purple-100 text-[10px] text-purple-700 dark:bg-purple-950/40 dark:text-purple-300"
                             >
                               {t(
                                 "activitySchedule.guestCountIndicator",
@@ -1488,41 +1493,43 @@ export function GroupActivityDetailDrawer({
                                   .replace("❌", "")
                                   .trim()}
                           </Badge>
-                          {isHost && member.attendanceStatus === "ABSENT" && (
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon-xs"
-                                  className="h-6 w-6 text-muted-foreground hover:bg-muted"
+                          {isHost &&
+                            !readOnly &&
+                            member.attendanceStatus === "ABSENT" && (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    className="h-6 w-6 text-muted-foreground hover:bg-muted"
+                                  >
+                                    <MoreHorizontal className="size-3.5" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                  align="end"
+                                  className="text-xs"
                                 >
-                                  <MoreHorizontal className="size-3.5" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent
-                                align="end"
-                                className="text-xs"
-                              >
-                                <DropdownMenuItem
-                                  className="cursor-pointer font-semibold text-destructive"
-                                  onClick={() => {
-                                    setSelectedMemberForCancelAbsence({
-                                      memberId: member.memberId,
-                                      userId: member.userId,
-                                      name: member.name,
-                                    })
-                                    setIsCancelMemberAbsenceDialogOpen(true)
-                                  }}
-                                  disabled={cancelAbsenceMutation.isPending}
-                                >
-                                  {t(
-                                    "activitySchedule.btnCancelAbsenceShort",
-                                    "Huỷ báo vắng"
-                                  )}
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          )}
+                                  <DropdownMenuItem
+                                    className="cursor-pointer font-semibold text-destructive"
+                                    onClick={() => {
+                                      setSelectedMemberForCancelAbsence({
+                                        memberId: member.memberId,
+                                        userId: member.userId,
+                                        name: member.name,
+                                      })
+                                      setIsCancelMemberAbsenceDialogOpen(true)
+                                    }}
+                                    disabled={cancelAbsenceMutation.isPending}
+                                  >
+                                    {t(
+                                      "activitySchedule.btnCancelAbsenceShort",
+                                      "Huỷ báo vắng"
+                                    )}
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
                         </div>
                       </div>
                     ))}
@@ -1549,7 +1556,7 @@ export function GroupActivityDetailDrawer({
           open={isCancelActivityDialogOpen}
           onOpenChange={setIsCancelActivityDialogOpen}
         >
-          <DialogContent className="p-6 sm:max-w-md">
+          <DialogContent className="p-6 sm:max-w-md" showCloseButton={false}>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-base font-bold text-destructive">
                 <AlertTriangle className="size-5" />

@@ -68,6 +68,8 @@ import {
   updateEquipmentClient,
   updateEquipmentFavoriteClient,
 } from "../../api/equipment-client"
+import { useGroupDetail } from "../../api/groups-client"
+import { useActionGuard } from "../../hooks/use-action-guard"
 import type {
   CreateEquipmentInput,
   Equipment,
@@ -343,9 +345,12 @@ function EquipmentFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[500px]">
+      <DialogContent
+        className="max-h-[90vh] overflow-y-auto sm:max-w-[500px]"
+        showCloseButton={false}
+      >
         <form onSubmit={handleSubmit}>
-          <DialogHeader>
+          <DialogHeader className="relative">
             <DialogTitle>
               {isEditing
                 ? t("equipment.editTitle", "Cập nhật vật dụng")
@@ -579,7 +584,7 @@ function EquipmentFormDialog({
             )}
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="relative">
             <Button
               type="button"
               variant="outline"
@@ -637,7 +642,7 @@ function DeleteConfirmDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-destructive">
             <AlertTriangle className="size-5" />
@@ -763,7 +768,7 @@ function LogUsageDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px]">
+      <DialogContent className="sm:max-w-[450px]" showCloseButton={false}>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>
@@ -899,7 +904,10 @@ function UsageHistoryDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[600px]">
+      <DialogContent
+        className="max-h-[85vh] overflow-y-auto sm:max-w-[600px]"
+        showCloseButton={false}
+      >
         <DialogHeader>
           <DialogTitle>
             {t("equipment.usageHistoryTitle", "Lịch sử sử dụng")}
@@ -1020,6 +1028,13 @@ export function GroupEquipmentSection({
   const { t } = useGroupsTranslation()
   const queryClient = useQueryClient()
 
+  const { data: group } = useGroupDetail(groupId)
+
+  const { guardWriteAction, PermissionDialog } = useActionGuard(
+    group,
+    group?.role
+  )
+
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState("")
   const [conditionFilter, setConditionFilter] = useState("")
@@ -1117,21 +1132,41 @@ export function GroupEquipmentSection({
   })
 
   function handleAdd() {
-    setEditingItem(null)
-    setFormOpen(true)
+    guardWriteAction(
+      () => {
+        setEditingItem(null)
+        setFormOpen(true)
+      },
+      { featureName: "thêm vật dụng mới" }
+    )
   }
 
   function handleEdit(item: Equipment) {
-    setEditingItem(item)
-    setFormOpen(true)
+    guardWriteAction(
+      () => {
+        setEditingItem(item)
+        setFormOpen(true)
+      },
+      { featureName: "chỉnh sửa vật dụng" }
+    )
   }
 
   function handleDelete(item: Equipment) {
-    setDeleteItem(item)
+    guardWriteAction(
+      () => {
+        setDeleteItem(item)
+      },
+      { featureName: "xóa vật dụng" }
+    )
   }
 
   function handleLogUsage(item: Equipment) {
-    setLogUsageItem(item)
+    guardWriteAction(
+      () => {
+        setLogUsageItem(item)
+      },
+      { featureName: "ghi nhận sử dụng vật dụng" }
+    )
   }
 
   function handleViewHistory(item: Equipment) {
@@ -1139,11 +1174,21 @@ export function GroupEquipmentSection({
   }
 
   function handleEditFavorite(item: EquipmentFavorite) {
-    setEditingFavorite(item)
+    guardWriteAction(
+      () => {
+        setEditingFavorite(item)
+      },
+      { featureName: "chỉnh sửa mẫu yêu thích" }
+    )
   }
 
   function handleDeleteFavorite(item: EquipmentFavorite) {
-    setDeleteFavorite(item)
+    guardWriteAction(
+      () => {
+        setDeleteFavorite(item)
+      },
+      { featureName: "xóa mẫu yêu thích" }
+    )
   }
 
   const errorMessage =
@@ -1336,10 +1381,17 @@ export function GroupEquipmentSection({
                                     }
                                     disabled={toggleFavoriteMutation.isPending}
                                     onClick={() =>
-                                      toggleFavoriteMutation.mutate({
-                                        id: item.id,
-                                        isFavorite: !item.isFavorite,
-                                      })
+                                      guardWriteAction(
+                                        () =>
+                                          toggleFavoriteMutation.mutate({
+                                            id: item.id,
+                                            isFavorite: !item.isFavorite,
+                                          }),
+                                        {
+                                          featureName:
+                                            "thay đổi trạng thái yêu thích",
+                                        }
+                                      )
                                     }
                                   >
                                     <Star
@@ -1628,6 +1680,7 @@ export function GroupEquipmentSection({
         groupId={groupId}
         item={deleteFavorite}
       />
+      <PermissionDialog />
     </>
   )
 }
@@ -1759,7 +1812,7 @@ function FavoriteFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px]">
+      <DialogContent className="sm:max-w-[450px]" showCloseButton={false}>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>

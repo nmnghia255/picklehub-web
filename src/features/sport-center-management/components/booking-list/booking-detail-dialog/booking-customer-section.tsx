@@ -30,11 +30,11 @@ export function BookingCustomerSection({ booking, variant = "card" }: Props) {
       <div className="grid gap-3 sm:grid-cols-2">
         <BookingDetailField
           label={t("bookingList.detail.customerName")}
-          value={booking.playerName || t("common.noData")}
+          value={booking.playerName || t("common.notAvailable")}
         />
         <BookingDetailField
           label={t("bookingList.detail.customerPhone")}
-          value={booking.phoneNumber || t("common.noData")}
+          value={booking.phoneNumber || t("common.notAvailable")}
         />
       </div>
     </section>

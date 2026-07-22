@@ -20,7 +20,7 @@ const buttonVariants = cva(
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
         orangeCard:
-          "border-0 bg-orange-400 text-white hover:bg-orange-300 dark:bg-slate-700 dark:hover:bg-slate-600",
+          "border-0 bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

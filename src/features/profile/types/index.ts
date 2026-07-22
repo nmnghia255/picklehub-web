@@ -11,6 +11,7 @@ export interface User {
   address: string
   preferredHand: "RIGHT" | "LEFT" | "AMBIDEXTROUS"
   dupr?: DuprProfile
+  hasPassword?: boolean
 }
 
 export interface DuprProfile {

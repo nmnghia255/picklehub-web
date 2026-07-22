@@ -50,8 +50,9 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import {
   getActivityClient,
+  getActivityMembersClient,
   listActivitiesClient,
-} from "@/features/group-activity-schedule/api/activities-client"
+} from "@/features/group-activity-schedule/activity-integration"
 import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 import { cn } from "@/lib/utils"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
@@ -130,14 +131,17 @@ export function PaymentReceiptPreview({ receiptUrl }: { receiptUrl: string }) {
         type="button"
         variant="outline"
         size="xs"
-        className="h-7 rounded-full bg-orange-100 px-2.5 dark:border-accent-foreground/15 dark:bg-accent dark:shadow-sm"
+        className="h-7 rounded-full bg-emerald-100 px-2.5 text-emerald-800 hover:bg-emerald-200 dark:border-emerald-800/40 dark:bg-emerald-950/40 dark:text-emerald-300 dark:shadow-sm"
         onClick={() => setOpen(true)}
       >
         {t("finance.viewReceipt", "Xem chứng từ")}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] overflow-hidden p-0 sm:max-w-4xl">
+        <DialogContent
+          className="group-feature-root max-h-[90vh] overflow-hidden p-0 sm:max-w-4xl"
+          showCloseButton={false}
+        >
           <div className="grid max-h-[90vh] gap-0 overflow-hidden md:grid-cols-[minmax(0,1fr)_280px]">
             <div className="flex items-center justify-center bg-black/90 p-4 md:min-h-[70vh]">
               {isImage ? (
@@ -254,18 +258,23 @@ function FinanceDialogShell({
   onOpenChange,
   title,
   description,
+  headerClassName,
   children,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   title: string
   description: string
+  headerClassName?: string
   children: React.ReactNode
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-        <DialogHeader>
+      <DialogContent
+        className="group-feature-root max-h-[90vh] overflow-y-auto sm:max-w-2xl"
+        showCloseButton={false}
+      >
+        <DialogHeader className={headerClassName}>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
@@ -414,10 +423,7 @@ function ExpenseForm({
       selectedActivityId,
     ],
     queryFn: () => getActivityClient(groupId, selectedActivityId),
-    enabled:
-      !!selectedActivityId &&
-      selectedActivityId !== "none" &&
-      mode === "create",
+    enabled: !!selectedActivityId && selectedActivityId !== "none",
   })
 
   // Fetch members of the group, optionally with activity details (to get guest count for the activity)
@@ -432,20 +438,27 @@ function ExpenseForm({
     initialData: members,
   })
 
+  // Fetch activity members list to get accurate attendance statuses
+  const activityMembersQuery = useQuery({
+    queryKey: [
+      "group-activity-members-for-expense",
+      groupId,
+      selectedActivityId,
+    ],
+    queryFn: () => getActivityMembersClient(groupId, selectedActivityId),
+    enabled: !!selectedActivityId && selectedActivityId !== "none",
+  })
+
   const resolvedMembers = useMemo(() => {
     const list = membersQuery.data ?? members
 
-    if (mode === "create" && selectedActivityId && activityDetailQuery.data) {
-      const activity = activityDetailQuery.data
+    if (selectedActivityId && activityMembersQuery.data) {
+      const actMembers = activityMembersQuery.data.data ?? []
       return [...list].sort((a, b) => {
-        const attA = activity.attendance?.find(
-          (x) => x.memberId === a.userId || x.member?.userId === a.userId
-        )
-        const attB = activity.attendance?.find(
-          (x) => x.memberId === b.userId || x.member?.userId === b.userId
-        )
-        const isAbsentA = attA?.status === "ABSENT"
-        const isAbsentB = attB?.status === "ABSENT"
+        const actMemA = actMembers.find((x) => x.userId === a.userId)
+        const actMemB = actMembers.find((x) => x.userId === b.userId)
+        const isAbsentA = actMemA ? actMemA.attendanceStatus === "ABSENT" : true
+        const isAbsentB = actMemB ? actMemB.attendanceStatus === "ABSENT" : true
         if (isAbsentA === isAbsentB) return 0
         return isAbsentA ? 1 : -1
       })
@@ -455,8 +468,7 @@ function ExpenseForm({
     membersQuery.data,
     members,
     selectedActivityId,
-    activityDetailQuery.data,
-    mode,
+    activityMembersQuery.data,
   ])
 
   // Sync edits from existing expense
@@ -490,11 +502,10 @@ function ExpenseForm({
     }
   }, [expense, mode])
 
-  // Auto fill checklist, guest count, title, description and date when linked activity details are loaded
+  // Auto fill title, description and date when linked activity details are loaded
   useEffect(() => {
-    if (activityDetailQuery.data && membersQuery.data && mode === "create") {
+    if (activityDetailQuery.data && mode === "create") {
       const activity = activityDetailQuery.data
-      const currentMembers = (membersQuery.data ?? []) as Member[]
 
       // Auto fill inputs
       setTitle(
@@ -516,6 +527,14 @@ function ExpenseForm({
           setExpenseDate(`${yyyy}-${mm}-${dd}`)
         }
       }
+    }
+  }, [activityDetailQuery.data, mode, t])
+
+  // Auto fill checklist and guest counts when activity members / attendance is loaded
+  useEffect(() => {
+    if (activityMembersQuery.data && membersQuery.data && mode === "create") {
+      const actMembers = activityMembersQuery.data.data ?? []
+      const currentMembers = (membersQuery.data ?? []) as Member[]
 
       const newSelected: Record<string, boolean> = {}
       const newGuestCounts: Record<string, string> = {}
@@ -525,24 +544,24 @@ function ExpenseForm({
           m.guestCount !== undefined && m.guestCount !== null
             ? String(m.guestCount)
             : null
-        const att = activity.attendance?.find(
-          (a) => a.memberId === m.userId || a.member?.userId === m.userId
-        )
-        if (att) {
-          newSelected[m.userId] = att.status !== "ABSENT"
+        const actMem = actMembers.find((a) => a.userId === m.userId)
+        if (actMem) {
+          newSelected[m.userId] = actMem.attendanceStatus !== "ABSENT"
           newGuestCounts[m.userId] =
             mGuestCount ??
-            (att.guestStatus === "APPROVED" ? String(att.guestCount || 0) : "0")
+            (actMem.guestStatus === "APPROVED"
+              ? String(actMem.guestCount || 0)
+              : "0")
         } else {
-          newSelected[m.userId] = true
-          newGuestCounts[m.userId] = mGuestCount ?? "0"
+          newSelected[m.userId] = false
+          newGuestCounts[m.userId] = "0"
         }
       })
 
       setSelectedMap(newSelected)
       setGuestCountMap(newGuestCounts)
     }
-  }, [activityDetailQuery.data, membersQuery.data, mode, t])
+  }, [activityMembersQuery.data, membersQuery.data, mode])
 
   const allocations = useMemo(
     () =>
@@ -745,7 +764,7 @@ function ExpenseForm({
                     className="flex flex-col gap-2 rounded-md border bg-card p-2.5 shadow-sm"
                   >
                     <div className="flex items-center justify-between">
-                      <label className="flex items-center gap-2 font-medium">
+                      <label className="flex cursor-pointer items-center gap-2 font-medium">
                         <input
                           type="checkbox"
                           checked={isSelected}
@@ -756,17 +775,30 @@ function ExpenseForm({
                             }))
                           }
                         />
+                        <Avatar className="size-6">
+                          <AvatarImage
+                            src={member.avatarUrl ?? undefined}
+                            alt={member.name}
+                          />
+                          <AvatarFallback className="bg-slate-200 text-[10px] font-semibold dark:bg-slate-700">
+                            {member.name
+                              .split(" ")
+                              .pop()
+                              ?.slice(0, 2)
+                              .toUpperCase() ||
+                              member.name.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
                         <span className="text-sm">{member.name}</span>
                       </label>
                       {selectedActivityId &&
-                        activityDetailQuery.data &&
+                        activityMembersQuery.data &&
                         (() => {
-                          const att = activityDetailQuery.data.attendance?.find(
-                            (a) =>
-                              a.memberId === member.userId ||
-                              a.member?.userId === member.userId
+                          const actMem = activityMembersQuery.data.data?.find(
+                            (a) => a.userId === member.userId
                           )
-                          if (att?.status === "ABSENT") {
+                          if (!actMem) return null
+                          if (actMem.attendanceStatus === "ABSENT") {
                             return (
                               <Badge
                                 variant="outline"
@@ -778,7 +810,7 @@ function ExpenseForm({
                               </Badge>
                             )
                           }
-                          if (att) {
+                          if (actMem.attendanceStatus === "ATTENDING") {
                             return (
                               <Badge
                                 variant="outline"
@@ -899,52 +931,97 @@ function ExpenseForm({
                   }
                 )}
               </span>
-              <Button
-                type="button"
-                variant="link"
-                size="xs"
-                onClick={() => {
-                  if (totalAmountNum > 0) {
-                    const selectedMembers = resolvedMembers.filter(
-                      (m) => selectedMap[m.userId]
-                    )
-                    if (selectedMembers.length === 0) return
-
-                    let totalSlots = 0
-                    selectedMembers.forEach((m) => {
-                      const gCount = Number(guestCountMap[m.userId] || 0)
-                      totalSlots += 1 + gCount
-                    })
-
-                    if (totalSlots === 0) return
-                    const equalShare = Math.floor(totalAmountNum / totalSlots)
-                    const remainder = totalAmountNum % totalSlots
-
-                    const newFees: Record<string, string> = { ...feeMap }
-                    const newGuestUnitPrices: Record<string, string> = {
-                      ...guestUnitPriceMap,
-                    }
-
-                    selectedMembers.forEach((m, idx) => {
-                      newFees[m.userId] = (
-                        equalShare + (idx === 0 ? remainder : 0)
-                      ).toString()
-
-                      const gCount = Number(guestCountMap[m.userId] || 0)
-                      if (gCount > 0) {
-                        newGuestUnitPrices[m.userId] = equalShare.toString()
-                      } else {
-                        newGuestUnitPrices[m.userId] = "0"
+              <div className="flex items-center gap-2">
+                {selectedActivityId && activityMembersQuery.data && (
+                  <Button
+                    type="button"
+                    variant="link"
+                    size="xs"
+                    className="font-medium text-primary"
+                    onClick={() => {
+                      const actMembers = activityMembersQuery.data?.data
+                      if (!actMembers) return
+                      const newSelected: Record<string, boolean> = {
+                        ...selectedMap,
                       }
-                    })
+                      const newGuestCounts: Record<string, string> = {
+                        ...guestCountMap,
+                      }
 
-                    setFeeMap(newFees)
-                    setGuestUnitPriceMap(newGuestUnitPrices)
-                  }
-                }}
-              >
-                {t("finance.splitEqually", "Chia đều")}
-              </Button>
+                      resolvedMembers.forEach((m) => {
+                        const actMem = actMembers.find(
+                          (a) => a.userId === m.userId
+                        )
+                        if (actMem) {
+                          newSelected[m.userId] =
+                            actMem.attendanceStatus !== "ABSENT"
+                          newGuestCounts[m.userId] =
+                            actMem.guestStatus === "APPROVED"
+                              ? String(actMem.guestCount || 0)
+                              : "0"
+                        } else {
+                          newSelected[m.userId] = false
+                          newGuestCounts[m.userId] = "0"
+                        }
+                      })
+
+                      setSelectedMap(newSelected)
+                      setGuestCountMap(newGuestCounts)
+                    }}
+                  >
+                    {t(
+                      "finance.selectParticipantsOnly",
+                      "Chọn thành viên tham gia"
+                    )}
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  variant="link"
+                  size="xs"
+                  onClick={() => {
+                    if (totalAmountNum > 0) {
+                      const selectedMembers = resolvedMembers.filter(
+                        (m) => selectedMap[m.userId]
+                      )
+                      if (selectedMembers.length === 0) return
+
+                      let totalSlots = 0
+                      selectedMembers.forEach((m) => {
+                        const gCount = Number(guestCountMap[m.userId] || 0)
+                        totalSlots += 1 + gCount
+                      })
+
+                      if (totalSlots === 0) return
+                      const equalShare = Math.floor(totalAmountNum / totalSlots)
+                      const remainder = totalAmountNum % totalSlots
+
+                      const newFees: Record<string, string> = { ...feeMap }
+                      const newGuestUnitPrices: Record<string, string> = {
+                        ...guestUnitPriceMap,
+                      }
+
+                      selectedMembers.forEach((m, idx) => {
+                        newFees[m.userId] = (
+                          equalShare + (idx === 0 ? remainder : 0)
+                        ).toString()
+
+                        const gCount = Number(guestCountMap[m.userId] || 0)
+                        if (gCount > 0) {
+                          newGuestUnitPrices[m.userId] = equalShare.toString()
+                        } else {
+                          newGuestUnitPrices[m.userId] = "0"
+                        }
+                      })
+
+                      setFeeMap(newFees)
+                      setGuestUnitPriceMap(newGuestUnitPrices)
+                    }
+                  }}
+                >
+                  {t("finance.splitEqually", "Chia đều")}
+                </Button>
+              </div>
             </div>
           </Field>
 
@@ -968,7 +1045,7 @@ function ExpenseForm({
         value={JSON.stringify(allocations)}
       />
 
-      <DialogFooter showCloseButton>
+      <DialogFooter showCloseButton className="static">
         <Button
           type="submit"
           disabled={
@@ -1025,7 +1102,13 @@ function DeleteForm({
   )
 }
 
-export function CreateTransactionButton({ groupId }: { groupId: string }) {
+export function CreateTransactionButton({
+  groupId,
+  onClick,
+}: {
+  groupId: string
+  onClick?: (openDialog: () => void) => void
+}) {
   const { t } = useGroupsTranslation()
   const [open, setOpen] = useState(false)
   const invalidation = useFinanceInvalidation(groupId)
@@ -1033,7 +1116,13 @@ export function CreateTransactionButton({ groupId }: { groupId: string }) {
   return (
     <>
       <Button
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          if (onClick) {
+            onClick(() => setOpen(true))
+          } else {
+            setOpen(true)
+          }
+        }}
         size="sm"
         className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
       >
@@ -1064,9 +1153,11 @@ export function CreateTransactionButton({ groupId }: { groupId: string }) {
 export function CreateExpenseButton({
   groupId,
   members,
+  onClick,
 }: {
   groupId: string
   members: Member[]
+  onClick?: (openDialog: () => void) => void
 }) {
   const { t } = useGroupsTranslation()
   const [open, setOpen] = useState(false)
@@ -1075,7 +1166,13 @@ export function CreateExpenseButton({
   return (
     <>
       <Button
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          if (onClick) {
+            onClick(() => setOpen(true))
+          } else {
+            setOpen(true)
+          }
+        }}
         size="sm"
         className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
       >
@@ -1090,6 +1187,7 @@ export function CreateExpenseButton({
           "finance.createExpenseDesc",
           "Ghi nhận chi tiêu và phân bổ cho các thành viên."
         )}
+        headerClassName="static"
       >
         <ExpenseForm
           groupId={groupId}
@@ -1108,9 +1206,11 @@ export function CreateExpenseButton({
 export function RemindDebtButton({
   groupId,
   members,
+  onClick,
 }: {
   groupId: string
   members: Member[]
+  onClick?: (openDialog: () => void) => void
 }) {
   const { t } = useGroupsTranslation()
   const [open, setOpen] = useState(false)
@@ -1201,7 +1301,13 @@ export function RemindDebtButton({
   return (
     <>
       <Button
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          if (onClick) {
+            onClick(() => setOpen(true))
+          } else {
+            setOpen(true)
+          }
+        }}
         size="sm"
         className="border border-slate-200 bg-slate-100 font-semibold text-slate-700 hover:bg-slate-200 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
       >
@@ -1590,6 +1696,7 @@ export function ExpenseRowActions({
           'Cập nhật khoản chi "{{title}}".',
           { title: expense.title }
         )}
+        headerClassName="static"
       >
         <ExpenseForm
           groupId={groupId}

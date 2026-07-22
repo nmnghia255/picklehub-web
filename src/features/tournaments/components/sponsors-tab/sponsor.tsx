@@ -56,7 +56,7 @@ export function Sponsors({ tournamentId, isEditable }: SponsorsProps) {
         setIsLoading(false)
       })
     }
-  }, [tournamentId])
+  }, [t, tournamentId])
 
   // Sort sponsors by amount descending (highest support first)
   const sortedSponsors = [...sponsors].sort((a, b) => b.amount - a.amount)

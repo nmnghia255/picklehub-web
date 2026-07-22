@@ -12,7 +12,7 @@ import { GroupCard } from "./group-card"
 import { GroupSearchControls } from "./group-search-controls"
 import { GroupsEmptyState } from "./groups-empty-state"
 
-type GroupListFilter = "all" | "active" | "archived"
+type GroupListFilter = "active" | "archived"
 
 type Props = {
   myGroups: Group[]
@@ -31,11 +31,7 @@ export function GroupsPageContent({ myGroups, myGroupsError = false }: Props) {
       return safeMyGroups.filter((group) => isArchivedGroup(group.status))
     }
 
-    if (groupFilter === "active") {
-      return safeMyGroups.filter((group) => !isArchivedGroup(group.status))
-    }
-
-    return safeMyGroups
+    return safeMyGroups.filter((group) => !isArchivedGroup(group.status))
   }, [groupFilter, myGroups])
 
   const filteredMyGroups = useMemo(() => {
@@ -86,7 +82,7 @@ export function GroupsPageContent({ myGroups, myGroupsError = false }: Props) {
             )
 
   return (
-    <PageContainer>
+    <PageContainer variant="wide">
       <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
         <div className="space-y-1">
           <h1 className="text-3xl font-bold tracking-tight">
@@ -105,9 +101,6 @@ export function GroupsPageContent({ myGroups, myGroupsError = false }: Props) {
           className="shrink-0"
         >
           <TabsList className="w-full sm:w-auto">
-            <TabsTrigger value="all">
-              {t("dashboard.tabAll", "Tất cả")}
-            </TabsTrigger>
             <TabsTrigger value="active">
               {t("dashboard.tabActive", "Đang hoạt động")}
             </TabsTrigger>
@@ -140,7 +133,7 @@ export function GroupsPageContent({ myGroups, myGroupsError = false }: Props) {
             description={emptyStateDescription}
           />
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredMyGroups.map((group) => (
               <GroupCard
                 key={group.id}

@@ -1,15 +1,15 @@
-﻿"use client"
+"use client"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
+import { useScoreTranslation } from "@/i18n/use-score-translation"
 import { cn } from "@/lib/utils"
 
 import { TEAM_COLOR } from "../constants/team-constants"
 import { useScoreStore } from "../stores/use-score-store"
 
 export function ScoreBoard() {
-  const { t } = useTournamentTranslation()
+  const { t } = useScoreTranslation()
   const {
     teamAName,
     teamBName,
@@ -53,25 +53,28 @@ export function ScoreBoard() {
               className="border-emerald-100 bg-emerald-50 px-2.5 py-0.5 font-bold text-emerald-800 hover:bg-emerald-50/80"
             >
               {isDoubles
-                ? t("referee.tracker.doubles", { defaultValue: "Doubles" })
-                : t("referee.tracker.singles", { defaultValue: "Singles" })}
+                ? t("tracker.doubles", { defaultValue: "Doubles" })
+                : t("tracker.singles", { defaultValue: "Singles" })}
             </Badge>
             <Badge
               variant="secondary"
               className="border-blue-100 bg-blue-50 px-2.5 py-0.5 font-bold text-blue-800 hover:bg-blue-50/80"
             >
               {setsToWin === 1
-                ? "BO1"
+                ? t("tracker.bo1", { defaultValue: "BO1" })
                 : setsToWin === 2
-                  ? "BO3"
+                  ? t("tracker.bo3", { defaultValue: "BO3" })
                   : setsToWin === 3
-                    ? "BO5"
-                    : `Best of ${setsToWin * 2 - 1}`}
+                    ? t("tracker.bo5", { defaultValue: "BO5" })
+                    : t("tracker.bestOf", {
+                        defaultValue: `Best of ${setsToWin * 2 - 1}`,
+                        count: setsToWin * 2 - 1,
+                      })}
             </Badge>
           </div>
 
           <div className="flex items-center gap-2 text-xs font-bold text-gray-600 dark:text-zinc-400">
-            <span>{t("referee.tracker.set", { defaultValue: "Set" })}:</span>
+            <span>{t("tracker.set", { defaultValue: "Set" })}:</span>
             <Badge
               variant="outline"
               className="h-6 border-gray-300 bg-gray-50 px-2 font-extrabold text-gray-800"
@@ -80,7 +83,7 @@ export function ScoreBoard() {
             </Badge>
 
             <span>
-              {t("referee.tracker.targetScore", {
+              {t("tracker.targetScore", {
                 defaultValue: "Target Score",
               })}
               :
@@ -148,7 +151,7 @@ export function ScoreBoard() {
         <div className="mt-2 flex w-full flex-col items-center gap-2 text-center">
           <div className="w-full rounded-2xl border border-amber-200 bg-amber-50/50 p-4 shadow-xs transition-all dark:border-amber-900/40 dark:bg-amber-950/10">
             <div className="text-xs font-black tracking-widest text-amber-800 uppercase dark:text-amber-400">
-              {t("referee.tracker.scoreCallFormat", {
+              {t("tracker.scoreCallFormat", {
                 defaultValue: "Score Call",
               })}
             </div>
@@ -162,14 +165,14 @@ export function ScoreBoard() {
 
           <p className="mt-1 w-full text-xs text-gray-500">
             {isDoubles
-              ? t("referee.tracker.doublesHelp", {
+              ? t("tracker.doublesHelp", {
                   defaultValue: `Call Score: Serving score {{servingScore}} - Receiving score {{receivingScore}} - Server number {{serverNumber}}. {{activeServerName}} is serving.`,
                   servingScore,
                   receivingScore,
                   serverNumber,
                   activeServerName,
                 })
-              : t("referee.tracker.singlesHelp", {
+              : t("tracker.singlesHelp", {
                   defaultValue: `Call Score: Serving score {{servingScore}} - Receiving score {{receivingScore}}. {{activeServerName}} is serving.`,
                   servingScore,
                   receivingScore,
@@ -185,7 +188,7 @@ export function ScoreBoard() {
                 key={idx}
                 className="rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1"
               >
-                {t("referee.tracker.setNumber", {
+                {t("tracker.setNumber", {
                   number: idx + 1,
                   defaultValue: `Set ${idx + 1}`,
                 })}

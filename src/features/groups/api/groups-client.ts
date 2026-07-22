@@ -1,97 +1,83 @@
-import { useQueryClient } from "@tanstack/react-query"
-import { useCallback, useEffect } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import {
+  createContext,
+  createElement,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+} from "react"
 
-import type {
-  Group,
-  GroupCourtBooking,
-  Invitation,
-  ListGroupCourtBookingsResult,
-  Member,
-  PaginatedResponse,
-} from "../types"
+import type { Group, Invitation, Member, PaginatedResponse } from "../types"
 import { financeQueryKeys } from "./finance-client"
+import { fetchGroupJson } from "./group-fetch-client"
+import { groupQueryKeys } from "./group-query-keys"
 
-type QueryParams = Record<string, string | number | boolean | null | undefined>
+export { groupQueryKeys }
 
-type FetchJsonError = Error & {
-  status?: number
-  data?: unknown
-  url?: string
+interface GroupDetailDataProviderProps {
+  groupId: string
+  group: Group
+  children: ReactNode
 }
 
-function toSearchParams(params?: QueryParams) {
-  const searchParams = new URLSearchParams()
-
-  if (!params) {
-    return searchParams
-  }
-
-  for (const [key, value] of Object.entries(params)) {
-    if (value === undefined || value === null || value === "") {
-      continue
-    }
-
-    searchParams.set(key, String(value))
-  }
-
-  return searchParams
+interface GroupDetailContextValue {
+  groupId: string
+  group: Group
 }
 
-async function fetchJson<T>(url: string): Promise<T> {
-  const response = await fetch(url, {
-    credentials: "same-origin",
-    cache: "no-store",
+interface UseGroupDetailOptions {
+  enabled?: boolean
+}
+
+const GroupDetailContext = createContext<GroupDetailContextValue | null>(null)
+
+export function GroupDetailDataProvider({
+  groupId,
+  group,
+  children,
+}: GroupDetailDataProviderProps) {
+  const queryClient = useQueryClient()
+  const queryKey = groupQueryKeys.detail(groupId)
+
+  useEffect(() => {
+    queryClient.setQueryData(queryKey, group)
+  }, [group, queryClient, queryKey])
+
+  return createElement(
+    GroupDetailContext.Provider,
+    { value: { groupId, group } },
+    children
+  )
+}
+
+export function useGroupDetail(
+  groupId: string,
+  fallbackGroup?: Group,
+  options: UseGroupDetailOptions = {}
+): ReturnType<typeof useQuery<Group>> {
+  const queryClient = useQueryClient()
+  const context = useContext(GroupDetailContext)
+  const queryKey = groupQueryKeys.detail(groupId)
+  const cachedGroup = queryClient.getQueryData<Group>(queryKey)
+  const initialGroup =
+    context?.groupId === groupId ? context.group : fallbackGroup
+  const group = initialGroup ?? cachedGroup
+
+  return useQuery<Group>({
+    queryKey,
+    enabled: Boolean(groupId && group && options.enabled !== false),
+    initialData: group,
+    queryFn: async () => {
+      const currentGroup = queryClient.getQueryData<Group>(queryKey) ?? group
+
+      if (!currentGroup) {
+        throw new Error("Group detail data is unavailable")
+      }
+
+      return currentGroup
+    },
   })
-
-  if (!response.ok) {
-    const payload = await response.json().catch(() => ({}))
-    const payloadMessage = (() => {
-      if (!payload || typeof payload !== "object") {
-        return null
-      }
-
-      const message = (payload as { message?: unknown }).message
-      if (typeof message === "string") {
-        return message
-      }
-
-      if (Array.isArray(message)) {
-        return message
-          .map((item) => (typeof item === "string" ? item : null))
-          .filter(Boolean)
-          .join(", ")
-      }
-
-      return null
-    })()
-
-    const error = new Error(
-      payloadMessage || "Đã có lỗi xảy ra."
-    ) as FetchJsonError
-    error.status = response.status
-    error.data = payload
-    error.url = url
-    throw error
-  }
-
-  return (await response.json()) as T
-}
-
-export const groupQueryKeys = {
-  all: ["groups"] as const,
-  lists: () => [...groupQueryKeys.all, "list"] as const,
-  detail: (groupId: string) =>
-    [...groupQueryKeys.all, "detail", groupId] as const,
-  members: (groupId: string) =>
-    [...groupQueryKeys.detail(groupId), "members"] as const,
-  invitations: (groupId: string) =>
-    [...groupQueryKeys.detail(groupId), "invitations"] as const,
-  courtBookings: (groupId: string, params?: QueryParams) =>
-    [...groupQueryKeys.detail(groupId), "courtBookings", params] as const,
-}
-
-export async function getGroupClient(groupId: string): Promise<Group> {
-  return fetchJson<Group>(`/api/groups/${groupId}`)
 }
 
 export async function getGroupMembersClient(
@@ -99,25 +85,18 @@ export async function getGroupMembersClient(
   params?: { activityId?: string }
 ): Promise<Member[]> {
   const query = params?.activityId ? `?activityId=${params.activityId}` : ""
-
-  const res = await fetchJson<PaginatedResponse<Member>>(
+  const res = await fetchGroupJson<PaginatedResponse<Member>>(
     `/api/groups/${groupId}/members${query}`
   )
-
   return res.data
 }
 
 export async function getGroupInvitationsClient(
   groupId: string
 ): Promise<Invitation[]> {
-  return fetchJson<Invitation[]>(`/api/groups/${groupId}/invitations`)
+  return fetchGroupJson<Invitation[]>(`/api/groups/${groupId}/invitations`)
 }
 
-/**
- * Hook to synchronize server-side props with TanStack Query cache.
- * Essential for Next.js App Router where Server Actions + revalidatePath
- * can update props but don't automatically update client-side cache.
- */
 export function useSyncGroupData<T>(
   queryKey: readonly unknown[],
   data: T | undefined
@@ -128,18 +107,12 @@ export function useSyncGroupData<T>(
     if (data === undefined) return
 
     const cachedData = queryClient.getQueryData<T>(queryKey)
-
-    // Only update if the data is actually different, to prevent infinite loops
     if (JSON.stringify(cachedData) !== JSON.stringify(data)) {
       queryClient.setQueryData(queryKey, data)
     }
   }, [queryKey, data, queryClient])
 }
 
-/**
- * Centralized hook for invalidating Group-related data.
- * Ensures that all dependent queries are refreshed together.
- */
 export function useGroupInvalidation(groupId: string) {
   const queryClient = useQueryClient()
 
@@ -209,116 +182,13 @@ export function useGroupInvalidation(groupId: string) {
   }
 }
 
-export async function listGroupCourtBookingsClient(
-  groupId: string,
-  params: {
-    page?: number
-    limit?: number
-    fromDate?: string
-    toDate?: string
-    /** Lọc theo trạng thái liên kết với activity. true = đã liên kết, false = chưa liên kết */
-    linked?: boolean
-    /** Ẩn các sân có ngày chơi đã qua. Mặc định true khi linked=false */
-    excludePast?: boolean
-  } = {}
-): Promise<ListGroupCourtBookingsResult> {
-  const searchParams = toSearchParams(params)
-  const suffix = searchParams.toString() ? `?${searchParams.toString()}` : ""
-  return fetchJson<ListGroupCourtBookingsResult>(
-    `/api/groups/${groupId}/court-bookings${suffix}`
-  )
-}
-
-export async function getGroupCourtBookingClient(
-  groupId: string,
-  id: string
-): Promise<GroupCourtBooking> {
-  return fetchJson<GroupCourtBooking>(
-    `/api/groups/${groupId}/court-bookings/${id}`
-  )
-}
-
-export async function linkGroupCourtBookingClient(
-  groupId: string,
-  body: { title: string; note: string; bookingId: string }
-): Promise<GroupCourtBooking> {
-  const response = await fetch(`/api/groups/${groupId}/court-bookings`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  })
-
-  if (!response.ok) {
-    const payload = await response.json().catch(() => ({}))
-    throw new Error(payload.message || "Không thể liên kết lịch đặt sân.")
-  }
-
-  return response.json()
-}
-
-export async function unlinkGroupCourtBookingClient(
-  groupId: string,
-  id: string
-): Promise<{ message: string }> {
-  const response = await fetch(`/api/groups/${groupId}/court-bookings/${id}`, {
-    method: "DELETE",
-  })
-
-  if (!response.ok) {
-    const payload = await response.json().catch(() => ({}))
-    throw new Error(payload.message || "Không thể xóa liên kết lịch đặt sân.")
-  }
-
-  return response.json()
-}
-
-import type { MyBookingsResponse } from "@/features/sport-center/types/booking"
-
-export async function getMyBookingsClient(
-  params: { limit?: number; status?: string } = {}
-): Promise<MyBookingsResponse> {
-  const searchParams = toSearchParams(params)
-  const suffix = searchParams.toString() ? `?${searchParams.toString()}` : ""
-
-  const response = await fetch(`/api/bookings/me${suffix}`)
-  if (!response.ok) {
-    const payload = await response.json().catch(() => ({}))
-    throw new Error(payload.message || "Không thể tải danh sách lịch đặt sân.")
-  }
-  return response.json()
-}
-
-export async function checkCancelEligibilityClient(
-  groupId: string,
-  bookingId: string
-): Promise<{ eligibleForRefund: boolean; warningMessage: string }> {
-  const response = await fetch(
-    `/api/groups/${groupId}/court-bookings/${bookingId}/cancel-eligibility`
-  )
-  if (!response.ok) {
-    const payload = await response.json().catch(() => ({}))
-    throw new Error(
-      payload.message || "Không thể kiểm tra chính sách hủy đặt sân."
-    )
-  }
-  return response.json()
-}
-
-export async function cancelCourtBookingClient(
-  groupId: string,
-  bookingId: string
-): Promise<{ message: string }> {
-  const response = await fetch(
-    `/api/groups/${groupId}/court-bookings/${bookingId}/cancel`,
-    {
-      method: "POST",
-    }
-  )
-  if (!response.ok) {
-    const payload = await response.json().catch(() => ({}))
-    throw new Error(payload.message || "Không thể thực hiện hủy đặt sân.")
-  }
-  return response.json()
-}
+// Temporary compatibility layer: existing Group consumers can migrate safely.
+export {
+  cancelCourtBookingClient,
+  checkCancelEligibilityClient,
+  getGroupCourtBookingClient,
+  getMyBookingsClient,
+  linkGroupCourtBookingClient,
+  listGroupCourtBookingsClient,
+  unlinkGroupCourtBookingClient,
+} from "./group-court-bookings-client"

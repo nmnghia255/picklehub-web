@@ -5,6 +5,38 @@ interface ApiResponse<T> {
 }
 
 export const CoachMediaService = {
+  uploadMedia: async (file: File): Promise<string> => {
+    const formData = new FormData()
+    formData.append("file", file)
+
+    const response = await fetch("/api/proxy/media/uploads", {
+      method: "POST",
+      body: formData,
+      credentials: "same-origin",
+    })
+
+    const body = (await response.json().catch(() => null)) as
+      | ApiResponse<{ url?: string }>
+      | { url?: string }
+      | { message?: string }
+      | null
+    if (!response.ok) {
+      throw new Error(
+        (body && "message" in body && body.message) ||
+          `Upload failed with status ${response.status}`
+      )
+    }
+
+    const url =
+      body && "data" in body && body.data?.url
+        ? body.data.url
+        : body && "url" in body
+          ? body.url
+          : undefined
+    if (!url) throw new Error("Upload response missing url")
+    return url
+  },
+
   uploadImage: async (file: File): Promise<string> => {
     const formData = new FormData()
     formData.append("file", file)

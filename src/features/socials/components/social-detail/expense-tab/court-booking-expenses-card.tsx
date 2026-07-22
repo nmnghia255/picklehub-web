@@ -48,7 +48,7 @@ export function CourtBookingExpensesCard({
 
       <CardContent className="space-y-4 p-0">
         <div className="overflow-auto">
-          <Table>
+          <Table className="table-auto">
             <TableHeader className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80">
               <TableRow>
                 <TableHead className="px-6 py-4">
@@ -71,7 +71,7 @@ export function CourtBookingExpensesCard({
             <TableBody>
               {expenseRows.map((row) => (
                 <TableRow key={row.id}>
-                  <TableCell className="px-6 py-4 font-medium">
+                  <TableCell className="px-6 py-4 font-medium whitespace-normal">
                     <div className="flex items-center gap-3">
                       <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
                         <CalendarDays className="size-4" />
@@ -85,7 +85,7 @@ export function CourtBookingExpensesCard({
                     </div>
                   </TableCell>
                   <TableCell className="px-6 py-4 text-muted-foreground">
-                    {format(new Date(row.startTime), "PP")}
+                    {format(new Date(row.startTime), "dd/MM/yyyy")}
                   </TableCell>
                   <TableCell className="px-6 py-4 text-muted-foreground">
                     {format(new Date(row.startTime), "p")} -{" "}

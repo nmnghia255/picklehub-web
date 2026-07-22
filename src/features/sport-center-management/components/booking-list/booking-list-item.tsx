@@ -39,7 +39,7 @@ export function BookingListItem({
   pendingAction,
 }: BookingListItemProps) {
   const { t } = useSportCenterManagementTranslation()
-  const phone = booking.phoneNumber || "—"
+  const phone = booking.phoneNumber || t("common.notAvailable")
   const isBusy = Boolean(
     pendingAction && pendingAction.bookingId === booking.id
   )

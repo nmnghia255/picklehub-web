@@ -5,6 +5,7 @@ import { ReceiptText } from "lucide-react"
 import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { Booking } from "../../../types/booking"
+import { formatCurrency } from "../booking-list.utils"
 import { BookingDetailField } from "./booking-detail-field"
 
 interface Props {
@@ -29,22 +30,14 @@ export function BookingScheduleServices({ booking, variant = "card" }: Props) {
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <BookingDetailField
-          label={t("bookingList.detail.courtBookings")}
+          label={t("bookingList.detail.courtsTitle")}
           value={String(booking.bookingItems.length)}
         />
         <BookingDetailField
           label={t("bookingList.detail.totalPrice")}
-          value={formatBookingTotal(booking.totalPrice)}
+          value={formatCurrency(booking.totalPrice)}
         />
       </div>
     </section>
   )
-}
-
-function formatBookingTotal(value: number) {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(value)
 }

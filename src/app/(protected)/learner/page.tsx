@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
+import { BackButton } from "@/components/common/back-button"
 import { PageContainer } from "@/components/page-container"
 import { LearnerDetailTabs } from "@/features/learner/components/learner-detail-tabs"
 
@@ -19,13 +20,16 @@ export default function LearnerPage() {
 
   return (
     <PageContainer variant="wide" className="space-y-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-semibold tracking-tight">
-          {t("learner.pageTitle")}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {t("learner.pageDescription")}
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 space-y-1">
+          <h1 className="text-3xl font-semibold tracking-tight">
+            {t("learner.pageTitle")}
+          </h1>
+          <p className="max-w-3xl text-sm text-muted-foreground">
+            {t("learner.pageDescription")}
+          </p>
+        </div>
+        <BackButton to="/home" />
       </div>
 
       <LearnerDetailTabs />

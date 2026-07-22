@@ -15,7 +15,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
+import { useScoreTranslation } from "@/i18n/use-score-translation"
 
 import { useScoreStore } from "../stores/use-score-store"
 
@@ -32,7 +32,7 @@ export function ScoreFooter({
   tournamentId,
   handleConfirmScore,
 }: ScoreFooterProps) {
-  const { t } = useTournamentTranslation()
+  const { t } = useScoreTranslation()
   const router = useRouter()
   const {
     teamAScore,
@@ -58,21 +58,21 @@ export function ScoreFooter({
               variant="outline"
               className="text-muted-foreground"
             >
-              {t("referee.tracker.resetMatch")}
+              {t("tracker.resetMatch")}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>
-                {t("referee.tracker.resetConfirmTitle")}
+                {t("tracker.resetConfirmTitle")}
               </AlertDialogTitle>
               <AlertDialogDescription>
-                {t("referee.tracker.resetConfirmDesc")}
+                {t("tracker.resetConfirmDesc")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel type="button">
-                {t("referee.tracker.cancel")}
+                {t("tracker.cancel")}
               </AlertDialogCancel>
               <AlertDialogAction
                 type="button"
@@ -81,7 +81,7 @@ export function ScoreFooter({
                   void applyReset(isMatchServiceMatch, matchId)
                 }}
               >
-                {t("referee.tracker.reset")}
+                {t("tracker.reset")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -93,7 +93,7 @@ export function ScoreFooter({
           onClick={() => handleUndo(isMatchServiceMatch, matchId)}
         >
           <Undo2 data-icon="inline-start" />
-          {t("referee.tracker.undo")}
+          {t("tracker.undo")}
         </Button>
       </div>
 
@@ -105,7 +105,7 @@ export function ScoreFooter({
               className="h-14 w-full rounded-xl bg-emerald-600 text-lg font-bold text-white shadow-md transition-all duration-200 hover:bg-emerald-700"
               onClick={() => router.push(`/tournaments/${tournamentId}`)}
             >
-              {t("referee.tracker.matchFinishedGoBack", {
+              {t("tracker.matchFinishedGoBack", {
                 defaultValue: "Match Finished. Go Back",
               })}
             </Button>
@@ -117,10 +117,10 @@ export function ScoreFooter({
               disabled={isSaving}
             >
               {isSaving
-                ? t("referee.tracker.savingResult", {
+                ? t("tracker.savingResult", {
                     defaultValue: "Saving...",
                   })
-                : t("referee.tracker.confirmResult", {
+                : t("tracker.confirmResult", {
                     defaultValue: "Confirm & Save Result",
                   })}
             </Button>

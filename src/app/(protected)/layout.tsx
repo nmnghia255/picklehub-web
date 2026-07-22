@@ -8,6 +8,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { ChatBot } from "@/features/ai/components/chat-bot"
 import { getMyProfile } from "@/features/profile/api/profile-service"
 import type { SessionUser } from "@/lib/session"
 import { getSession } from "@/lib/session"
@@ -28,12 +29,18 @@ export default async function ProtectedLayout({
   let headerUser: SessionUser = session.user
   try {
     const profile = await getMyProfile()
+    const rawAvatar =
+      profile.avatarUrl ??
+      (profile as unknown as Record<string, string>).avatar_url ??
+      (profile as unknown as Record<string, string>).avatar ??
+      session.user.avatarUrl
+
     headerUser = {
       id: profile.id,
       email: profile.email ?? session.user.email,
       name: profile.fullName ?? profile.name ?? session.user.name,
       phoneNumber: profile.phoneNumber ?? session.user.phoneNumber,
-      avatarUrl: profile.avatarUrl ?? session.user.avatarUrl,
+      avatarUrl: rawAvatar ?? null,
     }
   } catch (err) {
     if (err instanceof Error && err.message === "Session expired") {
@@ -55,6 +62,7 @@ export default async function ProtectedLayout({
         </header>
         <div className="flex flex-1 flex-col">{children}</div>
       </SidebarInset>
+      <ChatBot />
     </SidebarProvider>
   )
 }

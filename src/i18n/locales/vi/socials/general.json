@@ -1,4 +1,5 @@
 {
+    "courts": { "court1": "Sân 1", "court2": "Sân 2", "court3": "Sân 3" },
     "common": {
         "na": "Không áp dụng",
         "level": "Cấp độ",
@@ -22,7 +23,8 @@
         "cancel": "Hủy",
         "proceed": "Tiếp tục",
         "currency": "VND",
-        "validationError": "Vui lòng kiểm tra các lỗi bên dưới:"
+        "validationError": "Vui lòng kiểm tra các lỗi bên dưới:",
+        "playSession": "Phiên chơi"
     },
     "labels": {
         "published": "Đã đăng",
@@ -38,7 +40,7 @@
         "junior": "Trẻ",
         "adult": "Người lớn",
         "senior": "Cao tuổi",
-        "social": "Social",
+        "social": "Giao lưu",
         "tournament": "Giải đấu",
         "training": "Huấn luyện",
         "minimumLevel": "Trình độ tối thiểu",
@@ -89,16 +91,16 @@
         "leaving": "Đang rời...",
         "completing": "Đang hoàn tất...",
         "publishing": "Đang đăng...",
-        "noData": "Chưa có thông tin Social.",
-        "completeError": "Lỗi khi hoàn tất Social",
-        "publishError": "Lỗi khi đăng Social",
+        "noData": "Chưa có thông tin buổi chơi.",
+        "completeError": "Lỗi khi hoàn tất buổi chơi",
+        "publishError": "Lỗi khi đăng buổi chơi",
         "leaveSession": "Rời phiên",
-        "completeSocial": "Hoàn tất Social",
-        "completeSuccess": "Hoàn tất Social thành công",
-        "publishSuccess": "Đăng Social thành công",
+        "completeSocial": "Hoàn tất buổi chơi",
+        "completeSuccess": "Hoàn tất buổi chơi thành công",
+        "publishSuccess": "Đăng buổi chơi thành công",
         "full": "Đầy",
         "available": "Còn trống",
-        "publishSocial": "Đăng Social",
+        "publishSocial": "Đăng buổi chơi",
         "viewDetails": "Xem chi tiết",
         "publishConfirmTitle": "Đăng sự kiện",
         "publishConfirmDescription": "Bạn có chắc chắn muốn đăng sự kiện này không? Lưu ý rằng bạn sẽ không thể thay đổi thông tin sau khi sự kiện đã được đăng.",
@@ -121,33 +123,33 @@
             "bienHoa1": "Sân 1 - Biên Hòa"
         },
         "page": {
-            "title": "Social định kỳ",
-            "subtitle": "Thiết lập các buổi Social định kỳ cho câu lạc bộ",
+            "title": "Buổi chơi định kỳ",
+            "subtitle": "Thiết lập các buổi chơi định kỳ cho câu lạc bộ",
             "tabs": {
                 "list": "Danh sách",
                 "create": "Tạo mới"
             },
-            "createTitle": "Tạo Social định kỳ mới",
-            "createDescription": "Điền thông tin bên dưới để tạo lịch Social định kỳ"
+            "createTitle": "Tạo buổi chơi định kỳ mới",
+            "createDescription": "Điền thông tin bên dưới để tạo lịch buổi chơi định kỳ"
         },
         "toast": {
             "successTitle": "Thành công",
-            "created": "Đã tạo {{count}} buổi Social định kỳ",
-            "paused": "{{action}} Social định kỳ: {{name}}",
-            "deleted": "Đã xóa Social định kỳ: {{name}}",
+            "created": "Đã tạo {{count}} buổi chơi định kỳ",
+            "paused": "{{action}} buổi chơi định kỳ: {{name}}",
+            "deleted": "Đã xóa buổi chơi định kỳ: {{name}}",
             "infoTitle": "Thông báo",
             "editSoon": "Chức năng chỉnh sửa sẽ được cập nhật trong phiên bản tiếp theo",
             "viewDetails": "Loại: {{type}} | Trạng thái: {{status}}",
-            "createFailed": "Tạo Social định kỳ thất bại. Vui lòng thử lại."
+            "createFailed": "Tạo buổi chơi định kỳ thất bại. Vui lòng thử lại."
         },
         "list": {
-            "emptyTitle": "Chưa có Social định kỳ nào",
-            "emptyDescription": "Hãy tạo một Social định kỳ mới để bắt đầu",
-            "title": "Danh sách Social định kỳ",
-            "description": "Quản lý các Social định kỳ bạn đã tạo",
-            "searchPlaceholder": "Tìm theo tên Social...",
+            "emptyTitle": "Chưa có buổi chơi định kỳ nào",
+            "emptyDescription": "Hãy tạo một buổi chơi định kỳ mới để bắt đầu",
+            "title": "Danh sách buổi chơi định kỳ",
+            "description": "Quản lý các buổi chơi định kỳ bạn đã tạo",
+            "searchPlaceholder": "Tìm theo tên buổi chơi...",
             "statusFilterPlaceholder": "Lọc theo trạng thái",
-            "foundCount": "Tìm thấy {{count}} Social",
+            "foundCount": "Tìm thấy {{count}} buổi chơi",
             "statuses": {
                 "all": "Tất cả trạng thái",
                 "active": "Đang hoạt động",
@@ -155,7 +157,7 @@
                 "expired": "Hết hạn"
             },
             "table": {
-            "name": "Tên Social",
+                "name": "Tên buổi chơi",
                 "recurrenceType": "Kiểu lặp",
                 "time": "Thời gian",
                 "courts": "Sân",
@@ -171,24 +173,24 @@
                 "activate": "Kích hoạt",
                 "delete": "Xóa"
             },
-            "searchEmpty": "Không tìm thấy Social nào phù hợp"
+            "searchEmpty": "Không tìm thấy buổi chơi nào phù hợp"
         },
         "form": {
             "basicInfoTitle": "Thông tin cơ bản",
-            "basicInfoDescription": "Nhập thông tin cơ bản cho Social định kỳ này",
-            "nameLabel": "Tên Social",
-            "namePlaceholder": "Ví dụ: Saturday Morning Social",
+            "basicInfoDescription": "Nhập thông tin cơ bản cho buổi chơi định kỳ này",
+            "nameLabel": "Tên buổi chơi",
+            "namePlaceholder": "Ví dụ: Sáng Thứ 7 Social",
             "descriptionLabel": "Mô tả",
-            "descriptionPlaceholder": "Mô tả chi tiết về Social này...",
-            "socialTypeLabel": "Loại Social",
-            "socialTypePlaceholder": "Chọn loại Social",
+            "descriptionPlaceholder": "Mô tả chi tiết về buổi chơi này...",
+            "socialTypeLabel": "Loại buổi chơi",
+            "socialTypePlaceholder": "Chọn loại buổi chơi",
             "socialTypes": {
                 "beginner": "Người mới bắt đầu",
                 "intermediate": "Trung cấp",
                 "advanced": "Nâng cao",
                 "competitive": "Cạnh tranh",
                 "league": "Giải đấu",
-                "social": "Social"
+                "social": "Giao lưu"
             },
             "skillLevelLabel": "Trình độ",
             "skillLevelPlaceholder": "Chọn trình độ",
@@ -207,7 +209,7 @@
             "startTimeLabel": "Giờ bắt đầu",
             "endTimeLabel": "Giờ kết thúc",
             "recurrenceTitle": "Kiểu lặp",
-            "recurrenceDescription": "Chọn tần suất lặp lại của Social này",
+            "recurrenceDescription": "Chọn tần suất lặp lại của buổi chơi này",
             "recurrenceLabel": "Lịch lặp",
             "recurrencePlaceholder": "Chọn kiểu lặp",
             "recurrenceTypes": {
@@ -261,7 +263,7 @@
             "courtSummaryCapacity": "Sức chứa dự kiến: {{count}} người",
             "capacityTitle": "Giới hạn người tham gia",
             "capacityDescription": "Cấu hình số lượng người cho mỗi buổi",
-            "maxParticipantsLabel": "Tối đa toàn Social",
+            "maxParticipantsLabel": "Tối đa",
             "maxParticipantsDescription": "Tổng cộng tất cả sân",
             "maxPerCourtLabel": "Tối đa mỗi sân",
             "maxPerCourtDescription": "Người chơi chính",
@@ -279,9 +281,9 @@
             "costNotePlaceholder": "Ví dụ: Bao gồm nước uống nhẹ, bóng mới...",
             "submitButton": "Tiếp theo: Xác nhận tạo",
             "validation": {
-                "nameMin": "Tên Social phải từ 3 ký tự trở lên",
+                "nameMin": "Tên buổi chơi phải từ 3 ký tự trở lên",
                 "descriptionMin": "Mô tả phải từ 10 ký tự trở lên",
-                "selectSocialType": "Vui lòng chọn loại Social",
+                "selectSocialType": "Vui lòng chọn loại buổi chơi",
                 "selectSkillLevel": "Vui lòng chọn trình độ",
                 "selectStartTime": "Vui lòng chọn giờ bắt đầu",
                 "selectEndTime": "Vui lòng chọn giờ kết thúc",
@@ -297,9 +299,9 @@
             }
         },
         "preview": {
-            "title": "Xem trước lịch Social sẽ được tạo",
-            "description": "Danh sách các buổi Social định kỳ sẽ được tạo tự động",
-            "totalSocials": "Tổng số Social",
+            "title": "Xem trước lịch buổi chơi sẽ được tạo",
+            "description": "Danh sách các buổi chơi định kỳ sẽ được tạo tự động",
+            "totalSocials": "Tổng số buổi chơi",
             "recurrenceType": "Kiểu lặp",
             "dateRange": "Khoảng thời gian",
             "timeRange": "Khung giờ",
@@ -314,10 +316,10 @@
             "infoMessage": "Đang hiển thị {{count}} buổi đầu tiên. Nhấn \\\"Tiếp theo\\\" để xác nhận tạo toàn bộ."
         },
         "confirm": {
-            "title": "Xác nhận tạo Social định kỳ",
+            "title": "Xác nhận tạo buổi chơi định kỳ",
             "description": "Vui lòng kiểm tra lại thông tin trước khi tạo",
-            "socialName": "Tên Social",
-            "totalSocials": "Tổng số Social sẽ tạo",
+            "socialName": "Tên buổi chơi",
+            "totalSocials": "Tổng số buổi chơi sẽ tạo",
             "dateRange": "Khoảng thời gian",
             "timeRange": "Khung giờ",
             "courtsCount": "Số sân",
@@ -328,7 +330,7 @@
             "participationFee": "Phí tham gia: {{value}}/người",
             "courtRentFee": "Phí thuê sân: {{value}}/buổi",
             "costNote": "Ghi chú: {{note}}",
-            "warning": "Hành động này sẽ tạo {{count}} buổi Social. Bạn có thể chỉnh sửa hoặc xóa từng buổi sau đó.",
+            "warning": "Hành động này sẽ tạo {{count}} buổi chơi. Bạn có thể chỉnh sửa hoặc xóa từng buổi sau đó.",
             "cancelButton": "Hủy",
             "confirmButton": "Xác nhận tạo"
         },
@@ -341,8 +343,8 @@
         },
         "mock": {
             "socials": {
-                "saturdayMorningSocial": "Buổi Social sáng thứ Bảy",
-                "midWeekEveningSocial": "Buổi Social buổi tối giữa tuần",
+                "saturdayMorningSocial": "Buổi chơi sáng thứ Bảy",
+                "midWeekEveningSocial": "Buổi chơi tối giữa tuần",
                 "monthlyChampionship": "Giải đấu hàng tháng",
                 "quarterlyLeague": "Giải đấu hàng quý"
             }

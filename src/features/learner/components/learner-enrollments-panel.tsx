@@ -46,25 +46,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useSession } from "@/features/auth/hooks/use-session"
+import { PaymentProofUploader } from "@/features/learner/components/payment-proof-uploader"
 import {
   useCancelEnrollment,
   useMyEnrollments,
   useUploadEnrollmentPaymentProof,
 } from "@/features/learner/hooks/use-learner-queries"
 import { getErrorMessage } from "@/lib/api-client"
+import { formatCurrency } from "@/utils/expense-utils"
 
 function getLocaleCode(language: string) {
   return language.startsWith("vi") ? "vi-VN" : "en-US"
-}
-
-function formatAmount(amount: number, locale: string) {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: "VND",
-  }).format(amount)
 }
 
 function EnrollmentSkeleton() {
@@ -95,29 +89,36 @@ function UploadDialog({
 }) {
   const { t } = useTranslation("common")
   const [open, setOpen] = useState(false)
-  const [url, setUrl] = useState("")
+  const [paymentProofUrl, setPaymentProofUrl] = useState("")
+  const [isUploading, setIsUploading] = useState(false)
   const uploadMutation = useUploadEnrollmentPaymentProof()
 
   const handleSubmit = async () => {
-    if (!url.trim()) {
-      toast.error(t("learner.enrollments.uploadProofUrlRequired"))
+    if (!paymentProofUrl) {
+      toast.error(t("learner.enrollments.uploadProofRequired"))
       return
     }
     try {
       await uploadMutation.mutateAsync({
         enrollmentId,
-        paymentProofUrl: url.trim(),
+        paymentProofUrl,
       })
       toast.success(t("learner.enrollments.uploadProofSuccess"))
       setOpen(false)
-      setUrl("")
+      setPaymentProofUrl("")
     } catch {
       toast.error(t("learner.enrollments.uploadProofError"))
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen)
+        if (!nextOpen) setPaymentProofUrl("")
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <Upload className="mr-1 size-4" />
@@ -134,20 +135,25 @@ function UploadDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-2">
-          <label className="text-sm font-medium">
-            {t("learner.enrollments.uploadProofUrlLabel")}
-          </label>
-          <Input
-            placeholder={t("learner.enrollments.uploadProofUrlPlaceholder")}
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
+          <p className="text-sm font-medium">
+            {t("learner.enrollments.uploadProofLabel")}
+          </p>
+          <PaymentProofUploader
+            value={paymentProofUrl}
+            onChange={setPaymentProofUrl}
+            onUploadingChange={setIsUploading}
           />
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
             {t("learner.enrollments.cancel")}
           </Button>
-          <Button onClick={handleSubmit} disabled={uploadMutation.isPending}>
+          <Button
+            onClick={handleSubmit}
+            disabled={
+              uploadMutation.isPending || isUploading || !paymentProofUrl
+            }
+          >
             {uploadMutation.isPending
               ? t("learner.enrollments.uploading")
               : t("learner.enrollments.confirm")}
@@ -371,7 +377,7 @@ export function LearnerEnrollmentsPanel() {
                     </Badge>
                   )}
                   <span className="text-sm font-semibold">
-                    {formatAmount(enrollment.amountVnd, locale)}
+                    {formatCurrency(enrollment.amountVnd, "VND", locale)}
                   </span>
                 </div>
               </div>

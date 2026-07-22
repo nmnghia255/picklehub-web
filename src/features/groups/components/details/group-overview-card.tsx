@@ -1,13 +1,12 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
 import { CalendarDays, Info, Users } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
-  getGroupClient,
   groupQueryKeys,
+  useGroupDetail,
   useSyncGroupData,
 } from "@/features/groups/api/groups-client"
 import type { Group } from "@/features/groups/types"
@@ -26,16 +25,13 @@ export function GroupOverviewCard({
   const queryKey = groupQueryKeys.detail(groupId)
   useSyncGroupData(queryKey, initialData)
 
-  const { data: group } = useQuery({
-    queryKey,
-    queryFn: () => getGroupClient(groupId),
-    initialData,
-  })
+  const { data } = useGroupDetail(groupId, initialData)
+  const group = data ?? initialData
 
   const archived = isArchivedGroup(group.status)
 
   return (
-    <Card className="bg-orange-50 dark:bg-accent">
+    <Card className="group-feature-root">
       <CardHeader>
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
@@ -46,8 +42,8 @@ export function GroupOverviewCard({
           </div>
           {archived && (
             <Badge
-              variant="secondary"
-              className="bg-muted text-muted-foreground"
+              variant="outline"
+              className="border-rose-200 bg-rose-100 font-semibold text-rose-700 dark:border-rose-800/60 dark:bg-rose-950/40 dark:text-rose-400"
             >
               {t("archived", "Đã lưu trữ")}
             </Badge>

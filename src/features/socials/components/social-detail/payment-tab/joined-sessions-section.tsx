@@ -30,7 +30,7 @@ export function JoinedSessionsSection({
   if (joinedSessions.length === 0) return null
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="gap-0 overflow-hidden pb-0">
       <CardHeader className="border-b border-border/60 bg-muted/20">
         <CardTitle className="text-xl">{t("payment.joinedSessions")}</CardTitle>
         <CardDescription className="mt-1">

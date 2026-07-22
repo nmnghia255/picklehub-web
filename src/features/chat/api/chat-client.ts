@@ -18,6 +18,8 @@ import type {
 } from "../types"
 
 const CHAT_PROXY_BASE = "/api/proxy/chats"
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 type QueryParams = Record<string, string | number | boolean | null | undefined>
 
@@ -123,11 +125,36 @@ export const chatClient = {
       body: JSON.stringify(input),
     }),
 
-  createGroupConversation: (input: OpenGroupConversationInput) =>
-    chatFetch<Conversation>("/conversations/group", {
-      method: "POST",
-      body: JSON.stringify(input),
-    }),
+  createGroupConversation: async (input: OpenGroupConversationInput) => {
+    try {
+      return await chatFetch<Conversation>("/conversations/group", {
+        method: "POST",
+        body: JSON.stringify(input),
+      })
+    } catch (err: unknown) {
+      const error = err as ChatApiError
+      if (error.status === 404) {
+        try {
+          return await chatFetch<Conversation>("/conversations/groups", {
+            method: "POST",
+            body: JSON.stringify(input),
+          })
+        } catch {
+          try {
+            const list = await chatClient.listConversations({ limit: 50 })
+            const existing = list.data?.find(
+              (c) =>
+                c.groupId === input.groupId || c.group?.id === input.groupId
+            )
+            if (existing) return existing
+          } catch {
+            // ignore
+          }
+        }
+      }
+      throw err
+    }
+  },
 
   createSocialConversation: (input: OpenSocialConversationInput) =>
     chatFetch<Conversation>("/conversations/social", {
@@ -135,16 +162,67 @@ export const chatClient = {
       body: JSON.stringify(input),
     }),
 
-  createTournamentConversation: (input: OpenTournamentConversationInput) =>
-    chatFetch<Conversation>("/conversations/tournament", {
-      method: "POST",
-      body: JSON.stringify(input),
-    }),
+  createTournamentConversation: async (
+    input: OpenTournamentConversationInput
+  ) => {
+    if (!UUID_PATTERN.test(input.tournamentId)) {
+      throw makeChatApiError(
+        400,
+        { errorCode: "INVALID_TOURNAMENT_ID" },
+        "Invalid tournament ID"
+      )
+    }
 
-  getConversation: (conversationId: string) =>
-    chatFetch<Conversation>(`/conversations/${conversationId}`, {
-      method: "GET",
-    }),
+    try {
+      return await chatFetch<Conversation>("/conversations/tournament", {
+        method: "POST",
+        body: JSON.stringify(input),
+      })
+    } catch (err: unknown) {
+      const error = err as ChatApiError
+      if (error.status === 404) {
+        try {
+          return await chatFetch<Conversation>("/conversations/tournaments", {
+            method: "POST",
+            body: JSON.stringify(input),
+          })
+        } catch {
+          try {
+            const list = await chatClient.listConversations({ limit: 50 })
+            const existing = list.data?.find(
+              (c) =>
+                c.tournamentId === input.tournamentId ||
+                c.tournament?.id === input.tournamentId
+            )
+            if (existing) return existing
+          } catch {
+            // ignore
+          }
+        }
+      }
+      throw err
+    }
+  },
+
+  getConversation: async (conversationId: string) => {
+    try {
+      return await chatFetch<Conversation>(`/conversations/${conversationId}`, {
+        method: "GET",
+      })
+    } catch (err: unknown) {
+      const error = err as ChatApiError
+      if (error.status === 404) {
+        try {
+          const list = await chatClient.listConversations({ limit: 50 })
+          const existing = list.data?.find((c) => c.id === conversationId)
+          if (existing) return existing
+        } catch {
+          // ignore
+        }
+      }
+      throw err
+    }
+  },
 
   hideConversation: (conversationId: string) =>
     chatFetch<{ message: string }>(`/conversations/${conversationId}`, {

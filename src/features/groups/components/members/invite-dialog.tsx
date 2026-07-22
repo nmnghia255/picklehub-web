@@ -64,7 +64,7 @@ export function InviteDialog({ groupId }: InviteDialogProps) {
           {t("dashboard.inviteByEmailBtn", "Mời qua email")}
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent showCloseButton={false}>
         <form onSubmit={onSubmit}>
           <DialogHeader>
             <DialogTitle>

@@ -15,6 +15,7 @@ import { CoachWeekSchedule } from "@/features/coach/components/coach-week-schedu
 import { CoachBookingsPanel } from "./coach-bookings-panel"
 import { CoachClassesPanel } from "./coach-classes-panel"
 import { CoachReviews } from "./coach-reviews"
+import { CoachSwingAnalysisPanel } from "./coach-swing-analysis-panel"
 
 export type CoachTabValue =
   | "overview"
@@ -25,6 +26,7 @@ export type CoachTabValue =
   | "bookings"
   | "finance"
   | "reviews"
+  | "technique-analysis"
 
 function CoachDetailTabsInner() {
   const { t } = useTranslation("common")
@@ -91,6 +93,9 @@ function CoachDetailTabsInner() {
         <TabsTrigger value="reviews" className="sm:flex-none">
           {t("coach.discovery.reviewsTab")}
         </TabsTrigger>
+        <TabsTrigger value="technique-analysis" className="sm:flex-none">
+          {t("coach.discovery.swingAnalysis.tab")}
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="overview" className="mt-6 w-full min-w-0">
@@ -130,6 +135,10 @@ function CoachDetailTabsInner() {
 
       <TabsContent value="reviews" className="mt-6 w-full min-w-0">
         <CoachReviews />
+      </TabsContent>
+
+      <TabsContent value="technique-analysis" className="mt-6 w-full min-w-0">
+        <CoachSwingAnalysisPanel />
       </TabsContent>
     </Tabs>
   )

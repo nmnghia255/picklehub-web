@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { GroupActivitySchedulePage } from "@/features/group-activity-schedule/components/group-activity-schedule-page"
+import { GroupActivitySchedulePage } from "@/features/group-activity-schedule"
 import type { Group, Invitation, Member } from "@/features/groups/types"
 import { GroupFeedNotificationsContainer } from "@/features/notifications/components/group-feed-notifications-container"
 
@@ -31,6 +31,7 @@ export async function GroupDetailPanels({
   defaultTab,
 }: GroupDetailPanelsProps) {
   const normalizedRole = currentUserRole?.toLowerCase()
+  const isArchived = group.status === "ARCHIVED"
   const canManage = normalizedRole === "owner" || normalizedRole === "admin"
 
   const overviewPanel = (
@@ -48,11 +49,12 @@ export async function GroupDetailPanels({
       <GroupFeedNotificationsContainer groupId={groupId} />
 
       {canManage && (
-        <Card className="bg-orange-50 dark:bg-accent">
+        <Card className="group-feature-root">
           <CardContent>
             <InvitationsTable
               groupId={groupId}
               initialInvitations={invitations}
+              isArchived={isArchived}
             />
           </CardContent>
         </Card>
@@ -94,7 +96,10 @@ export async function GroupDetailPanels({
         </div>
       }
       equipment={
-        <GroupEquipmentSection groupId={groupId} canManage={canManage} />
+        <GroupEquipmentSection
+          groupId={groupId}
+          canManage={canManage && !isArchived}
+        />
       }
       defaultValue={
         defaultTab === "court-bookings" ? "court-bookings" : defaultTab

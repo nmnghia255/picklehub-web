@@ -1,12 +1,12 @@
-﻿"use client"
+"use client"
 
 import { Button } from "@/components/ui/button"
-import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
+import { useScoreTranslation } from "@/i18n/use-score-translation"
 
 import { useScoreStore } from "../stores/use-score-store"
 
 export function CourtControls() {
-  const { t } = useTournamentTranslation()
+  const { t } = useScoreTranslation()
   const {
     teamAName,
     teamBName,
@@ -25,7 +25,7 @@ export function CourtControls() {
         onClick={() => setIsSwappedSides((prev) => !prev)}
         className="border-gray-200 text-xs font-bold hover:bg-muted"
       >
-        🔄 {t("referee.tracker.swapEnds", { defaultValue: "Swap sides" })}
+        🔄 {t("tracker.swapEnds", { defaultValue: "Swap sides" })}
       </Button>
 
       {isDoubles && (
@@ -38,7 +38,7 @@ export function CourtControls() {
             className="border-gray-200 text-xs font-bold hover:bg-muted"
           >
             🔄{" "}
-            {t("referee.tracker.swapPositions", {
+            {t("tracker.swapPositions", {
               team: teamAName,
               defaultValue: `Swap ${teamAName} positions`,
             })}
@@ -51,7 +51,7 @@ export function CourtControls() {
             className="border-gray-200 text-xs font-bold hover:bg-muted"
           >
             🔄{" "}
-            {t("referee.tracker.swapPositions", {
+            {t("tracker.swapPositions", {
               team: teamBName,
               defaultValue: `Swap ${teamBName} positions`,
             })}

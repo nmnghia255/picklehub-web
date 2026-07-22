@@ -121,6 +121,88 @@ function itemTypeLabel(
     : t("coach.schedule.typeBooking")
 }
 
+function ScheduleStatusBadges({
+  item,
+  t,
+}: {
+  item: CoachScheduleItem
+  t: (key: string) => string
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <Badge
+        variant={statusVariantMap[item.status]}
+        className="rounded-full text-[10px]"
+      >
+        {statusLabel(item.status, t)}
+      </Badge>
+      <Badge
+        variant="outline"
+        className="rounded-full border-border bg-background text-[10px] text-foreground"
+      >
+        {itemTypeLabel(item.type, t)}
+      </Badge>
+      {item.sourceStatus && (
+        <Badge
+          variant="outline"
+          className="rounded-full border-border bg-background text-[10px] text-foreground"
+        >
+          {(
+            {
+              PENDING_CONFIRMATION: t(
+                "coach.schedule.sourceStatusPendingConfirmation"
+              ),
+              CONFIRMED: t("coach.schedule.sourceStatusConfirmed"),
+              COMPLETED: t("coach.schedule.sourceStatusCompleted"),
+              REJECTED: t("coach.schedule.sourceStatusRejected"),
+              CANCELLED: t("coach.schedule.sourceStatusCancelled"),
+            } as Record<string, string>
+          )[item.sourceStatus] ?? item.sourceStatus}
+        </Badge>
+      )}
+      {item.paymentStatus && (
+        <Badge
+          variant="outline"
+          className="rounded-full border-border bg-background text-[10px] text-foreground"
+        >
+          {(
+            {
+              PENDING_PROOF: t("coach.schedule.paymentPendingProof"),
+              PENDING_REVIEW: t("coach.schedule.paymentPendingReview"),
+              SETTLED: t("coach.schedule.paymentSettled"),
+              REJECTED: t("coach.schedule.paymentRejected"),
+            } as Record<string, string>
+          )[item.paymentStatus] ?? item.paymentStatus}
+        </Badge>
+      )}
+    </div>
+  )
+}
+
+function ScheduleLoadingState({ weekDays }: { weekDays: string[] }) {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-10 w-full max-w-md" />
+      <Card className="rounded-2xl border border-border bg-background shadow-sm">
+        <CardContent className="p-8">
+          <div className="space-y-3 overflow-x-auto">
+            <div className="grid min-w-245 grid-cols-7 gap-2">
+              {weekDays.map((day) => (
+                <Skeleton key={day} className="h-10 rounded-xl" />
+              ))}
+            </div>
+            <div className="grid min-w-245 grid-cols-7 gap-2">
+              {Array.from({ length: 35 }).map((_, index) => (
+                <Skeleton key={index} className="min-h-36 rounded-2xl" />
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
 export function CoachWeekSchedule() {
   const { t, i18n } = useTranslation("common")
   const locale = getLocaleCode(i18n.language)
@@ -187,7 +269,7 @@ export function CoachWeekSchedule() {
     { enabled: !!session?.user }
   )
 
-  const items = data?.data ?? []
+  const items = useMemo(() => data?.data ?? [], [data?.data])
   const totalPages = data?.pagination?.totalPages ?? 1
 
   const gridDays = useMemo(() => {
@@ -310,56 +392,6 @@ export function CoachWeekSchedule() {
   const handleYearChange = (year: number) =>
     setCurrentDate((prev) => new Date(year, prev.getMonth(), 1))
   const handleToday = () => setCurrentDate(startOfMonth(new Date()))
-
-  const renderStatusBadges = (item: CoachScheduleItem) => (
-    <div className="flex flex-wrap items-center gap-2">
-      <Badge
-        variant={statusVariantMap[item.status]}
-        className="rounded-full text-[10px]"
-      >
-        {statusLabel(item.status, t)}
-      </Badge>
-      <Badge
-        variant="outline"
-        className="rounded-full border-border bg-background text-[10px] text-foreground"
-      >
-        {itemTypeLabel(item.type, t)}
-      </Badge>
-      {item.sourceStatus && (
-        <Badge
-          variant="outline"
-          className="rounded-full border-border bg-background text-[10px] text-foreground"
-        >
-          {(
-            {
-              PENDING_CONFIRMATION: t(
-                "coach.schedule.sourceStatusPendingConfirmation"
-              ),
-              CONFIRMED: t("coach.schedule.sourceStatusConfirmed"),
-              COMPLETED: t("coach.schedule.sourceStatusCompleted"),
-              REJECTED: t("coach.schedule.sourceStatusRejected"),
-              CANCELLED: t("coach.schedule.sourceStatusCancelled"),
-            } as Record<string, string>
-          )[item.sourceStatus] ?? item.sourceStatus}
-        </Badge>
-      )}
-      {item.paymentStatus && (
-        <Badge
-          variant="outline"
-          className="rounded-full border-border bg-background text-[10px] text-foreground"
-        >
-          {(
-            {
-              PENDING_PROOF: t("coach.schedule.paymentPendingProof"),
-              PENDING_REVIEW: t("coach.schedule.paymentPendingReview"),
-              SETTLED: t("coach.schedule.paymentSettled"),
-              REJECTED: t("coach.schedule.paymentRejected"),
-            } as Record<string, string>
-          )[item.paymentStatus] ?? item.paymentStatus}
-        </Badge>
-      )}
-    </div>
-  )
 
   function renderCalendarView() {
     return (
@@ -635,7 +667,7 @@ export function CoachWeekSchedule() {
                             <p className="truncate font-semibold text-foreground">
                               {item.title}
                             </p>
-                            {renderStatusBadges(item)}
+                            <ScheduleStatusBadges item={item} t={t} />
                           </div>
                           <p className="text-sm text-muted-foreground">
                             {formatDate(item.startTime, locale)} ·{" "}
@@ -776,7 +808,7 @@ export function CoachWeekSchedule() {
                                     <p className="truncate font-semibold text-foreground">
                                       {item.title}
                                     </p>
-                                    {renderStatusBadges(item)}
+                                    <ScheduleStatusBadges item={item} t={t} />
                                   </div>
                                   <p className="text-sm text-muted-foreground">
                                     {formatTime(item.startTime, locale)} -{" "}
@@ -832,7 +864,7 @@ export function CoachWeekSchedule() {
               </DialogHeader>
 
               <div className="space-y-4 text-sm">
-                {renderStatusBadges(detailItem)}
+                <ScheduleStatusBadges item={detailItem} t={t} />
 
                 {detailItem.description && (
                   <p className="wrap-break-word whitespace-pre-wrap text-foreground">
@@ -928,27 +960,7 @@ export function CoachWeekSchedule() {
   }
 
   if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-full max-w-md" />
-        <Card className="rounded-2xl border border-border bg-background shadow-sm">
-          <CardContent className="p-8">
-            <div className="space-y-3 overflow-x-auto">
-              <div className="grid min-w-245 grid-cols-7 gap-2">
-                {weekDays.map((day) => (
-                  <Skeleton key={day} className="h-10 rounded-xl" />
-                ))}
-              </div>
-              <div className="grid min-w-245 grid-cols-7 gap-2">
-                {Array.from({ length: 35 }).map((_, index) => (
-                  <Skeleton key={index} className="min-h-36 rounded-2xl" />
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
+    return <ScheduleLoadingState weekDays={weekDays} />
   }
 
   return (

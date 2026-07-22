@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
-import { getAuthenticatedAxios } from "@/lib/server-api"
+import { getSportCenterRouteError } from "@/features/sport-center-management/api/route-error"
+import { SportCenterOwnerService } from "@/features/sport-center-management/api/sport-center-service"
 
 type RouteContext = {
   params: Promise<{ centerId: string }>
@@ -11,20 +12,29 @@ export async function GET(request: Request, context: RouteContext) {
     const { centerId } = await context.params
     const url = new URL(request.url)
     const queryParams = Object.fromEntries(url.searchParams.entries())
-    const client = await getAuthenticatedAxios()
-
-    const response = await client.get(`/api/sport-centers/${centerId}/courts`, {
-      params: queryParams,
-    })
-
-    return NextResponse.json(response.data, { status: 200 })
+    const data = await SportCenterOwnerService.listCourts(centerId, queryParams)
+    return NextResponse.json({ data }, { status: 200 })
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to load courts"
-    const status =
-      message === "Not authenticated" || message === "Session expired"
-        ? 401
-        : 500
+    const { message, status } = getSportCenterRouteError(
+      error,
+      "Failed to load courts"
+    )
+
+    return NextResponse.json({ message }, { status })
+  }
+}
+
+export async function POST(request: Request, context: RouteContext) {
+  try {
+    const { centerId } = await context.params
+    const body = await request.json()
+    const data = await SportCenterOwnerService.createCourt(centerId, body)
+    return NextResponse.json({ data }, { status: 201 })
+  } catch (error) {
+    const { message, status } = getSportCenterRouteError(
+      error,
+      "Failed to create court"
+    )
 
     return NextResponse.json({ message }, { status })
   }

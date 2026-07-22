@@ -1,6 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import type { TFunction } from "i18next"
 import { Users } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -31,8 +32,10 @@ function getInitials(name: string) {
   return `${words[0][0] ?? ""}${words[1][0] ?? ""}`.toUpperCase()
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function normalizeRole(role: string | null | undefined, t: any) {
+function normalizeRole(
+  role: string | null | undefined,
+  t: TFunction<"groups">
+) {
   switch (role?.toLowerCase()) {
     case "owner":
       return t("dashboard.roleOwner", "Trưởng nhóm")
@@ -82,7 +85,7 @@ export function GroupMembersCard({
     !isArchivedGroup(groupStatus) && normalizedUserRole === "owner"
 
   return (
-    <Card className="mt-6 bg-orange-50 dark:bg-accent">
+    <Card className="group-feature-root mt-6">
       <CardHeader>
         <div className="flex items-center gap-2">
           <Users className="size-5 text-base" />
@@ -132,7 +135,7 @@ export function GroupMembersCard({
                     <div className="flex items-center gap-2">
                       <span>{member.name}</span>
                       {member.userId === currentUserId && (
-                        <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-orange-500">
+                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
                           {t("dashboard.badgeYou", "Bạn")}
                         </span>
                       )}

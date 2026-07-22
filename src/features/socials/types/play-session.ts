@@ -1,11 +1,17 @@
-import type { PaymentStatus } from "./payment"
+import type { TransactionStatus } from "./payment"
+
+export type PlaySessionStatus =
+  | "ACTIVE"
+  | "COMPLETED"
+  | "IN_PROGRESS "
+  | "CANCELLED"
 
 export interface PlaySession {
   id: string
   title: string
   socialId: string
   bookingIds: string[]
-  joinedCount: number
+  joinedCount: number | null
   numberOfCourts: number
   courtNames: string[]
   courtSchedule: string | null
@@ -17,7 +23,7 @@ export interface PlaySession {
   startTime: string
   endTime: string
   status: string
-  maxSlot: number
+  maxSlot: number | null
   isHost: boolean
   creatorId: string
   createdAt: string
@@ -36,7 +42,7 @@ export interface ParticipantPayment {
   socialParticipantId: string
   amount: number
   receiptUrl: string | null
-  status: PaymentStatus
+  status: TransactionStatus
   transactionType: string
   createdById: string
   verifiedById: string

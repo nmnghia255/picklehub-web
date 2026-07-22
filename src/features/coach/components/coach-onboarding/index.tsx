@@ -1,8 +1,8 @@
 "use client"
 
-import { Save, Send, Shield } from "lucide-react"
+import { ImagePlus, Loader2, Save, Send, Shield, X } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { type FormEvent, useState } from "react"
+import { type ChangeEvent, type FormEvent, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { CoachMediaService } from "@/features/coach/api/media-service"
 import {
   useCoachProfile,
   usePublishMyProfile,
@@ -76,6 +77,8 @@ export function CoachOnboarding() {
   const [displayName, setDisplayName] = useState("")
   const [bio, setBio] = useState("")
   const [avatarUrl, setAvatarUrl] = useState("")
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState("")
+  const [avatarUploading, setAvatarUploading] = useState(false)
   const [level, setLevel] = useState("")
   const [yearsExperience, setYearsExperience] = useState("0")
   const [specialties, setSpecialties] = useState<string[]>([])
@@ -86,9 +89,66 @@ export function CoachOnboarding() {
   const [paymentAccountNumber, setPaymentAccountNumber] = useState("")
   const [paymentBankName, setPaymentBankName] = useState("")
   const [paymentQrUrl, setPaymentQrUrl] = useState("")
+  const [paymentQrPreviewUrl, setPaymentQrPreviewUrl] = useState("")
+  const [paymentQrUploading, setPaymentQrUploading] = useState(false)
 
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [apiError, setApiError] = useState<string | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreviewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(avatarPreviewUrl)
+      }
+      if (paymentQrPreviewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(paymentQrPreviewUrl)
+      }
+    }
+  }, [avatarPreviewUrl, paymentQrPreviewUrl])
+
+  const uploadOnboardingImage = async (
+    event: ChangeEvent<HTMLInputElement>,
+    setUrl: (url: string) => void,
+    setPreviewUrl: (url: string) => void,
+    setUploading: (uploading: boolean) => void,
+    errorKey: string
+  ) => {
+    const file = event.target.files?.[0]
+    event.target.value = ""
+    if (!file) return
+
+    if (!file.type.startsWith("image/")) {
+      setErrors((current) => ({
+        ...current,
+        [errorKey]: t("coach.profile.invalidImage"),
+      }))
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors((current) => ({
+        ...current,
+        [errorKey]: t("coach.profile.imageTooLarge"),
+      }))
+      return
+    }
+
+    setErrors((current) => ({ ...current, [errorKey]: "" }))
+    const localPreviewUrl = URL.createObjectURL(file)
+    setPreviewUrl(localPreviewUrl)
+    setUploading(true)
+    try {
+      const uploadedUrl = await CoachMediaService.uploadImage(file)
+      setUrl(uploadedUrl)
+      setPreviewUrl(uploadedUrl)
+    } catch {
+      setErrors((current) => ({
+        ...current,
+        [errorKey]: t("coach.profile.uploadError"),
+      }))
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const getDto = () => ({
     displayName: displayName.trim(),
@@ -146,7 +206,7 @@ export function CoachOnboarding() {
   const handleSaveDraft = (e: FormEvent) => {
     e.preventDefault()
     setApiError(null)
-    if (!validate()) return
+    if (!validate() || avatarUploading || paymentQrUploading) return
 
     registerCoach.mutate(getDto(), {
       onSuccess: () => {
@@ -163,7 +223,7 @@ export function CoachOnboarding() {
   const handlePublish = (e: FormEvent) => {
     e.preventDefault()
     setApiError(null)
-    if (!validate()) return
+    if (!validate() || avatarUploading || paymentQrUploading) return
 
     registerCoach.mutate(getDto(), {
       onSuccess: () => {
@@ -261,15 +321,64 @@ export function CoachOnboarding() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="avatarUrl">
-                {t("coach.onboarding.avatarLabel")}
+              <Label htmlFor="onboardingAvatarUpload">
+                {t("coach.onboarding.avatarUploadLabel")}
               </Label>
-              <Input
-                id="avatarUrl"
-                value={avatarUrl}
-                onChange={(e) => setAvatarUrl(e.target.value)}
-                placeholder={t("coach.onboarding.avatarPlaceholder")}
-              />
+              {avatarPreviewUrl ? (
+                <div className="relative w-fit">
+                  <img
+                    src={avatarPreviewUrl}
+                    alt={t("coach.profile.uploadAvatar")}
+                    className="size-24 rounded-2xl border object-cover"
+                  />
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="secondary"
+                    className="absolute -top-2 -right-2 rounded-full"
+                    onClick={() => {
+                      setAvatarUrl("")
+                      setAvatarPreviewUrl("")
+                    }}
+                    disabled={avatarUploading}
+                  >
+                    <X className="size-4" />
+                  </Button>
+                </div>
+              ) : null}
+              <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed px-3 py-2 text-sm">
+                {avatarUploading ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <ImagePlus className="size-4" />
+                )}
+                <span>
+                  {avatarUploading
+                    ? t("coach.profile.uploading")
+                    : t("coach.profile.uploadAvatar")}
+                </span>
+                <Input
+                  id="onboardingAvatarUpload"
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  className="hidden"
+                  onChange={(event) =>
+                    uploadOnboardingImage(
+                      event,
+                      setAvatarUrl,
+                      setAvatarPreviewUrl,
+                      setAvatarUploading,
+                      "avatarUpload"
+                    )
+                  }
+                  disabled={avatarUploading}
+                />
+              </label>
+              {errors.avatarUpload ? (
+                <p className="text-xs text-destructive">
+                  {errors.avatarUpload}
+                </p>
+              ) : null}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -484,15 +593,67 @@ export function CoachOnboarding() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="paymentQrUrl">
-                {t("coach.onboarding.qrUrlLabel")}
+              <Label htmlFor="onboardingPaymentQrUpload">
+                {t("coach.onboarding.qrUploadLabel")}
               </Label>
-              <Input
-                id="paymentQrUrl"
-                value={paymentQrUrl}
-                onChange={(e) => setPaymentQrUrl(e.target.value)}
-                placeholder={t("coach.onboarding.paymentQrUrlPlaceholder")}
-              />
+              {paymentQrPreviewUrl ? (
+                <div className="relative w-fit">
+                  <img
+                    src={paymentQrPreviewUrl}
+                    alt={t(
+                      "sportCenterManagement.createCenter.fields.paymentQrUrl",
+                      { defaultValue: "Payment QR" }
+                    )}
+                    className="size-32 rounded-xl border object-contain"
+                  />
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="secondary"
+                    className="absolute -top-2 -right-2 rounded-full"
+                    onClick={() => {
+                      setPaymentQrUrl("")
+                      setPaymentQrPreviewUrl("")
+                    }}
+                    disabled={paymentQrUploading}
+                  >
+                    <X className="size-4" />
+                  </Button>
+                </div>
+              ) : null}
+              <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed px-3 py-2 text-sm">
+                {paymentQrUploading ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <ImagePlus className="size-4" />
+                )}
+                <span>
+                  {paymentQrUploading
+                    ? t("coach.profile.uploading")
+                    : t("coach.profile.uploadQr")}
+                </span>
+                <Input
+                  id="onboardingPaymentQrUpload"
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  className="hidden"
+                  onChange={(event) =>
+                    uploadOnboardingImage(
+                      event,
+                      setPaymentQrUrl,
+                      setPaymentQrPreviewUrl,
+                      setPaymentQrUploading,
+                      "paymentQrUpload"
+                    )
+                  }
+                  disabled={paymentQrUploading}
+                />
+              </label>
+              {errors.paymentQrUpload ? (
+                <p className="text-xs text-destructive">
+                  {errors.paymentQrUpload}
+                </p>
+              ) : null}
             </div>
           </CardContent>
         </Card>
@@ -511,7 +672,9 @@ export function CoachOnboarding() {
             type="button"
             variant="outline"
             onClick={handleSaveDraft}
-            disabled={registerCoach.isPending}
+            disabled={
+              registerCoach.isPending || avatarUploading || paymentQrUploading
+            }
           >
             <Save className="size-4" />
             {registerCoach.isPending
@@ -521,7 +684,12 @@ export function CoachOnboarding() {
           <Button
             type="button"
             onClick={handlePublish}
-            disabled={registerCoach.isPending || publishProfile.isPending}
+            disabled={
+              registerCoach.isPending ||
+              publishProfile.isPending ||
+              avatarUploading ||
+              paymentQrUploading
+            }
           >
             <Send className="size-4" />
             {publishProfile.isPending

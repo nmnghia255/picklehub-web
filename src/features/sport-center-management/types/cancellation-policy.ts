@@ -4,6 +4,17 @@ export interface CancellationPolicy {
   tiers: Tier[]
 }
 
+export interface UpdatedCancellationPolicy {
+  id: string
+  allowCancellation: boolean
+  cancellationTiers: Tier[]
+}
+
+export interface CancellationTier {
+  minDaysBeforeStart: number
+  refundPercent: number
+}
+
 export interface Tier {
   id: string
   centerId: string
@@ -12,9 +23,6 @@ export interface Tier {
 }
 
 export interface UpdateCancellationPolicyRequest {
-  allowCancellation: boolean
-  tiers: {
-    minDaysBeforeStart: number
-    refundPercent: number
-  }[]
+  allowCancellation?: boolean
+  tiers?: CancellationTier[]
 }

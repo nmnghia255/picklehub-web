@@ -82,7 +82,7 @@ export function RegisterConfirmDialog({
         })
       }
     }
-  }, [isOpen, isDoubles])
+  }, [isDoubles, isOpen, t])
 
   const handleFriendSelect = (friendId: string) => {
     setSelectedFriendId(friendId)

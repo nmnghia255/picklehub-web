@@ -1,5 +1,6 @@
 "use client"
 
+import { format } from "date-fns"
 import { enUS, vi } from "date-fns/locale"
 import {
   ChevronDownIcon,
@@ -57,7 +58,7 @@ function Calendar({
       formatters={{
         formatMonthDropdown: (date) =>
           t(`calendar.monthNames.${date.getMonth()}`),
-        formatMonthCaption: (date) =>
+        formatCaption: (date) =>
           t("calendar.monthCaption", {
             month: t(`calendar.monthNames.${date.getMonth()}`),
             year: date.getFullYear(),
@@ -146,7 +147,7 @@ function Calendar({
             : "flex h-8 items-center gap-1 rounded-md pr-1 pl-2 text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground",
           defaultClassNames.caption_label
         ),
-        table: "w-full border-collapse",
+        month_grid: cn("w-full border-collapse", defaultClassNames.month_grid),
         weekdays: cn("flex", defaultClassNames.weekdays),
         weekday: cn(
           "flex-1 rounded-md text-[0.8rem] font-normal text-muted-foreground select-none",
@@ -256,7 +257,7 @@ function CalendarDayButton({
       variant="ghost"
       size="icon"
       disabled={modifiers.disabled}
-      data-day={day.date.toLocaleDateString()}
+      data-day={format(day.date, "yyyy-MM-dd")}
       data-selected-single={
         modifiers.selected &&
         !modifiers.range_start &&

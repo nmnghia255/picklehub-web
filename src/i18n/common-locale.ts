@@ -48,5 +48,9 @@ export function getNotificationsCommonSection(
     return common.notifications as NotificationsCommonSection
   }
 
-  return common.landing.notifications as NotificationsCommonSection
+  return (
+    common as unknown as {
+      landing: { notifications: NotificationsCommonSection }
+    }
+  ).landing.notifications
 }

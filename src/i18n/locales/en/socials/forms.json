@@ -110,6 +110,10 @@
     "bookingPlaceholder": "Select booked court",
     "feeLabel": "Session Fee *",
     "maxSlotLabel": "Maximum slots *",
+    "feePlaceholder": "Enter session fee",
+    "maxSlotPlaceholder": "Enter maximum slots",
+    "locationLabel": "Location",
+    "locationPlaceholder": "Enter location",
     "validation": {
       "titleRequired": "Please enter the session title",
       "bookingRequired": "Please select at least 1 booked court",

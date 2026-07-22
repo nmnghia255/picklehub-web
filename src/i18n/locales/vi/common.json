@@ -1,5 +1,6 @@
 {
   "brand": "PickleHub",
+  "cancel": "Hủy",
   "settings": {
     "title": "Cài đặt",
     "description": "Điều chỉnh ngôn ngữ, giao diện và đăng xuất khỏi thiết bị này.",
@@ -35,6 +36,22 @@
     }
   },
   "calendar": {
+    "month": "Tháng",
+    "year": "Năm",
+    "months": {
+      "0": "Tháng 1",
+      "1": "Tháng 2",
+      "2": "Tháng 3",
+      "3": "Tháng 4",
+      "4": "Tháng 5",
+      "5": "Tháng 6",
+      "6": "Tháng 7",
+      "7": "Tháng 8",
+      "8": "Tháng 9",
+      "9": "Tháng 10",
+      "10": "Tháng 11",
+      "11": "Tháng 12"
+    },
     "title": "Lịch của tôi",
     "description": "Quản lý và theo dõi hoạt động pickleball cá nhân của bạn.",
     "pageTitle": "Lịch của tôi",
@@ -120,8 +137,14 @@
       "dayButton": "{{date}}",
       "weekday": "{{weekday}}",
       "weekNumber": "Tuần {{weekNumber}}",
-      "weekNumberHeader": "Số tuần"
-    }
+      "weekNumberHeader": "Số tuần",
+      "errorTitle": "Không thể tải lịch",
+      "errorDescription": "Đã xảy ra lỗi khi tải lịch của bạn.",
+      "retry": "Thử lại"
+    },
+    "errorTitle": "Không thể tải lịch",
+    "errorDescription": "Đã xảy ra lỗi khi tải lịch của bạn.",
+    "retry": "Thử lại"
   },
   "saving": "Đang lưu...",
   "delete": "Xóa",
@@ -137,6 +160,9 @@
     "description": "Đã có lỗi xảy ra. Vui lòng thử lại sau.",
     "retry": "Thử lại"
   },
+  "calendarErrorTitle": "Không thể tải lịch",
+  "calendarErrorDescription": "Đã xảy ra lỗi khi tải lịch của bạn.",
+  "calendarRetry": "Thử lại",
   "back": "Quay lại",
   "pagination": {
     "navigation": "Phân trang",
@@ -169,6 +195,8 @@
     "courtList": "Danh sách sân",
     "bookingHistory": "Lịch sử đặt sân",
     "centerManagement": "Quản lý trung tâm",
+    "createCenter": "Tạo trung tâm",
+    "manageCenters": "Quản lý Sport Center",
     "courtManagement": "Quản lý sân",
     "customerManagement": "Quản lý khách hàng",
     "bookingList": "Danh sách đặt sân",
@@ -180,28 +208,133 @@
   },
   "chat": {
     "pageTitle": "Trò chuyện",
-    "pageDescription": "Nhắn tin với bạn bè, nhóm và các buổi buổi chơi.",
+    "pageDescription": "Nhắn tin với bạn bè, nhóm, buổi chơi và giải đấu.",
+    "states": {
+      "loadingTitle": "Đang tải cuộc trò chuyện...",
+      "emptyTitle": "Chọn một cuộc trò chuyện để bắt đầu",
+      "emptyDescription": "Nhắn tin với bạn bè, nhóm, buổi chơi và giải đấu.",
+      "errorTitle": "Không thể tải cuộc trò chuyện",
+      "errorDescription": "Đã xảy ra lỗi khi tải dữ liệu cuộc trò chuyện.",
+      "retry": "Thử lại"
+    },
+    "errors": {
+      "socialNotFound": "Không thể mở cuộc trò chuyện cho Social này. Vui lòng thử lại sau.",
+      "unauthorized": "Bạn cần đăng nhập để mở cuộc trò chuyện này.",
+      "forbidden": "Bạn không có quyền mở cuộc trò chuyện này.",
+      "invalidRequest": "Yêu cầu mở cuộc trò chuyện không hợp lệ.",
+      "generic": "Không thể mở cuộc trò chuyện. Vui lòng thử lại sau.",
+      "notFound": "Không tìm thấy cuộc trò chuyện hoặc tin nhắn.",
+      "invalidTournamentId": "Không thể mở cuộc trò chuyện vì mã giải đấu không hợp lệ."
+    },
+    "connection": {
+      "connected": "Đã kết nối",
+      "reconnecting": "Đang kết nối lại...",
+      "offline": "Ngoại tuyến"
+    },
+    "list": {
+      "title": "Trò chuyện",
+      "subtitle": "{{count}} chưa đọc"
+    },
     "conversationList": {
       "searchPlaceholder": "Tìm cuộc trò chuyện...",
-      "emptyState": "Không tìm thấy cuộc trò chuyện nào."
+      "emptyState": "Không tìm thấy cuộc trò chuyện nào.",
+      "emptyHint": "Thử từ khóa khác hoặc bắt đầu một cuộc trò chuyện mới.",
+      "loadMore": "Tải thêm",
+      "noPreview": "Chưa có tin nhắn"
     },
     "emptyState": {
       "title": "Chọn một cuộc trò chuyện để bắt đầu",
-      "description": "Nhắn tin với bạn bè, nhóm và các buổi buổi chơi."
+      "description": "Nhắn tin với bạn bè, nhóm, buổi chơi và giải đấu."
+    },
+    "conversationTypes": {
+      "direct": "Trực tiếp",
+      "group": "Nhóm",
+      "social": "Buổi chơi",
+      "tournament": "Giải đấu"
+    },
+    "meta": {
+      "direct": "Trò chuyện trực tiếp",
+      "group": "Trò chuyện nhóm",
+      "social": "Trò chuyện buổi chơi",
+      "tournament": "Trò chuyện giải đấu",
+      "groupMembers": "{{count}} thành viên",
+      "socialParticipants": "{{count}} người tham gia",
+      "tournamentParticipants": "{{count}} người tham gia"
+    },
+    "labels": {
+      "unreadBadge": "{{count}} chưa đọc",
+      "muted": "Đã tắt tiếng",
+      "typing": "đang nhập tin nhắn",
+      "edited": "Đã chỉnh sửa",
+      "sending": "Đang gửi...",
+      "failed": "Gửi thất bại",
+      "deletedMessage": "Tin nhắn đã bị xóa",
+      "systemMessage": "Tin nhắn hệ thống",
+      "mediaMessage": "Đã gửi một ảnh",
+      "user": "Người dùng",
+      "someone": "Ai đó",
+      "lastMessageAt": "Tin nhắn cuối lúc {{value}}"
+    },
+    "actions": {
+      "back": "Quay lại",
+      "menu": "Thao tác cuộc trò chuyện",
+      "mute": "Tắt thông báo",
+      "unmute": "Bật thông báo",
+      "hideConversation": "Ẩn cuộc trò chuyện",
+      "edit": "Chỉnh sửa",
+      "delete": "Xóa",
+      "save": "Lưu",
+      "opening": "Đang mở...",
+      "openDirect": "Nhắn tin",
+      "openGroup": "Nhắn tin nhóm",
+      "openSocial": "Mở trò chuyện",
+      "openTournament": "Mở trò chuyện",
+      "messageMenu": "Thao tác tin nhắn"
     },
     "messages": {
-      "groupMembers": "Thành viên nhóm",
-      "socialPrefix": "Buổi chơi",
-      "fromGroup": "Từ nhóm",
-      "groupOnly": "Chỉ nhóm",
-      "groupPrefix": "Nhóm",
+      "searchPlaceholder": "Tìm tin nhắn...",
+      "emptyTitle": "Chưa có tin nhắn nào",
+      "emptyDescription": "Hãy gửi lời chào để bắt đầu cuộc trò chuyện.",
+      "searchEmpty": "Không tìm thấy tin nhắn nào phù hợp.",
+      "loadOlder": "Tải tin nhắn cũ hơn",
+      "groupMembers": "{{count}} thành viên",
+      "socialPrefix": "Buổi chơi: {{name}}",
+      "fromGroup": "Từ nhóm: {{name}}",
+      "groupOnly": "Nhóm",
+      "groupPrefix": "Nhóm: {{name}}",
       "you": "Bạn"
     },
     "composer": {
       "imageButton": "Ảnh",
       "emojiButton": "Biểu tượng cảm xúc",
       "messagePlaceholder": "Nhập tin nhắn...",
+      "hint": "Nhấn Ctrl+Enter để gửi.",
+      "remaining": "Còn lại {{count}} ký tự",
+      "uploadImage": "Tải ảnh lên",
+      "placeholder": "Nhập tin nhắn...",
       "send": "Gửi"
+    },
+    "dialog": {
+      "editTitle": "Chỉnh sửa tin nhắn",
+      "editDescription": "Cập nhật nội dung tin nhắn của bạn. Chỉ có thể chỉnh sửa tin nhắn văn bản do chính bạn gửi.",
+      "deleteTitle": "Xóa tin nhắn",
+      "deleteDescription": "Thao tác này sẽ xóa tin nhắn đối với tất cả thành viên trong cuộc trò chuyện.",
+      "hideTitle": "Ẩn cuộc trò chuyện",
+      "hideDescription": "Thao tác này chỉ ẩn cuộc trò chuyện khỏi hộp thư đến của bạn.",
+      "muteTitle": "Tắt tiếng cuộc trò chuyện",
+      "muteDescription": "Chọn thời gian tắt tiếng cuộc trò chuyện này."
+    },
+    "mute": {
+      "1h": "1 giờ",
+      "8h": "8 giờ",
+      "1d": "1 ngày"
+    },
+    "toasts": {
+      "messageUpdated": "Tin nhắn đã được cập nhật",
+      "messageDeleted": "Tin nhắn đã bị xóa",
+      "muted": "Đã tắt tiếng cuộc trò chuyện",
+      "unmuted": "Đã bật tiếng cuộc trò chuyện",
+      "conversationHidden": "Cuộc trò chuyện đã bị ẩn khỏi hộp thư đến"
     },
     "relativeTime": {
       "justNow": "Vừa xong",
@@ -245,62 +378,114 @@
   },
   "landing": {
     "header": {
-      "switchToLight": "Chuyển sang chế độ sáng",
-      "switchToDark": "Chuyển sang chế độ tối",
-      "themeToggle": "Đổi giao diện"
+      "switchToLight": "Chuyển sang giao diện sáng",
+      "switchToDark": "Chuyển sang giao diện tối",
+      "themeToggle": "Chuyển giao diện",
+      "signIn": "Đăng nhập",
+      "getStarted": "Đăng ký ngay",
+      "features": "Tính năng",
+      "tournaments": "Giải đấu",
+      "socials": "Giao lưu",
+      "courts": "Đặt sân",
+      "languageToggle": "Đổi ngôn ngữ"
     },
     "hero": {
-      "titlePrefix": "Nền tảng toàn diện cho",
-      "titleHighlight": "cộng đồng pickleball",
-      "description": "PickleHub kết nối người chơi, huấn luyện viên, nhà kinh doanh thiết bị thể thao, và tổ chức giải đấu. Với AI và LLM tích hợp, nền tảng cung cấp dịch vụ quản lý, tương tác, và phân tích nâng cao - giúp trải nghiệm cá nhân hóa và hiệu quả cho mọi đối tượng.",
-      "cta": "Tham Gia Ngay"
-    },
-    "features": {
-      "title": "Tính Năng Chính",
-      "description": "Giải pháp toàn diện hỗ trợ mọi vai trò trong cộng đồng pickleball.",
-      "items": {
-        "tournament": {
-          "title": "Quản Lý Giải Đấu",
-          "description": "Tạo, quản lý và theo dõi giải đấu với bracket thông minh."
-        },
-        "community": {
-          "title": "Tương Tác Cộng Đồng",
-          "description": "Kết nối người chơi, huấn luyện viên, doanh nghiệp và tổ chức giải đấu."
-        },
-        "analytics": {
-          "title": "Phân Tích Hiệu Suất",
-          "description": "Phân tích chi tiết dữ liệu trận đấu, thống kê cá nhân và xu hướng hiệu suất."
-        },
-        "ai": {
-          "title": "Trợ Lý AI",
-          "description": "Nhận lời khuyên chiến lược, phân tích nâng cao và hỗ trợ quản lý từ AI."
-        },
-        "equipment": {
-          "title": "Quản Lý Thiết Bị",
-          "description": "Quản lý, kinh doanh và chia sẻ thông tin về thiết bị thể thao chuyên dụng."
-        },
-        "groups": {
-          "title": "Nhóm Chuyên Biệt",
-          "description": "Tạo nhóm riêng cho huấn luyện, kinh doanh và tổ chức giải đấu phù hợp nhu cầu."
-        }
+      "titlePrefix": "Kết nối, Chơi & Tranh tài cùng",
+      "titleHighlight": "Cách mạng Pickleball",
+      "description": "Nền tảng hiện đại dành cho người chơi, người tổ chức và ban tổ chức giải đấu. Quản lý buổi chơi, đặt sân, theo dõi điểm DUPR và giải đấu dễ dàng.",
+      "cta": "Bắt đầu miễn phí",
+      "badge": "Hệ sinh thái Pickleball toàn diện",
+      "secondaryCta": "Khám phá Buổi chơi",
+      "stats": {
+        "players": "Người chơi hoạt động",
+        "tournaments": "Giải đấu",
+        "courts": "Cụm sân thể thao",
+        "rating": "Đánh giá người dùng"
       }
     },
+    "features": {
+      "title": "Thiết kế cho Người chơi, Chủ sân & BTC Giải đấu",
+      "description": "Bộ công cụ chuyên sâu thiết kế cho môn thể thao phát triển nhanh nhất thế giới.",
+      "items": {
+        "tournament": {
+          "title": "Giải đấu & Sơ đồ thi đấu",
+          "description": "Tạo nhánh đấu tự động, quản lý trọng tài, cập nhật tỷ số trực tiếp và xếp hạng."
+        },
+        "community": {
+          "title": "Buổi chơi & Nhóm",
+          "description": "Tổ chức buổi giao lưu dễ dàng, theo dõi thanh toán tham gia và chia sẻ chi phí tự động."
+        },
+        "analytics": {
+          "title": "Thống kê phong độ",
+          "description": "Theo dõi tỷ lệ thắng, đồng bộ điểm DUPR, lịch sử trận đấu và phân tích hiệu suất."
+        },
+        "ai": {
+          "title": "Ghép trận thông minh AI",
+          "description": "Thuật toán AI ghép trình độ cân bằng, mang lại trải nghiệm thi đấu hấp dẫn cho mọi người."
+        },
+        "equipment": {
+          "title": "Đặt sân & Cụm sân",
+          "description": "Đặt sân nhanh chóng, quản lý lịch làm việc của cụm sân và xem tình trạng sân trực tiếp."
+        },
+        "groups": {
+          "title": "Kết nối HLV & Học viên",
+          "description": "Tìm kiếm HLV Pickleball uy tín, đặt lịch học cá nhân và tham gia các khóa đào tạo."
+        }
+      },
+      "footer": {
+        "description": "Nền tảng toàn diện cho cộng đồng pickleball.",
+        "sections": {
+          "company": "Công ty",
+          "legal": "Pháp lý",
+          "support": "Hỗ trợ"
+        },
+        "links": {
+          "about": "Về chúng tôi",
+          "blog": "Blog",
+          "privacy": "Chính sách bảo mật",
+          "terms": "Điều khoản sử dụng",
+          "contact": "Liên hệ",
+          "faq": "Câu hỏi thường gặp"
+        },
+        "copyright": "© {{year}} PickleHub. Bảo lưu mọi quyền."
+      },
+      "badge": "Tất cả những gì bạn cần",
+      "learnMore": "Tìm hiểu thêm"
+    },
     "footer": {
-      "description": "Quản lý nhóm, chia sẻ dễ dàng.",
+      "description": "PickleHub là nền tảng số hàng đầu kết nối người chơi, huấn luyện viên, ban tổ chức và các cụm sân Pickleball.",
       "sections": {
-        "company": "Công Ty",
-        "legal": "Pháp Lý",
-        "support": "Hỗ Trợ"
+        "company": "Nền tảng",
+        "legal": "Pháp lý",
+        "support": "Hỗ trợ"
       },
       "links": {
-        "about": "Về Chúng Tôi",
-        "blog": "Blog",
-        "privacy": "Chính Sách Bảo Mật",
-        "terms": "Điều Khoản Dịch Vụ",
-        "contact": "Liên Hệ",
-        "faq": "FAQ"
+        "about": "Về chúng tôi",
+        "blog": "Blog cộng đồng",
+        "privacy": "Chính sách bảo mật",
+        "terms": "Điều khoản dịch vụ",
+        "contact": "Liên hệ",
+        "faq": "Trợ giúp & FAQ"
       },
-      "copyright": "© {{year}} PickleHub. Tất cả quyền được bảo lưu."
+      "copyright": "© {{year}} PickleHub. Bảo lưu mọi quyền."
+    },
+    "howItWorks": {
+      "badge": "Đơn giản & Nhanh chóng",
+      "title": "Cách PickleHub hoạt động",
+      "subtitle": "Ra sân và trải nghiệm chỉ với 3 bước đơn giản",
+      "stepLabel": "Bước {{number}}",
+      "step1Title": "1. Tạo tài khoản của bạn",
+      "step1Desc": "Đăng ký trong vài giây, cập nhật trình độ và thiết lập sở thích chơi.",
+      "step2Title": "2. Tham gia buổi chơi hoặc đặt sân",
+      "step2Desc": "Tìm buổi giao lưu gần bạn, tham gia trận đấu đúng trình độ hoặc đặt sân.",
+      "step3Title": "3. Thi đấu và nâng tầm trình độ",
+      "step3Desc": "Cập nhật kết quả trận đấu, nhận huy hiệu và leo bảng xếp hạng địa phương."
+    },
+    "ctaSection": {
+      "badge": "Tham gia cộng đồng ngay hôm nay",
+      "title": "Sẵn sàng nâng tầm trải nghiệm Pickleball?",
+      "description": "Tham gia cùng hàng ngàn người chơi và ban tổ chức trên PickleHub ngay hôm nay. Hoàn toàn miễn phí.",
+      "button": "Tạo tài khoản miễn phí ngay"
     }
   },
   "home": {
@@ -355,7 +540,8 @@
       "description": "Bạn có {{count}} lời mời chờ từ các nhóm khác.",
       "invitedBy": "Lời mời từ {{name}}",
       "decline": "Từ chối",
-      "accept": "Chấp nhận"
+      "accept": "Chấp nhận",
+      "noInvites": "Không có lời mời đang chờ"
     }
   },
   "feed": {
@@ -449,6 +635,7 @@
     }
   },
   "notifications": {
+    "senderPrefix": "Từ:",
     "defaults": {
       "title": "Thông báo",
       "description": "Chi tiết thông báo",
@@ -521,6 +708,7 @@
       "bioPlaceholder": "Mô tả ngắn về kinh nghiệm và phong cách huấn luyện",
       "avatarLabel": "URL ảnh đại diện",
       "avatarPlaceholder": "https://example.com/avatar.jpg",
+      "avatarUploadLabel": "Ảnh đại diện",
       "levelLabel": "Cấp độ",
       "levelPlaceholder": "Chọn cấp độ",
       "level": {
@@ -551,6 +739,7 @@
       "paymentBankNamePlaceholder": "Vietcombank",
       "qrUrlLabel": "URL mã QR thanh toán",
       "paymentQrUrlPlaceholder": "https://example.com/qr.png",
+      "qrUploadLabel": "Ảnh QR thanh toán",
       "specialtyBeginner": "Dạy người mới",
       "specialtyAdvanced": "Dạy nâng cao",
       "specialtyKids": "Dạy trẻ em",
@@ -607,6 +796,13 @@
       }
     },
     "profile": {
+      "invalidImage": "Vui lòng chọn tệp ảnh.",
+      "imageTooLarge": "Ảnh phải có dung lượng tối đa 5 MB.",
+      "uploadError": "Tải ảnh lên thất bại. Vui lòng thử lại.",
+      "uploadPending": "Vui lòng chờ tải tệp hoàn tất.",
+      "uploading": "Đang tải lên...",
+      "invalidCertificationFile": "Vui lòng chọn ảnh chứng chỉ.",
+      "certPreviewAlt": "Ảnh xem trước chứng chỉ",
       "pageTitle": "Hồ sơ chuyên môn huấn luyện viên",
       "pageDescription": "Cập nhật thông tin cơ bản, chứng chỉ, chuyên môn và mô tả phương pháp giảng dạy trong một màn hình duy nhất.",
       "verifiedCerts": "Chứng chỉ đã xác minh",
@@ -627,7 +823,8 @@
       "locationLabel": "Khu vực giảng dạy",
       "locationPlaceholder": "TP.HCM",
       "experienceLabel": "Số năm kinh nghiệm",
-      "uploadAvatar": "Upload avatar",
+      "uploadAvatar": "Tải ảnh đại diện lên",
+      "uploadQr": "Tải QR thanh toán lên",
       "noAvatarUploaded": "Chưa tải ảnh mới",
       "coachBadge": "HLV Pickleball",
       "noName": "Chưa có tên",
@@ -710,6 +907,9 @@
       "locationLabel": "Địa điểm",
       "locationPlaceholder": "Ví dụ: Sân PickleHub Quận 1",
       "coverImageLabel": "Ảnh bìa",
+      "uploadCoverImage": "Tải ảnh bìa lên",
+      "uploadInvalidImage": "Vui lòng chọn tệp ảnh.",
+      "uploadImageTooLarge": "Ảnh phải có dung lượng tối đa 5 MB.",
       "uploadSuccess": "Tải ảnh lên thành công",
       "uploadError": "Tải ảnh lên thất bại",
       "startDateLabel": "Ngày bắt đầu",
@@ -734,6 +934,10 @@
       "errorTitle": "Không thể tải danh sách lớp học",
       "detailError": "Lớp học không tồn tại",
       "detail": {
+        "coverImageLabel": "Ảnh bìa",
+        "uploadCoverImage": "Tải ảnh bìa lên",
+        "uploadInvalidImage": "Vui lòng chọn tệp ảnh.",
+        "uploadImageTooLarge": "Ảnh phải có dung lượng tối đa 5 MB.",
         "infoTab": "Thông tin lớp",
         "scheduleTab": "Lịch học",
         "studentsTab": "Học viên",
@@ -836,6 +1040,8 @@
         "studentJoinedAt": "Tham gia",
         "studentStatus": "Trạng thái",
         "studentPayment": "Thanh toán",
+        "updateLocationSuccess": "Đã cập nhật địa điểm đặt lịch",
+        "updateLocationError": "Không thể cập nhật địa điểm đặt lịch",
         "pageTitle": "Chi tiết lớp học",
         "notFound": "Lớp học không tồn tại",
         "sessionCount": "{{count}} buổi",
@@ -855,6 +1061,13 @@
     },
     "bookings": {
       "errorTitle": "Không thể tải danh sách đặt lịch",
+      "updateLocationSuccess": "Đã cập nhật địa điểm đặt sân",
+      "updateLocationError": "Không thể cập nhật địa điểm đặt sân",
+      "editLocationButton": "Sửa địa điểm",
+      "editLocationDialogTitle": "Sửa địa điểm đặt sân",
+      "editLocationDialogDescription": "Cập nhật địa điểm cho lịch đặt sân này.",
+      "updatingLocation": "Đang cập nhật địa điểm...",
+      "saveLocation": "Lưu địa điểm",
       "totalLabel": "tổng số",
       "noBookings": "Chưa có yêu cầu đặt lịch nào",
       "studentLabel": "Học viên",
@@ -943,6 +1156,7 @@
       "manualLocationRequired": "Vui lòng nhập mô tả địa điểm."
     },
     "income": {
+      "enrolledCount": "{{count}} học viên",
       "overviewTitle": "Tổng quan thu nhập",
       "overviewErrorTitle": "Không thể tải tổng quan thu nhập",
       "noData": "Chưa có dữ liệu thu nhập. Vui lòng quay lại sau.",
@@ -1297,10 +1511,82 @@
         "advanced": "Nâng cao",
         "pro": "Chuyên nghiệp"
       },
-      "currencyCode": "VND"
+      "currencyCode": "VND",
+      "swingAnalysis": {
+        "tab": "Phân tích kỹ thuật",
+        "title": "Phân tích kỹ thuật",
+        "description": "Tải lên hình ảnh hoặc video cú đánh để nhận hướng dẫn rõ ràng cho học viên.",
+        "inputTitle": "Thiết lập phân tích",
+        "inputDescription": "Chọn hình ảnh rõ nét hoặc video ngắn, sau đó chọn kỹ thuật cần xem lại.",
+        "mediaLabel": "Hình ảnh/video kỹ thuật",
+        "previewAlt": "Xem trước kỹ thuật",
+        "unknownFileType": "Không rõ loại tệp",
+        "changeFile": "Thay đổi",
+        "removeFile": "Xóa tệp",
+        "chooseFile": "Chọn hình ảnh hoặc video",
+        "fileHint": "Tệp sẽ được tải lên trước khi AI phân tích.",
+        "typeLabel": "Loại kỹ thuật",
+        "types": {
+          "general": "Phân tích tổng quát",
+          "serve": "Giao bóng",
+          "drive": "Cú đánh mạnh (Drive)",
+          "dink": "Cú đánh mềm (Dink)",
+          "volley": "Cú vô-lê (Volley)"
+        },
+        "promptLabel": "Yêu cầu bổ sung (không bắt buộc)",
+        "promptPlaceholder": "Ví dụ: Tập trung phân tích bộ chân, điểm tiếp xúc bóng và động tác kết thúc.",
+        "fileRequired": "Vui lòng chọn hình ảnh hoặc video hợp lệ trước khi phân tích.",
+        "invalidFile": "Vui lòng chọn tệp hình ảnh hoặc video.",
+        "promptTooLong": "Yêu cầu bổ sung không được dài quá 1000 ký tự.",
+        "uploading": "Đang tải tệp lên...",
+        "analyzing": "Đang phân tích kỹ thuật...",
+        "processing": "Đang xử lý...",
+        "analyzeButton": "Phân tích kỹ thuật",
+        "completed": "Phân tích kỹ thuật hoàn tất.",
+        "errorTitle": "Phân tích thất bại",
+        "invalidInput": "Dữ liệu đầu vào không hợp lệ. Hãy kiểm tra tệp, loại kỹ thuật, URL tải lên và yêu cầu bổ sung.",
+        "unauthorized": "Phiên đăng nhập không còn hợp lệ. Vui lòng đăng nhập lại nếu cần.",
+        "timeout": "Phân tích đã quá thời gian. Hãy thử video ngắn hơn, ảnh rõ nét hơn hoặc thử lại sau.",
+        "genericError": "Đã có lỗi xảy ra. Vui lòng thử lại.",
+        "retry": "Thử lại",
+        "emptyTitle": "Kết quả huấn luyện sẽ hiển thị tại đây",
+        "emptyDescription": "Tải lên hình ảnh hoặc video kỹ thuật đánh để bắt đầu phân tích.",
+        "overallAssessment": "Đánh giá tổng quan",
+        "aiSummary": "Tóm tắt hướng dẫn từ AI",
+        "findings": "Các phát hiện kỹ thuật",
+        "findingCount": "{{count}} phát hiện",
+        "noFindings": "Không có phát hiện cụ thể nào cho tệp này.",
+        "unknownFinding": "Phát hiện kỹ thuật",
+        "confidence": "độ tin cậy",
+        "observation": "Quan sát",
+        "correction": "Hướng dẫn điều chỉnh",
+        "drill": "Bài tập đề xuất",
+        "labels": {
+          "contact_point": "Điểm tiếp xúc bóng",
+          "follow_through": "Động tác kết thúc",
+          "stance": "Tư thế",
+          "paddle_angle": "Góc mặt vợt"
+        },
+        "priority": {
+          "high": "Cần ưu tiên sửa",
+          "medium": "Nên cải thiện",
+          "low": "Ghi chú nhỏ"
+        }
+      }
     }
   },
   "learner": {
+    "upload": {
+      "choose": "Chọn ảnh",
+      "replace": "Thay ảnh",
+      "remove": "Xóa ảnh",
+      "uploading": "Đang tải lên...",
+      "uploadError": "Tải ảnh lên thất bại. Vui lòng thử lại.",
+      "invalidImage": "Vui lòng chọn tệp ảnh.",
+      "imageTooLarge": "Ảnh phải có dung lượng tối đa 5 MB.",
+      "imageHint": "PNG, JPG hoặc WEBP, tối đa 5 MB.",
+      "previewAlt": "Ảnh xem trước minh chứng thanh toán"
+    },
     "schedule": {
       "pageTitle": "Lịch của tôi",
       "errorTitle": "Không thể tải lịch",
@@ -1409,7 +1695,8 @@
       "schedule": "Lịch",
       "enrollments": "Lớp đã đăng ký",
       "bookings": "Đặt lịch riêng",
-      "discovery": "Khám phá HLV"
+      "discovery": "Khám phá HLV",
+      "aiSupport": "Hỗ trợ AI"
     },
     "recommendation": {
       "button": "Giới thiệu cho bạn bè",
@@ -1431,6 +1718,8 @@
     },
     "enrollments": {
       "errorTitle": "Không thể tải danh sách lớp đã đăng ký",
+      "uploadProofRequired": "Vui lòng chọn ảnh minh chứng thanh toán",
+      "uploadProofLabel": "Ảnh minh chứng thanh toán",
       "uploadProofUrlRequired": "Vui lòng nhập URL bằng chứng thanh toán",
       "uploadProofSuccess": "Tải lên bằng chứng thanh toán thành công",
       "uploadProofError": "Tải lên bằng chứng thanh toán thất bại",
@@ -1474,6 +1763,8 @@
     },
     "bookings": {
       "errorTitle": "Không thể tải danh sách đặt lịch",
+      "uploadProofRequired": "Vui lòng chọn ảnh minh chứng thanh toán",
+      "uploadProofLabel": "Ảnh minh chứng thanh toán",
       "tabAll": "Tất cả",
       "tabPendingConfirmation": "Chờ xác nhận",
       "tabConfirmed": "Đã xác nhận",
@@ -1752,6 +2043,7 @@
       "noAccount": "Bạn chưa có tài khoản?",
       "registerLink": "Đăng ký",
       "facebookButton": "Đăng nhập với Facebook",
+      "googleButton": "Đăng nhập với Google",
       "error": "Đăng nhập thất bại. Vui lòng thử lại."
     },
     "register": {
@@ -1769,6 +2061,7 @@
       "hasAccount": "Bạn đã có tài khoản?",
       "loginLink": "Đăng nhập",
       "facebookButton": "Đăng ký với Facebook",
+      "googleButton": "Đăng ký với Google",
       "error": "Đăng ký thất bại. Vui lòng thử lại."
     },
     "magicLink": {
@@ -1789,7 +2082,7 @@
       "passwordPlaceholder": "Nhập mật khẩu",
       "confirmPasswordLabel": "Nhập lại mật khẩu",
       "confirmPasswordPlaceholder": "Nhập lại mật khẩu",
-      "submit": "Lưu mật khẩu",
+      "submit": "Tạo mật khẩu",
       "submitting": "Đang lưu...",
       "success": "Đã đặt mật khẩu thành công.",
       "error": "Đặt mật khẩu thất bại. Vui lòng thử lại."
@@ -1990,24 +2283,5 @@
     "sessionCardTitle": "Đăng xuất",
     "sessionCardDesc": "Đăng xuất khỏi thiết bị này khi bạn không còn sử dụng nữa.",
     "logoutBtn": "Đăng xuất"
-  },
-  "calendar": {
-    "today": "Hôm nay",
-    "month": "Tháng",
-    "year": "Năm",
-    "months": {
-      "0": "Tháng 1",
-      "1": "Tháng 2",
-      "2": "Tháng 3",
-      "3": "Tháng 4",
-      "4": "Tháng 5",
-      "5": "Tháng 6",
-      "6": "Tháng 7",
-      "7": "Tháng 8",
-      "8": "Tháng 9",
-      "9": "Tháng 10",
-      "10": "Tháng 11",
-      "11": "Tháng 12"
-    }
   }
 }
