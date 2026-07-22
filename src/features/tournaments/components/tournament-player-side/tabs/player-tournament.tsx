@@ -135,7 +135,7 @@ export function PlayerTournament({
         <div className="mx-auto mt-6 flex max-w-7xl justify-end px-4 sm:px-6 lg:px-8">
           <OpenChatButton
             kind="tournament"
-            targetId={String(tournament?.id)}
+            targetId={tournament?.uuid ?? ""}
             label={tCommon("chat.actions.openTournament")}
             variant="secondary"
           />

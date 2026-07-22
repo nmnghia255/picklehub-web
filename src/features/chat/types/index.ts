@@ -154,6 +154,7 @@ export interface EditMessageInput {
 export interface ChatApiErrorBody {
   message?: string | string[]
   error?: string
+  errorCode?: string
   statusCode?: number
 }
 

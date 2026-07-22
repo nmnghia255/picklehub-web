@@ -82,6 +82,7 @@ export function LearnerCoachRecommendationDialog({
   const [message, setMessage] = useState("")
   const [friends, setFriends] = useState<FriendItem[] | null>(null)
   const [selectedId, setSelectedId] = useState("")
+  const [selectedFriend, setSelectedFriend] = useState<FriendItem | null>(null)
 
   const recommendMutation = useRecommendCoach()
 
@@ -118,14 +119,32 @@ export function LearnerCoachRecommendationDialog({
         onSuccess: () => {
           setOpen(false)
           setSelectedId("")
+          setSelectedFriend(null)
           setMessage("")
         },
       }
     )
   }
 
+  const handleDialogOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen)
+    recommendMutation.reset()
+  }
+
+  const handleFriendChange = (value: string | null) => {
+    recommendMutation.reset()
+    const nextId = value ?? ""
+    setSelectedId(nextId)
+    setSelectedFriend(friends?.find((friend) => friend.id === nextId) ?? null)
+  }
+
+  const handleMessageChange = (value: string) => {
+    recommendMutation.reset()
+    setMessage(value)
+  }
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogTrigger asChild>
         <Button>{t("learner.recommendation.button")}</Button>
       </DialogTrigger>
@@ -153,7 +172,14 @@ export function LearnerCoachRecommendationDialog({
             ) : (
               <Combobox
                 value={selectedId}
-                onValueChange={(val) => setSelectedId(val ?? "")}
+                onValueChange={handleFriendChange}
+                itemToStringLabel={(value) => {
+                  if (typeof value !== "string") return ""
+                  return (
+                    friends?.find((friend) => friend.id === value)?.name ??
+                    (value === selectedFriend?.id ? selectedFriend.name : "")
+                  )
+                }}
               >
                 <ComboboxInput
                   placeholder={t("learner.recommendation.searchFriends")}
@@ -206,7 +232,7 @@ export function LearnerCoachRecommendationDialog({
             <Textarea
               id="recommendMessage"
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={(e) => handleMessageChange(e.target.value)}
               rows={3}
               placeholder={t("learner.recommendation.messagePlaceholder")}
             />

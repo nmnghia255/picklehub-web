@@ -218,11 +218,13 @@
       "retry": "Thử lại"
     },
     "errors": {
-      "socialNotFound": "Kh\u00f4ng th\u1ec3 m\u1edf cu\u1ed9c tr\u00f2 chuy\u1ec7n cho Social n\u00e0y. Vui l\u00f2ng th\u1eed l\u1ea1i sau.",
-      "unauthorized": "B\u1ea1n c\u1ea7n \u0111\u0103ng nh\u1eadp \u0111\u1ec3 m\u1edf cu\u1ed9c tr\u00f2 chuy\u1ec7n n\u00e0y.",
-      "forbidden": "B\u1ea1n kh\u00f4ng c\u00f3 quy\u1ec1n m\u1edf cu\u1ed9c tr\u00f2 chuy\u1ec7n n\u00e0y.",
-      "invalidRequest": "Y\u00eau c\u1ea7u m\u1edf cu\u1ed9c tr\u00f2 chuy\u1ec7n kh\u00f4ng h\u1ee3p l\u1ec7.",
-      "generic": "Kh\u00f4ng th\u1ec3 m\u1edf cu\u1ed9c tr\u00f2 chuy\u1ec7n. Vui l\u00f2ng th\u1eed l\u1ea1i sau."
+      "socialNotFound": "Không thể mở cuộc trò chuyện cho Social này. Vui lòng thử lại sau.",
+      "unauthorized": "Bạn cần đăng nhập để mở cuộc trò chuyện này.",
+      "forbidden": "Bạn không có quyền mở cuộc trò chuyện này.",
+      "invalidRequest": "Yêu cầu mở cuộc trò chuyện không hợp lệ.",
+      "generic": "Không thể mở cuộc trò chuyện. Vui lòng thử lại sau.",
+      "notFound": "Không tìm thấy cuộc trò chuyện hoặc tin nhắn.",
+      "invalidTournamentId": "Không thể mở cuộc trò chuyện vì mã giải đấu không hợp lệ."
     },
     "connection": {
       "connected": "Đã kết nối",
@@ -333,13 +335,6 @@
       "muted": "Đã tắt tiếng cuộc trò chuyện",
       "unmuted": "Đã bật tiếng cuộc trò chuyện",
       "conversationHidden": "Cuộc trò chuyện đã bị ẩn khỏi hộp thư đến"
-    },
-    "errors": {
-      "generic": "Không thể hoàn thành thao tác trò chuyện.",
-      "invalidRequest": "Yêu cầu trò chuyện không hợp lệ.",
-      "unauthorized": "Vui lòng đăng nhập lại.",
-      "forbidden": "Bạn không có quyền tham gia cuộc trò chuyện này.",
-      "notFound": "Không tìm thấy cuộc trò chuyện hoặc tin nhắn."
     },
     "relativeTime": {
       "justNow": "Vừa xong",

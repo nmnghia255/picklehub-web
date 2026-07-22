@@ -38,6 +38,16 @@ function getChatErrorMessage(
   const chatError = error as ChatApiError | null
   const body = chatError?.body
 
+  if (
+    kind === "tournament" &&
+    body &&
+    typeof body === "object" &&
+    "errorCode" in body &&
+    body.errorCode === "INVALID_TOURNAMENT_ID"
+  ) {
+    return t("chat.errors.invalidTournamentId")
+  }
+
   if (kind === "social" && chatError?.status === 404) {
     return t("chat.errors.socialNotFound")
   }

@@ -366,7 +366,9 @@
       "unauthorized": "You need to sign in to open this conversation.",
       "forbidden": "You do not have permission to open this conversation.",
       "invalidRequest": "The conversation request is invalid.",
-      "generic": "Unable to open the conversation. Please try again later."
+      "generic": "Unable to open the conversation. Please try again later.",
+      "notFound": "The conversation or message was not found.",
+      "invalidTournamentId": "Unable to open the conversation because the tournament ID is invalid."
     },
     "connection": {
       "connected": "Connected",
@@ -477,13 +479,6 @@
       "muted": "Conversation muted",
       "unmuted": "Conversation unmuted",
       "conversationHidden": "Conversation hidden from inbox"
-    },
-    "errors": {
-      "generic": "Could not complete the chat action.",
-      "invalidRequest": "The chat request was invalid.",
-      "unauthorized": "You need to sign in again.",
-      "forbidden": "You do not have permission to open this conversation.",
-      "notFound": "The conversation or message was not found."
     },
     "relativeTime": {
       "justNow": "Just now",
