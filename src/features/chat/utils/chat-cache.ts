@@ -1,8 +1,8 @@
 import { chatQueryKeys } from "../api/chat-keys"
 import type { ChatMessage, Conversation, MessageListResponse } from "../types"
 
-type ConversationPage = { data: Conversation[]; meta?: unknown }
-type ConversationInfiniteData = {
+export type ConversationPage = { data: Conversation[]; meta?: unknown }
+export type ConversationInfiniteData = {
   pages: ConversationPage[]
   pageParams: unknown[]
 }
@@ -10,7 +10,7 @@ type ConversationInfiniteData = {
 export function dedupeById<T extends { id: string }>(items: T[]) {
   const map = new Map<string, T>()
   for (const item of items) {
-    map.set(item.id, item)
+    if (!map.has(item.id)) map.set(item.id, item)
   }
   return [...map.values()]
 }

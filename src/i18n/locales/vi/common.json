@@ -181,7 +181,7 @@
     "sessions": "Buổi chơi",
     "sessionList": "Danh sách buổi chơi",
     "mySessions": "Buổi chơi của tôi",
-    "discoverSocial": "Khám phá",
+    "discoverSocial": "Khám phá buổi chơi",
     "mySocial": "Buổi chơi của tôi",
     "tournaments": "Giải đấu",
     "groups": "Nhóm",
@@ -240,6 +240,7 @@
       "emptyState": "Không tìm thấy cuộc trò chuyện nào.",
       "emptyHint": "Thử từ khóa khác hoặc bắt đầu một cuộc trò chuyện mới.",
       "loadMore": "Tải thêm",
+      "loadingMore": "Đang tải thêm cuộc trò chuyện...",
       "noPreview": "Chưa có tin nhắn"
     },
     "emptyState": {

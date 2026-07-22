@@ -2,10 +2,13 @@
 
 import { useInfiniteQuery } from "@tanstack/react-query"
 
-import { chatClient } from "../api/chat-client"
+import { chatClient, DEFAULT_CONVERSATION_PAGE_SIZE } from "../api/chat-client"
 import { chatQueryKeys } from "../api/chat-keys"
 
-export function useConversations(limit = 20, enabled = true) {
+export function useConversations(
+  limit = DEFAULT_CONVERSATION_PAGE_SIZE,
+  enabled = true
+) {
   return useInfiniteQuery({
     queryKey: chatQueryKeys.conversations(),
     queryFn: async ({ pageParam = 1 }) =>

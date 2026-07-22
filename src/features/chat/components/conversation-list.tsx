@@ -1,7 +1,7 @@
 "use client"
 
 import { Loader2, Search } from "lucide-react"
-import { useMemo } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
@@ -27,6 +27,8 @@ interface ConversationListProps {
   hasNextPage: boolean
   isFetchingNextPage: boolean
   onLoadMore: () => void
+  isFetchingNextPageError: boolean
+  onRetryNextPage: () => void
   totalUnreadCount: number
   onRetry: () => void
 }
@@ -44,10 +46,34 @@ export function ConversationList({
   hasNextPage,
   isFetchingNextPage,
   onLoadMore,
+  isFetchingNextPageError,
+  onRetryNextPage,
   totalUnreadCount,
   onRetry,
 }: ConversationListProps) {
   const { t } = useTranslation("common")
+  const loadMoreRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const target = loadMoreRef.current
+    if (!target || !hasNextPage) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (
+          entry.isIntersecting &&
+          !isFetchingNextPage &&
+          !isFetchingNextPageError
+        ) {
+          onLoadMore()
+        }
+      },
+      { rootMargin: "240px 0px" }
+    )
+    observer.observe(target)
+    return () => observer.disconnect()
+  }, [hasNextPage, isFetchingNextPage, isFetchingNextPageError, onLoadMore])
+
   const filtered = useMemo(() => {
     const keyword = search.trim().toLowerCase()
     if (!keyword) return conversations
@@ -63,7 +89,7 @@ export function ConversationList({
   }, [conversations, currentUserId, search])
 
   return (
-    <div className="flex h-full flex-col bg-card">
+    <div className="flex h-full min-h-0 flex-col bg-card">
       <div className="border-b px-4 py-3">
         <div className="flex items-center justify-between gap-2">
           <div>
@@ -104,7 +130,7 @@ export function ConversationList({
           </div>
         </div>
       ) : (
-        <ScrollArea className="flex-1">
+        <ScrollArea className="min-h-0 flex-1">
           <div className="min-h-full">
             {isLoading ? (
               <div className="space-y-3 p-4">
@@ -143,18 +169,21 @@ export function ConversationList({
                 ))}
 
                 {hasNextPage && (
-                  <div className="border-t p-4">
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={onLoadMore}
-                      disabled={isFetchingNextPage}
-                    >
-                      {isFetchingNextPage ? (
-                        <Loader2 className="mr-2 size-4 animate-spin" />
-                      ) : null}
-                      {t("chat.conversationList.loadMore")}
-                    </Button>
+                  <div ref={loadMoreRef} className="border-t p-4">
+                    {isFetchingNextPageError ? (
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={onRetryNextPage}
+                      >
+                        {t("chat.states.retry")}
+                      </Button>
+                    ) : (
+                      <div className="flex items-center justify-center gap-2 py-2 text-sm text-muted-foreground">
+                        <Loader2 className="size-4 animate-spin" />
+                        {t("chat.conversationList.loadingMore")}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

@@ -384,6 +384,7 @@
       "emptyState": "No conversations found.",
       "emptyHint": "Try a different keyword or start a new conversation.",
       "loadMore": "Load more",
+      "loadingMore": "Loading more conversations...",
       "noPreview": "No messages yet"
     },
     "emptyState": {

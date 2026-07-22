@@ -5,19 +5,19 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ErrorState } from "@/components/shared/error-state"
 import { useSession } from "@/features/auth/hooks/use-session"
 import { useIsMobile } from "@/hooks/use-mobile"
 
 import { chatQueryKeys } from "../api/chat-keys"
 import { useConversations } from "../hooks/use-conversations"
 import type { Conversation } from "../types"
+import { dedupeById } from "../utils/chat-cache"
 import { ChatArea } from "./chat-area"
 import { ConversationList } from "./conversation-list"
 
 function flattenConversations(pages?: Array<{ data: Conversation[] }>) {
   if (!pages) return []
-  return pages.flatMap((page) => page.data ?? [])
+  return dedupeById(pages.flatMap((page) => page.data ?? []))
 }
 
 export function ChatPage() {
@@ -58,22 +58,10 @@ export function ChatPage() {
     router.replace("/chat")
   }
 
-  if (conversationsQuery.isError) {
-    return (
-      <div className="flex h-[calc(100vh-3.5rem)] items-center justify-center p-6">
-        <ErrorState
-          title={t("chat.states.errorTitle")}
-          description={t("chat.states.errorDescription")}
-          retry={() => void conversationsQuery.refetch()}
-        />
-      </div>
-    )
-  }
-
   return (
     <div className="flex h-[calc(100vh-3.5rem)] min-h-0 overflow-hidden bg-background">
       {(!isMobile || !selectedConversationId) && (
-        <div className="w-full shrink-0 border-r md:w-[380px] xl:w-[420px]">
+        <div className="flex min-h-0 w-full shrink-0 flex-col border-r md:w-[380px] xl:w-[420px]">
           <ConversationList
             conversations={conversations}
             currentUserId={session?.user?.id ?? null}
@@ -82,11 +70,13 @@ export function ChatPage() {
             onSearchChange={setSearch}
             onSelect={handleSelectConversation}
             isLoading={conversationsQuery.isLoading}
-            isError={conversationsQuery.isError}
+            isError={conversationsQuery.isError && !conversationsQuery.data}
             errorMessage={t("chat.states.errorDescription")}
             hasNextPage={Boolean(conversationsQuery.hasNextPage)}
             isFetchingNextPage={conversationsQuery.isFetchingNextPage}
             onLoadMore={() => void conversationsQuery.fetchNextPage()}
+            isFetchingNextPageError={conversationsQuery.isFetchNextPageError}
+            onRetryNextPage={() => void conversationsQuery.fetchNextPage()}
             totalUnreadCount={totalUnreadCount}
             onRetry={() => void conversationsQuery.refetch()}
           />
