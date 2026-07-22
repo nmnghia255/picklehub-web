@@ -66,7 +66,7 @@ export function ImageUploadControl({
   }, [])
 
   const updateUrls = (nextUrls: string[]) => {
-    onChange(multiple ? nextUrls : nextUrls[0] ?? "")
+    onChange(multiple ? nextUrls : (nextUrls[0] ?? ""))
   }
 
   const uploadItem = async (item: UploadItem) => {
@@ -110,11 +110,12 @@ export function ImageUploadControl({
     if (files.length === 0) return
 
     const currentCount = urls.length + items.length
-    const acceptedFiles = multiple && maxFiles
-      ? files.slice(0, Math.max(0, maxFiles - currentCount))
-      : multiple
-        ? files
-        : files.slice(0, 1)
+    const acceptedFiles =
+      multiple && maxFiles
+        ? files.slice(0, Math.max(0, maxFiles - currentCount))
+        : multiple
+          ? files
+          : files.slice(0, 1)
 
     if (multiple && maxFiles && files.length > acceptedFiles.length) {
       toast.error(`Maximum ${maxFiles} images allowed.`)
@@ -159,7 +160,11 @@ export function ImageUploadControl({
       <div className="flex flex-wrap gap-3">
         {urls.map((url) => (
           <div className="relative" key={url}>
-            <img src={url} alt={label} className="size-28 rounded-xl border object-cover" />
+            <img
+              src={url}
+              alt={label}
+              className="size-28 rounded-xl border object-cover"
+            />
             <Button
               type="button"
               size="icon"
@@ -174,12 +179,21 @@ export function ImageUploadControl({
         ))}
         {items.map((item) => (
           <div className="relative" key={item.id}>
-            <img src={item.previewUrl} alt={label} className="size-28 rounded-xl border object-cover" />
+            <img
+              src={item.previewUrl}
+              alt={label}
+              className="size-28 rounded-xl border object-cover"
+            />
             <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-background/70">
               {item.status === "uploading" ? (
                 <Loader2 className="size-5 animate-spin" />
               ) : (
-                <Button type="button" size="icon" variant="secondary" onClick={() => void uploadItem(item)}>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="secondary"
+                  onClick={() => void uploadItem(item)}
+                >
                   <RefreshCw className="size-4" />
                 </Button>
               )}
@@ -199,17 +213,17 @@ export function ImageUploadControl({
           </div>
         ))}
         <label className="flex size-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed text-xs text-muted-foreground hover:bg-muted/40">
-            <ImagePlus className="size-5" />
-            <span>{label}</span>
-            <Input
-              ref={inputRef}
-              type="file"
-              accept={accept}
-              multiple={multiple}
-              className="hidden"
-              onChange={handleFileChange}
-              disabled={items.some((item) => item.status === "uploading")}
-            />
+          <ImagePlus className="size-5" />
+          <span>{label}</span>
+          <Input
+            ref={inputRef}
+            type="file"
+            accept={accept}
+            multiple={multiple}
+            className="hidden"
+            onChange={handleFileChange}
+            disabled={items.some((item) => item.status === "uploading")}
+          />
         </label>
       </div>
     </div>

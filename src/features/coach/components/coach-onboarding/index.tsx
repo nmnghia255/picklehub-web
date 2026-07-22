@@ -118,11 +118,17 @@ export function CoachOnboarding() {
     if (!file) return
 
     if (!file.type.startsWith("image/")) {
-      setErrors((current) => ({ ...current, [errorKey]: t("coach.profile.invalidImage") }))
+      setErrors((current) => ({
+        ...current,
+        [errorKey]: t("coach.profile.invalidImage"),
+      }))
       return
     }
     if (file.size > 5 * 1024 * 1024) {
-      setErrors((current) => ({ ...current, [errorKey]: t("coach.profile.imageTooLarge") }))
+      setErrors((current) => ({
+        ...current,
+        [errorKey]: t("coach.profile.imageTooLarge"),
+      }))
       return
     }
 
@@ -135,7 +141,10 @@ export function CoachOnboarding() {
       setUrl(uploadedUrl)
       setPreviewUrl(uploadedUrl)
     } catch {
-      setErrors((current) => ({ ...current, [errorKey]: t("coach.profile.uploadError") }))
+      setErrors((current) => ({
+        ...current,
+        [errorKey]: t("coach.profile.uploadError"),
+      }))
     } finally {
       setUploading(false)
     }
@@ -366,7 +375,9 @@ export function CoachOnboarding() {
                 />
               </label>
               {errors.avatarUpload ? (
-                <p className="text-xs text-destructive">{errors.avatarUpload}</p>
+                <p className="text-xs text-destructive">
+                  {errors.avatarUpload}
+                </p>
               ) : null}
             </div>
 
@@ -589,7 +600,10 @@ export function CoachOnboarding() {
                 <div className="relative w-fit">
                   <img
                     src={paymentQrPreviewUrl}
-                    alt={t("sportCenterManagement.createCenter.fields.paymentQrUrl", { defaultValue: "Payment QR" })}
+                    alt={t(
+                      "sportCenterManagement.createCenter.fields.paymentQrUrl",
+                      { defaultValue: "Payment QR" }
+                    )}
                     className="size-32 rounded-xl border object-contain"
                   />
                   <Button
@@ -636,7 +650,9 @@ export function CoachOnboarding() {
                 />
               </label>
               {errors.paymentQrUpload ? (
-                <p className="text-xs text-destructive">{errors.paymentQrUpload}</p>
+                <p className="text-xs text-destructive">
+                  {errors.paymentQrUpload}
+                </p>
               ) : null}
             </div>
           </CardContent>
@@ -656,7 +672,9 @@ export function CoachOnboarding() {
             type="button"
             variant="outline"
             onClick={handleSaveDraft}
-            disabled={registerCoach.isPending || avatarUploading || paymentQrUploading}
+            disabled={
+              registerCoach.isPending || avatarUploading || paymentQrUploading
+            }
           >
             <Save className="size-4" />
             {registerCoach.isPending

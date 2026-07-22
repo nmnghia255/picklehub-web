@@ -1,13 +1,7 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import {
-  Edit3,
-  MoreHorizontal,
-  Plus,
-  RefreshCw,
-  Trash2,
-} from "lucide-react"
+import { Edit3, MoreHorizontal, Plus, RefreshCw, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
@@ -145,8 +139,13 @@ export function CourtManagementPanel({
   })
 
   const updateMutation = useMutation({
-    mutationFn: ({ courtId, request }: { courtId: string; request: UpdateCourtRequest }) =>
-      sportCenterWizardClient.updateCourt(centerId, courtId, request),
+    mutationFn: ({
+      courtId,
+      request,
+    }: {
+      courtId: string
+      request: UpdateCourtRequest
+    }) => sportCenterWizardClient.updateCourt(centerId, courtId, request),
     onSuccess: async () => {
       await invalidateCourts()
       setFormOpen(false)
@@ -224,7 +223,9 @@ export function CourtManagementPanel({
     <section className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold">{t("courtManagement.title")}</h2>
+          <h2 className="text-xl font-semibold">
+            {t("courtManagement.title")}
+          </h2>
           <p className="text-sm text-muted-foreground">
             {t("courtManagement.subtitle")}
           </p>
@@ -243,7 +244,11 @@ export function CourtManagementPanel({
             <p className="text-sm text-destructive">
               {t("courtManagement.error.load")}
             </p>
-            <Button type="button" variant="outline" onClick={() => courtsQuery.refetch()}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => courtsQuery.refetch()}
+            >
               <RefreshCw />
               {t("courtManagement.actions.retry")}
             </Button>
@@ -255,7 +260,9 @@ export function CourtManagementPanel({
             <div className="rounded-2xl bg-primary/10 p-4 text-primary">
               <Plus className="size-7" />
             </div>
-            <h3 className="font-semibold">{t("courtManagement.empty.title")}</h3>
+            <h3 className="font-semibold">
+              {t("courtManagement.empty.title")}
+            </h3>
             <p className="max-w-md text-sm text-muted-foreground">
               {t("courtManagement.empty.description")}
             </p>
@@ -280,7 +287,9 @@ export function CourtManagementPanel({
                       </p>
                     </div>
                     <Badge variant={archived ? "secondary" : "default"}>
-                      {t(`courtManagement.status.${getStatusKey(court.status)}`)}
+                      {t(
+                        `courtManagement.status.${getStatusKey(court.status)}`
+                      )}
                     </Badge>
                   </div>
                   <div className="text-xs text-muted-foreground">
@@ -340,19 +349,26 @@ export function CourtManagementPanel({
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="court-name">{t("courtManagement.fields.name")}</Label>
+              <Label htmlFor="court-name">
+                {t("courtManagement.fields.name")}
+              </Label>
               <Input
                 id="court-name"
                 value={form.name}
                 onChange={(event) =>
-                  setForm((current) => ({ ...current, name: event.target.value }))
+                  setForm((current) => ({
+                    ...current,
+                    name: event.target.value,
+                  }))
                 }
                 placeholder={t("courtManagement.fields.namePlaceholder")}
                 disabled={isSaving}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="court-type">{t("courtManagement.fields.type")}</Label>
+              <Label htmlFor="court-type">
+                {t("courtManagement.fields.type")}
+              </Label>
               <select
                 id="court-type"
                 value={form.type}
@@ -365,12 +381,18 @@ export function CourtManagementPanel({
                 disabled={isSaving}
                 className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
               >
-                <option value="INDOOR">{t("courtManagement.types.INDOOR")}</option>
-                <option value="OUTDOOR">{t("courtManagement.types.OUTDOOR")}</option>
+                <option value="INDOOR">
+                  {t("courtManagement.types.INDOOR")}
+                </option>
+                <option value="OUTDOOR">
+                  {t("courtManagement.types.OUTDOOR")}
+                </option>
               </select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="court-status">{t("courtManagement.fields.status")}</Label>
+              <Label htmlFor="court-status">
+                {t("courtManagement.fields.status")}
+              </Label>
               <select
                 id="court-status"
                 value={form.status}
@@ -383,11 +405,15 @@ export function CourtManagementPanel({
                 disabled={isSaving}
                 className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
               >
-                <option value="ACTIVE">{t("courtManagement.status.active")}</option>
+                <option value="ACTIVE">
+                  {t("courtManagement.status.active")}
+                </option>
                 <option value="MAINTENANCE">
                   {t("courtManagement.status.maintenance")}
                 </option>
-                <option value="ARCHIVED">{t("courtManagement.status.archived")}</option>
+                <option value="ARCHIVED">
+                  {t("courtManagement.status.archived")}
+                </option>
               </select>
             </div>
           </div>
@@ -415,7 +441,9 @@ export function CourtManagementPanel({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("courtManagement.archive.title")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("courtManagement.archive.title")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {t("courtManagement.archive.description", {
                 name: deleteTarget?.name ?? "",
@@ -429,7 +457,9 @@ export function CourtManagementPanel({
             <AlertDialogAction
               variant="destructive"
               disabled={!deleteTarget || archiveMutation.isPending}
-              onClick={() => deleteTarget && archiveMutation.mutate(deleteTarget.id)}
+              onClick={() =>
+                deleteTarget && archiveMutation.mutate(deleteTarget.id)
+              }
             >
               {archiveMutation.isPending
                 ? t("courtManagement.actions.archiving")

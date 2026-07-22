@@ -150,7 +150,9 @@ function UploadDialog({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={uploadMutation.isPending || isUploading || !paymentProofUrl}
+            disabled={
+              uploadMutation.isPending || isUploading || !paymentProofUrl
+            }
           >
             {uploadMutation.isPending
               ? t("learner.enrollments.uploading")
