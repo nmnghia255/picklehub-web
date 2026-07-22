@@ -26,12 +26,12 @@ export function MatchesControlPanel({
   const [isGenerating, setIsGenerating] = useState(false)
   const [singlesCount, setSinglesCount] = useState<number | "">(0)
   const [doublesCount, setDoublesCount] = useState<number | "">(0)
-  const [roundDurationMins, setRoundDurationMins] = useState<number | "">(30)
+  const [roundDurationMins, setRoundDurationMins] = useState<number | "">(15)
 
   const handleGenerate = async () => {
     const sCount = singlesCount === "" ? 0 : singlesCount
     const dCount = doublesCount === "" ? 0 : doublesCount
-    const duration = roundDurationMins === "" ? 30 : roundDurationMins
+    const duration = roundDurationMins === "" ? 15 : roundDurationMins
 
     const requiredPlayers = sCount * 2 + dCount * 4
     if (players.length < requiredPlayers) {

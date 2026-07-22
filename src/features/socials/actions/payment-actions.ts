@@ -2,13 +2,13 @@
 
 import { PaymentService } from "../api/payment-service"
 import type { TransactionStatus } from "../types/payment"
+import type { PaymentSubmitRequest } from "../types/payment"
 
 export async function submitPaymentAction(
   socialId: string,
-  receiptUrl: string,
-  amount: number
+  paymentSubmitRequest: PaymentSubmitRequest
 ) {
-  return PaymentService.submitPayment(socialId, receiptUrl, amount)
+  return PaymentService.submitPayment(socialId, paymentSubmitRequest)
 }
 
 export async function verifyPaymentAction(

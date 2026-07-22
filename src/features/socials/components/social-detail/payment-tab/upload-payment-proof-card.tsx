@@ -16,7 +16,8 @@ import {
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import { submitPaymentAction } from "../../../actions/payment-actions"
-import { UploadImageAction } from "../../../actions/upload-image-action"
+import { MediaService } from "../../../api/media-service"
+import type { PaymentSubmitRequest } from "../../../types/payment"
 
 interface UploadPaymentProofCardProps {
   socialId?: string
@@ -55,8 +56,12 @@ export function UploadPaymentProofCard({
 
     setIsUploading(true)
     try {
-      const url = await UploadImageAction(file)
-      await submitPaymentAction(socialId, url, amount)
+      const url = await MediaService.uploadImage(file)
+      const paymentSubmitRequest: PaymentSubmitRequest = {
+        amount,
+        receiptUrl: url,
+      }
+      await submitPaymentAction(socialId, paymentSubmitRequest)
       setIsSuccess(true)
       setFile(null)
       if (previewUrl) {

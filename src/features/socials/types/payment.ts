@@ -17,3 +17,21 @@ export interface PaymentRecord {
   amount: number
   receiptUrl: string
 }
+
+export interface PaymentSubmitRequest {
+  amount: number
+  receiptUrl: string
+}
+
+export interface PaymentSubmitResponse {
+  id: string
+  socialParticipantId: string
+  amount: number
+  receiptUrl: string
+  status: TransactionStatus
+  transactionType: string
+  createdById: string
+  verifiedById: string | null
+  createdAt: string
+  updatedAt: string
+}

@@ -32,7 +32,9 @@ export function formatCurrencyVnd(value: number | string | null | undefined) {
 export function getPaymentStatusTone(status: string) {
   switch ((status || "").toLowerCase()) {
     case "paid":
+      return "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
     case "confirmed":
+      return "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
     case "approved":
       return "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
     case "overpaid":
@@ -40,7 +42,9 @@ export function getPaymentStatusTone(status: string) {
     case "unpaid":
       return "border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-300"
     case "partially_paid":
+      return "border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-300"
     case "pending":
+      return "border-orange-500/20 bg-orange-500/10 text-orange-700 dark:text-orange-300"
     case "pending_review":
       return "border-orange-500/20 bg-orange-500/10 text-orange-700 dark:text-orange-300"
     case "refunded":

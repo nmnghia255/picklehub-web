@@ -257,7 +257,7 @@ export default function PlaySessionOverview({
               </Button>
             )}
 
-            {canJoin && (
+            {canJoin && !isFull && (
               <Button onClick={onJoin} className="gap-2">
                 {t("sidebar.joinSession")}
               </Button>
@@ -269,7 +269,7 @@ export default function PlaySessionOverview({
               </Button>
             )}
 
-            {canLeave && (
+            {canLeave && !isHost && (
               <Button variant="destructive" onClick={onLeave} className="gap-2">
                 {t("sidebar.leaveSession")}
               </Button>

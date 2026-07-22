@@ -106,7 +106,7 @@ export function PricingCalculatorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] w-[60vw] overflow-y-auto p-0 sm:w-[70vw] sm:max-w-[70vw] lg:w-[50vw] lg:max-w-[50vw] xl:w-[30vw] xl:max-w-[30vw]">
+      <DialogContent className="max-h-[90vh] w-[80vw] overflow-y-auto p-0 sm:w-[70vw] sm:max-w-[70vw] lg:w-[60vw] lg:max-w-[60vw] xl:w-[50vw] xl:max-w-[50vw]">
         <DialogHeader className="border-b px-6 pt-6 pb-4">
           <DialogTitle className="flex items-center gap-2">
             <Calculator className="size-5" />

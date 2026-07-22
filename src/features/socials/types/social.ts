@@ -1,4 +1,4 @@
-import type { PaymentStatus, TransactionStatus } from "./payment"
+import type { PaymentStatus } from "./payment"
 import type { PlaySession } from "./play-session"
 
 export type GenderPolicy = "ANY" | "MALE_ONLY" | "FEMALE_ONLY" | "MIXED_ONLY"
@@ -32,8 +32,6 @@ export interface CreateSocialRequest {
   startTime: string
   endTime: string
   isFree: boolean
-  isPrivate: boolean
-  maxSlots: number
   submitDupr: boolean
   minimumLevel: number | null
   maximumLevel: number | null
@@ -69,7 +67,6 @@ export interface CreateSocialResponse {
   submitDupr: boolean
   minimumLevel: number | null
   maximumLevel: number | null
-  isPrivate: false
   autoApproveJoinRequests: true
   hostRole: string
   cancellationFreezeHours: number | null
@@ -167,6 +164,7 @@ export interface ListSocial {
 }
 
 export interface ParticipantInfo {
+  id?: string
   status: SocialParticipantStatus
   totalFee: number
   amountPaid: number
@@ -174,8 +172,9 @@ export interface ParticipantInfo {
   amountDue: number
   amountOverpaid: number
   paymentStatus: PaymentStatus
+  joinedAt?: string
   joinedSessionIds: string[]
-  paymentUrl: string
+  paymentUrl: string | null
 }
 
 export interface SocialDetail {
@@ -199,8 +198,8 @@ export interface SocialDetail {
   submitDupr: boolean
   minimumLevel: number | null
   maximumLevel: number | null
-  isPrivate: boolean
   isFree: boolean
+  isPrivate?: boolean
   autoApproveJoinRequests: boolean
   hostRole: string
   cancellationFreezeHours: number | null
@@ -243,7 +242,6 @@ export interface SocialParticipant {
   amountRefunded: number
   amountDue: number
   amountOverpaid: number
-  isFullPakage: boolean
   paymentStatus: PaymentStatus
   joinedAt: string
   isHost: boolean

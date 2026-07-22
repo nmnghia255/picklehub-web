@@ -16,7 +16,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import { UploadImageAction } from "../../actions/upload-image-action"
+import { MediaService } from "../../api/media-service"
 import type { SocialFormData } from "../../types/social"
 import Field from "../social-detail/field"
 
@@ -65,7 +65,7 @@ export function SocialFormPaymentCard({
     setIsUploadingPaymentQr(true)
 
     try {
-      const paymentQrUrl = await UploadImageAction(file)
+      const paymentQrUrl = await MediaService.uploadImage(file)
       setFormData((prev) => ({
         ...prev,
         paymentQrUrl,

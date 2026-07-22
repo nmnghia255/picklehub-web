@@ -349,7 +349,7 @@
         "tab": "Thanh toán",
         "uploadAnother": "Tải lên ảnh khác",
         "statusConfirmed": "Đã thanh toán",
-        "statusPaidPendingConfirmation": "Đã thanh toán, chờ xác nhận",
+        "statusPaid": "Đã thanh toán",
         "statusUnpaid": "Chưa thanh toán",
         "previewAlt": "Ảnh xem trước minh chứng đã chọn"
     },
@@ -491,9 +491,9 @@
             "incompleteWarningDescription": "Có các trận đấu chưa hoàn tất ở Lượt trận: {{sessions}}. Bạn có chắc chắn muốn tiếp tục không?",
             "playerAlreadyInSession": "Cầu thủ này đã có trong phiên chơi hiện tại. Không thể thêm vào trận khác trong cùng phiên."
         },
-    "controlPanel": {
-      "title": "Cấu hình trận đấu",
-      "generateError": "Không thể tạo trận.",
+        "controlPanel": {
+            "title": "Cấu hình trận đấu",
+            "generateError": "Không thể tạo trận.",
             "totalMatches": "Tổng số trận",
             "courts": "Số sân",
             "generate": "Tạo trận",
@@ -527,7 +527,7 @@
             "description": "Chọn một cầu thủ để thêm vào trận đấu",
             "noAvailablePlayers": "Không còn cầu thủ phù hợp để thêm vào trận này."
         },
-    "statistics": {
+        "statistics": {
             "title": "Thông số cấu hình",
             "subtitle": "Theo dõi mức độ phân bổ trận trong một phiên chơi.",
             "totalMatches": "Tổng số trận",
@@ -547,8 +547,8 @@
             },
             "matchesCount_one": "{{count}} trận",
             "matchesCount_other": "{{count}} trận",
-      "noPlayers": "Chưa có người chơi để hiển thị thống kê.",
-      "matchesCount": "{{count}} trận"
+            "noPlayers": "Chưa có người chơi để hiển thị thống kê.",
+            "matchesCount": "{{count}} trận"
         },
         "player": {
             "removeAria": "Xóa {{name}}"

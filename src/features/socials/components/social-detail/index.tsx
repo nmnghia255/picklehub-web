@@ -2,9 +2,12 @@
 
 import { differenceInHours } from "date-fns"
 import { useRouter } from "next/navigation"
+import React from "react"
+import { toast } from "sonner"
 
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { joinPlaySessionAction } from "@/features/socials/actions/join-play-session"
 import { PlaySessionForm } from "@/features/socials/components/play-session/play-session-form"
 import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
 import type { PlaySession } from "@/features/socials/types/play-session"
@@ -24,6 +27,7 @@ import SocialParticipantsTab from "./participants-tab/social-participants-tab"
 import SocialPaymentTab from "./payment-tab/social-payment-tab"
 import SocialHeader from "./social-header"
 import SocialHero from "./social-hero"
+import SocialJoinDialog from "./social-join-dialog"
 import SocialSidebar from "./social-sidebar"
 import SocialStatisticsTab from "./statistics-tab/social-statistics-tab"
 
@@ -41,6 +45,9 @@ export default function SocialDetail({
   const router = useRouter()
   const { t } = useSocialsTranslation()
 
+  const joinDialogOpen = useSocialDetailStore((s) => s.joinDialogOpen)
+  const setJoinDialogOpen = useSocialDetailStore((s) => s.setJoinDialogOpen)
+
   const playSessionModalOpen = useSocialDetailStore(
     (s) => s.playSessionModalOpen
   )
@@ -52,6 +59,35 @@ export default function SocialDetail({
 
   const tabValue = useSocialDetailStore((s) => s.tabValue)
   const setTabValue = useSocialDetailStore((s) => s.setTabValue)
+
+  const [isJoining, setIsJoining] = React.useState(false)
+
+  const handleConfirmJoin = async (selectedSessionIds: string[]) => {
+    if (!initialSocial || selectedSessionIds.length === 0) return
+    setIsJoining(true)
+    const toastId = toast.loading(t("dialogs.joining"))
+    let successCount = 0
+    let lastError = ""
+
+    for (const sessionId of selectedSessionIds) {
+      const result = await joinPlaySessionAction(initialSocial.id, sessionId)
+      if (result.success) {
+        successCount++
+      } else {
+        lastError = result.error || t("dialogs.joinError")
+      }
+    }
+
+    setIsJoining(false)
+    setJoinDialogOpen(false)
+
+    if (successCount > 0) {
+      toast.success(t("dialogs.joinSuccess"), { id: toastId })
+      router.refresh()
+    } else {
+      toast.error(lastError || t("dialogs.joinError"), { id: toastId })
+    }
+  }
 
   const { data: subscriptions } = useMySubscriptions()
   const hasSocialHostPlan = Boolean(
@@ -96,7 +132,7 @@ export default function SocialDetail({
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      <SocialHero isPrivate={social.isPrivate} />
+      <SocialHero isPrivate={Boolean(social.isPrivate)} />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-6">
@@ -220,6 +256,16 @@ export default function SocialDetail({
           />
         </DialogContent>
       </Dialog>
+
+      <SocialJoinDialog
+        open={joinDialogOpen}
+        onOpenChange={setJoinDialogOpen}
+        title={social.title}
+        autoApproveJoinRequests={social.autoApproveJoinRequests}
+        sessions={sessions}
+        onConfirm={handleConfirmJoin}
+        isJoining={isJoining}
+      />
     </div>
   )
 }

@@ -142,6 +142,7 @@ export const getStatusLabel = (status: string, t: (key: string) => string) => {
     case "COMPLETED":
       return t("labels.completed")
     case "CANCELLED":
+      return t("labels.cancelled")
     case "CANCELED":
       return t("labels.cancelled")
     default:
@@ -274,14 +275,6 @@ export const getPaymentStatusLabel = (
       return t("expenses.tracking.overpaid")
     case "REFUNDED":
       return t("expenses.tracking.refunded")
-    case "PENDING":
-    case "PENDING_REVIEW":
-      return t("expenses.tracking.participantStatus.pending")
-    case "CONFIRMED":
-    case "APPROVED":
-      return t("expenses.tracking.participantStatus.confirmed")
-    case "REJECTED":
-      return t("expenses.tracking.participantStatus.rejected")
     default:
       return status || ""
   }

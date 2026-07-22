@@ -50,8 +50,8 @@ export function JoinedSessionsSection({
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   <span suppressHydrationWarning>
-                    {format(new Date(session.startTime), "PPp")} -{" "}
-                    {format(new Date(session.endTime), "p")}
+                    {format(new Date(session.startTime), "dd/MM/yyyy, HH:mm")} -{" "}
+                    {format(new Date(session.endTime), "HH:mm")}
                   </span>
                 </p>
               </div>

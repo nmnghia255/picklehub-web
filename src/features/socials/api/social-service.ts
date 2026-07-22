@@ -172,18 +172,6 @@ export const SocialService = {
     return unwrapApiResponse(response.data)
   },
 
-  joinSocial: async function (
-    socialId: string,
-    isFullPackage: boolean
-  ): Promise<SocialParticipant> {
-    const axios = await getAuthenticatedAxios()
-    const response = await axios.post<ApiResponse<SocialParticipant>>(
-      `/api/events/socials/${socialId}/join`,
-      { isFullPackage }
-    )
-    return unwrapApiResponse(response.data)
-  },
-
   leaveSocial: async function (socialId: string): Promise<LeaveSocialResponse> {
     const axios = await getAuthenticatedAxios()
     const response = await axios.delete<ApiResponse<LeaveSocialResponse>>(

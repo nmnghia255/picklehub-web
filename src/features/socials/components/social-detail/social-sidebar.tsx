@@ -26,6 +26,7 @@ import {
   publishSocialAction,
   updateSocialAction,
 } from "../../actions/social-form-actions"
+import useSocialDetailStore from "../../stores/social-detail-store"
 import type { SocialDetail, User as Host } from "../../types/social"
 import { isConfirmedLikeSocialParticipantStatus } from "../../utils"
 
@@ -50,6 +51,7 @@ export default function SocialSidebar({
   const { t } = useSocialsTranslation()
   const { t: tCommon } = useTranslation("common")
   const router = useRouter()
+  const setJoinDialogOpen = useSocialDetailStore((s) => s.setJoinDialogOpen)
   const [isPublishing, setIsPublishing] = React.useState(false)
   const [isCompleting, setIsCompleting] = React.useState(false)
   const [publishDialogOpen, setPublishDialogOpen] = React.useState(false)
@@ -220,17 +222,26 @@ export default function SocialSidebar({
           )}
 
           {!isParticipant &&
+            !social.isHost &&
             social.status === "PUBLISHED" &&
-            !social.hasAvailableSlots && (
+            (social.hasAvailableSlots ? (
+              <Button
+                className="w-full bg-emerald-600 text-white hover:bg-emerald-700"
+                size="lg"
+                onClick={() => setJoinDialogOpen(true)}
+              >
+                {t("sidebar.join")}
+              </Button>
+            ) : (
               <Button className="w-full" size="lg" disabled>
                 {t("sidebar.full")}
               </Button>
-            )}
+            ))}
         </CardContent>
       </Card>
 
       <AlertDialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="gap-2 py-4">
           <AlertDialogHeader>
             <AlertDialogTitle>
               {t("sidebar.publishConfirmTitle")}
@@ -239,7 +250,7 @@ export default function SocialSidebar({
               {t("sidebar.publishConfirmDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="gap-2">
             <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handlePublish} disabled={isPublishing}>
               {t("common.confirm")}

@@ -39,14 +39,6 @@ export function SocialFormSidebar({
           <Separator />
 
           <SocialFormToggleRow
-            label={t("form.privateEvent")}
-            checked={formData.isPrivate}
-            onCheckedChange={(checked) =>
-              setFormData((prev) => ({ ...prev, isPrivate: checked }))
-            }
-          />
-
-          <SocialFormToggleRow
             label={t("form.isFree")}
             checked={formData.isFree}
             onCheckedChange={(checked) =>

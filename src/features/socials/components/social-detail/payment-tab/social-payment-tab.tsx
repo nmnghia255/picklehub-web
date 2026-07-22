@@ -40,11 +40,11 @@ export default function SocialPaymentTab({
   const getBadgeContent = () => {
     if (!social?.myParticipantInfo) return null
 
-    const { status, paymentStatus } = social.myParticipantInfo
+    const { paymentStatus, paymentUrl } = social.myParticipantInfo
 
-    if (paymentStatus === "PAID") {
+    if (paymentStatus === "PAID" || paymentUrl) {
       return {
-        text: t("payment.statusPaidPendingConfirmation"),
+        text: t("payment.statusPaid"),
         tone: getPaymentStatusTone("PAID"),
       }
     }
@@ -115,7 +115,8 @@ export default function SocialPaymentTab({
               imageUrl={social.myParticipantInfo.paymentUrl}
             />
           ) : (
-            isParticipant && (
+            isParticipant &&
+            totalFee > 0 && (
               <UploadPaymentProofCard socialId={social?.id} amount={totalFee} />
             )
           ))}

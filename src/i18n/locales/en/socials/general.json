@@ -1,5 +1,9 @@
 {
-  "courts": { "court1": "Court 1", "court2": "Court 2", "court3": "Court 3" },
+  "courts": {
+    "court1": "Court 1",
+    "court2": "Court 2",
+    "court3": "Court 3"
+  },
   "common": {
     "na": "N/A",
     "level": "Level",
@@ -94,6 +98,7 @@
     "leaving": "Leaving...",
     "publishing": "Publishing...",
     "noData": "No social details available.",
+    "join": "Join Social",
     "completeError": "Failed to complete social",
     "publishError": "Failed to publish social",
     "publishSocial": "Publish Event",
@@ -108,6 +113,33 @@
     "completeSuccess": "Social completed successfully",
     "completing": "Completing...",
     "publishSuccess": "Social published successfully"
+  },
+  "payment": {
+    "title": "Thanh toán",
+    "subtitle": "Thanh toán chi phí tham gia",
+    "totalFeeToPay": "Tổng phí cần thanh toán",
+    "joinedSessions": "Phiên đã tham gia",
+    "uploadSuccessTitle": "Ảnh minh chứng đã được tải lên thành công",
+    "uploadSuccessDescription": "Ảnh minh chứng thanh toán của bạn đã được gửi đến người tổ chức. Họ sẽ kiểm tra và xác nhận thanh toán của bạn.",
+    "submitError": "Không thể gửi minh chứng thanh toán.",
+    "joinedSessionsDescription": "Danh sách các phiên bạn đã tham gia",
+    "description": "Xem lại chi phí đặt sân, tính phần chia cho người tham gia, theo dõi thanh toán và giữ sự kiện luôn gọn gàng về tài chính.",
+    "checkInfoBeforeConfirm": "Kiểm tra lại thông tin đặt sân, sau đó xác nhận để tạo booking.",
+    "uploadingProof": "Đang tải ảnh minh chứng...",
+    "uploadProof": "Tải ảnh minh chứng thanh toán",
+    "uploadDescription": "Ảnh này sẽ được gửi đến người tổ chức như một phần của yêu cầu tham gia của bạn.",
+    "uploading": "Đang tải...",
+    "confirm": "Xác nhận",
+    "submitProof": "Gửi ảnh minh chứng",
+    "selectFile": "Chọn file ảnh",
+    "clickToUpload": "Nhấp để tải lên",
+    "clickToUploadDescription": "PNG, JPG hoặc JPEG dưới 5MB",
+    "tab": "Thanh toán",
+    "uploadAnother": "Tải lên ảnh khác",
+    "statusConfirmed": "Đã thanh toán",
+    "statusPaid": "Đã thanh toán",
+    "statusUnpaid": "Chưa thanh toán",
+    "previewAlt": "Ảnh xem trước minh chứng đã chọn"
   },
   "hero": {
     "privateEvent": "Private Event",

@@ -27,6 +27,22 @@ function generateId() {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
 }
 
+function extractReplyText(data: unknown): string {
+  if (!data) return ""
+  if (typeof data === "string") return data
+  if (typeof data === "object") {
+    const obj = data as Record<string, unknown>
+    if (typeof obj.reply === "string" && obj.reply) return obj.reply
+    if (typeof obj.text === "string" && obj.text) return obj.text
+    if (typeof obj.content === "string" && obj.content) return obj.content
+    if (typeof obj.message === "string" && obj.message) return obj.message
+    if (typeof obj.answer === "string" && obj.answer) return obj.answer
+    if (typeof obj.response === "string" && obj.response) return obj.response
+    if (typeof obj.result === "string" && obj.result) return obj.result
+  }
+  return ""
+}
+
 export function ChatBot() {
   const { i18n } = useTranslation()
   const isVi = i18n.language === "vi"
@@ -260,7 +276,7 @@ export function ChatBot() {
     setMessages(updatedMessages)
     setInput("")
 
-    // Add initial placeholder for the streaming response
+    // Add initial placeholder for the response
     setMessages((prev) => [
       ...prev,
       { id: assistantMessageId, role: "assistant", content: "" },
@@ -274,7 +290,7 @@ export function ChatBot() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Accept: "text/event-stream",
+          Accept: "application/json, text/event-stream",
         },
         body: JSON.stringify({
           message: textToSend,
@@ -286,11 +302,61 @@ export function ChatBot() {
       })
 
       if (!response.ok) {
-        throw new Error(
-          isVi
-            ? "Không thể kết nối tới dịch vụ AI."
-            : "Failed to connect to AI service."
+        let errMessage = isVi
+          ? "Không thể kết nối tới dịch vụ AI."
+          : "Failed to connect to AI service."
+        try {
+          const errJson = await response.json()
+          if (errJson.message) errMessage = errJson.message
+          else if (errJson.error) errMessage = String(errJson.error)
+        } catch {
+          // ignore
+        }
+        throw new Error(errMessage)
+      }
+
+      const contentType = response.headers.get("content-type") || ""
+
+      if (contentType.includes("application/json")) {
+        const parsed = await response.json()
+        if (parsed.success === false) {
+          const errMsg =
+            typeof parsed.error === "string"
+              ? parsed.error
+              : typeof parsed.error === "object" && parsed.error?.message
+                ? parsed.error.message
+                : parsed.message ||
+                  (isVi ? "Lỗi từ dịch vụ AI." : "AI Service Error.")
+          throw new Error(errMsg)
+        }
+
+        let replyText = ""
+        if (parsed.success && parsed.data) {
+          replyText = extractReplyText(parsed.data)
+        }
+        if (!replyText) {
+          replyText = extractReplyText(parsed)
+        }
+
+        const cleanedReply = replyText
+          .replace(/<!--\s*SOURCES:[\s\S]*?-->/gi, "")
+          .trim()
+
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === assistantMessageId
+              ? {
+                  ...msg,
+                  content:
+                    cleanedReply ||
+                    (isVi
+                      ? "Không nhận được phản hồi từ AI."
+                      : "No response received from AI."),
+                }
+              : msg
+          )
         )
+        return
       }
 
       const reader = response.body?.getReader()
@@ -326,23 +392,30 @@ export function ChatBot() {
 
           try {
             const parsed = JSON.parse(dataStr)
-            // Backend formats response inside AiResponseDto envelope: { success: true, data: { ... } }
-            if (parsed.success && parsed.data) {
-              const dataObj = parsed.data
-              if (typeof dataObj === "string") {
-                accumulatedReplyRef.current += dataObj
-              } else if (typeof dataObj === "object") {
-                accumulatedReplyRef.current +=
-                  dataObj.text || dataObj.content || dataObj.message || ""
-              }
-            } else if (parsed.text) {
-              accumulatedReplyRef.current += parsed.text
-            } else if (parsed.content) {
-              accumulatedReplyRef.current += parsed.content
-            } else if (typeof parsed === "string") {
-              accumulatedReplyRef.current += parsed
+            if (parsed.success === false) {
+              const errMsg =
+                typeof parsed.error === "string"
+                  ? parsed.error
+                  : typeof parsed.error === "object" && parsed.error?.message
+                    ? parsed.error.message
+                    : parsed.message ||
+                      (isVi ? "Lỗi từ dịch vụ AI." : "AI Service Error.")
+              throw new Error(errMsg)
             }
-          } catch {
+
+            let textChunk = ""
+            if (parsed.success && parsed.data) {
+              textChunk = extractReplyText(parsed.data)
+            }
+            if (!textChunk) {
+              textChunk = extractReplyText(parsed)
+            }
+
+            accumulatedReplyRef.current += textChunk
+          } catch (e) {
+            if (e instanceof Error && e.message.includes("AI")) {
+              throw e
+            }
             // If it's not valid JSON, treat it as raw text chunk
             accumulatedReplyRef.current += dataStr
           }
@@ -363,8 +436,27 @@ export function ChatBot() {
           )
         )
       }
+
+      const finalReplyText = accumulatedReplyRef.current
+        .replace(/<!--\s*SOURCES:[\s\S]*?-->/gi, "")
+        .trim()
+
+      if (!finalReplyText) {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === assistantMessageId
+              ? {
+                  ...msg,
+                  content: isVi
+                    ? "Không nhận được phản hồi từ dịch vụ AI."
+                    : "No response received from AI service.",
+                }
+              : msg
+          )
+        )
+      }
     } catch (err) {
-      console.error("Chatbot streaming error:", err)
+      console.error("Chatbot response error:", err)
       const errorMsg = err instanceof Error ? err.message : String(err)
       setError(errorMsg)
 
@@ -421,7 +513,10 @@ export function ChatBot() {
 
       {/* Chat Sidebar Sheet */}
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent className="flex h-full w-full flex-col border-l bg-slate-50 p-0 sm:max-w-md md:max-w-lg dark:bg-zinc-950">
+        <SheetContent
+          showCloseButton={false}
+          className="flex h-full w-full flex-col border-l bg-slate-50 p-0 sm:max-w-md md:max-w-lg dark:bg-zinc-950"
+        >
           <SheetHeader className="flex flex-row items-center justify-between border-b bg-white p-4 dark:bg-zinc-900">
             <div className="flex items-center gap-2">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
@@ -444,7 +539,7 @@ export function ChatBot() {
                 size="icon"
                 onClick={handleReset}
                 title={isVi ? "Cuộc hội thoại mới" : "New conversation"}
-                className="mr-6 h-8 w-8 text-muted-foreground hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-950 dark:hover:text-emerald-400"
+                className="h-8 w-8 text-muted-foreground hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-950 dark:hover:text-emerald-400"
               >
                 <Plus className="size-5" />
               </Button>
@@ -494,7 +589,7 @@ export function ChatBot() {
                     >
                       {msg.role === "assistant" && (
                         <Avatar className="h-8 w-8 shrink-0">
-                          <AvatarFallback className="!bg-emerald-500 text-xs font-semibold !text-white">
+                          <AvatarFallback className="bg-emerald-500! text-xs font-semibold text-white!">
                             <Bot className="size-4" />
                           </AvatarFallback>
                         </Avatar>
@@ -528,7 +623,7 @@ export function ChatBot() {
                           {avatarUrl && (
                             <AvatarImage src={avatarUrl} alt="User Avatar" />
                           )}
-                          <AvatarFallback className="!bg-indigo-500 text-xs font-semibold !text-white">
+                          <AvatarFallback className="bg-indigo-500! text-xs font-semibold text-white!">
                             {userInitials}
                           </AvatarFallback>
                         </Avatar>

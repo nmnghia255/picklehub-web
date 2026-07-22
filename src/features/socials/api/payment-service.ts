@@ -2,6 +2,8 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type {
   PaymentRecord,
+  PaymentSubmitRequest,
+  PaymentSubmitResponse,
   TransactionStatus,
   VerifyPaymentRequest,
 } from "../types/payment"
@@ -27,15 +29,14 @@ function unwrapApiResponse<T>(payload: ApiResponse<T> | T): T {
 export const PaymentService = {
   submitPayment: async function (
     socialId: string,
-    receiptUrl: string,
-    amount: number
-  ): Promise<void> {
+    paymentSubmitRequest: PaymentSubmitRequest
+  ): Promise<PaymentSubmitResponse> {
     const axios = await getAuthenticatedAxios()
-    await axios.post(`/api/events/socials/${socialId}/participants/me/pay`, {
-      receiptUrl,
-      amount,
-    })
-    return unwrapApiResponse<void>(undefined)
+    const response = await axios.post<PaymentSubmitResponse>(
+      `/api/events/socials/${socialId}/participants/me/pay`,
+      paymentSubmitRequest
+    )
+    return unwrapApiResponse<PaymentSubmitResponse>(response.data)
   },
 
   verifyPayment: async function (

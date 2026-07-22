@@ -220,8 +220,8 @@ export function MatchResultDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md sm:max-w-lg">
-        <DialogHeader>
+      <DialogContent className="max-w-md py-0 sm:max-w-lg">
+        <DialogHeader className="pt-6">
           <DialogTitle>{t("matches.matchResultTitle")}</DialogTitle>
           <DialogDescription>
             {t("matches.resultDialogDescription")}
@@ -414,7 +414,7 @@ export function MatchResultDialog({
           </div>
         </div>
 
-        <DialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter className="gap-2 pb-4">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}

@@ -117,17 +117,17 @@ export default function MatchCard({
             </Badge>
             {isCompleted && (
               <Badge className="border-transparent bg-emerald-600 px-2 py-0.5 text-[10px] font-semibold text-white hover:bg-emerald-600">
-                {t("matches.completed").toUpperCase()}
+                {t("matches.completed")}
               </Badge>
             )}
             {isInProgress && (
               <Badge className="border-transparent bg-orange-500 px-2 py-0.5 text-[10px] font-semibold text-white hover:bg-orange-500">
-                {t("labels.inProgress").toUpperCase()}
+                {t("labels.inProgress")}
               </Badge>
             )}
             {isScheduled && (
               <Badge className="border-transparent bg-slate-800 px-2 py-0.5 text-[10px] font-semibold text-white hover:bg-slate-900 dark:bg-slate-50 dark:text-slate-950">
-                {t("matches.scheduled").toUpperCase()}
+                {t("matches.scheduled")}
               </Badge>
             )}
           </div>
@@ -159,7 +159,8 @@ export default function MatchCard({
           </div>
         </div>
 
-        {(match.startTime || canUpdateResult) && (
+        {(match.startTime ||
+          (canUpdateResult && (isScheduled || isInProgress))) && (
           <div className="flex items-center justify-between gap-4">
             {match.startTime ? (
               <p className="text-sm text-muted-foreground">{getTimingText()}</p>
@@ -184,14 +185,16 @@ export default function MatchCard({
                     {t("matches.startMatch")}
                   </Button>
                 )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsResultDialogOpen(true)}
-                  disabled={isStarting}
-                >
-                  {t("matches.fillResult")}
-                </Button>
+                {isInProgress && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsResultDialogOpen(true)}
+                    disabled={isStarting}
+                  >
+                    {t("matches.fillResult")}
+                  </Button>
+                )}
               </div>
             )}
           </div>

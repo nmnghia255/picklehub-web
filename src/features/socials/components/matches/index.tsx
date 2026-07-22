@@ -46,7 +46,6 @@ import { useParams } from "next/navigation"
 
 import type {
   CommitMatchRequest,
-  SuggestedMatchBatchResponse,
   SuggestedMatchRequest,
 } from "@/features/socials/types/match"
 
@@ -144,10 +143,17 @@ export function MatchesCreationContent({
       toast.success(t("matches.creation.generateSuccess"))
     } catch (error: unknown) {
       const message =
-        error instanceof Error
-          ? error.message
-          : t("matches.creation.generateError")
-      toast.error(message || t("matches.controlPanel.generateError"))
+        (
+          error as {
+            response?: { data?: { message?: string | string[] } }
+            data?: { message?: string | string[] }
+          }
+        )?.response?.data?.message ||
+        (error as { data?: { message?: string | string[] } })?.data?.message ||
+        (error instanceof Error ? error.message : null) ||
+        t("matches.creation.generateError")
+      const finalMessage = Array.isArray(message) ? message.join(", ") : message
+      toast.error(finalMessage || t("matches.controlPanel.generateError"))
       console.error(error)
     }
   }
@@ -206,20 +212,23 @@ export function MatchesCreationContent({
         }
       })
 
-      const response = await confirmSuggestedMatchesAction(
-        socialId,
-        playSessionId,
-        payload
-      )
+      await confirmSuggestedMatchesAction(socialId, playSessionId, payload)
 
       toast.success(t("matches.creation.successConfirm"))
       router.back()
     } catch (error: unknown) {
       const message =
-        error instanceof Error
-          ? error.message
-          : t("matches.creation.confirmError")
-      toast.error(message)
+        (
+          error as {
+            response?: { data?: { message?: string | string[] } }
+            data?: { message?: string | string[] }
+          }
+        )?.response?.data?.message ||
+        (error as { data?: { message?: string | string[] } })?.data?.message ||
+        (error instanceof Error ? error.message : null) ||
+        t("matches.creation.confirmError")
+      const finalMessage = Array.isArray(message) ? message.join(", ") : message
+      toast.error(finalMessage)
       console.error(error)
     } finally {
       setIsConfirming(false)

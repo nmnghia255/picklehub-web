@@ -33,8 +33,6 @@ function createInitialFormData(): CreateSocialRequest {
     startTime: "",
     endTime: "",
     format: "SOCIAL",
-    isPrivate: false,
-    maxSlots: 20,
     submitDupr: false,
     minimumLevel: 2,
     maximumLevel: 5,
@@ -59,8 +57,6 @@ function mapSocialToFormData(social: SocialDetail): SocialFormData {
     startTime: new Date(social.startTime).toISOString().slice(0, 16),
     endTime: new Date(social.endTime).toISOString().slice(0, 16),
     format: social.format,
-    isPrivate: social.isPrivate,
-    maxSlots: social.maxSlots,
     submitDupr: social.submitDupr,
     minimumLevel: social.minimumLevel,
     maximumLevel: social.maximumLevel,
@@ -134,10 +130,6 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
       toast.error(t("form.validationEndAfterStart"))
       return
     }
-    if (formData.maxSlots < 1) {
-      toast.error(t("form.validation.maxSlotsRequired"))
-      return
-    }
     if (formData.minimumLevel != null && formData.maximumLevel != null) {
       if (formData.minimumLevel > formData.maximumLevel) {
         toast.error(t("form.validationMinMaxLevel"))
@@ -182,8 +174,6 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
           updateData.packageFee != null ? Number(updateData.packageFee) : null
         updateData.totalExpense =
           updateData.totalExpense != null ? Number(updateData.totalExpense) : 0
-        updateData.maxSlots =
-          updateData.maxSlots != null ? Number(updateData.maxSlots) : 0
         updateData.cancellationFreezeHours =
           updateData.cancellationFreezeHours != null
             ? Number(updateData.cancellationFreezeHours)
@@ -207,8 +197,6 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
           createData.maximumLevel != null
             ? Number(createData.maximumLevel)
             : null
-        createData.maxSlots =
-          createData.maxSlots != null ? Number(createData.maxSlots) : 0
         createData.cancellationFreezeHours =
           createData.cancellationFreezeHours != null
             ? Number(createData.cancellationFreezeHours)

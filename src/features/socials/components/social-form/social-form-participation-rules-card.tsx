@@ -40,22 +40,6 @@ export function SocialFormParticipationRulesCard({
           {t("form.participationRules")}
         </h2>
         <div className="space-y-4">
-          <Field label={t("form.maximumParticipants")}>
-            <Input
-              type="number"
-              value={formData.maxSlots}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  maxSlots: parseInt(e.target.value) || 0,
-                }))
-              }
-              min={1}
-              max={200}
-              required
-            />
-          </Field>
-
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t("form.genderPolicy")}>
               <Select
