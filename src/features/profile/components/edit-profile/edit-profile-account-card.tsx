@@ -1,5 +1,6 @@
 "use client"
 
+import { useQueryClient } from "@tanstack/react-query"
 import { UserRound } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { startTransition, useActionState, useEffect, useState } from "react"
@@ -57,12 +58,15 @@ export function EditProfileAccountCard({
   const [state, formAction, isPending] = useActionState(updateAvatarAction, {})
   const [selectedFileName, setSelectedFileName] = useState("")
 
+  const queryClient = useQueryClient()
+
   useEffect(() => {
     if (state.success && state.user) {
       setUser(state.user)
+      queryClient.invalidateQueries({ queryKey: ["my-profile"] })
       router.refresh()
     }
-  }, [setUser, state.success, state.user, router])
+  }, [setUser, state.success, state.user, router, queryClient])
 
   const initials = displayName
     .split(" ")

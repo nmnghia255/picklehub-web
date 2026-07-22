@@ -44,14 +44,14 @@ function ExpenseStatCard({
 }
 
 export function ExpenseSummaryGrid({
-  totalCourtExpense,
+  totalExpense,
   confirmedParticipants,
   extraExpense,
   paidMembers,
   collectedAmount,
   outstandingAmount,
 }: {
-  totalCourtExpense: number
+  totalExpense: number
   confirmedParticipants: number
   extraExpense: number
   paidMembers: number
@@ -64,7 +64,7 @@ export function ExpenseSummaryGrid({
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       <ExpenseStatCard
         label={t("expenses.summary.totalExpense")}
-        value={formatCurrencyVnd(totalCourtExpense)}
+        value={formatCurrencyVnd(totalExpense)}
         iconClassName="flex size-9 shrink-0 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 lg:size-10"
         icon={Wallet}
       />

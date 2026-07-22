@@ -48,7 +48,7 @@ export function isCompletedSocialStatus(status?: string | null) {
 }
 
 export function isInProgressPlaySessionStatus(status?: string | null) {
-  return status === "LIVE" || status === "IN_PROGRESS"
+  return status === "IN_PROGRESS"
 }
 
 export function isCompletedPlaySessionStatus(status?: string | null) {
@@ -59,8 +59,8 @@ export function isCancelledPlaySessionStatus(status?: string | null) {
   return status === "CANCELLED" || status === "CANCELED"
 }
 
-export function isOpenPlaySessionStatus(status?: string | null) {
-  return status === "PUBLISHED" || status === "SCHEDULED"
+export function isOpenPlaySessionStatus(status?: PlaySession["status"]) {
+  return status === "ACTIVE"
 }
 
 export function hasAvailablePlaySessionSlots(
@@ -124,12 +124,12 @@ export function getPlaySessionCapacityText(
 export function getStatusClasses(status: string) {
   switch (status) {
     case "PUBLISHED":
-      return "border-primary/30 bg-primary/10 text-primary"
+      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:border-emerald-400/30 dark:bg-emerald-400/15 dark:text-emerald-400"
     case "COMPLETED":
-      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
+      return "border-blue-500/30 bg-blue-500/10 text-blue-600 dark:border-blue-400/30 dark:bg-blue-400/15 dark:text-blue-400"
     case "CANCELLED":
     case "CANCELED":
-      return "border-destructive/30 bg-destructive/10 text-destructive"
+      return "border-destructive/30 bg-destructive/10 text-destructive dark:border-destructive/40 dark:bg-destructive/20 dark:text-destructive"
     default:
       return "border-border bg-muted text-muted-foreground"
   }
@@ -263,7 +263,7 @@ export const getPaymentStatusLabel = (
   status: string,
   t: (key: string) => string
 ) => {
-  switch (status) {
+  switch (status?.toUpperCase()) {
     case "PAID":
       return t("expenses.tracking.paid")
     case "UNPAID":
@@ -274,7 +274,15 @@ export const getPaymentStatusLabel = (
       return t("expenses.tracking.overpaid")
     case "REFUNDED":
       return t("expenses.tracking.refunded")
+    case "PENDING":
+    case "PENDING_REVIEW":
+      return t("expenses.tracking.participantStatus.pending")
+    case "CONFIRMED":
+    case "APPROVED":
+      return t("expenses.tracking.participantStatus.confirmed")
+    case "REJECTED":
+      return t("expenses.tracking.participantStatus.rejected")
     default:
-      return status
+      return status || ""
   }
 }

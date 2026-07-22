@@ -137,10 +137,10 @@
       "dayButton": "{{date}}",
       "weekday": "{{weekday}}",
       "weekNumber": "Tuần {{weekNumber}}",
-    "weekNumberHeader": "Số tuần",
-    "errorTitle": "Không thể tải lịch",
-    "errorDescription": "Đã xảy ra lỗi khi tải lịch của bạn.",
-    "retry": "Thử lại"
+      "weekNumberHeader": "Số tuần",
+      "errorTitle": "Không thể tải lịch",
+      "errorDescription": "Đã xảy ra lỗi khi tải lịch của bạn.",
+      "retry": "Thử lại"
     },
     "errorTitle": "Không thể tải lịch",
     "errorDescription": "Đã xảy ra lỗi khi tải lịch của bạn.",
@@ -376,43 +376,58 @@
   },
   "landing": {
     "header": {
-      "switchToLight": "Chuyển sang chế độ sáng",
-      "switchToDark": "Chuyển sang chế độ tối",
-      "themeToggle": "Đổi giao diện"
+      "switchToLight": "Chuyển sang giao diện sáng",
+      "switchToDark": "Chuyển sang giao diện tối",
+      "themeToggle": "Chuyển giao diện",
+      "signIn": "Đăng nhập",
+      "getStarted": "Đăng ký ngay",
+      "features": "Tính năng",
+      "tournaments": "Giải đấu",
+      "socials": "Giao lưu",
+      "courts": "Đặt sân",
+      "languageToggle": "Đổi ngôn ngữ"
     },
     "hero": {
-      "titlePrefix": "Nền tảng toàn diện cho",
-      "titleHighlight": "cộng đồng pickleball",
-      "description": "PickleHub kết nối người chơi, huấn luyện viên, nhà kinh doanh thiết bị thể thao, và tổ chức giải đấu. Với AI và LLM tích hợp, nền tảng cung cấp dịch vụ quản lý, tương tác, và phân tích nâng cao - giúp trải nghiệm cá nhân hóa và hiệu quả cho mọi đối tượng.",
-      "cta": "Tham Gia Ngay"
+      "titlePrefix": "Kết nối, Chơi & Tranh tài cùng",
+      "titleHighlight": "Cách mạng Pickleball",
+      "description": "Nền tảng hiện đại dành cho người chơi, người tổ chức và ban tổ chức giải đấu. Quản lý buổi chơi, đặt sân, theo dõi điểm DUPR và giải đấu dễ dàng.",
+      "cta": "Bắt đầu miễn phí",
+      "badge": "Hệ sinh thái Pickleball toàn diện",
+      "secondaryCta": "Khám phá Buổi chơi",
+      "stats": {
+        "players": "Người chơi hoạt động",
+        "tournaments": "Giải đấu",
+        "courts": "Cụm sân thể thao",
+        "rating": "Đánh giá người dùng"
+      }
     },
     "features": {
-      "title": "Tính Năng Chính",
-      "description": "Giải pháp toàn diện hỗ trợ mọi vai trò trong cộng đồng pickleball.",
+      "title": "Thiết kế cho Người chơi, Chủ sân & BTC Giải đấu",
+      "description": "Bộ công cụ chuyên sâu thiết kế cho môn thể thao phát triển nhanh nhất thế giới.",
       "items": {
         "tournament": {
-          "title": "Quản Lý Giải Đấu",
-          "description": "Tạo, quản lý và theo dõi giải đấu với bracket thông minh."
+          "title": "Giải đấu & Sơ đồ thi đấu",
+          "description": "Tạo nhánh đấu tự động, quản lý trọng tài, cập nhật tỷ số trực tiếp và xếp hạng."
         },
         "community": {
-          "title": "Tương Tác Cộng Đồng",
-          "description": "Kết nối người chơi, huấn luyện viên, doanh nghiệp và tổ chức giải đấu."
+          "title": "Buổi chơi & Nhóm",
+          "description": "Tổ chức buổi giao lưu dễ dàng, theo dõi thanh toán tham gia và chia sẻ chi phí tự động."
         },
         "analytics": {
-          "title": "Phân Tích Hiệu Suất",
-          "description": "Phân tích chi tiết dữ liệu trận đấu, thống kê cá nhân và xu hướng hiệu suất."
+          "title": "Thống kê phong độ",
+          "description": "Theo dõi tỷ lệ thắng, đồng bộ điểm DUPR, lịch sử trận đấu và phân tích hiệu suất."
         },
         "ai": {
-          "title": "Trợ Lý AI",
-          "description": "Nhận lời khuyên chiến lược, phân tích nâng cao và hỗ trợ quản lý từ AI."
+          "title": "Ghép trận thông minh AI",
+          "description": "Thuật toán AI ghép trình độ cân bằng, mang lại trải nghiệm thi đấu hấp dẫn cho mọi người."
         },
         "equipment": {
-          "title": "Quản Lý Thiết Bị",
-          "description": "Quản lý, kinh doanh và chia sẻ thông tin về thiết bị thể thao chuyên dụng."
+          "title": "Đặt sân & Cụm sân",
+          "description": "Đặt sân nhanh chóng, quản lý lịch làm việc của cụm sân và xem tình trạng sân trực tiếp."
         },
         "groups": {
-          "title": "Nhóm Chuyên Biệt",
-          "description": "Tạo nhóm riêng cho huấn luyện, kinh doanh và tổ chức giải đấu phù hợp nhu cầu."
+          "title": "Kết nối HLV & Học viên",
+          "description": "Tìm kiếm HLV Pickleball uy tín, đặt lịch học cá nhân và tham gia các khóa đào tạo."
         }
       },
       "footer": {
@@ -431,24 +446,44 @@
           "faq": "Câu hỏi thường gặp"
         },
         "copyright": "© {{year}} PickleHub. Bảo lưu mọi quyền."
-      }
+      },
+      "badge": "Tất cả những gì bạn cần",
+      "learnMore": "Tìm hiểu thêm"
     },
     "footer": {
-      "description": "Quản lý nhóm, chia sẻ dễ dàng.",
+      "description": "PickleHub là nền tảng số hàng đầu kết nối người chơi, huấn luyện viên, ban tổ chức và các cụm sân Pickleball.",
       "sections": {
-        "company": "Công Ty",
-        "legal": "Pháp Lý",
-        "support": "Hỗ Trợ"
+        "company": "Nền tảng",
+        "legal": "Pháp lý",
+        "support": "Hỗ trợ"
       },
       "links": {
-        "about": "Về Chúng Tôi",
-        "blog": "Blog",
-        "privacy": "Chính Sách Bảo Mật",
-        "terms": "Điều Khoản Dịch Vụ",
-        "contact": "Liên Hệ",
-        "faq": "FAQ"
+        "about": "Về chúng tôi",
+        "blog": "Blog cộng đồng",
+        "privacy": "Chính sách bảo mật",
+        "terms": "Điều khoản dịch vụ",
+        "contact": "Liên hệ",
+        "faq": "Trợ giúp & FAQ"
       },
-      "copyright": "© {{year}} PickleHub. Tất cả quyền được bảo lưu."
+      "copyright": "© {{year}} PickleHub. Bảo lưu mọi quyền."
+    },
+    "howItWorks": {
+      "badge": "Đơn giản & Nhanh chóng",
+      "title": "Cách PickleHub hoạt động",
+      "subtitle": "Ra sân và trải nghiệm chỉ với 3 bước đơn giản",
+      "stepLabel": "Bước {{number}}",
+      "step1Title": "1. Tạo tài khoản của bạn",
+      "step1Desc": "Đăng ký trong vài giây, cập nhật trình độ và thiết lập sở thích chơi.",
+      "step2Title": "2. Tham gia buổi chơi hoặc đặt sân",
+      "step2Desc": "Tìm buổi giao lưu gần bạn, tham gia trận đấu đúng trình độ hoặc đặt sân.",
+      "step3Title": "3. Thi đấu và nâng tầm trình độ",
+      "step3Desc": "Cập nhật kết quả trận đấu, nhận huy hiệu và leo bảng xếp hạng địa phương."
+    },
+    "ctaSection": {
+      "badge": "Tham gia cộng đồng ngay hôm nay",
+      "title": "Sẵn sàng nâng tầm trải nghiệm Pickleball?",
+      "description": "Tham gia cùng hàng ngàn người chơi và ban tổ chức trên PickleHub ngay hôm nay. Hoàn toàn miễn phí.",
+      "button": "Tạo tài khoản miễn phí ngay"
     }
   },
   "home": {
@@ -621,7 +656,7 @@
       "trigger": "Gửi thông báo",
       "dialog": {
         "title": "Gửi thông báo cho nhóm",
-        "description": "Gửi thông báo feed tới tất cả thành viên của nhóm \"{{name}}\""
+        "description": "Gửi thông báo feed tới tất cả thành viên của nhóm"
       },
       "validation": {
         "title": "Tiêu đề không được để trống",
@@ -1002,9 +1037,9 @@
         "studentName": "Tên",
         "studentJoinedAt": "Tham gia",
         "studentStatus": "Trạng thái",
-          "studentPayment": "Thanh toán",
-          "updateLocationSuccess": "Đã cập nhật địa điểm đặt lịch",
-          "updateLocationError": "Không thể cập nhật địa điểm đặt lịch",
+        "studentPayment": "Thanh toán",
+        "updateLocationSuccess": "Đã cập nhật địa điểm đặt lịch",
+        "updateLocationError": "Không thể cập nhật địa điểm đặt lịch",
         "pageTitle": "Chi tiết lớp học",
         "notFound": "Lớp học không tồn tại",
         "sessionCount": "{{count}} buổi",
@@ -1340,7 +1375,7 @@
       "noResults": "Không tìm thấy huấn luyện viên nào",
       "noResultsHint": "Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác.",
       "perHour": "/ giờ",
-      "noSpecialties": "Chưa cập nhật chuyên môn",
+      "noSpecialties": "",
       "verificationVerified": "Đã xác thực",
       "verificationPending": "Chờ xác thực",
       "verificationRejected": "Từ chối",

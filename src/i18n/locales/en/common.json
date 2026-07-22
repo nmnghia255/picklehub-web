@@ -6,7 +6,7 @@
     "hero": {
       "badge": "Notification center",
       "title": "Recent activity feed",
-      "description": "Keep invites, reminders, group updates, and system notices in one place."
+      "description": "Keep invites, reminders, group updates, and system notices in one place so you can act faster."
     },
     "stats": {
       "unread": {
@@ -67,7 +67,7 @@
     },
     "empty": {
       "title": "No matching notifications",
-      "description": "This filter currently has no results.",
+      "description": "This filter currently has no results. You can switch back to all notifications to review recent updates.",
       "action": "Show all notifications"
     },
     "quickActions": {
@@ -116,7 +116,7 @@
       "trigger": "Send notification",
       "dialog": {
         "title": "Send a group notification",
-        "description": "Send a feed notification to all members of the group \"{{name}}\""
+        "description": "Send a feed notification to all members of the group"
       },
       "validation": {
         "title": "Title is required",
@@ -282,10 +282,10 @@
       "dayButton": "{{date}}",
       "weekday": "{{weekday}}",
       "weekNumber": "Week {{weekNumber}}",
-    "weekNumberHeader": "Week number",
-    "errorTitle": "Unable to load calendar",
-    "errorDescription": "Something went wrong while loading your calendar.",
-    "retry": "Try again"
+      "weekNumberHeader": "Week number",
+      "errorTitle": "Unable to load calendar",
+      "errorDescription": "Something went wrong while loading your calendar.",
+      "retry": "Try again"
     },
     "errorTitle": "Unable to load calendar",
     "errorDescription": "Something went wrong while loading your calendar.",
@@ -576,43 +576,66 @@
   },
   "landing": {
     "header": {
-      "switchToLight": "Switch to light mode",
-      "switchToDark": "Switch to dark mode",
-      "themeToggle": "Toggle theme"
+      "switchToLight": "Switch to light theme",
+      "switchToDark": "Switch to dark theme",
+      "themeToggle": "Toggle theme",
+      "signIn": "Sign In",
+      "getStarted": "Get Started",
+      "features": "Features",
+      "tournaments": "Tournaments",
+      "socials": "Social Play",
+      "courts": "Courts",
+      "languageToggle": "Switch language"
     },
     "hero": {
-      "titlePrefix": "A Complete Platform For",
-      "titleHighlight": "The Pickleball Community",
-      "description": "PickleHub connects players, coaches, sports equipment businesses, and tournament organizers. With integrated AI and LLM support, the platform provides management, interaction, and advanced analytics services that create a more personalized and effective experience for every audience.",
-      "cta": "Join Now"
+      "titlePrefix": "Connect, Play & Compete in the",
+      "titleHighlight": "Pickleball Revolution",
+      "description": "The modern platform for pickleball players, hosts, and tournament directors. Organize socials, book courts, track ratings, and manage tournaments effortlessly.",
+      "cta": "Get Started Free",
+      "badge": "The Ultimate Pickleball Ecosystem",
+      "secondaryCta": "Explore Social Play",
+      "stats": {
+        "players": "Active Players",
+        "tournaments": "Tournaments",
+        "courts": "Sport Centers",
+        "rating": "User Rating"
+      },
+      "preview": {
+        "liveSocial": "Live Social Session",
+        "joinedPlayers": "12/16 Joined",
+        "duprAvg": "3.5 DUPR Avg",
+        "matchStatus": "In Progress - Court 2",
+        "score": "11 - 9",
+        "verifiedBadge": "Instant Verification"
+      }
     },
     "features": {
-      "title": "Core Features",
-      "description": "A full-service platform that supports every role in the pickleball community.",
+      "title": "Built for Players, Hosts & Tournament Directors",
+      "description": "Comprehensive tools designed specifically for the fastest-growing sport in the world.",
       "items": {
         "tournament": {
-          "title": "Tournament Management",
-          "description": "Create, manage, and track tournaments with smart brackets."
+          "title": "Tournaments & Brackets",
+          "description": "Automated double-elimination, round-robin brackets, referee management, and live match scoring."
         },
         "community": {
-          "title": "Community Interaction",
-          "description": "Connect players, coaches, businesses, and tournament organizers."
+          "title": "Social Play & Groups",
+          "description": "Easily organize social play sessions, track participant payments, and split expenses automatically."
         },
         "analytics": {
           "title": "Performance Analytics",
-          "description": "Analyze match data, personal statistics, and performance trends in detail."
+          "description": "Track win ratios, DUPR rating sync, match history, and detailed player performance metrics."
         },
         "ai": {
-          "title": "AI Assistant",
-          "description": "Get strategic guidance, advanced analysis, and management support from AI."
+          "title": "Smart Matchmaking",
+          "description": "AI-powered skill matching ensures balanced, competitive, and enjoyable play for all skill levels."
         },
         "equipment": {
-          "title": "Equipment Management",
-          "description": "Manage, sell, and share information about specialized sports equipment."
+          "title": "Court & Center Booking",
+          "description": "Reserve courts instantly, manage sport center schedules, and view real-time availability."
         },
         "groups": {
-          "title": "Specialized Groups",
-          "description": "Create dedicated groups for coaching, business, and tournament operations."
+          "title": "Learner & Coach Hub",
+          "description": "Connect with certified IPTPA coaches, book private lessons, and join training programs."
         }
       },
       "footer": {
@@ -631,22 +654,24 @@
           "faq": "FAQ"
         },
         "copyright": "© {{year}} PickleHub. All rights reserved."
-      }
+      },
+      "badge": "Everything You Need",
+      "learnMore": "Learn more"
     },
     "footer": {
-      "description": "Manage groups and share with ease.",
+      "description": "PickleHub is the premier digital platform connecting pickleball players, coaches, hosts, and sport centers.",
       "sections": {
-        "company": "Company",
+        "company": "Platform",
         "legal": "Legal",
         "support": "Support"
       },
       "links": {
         "about": "About Us",
-        "blog": "Blog",
+        "blog": "Community Blog",
         "privacy": "Privacy Policy",
         "terms": "Terms of Service",
-        "contact": "Contact",
-        "faq": "FAQ"
+        "contact": "Contact Us",
+        "faq": "Help & FAQ"
       },
       "copyright": "© {{year}} PickleHub. All rights reserved."
     },
@@ -1382,7 +1407,15 @@
       },
       "schedule": {
         "errorTitle": "Cannot load schedule",
-        "weekDays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        "weekDays": [
+          "Mon",
+          "Tue",
+          "Wed",
+          "Thu",
+          "Fri",
+          "Sat",
+          "Sun"
+        ],
         "learnerCount": "{{count}} learners",
         "noLocation": "No location",
         "emptyDay": "Empty",
@@ -2437,6 +2470,24 @@
       "sessionCardTitle": "Log Out",
       "sessionCardDesc": "Log out of this device when you are no longer using it.",
       "logoutBtn": "Log Out"
+    },
+    "howItWorks": {
+      "badge": "Simple & Fast",
+      "title": "How PickleHub Works",
+      "subtitle": "Get on the court and start playing in three simple steps",
+      "stepLabel": "Step {{number}}",
+      "step1Title": "1. Create Your Profile",
+      "step1Desc": "Sign up in seconds, set your skill rating, and customize your playing preferences.",
+      "step2Title": "2. Join Socials or Book Courts",
+      "step2Desc": "Find nearby social sessions, join matches with players at your level, or reserve courts.",
+      "step3Title": "3. Play & Elevate Your Game",
+      "step3Desc": "Log match results, earn rating badges, and climb the local leaderboard."
+    },
+    "ctaSection": {
+      "badge": "Join the Community Today",
+      "title": "Ready to Elevate Your Pickleball Experience?",
+      "description": "Join thousands of players and directors on PickleHub today. Free to get started.",
+      "button": "Create Free Account Now"
     }
   }
 }

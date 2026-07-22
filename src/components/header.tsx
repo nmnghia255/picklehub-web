@@ -1,6 +1,6 @@
 "use client"
 
-import { useQueryClient } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import {
   BellRing,
@@ -74,12 +74,35 @@ export function Header({ user }: HeaderProps) {
     }
   }
 
-  const displayName = user.email?.split("@")[0] || t("header.defaultUser")
+  const { data: userProfile } = useQuery({
+    queryKey: ["my-profile"],
+    queryFn: async () => {
+      const res = await fetch("/api/users/me")
+      if (!res.ok) return null
+      return res.json()
+    },
+    staleTime: 1000 * 60 * 5,
+  })
+
+  const activeAvatarUrl =
+    userProfile?.avatarUrl ??
+    userProfile?.avatar_url ??
+    userProfile?.avatar ??
+    user.avatarUrl ??
+    undefined
+
+  const displayName =
+    userProfile?.fullName ??
+    userProfile?.name ??
+    user.name ??
+    user.email?.split("@")[0] ??
+    t("header.defaultUser")
+
   const initials = displayName
     .split(/[\s._-]+/)
     .filter(Boolean)
     .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
+    .map((part: string) => part[0]?.toUpperCase() ?? "")
     .join("")
 
   const unreadCount = notifications.filter(
@@ -305,8 +328,8 @@ export function Header({ user }: HeaderProps) {
           <button className="flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-accent hover:text-accent-foreground">
             <Avatar size="sm">
               <AvatarImage
-                src={user.avatarUrl || undefined}
-                alt={user.name || undefined}
+                src={activeAvatarUrl || undefined}
+                alt={displayName}
               />
               <AvatarFallback className="bg-indigo-500! text-xs font-semibold text-white!">
                 {initials || "U"}
@@ -315,31 +338,6 @@ export function Header({ user }: HeaderProps) {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-auto min-w-72">
-          {/* <DropdownMenuLabel className="flex flex-col space-y-1">
-            <span className="text-sm font-medium break-all">{user.email}</span>
-            {(() => {
-              const activeSubscriptions = subscriptions?.filter(
-                (sub) => sub.status === "ACTIVE"
-              )
-              if (activeSubscriptions && activeSubscriptions.length > 0) {
-                return (
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    {activeSubscriptions.map((sub) => (
-                      <Badge
-                        key={sub.id}
-                        variant="secondary"
-                        className="w-fit border-none bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary uppercase hover:bg-primary/20"
-                      >
-                        {sub.plan.name}
-                      </Badge>
-                    ))}
-                  </div>
-                )
-              }
-              return null
-            })()}
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator /> */}
           <DropdownMenuGroup>
             <DropdownMenuItem asChild>
               <Link href="/profile">

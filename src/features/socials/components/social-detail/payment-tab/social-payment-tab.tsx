@@ -4,12 +4,15 @@ import React from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
-import { getPaymentStatusLabel } from "@/features/socials/utils"
+import {
+  getPaymentStatusLabel,
+  isActiveSocialParticipantStatus,
+} from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { getPaymentStatusTone } from "@/utils/expense-utils"
 
 import type { PlaySession } from "../../../types/play-session"
-import type { SocialDetail } from "../../../types/social"
+import type { SocialDetail, SocialParticipant } from "../../../types/social"
 import { DisplayPaymentProofCard } from "./display-payment-proof-card"
 import { JoinedSessionsSection } from "./joined-sessions-section"
 import { PaymentInformationCard } from "./payment-information-card"
@@ -23,6 +26,10 @@ export default function SocialPaymentTab({
   joinedSessions?: PlaySession[]
 }) {
   const { t } = useSocialsTranslation()
+  const isParticipant = Boolean(
+    social?.myParticipantInfo &&
+    isActiveSocialParticipantStatus(social.myParticipantInfo.status)
+  )
   const userJoinedSessionIds = social?.myParticipantInfo?.joinedSessionIds || []
   const actualJoinedSessions = (joinedSessions || []).filter((session) =>
     userJoinedSessionIds.includes(session.id)
@@ -35,22 +42,38 @@ export default function SocialPaymentTab({
 
     const { status, paymentStatus } = social.myParticipantInfo
 
-    if (status === "CONFIRMED") {
-      return {
-        text: t("payment.statusConfirmed"),
-        tone: getPaymentStatusTone("PAID"),
-      }
-    }
     if (paymentStatus === "PAID") {
       return {
         text: t("payment.statusPaidPendingConfirmation"),
-        tone: getPaymentStatusTone("partially_paid"),
+        tone: getPaymentStatusTone("PAID"),
       }
     }
+
+    if (paymentStatus === "PARTIALLY_PAID") {
+      return {
+        text: getPaymentStatusLabel("PARTIALLY_PAID", t),
+        tone: getPaymentStatusTone("PARTIALLY_PAID"),
+      }
+    }
+
     if (paymentStatus === "UNPAID") {
       return {
         text: t("payment.statusUnpaid"),
         tone: getPaymentStatusTone("UNPAID"),
+      }
+    }
+
+    if (paymentStatus === "OVERPAID") {
+      return {
+        text: getPaymentStatusLabel("OVERPAID", t),
+        tone: getPaymentStatusTone("OVERPAID"),
+      }
+    }
+
+    if (paymentStatus === "REFUNDED") {
+      return {
+        text: getPaymentStatusLabel("REFUNDED", t),
+        tone: getPaymentStatusTone("REFUNDED"),
       }
     }
 
@@ -59,6 +82,7 @@ export default function SocialPaymentTab({
       tone: getPaymentStatusTone(paymentStatus),
     }
   }
+  const isHost = social?.isHost
 
   const badgeContent = getBadgeContent()
 
@@ -73,7 +97,7 @@ export default function SocialPaymentTab({
             {t("payment.subtitle")}
           </p>
         </div>
-        {badgeContent && (
+        {badgeContent && !isHost && (
           <Badge className={badgeContent.tone}>{badgeContent.text}</Badge>
         )}
       </Card>
@@ -84,18 +108,17 @@ export default function SocialPaymentTab({
           totalFee={totalFee}
         />
         <PaymentInformationCard social={social} showEditAction={false} />
-        {social?.myParticipantInfo?.paymentStatus === "PAID" &&
-        social?.myParticipantInfo?.paymentUrl ? (
-          <DisplayPaymentProofCard
-            imageUrl={social.myParticipantInfo.paymentUrl}
-          />
-        ) : (
-          <UploadPaymentProofCard
-            socialId={social?.id}
-            amount={totalFee}
-            isDisabled={social?.myParticipantInfo?.status === "CONFIRMED"}
-          />
-        )}
+        {!isHost &&
+          (social?.myParticipantInfo?.paymentStatus === "PAID" &&
+          social?.myParticipantInfo?.paymentUrl ? (
+            <DisplayPaymentProofCard
+              imageUrl={social.myParticipantInfo.paymentUrl}
+            />
+          ) : (
+            isParticipant && (
+              <UploadPaymentProofCard socialId={social?.id} amount={totalFee} />
+            )
+          ))}
       </div>
     </div>
   )

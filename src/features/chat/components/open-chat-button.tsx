@@ -1,6 +1,6 @@
 "use client"
 
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { MessageSquare } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { ComponentProps } from "react"
@@ -10,6 +10,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 
 import { chatClient } from "../api/chat-client"
+import { chatQueryKeys } from "../api/chat-keys"
 import type { ChatApiError } from "../types"
 
 type OpenChatKind = "direct" | "group" | "social" | "tournament"
@@ -73,6 +74,7 @@ export function OpenChatButton({
 }: OpenChatButtonProps) {
   const { t } = useTranslation("common")
   const router = useRouter()
+  const queryClient = useQueryClient()
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -90,6 +92,12 @@ export function OpenChatButton({
       }
     },
     onSuccess: (conversation) => {
+      if (conversation?.id) {
+        queryClient.setQueryData(
+          chatQueryKeys.conversation(conversation.id),
+          conversation
+        )
+      }
       router.push(`/chat?conversationId=${conversation.id}`)
     },
     onError: (error) => {

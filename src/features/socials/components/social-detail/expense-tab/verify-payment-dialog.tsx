@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { verifyPaymentAction } from "@/features/socials/actions/payment-actions"
-import type { PaymentStatus } from "@/features/socials/types/payment"
+import type { TransactionStatus } from "@/features/socials/types/payment"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 interface VerifyPaymentDialogProps {
@@ -56,7 +56,7 @@ export function VerifyPaymentDialog({
   }
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (status: PaymentStatus) =>
+    mutationFn: (status: TransactionStatus) =>
       verifyPaymentAction(
         socialId,
         participantId,
@@ -79,16 +79,18 @@ export function VerifyPaymentDialog({
     },
   })
 
+  console.log("receiptUrl", receiptUrl)
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-125">
         <DialogHeader>
           <DialogTitle>{t("expenses.verifyPaymentDialog.title")}</DialogTitle>
           <DialogDescription>
             {t("expenses.verifyPaymentDialog.description")}
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-4 pt-4">
           {receiptUrl ? (
             <div className="flex justify-center">
               <img
@@ -126,18 +128,18 @@ export function VerifyPaymentDialog({
           </Button>
           <Button
             variant="outline"
-            onClick={() => mutate("UNPAID")}
+            onClick={() => mutate("REJECTED")}
             disabled={isPending}
             className="text-destructive hover:bg-destructive/10 hover:text-destructive"
           >
             {t("expenses.verifyPaymentDialog.reject")}
           </Button>
           <Button
-            onClick={() => mutate("PAID")}
+            onClick={() => mutate("CONFIRMED")}
             disabled={isPending || !amountPaid}
           >
             {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-            {t("expenses.verifyPaymentDialog.approve")}
+            {t("expenses.verifyPaymentDialog.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import { isConfirmedLikeSocialParticipantStatus } from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import { listExpensesAction } from "../../../actions/expense-actions"
@@ -67,7 +68,33 @@ export default function SocialExpenseTab({
     return <SocialExpenseTabSkeleton />
   }
 
-  const collectionProgress = summary.collectionProgress
+  const totalCourtBookingsCost = courtBookingRows.reduce(
+    (acc, curr) => acc + curr.bookingCost,
+    0
+  )
+  const totalExtraExpensesCost = manualExpenseRows.reduce(
+    (acc, curr) => acc + curr.amount,
+    0
+  )
+  const calculatedTotalExpense =
+    totalCourtBookingsCost > 0 || totalExtraExpensesCost > 0
+      ? totalCourtBookingsCost + totalExtraExpensesCost
+      : summary.totalExpense
+
+  const collectionProgress =
+    calculatedTotalExpense > 0
+      ? Math.min(
+          100,
+          Math.round((summary.collectedAmount / calculatedTotalExpense) * 100)
+        )
+      : summary.collectionProgress
+
+  const confirmedParticipantsCount =
+    initialParticipants.length > 0
+      ? initialParticipants.filter((p) =>
+          isConfirmedLikeSocialParticipantStatus(p.status)
+        ).length
+      : summary.participants.joinedCount
 
   return (
     <div className="space-y-6">
@@ -103,17 +130,9 @@ export default function SocialExpenseTab({
         {/* Expense Summary */}
         <CardContent className="space-y-5 p-6">
           <ExpenseSummaryGrid
-            totalCourtExpense={summary.totalExpense}
-            confirmedParticipants={summary.participants.joinedCount}
-            extraExpense={
-              courtBookingRows.length > 0
-                ? summary.totalExpense -
-                  courtBookingRows.reduce(
-                    (acc, curr) => acc + curr.bookingCost,
-                    0
-                  )
-                : 0
-            }
+            totalExpense={calculatedTotalExpense}
+            confirmedParticipants={confirmedParticipantsCount}
+            extraExpense={totalExtraExpensesCost}
             paidMembers={summary.paidMembersCount}
             collectedAmount={summary.collectedAmount}
             outstandingAmount={summary.outstandingAmount}

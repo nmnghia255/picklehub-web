@@ -1,4 +1,10 @@
-import type { PaymentStatus } from "./payment"
+import type { TransactionStatus } from "./payment"
+
+export type PlaySessionStatus =
+  | "ACTIVE"
+  | "COMPLETED"
+  | "IN_PROGRESS "
+  | "CANCELLED"
 
 export interface PlaySession {
   id: string
@@ -36,7 +42,7 @@ export interface ParticipantPayment {
   socialParticipantId: string
   amount: number
   receiptUrl: string | null
-  status: PaymentStatus
+  status: TransactionStatus
   transactionType: string
   createdById: string
   verifiedById: string

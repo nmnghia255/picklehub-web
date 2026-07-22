@@ -220,21 +220,21 @@ export default function PlaySessionDetail({
           <Card className="p-0">
             <CardContent className="space-y-4 p-0">
               <div className="px-6 pt-4">
-                <div className="inline-flex rounded-lg border border-border bg-background p-1 text-sm">
+                <div className="inline-flex rounded-lg border border-border bg-background p-1 text-sm font-medium">
                   <button
-                    className={`rounded-md px-3 py-1.5 ${tabValue === "0" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                    className={`rounded-md px-3 py-1.5 transition-colors ${tabValue === "0" ? "bg-emerald-600 text-white shadow-xs" : "text-muted-foreground hover:text-foreground"}`}
                     onClick={() => setTabValue("0")}
                   >
                     {t("detail.overview")}
                   </button>
                   <button
-                    className={`rounded-md px-3 py-1.5 ${tabValue === "1" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                    className={`rounded-md px-3 py-1.5 transition-colors ${tabValue === "1" ? "bg-emerald-600 text-white shadow-xs" : "text-muted-foreground hover:text-foreground"}`}
                     onClick={() => setTabValue("1")}
                   >
                     {t("detail.participants")}
                   </button>
                   <button
-                    className={`rounded-md px-3 py-1.5 ${tabValue === "2" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                    className={`rounded-md px-3 py-1.5 transition-colors ${tabValue === "2" ? "bg-emerald-600 text-white shadow-xs" : "text-muted-foreground hover:text-foreground"}`}
                     onClick={() => setTabValue("2")}
                   >
                     {t("matches.title")}

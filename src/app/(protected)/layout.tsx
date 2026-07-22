@@ -29,12 +29,18 @@ export default async function ProtectedLayout({
   let headerUser: SessionUser = session.user
   try {
     const profile = await getMyProfile()
+    const rawAvatar =
+      profile.avatarUrl ??
+      (profile as unknown as Record<string, string>).avatar_url ??
+      (profile as unknown as Record<string, string>).avatar ??
+      session.user.avatarUrl
+
     headerUser = {
       id: profile.id,
       email: profile.email ?? session.user.email,
       name: profile.fullName ?? profile.name ?? session.user.name,
       phoneNumber: profile.phoneNumber ?? session.user.phoneNumber,
-      avatarUrl: profile.avatarUrl ?? session.user.avatarUrl,
+      avatarUrl: rawAvatar ?? null,
     }
   } catch (err) {
     if (err instanceof Error && err.message === "Session expired") {
