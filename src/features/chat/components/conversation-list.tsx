@@ -53,6 +53,7 @@ export function ConversationList({
 }: ConversationListProps) {
   const { t } = useTranslation("common")
   const loadMoreRef = useRef<HTMLDivElement>(null)
+  const viewportRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const target = loadMoreRef.current
@@ -68,7 +69,7 @@ export function ConversationList({
           onLoadMore()
         }
       },
-      { rootMargin: "240px 0px" }
+      { root: viewportRef.current, rootMargin: "240px 0px" }
     )
     observer.observe(target)
     return () => observer.disconnect()
@@ -130,7 +131,7 @@ export function ConversationList({
           </div>
         </div>
       ) : (
-        <ScrollArea className="min-h-0 flex-1">
+        <ScrollArea className="min-h-0 flex-1" viewportRef={viewportRef}>
           <div className="min-h-full">
             {isLoading ? (
               <div className="space-y-3 p-4">

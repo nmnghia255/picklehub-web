@@ -979,11 +979,12 @@ export function ChatArea({
         </div>
       </div>
 
-      <ScrollArea className="min-h-0 flex-1" onScrollCapture={handleScroll}>
-        <div
-          ref={scrollAreaRef}
-          className="flex min-h-full flex-col gap-4 px-4 py-4"
-        >
+      <ScrollArea
+        className="min-h-0 flex-1"
+        onScrollCapture={handleScroll}
+        viewportRef={scrollAreaRef}
+      >
+        <div className="flex min-h-full flex-col gap-4 px-4 py-4">
           {messagesQuery.isLoading || conversationQuery.isLoading ? (
             <div className="space-y-3">
               {Array.from({ length: 6 }).map((_, index) => (

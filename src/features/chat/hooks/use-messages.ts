@@ -39,9 +39,9 @@ export function useMessages(
       if (normalizedSearch) return undefined
       if (!lastPage.meta.nextBefore) return undefined
       if (
-        allPages.some(
-          (page) => page.meta.nextBefore === lastPage.meta.nextBefore
-        )
+        allPages
+          .slice(0, -1)
+          .some((page) => page.meta.nextBefore === lastPage.meta.nextBefore)
       ) {
         return undefined
       }

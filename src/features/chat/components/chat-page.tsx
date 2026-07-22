@@ -29,7 +29,7 @@ export function ChatPage() {
   const queryClient = useQueryClient()
   const isMobile = useIsMobile()
   const [search, setSearch] = useState("")
-  const conversationsQuery = useConversations(20, Boolean(session?.accessToken))
+  const conversationsQuery = useConversations(10, Boolean(session?.accessToken))
 
   const conversations = useMemo(
     () => flattenConversations(conversationsQuery.data?.pages),
