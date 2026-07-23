@@ -218,6 +218,7 @@ export function EventManagement({
   }
 
   const canManageEvents = isEditable && tournament?.status === "draft"
+  const canManagePrizes = isEditable && tournament?.status !== "completed"
   const canAwardEventPrizes = isEditable && tournament?.status === "completed"
 
   return (
@@ -271,7 +272,7 @@ export function EventManagement({
         <EventPrizes
           selectedEvent={selectedEvent}
           selectedEventPrizes={selectedEventPrizes}
-          canManageEvents={canManageEvents}
+          canManageEvents={canManagePrizes}
           onConfigurePrizesClick={() => setIsPrizeDialogOpen(true)}
         />
 

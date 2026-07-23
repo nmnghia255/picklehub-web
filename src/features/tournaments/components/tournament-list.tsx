@@ -305,7 +305,7 @@ export function TournamentList({
                 <Card
                   key={tournament.id}
                   onClick={() => handleNavigation(tournament)}
-                  className="cursor-pointer overflow-hidden border py-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-zinc-800"
+                  className="cursor-pointer gap-2 overflow-hidden border py-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-zinc-800"
                 >
                   <div className="relative aspect-video overflow-hidden bg-gray-200 dark:bg-zinc-800">
                     <img

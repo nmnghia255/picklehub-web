@@ -181,19 +181,19 @@ export function AppSidebar() {
                         asChild
                         isActive={isActivePath(pathname, item.href, allHrefs)}
                         tooltip={t(`sidebar.${item.titleKey}`)}
-                        className="h-10 rounded-xl px-3 text-slate-700 transition-all duration-200 hover:bg-slate-100 data-[active=true]:bg-emerald-600! data-[active=true]:text-white! data-[active=true]:shadow-xs data-[active=true]:hover:bg-emerald-700! data-[active=true]:hover:text-white! dark:text-zinc-300 dark:hover:bg-zinc-900 [&>span:last-child]:truncate [&>svg]:size-[18px] [&>svg]:shrink-0"
+                        className="h-10 rounded-xl px-3 text-slate-700 transition-all duration-200 group-data-[collapsible=icon]:justify-center! group-data-[collapsible=icon]:p-0! hover:bg-slate-100 data-[active=true]:bg-emerald-600! data-[active=true]:text-white! data-[active=true]:shadow-xs data-[active=true]:hover:bg-emerald-700! data-[active=true]:hover:text-white! dark:text-zinc-300 dark:hover:bg-zinc-900"
                       >
                         <Link
                           href={item.href}
-                          className="flex w-full items-center"
+                          className="flex w-full items-center gap-3 group-data-[collapsible=icon]:justify-center"
                         >
                           <span className="relative inline-flex shrink-0 items-center justify-center">
-                            <item.icon className="size-[18px]" />
+                            <item.icon className="size-4.5" />
                             {item.href === "/feed" && unreadCount > 0 && (
                               <span className="ring-sidebar-background absolute -top-1 -right-1 size-2 rounded-full bg-red-500 ring-2" />
                             )}
                           </span>
-                          <span className="ml-3 flex-1 truncate">
+                          <span className="flex-1 truncate group-data-[collapsible=icon]:hidden">
                             {t(`sidebar.${item.titleKey}`)}
                           </span>
                           {item.href === "/feed" && unreadCount > 0 && (

@@ -245,9 +245,9 @@ export function EventPrizeDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[700px]">
+      <DialogContent className="max-h-[85vh] overflow-y-auto py-0 sm:max-w-[700px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">
+          <DialogTitle className="pt-4 text-xl font-bold">
             {t("create.step4.dialogTitle", {
               eventName,
               defaultValue: `Configure Prizes — ${eventName}`,
@@ -363,7 +363,7 @@ export function EventPrizeDialog({
           })}
         </div>
 
-        <DialogFooter className="border-t pt-4">
+        <DialogFooter className="border-t py-4">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
