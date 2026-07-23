@@ -325,8 +325,12 @@ export function GroupActivitySchedulePage({
                     event.attendingMemberCount !== undefined ||
                     event.attendingGuestCount !== undefined
                   ) {
-                    const mCount = event.attendingMemberCount ?? 0
-                    const gCount = event.attendingGuestCount ?? 0
+                    const mCount = Number.isFinite(event.attendingMemberCount)
+                      ? (event.attendingMemberCount ?? 0)
+                      : 0
+                    const gCount = Number.isFinite(event.attendingGuestCount)
+                      ? (event.attendingGuestCount ?? 0)
+                      : 0
                     if (gCount > 0) {
                       return t(
                         "activitySchedule.participantsSummaryShort",
@@ -336,8 +340,8 @@ export function GroupActivitySchedulePage({
                     }
                     return t(
                       "activitySchedule.participantsSummaryMembersOnly",
-                      "{{members}} members",
-                      { members: mCount }
+                      "{{count}} members",
+                      { count: mCount }
                     )
                   }
                   const attendance = event.attendance ?? []
@@ -347,13 +351,24 @@ export function GroupActivitySchedulePage({
                   const mCount = attending.length
                   const gCount = attending.reduce(
                     (sum, a) =>
-                      sum + (a.guestStatus === "APPROVED" ? a.guestCount : 0),
+                      sum +
+                      (a.guestStatus === "APPROVED" &&
+                      Number.isFinite(a.guestCount)
+                        ? a.guestCount
+                        : 0),
                     0
                   )
+                  if (gCount > 0) {
+                    return t(
+                      "activitySchedule.participantsSummaryShort",
+                      "{{members}} members + {{guests}} guests",
+                      { members: mCount, guests: gCount }
+                    )
+                  }
                   return t(
-                    "activitySchedule.participantsSummaryTotal",
-                    "{{total}} participants",
-                    { total: mCount + gCount }
+                    "activitySchedule.participantsSummaryMembersOnly",
+                    "{{count}} members",
+                    { count: mCount }
                   )
                 })()
 
@@ -584,8 +599,16 @@ export function GroupActivitySchedulePage({
                           event.attendingMemberCount !== undefined ||
                           event.attendingGuestCount !== undefined
                         ) {
-                          const mCount = event.attendingMemberCount ?? 0
-                          const gCount = event.attendingGuestCount ?? 0
+                          const mCount = Number.isFinite(
+                            event.attendingMemberCount
+                          )
+                            ? (event.attendingMemberCount ?? 0)
+                            : 0
+                          const gCount = Number.isFinite(
+                            event.attendingGuestCount
+                          )
+                            ? (event.attendingGuestCount ?? 0)
+                            : 0
                           if (gCount > 0) {
                             return t(
                               "activitySchedule.participantsSummaryShort",
@@ -595,8 +618,8 @@ export function GroupActivitySchedulePage({
                           }
                           return t(
                             "activitySchedule.participantsSummaryMembersOnly",
-                            "{{members}} members",
-                            { members: mCount }
+                            "{{count}} members",
+                            { count: mCount }
                           )
                         }
                         const attendance = event.attendance ?? []
@@ -607,13 +630,23 @@ export function GroupActivitySchedulePage({
                         const gCount = attending.reduce(
                           (sum, a) =>
                             sum +
-                            (a.guestStatus === "APPROVED" ? a.guestCount : 0),
+                            (a.guestStatus === "APPROVED" &&
+                            Number.isFinite(a.guestCount)
+                              ? a.guestCount
+                              : 0),
                           0
                         )
+                        if (gCount > 0) {
+                          return t(
+                            "activitySchedule.participantsSummaryShort",
+                            "{{members}} members + {{guests}} guests",
+                            { members: mCount, guests: gCount }
+                          )
+                        }
                         return t(
-                          "activitySchedule.participantsSummaryTotal",
-                          "{{total}} participants",
-                          { total: mCount + gCount }
+                          "activitySchedule.participantsSummaryMembersOnly",
+                          "{{count}} members",
+                          { count: mCount }
                         )
                       })()
 

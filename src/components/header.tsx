@@ -160,12 +160,14 @@ export function Header({ user }: HeaderProps) {
             variant="ghost"
             size="icon"
             title={t("header.notifications")}
-            className="relative"
+            className="relative overflow-visible"
           >
-            <BellRing className="size-4" />
-            {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-red-500 ring-2 ring-background" />
-            )}
+            <span className="relative flex size-full items-center justify-center overflow-visible">
+              <BellRing className="size-4 shrink-0" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-red-500 ring-2 ring-background" />
+              )}
+            </span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-88 p-0">
