@@ -42,7 +42,14 @@ export default function SocialPaymentTab({
 
     const { paymentStatus, paymentUrl } = social.myParticipantInfo
 
-    if (paymentStatus === "PAID" || paymentUrl) {
+    if (paymentStatus === "UNPAID" && paymentUrl) {
+      return {
+        text: t("payment.statusPaidButNotConfirmed"),
+        tone: getPaymentStatusTone("PAID"),
+      }
+    }
+
+    if (paymentStatus === "PAID") {
       return {
         text: t("payment.statusPaid"),
         tone: getPaymentStatusTone("PAID"),

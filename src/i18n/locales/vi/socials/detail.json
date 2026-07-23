@@ -350,6 +350,7 @@
         "uploadAnother": "Tải lên ảnh khác",
         "statusConfirmed": "Đã thanh toán",
         "statusPaid": "Đã thanh toán",
+        "statusPaidButNotConfirmed": "Đã thanh toán nhưng chờ xác nhận",
         "statusUnpaid": "Chưa thanh toán",
         "previewAlt": "Ảnh xem trước minh chứng đã chọn"
     },

@@ -307,9 +307,11 @@ export async function acceptRefereeInvitationAction(
   token: string
 ): Promise<AcceptRefereeInvitationActionState> {
   try {
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL || ""
+    const API_BASE_URL = (
+      process.env.NEXT_PUBLIC_API_GATEWAY_URL || ""
+    ).replace(/\/+$/, "")
     const response = await axios.post(
-      `${API_BASE_URL}/api/referee-invitations/${token}/accept`
+      `${API_BASE_URL}/api/tournaments/referees/invitations/${token}/accept`
     )
 
     const rawData = response.data
@@ -322,10 +324,9 @@ export async function acceptRefereeInvitationAction(
         : rawData
     ) as AcceptInvitationResponseDto
 
-    console.log("acceptRefereeInvitationAction response data:", data)
-
-    const userId = data?.userId?.id || ""
-    const email = data?.userId?.email || ""
+    const userObj = data?.userId
+    const userId = userObj?.id || ""
+    const email = userObj?.email || ""
     const accessToken = data?.accessToken || ""
     const refreshToken = data?.refreshToken
     const tournamentId = data?.tournament?.id

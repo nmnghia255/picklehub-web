@@ -352,7 +352,8 @@
     "joinedSessions": "Joined sessions",
     "joinedSessionsDescription": "List of sessions you have joined",
     "previewAlt": "Selected proof preview",
-    "statusPaid": "Paid"
+    "statusPaid": "Paid",
+    "statusPaidButNotConfirmed": "Paid, wait to comfirm"
   },
   "statistics": {
     "tab": "Statistics",

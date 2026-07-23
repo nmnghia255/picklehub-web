@@ -39,8 +39,43 @@ function extractReplyText(data: unknown): string {
     if (typeof obj.answer === "string" && obj.answer) return obj.answer
     if (typeof obj.response === "string" && obj.response) return obj.response
     if (typeof obj.result === "string" && obj.result) return obj.result
+    if (typeof obj.output === "string" && obj.output) return obj.output
+    if (typeof obj.delta === "string" && obj.delta) return obj.delta
+
+    if (obj.data) {
+      const nested = extractReplyText(obj.data)
+      if (nested) return nested
+    }
+
+    if (Array.isArray(obj.choices) && obj.choices.length > 0) {
+      const firstChoice = obj.choices[0]
+      if (typeof firstChoice === "string") return firstChoice
+      if (typeof firstChoice === "object" && firstChoice) {
+        const nestedChoice = extractReplyText(firstChoice)
+        if (nestedChoice) return nestedChoice
+      }
+    }
+
+    if (obj.delta && typeof obj.delta === "object") {
+      const nestedDelta = extractReplyText(obj.delta)
+      if (nestedDelta) return nestedDelta
+    }
   }
   return ""
+}
+
+function extractSources(data: unknown): string[] {
+  if (!data || typeof data !== "object") return []
+  const obj = data as Record<string, unknown>
+  if (Array.isArray(obj.sources)) {
+    return obj.sources.filter(
+      (s): s is string => typeof s === "string" && s.trim().length > 0
+    )
+  }
+  if (obj.data && typeof obj.data === "object") {
+    return extractSources(obj.data)
+  }
+  return []
 }
 
 export function ChatBot() {
@@ -224,10 +259,6 @@ export function ChatBot() {
             "Giải thích luật hai lần nảy (Double-Bounce) trong Pickleball.",
         },
         {
-          label: "Kitchen (Non-Volley Zone) là gì?",
-          prompt: "Vùng Kitchen (Non-Volley Zone) là gì và quy định thế nào?",
-        },
-        {
           label: "Hướng dẫn chọn vợt Pickleball",
           prompt: "Làm thế nào để chọn vợt Pickleball phù hợp cho người mới?",
         },
@@ -242,17 +273,13 @@ export function ChatBot() {
           prompt: "Explain the double-bounce rule in Pickleball.",
         },
         {
-          label: "What is the Kitchen?",
+          label: "How to Choose a Pickleball Paddle",
+          prompt: "How do I choose the right Pickleball paddle for beginners?",
+        },
+        {
+          label: "Effective Dinking Techniques",
           prompt:
-            "What is the Kitchen (Non-Volley Zone) and what are its rules?",
-        },
-        {
-          label: "How to Choose a Paddle",
-          prompt: "How do I choose the right Pickleball paddle for a beginner?",
-        },
-        {
-          label: "Dinking Technique Tips",
-          prompt: "Give me some tips and drills to improve my dinking.",
+            "Give me some tips and drills to improve my dinking technique.",
         },
       ]
 
@@ -330,15 +357,21 @@ export function ChatBot() {
           throw new Error(errMsg)
         }
 
-        let replyText = ""
-        if (parsed.success && parsed.data) {
-          replyText = extractReplyText(parsed.data)
-        }
-        if (!replyText) {
-          replyText = extractReplyText(parsed)
+        const replyText = extractReplyText(parsed)
+        const sources = extractSources(parsed)
+
+        let finalContent = replyText
+        if (
+          sources.length > 0 &&
+          finalContent &&
+          !finalContent.includes(sources[0])
+        ) {
+          const sourcesLabel = isVi ? "Nguồn tham khảo" : "Sources"
+          const formattedSources = sources.map((s) => `- ${s}`).join("\n")
+          finalContent = `${finalContent}\n\n📌 **${sourcesLabel}:**\n${formattedSources}`
         }
 
-        const cleanedReply = replyText
+        const cleanedReply = finalContent
           .replace(/<!--\s*SOURCES:[\s\S]*?-->/gi, "")
           .trim()
 
@@ -369,6 +402,7 @@ export function ChatBot() {
       }
 
       const decoder = new TextDecoder()
+      let capturedSources: string[] = []
 
       while (true) {
         const { done, value } = await reader.read()
@@ -388,7 +422,13 @@ export function ChatBot() {
             dataStr = trimmed.slice(5).trim()
           }
 
-          if (dataStr === "[DONE]") continue
+          if (
+            dataStr === "[DONE]" ||
+            dataStr.startsWith(":") ||
+            dataStr.startsWith("event:")
+          ) {
+            continue
+          }
 
           try {
             const parsed = JSON.parse(dataStr)
@@ -403,15 +443,14 @@ export function ChatBot() {
               throw new Error(errMsg)
             }
 
-            let textChunk = ""
-            if (parsed.success && parsed.data) {
-              textChunk = extractReplyText(parsed.data)
+            const textChunk = extractReplyText(parsed)
+            if (textChunk) {
+              accumulatedReplyRef.current += textChunk
             }
-            if (!textChunk) {
-              textChunk = extractReplyText(parsed)
+            const s = extractSources(parsed)
+            if (s.length > 0) {
+              capturedSources = Array.from(new Set([...capturedSources, ...s]))
             }
-
-            accumulatedReplyRef.current += textChunk
           } catch (e) {
             if (e instanceof Error && e.message.includes("AI")) {
               throw e
@@ -437,24 +476,34 @@ export function ChatBot() {
         )
       }
 
-      const finalReplyText = accumulatedReplyRef.current
+      let finalReplyText = accumulatedReplyRef.current
         .replace(/<!--\s*SOURCES:[\s\S]*?-->/gi, "")
         .trim()
 
-      if (!finalReplyText) {
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === assistantMessageId
-              ? {
-                  ...msg,
-                  content: isVi
-                    ? "Không nhận được phản hồi từ dịch vụ AI."
-                    : "No response received from AI service.",
-                }
-              : msg
-          )
-        )
+      if (
+        capturedSources.length > 0 &&
+        finalReplyText &&
+        !finalReplyText.includes(capturedSources[0])
+      ) {
+        const sourcesLabel = isVi ? "Nguồn tham khảo" : "Sources"
+        const formattedSources = capturedSources.map((s) => `- ${s}`).join("\n")
+        finalReplyText = `${finalReplyText}\n\n📌 **${sourcesLabel}:**\n${formattedSources}`
       }
+
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantMessageId
+            ? {
+                ...msg,
+                content:
+                  finalReplyText ||
+                  (isVi
+                    ? "Không nhận được phản hồi từ AI."
+                    : "No response received from AI."),
+              }
+            : msg
+        )
+      )
     } catch (err) {
       console.error("Chatbot response error:", err)
       const errorMsg = err instanceof Error ? err.message : String(err)
