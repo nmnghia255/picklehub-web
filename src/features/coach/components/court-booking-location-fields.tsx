@@ -201,8 +201,6 @@ export function CourtBookingLocationFields({
     if (mode === "free-text") {
       if (courtBookingId) onCourtBookingIdChange("")
       if (courtId) onCourtIdChange("")
-      onBookingSelectionChange?.(null)
-      onBookingItemSelectionChange?.(null)
       return
     }
 
@@ -250,6 +248,8 @@ export function CourtBookingLocationFields({
     if (nextMode === "free-text") {
       onCourtBookingIdChange("")
       onCourtIdChange("")
+      onBookingSelectionChange?.(null)
+      onBookingItemSelectionChange?.(null)
       onModeChange(nextMode)
       return
     }

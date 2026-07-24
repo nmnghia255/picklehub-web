@@ -1885,17 +1885,27 @@ export default function CoachClassDetailPage() {
                           const isToday = isSameDay(day, new Date())
                           const isPast =
                             day < new Date(new Date().toDateString())
+                          const classStartKey = startDate
+                            ? getBookingDateKey(startDate)
+                            : null
+                          const classEndKey = endDate
+                            ? getBookingDateKey(endDate)
+                            : null
+                          const isOutsideClassRange =
+                            (classStartKey !== null && key < classStartKey) ||
+                            (classEndKey !== null && key > classEndKey)
+                          const isDisabled = isPast || isOutsideClassRange
 
                           return (
                             <button
                               key={key}
                               type="button"
-                              disabled={isPast}
+                              disabled={isDisabled}
                               onClick={() => setScheduleDate(day)}
                               className={`rounded-lg px-2 py-2 text-sm transition ${
                                 !isCurrentMonth
                                   ? "text-muted-foreground/40"
-                                  : isPast
+                                  : isDisabled
                                     ? "cursor-not-allowed text-muted-foreground/30"
                                     : isSelected
                                       ? "bg-primary font-semibold text-primary-foreground"
