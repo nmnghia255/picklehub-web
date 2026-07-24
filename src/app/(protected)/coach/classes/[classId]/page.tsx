@@ -75,6 +75,11 @@ import { useSession } from "@/features/auth/hooks/use-session"
 import { CoachMediaService } from "@/features/coach/api/media-service"
 import { CourtBookingLocationFields } from "@/features/coach/components/court-booking-location-fields"
 import {
+  type CourtBookingCourtSelection,
+  type CourtBookingSelection as CourtBookingSelectionData,
+  getBookingDateKey,
+} from "@/features/coach/hooks/use-coach-court-bookings"
+import {
   useAddScheduleSlot,
   useCancelClass,
   useClassEnrollments,
@@ -120,6 +125,21 @@ const paymentStatusVariant: Record<
 }
 
 const durationOptions = [30, 60, 90, 120]
+
+function dateKeyToLocalDate(dateKey: string) {
+  const [year, month, day] = dateKey.split("-").map(Number)
+  return new Date(year, month - 1, day)
+}
+
+function dateKeyToDayNumber(dateKey: string) {
+  const [year, month, day] = dateKey.split("-").map(Number)
+  return Date.UTC(year, month - 1, day)
+}
+
+function getTimeMinutes(time: string) {
+  const [hours, minutes] = time.split(":").map(Number)
+  return hours * 60 + minutes
+}
 
 function getClassStatusLabel(
   t: (key: string, options?: Record<string, unknown>) => string
@@ -266,6 +286,10 @@ export default function CoachClassDetailPage() {
   >("free-text")
   const [scheduleCourtBookingId, setScheduleCourtBookingId] = useState("")
   const [scheduleCourtId, setScheduleCourtId] = useState("")
+  const [scheduleBookingSelection, setScheduleBookingSelection] =
+    useState<CourtBookingSelectionData | null>(null)
+  const [scheduleBookingItemSelection, setScheduleBookingItemSelection] =
+    useState<CourtBookingCourtSelection | null>(null)
   const [scheduleLocationDescription, setScheduleLocationDescription] =
     useState("")
   const [scheduleCalendarMonth, setScheduleCalendarMonth] = useState(() =>
@@ -539,10 +563,102 @@ export default function CoachClassDetailPage() {
     })
   }
 
+  const handleScheduleBookingSelection = (
+    booking: CourtBookingSelectionData | null
+  ) => {
+    setScheduleBookingSelection(booking)
+    setScheduleBookingItemSelection(booking?.bookingItems[0] ?? null)
+    if (!booking) {
+      setScheduleDate(null)
+      setScheduleTime("09:00")
+      setScheduleDuration(60)
+      return
+    }
+
+    const bookingDateKey = getBookingDateKey(booking.date)
+    const bookingItem =
+      booking.bookingItems.find((item) => item.courtId === scheduleCourtId) ??
+      booking.bookingItems[0]
+    if (!bookingDateKey || !bookingItem) return
+
+    setScheduleDate(dateKeyToLocalDate(bookingDateKey))
+    setScheduleTime(bookingItem.startTime)
+    setScheduleDuration(
+      getTimeMinutes(bookingItem.endTime) -
+        getTimeMinutes(bookingItem.startTime)
+    )
+    setScheduleCalendarMonth(startOfMonth(dateKeyToLocalDate(bookingDateKey)))
+  }
+
+  const handleScheduleBookingItemSelection = (
+    bookingItem: CourtBookingCourtSelection | null
+  ) => {
+    setScheduleBookingItemSelection(bookingItem)
+    if (!bookingItem) return
+
+    setScheduleTime(bookingItem.startTime)
+    setScheduleDuration(
+      getTimeMinutes(bookingItem.endTime) -
+        getTimeMinutes(bookingItem.startTime)
+    )
+  }
+
   const handleAddSchedule = () => {
-    if (!scheduleDate || !scheduleTime) return
-    const [hours, minutes] = scheduleTime.split(":").map(Number)
-    const scheduledAt = new Date(scheduleDate)
+    const isLinkedBooking = scheduleLocationMode === "court"
+
+    if (
+      isLinkedBooking &&
+      (!scheduleBookingSelection ||
+        scheduleBookingSelection.status !== "CONFIRMED" ||
+        scheduleBookingSelection.id !== scheduleCourtBookingId ||
+        !scheduleBookingSelection.bookingItems.some(
+          (item) => item.courtId === scheduleCourtId
+        ))
+    ) {
+      toast.error(t("coach.courtBookingSelector.bookingRequired"))
+      return
+    }
+
+    const bookingDateKey = scheduleBookingSelection
+      ? getBookingDateKey(scheduleBookingSelection.date)
+      : null
+    const selectedDateKey =
+      bookingDateKey ??
+      (scheduleDate ? format(scheduleDate, "yyyy-MM-dd") : null)
+    if (!selectedDateKey || !scheduleTime) {
+      toast.error(t("coach.classes.detail.selectDateHint"))
+      return
+    }
+
+    const classStartDay = startDate ? dateKeyToDayNumber(startDate) : null
+    const classEndDay = endDate ? dateKeyToDayNumber(endDate) : null
+    const selectedDay = dateKeyToDayNumber(selectedDateKey)
+    if (
+      (classStartDay !== null && selectedDay < classStartDay) ||
+      (classEndDay !== null && selectedDay > classEndDay)
+    ) {
+      toast.error(t("coach.courtBookingSelector.bookingOutsideClassRange"))
+      return
+    }
+
+    const bookingItem =
+      scheduleBookingItemSelection?.courtId === scheduleCourtId
+        ? scheduleBookingItemSelection
+        : (scheduleBookingSelection?.bookingItems.find(
+            (item) => item.courtId === scheduleCourtId
+          ) ?? scheduleBookingSelection?.bookingItems[0])
+    const effectiveStartTime = bookingItem?.startTime ?? scheduleTime
+    const effectiveEndTime = bookingItem?.endTime
+    const durationMinutes = effectiveEndTime
+      ? getTimeMinutes(effectiveEndTime) - getTimeMinutes(effectiveStartTime)
+      : scheduleDuration
+    if (!Number.isFinite(durationMinutes) || durationMinutes <= 0) {
+      toast.error(t("coach.courtBookingSelector.invalidBookingTime"))
+      return
+    }
+
+    const scheduledAt = dateKeyToLocalDate(selectedDateKey)
+    const [hours, minutes] = effectiveStartTime.split(":").map(Number)
     scheduledAt.setHours(hours, minutes, 0, 0)
 
     if (scheduleLocationMode === "court" && !scheduleCourtBookingId) {
@@ -565,7 +681,7 @@ export default function CoachClassDetailPage() {
 
     const baseDto = {
       scheduledAt: scheduledAt.toISOString(),
-      durationMinutes: scheduleDuration,
+      durationMinutes,
       topic: scheduleTopic || undefined,
       note: scheduleNote || undefined,
     }
@@ -597,6 +713,8 @@ export default function CoachClassDetailPage() {
           setScheduleLocationMode("free-text")
           setScheduleCourtBookingId("")
           setScheduleCourtId("")
+          setScheduleBookingSelection(null)
+          setScheduleBookingItemSelection(null)
           setScheduleLocationDescription("")
           setScheduleCalendarMonth(startOfMonth(new Date()))
         },
@@ -1678,6 +1796,8 @@ export default function CoachClassDetailPage() {
                 setScheduleLocationMode("free-text")
                 setScheduleCourtBookingId("")
                 setScheduleCourtId("")
+                setScheduleBookingSelection(null)
+                setScheduleBookingItemSelection(null)
                 setScheduleLocationDescription("")
                 setScheduleCalendarMonth(startOfMonth(new Date()))
               }
@@ -1703,85 +1823,97 @@ export default function CoachClassDetailPage() {
                   onCourtIdChange={setScheduleCourtId}
                   locationDescription={scheduleLocationDescription}
                   onLocationDescriptionChange={setScheduleLocationDescription}
+                  dateRange={{ startDate, endDate }}
+                  onBookingSelectionChange={handleScheduleBookingSelection}
+                  onBookingItemSelectionChange={
+                    handleScheduleBookingItemSelection
+                  }
                   disabled={addScheduleSlot.isPending}
                 />
 
-                <div className="space-y-3">
-                  <CalendarNavigation
-                    currentDate={scheduleCalendarMonth}
-                    onMonthChange={(month) =>
-                      setScheduleCalendarMonth(
-                        (prev) => new Date(prev.getFullYear(), month, 1)
-                      )
-                    }
-                    onYearChange={(year) =>
-                      setScheduleCalendarMonth(
-                        (prev) => new Date(year, prev.getMonth(), 1)
-                      )
-                    }
-                    onPrevMonth={() =>
-                      setScheduleCalendarMonth((prev) => subMonths(prev, 1))
-                    }
-                    onNextMonth={() =>
-                      setScheduleCalendarMonth((prev) => addMonths(prev, 1))
-                    }
-                    onToday={() =>
-                      setScheduleCalendarMonth(startOfMonth(new Date()))
-                    }
-                  />
-
-                  <div className="rounded-xl border p-3">
-                    <div className="grid grid-cols-7 gap-1">
-                      {scheduleWeekDays.map((day) => (
-                        <div
-                          key={day}
-                          className="rounded-lg bg-muted px-2 py-1.5 text-center text-xs font-medium text-muted-foreground"
-                        >
-                          {day}
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="mt-1 grid grid-cols-7 gap-1">
-                      {scheduleGridDays.map((day) => {
-                        const key = format(day, "yyyy-MM-dd")
-                        const isCurrentMonth = isSameMonth(
-                          day,
-                          scheduleCalendarMonth
+                {scheduleLocationMode === "court" && scheduleCourtBookingId ? (
+                  <div className="rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
+                    {t("coach.courtBookingSelector.dateTimeFromBooking")}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <CalendarNavigation
+                      currentDate={scheduleCalendarMonth}
+                      onMonthChange={(month) =>
+                        setScheduleCalendarMonth(
+                          (prev) => new Date(prev.getFullYear(), month, 1)
                         )
-                        const isSelected = scheduleDate
-                          ? isSameDay(day, scheduleDate)
-                          : false
-                        const isToday = isSameDay(day, new Date())
-                        const isPast = day < new Date(new Date().toDateString())
+                      }
+                      onYearChange={(year) =>
+                        setScheduleCalendarMonth(
+                          (prev) => new Date(year, prev.getMonth(), 1)
+                        )
+                      }
+                      onPrevMonth={() =>
+                        setScheduleCalendarMonth((prev) => subMonths(prev, 1))
+                      }
+                      onNextMonth={() =>
+                        setScheduleCalendarMonth((prev) => addMonths(prev, 1))
+                      }
+                      onToday={() =>
+                        setScheduleCalendarMonth(startOfMonth(new Date()))
+                      }
+                    />
 
-                        return (
-                          <button
-                            key={key}
-                            type="button"
-                            disabled={isPast}
-                            onClick={() => setScheduleDate(day)}
-                            className={`rounded-lg px-2 py-2 text-sm transition ${
-                              !isCurrentMonth
-                                ? "text-muted-foreground/40"
-                                : isPast
-                                  ? "cursor-not-allowed text-muted-foreground/30"
-                                  : isSelected
-                                    ? "bg-primary font-semibold text-primary-foreground"
-                                    : isToday
-                                      ? "bg-accent font-semibold hover:bg-accent/80"
-                                      : "hover:bg-accent/60"
-                            }`}
+                    <div className="rounded-xl border p-3">
+                      <div className="grid grid-cols-7 gap-1">
+                        {scheduleWeekDays.map((day) => (
+                          <div
+                            key={day}
+                            className="rounded-lg bg-muted px-2 py-1.5 text-center text-xs font-medium text-muted-foreground"
                           >
-                            {day.getDate()}
-                          </button>
-                        )
-                      })}
+                            {day}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-1 grid grid-cols-7 gap-1">
+                        {scheduleGridDays.map((day) => {
+                          const key = format(day, "yyyy-MM-dd")
+                          const isCurrentMonth = isSameMonth(
+                            day,
+                            scheduleCalendarMonth
+                          )
+                          const isSelected = scheduleDate
+                            ? isSameDay(day, scheduleDate)
+                            : false
+                          const isToday = isSameDay(day, new Date())
+                          const isPast =
+                            day < new Date(new Date().toDateString())
+
+                          return (
+                            <button
+                              key={key}
+                              type="button"
+                              disabled={isPast}
+                              onClick={() => setScheduleDate(day)}
+                              className={`rounded-lg px-2 py-2 text-sm transition ${
+                                !isCurrentMonth
+                                  ? "text-muted-foreground/40"
+                                  : isPast
+                                    ? "cursor-not-allowed text-muted-foreground/30"
+                                    : isSelected
+                                      ? "bg-primary font-semibold text-primary-foreground"
+                                      : isToday
+                                        ? "bg-accent font-semibold hover:bg-accent/80"
+                                        : "hover:bg-accent/60"
+                              }`}
+                            >
+                              {day.getDate()}
+                            </button>
+                          )
+                        })}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
-                {scheduleDate && (
+                {scheduleDate && scheduleLocationMode !== "court" && (
                   <div className="space-y-2">
                     <Label>{t("coach.classes.detail.timeSlotsLabel")}</Label>
                     <div className="flex max-h-32 flex-wrap gap-1.5 overflow-y-auto">
@@ -1816,6 +1948,7 @@ export default function CoachClassDetailPage() {
                         <Select
                           value={String(scheduleDuration)}
                           onValueChange={(v) => setScheduleDuration(Number(v))}
+                          disabled={scheduleLocationMode === "court"}
                         >
                           <SelectTrigger className="w-full">
                             <SelectValue />
@@ -1877,12 +2010,14 @@ export default function CoachClassDetailPage() {
                 <Button
                   onClick={handleAddSchedule}
                   disabled={
-                    !scheduleDate ||
-                    !scheduleTime ||
                     addScheduleSlot.isPending ||
                     (scheduleLocationMode === "court"
-                      ? !scheduleCourtBookingId || !scheduleCourtId
-                      : !scheduleLocationDescription.trim())
+                      ? !scheduleCourtBookingId ||
+                        !scheduleCourtId ||
+                        !scheduleBookingSelection
+                      : !scheduleDate ||
+                        !scheduleTime ||
+                        !scheduleLocationDescription.trim())
                   }
                 >
                   {addScheduleSlot.isPending
@@ -1931,6 +2066,7 @@ export default function CoachClassDetailPage() {
                   onCourtIdChange={setScheduleCourtId}
                   locationDescription={scheduleLocationDescription}
                   onLocationDescriptionChange={setScheduleLocationDescription}
+                  dateRange={{ startDate, endDate }}
                   disabled={updateClassScheduleLocation.isPending}
                 />
               </div>

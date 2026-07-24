@@ -20,6 +20,11 @@ export interface CourtBookingSelection {
   bookingItems: CourtBookingCourtSelection[]
 }
 
+export interface CourtBookingDateRange {
+  startDate?: string
+  endDate?: string
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null
 }
@@ -28,9 +33,57 @@ function toStringValue(value: unknown, fallback = ""): string {
   return typeof value === "string" && value.trim() ? value : fallback
 }
 
+export function getBookingDateKey(value: string): string | null {
+  const dateOnly = value.trim().slice(0, 10)
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateOnly)) {
+    const [year, month, day] = dateOnly.split("-").map(Number)
+    const parsedDate = new Date(Date.UTC(year, month - 1, day))
+    if (
+      parsedDate.getUTCFullYear() === year &&
+      parsedDate.getUTCMonth() === month - 1 &&
+      parsedDate.getUTCDate() === day
+    ) {
+      return dateOnly
+    }
+    return null
+  }
+
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return null
+  return [
+    parsed.getUTCFullYear(),
+    parsed.getUTCMonth() + 1,
+    parsed.getUTCDate(),
+  ]
+    .map((part, index) =>
+      index === 0 ? String(part) : String(part).padStart(2, "0")
+    )
+    .join("-")
+}
+
+function isBookingInDateRange(
+  booking: CourtBookingSelection,
+  dateRange?: CourtBookingDateRange
+) {
+  if (!dateRange?.startDate && !dateRange?.endDate) return true
+  const bookingDate = getBookingDateKey(booking.date)
+  if (!bookingDate) return false
+
+  const startDate = dateRange.startDate
+    ? getBookingDateKey(dateRange.startDate)
+    : null
+  const endDate = dateRange.endDate
+    ? getBookingDateKey(dateRange.endDate)
+    : null
+  if (startDate && bookingDate < startDate) return false
+  if (endDate && bookingDate > endDate) return false
+  return true
+}
+
 function normalizeBookingItems(booking: Record<string, unknown>) {
-  if (Array.isArray(booking.bookingItems)) {
-    return booking.bookingItems.flatMap((item) => {
+  const seenSlotKeys = new Set<string>()
+  const normalizeItems = (items: unknown[]) =>
+    items.flatMap((item) => {
       if (!isRecord(item)) return []
       const court = isRecord(item.court) ? item.court : null
       const courtId = toStringValue(item.courtId, toStringValue(court?.id))
@@ -38,38 +91,20 @@ function normalizeBookingItems(booking: Record<string, unknown>) {
       const startTime = toStringValue(item.startTime)
       const endTime = toStringValue(item.endTime)
 
-      if (!courtId || !startTime || !endTime) return []
-
-      return [
-        {
-          courtId,
-          courtName,
-          startTime,
-          endTime,
-        },
-      ]
+      const slotKey = `${courtId}|${startTime}|${endTime}`
+      if (!courtId || seenSlotKeys.has(slotKey) || !startTime || !endTime) {
+        return []
+      }
+      seenSlotKeys.add(slotKey)
+      return [{ courtId, courtName, startTime, endTime }]
     })
+
+  if (Array.isArray(booking.bookingItems)) {
+    return normalizeItems(booking.bookingItems)
   }
 
   if (Array.isArray(booking.items)) {
-    return booking.items.flatMap((item) => {
-      if (!isRecord(item)) return []
-      const courtId = toStringValue(item.courtId)
-      const courtName = toStringValue(item.courtName, courtId)
-      const startTime = toStringValue(item.startTime)
-      const endTime = toStringValue(item.endTime)
-
-      if (!courtId || !startTime || !endTime) return []
-
-      return [
-        {
-          courtId,
-          courtName,
-          startTime,
-          endTime,
-        },
-      ]
-    })
+    return normalizeItems(booking.items)
   }
 
   return []
@@ -111,12 +146,24 @@ function compareBookingSelections(
   return leftTime.localeCompare(rightTime)
 }
 
-export function useCoachCourtBookings(options?: { enabled?: boolean }) {
-  return useQuery({
-    queryKey: ["coach", "court-bookings", "confirmed"],
+export function useCoachCourtBookings(options?: {
+  enabled?: boolean
+  dateRange?: CourtBookingDateRange
+}) {
+  const startDate = options?.dateRange?.startDate
+    ? (getBookingDateKey(options.dateRange.startDate) ?? undefined)
+    : undefined
+  const endDate = options?.dateRange?.endDate
+    ? (getBookingDateKey(options.dateRange.endDate) ?? undefined)
+    : undefined
+
+  const query = useQuery({
+    queryKey: ["coach", "court-bookings", "confirmed", startDate, endDate],
     queryFn: async () => {
       const response = await CoachClient.listMyCourtBookings({
         status: "CONFIRMED",
+        startDate,
+        endDate,
         limit: 200,
         offset: 0,
       })
@@ -135,4 +182,11 @@ export function useCoachCourtBookings(options?: { enabled?: boolean }) {
     gcTime: 5 * 60_000,
     refetchOnWindowFocus: false,
   })
+
+  return {
+    ...query,
+    data: query.data?.filter((booking) =>
+      isBookingInDateRange(booking, options?.dateRange)
+    ),
+  }
 }

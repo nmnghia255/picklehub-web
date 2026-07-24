@@ -2484,5 +2484,38 @@
       "description": "Join thousands of players and directors on PickleHub today. Free to get started.",
       "button": "Create Free Account Now"
     }
+  },
+  "coach": {
+    "courtBookingSelector": {
+      "emptyInClassRange": "No confirmed court bookings fall within this class's date range.",
+      "dateTimeFromBooking": "The session date and time are taken from the selected court booking.",
+      "bookingOutsideClassRange": "The selected booking is outside the class date range.",
+      "invalidBookingTime": "The selected booking has an invalid time range.",
+      "modeLabel": "Location mode",
+      "modeFreeText": "Manual location description",
+      "modeCourt": "Linked court booking",
+      "modeHint": "Choose a court booking or switch to a manual location description.",
+      "bookingLabel": "Court booking",
+      "bookingPlaceholder": "Search court booking...",
+      "unknownCenter": "Unknown sport center",
+      "unknownCourt": "Unknown court",
+      "searchEmpty": "No court booking matches your search.",
+      "emptyTitle": "No linked court bookings available",
+      "emptyDescription": "Create or confirm a court booking first, then link it here.",
+      "loadError": "Failed to load court bookings.",
+      "retry": "Retry",
+      "courtLabel": "Court",
+      "courtPlaceholder": "Select a court",
+      "courtAutoSelected": "This booking has only one court, so it was selected automatically.",
+      "courtSelectHint": "This booking contains multiple courts. Select the court to link.",
+      "slotLabel": "Time slot",
+      "slotPlaceholder": "Select a time slot",
+      "manualLocationLabel": "Location description",
+      "manualLocationPlaceholder": "Enter a free-text location",
+      "manualLocationHint": "Use this when you are not linking a court booking.",
+      "bookingRequired": "Please select a court booking.",
+      "courtRequired": "Please select a court.",
+      "manualLocationRequired": "Please enter a location description."
+    }
   }
 }

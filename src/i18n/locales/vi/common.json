@@ -1132,6 +1132,10 @@
       }
     },
     "courtBookingSelector": {
+      "emptyInClassRange": "Không có booking sân đã xác nhận trong khoảng ngày của lớp.",
+      "dateTimeFromBooking": "Ngày và giờ buổi học được lấy từ booking đã chọn.",
+      "bookingOutsideClassRange": "Booking đã chọn nằm ngoài khoảng ngày của lớp.",
+      "invalidBookingTime": "Booking đã chọn có khoảng giờ không hợp lệ.",
       "modeLabel": "Chế độ địa điểm",
       "modeFreeText": "Mô tả địa điểm thủ công",
       "modeCourt": "Lịch đặt sân liên kết",
@@ -1149,6 +1153,8 @@
       "courtPlaceholder": "Chọn sân",
       "courtAutoSelected": "Lịch đặt sân này chỉ có một sân nên đã được chọn tự động.",
       "courtSelectHint": "Lịch đặt sân này có nhiều sân. Hãy chọn sân cần liên kết.",
+      "slotLabel": "Khung giờ",
+      "slotPlaceholder": "Chọn khung giờ",
       "manualLocationLabel": "Mô tả địa điểm",
       "manualLocationPlaceholder": "Nhập mô tả địa điểm thủ công",
       "manualLocationHint": "Dùng khi không liên kết với lịch đặt sân.",

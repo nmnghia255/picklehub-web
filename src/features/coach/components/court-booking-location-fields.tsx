@@ -1,7 +1,7 @@
 "use client"
 
 import { AlertCircle, RefreshCw } from "lucide-react"
-import { useEffect, useMemo } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
@@ -24,7 +24,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useCoachCourtBookings } from "@/features/coach/hooks/use-coach-court-bookings"
+import {
+  type CourtBookingCourtSelection,
+  type CourtBookingDateRange,
+  type CourtBookingSelection,
+  useCoachCourtBookings,
+} from "@/features/coach/hooks/use-coach-court-bookings"
 
 export type CourtLinkedLocationMode = "free-text" | "court"
 const EMPTY_COURTS: {
@@ -43,6 +48,11 @@ interface CourtBookingLocationFieldsProps {
   onCourtIdChange: (value: string) => void
   locationDescription: string
   onLocationDescriptionChange: (value: string) => void
+  dateRange?: CourtBookingDateRange
+  onBookingSelectionChange?: (booking: CourtBookingSelection | null) => void
+  onBookingItemSelectionChange?: (
+    item: CourtBookingCourtSelection | null
+  ) => void
   disabled?: boolean
 }
 
@@ -89,17 +99,34 @@ export function CourtBookingLocationFields({
   onCourtIdChange,
   locationDescription,
   onLocationDescriptionChange,
+  dateRange,
+  onBookingSelectionChange,
+  onBookingItemSelectionChange,
   disabled = false,
 }: CourtBookingLocationFieldsProps) {
   const { t, i18n } = useTranslation("common")
   const locale = getLocale(i18n.language)
+  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(
+    null
+  )
+  const [selectedSlotKey, setSelectedSlotKey] = useState("")
+  const setFieldRoot = useCallback((node: HTMLDivElement | null) => {
+    if (!node) {
+      setPortalContainer(null)
+      return
+    }
+
+    setPortalContainer(
+      node.closest<HTMLElement>('[data-slot="dialog-content"]') ?? node
+    )
+  }, [])
   const {
     data: bookings = [],
     isLoading,
     isError,
     error,
     refetch,
-  } = useCoachCourtBookings({ enabled: mode === "court" })
+  } = useCoachCourtBookings({ enabled: mode === "court", dateRange })
 
   const selectedBooking = useMemo(
     () => bookings.find((booking) => booking.id === courtBookingId) ?? null,
@@ -107,26 +134,102 @@ export function CourtBookingLocationFields({
   )
 
   const selectedCourts = selectedBooking?.bookingItems ?? EMPTY_COURTS
+  const courtOptions = useMemo(
+    () =>
+      selectedCourts.filter(
+        (court, index, courts) =>
+          courts.findIndex((item) => item.courtId === court.courtId) === index
+      ),
+    [selectedCourts]
+  )
+  const selectedCourtSlots = useMemo(
+    () => selectedCourts.filter((court) => court.courtId === courtId),
+    [courtId, selectedCourts]
+  )
+  const getSlotKey = (item: CourtBookingCourtSelection) =>
+    `${item.courtId}|${item.startTime}|${item.endTime}`
+  const selectedCourtSlot =
+    selectedCourtSlots.find((item) => getSlotKey(item) === selectedSlotKey) ??
+    selectedCourtSlots[0] ??
+    null
+
+  const getBookingLabel = (booking: CourtBookingSelection) => {
+    const courtNames = Array.from(
+      new Set(
+        booking.bookingItems.map((item) => item.courtName).filter(Boolean)
+      )
+    )
+    const times = booking.bookingItems
+      .map((item) => `${item.startTime}-${item.endTime}`)
+      .join(", ")
+    return [
+      booking.centerName || t("coach.courtBookingSelector.unknownCenter"),
+      formatBookingDate(booking.date, locale),
+      courtNames.join(", "),
+      times,
+    ]
+      .filter(Boolean)
+      .join(" · ")
+  }
+
+  const handleBookingChange = (value: string) => {
+    const nextBooking = bookings.find((booking) => booking.id === value) ?? null
+    const firstItem = nextBooking?.bookingItems[0] ?? null
+    setSelectedSlotKey(firstItem ? getSlotKey(firstItem) : "")
+    onCourtBookingIdChange(value)
+    onCourtIdChange("")
+    onBookingSelectionChange?.(nextBooking)
+    onBookingItemSelectionChange?.(firstItem)
+  }
+
+  const handleCourtChange = (value: string) => {
+    const firstItem =
+      selectedCourts.find((item) => item.courtId === value) ?? null
+    setSelectedSlotKey(firstItem ? getSlotKey(firstItem) : "")
+    onCourtIdChange(value)
+    onBookingItemSelectionChange?.(firstItem)
+  }
+
+  const handleSlotChange = (value: string) => {
+    const nextItem =
+      selectedCourtSlots.find((item) => getSlotKey(item) === value) ?? null
+    setSelectedSlotKey(value)
+    onBookingItemSelectionChange?.(nextItem)
+  }
 
   useEffect(() => {
     if (mode === "free-text") {
       if (courtBookingId) onCourtBookingIdChange("")
       if (courtId) onCourtIdChange("")
+      onBookingSelectionChange?.(null)
+      onBookingItemSelectionChange?.(null)
       return
     }
 
-    if (!selectedBooking) return
+    if (!selectedBooking) {
+      if (courtBookingId) onCourtBookingIdChange("")
+      if (courtId) onCourtIdChange("")
+      onBookingSelectionChange?.(null)
+      onBookingItemSelectionChange?.(null)
+      return
+    }
 
-    if (selectedCourts.length === 1) {
-      const nextCourtId = selectedCourts[0].courtId
+    if (courtOptions.length === 1) {
+      const nextCourtId = courtOptions[0].courtId
       if (courtId !== nextCourtId) {
         onCourtIdChange(nextCourtId)
+      }
+      if (selectedCourtSlot) {
+        onBookingItemSelectionChange?.(selectedCourtSlot)
       }
       return
     }
 
-    if (courtId && !selectedCourts.some((court) => court.courtId === courtId)) {
+    if (courtId && !courtOptions.some((court) => court.courtId === courtId)) {
       onCourtIdChange("")
+      onBookingItemSelectionChange?.(null)
+    } else if (selectedCourtSlot) {
+      onBookingItemSelectionChange?.(selectedCourtSlot)
     }
   }, [
     courtBookingId,
@@ -136,6 +239,11 @@ export function CourtBookingLocationFields({
     onCourtIdChange,
     selectedBooking,
     selectedCourts,
+    onBookingSelectionChange,
+    onBookingItemSelectionChange,
+    courtOptions,
+    selectedCourtSlot,
+    selectedSlotKey,
   ])
 
   const handleModeChange = (nextMode: CourtLinkedLocationMode) => {
@@ -151,10 +259,8 @@ export function CourtBookingLocationFields({
   }
 
   const hasCourts = selectedCourts.length > 0
-  const multipleCourts = selectedCourts.length > 1
-
   return (
-    <div className="space-y-4">
+    <div ref={setFieldRoot} className="relative space-y-4">
       <div className="space-y-2">
         <Label>{t("coach.courtBookingSelector.modeLabel")}</Label>
         <Select
@@ -214,7 +320,9 @@ export function CourtBookingLocationFields({
                 {t("coach.courtBookingSelector.emptyTitle")}
               </p>
               <p className="text-sm text-muted-foreground">
-                {t("coach.courtBookingSelector.emptyDescription")}
+                {dateRange?.startDate || dateRange?.endDate
+                  ? t("coach.courtBookingSelector.emptyInClassRange")
+                  : t("coach.courtBookingSelector.emptyDescription")}
               </p>
             </div>
           ) : (
@@ -223,10 +331,15 @@ export function CourtBookingLocationFields({
                 <Label>{t("coach.courtBookingSelector.bookingLabel")}</Label>
                 <Combobox
                   value={courtBookingId}
-                  onValueChange={(value) => {
-                    onCourtBookingIdChange(value ?? "")
-                    onCourtIdChange("")
-                  }}
+                  modal={false}
+                  itemToStringLabel={(bookingId) =>
+                    bookings.find((booking) => booking.id === bookingId)
+                      ? getBookingLabel(
+                          bookings.find((booking) => booking.id === bookingId)!
+                        )
+                      : ""
+                  }
+                  onValueChange={(value) => handleBookingChange(value ?? "")}
                 >
                   <ComboboxInput
                     placeholder={t(
@@ -235,12 +348,16 @@ export function CourtBookingLocationFields({
                     disabled={disabled}
                     showClear={!!courtBookingId}
                   />
-                  <ComboboxContent>
+                  <ComboboxContent container={portalContainer}>
                     <ComboboxList>
                       {bookings.map((booking) => {
-                        const courtNames = booking.bookingItems
-                          .map((court) => court.courtName)
-                          .filter(Boolean)
+                        const courtNames = Array.from(
+                          new Set(
+                            booking.bookingItems
+                              .map((court) => court.courtName)
+                              .filter(Boolean)
+                          )
+                        )
                         const bookingTime = booking.bookingItems
                           .map(
                             (court) => `${court.startTime} - ${court.endTime}`
@@ -322,14 +439,14 @@ export function CourtBookingLocationFields({
                     )}
                   </div>
 
-                  {multipleCourts ? (
+                  {courtOptions.length > 1 ? (
                     <div className="space-y-2">
                       <Label>
                         {t("coach.courtBookingSelector.courtLabel")}
                       </Label>
                       <Select
                         value={courtId}
-                        onValueChange={(value) => onCourtIdChange(value)}
+                        onValueChange={handleCourtChange}
                         disabled={disabled || !hasCourts}
                       >
                         <SelectTrigger className="w-full">
@@ -340,7 +457,7 @@ export function CourtBookingLocationFields({
                           />
                         </SelectTrigger>
                         <SelectContent>
-                          {selectedCourts.map((court) => (
+                          {courtOptions.map((court) => (
                             <SelectItem
                               key={court.courtId}
                               value={court.courtId}
@@ -366,6 +483,37 @@ export function CourtBookingLocationFields({
                       <p className="text-xs text-muted-foreground">
                         {t("coach.courtBookingSelector.courtAutoSelected")}
                       </p>
+                    </div>
+                  )}
+
+                  {selectedCourtSlots.length > 1 && (
+                    <div className="space-y-2">
+                      <Label>{t("coach.courtBookingSelector.slotLabel")}</Label>
+                      <Select
+                        value={
+                          selectedCourtSlot ? getSlotKey(selectedCourtSlot) : ""
+                        }
+                        onValueChange={handleSlotChange}
+                        disabled={disabled || !courtId}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue
+                            placeholder={t(
+                              "coach.courtBookingSelector.slotPlaceholder"
+                            )}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {selectedCourtSlots.map((slot) => (
+                            <SelectItem
+                              key={getSlotKey(slot)}
+                              value={getSlotKey(slot)}
+                            >
+                              {slot.startTime} - {slot.endTime}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   )}
                 </div>

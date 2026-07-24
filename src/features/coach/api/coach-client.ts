@@ -13,6 +13,47 @@ const PROXY_BASE = "/api/proxy"
 
 type QueryParams = Record<string, string | number | boolean | null | undefined>
 
+export class CoachApiError extends Error {
+  readonly statusCode: number
+  readonly body: unknown
+  readonly endpoint: string
+  readonly method: string
+
+  constructor(args: {
+    statusCode: number
+    body: unknown
+    endpoint: string
+    method: string
+    message: string
+  }) {
+    super(args.message)
+    this.name = "CoachApiError"
+    this.statusCode = args.statusCode
+    this.body = args.body
+    this.endpoint = args.endpoint
+    this.method = args.method
+  }
+}
+
+async function readErrorBody(response: Response): Promise<unknown> {
+  const text = await response.text().catch(() => "")
+  if (!text) return null
+
+  try {
+    return JSON.parse(text) as unknown
+  } catch {
+    return text
+  }
+}
+
+function getErrorMessage(body: unknown, status: number) {
+  if (body && typeof body === "object" && "message" in body) {
+    const message = body.message
+    if (typeof message === "string" && message.trim()) return message
+  }
+  return `Request failed with status ${status}`
+}
+
 function toSearchParams(params?: QueryParams) {
   const searchParams = new URLSearchParams()
   if (!params) return searchParams
@@ -45,18 +86,23 @@ async function apiFetch<T>(
     })
 
     if (!response.ok) {
-      const payload = await response.json().catch(() => ({}))
-      const message =
-        (payload as { message?: string }).message ||
-        `Request failed with status ${response.status}`
+      const payload = await readErrorBody(response)
+      const message = getErrorMessage(payload, response.status)
       const elapsed = Math.round(performance.now() - startTime)
       console.error(`[API ERROR] ${url}`, {
+        method: options.method ?? "GET",
         status: response.status,
         message,
-        payload,
+        body: payload,
         elapsed,
       })
-      throw new Error(message)
+      throw new CoachApiError({
+        statusCode: response.status,
+        body: payload,
+        endpoint: url,
+        method: options.method ?? "GET",
+        message,
+      })
     }
 
     const json = await response.json()
@@ -78,8 +124,14 @@ async function apiFetch<T>(
 
     return json as T
   } catch (error) {
+    if (error instanceof CoachApiError) throw error
+
     const elapsed = Math.round(performance.now() - startTime)
-    console.error(`[API ERROR] ${url}`, { error, elapsed })
+    console.error(`[API ERROR] ${url}`, {
+      method: options.method ?? "GET",
+      message: error instanceof Error ? error.message : String(error),
+      elapsed,
+    })
     throw error
   }
 }
