@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { getSportCenterRouteError } from "@/features/sport-center-management/api/route-error"
 import { SportCenterOwnerService } from "@/features/sport-center-management/api/sport-center-service"
 
 export async function POST(request: Request) {
@@ -8,12 +9,10 @@ export async function POST(request: Request) {
     const data = await SportCenterOwnerService.createSportCenter(body)
     return NextResponse.json({ data }, { status: 201 })
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to create sport center"
-    const status =
-      message === "Not authenticated" || message === "Session expired"
-        ? 401
-        : 500
+    const { message, status } = getSportCenterRouteError(
+      error,
+      "Failed to create sport center"
+    )
 
     return NextResponse.json({ message }, { status })
   }

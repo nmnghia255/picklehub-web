@@ -246,8 +246,8 @@
       "totalCostTitle": "Total cost",
       "bookingDate": "Booking date",
       "courtAndTime": "Court & Time",
-      "hoursCount_one": "{{count}} hour",
-      "hoursCount_other": "{{count}} hours",
+      "hoursCount_one": "{{count}} slot",
+      "hoursCount_other": "{{count}} slots",
       "unselected": "Not selected",
       "courtId": "Court {{id}}",
       "courtFee": "Court fee",
@@ -276,8 +276,8 @@
       "itemsTitle": "Service and product details",
       "noExtraServices": "No extra services.",
       "noExtraProducts": "No extra products.",
-    "scheduleTitle": "Booking schedule",
-    "noDate": "No date selected",
+      "scheduleTitle": "Booking schedule",
+      "noDate": "No date selected",
       "slotsCount_one": "{{count}} time slot",
       "slotsCount_other": "{{count}} time slots"
     }

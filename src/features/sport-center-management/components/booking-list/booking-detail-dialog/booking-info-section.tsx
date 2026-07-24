@@ -43,7 +43,12 @@ export function BookingInfoSection({
           label={t("bookingList.detail.startTime")}
           value={startTime}
         />
-        <BookingDetailField label={t("bookingList.detail.note")} value={note} />
+        {note && (
+          <BookingDetailField
+            label={t("bookingList.detail.note")}
+            value={note}
+          />
+        )}
       </div>
     </section>
   )

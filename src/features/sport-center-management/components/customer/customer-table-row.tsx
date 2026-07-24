@@ -67,18 +67,18 @@ export function CustomerManagementTableRow({
       </TableCell>
 
       <TableCell className="w-[18%] whitespace-normal">
-        <div className="space-y-2">
+        <div className="space-y-1">
           <p className="font-medium text-foreground">
             {t("customer.detail.visitCountLabel")}: {summary.visitCount}
           </p>
-          <div className="flex flex-wrap gap-1">
-            <p className="text-sm text-muted-foreground">
-              {formatVisitBreakdown(summary, {
-                completed: t("bookingList.status.completed"),
-                pending: t("bookingList.status.pending"),
-                cancelled: t("bookingList.status.cancelled"),
-              })}
-            </p>
+          <div className="space-y-0.5 text-xs text-muted-foreground">
+            {formatVisitBreakdown(summary, {
+              completed: t("bookingList.status.completed"),
+              pending: t("bookingList.status.pending"),
+              cancelled: t("bookingList.status.cancelled"),
+            }).map((item, index) => (
+              <p key={index}>{item}</p>
+            ))}
           </div>
         </div>
       </TableCell>
@@ -93,22 +93,6 @@ export function CustomerManagementTableRow({
             {formatCurrency(summary.creditBalance)}
           </p>
         </div>
-      </TableCell>
-
-      <TableCell className="w-[18%] whitespace-normal">
-        {latestBooking ? (
-          <div className="space-y-2">
-            <BookingStatusBadge status={latestBooking.status} />
-            <div className="space-y-1 text-sm text-muted-foreground">
-              <p>{latestBooking.center.name}</p>
-              <p>{formatDateTimeLong(latestBooking.createdAt)}</p>
-            </div>
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            {t("customer.detail.noRecentBookings")}
-          </p>
-        )}
       </TableCell>
     </TableRow>
   )

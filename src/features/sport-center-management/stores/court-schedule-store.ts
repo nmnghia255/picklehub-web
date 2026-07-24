@@ -66,43 +66,51 @@ export async function createBookingByOwnerAction(
   note: string,
   get: GetState
 ) {
-  const { quickBookingSlot, date } = get()
-  if (!quickBookingSlot) return
-  const { centerId } = get()
+  const { quickBookingSlots, quickBookingSlot, date, centerId } = get()
+  const activeSlots =
+    quickBookingSlots && quickBookingSlots.length > 0
+      ? quickBookingSlots
+      : quickBookingSlot
+        ? [quickBookingSlot]
+        : []
 
-  const startTime = quickBookingSlot.time
-  // naive 0.5-hour endTime
-  const endTime = (() => {
-    try {
-      const [h, m] = startTime.split(":").map(Number)
+  if (activeSlots.length === 0) return
 
-      const dt = new Date()
-      dt.setHours(h, m)
-      dt.setMinutes(dt.getMinutes() + 30)
+  const bookingSlots: BookingSlot[] = activeSlots.map((slot) => {
+    const startTime = slot.time
+    const endTime = (() => {
+      try {
+        const [h, m] = startTime.split(":").map(Number)
+        const dt = new Date()
+        dt.setHours(h, m)
+        dt.setMinutes(dt.getMinutes() + 30)
 
-      const hours = String(dt.getHours()).padStart(2, "0")
-      const minutes = String(dt.getMinutes()).padStart(2, "0")
+        const hours = String(dt.getHours()).padStart(2, "0")
+        const minutes = String(dt.getMinutes()).padStart(2, "0")
+        return `${hours}:${minutes}`
+      } catch {
+        return startTime
+      }
+    })()
 
-      return `${hours}:${minutes}`
-    } catch {
-      return startTime
+    return {
+      courtId: slot.courtId,
+      startTime,
+      endTime,
     }
-  })()
+  })
 
-  const bookingSlot: BookingSlot = {
-    courtId: quickBookingSlot.courtId,
-    startTime,
-    endTime,
-  }
-
-  return createBookingAction(
+  const result = await createBookingAction(
     centerId,
     date,
     playerName,
     contact,
     note,
-    bookingSlot
+    bookingSlots
   )
+
+  await get().fetchBookings()
+  return result
 }
 
 export interface Slot {
@@ -117,6 +125,7 @@ export interface CourtScheduleState {
   selectedBooking: Booking | null
   selectedSlot: Slot | null
   quickBookingSlot: Slot | null
+  quickBookingSlots: Slot[]
   quickBookingPlayerName: string
   quickBookingPhone: string
   quickBookingNote: string
@@ -140,7 +149,7 @@ export interface CourtScheduleState {
   fetchCourts: () => Promise<void>
   openBooking: (booking: Booking, slot: Slot) => void
   closeBooking: () => void
-  openQuickBooking: (slot: NonNullable<Slot>) => void
+  openQuickBooking: (slot: Slot | Slot[]) => void
   closeQuickBooking: () => void
   rebookFromCancelled: (booking: Booking) => void
   fetchBookings: () => Promise<void>
@@ -158,17 +167,92 @@ export function buildBookingKey(court: string, time: string) {
   return `${court}-${time}`
 }
 
+export function getTimeSlotsInRange(
+  startTime: string,
+  endTime: string
+): string[] {
+  if (!startTime) return []
+  const cleanStart = startTime.slice(0, 5)
+  if (!endTime) return [cleanStart]
+
+  const slots: string[] = []
+  try {
+    const [startH, startM] = startTime.split(":").map(Number)
+    const [endH, endM] = endTime.split(":").map(Number)
+
+    if (
+      Number.isNaN(startH) ||
+      Number.isNaN(startM) ||
+      Number.isNaN(endH) ||
+      Number.isNaN(endM)
+    ) {
+      return [cleanStart]
+    }
+
+    let startMinutes = startH * 60 + startM
+    const endMinutes = endH * 60 + endM
+
+    if (startMinutes >= endMinutes) {
+      return [cleanStart]
+    }
+
+    while (startMinutes < endMinutes) {
+      const h = Math.floor(startMinutes / 60)
+      const m = startMinutes % 60
+      const formatted = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
+      slots.push(formatted)
+      startMinutes += 30
+    }
+  } catch {
+    return [cleanStart]
+  }
+  return slots
+}
+
 export function mapBookings(items: Booking[]) {
   if (!items || items.length === 0) return {}
   const management = getManagementLocale()
+
   return items.reduce<Record<string, Booking>>((accumulator, booking) => {
-    const item = booking.bookingItems?.[0]
-    const courtName =
-      item?.court?.name ??
-      booking.center?.name ??
-      management.courts.detail.noCourtName
-    const time = item?.startTime ?? booking.createdAt
-    accumulator[buildBookingKey(courtName, time)] = booking
+    let processed = false
+
+    if (booking.bookingItems && booking.bookingItems.length > 0) {
+      for (const item of booking.bookingItems) {
+        const courtName =
+          item.court?.name ??
+          booking.center?.name ??
+          management.courts.detail.noCourtName
+
+        const slots = getTimeSlotsInRange(item.startTime, item.endTime)
+        for (const slotTime of slots) {
+          accumulator[buildBookingKey(courtName, slotTime)] = booking
+          processed = true
+        }
+      }
+    }
+
+    if (booking.items && booking.items.length > 0) {
+      for (const item of booking.items) {
+        const courtName =
+          item.courtName ??
+          booking.center?.name ??
+          management.courts.detail.noCourtName
+
+        const slots = getTimeSlotsInRange(item.startTime, item.endTime)
+        for (const slotTime of slots) {
+          accumulator[buildBookingKey(courtName, slotTime)] = booking
+          processed = true
+        }
+      }
+    }
+
+    if (!processed) {
+      const courtName =
+        booking.center?.name ?? management.courts.detail.noCourtName
+      const time = booking.createdAt ? booking.createdAt.slice(11, 16) : "00:00"
+      accumulator[buildBookingKey(courtName, time)] = booking
+    }
+
     return accumulator
   }, {})
 }
@@ -205,13 +289,24 @@ export function closeBookingAction(set: SetState) {
   set({ selectedBooking: null })
 }
 
-export function openQuickBookingAction(slot: NonNullable<Slot>, set: SetState) {
-  set({ quickBookingSlot: slot })
+export function openQuickBookingAction(slot: Slot | Slot[], set: SetState) {
+  if (Array.isArray(slot)) {
+    set({
+      quickBookingSlots: slot,
+      quickBookingSlot: slot[0] ?? null,
+    })
+  } else {
+    set({
+      quickBookingSlots: [slot],
+      quickBookingSlot: slot,
+    })
+  }
 }
 
 export function closeQuickBookingAction(set: SetState) {
   set({
     quickBookingSlot: null,
+    quickBookingSlots: [],
     quickBookingPlayerName: "",
     quickBookingNote: "",
   })
@@ -228,13 +323,16 @@ export function rebookFromCancelledAction(
     Boolean(item?.court && court.name === item.court.name)
   )
 
+  const rebookSlot = {
+    courtId: matchedCourt?.id ?? item?.court?.id ?? "",
+    courtName: item?.court?.name ?? "",
+    time: item?.startTime ?? booking.createdAt,
+  }
+
   set({
     selectedBooking: null,
-    quickBookingSlot: {
-      courtId: matchedCourt?.id ?? item?.court?.id ?? "",
-      courtName: item?.court?.name ?? "",
-      time: item?.startTime ?? booking.createdAt,
-    },
+    quickBookingSlot: rebookSlot,
+    quickBookingSlots: [rebookSlot],
   })
 }
 
@@ -244,6 +342,7 @@ export const useCourtScheduleStore = create<CourtScheduleState>((set, get) => ({
   selectedBooking: null,
   selectedSlot: null,
   quickBookingSlot: null,
+  quickBookingSlots: [],
   quickBookingPlayerName: "",
   quickBookingPhone: "",
   quickBookingNote: "",
@@ -269,16 +368,28 @@ export const useCourtScheduleStore = create<CourtScheduleState>((set, get) => ({
     get().fetchBookings()
   },
   fetchSportCenters: async () => {
-    // do not attempt more than once unless retryFetchSportCenters clears the flag
-    if (get().sportCentersAttempted) return
+    if (get().sportCentersAttempted && get().sportCenters.length > 0) return
     set({ sportCentersAttempted: true, loadingSportCenters: true })
 
     try {
-      const centers = await listOwnerSportCentersAction()
+      let centers: SportCenter[] = []
+      try {
+        centers = await listOwnerSportCentersAction()
+      } catch {
+        const res = await fetch("/api/sport-centers/me", {
+          credentials: "include",
+        })
+        const json = (await res.json().catch(() => ({}))) as {
+          data?: SportCenter[]
+        }
+        const raw =
+          json && typeof json === "object" && "data" in json ? json.data : json
+        centers = Array.isArray(raw) ? (raw as SportCenter[]) : []
+      }
 
       set({
         sportCenters: centers,
-        centerId: centers.length > 0 ? centers[0].id : "",
+        centerId: centers.length > 0 ? get().centerId || centers[0].id : "",
       })
     } catch (error) {
       console.error("Fetch Sport Centers error:", error)

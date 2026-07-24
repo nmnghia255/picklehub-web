@@ -285,16 +285,16 @@
       "byCenterTitle": "By center",
       "noCenterStats": "No center statistics yet.",
       "centerCode": "Center code",
-      "visitCount": "{{count}} visits",
+      "visitCount": "{{count}} bookings",
       "spend": "Spend",
       "creditBalance": "Credit balance",
       "lastVisit": "Last visit",
       "firstVisit": "First visit",
-      "visitCountLabel": "Visit count",
+      "visitCountLabel": "Total bookings",
       "stats": {
         "totalCustomers": "Total customers",
         "visibleCustomers": "Showing {{count}} customers",
-        "visits": "Visits",
+        "visits": "Total bookings",
         "currentPageVisits": "On the current page",
         "totalSpend": "Total spend",
         "totalSpendDescription": "Across the visible customers",
@@ -336,7 +336,7 @@
     "table": {
       "customer": "Customer",
       "contact": "Contact",
-      "visits": "Visits",
+      "visits": "Bookings",
       "bookings": "Bookings",
       "spend": "Spend",
       "lastVisit": "Last visit"
@@ -362,6 +362,9 @@
     },
     "quickBooking": {
       "title": "Quick booking",
+      "slotsCount_one": "{{count}} time slot selected",
+      "slotsCount_other": "{{count}} time slots selected",
+      "totalPrice": "Total price",
       "courtTime": "at",
       "playerName": "Player name",
       "phone": "Phone number",
@@ -616,7 +619,10 @@
     "noImage": "No image",
     "courts": "{{count}} courts",
     "created": "Created {{date}}",
-    "status": { "active": "Active", "inactive": "Inactive" },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
     "actions": {
       "create": "Create Sport Center",
       "view": "View details",
@@ -729,11 +735,11 @@
       "title": "Price slots",
       "startTime": "Start time",
       "endTime": "End time",
-        "pricePerHour": "Price per hour",
-        "add": "Add price slot",
-        "createTitle": "Add price slot",
-        "createDescription": "Enter the time range and hourly price for this slot.",
-        "confirmAdd": "Add price slot",
+      "pricePerHour": "Price per hour",
+      "add": "Add price slot",
+      "createTitle": "Add price slot",
+      "createDescription": "Enter the time range and hourly price for this slot.",
+      "confirmAdd": "Add price slot",
       "save": "Save changes",
       "delete": "Delete price slot",
       "deleteTitle": "Delete price slot?",
@@ -755,15 +761,15 @@
       "addTier": "Add tier",
       "removeTier": "Remove tier",
       "save": "Save changes",
-        "saveSuccess": "Cancellation policy saved successfully.",
-        "saveError": "Could not save the cancellation policy.",
-        "invalid": "Enter a valid number of days and refund percentage.",
-        "createTitle": "Add policy tier",
-        "createDescription": "Enter the cancellation threshold and refund percentage.",
-        "confirmAdd": "Add tier",
-        "deleteTitle": "Remove policy tier?",
-        "deleteDescription": "This tier will be removed from the unsaved policy changes.",
-        "confirmDelete": "Remove tier"
+      "saveSuccess": "Cancellation policy saved successfully.",
+      "saveError": "Could not save the cancellation policy.",
+      "invalid": "Enter a valid number of days and refund percentage.",
+      "createTitle": "Add policy tier",
+      "createDescription": "Enter the cancellation threshold and refund percentage.",
+      "confirmAdd": "Add tier",
+      "deleteTitle": "Remove policy tier?",
+      "deleteDescription": "This tier will be removed from the unsaved policy changes.",
+      "confirmDelete": "Remove tier"
     }
   },
   "courtManagement": {
@@ -828,7 +834,9 @@
   },
   "createCenter": {
     "statusLabel": "Status",
-    "status": { "active": "Active" },
+    "status": {
+      "active": "Active"
+    },
     "page": {
       "badge": "Sport center wizard",
       "title": "Create Sport Center",
@@ -855,6 +863,22 @@
       "courts": "Courts",
       "inventory": "Products & services",
       "review": "Review and finish"
+    },
+    "sectionTitles": {
+      "generalInfo": "General Information",
+      "schedulePrice": "Schedule & Base Pricing",
+      "paymentDetails": "Payment Details",
+      "media": "Images & Payment QR Code",
+      "amenitiesRules": "Amenities & Rules",
+      "setupSteps": "Setup Steps",
+      "configuredSlots": "Configured Time Slots",
+      "refundTiers": "Refund Tiers",
+      "addNewCourt": "Add New Court",
+      "addedCourts": "Added Courts",
+      "addService": "Add Service",
+      "configuredServices": "Configured Services",
+      "addProduct": "Add Product",
+      "configuredProducts": "Configured Products"
     },
     "fields": {
       "name": "Center name",
@@ -894,10 +918,20 @@
       "name": "PickleHub District 1",
       "address": "123 Nguyen Hue, District 1",
       "phone": "+84901234567",
-      "email": "hello@example.com",
+      "email": "center@example.com",
       "description": "Short center description",
       "listHint": "One item per line",
-      "courtName": "Court {{index}}"
+      "courtName": "Court {{index}}",
+      "paymentAccountName": "NGUYEN VAN A",
+      "paymentAccountNumber": "19030631198001",
+      "paymentBankName": "MB Bank",
+      "serviceName": "Pickleball Racket Rental",
+      "serviceUnit": "VND / h",
+      "serviceDescription": "Short service description",
+      "productName": "Bottled Water 500ml",
+      "productUnit": "Bottle",
+      "productStock": "50",
+      "productDescription": "Short product description"
     },
     "labels": {
       "slot": "Slot {{index}}",
@@ -907,6 +941,7 @@
       "allowCancellation": "Enable preservation credit refund tiers for confirmed bookings."
     },
     "actions": {
+      "next": "Next",
       "addSlot": "Add price slot",
       "addTier": "Add tier",
       "addCourt": "Add court",
@@ -929,7 +964,9 @@
       "skippedCourts": "No courts configured yet. You can configure courts later from the management detail page.",
       "skippedInventory": "No items configured yet.",
       "noteTitle": "Review before finishing",
-      "note": "The wizard will sync the latest server state before navigating to the management detail page."
+      "note": "The wizard will sync the latest server state before navigating to the management detail page.",
+      "daysPrior": "{{days}} days prior",
+      "refundPercent": "{{percent}}% refund"
     },
     "toast": {
       "centerCreated": "Sport center created successfully.",
@@ -953,7 +990,9 @@
       "productRequired": "Please enter a valid product name, price and stock.",
       "centerMissing": "Sport center data is missing.",
       "centerSaveFailed": "Could not save the sport center.",
-      "finalSaveFailed": "Could not complete setup."
+      "finalSaveFailed": "Could not complete setup.",
+      "conflictError": "A sport center with this name or phone number already exists. Please check your details.",
+      "slotPriceRequired": "Please enter a valid price (greater than 0) for all price slots."
     },
     "enums": {
       "courtType": {

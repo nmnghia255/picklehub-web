@@ -22,14 +22,6 @@ export function CustomerDetailPageHeader({
           <UserRound className="size-3.5 text-sky-500" />
           {t("customer.detail.page.badge")}
         </div>
-        <div className="space-y-1">
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            {customerName || t("customer.detail.page.loading")}
-          </h1>
-          <p className="max-w-2xl text-base text-muted-foreground sm:text-lg">
-            {t("customer.detail.page.subtitle")}
-          </p>
-        </div>
       </div>
 
       <Button variant="outline" onClick={onBack}>

@@ -59,6 +59,7 @@ export const useCustomerManagementStore = create<CustomerManagementState>(
 
     resetFilters: () =>
       set({
+        centerFilterId: null,
         keyword: "",
         currentPage: 1,
       }),

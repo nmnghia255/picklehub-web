@@ -27,6 +27,9 @@ export function QuickBookingModal({
   const quickBookingSlot = useCourtScheduleStore(
     (state) => state.quickBookingSlot
   )
+  const quickBookingSlots = useCourtScheduleStore(
+    (state) => state.quickBookingSlots
+  )
   const quickBookingPlayerName = useCourtScheduleStore(
     (state) => state.quickBookingPlayerName
   )
@@ -49,7 +52,50 @@ export function QuickBookingModal({
     (state) => state.closeQuickBooking
   )
 
-  if (!quickBookingSlot) return null
+  const selectedCenter = useCourtScheduleStore((state) => state.selectedCenter)
+
+  const activeSlots =
+    quickBookingSlots && quickBookingSlots.length > 0
+      ? quickBookingSlots
+      : quickBookingSlot
+        ? [quickBookingSlot]
+        : []
+
+  if (activeSlots.length === 0) return null
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+      maximumFractionDigits: 0,
+    }).format(amount)
+  }
+
+  const getSlotPrice = (time: string) => {
+    if (!selectedCenter) return 0
+    const basePrice = selectedCenter.basePrice || 0
+    const priceSlots = selectedCenter.priceSlots || []
+
+    const matchedSlot = priceSlots.find(
+      (ps) => ps.startTime <= time && time < ps.endTime
+    )
+
+    const pricePerHour = matchedSlot ? matchedSlot.pricePerHour : basePrice
+    return pricePerHour / 2
+  }
+
+  const groupedByCourt = activeSlots.reduce<
+    Record<string, { time: string; price: number }[]>
+  >((acc, slot) => {
+    const price = getSlotPrice(slot.time)
+    acc[slot.courtName] = acc[slot.courtName] || []
+    acc[slot.courtName].push({ time: slot.time, price })
+    return acc
+  }, {})
+
+  const totalPrice = activeSlots.reduce((sum, slot) => {
+    return sum + getSlotPrice(slot.time)
+  }, 0)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -78,7 +124,7 @@ export function QuickBookingModal({
 
   return (
     <Dialog
-      open={Boolean(quickBookingSlot)}
+      open={activeSlots.length > 0}
       onOpenChange={(open) => !open && handleClose()}
     >
       <DialogContent className="max-w-md">
@@ -86,14 +132,43 @@ export function QuickBookingModal({
           <DialogTitle>{t("courts.quickBooking.title")}</DialogTitle>
         </DialogHeader>
 
-        <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-          <p className="text-sm text-emerald-700">
-            <span className="text-emerald-900">
-              {quickBookingSlot.courtName}
-            </span>{" "}
-            {t("courts.quickBooking.courtTime")}{" "}
-            <span className="text-emerald-900">{quickBookingSlot.time}</span>
-          </p>
+        <div className="mb-4 space-y-2 rounded-xl border border-emerald-200 bg-emerald-50/80 p-3.5">
+          <div className="flex items-center justify-between border-b border-emerald-200/60 pb-2">
+            <p className="text-xs font-semibold tracking-wider text-emerald-950 uppercase">
+              {t("courts.quickBooking.slotsCount", {
+                count: activeSlots.length,
+              })}
+            </p>
+            <p className="text-xs font-bold text-emerald-950">
+              {t("courts.quickBooking.totalPrice")}:{" "}
+              <span className="text-sm font-extrabold text-emerald-700">
+                {formatCurrency(totalPrice)}
+              </span>
+            </p>
+          </div>
+
+          <div className="space-y-4 text-sm text-emerald-900">
+            {Object.entries(groupedByCourt).map(([courtName, slots]) => (
+              <div key={courtName} className="space-y-1">
+                <span className="font-semibold text-emerald-950">
+                  {courtName}:
+                </span>
+                <div className="mt-2 flex flex-wrap gap-2 pl-2 text-xs">
+                  {slots.map((s, idx) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-100/80 px-2 py-0.5 font-medium text-emerald-900"
+                    >
+                      <span>{s.time}</span>
+                      <span className="font-semibold text-emerald-700">
+                        ({formatCurrency(s.price)})
+                      </span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

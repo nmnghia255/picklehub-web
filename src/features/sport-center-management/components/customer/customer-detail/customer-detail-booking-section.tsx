@@ -21,13 +21,13 @@ export function CustomerDetailBookingSection({
 }: CustomerDetailBookingSectionProps) {
   const { t } = useSportCenterManagementTranslation()
   return (
-    <section className="space-y-3 rounded-3xl border bg-card p-4 shadow-sm">
+    <section className="space-y-3">
       <CustomerDetailSectionTitle
         icon={CalendarDays}
         title={t("customer.detail.recentBookingsTitle")}
         toneClassName="text-violet-500"
       />
-      <div className="space-y-2">
+      <div className="space-y-3">
         {recentBookings.length > 0 ? (
           recentBookings.map((booking) => (
             <RecentBookingCard key={booking.id} booking={booking} />
@@ -45,35 +45,38 @@ export function CustomerDetailBookingSection({
 function RecentBookingCard({ booking }: { booking: RecentBooking }) {
   const { t } = useSportCenterManagementTranslation()
   return (
-    <div className="space-y-2 rounded-2xl border bg-background/80 p-3 shadow-sm">
+    <div className="space-y-3 rounded-2xl bg-muted/40 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="font-medium text-foreground">{booking.center.name}</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="font-semibold text-foreground">{booking.center.name}</p>
+          <p className="text-xs text-muted-foreground">
             {formatDateTimeLong(booking.createdAt)}
           </p>
         </div>
         <BookingStatusBadge status={booking.status} />
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-3">
         <CustomerDetailValueCard
           label={t("bookingList.detail.totalPrice")}
           value={formatCurrency(booking.totalPrice)}
           icon={Coins}
           toneClassName="text-emerald-500"
+          variant="ghost"
         />
         <CustomerDetailValueCard
           label={t("customer.detail.appliedCredit")}
           value={formatCurrency(booking.creditApplied)}
           icon={Wallet}
           toneClassName="text-orange-500"
+          variant="ghost"
         />
         <CustomerDetailValueCard
           label={t("customer.detail.remainingBalance")}
           value={formatCurrency(booking.paymentRemaining)}
           icon={Coins}
           toneClassName="text-violet-500"
+          variant="ghost"
         />
       </div>
     </div>

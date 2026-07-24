@@ -26,6 +26,7 @@ import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-man
 import { useCourtScheduleStore } from "../../stores/court-schedule-store"
 import type { Booking } from "../../types/booking"
 import { formatPhoneNumber, getStatusColor, getStatusLabel } from "../../utils"
+import { getBookingDisplayNote } from "../booking-list/booking-list.utils"
 
 interface BookingDetailModalProps {
   booking: Booking | null
@@ -54,7 +55,7 @@ export function BookingDetailModal({
 
   return (
     <Dialog open={Boolean(booking)} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="ap-0 max-w-md">
         <DialogHeader>
           <DialogTitle>{t("courts.detail.title")}</DialogTitle>
         </DialogHeader>
@@ -103,8 +104,19 @@ export function BookingDetailModal({
           </span>
         </div>
 
+        {booking.note ? (
+          <div>
+            <label className="mb-1 block text-sm text-muted-foreground">
+              {t("courts.quickBooking.note")}
+            </label>
+            <p className="text-sm text-foreground">
+              {getBookingDisplayNote(booking) || booking.note}
+            </p>
+          </div>
+        ) : null}
+
         {booking.status !== "CANCELLED" ? (
-          <DialogFooter className="mt-6 sm:justify-end">
+          <DialogFooter className="sm:justify-end">
             <Button
               onClick={onClose}
               variant="outline"
@@ -121,7 +133,7 @@ export function BookingDetailModal({
             </Button>
           </DialogFooter>
         ) : (
-          <DialogFooter className="mt-6 sm:justify-end">
+          <DialogFooter className="sm:justify-end">
             <Button
               onClick={onClose}
               variant="outline"

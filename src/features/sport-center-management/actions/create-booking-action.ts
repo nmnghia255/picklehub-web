@@ -39,11 +39,12 @@ export async function createBookingAction(
   playerName: string,
   contact: string,
   note: string,
-  bookingSlot: BookingSlot
+  bookingSlots: BookingSlot | BookingSlot[]
 ) {
+  const items = Array.isArray(bookingSlots) ? bookingSlots : [bookingSlots]
   const body = {
     date: bookingDate,
-    items: [bookingSlot],
+    items,
     playerName,
     phoneNumber: contact,
     serviceItems: [],

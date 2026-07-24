@@ -28,23 +28,20 @@ export function CustomerTable({
         <Table>
           <TableHeader className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/85">
             <TableRow>
-              <TableHead className="w-[18%]">
+              <TableHead className="w-[18%] py-4">
                 {t("customer.table.customer")}
               </TableHead>
-              <TableHead className="w-[14%]">
+              <TableHead className="w-[10%]">
                 {t("customer.table.contact")}
               </TableHead>
-              <TableHead className="w-[14%]">
+              <TableHead className="w-[20%]">
                 {t("customer.table.visits")}
               </TableHead>
-              <TableHead className="w-[18%]">
+              <TableHead className="w-[20%]">
                 {t("customer.table.bookings")}
               </TableHead>
               <TableHead className="w-[14%]">
                 {t("customer.table.spend")}
-              </TableHead>
-              <TableHead className="w-[14%]">
-                {t("customer.table.lastVisit")}
               </TableHead>
             </TableRow>
           </TableHeader>

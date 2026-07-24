@@ -187,10 +187,10 @@ export function AppSidebar() {
                           href={item.href}
                           className="flex w-full items-center gap-3 group-data-[collapsible=icon]:justify-center"
                         >
-                          <span className="relative inline-flex shrink-0 items-center justify-center">
+                          <span className="relative inline-flex shrink-0 items-center justify-center overflow-visible">
                             <item.icon className="size-4.5" />
                             {item.href === "/feed" && unreadCount > 0 && (
-                              <span className="ring-sidebar-background absolute -top-1 -right-1 size-2 rounded-full bg-red-500 ring-2" />
+                              <span className="ring-sidebar-background absolute -top-0.5 -right-0.5 z-20 size-2 rounded-full bg-red-500 ring-2 group-data-[active=true]:ring-emerald-600" />
                             )}
                           </span>
                           <span className="flex-1 truncate group-data-[collapsible=icon]:hidden">

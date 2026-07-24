@@ -18,30 +18,34 @@ export function CustomerDetailSummaryGrid({
 }: CustomerDetailSummaryGridProps) {
   const { t } = useSportCenterManagementTranslation()
   return (
-    <section className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <CustomerDetailValueCard
         label={t("customer.detail.visitCountLabel")}
         value={String(detail.summary.visitCount)}
         icon={CalendarDays}
         toneClassName="text-sky-500"
+        variant="flat"
       />
       <CustomerDetailValueCard
         label={t("customer.detail.spend")}
         value={formatCurrency(detail.summary.totalSpend)}
         icon={Coins}
         toneClassName="text-emerald-500"
+        variant="flat"
       />
       <CustomerDetailValueCard
         label={t("customer.detail.creditBalance")}
         value={formatCurrency(detail.summary.creditBalance)}
         icon={Wallet}
         toneClassName="text-orange-500"
+        variant="flat"
       />
       <CustomerDetailValueCard
         label={t("customer.detail.lastVisit")}
         value={formatDateTimeLong(detail.summary.lastVisitAt)}
         icon={CalendarDays}
         toneClassName="text-violet-500"
+        variant="flat"
       />
     </section>
   )

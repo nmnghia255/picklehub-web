@@ -134,7 +134,7 @@
     "yes": "Có",
     "active": "Đang hoạt động",
     "inactive": "Tạm ngưng",
-    "next": "Sau",
+    "next": "Tiếp theo",
     "previous": "Trước",
     "noImage": "Chưa có ảnh đại diện",
     "noReviews": "Chưa có đánh giá"
@@ -235,7 +235,7 @@
       "totalCourtPrice": "Tổng tiền sân",
       "totalServicePrice": "Tổng tiền dịch vụ",
       "totalProductPrice": "Tổng tiền sản phẩm",
-      "totalTimeSlots": "Tổng số khung giờ",
+      "totalTimeSlots": "Số khung giờ",
       "cancellationTitle": "Thông tin hủy",
       "cancelledAt": "Ngày hủy",
       "cancelReason": "Lý do hủy",
@@ -281,16 +281,16 @@
       "byCenterTitle": "Theo trung tâm",
       "noCenterStats": "Chưa có thống kê theo trung tâm.",
       "centerCode": "Mã trung tâm",
-      "visitCount": "{{count}} lượt",
+      "visitCount": "{{count}} lần đặt",
       "spend": "Chi tiêu",
       "creditBalance": "Credit còn lại",
-      "lastVisit": "Lần ghé gần nhất",
+      "lastVisit": "Lần gần nhất",
       "firstVisit": "Lần đầu",
-      "visitCountLabel": "Lượt ghé thăm",
+      "visitCountLabel": "Số lần đặt",
       "stats": {
         "totalCustomers": "Tổng khách hàng",
         "visibleCustomers": "Đang hiển thị {{count}} khách",
-        "visits": "Lượt ghé thăm",
+        "visits": "Số lần đặt",
         "currentPageVisits": "Trong trang hiện tại",
         "totalSpend": "Tổng chi tiêu",
         "totalSpendDescription": "Cộng trên các khách hiển thị",
@@ -332,10 +332,10 @@
     "table": {
       "customer": "Khách hàng",
       "contact": "Liên hệ",
-      "visits": "Lượt ghé",
+      "visits": "Số lần đặt",
       "bookings": "Đặt sân",
       "spend": "Chi tiêu",
-      "lastVisit": "Lần ghé gần nhất"
+      "lastVisit": "Lần gần nhất"
     }
   },
   "courts": {
@@ -358,6 +358,9 @@
     },
     "quickBooking": {
       "title": "Đặt sân nhanh",
+      "slotsCount_one": "{{count}} khung giờ đã chọn",
+      "slotsCount_other": "{{count}} khung giờ đã chọn",
+      "totalPrice": "Tổng tiền",
       "courtTime": "lúc",
       "playerName": "Tên người chơi",
       "phone": "Số điện thoại",
@@ -863,6 +866,22 @@
       "inventory": "Sản phẩm & dịch vụ",
       "review": "Kiểm tra và hoàn tất"
     },
+    "sectionTitles": {
+      "generalInfo": "Thông tin chung",
+      "schedulePrice": "Giờ hoạt động & Giá cơ bản",
+      "paymentDetails": "Thông tin thanh toán",
+      "media": "Hình ảnh & Mã QR thanh toán",
+      "amenitiesRules": "Tiện ích & Quy định",
+      "setupSteps": "Các bước thiết lập",
+      "configuredSlots": "Các khung giá đã cấu hình",
+      "refundTiers": "Các mức hoàn tiền",
+      "addNewCourt": "Thêm sân mới",
+      "addedCourts": "Sân đã thêm",
+      "addService": "Thêm dịch vụ",
+      "configuredServices": "Dịch vụ đã cấu hình",
+      "addProduct": "Thêm sản phẩm",
+      "configuredProducts": "Sản phẩm đã cấu hình"
+    },
     "fields": {
       "name": "Tên trung tâm",
       "address": "Địa chỉ",
@@ -901,10 +920,20 @@
       "name": "PickleHub District 1",
       "address": "123 Nguyễn Huệ, Quận 1",
       "phone": "+84901234567",
-      "email": "hello@example.com",
+      "email": "center@example.com",
       "description": "Mô tả ngắn gọn về trung tâm",
       "listHint": "Mỗi dòng một mục",
-      "courtName": "Sân {{index}}"
+      "courtName": "Sân {{index}}",
+      "paymentAccountName": "NGUYEN VAN AN",
+      "paymentAccountNumber": "1903012036913",
+      "paymentBankName": "Vietcombank",
+      "serviceName": "Cho thuê vợt Pickleball",
+      "serviceUnit": "VND / h",
+      "serviceDescription": "Mô tả ngắn gọn về dịch vụ",
+      "productName": "Nước suối 500ml",
+      "productUnit": "Chai",
+      "productStock": "50",
+      "productDescription": "Mô tả ngắn gọn về sản phẩm"
     },
     "labels": {
       "slot": "Khung {{index}}",
@@ -914,8 +943,10 @@
       "allowCancellation": "Bật các mức hoàn tiền cho đơn hủy đã xác nhận."
     },
     "actions": {
+      "next": "Tiếp theo",
+      "uploadImage": "Tải ảnh lên",
       "addSlot": "Thêm khung giá",
-      "addTier": "Thêm mức",
+      "addTier": "Thêm",
       "addCourt": "Thêm sân",
       "addService": "Thêm dịch vụ",
       "addProduct": "Thêm sản phẩm",
@@ -936,7 +967,9 @@
       "skippedCourts": "Chưa cấu hình sân nào. Bạn có thể thiết lập sau từ trang chi tiết quản lý.",
       "skippedInventory": "Chưa cấu hình mục nào.",
       "noteTitle": "Kiểm tra trước khi hoàn tất",
-      "note": "Wizard sẽ đồng bộ trạng thái mới nhất từ server trước khi chuyển sang trang chi tiết quản lý."
+      "note": "Wizard sẽ đồng bộ trạng thái mới nhất từ server trước khi chuyển sang trang chi tiết quản lý.",
+      "daysPrior": "Trước {{days}} ngày",
+      "refundPercent": "Hoàn {{percent}}%"
     },
     "toast": {
       "centerCreated": "Đã tạo trung tâm thành công.",
@@ -960,7 +993,9 @@
       "productRequired": "Vui lòng nhập tên, giá và tồn kho sản phẩm hợp lệ.",
       "centerMissing": "Thiếu dữ liệu trung tâm.",
       "centerSaveFailed": "Không thể lưu trung tâm.",
-      "finalSaveFailed": "Không thể hoàn tất quản lý."
+      "finalSaveFailed": "Không thể hoàn tất quản lý.",
+      "conflictError": "Trung tâm thể thao với tên hoặc số điện thoại này đã tồn tại (Tên/SĐT bị trùng). Vui lòng kiểm tra lại.",
+      "slotPriceRequired": "Vui lòng nhập giá hợp lệ (lớn hơn 0) cho tất cả khung giá."
     },
     "enums": {
       "courtType": {

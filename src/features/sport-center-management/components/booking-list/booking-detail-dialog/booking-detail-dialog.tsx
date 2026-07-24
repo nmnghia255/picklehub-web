@@ -1,6 +1,7 @@
 "use client"
 
 import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Separator } from "@/components/ui/separator"
 import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
 import type { Booking } from "../../../types/booking"
@@ -36,7 +37,11 @@ export function BookingDetailDialog({
 
   const displayNote = getBookingDisplayNote(booking)
   const firstBookingItem = booking.bookingItems?.[0]
-  const startTime = firstBookingItem?.startTime ?? t("common.notAvailable")
+  const startTime = firstBookingItem
+    ? `${firstBookingItem.startTime}`
+    : booking.items?.length > 0
+      ? `${booking.items[0].startTime} - ${booking.items[0].endTime}`
+      : t("common.notAvailable")
   const serviceCount = booking.bookingServices.length
   const productCount = booking.bookingProducts.length
 
@@ -47,29 +52,44 @@ export function BookingDetailDialog({
           <BookingDetailHeader booking={booking} />
 
           <div className="space-y-6 px-6 py-5">
-            {/* <BookingSummaryCards booking={booking} /> */}
+            <BookingSummaryCards booking={booking} />
 
-            <BookingCustomerSection booking={booking} />
+            <Separator />
+
+            <BookingCustomerSection booking={booking} variant="ghost" />
+
+            <Separator />
 
             <BookingInfoSection
               booking={booking}
               note={displayNote}
               startTime={startTime}
+              variant="ghost"
             />
 
-            <BookingPaymentSection booking={booking} />
+            <Separator />
+
+            <BookingPaymentSection booking={booking} variant="ghost" />
+
+            <Separator />
 
             <BookingSummarySection
               booking={booking}
               serviceCount={serviceCount}
               productCount={productCount}
+              variant="ghost"
             />
 
             {booking.status === "CANCELLED" && (
-              <BookingCancellationSection booking={booking} />
+              <>
+                <Separator />
+                <BookingCancellationSection booking={booking} variant="ghost" />
+              </>
             )}
 
-            <BookingScheduleServices booking={booking} />
+            <Separator />
+
+            <BookingScheduleServices booking={booking} variant="ghost" />
 
             <BookingFooterActions
               booking={booking}

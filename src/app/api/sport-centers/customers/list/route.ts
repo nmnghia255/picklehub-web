@@ -13,6 +13,7 @@ export async function GET(request: Request) {
   try {
     const url = new URL(request.url)
 
+    const centerId = url.searchParams.get("centerId")
     const keyword = url.searchParams.get("keyword")
     const name = url.searchParams.get("name")
     const phone = url.searchParams.get("phone")
@@ -27,6 +28,7 @@ export async function GET(request: Request) {
     const axios = await getAuthenticatedAxios()
     const response = await axios.get("/api/sport-centers/customers/list", {
       params: {
+        centerId,
         keyword,
         name,
         phone,

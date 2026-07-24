@@ -1,10 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSportCenterTranslation } from "@/i18n/use-sport-center-translation"
+import { formatCurrencyVnd } from "@/utils/expense-utils"
 
-type CourtRow = {
+export type SlotItemInfo = {
+  slotKey: string
+  price?: number
+}
+
+export type CourtRow = {
   courtId: string
   courtName: string
-  slots: string[]
+  slots: (string | SlotItemInfo)[]
 }
 
 type BookingConfirmationBookedSlotsCardProps = {
@@ -37,13 +43,45 @@ export function BookingConfirmationBookedSlotsCard({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-3 p-4">
+      <CardContent className="space-y-4 p-4">
         {courtRows.map((row) => (
-          <div key={row.courtId} className="rounded-xl border bg-muted/30 p-3">
-            <p className="font-semibold">{row.courtName}</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {row.slots.join(", ")}
+          <div
+            key={row.courtId}
+            className="space-y-3 rounded-xl border bg-muted/30 p-4"
+          >
+            <p className="text-base font-semibold text-foreground">
+              {row.courtName}
             </p>
+            <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+              {row.slots.map((item, idx) => {
+                if (typeof item === "string") {
+                  return (
+                    <div
+                      key={item || idx}
+                      className="rounded-lg border bg-background/60 px-3 py-2 text-sm text-muted-foreground"
+                    >
+                      {item}
+                    </div>
+                  )
+                }
+
+                return (
+                  <div
+                    key={item.slotKey || idx}
+                    className="flex items-center justify-between gap-3 rounded-lg border bg-background/60 px-3.5 py-2 text-sm shadow-2xs"
+                  >
+                    <span className="text-muted-foreground">
+                      {item.slotKey}
+                    </span>
+                    <span className="font-semibold text-foreground">
+                      {item.price !== undefined
+                        ? formatCurrencyVnd(item.price)
+                        : "—"}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         ))}
       </CardContent>

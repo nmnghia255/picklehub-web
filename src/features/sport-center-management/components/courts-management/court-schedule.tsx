@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
 import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
 
@@ -34,7 +34,7 @@ function generateTimeSlots(
   return slots
 }
 
-export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
+export function CourtSchedule() {
   const { t } = useSportCenterManagementTranslation()
   const {
     courts,
@@ -54,6 +54,11 @@ export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
   } = useCourtScheduleStore()
 
   const selectedCenter = useCourtScheduleStore((state) => state.selectedCenter)
+
+  const [isSelecting, setIsSelecting] = useState(false)
+  const [selectedEmptySlots, setSelectedEmptySlots] = useState<
+    { courtId: string; courtName: string; time: string }[]
+  >([])
 
   useEffect(() => {
     if (!selectedCenter) return
@@ -86,9 +91,51 @@ export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
 
     if (booking) {
       openBooking(booking, { courtId, courtName, time })
-    } else {
-      openQuickBooking({ courtId, courtName, time })
     }
+  }
+
+  const handleSlotMouseDown = (
+    courtId: string,
+    courtName: string,
+    time: string,
+    e: React.MouseEvent
+  ) => {
+    if (e.button !== 0) return
+    const booking = bookings[`${courtName}-${time}`]
+    if (booking) return
+
+    setIsSelecting(true)
+    setSelectedEmptySlots([{ courtId, courtName, time }])
+  }
+
+  const handleSlotMouseEnter = (
+    courtId: string,
+    courtName: string,
+    time: string
+  ) => {
+    if (!isSelecting) return
+
+    const booking = bookings[`${courtName}-${time}`]
+    if (booking) return
+
+    setSelectedEmptySlots((prev) => {
+      const alreadySelected = prev.some(
+        (s) => s.courtName === courtName && s.time === time
+      )
+      if (alreadySelected) return prev
+      return [...prev, { courtId, courtName, time }]
+    })
+  }
+
+  const handleGlobalMouseUp = () => {
+    if (!isSelecting) return
+    setIsSelecting(false)
+
+    if (selectedEmptySlots.length > 0) {
+      openQuickBooking(selectedEmptySlots)
+    }
+
+    setSelectedEmptySlots([])
   }
 
   const handleRebookFromCancelled = (booking: Booking) => {
@@ -105,10 +152,20 @@ export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
     note: string
   ) => {
     await createBookingByOwner(playerName, contact, note)
+    await fetchBookings()
+  }
+
+  const isSlotSelected = (courtName: string, time: string) => {
+    return selectedEmptySlots.some(
+      (s) => s.courtName === courtName && s.time === time
+    )
   }
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div
+      className="w-full overflow-x-auto select-none"
+      onMouseUp={handleGlobalMouseUp}
+    >
       <div
         className="grid gap-px bg-border"
         style={{
@@ -143,7 +200,15 @@ export function CourtSchedule({ ownerMode = false }: { ownerMode?: boolean }) {
                   <TimeSlot
                     key={`${court.name}-${time}`}
                     booking={booking}
+                    isSelected={isSlotSelected(court.name, time)}
                     onClick={() => handleSlotClick(court.id, court.name, time)}
+                    onMouseDown={(e) =>
+                      handleSlotMouseDown(court.id, court.name, time, e)
+                    }
+                    onMouseEnter={() =>
+                      handleSlotMouseEnter(court.id, court.name, time)
+                    }
+                    onMouseUp={handleGlobalMouseUp}
                   />
                 )
               })}

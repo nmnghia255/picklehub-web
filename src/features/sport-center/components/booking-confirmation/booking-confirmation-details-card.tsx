@@ -32,26 +32,22 @@ export function BookingConfirmationDetailsCard({
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-4 rounded-2xl bg-muted/50 p-4">
-          <div>
-            <p className="text-xs tracking-wide text-muted-foreground uppercase">
-              {t("booking.confirmation.courtLabel")}
-            </p>
-            <p className="mt-1 text-lg font-semibold">{centerName}</p>
-            <p className="text-sm text-muted-foreground">{address}</p>
-          </div>
-
-          <div className="grid gap-3 text-sm sm:grid-cols-2">
+          <div className="text-md grid gap-3 sm:grid-cols-3">
+            <div>
+              <p className="mt-1 text-xl font-semibold">{centerName}</p>
+              <p className="text-md">{address}</p>
+            </div>
             <div>
               <p className="text-muted-foreground">
                 {t("booking.summary.bookingDate")}
               </p>
-              <p className="font-medium">{selectedDateText}</p>
+              <p className="font-semibold">{selectedDateText}</p>
             </div>
             <div>
               <p className="text-muted-foreground">
                 {t("booking.confirmation.totalMoney")}
               </p>
-              <p className="font-medium">{totalDisplay}</p>
+              <p className="font-semibold">{totalDisplay}</p>
             </div>
           </div>
 

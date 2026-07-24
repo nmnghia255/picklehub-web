@@ -145,25 +145,53 @@ export function BookingSummaryFooter() {
               </h4>
 
               {/* Selected Courts Slots details */}
-              <div className="mb-3 max-h-40 space-y-2 overflow-y-auto pr-1 text-xs">
+              <div className="mb-3 max-h-60 space-y-2 overflow-y-auto pr-1 text-xs">
                 {Object.entries(selectedCourts).map(
-                  ([courtIdStr, slots], index) => (
-                    <div
-                      key={courtIdStr}
-                      className={`space-y-0.5 ${index !== 0 ? "border-t border-gray-100 pt-1.5 dark:border-zinc-800" : ""}`}
-                    >
-                      <p className="font-semibold text-gray-700 dark:text-zinc-300">
-                        {courtAvailability?.courts.find(
-                          (court) => court.courtId === courtIdStr
-                        )?.courtName ??
-                          t("booking.summary.courtId", { id: courtIdStr })}
-                        :
-                      </p>
-                      <p className="text-gray-500 dark:text-zinc-400">
-                        {Array.from(slots).join(", ")}
-                      </p>
-                    </div>
-                  )
+                  ([courtIdStr, slots], index) => {
+                    const court = courtAvailability?.courts.find(
+                      (c) => c.courtId === courtIdStr
+                    )
+                    const courtName =
+                      court?.courtName ??
+                      t("booking.summary.courtId", { id: courtIdStr })
+
+                    return (
+                      <div
+                        key={courtIdStr}
+                        className={`space-y-1 ${index !== 0 ? "border-t border-gray-100 pt-2 dark:border-zinc-800" : ""}`}
+                      >
+                        <p className="font-semibold text-gray-700 dark:text-zinc-300">
+                          {courtName}
+                        </p>
+                        <div className="space-y-1 pl-2">
+                          {Array.from(slots).map((slotKey) => {
+                            const [startTime = "", endTime = ""] =
+                              slotKey.split(" - ")
+                            const slot = court?.slots.find(
+                              (s) =>
+                                s.startTime === startTime &&
+                                s.endTime === endTime
+                            )
+                            const slotPrice = toAmount(
+                              slot?.pricePerHour ?? sportCenter?.basePrice
+                            )
+
+                            return (
+                              <div
+                                key={slotKey}
+                                className="flex items-center justify-between text-gray-600 dark:text-zinc-400"
+                              >
+                                <span>{slotKey}</span>
+                                <span className="font-semibold text-gray-800 dark:text-zinc-200">
+                                  {formatCurrencyVnd(slotPrice)}
+                                </span>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )
+                  }
                 )}
               </div>
 

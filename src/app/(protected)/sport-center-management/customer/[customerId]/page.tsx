@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 
 import { PageContainer } from "@/components/page-container"
 import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
 import { CustomerService } from "@/features/sport-center-management/api/customer-service"
 import { CustomerDetailBasicInfoSection } from "@/features/sport-center-management/components/customer/customer-detail/customer-detail-basic-info-section"
 import { CustomerDetailBookingSection } from "@/features/sport-center-management/components/customer/customer-detail/customer-detail-booking-section"
@@ -107,11 +108,15 @@ export default function CustomerDetailPage() {
       ) : null}
 
       {!isLoading && detail ? (
-        <div className="space-y-4 md:space-y-5">
+        <div className="space-y-6">
           <CustomerDetailProfileCard detail={detail} />
+          <Separator />
           <CustomerDetailSummaryGrid detail={detail} />
+          <Separator />
           <CustomerDetailBasicInfoSection detail={detail} />
+          <Separator />
           <CustomerDetailCenterSection centers={detail.byCenter} />
+          <Separator />
           <CustomerDetailBookingSection
             recentBookings={detail.recentBookings}
           />

@@ -257,10 +257,6 @@ export function ServicesProductsManagementPage({
       {!isLocked ? (
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
-              <PackageOpen className="size-4 text-sky-500" />
-              {t("inventory.page.badge")}
-            </div>
             <h1 className="text-2xl font-semibold tracking-tight">
               {t("inventory.page.title")}
             </h1>

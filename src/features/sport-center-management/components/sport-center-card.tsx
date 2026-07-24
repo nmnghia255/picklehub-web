@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { SportCenter } from "@/features/sport-center-management/types/sport-center"
 import { useSportCenterManagementTranslation } from "@/i18n/use-sport-center-management-translation"
-import { formatCurrencyVnd } from "@/utils/expense-utils"
 
 export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
   const { t } = useSportCenterManagementTranslation()
@@ -101,37 +100,6 @@ export function SportCenterCard({ sportCenter }: { sportCenter: SportCenter }) {
                 </div>
               </div>
             </div>
-
-            {/* <div className="grid grid-cols-3 gap-3 rounded-2xl border border-border/60 bg-muted/30 p-3">
-              <div className="space-y-1">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                  Số sân
-                </p>
-                <p className="text-sm font-semibold">
-                  {sportCenter._count.courts}
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                  Giá từ
-                </p>
-                <p className="text-sm font-semibold">
-                  {formatCurrencyVnd(sportCenter.basePrice)}
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                  Đánh giá
-                </p>
-                <p className="text-sm font-semibold">
-                  {sportCenter.reviewCount > 0
-                    ? `${ratingLabel} (${sportCenter.reviewCount})`
-                    : ratingLabel}
-                </p>
-              </div>
-            </div> */}
           </div>
         </CardContent>
       </Card>

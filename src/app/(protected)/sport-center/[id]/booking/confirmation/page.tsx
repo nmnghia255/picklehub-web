@@ -259,15 +259,37 @@ export default function BookingConfirmationPage() {
 
   const courtRows = useMemo(
     () =>
-      Object.entries(bookingDraft.selectedCourts).map(([courtId, slots]) => ({
-        courtId,
-        courtName:
-          bookingDraft.courtAvailability?.courts.find(
-            (court) => court.courtId === courtId
-          )?.courtName ?? t("booking.summary.courtId", { id: courtId }),
-        slots: Array.from(slots),
-      })),
-    [bookingDraft.courtAvailability?.courts, bookingDraft.selectedCourts, t]
+      Object.entries(bookingDraft.selectedCourts).map(([courtId, slots]) => {
+        const court = bookingDraft.courtAvailability?.courts.find(
+          (item) => item.courtId === courtId
+        )
+        const courtName =
+          court?.courtName ?? t("booking.summary.courtId", { id: courtId })
+
+        const slotItems = Array.from(slots).map((slotKey) => {
+          const [startTime = "", endTime = ""] = slotKey.split(" - ")
+          const slot = court?.slots.find(
+            (availableSlot) =>
+              availableSlot.startTime === startTime &&
+              availableSlot.endTime === endTime
+          )
+          const price = toNumber(slot?.pricePerHour ?? sportCenter?.basePrice)
+
+          return { slotKey, price }
+        })
+
+        return {
+          courtId,
+          courtName,
+          slots: slotItems,
+        }
+      }),
+    [
+      bookingDraft.courtAvailability?.courts,
+      bookingDraft.selectedCourts,
+      sportCenter?.basePrice,
+      t,
+    ]
   )
 
   if (!sportCenter || totalSlots === 0) {

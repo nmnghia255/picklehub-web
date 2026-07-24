@@ -20,36 +20,40 @@ export function CustomerDetailBasicInfoSection({
   const { t } = useSportCenterManagementTranslation()
 
   return (
-    <section className="space-y-3 rounded-3xl border bg-card p-4 shadow-sm">
+    <section className="space-y-3">
       <CustomerDetailSectionTitle
         icon={UserRound}
         title={t("customer.detail.basicInfoTitle")}
         toneClassName="text-sky-500"
       />
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         <CustomerDetailValueCard
           label={t("customer.detail.fullName")}
           value={customer.name ?? t("common.notAvailable")}
           icon={UserRound}
           toneClassName="text-sky-500"
+          variant="flat"
         />
         <CustomerDetailValueCard
           label="Email"
           value={customer.email || t("common.notUpdated")}
           icon={UserRound}
           toneClassName="text-sky-500"
+          variant="flat"
         />
         <CustomerDetailValueCard
           label={t("customer.detail.phoneNumber")}
           value={customer.phoneNumber || t("common.notUpdated")}
           icon={UserRound}
           toneClassName="text-sky-500"
+          variant="flat"
         />
         <CustomerDetailValueCard
           label={t("customer.detail.cancelledRefundAmount")}
           value={formatCurrency(detail.summary.cancelledRefundAmount)}
           icon={Coins}
           toneClassName="text-sky-500"
+          variant="flat"
         />
       </div>
     </section>

@@ -6,13 +6,7 @@ import { useCourtScheduleStore } from "../../stores/court-schedule-store"
 import { CourtSchedule } from "./court-schedule"
 import { Filters } from "./filters"
 
-type CourtScheduleWrapperProps = {
-  ownerMode?: boolean
-}
-
-export function CourtScheduleWrapper({
-  ownerMode = false,
-}: CourtScheduleWrapperProps) {
+export function CourtScheduleWrapper() {
   const sportCenters = useCourtScheduleStore((s) => s.sportCenters)
   const fetchSportCenters = useCourtScheduleStore((s) => s.fetchSportCenters)
 
@@ -26,7 +20,7 @@ export function CourtScheduleWrapper({
   }, [])
 
   return (
-    <div className="mt-4 w-full min-w-0 gap-0 overflow-hidden">
+    <div className="w-full min-w-0 gap-0 overflow-hidden">
       <Filters
         date={date}
         setDate={setDate}
@@ -35,7 +29,7 @@ export function CourtScheduleWrapper({
         courts={courts}
       />
 
-      <CourtSchedule ownerMode={ownerMode} />
+      <CourtSchedule />
     </div>
   )
 }

@@ -7,8 +7,11 @@ export function formatDateTimeLong(timestamp?: string | null) {
   if (Number.isNaN(parsed.getTime())) return "—"
 
   return new Intl.DateTimeFormat("vi-VN", {
-    dateStyle: "medium",
-    timeStyle: "short",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
   }).format(parsed)
 }
 
@@ -20,5 +23,9 @@ export function formatVisitBreakdown(
     cancelled: string
   }
 ) {
-  return `${labels.completed} ${summary.completedVisitCount} · ${labels.pending} ${summary.pendingVisitCount} · ${labels.cancelled} ${summary.cancelledVisitCount}`
+  return [
+    `${labels.completed}: ${summary.completedVisitCount}`,
+    `${labels.pending}: ${summary.pendingVisitCount}`,
+    `${labels.cancelled}: ${summary.cancelledVisitCount}`,
+  ]
 }

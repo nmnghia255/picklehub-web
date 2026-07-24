@@ -165,7 +165,7 @@ export function Header({ user }: HeaderProps) {
             <span className="relative flex size-full items-center justify-center overflow-visible">
               <BellRing className="size-4 shrink-0" />
               {unreadCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-red-500 ring-2 ring-background" />
+                <span className="absolute top-1 right-1 z-20 size-2.5 rounded-full bg-red-500 ring-2 ring-background" />
               )}
             </span>
           </Button>
