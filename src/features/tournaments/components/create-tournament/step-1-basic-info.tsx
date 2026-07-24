@@ -1,18 +1,41 @@
 "use client"
 
-import { Loader2, Upload, X } from "lucide-react"
+import { format } from "date-fns"
+import { CalendarIcon, Loader2, Upload, X } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { Textarea } from "@/components/ui/textarea"
 import { uploadImageAction } from "@/features/sport-center/actions/upload-image-action"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
+import { cn } from "@/lib/utils"
 
 import { useCreateTournamentStore } from "../../stores/create-tournament-store"
+
+const parseDateString = (dateStr: string) => {
+  if (!dateStr) return undefined
+  const [year, month, day] = dateStr.split("-").map(Number)
+  if (!year || !month || !day) return undefined
+  return new Date(year, month - 1, day)
+}
+
+const formatDateString = (date: Date) => {
+  const yyyy = date.getFullYear()
+  const mm = String(date.getMonth() + 1).padStart(2, "0")
+  const dd = String(date.getDate()).padStart(2, "0")
+  return `${yyyy}-${mm}-${dd}`
+}
 
 export function Step1BasicInfo() {
   const { t } = useTournamentTranslation()
@@ -39,14 +62,14 @@ export function Step1BasicInfo() {
       const url = await uploadImageAction(file)
       setFormValue("banner", url)
       toast.success(
-        t("sponsors.dialog.paymentQrUploaded", {
+        t("sponsors.dialog.imageUploaded", {
           defaultValue: "Banner uploaded successfully!",
         })
       )
     } catch (error) {
       console.error(error)
       toast.error(
-        t("sponsors.dialog.paymentQrUploadFailed", {
+        t("sponsors.dialog.imageUploadFailed", {
           defaultValue: "Failed to upload banner image.",
         })
       )
@@ -58,6 +81,9 @@ export function Step1BasicInfo() {
   const handleRemoveBanner = () => {
     setFormValue("banner", "")
   }
+
+  const startDateObj = parseDateString(formValues.startDate)
+  const endDateObj = parseDateString(formValues.endDate)
 
   return (
     <div className="space-y-6">
@@ -148,25 +174,73 @@ export function Step1BasicInfo() {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="start-date">{t("create.step1.startDateLabel")}</Label>
-          <Input
-            id="start-date"
-            type="date"
-            value={formValues.startDate}
-            onChange={(e) => setFormValue("startDate", e.target.value)}
-            max={formValues.endDate || undefined}
-            className="mt-3"
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                id="start-date"
+                variant="outline"
+                className={cn(
+                  "mt-3 w-full justify-start text-left font-normal",
+                  !startDateObj && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+                {startDateObj ? (
+                  format(startDateObj, "dd/MM/yyyy")
+                ) : (
+                  <span>dd/mm/yyyy</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={startDateObj}
+                onSelect={(date) => {
+                  if (date) {
+                    setFormValue("startDate", formatDateString(date))
+                  }
+                }}
+                disabled={endDateObj ? (date) => date > endDateObj : undefined}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
         <div>
           <Label htmlFor="end-date">{t("create.step1.endDateLabel")}</Label>
-          <Input
-            id="end-date"
-            type="date"
-            value={formValues.endDate}
-            onChange={(e) => setFormValue("endDate", e.target.value)}
-            min={formValues.startDate || undefined}
-            className="mt-3"
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                id="end-date"
+                variant="outline"
+                className={cn(
+                  "mt-3 w-full justify-start text-left font-normal",
+                  !endDateObj && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+                {endDateObj ? (
+                  format(endDateObj, "dd/MM/yyyy")
+                ) : (
+                  <span>dd/mm/yyyy</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={endDateObj}
+                onSelect={(date) => {
+                  if (date) {
+                    setFormValue("endDate", formatDateString(date))
+                  }
+                }}
+                disabled={
+                  startDateObj ? (date) => date < startDateObj : undefined
+                }
+              />
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
     </div>

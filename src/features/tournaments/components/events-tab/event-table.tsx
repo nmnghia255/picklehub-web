@@ -48,7 +48,7 @@ export function EventTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[20%] min-w-37.5">
+            <TableHead className="w-[30%] min-w-44">
               {t("events.table.eventName")}
             </TableHead>
             <TableHead className="w-[10%] min-w-20">
@@ -87,7 +87,10 @@ export function EventTable({
                   : ""
               }`}
             >
-              <TableCell className="w-[35%] min-w-50 font-medium text-gray-900">
+              <TableCell
+                className="max-w-[220px] truncate font-medium text-gray-900"
+                title={event.name}
+              >
                 {event.name}
               </TableCell>
               <TableCell className="capitalize">

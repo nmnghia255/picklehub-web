@@ -87,7 +87,10 @@ export function TournamentList({
       if (initialTotalItems !== undefined && initialTotalPages !== undefined) {
         setPagination(initialTotalItems, initialTotalPages)
       }
+      setIsLoading(false)
       isInitialized.current = true
+    } else {
+      setIsLoading(false)
     }
   }, [
     initialTournaments,
@@ -95,6 +98,7 @@ export function TournamentList({
     initialTotalPages,
     setTournaments,
     setPagination,
+    setIsLoading,
   ])
 
   // Fetch data on filter or page changes
@@ -125,9 +129,7 @@ export function TournamentList({
       } catch (error) {
         console.error("Error fetching tournaments:", error)
       } finally {
-        if (active) {
-          setIsLoading(false)
-        }
+        setIsLoading(false)
       }
     }, 100) // 100ms debounce
 
@@ -257,14 +259,19 @@ export function TournamentList({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t("list.statuses.all")}</SelectItem>
-                  <SelectItem value="draft">
-                    {t("list.statuses.draft")}
-                  </SelectItem>
+                  {mode !== "public" && (
+                    <SelectItem value="draft">
+                      {t("list.statuses.draft")}
+                    </SelectItem>
+                  )}
                   <SelectItem value="published">
                     {t("list.statuses.published")}
                   </SelectItem>
                   <SelectItem value="open_registration">
                     {t("list.statuses.open_registration")}
+                  </SelectItem>
+                  <SelectItem value="closed_registration">
+                    {t("list.statuses.closed_registration")}
                   </SelectItem>
                   <SelectItem value="in_progress">
                     {t("list.statuses.in_progress")}

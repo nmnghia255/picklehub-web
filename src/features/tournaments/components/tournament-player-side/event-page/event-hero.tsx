@@ -35,7 +35,7 @@ export function EventHero({ tournament, event }: EventHeroProps) {
             <span className="flex items-center gap-1.5">
               <Calendar className="h-4 w-4 text-emerald-400" />
               {new Date(tournament.startDate).toLocaleDateString("vi-VN", {
-                month: "short",
+                month: "numeric",
                 day: "numeric",
                 year: "numeric",
               })}

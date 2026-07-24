@@ -14,6 +14,8 @@
         "buttons": {
             "previous": "Trước",
             "next": "Bước tiếp theo",
+            "create": "Tạo giải đấu",
+            "creating": "Đang tạo...",
             "publish": "Xuất bản giải đấu",
             "publishing": "Đang xuất bản..."
         },

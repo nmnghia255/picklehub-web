@@ -191,7 +191,7 @@ export function Step2Events() {
               {t("events.createEvent", { defaultValue: "Add Event" })}
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px]">
+          <DialogContent className="sm:max-w-150">
             <DialogHeader>
               <DialogTitle>
                 {editingEventId !== null

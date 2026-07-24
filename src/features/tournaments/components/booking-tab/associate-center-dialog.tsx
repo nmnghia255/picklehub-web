@@ -63,7 +63,7 @@ export function AssociateCenterDialog({
 
   const handleAssociate = async () => {
     const selectedCenter = availableCenters.find(
-      (c) => c.name === selectedCenterToAssociate
+      (c) => c.id === selectedCenterToAssociate
     )
     if (!selectedCenter) return
     setIsAddingCenter(true)
@@ -87,15 +87,15 @@ export function AssociateCenterDialog({
         }
       }}
     >
-      <DialogContent className="overflow-visible overflow-y-auto pt-8 sm:max-w-[600px]">
+      <DialogContent className="overflow-visible overflow-y-auto pt-8 sm:max-w-150">
         <DialogHeader>
           <DialogTitle>{t("booking.dialog.associateTitle")}</DialogTitle>
           <DialogDescription>
             {t("booking.dialog.associateDesc")}
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-3" ref={containerRef}>
-          <div className="space-y-1">
+        <div className="space-y-4" ref={containerRef}>
+          <div className="space-y-4">
             <Label>{t("booking.form.center")}</Label>
             <Combobox
               value={selectedCenterToAssociate}
@@ -106,16 +106,24 @@ export function AssociateCenterDialog({
               onInputValueChange={(val) => {
                 setCenterSearchQuery(val || "")
               }}
+              itemToStringLabel={(val) =>
+                allSportCenters.find((c) => c.id === val)?.name ?? val ?? ""
+              }
             >
               <ComboboxInput
                 placeholder={t("booking.form.selectCenterPlaceholder")}
                 className="mt-1.5 w-full bg-white"
                 showClear
               />
-              <ComboboxContent side="bottom" align="start" sideOffset={6}>
+              <ComboboxContent
+                container={containerRef}
+                side="bottom"
+                align="start"
+                sideOffset={6}
+              >
                 <ComboboxList>
                   {filteredAvailableCenters.map((sc) => (
-                    <ComboboxItem key={sc.id} value={sc.name}>
+                    <ComboboxItem key={sc.id} value={sc.id}>
                       <div className="flex w-full flex-col py-0.5 text-left">
                         <span className="text-sm font-semibold text-gray-900">
                           {sc.name}

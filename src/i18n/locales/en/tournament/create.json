@@ -14,6 +14,8 @@
     "buttons": {
       "previous": "Previous",
       "next": "Next Step",
+      "create": "Create Tournament",
+      "creating": "Creating...",
       "publish": "Publish Tournament",
       "publishing": "Publishing..."
     },
@@ -66,12 +68,12 @@
       "championLabel": "Champion Prize ($)",
       "runnerUpLabel": "Runner-up Prize ($)",
       "thirdPrizeLabel": "Third Place Prize ($)",
-      "prizeHint": "💡 Prize amounts can be customized per event after tournament creation",
+      "prizeHint": "Prize amounts can be customized per event after tournament creation",
       "eventSummary": "Capacity: {{capacity}} Slots • DUPR: {{skillRange}}",
       "capacity": "Capacity: {{capacity}} Slots",
       "dupr": "DUPR: {{skillRange}}",
       "noPrizes": "Prizes not configured yet. Click to configure.",
-      "noEvents": "⚠️ Please add at least one Event in the previous step before configuring prizes.",
+      "noEvents": "Please add at least one Event in the previous step before configuring prizes.",
       "statusComplete": "Complete",
       "statusUncompleted": "Uncompleted",
       "dialogTitle": "Configure Prizes — {{eventName}}",

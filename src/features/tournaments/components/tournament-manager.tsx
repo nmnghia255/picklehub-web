@@ -100,14 +100,23 @@ export function TournamentManager({
   const router = useRouter()
   const pathname = usePathname()
   const tabParam = searchParams?.get("tab")
+  const isDraft = tournament.status === "draft"
+  const hiddenTabs = isDraft
+    ? ["registrations", "seeding", "schedule", "live"]
+    : []
+
   const resolvedTabParam =
     tabParam === "brackets" ? "groups" : tabParam || "dashboard"
-  const [activeTab, setActiveTab] = useState(resolvedTabParam)
+  const validTabParam = hiddenTabs.includes(resolvedTabParam)
+    ? "dashboard"
+    : resolvedTabParam
+
+  const [activeTab, setActiveTab] = useState(validTabParam)
   const [prevTabParam, setPrevTabParam] = useState(tabParam)
 
   if (tabParam !== prevTabParam) {
     setPrevTabParam(tabParam)
-    setActiveTab(resolvedTabParam)
+    setActiveTab(validTabParam)
   }
 
   const handleTabChange = (value: string) => {
@@ -134,6 +143,7 @@ export function TournamentManager({
   const isXl = useMediaQuery("(min-width: 1280px)")
 
   const isTabNativelyVisible = (tabValue: string) => {
+    if (hiddenTabs.includes(tabValue)) return false
     switch (tabValue) {
       case "dashboard":
       case "events":
@@ -162,7 +172,7 @@ export function TournamentManager({
     "bookings",
     "groups",
     "schedule",
-  ]
+  ].filter((tab) => !hiddenTabs.includes(tab))
 
   // Compute which of these are natively visible
   const nativeTabs = defaultTabs.filter((tab) => isTabNativelyVisible(tab))
@@ -190,7 +200,7 @@ export function TournamentManager({
     "payment",
     "sponsors",
     "personnel",
-  ]
+  ].filter((tab) => !hiddenTabs.includes(tab))
 
   // The dropdown tabs are the ones not currently displayed in the tablist
   const dropdownTabs = allSelectableTabs.filter(
@@ -407,7 +417,7 @@ export function TournamentManager({
                     <span className="text-sm font-semibold text-gray-500 dark:text-zinc-400">
                       {t("seeding.selectEvent")}:
                     </span>
-                    <div className="w-full sm:w-[240px]">
+                    <div className="w-full sm:w-60">
                       <Select
                         value={selectedEventId?.toString()}
                         onValueChange={(val) => setSelectedEventId(Number(val))}

@@ -66,19 +66,19 @@ export function RegistrationFeeTable() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[120px]">
+                <TableHead className="w-30">
                   {t("financials.transactions.date")}
                 </TableHead>
                 <TableHead>
                   {t("financials.transactions.description")}
                 </TableHead>
-                <TableHead className="w-[110px]">
+                <TableHead className="w-27.5">
                   {t("financials.transactions.type")}
                 </TableHead>
-                <TableHead className="w-[140px] text-right">
+                <TableHead className="w-35 text-right">
                   {t("financials.transactions.amount")}
                 </TableHead>
-                <TableHead className="w-[120px]">
+                <TableHead className="w-30">
                   {t("financials.transactions.status")}
                 </TableHead>
               </TableRow>

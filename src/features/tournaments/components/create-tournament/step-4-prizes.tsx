@@ -370,9 +370,9 @@ export function Step4Prizes() {
 
       {activeEvent && (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[700px]">
+          <DialogContent className="max-h-[85vh] overflow-y-auto py-0 sm:max-w-175">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold">
+              <DialogTitle className="pt-4 text-xl font-bold">
                 {t("create.step4.dialogTitle", {
                   eventName: activeEvent.name,
                   defaultValue: `Configure Prizes — ${activeEvent.name}`,
@@ -485,7 +485,7 @@ export function Step4Prizes() {
               })}
             </div>
 
-            <DialogFooter className="border-t pt-4">
+            <DialogFooter className="border-t py-4">
               <Button
                 variant="outline"
                 onClick={() => {

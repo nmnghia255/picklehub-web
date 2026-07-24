@@ -25,7 +25,17 @@ export async function createFullTournamentAction(
     const tournament = await TournamentService.createTournament(
       payload.tournament
     )
-    const tournamentId = tournament.id.toString()
+    const tournamentObj = tournament as unknown as
+      | Record<string, unknown>
+      | undefined
+    const rawId =
+      tournament?.id ??
+      (tournamentObj?.data as Record<string, unknown> | undefined)?.id ??
+      (tournamentObj?.tournament as Record<string, unknown> | undefined)?.id
+    if (!rawId) {
+      throw new Error("Invalid tournament ID returned from server")
+    }
+    const tournamentId = String(rawId)
 
     // 2. Create the events, and keep a map of localId -> backendId (normalizing keys to String)
     const eventIdMap = new Map<string, number>()

@@ -134,6 +134,8 @@
       "cancel": "Cancel",
       "submit": "Add Sponsor",
       "loading": "Loading...",
+      "imageUploaded": "Image uploaded successfully!",
+      "imageUploadFailed": "Failed to upload image.",
       "paymentQrUploaded": "QR code uploaded successfully!",
       "paymentQrUploadFailed": "Failed to upload QR code image.",
       "validationName": "Please enter a sponsor name",

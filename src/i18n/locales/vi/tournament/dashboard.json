@@ -85,8 +85,10 @@
                 "refund": "Hoàn tiền"
             },
             "statuses": {
-                "completed": "Hoàn thành",
-                "pending": "Đang xử lý"
+                "completed": "Đã xác nhận",
+                "pending": "Chờ xử lý",
+                "verifying": "Chờ xác minh",
+                "failed": "Thất bại"
             },
             "add": "Thêm giao dịch",
             "dialogTitle": "Thêm giao dịch mới",
@@ -141,6 +143,8 @@
             "validationPrice": "Vui lòng nhập mức tài trợ hợp lệ lớn hơn 0",
             "validationWebsiteUrl": "Vui lòng nhập đường dẫn hợp lệ (bắt đầu bằng http:// hoặc https://)",
             "loading": "Đang tải...",
+            "imageUploaded": "Đã tải ảnh lên thành công!",
+            "imageUploadFailed": "Không thể tải ảnh lên.",
             "paymentQrUploaded": "Đã tải mã QR lên thành công!",
             "paymentQrUploadFailed": "Không thể tải ảnh mã QR lên."
         },

@@ -133,7 +133,7 @@ export function RefereeInvitationsList({
               defaultValue: "Referee Invitations",
             })}
           </CardTitle>
-          <CardDescription className="mt-1 text-xs text-gray-500">
+          <CardDescription className="mt-1 text-sm text-gray-500">
             {t("personnel.invitations.cardDescription", {
               defaultValue:
                 "Manage email invitations sent to prospective referees.",
@@ -171,7 +171,7 @@ export function RefereeInvitationsList({
                 defaultValue: "No invitations found",
               })}
             </h3>
-            <p className="max-w-sm text-xs text-gray-500">
+            <p className="max-w-sm text-sm text-gray-500">
               {t("personnel.invitations.emptyDesc", {
                 defaultValue:
                   "You haven't sent any invitations to referees yet. Click 'Invite' in the roster tab to send one.",
@@ -181,7 +181,7 @@ export function RefereeInvitationsList({
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-sm text-gray-600">
-              <thead className="border-b border-gray-100 bg-gray-50 text-xs font-semibold text-gray-500 uppercase">
+              <thead className="border-b border-gray-100 bg-gray-50 text-sm font-semibold text-gray-500 uppercase">
                 <tr>
                   <th scope="col" className="px-6 py-3">
                     {t("personnel.invitations.table.email", {

@@ -105,13 +105,20 @@ export function CreateTournament() {
           toast.error(t("create.validation.requiredFields"))
           return false
         }
-        if (new Date(formValues.startDate) >= new Date(formValues.endDate)) {
+        if (new Date(formValues.startDate) > new Date(formValues.endDate)) {
           toast.error(t("create.validation.dateOrder"))
           return false
         }
         return true
 
       case 2:
+        if (events.length === 0) {
+          toast.error(t("create.validation.minEvents"))
+          return false
+        }
+        return true
+
+      case 3:
         if (!formValues.regOpen) {
           toast.error(t("create.validation.requiredFields"))
           return false
@@ -120,19 +127,12 @@ export function CreateTournament() {
           toast.error(t("create.validation.requiredFields"))
           return false
         }
-        if (new Date(formValues.regOpen) >= new Date(formValues.regClose)) {
+        if (new Date(formValues.regOpen) > new Date(formValues.regClose)) {
           toast.error(t("create.validation.regDateOrder"))
           return false
         }
         if (new Date(formValues.regClose) > new Date(formValues.startDate)) {
           toast.error(t("create.validation.regCloseBeforeStart"))
-          return false
-        }
-        return true
-
-      case 3:
-        if (events.length === 0) {
-          toast.error(t("create.validation.minEvents"))
           return false
         }
         return true
@@ -251,10 +251,14 @@ export function CreateTournament() {
         prizes: prizesPayload,
       })
 
-      if (result.success && result.tournamentId) {
+      if (result.success) {
         toast.success(t("create.successMessage"))
         resetForm()
-        router.push(`/tournament/${result.tournamentId}`)
+        if (result.tournamentId) {
+          router.push(`/tournament-management/${result.tournamentId}`)
+        } else {
+          router.push("/tournament-management")
+        }
       } else {
         toast.error(result.error || t("create.errorMessage"))
       }
@@ -362,12 +366,12 @@ export function CreateTournament() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t("create.buttons.publishing")}
+                    {t("create.buttons.creating")}
                   </>
                 ) : (
                   <>
                     {currentStep === totalSteps
-                      ? t("create.buttons.publish")
+                      ? t("create.buttons.create")
                       : t("create.buttons.next")}
                     {currentStep < totalSteps && (
                       <ArrowRight className="ml-2 h-4 w-4" />

@@ -1,6 +1,6 @@
 "use client"
 
-import { Loader2 } from "lucide-react"
+import { AlertCircle, Loader2 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -131,6 +131,71 @@ export function RegisterConfirmDialog({
     return gender
   }
 
+  const normalizeGender = (g?: string): "MALE" | "FEMALE" | "OTHER" => {
+    if (!g) return "OTHER"
+    const norm = g.trim().toUpperCase()
+    if (norm === "MALE" || norm === "MEN" || norm === "MAN") return "MALE"
+    if (norm === "FEMALE" || norm === "WOMEN" || norm === "WOMAN")
+      return "FEMALE"
+    return "OTHER"
+  }
+
+  const getGenderValidationError = (): string | null => {
+    if (!isDoubles) return null
+
+    const eventGender = (event.gender || "").toLowerCase()
+    const userGender = normalizeGender(currentUser.gender)
+    const partnerGender = partnerProfile
+      ? normalizeGender(partnerProfile.gender)
+      : null
+
+    // Men's Doubles
+    if (eventGender.includes("men") && !eventGender.includes("women")) {
+      if (userGender !== "MALE") {
+        return t("eventDetail.menDoublesUserError", {
+          defaultValue: "Men's Doubles requires Player 1 (you) to be Male.",
+        })
+      }
+      if (partnerProfile && partnerGender !== "MALE") {
+        return t("eventDetail.menDoublesPartnerError", {
+          defaultValue: "Men's Doubles requires Player 2 (partner) to be Male.",
+        })
+      }
+    }
+    // Women's Doubles
+    else if (eventGender.includes("women") || eventGender.includes("female")) {
+      if (userGender !== "FEMALE") {
+        return t("eventDetail.womenDoublesUserError", {
+          defaultValue: "Women's Doubles requires Player 1 (you) to be Female.",
+        })
+      }
+      if (partnerProfile && partnerGender !== "FEMALE") {
+        return t("eventDetail.womenDoublesPartnerError", {
+          defaultValue:
+            "Women's Doubles requires Player 2 (partner) to be Female.",
+        })
+      }
+    }
+    // Mixed Doubles
+    else if (eventGender.includes("mix")) {
+      if (partnerProfile) {
+        if (
+          (userGender === "MALE" && partnerGender !== "FEMALE") ||
+          (userGender === "FEMALE" && partnerGender !== "MALE")
+        ) {
+          return t("eventDetail.mixedDoublesOppositeGenderError", {
+            defaultValue:
+              "Mixed Doubles requires Player 1 and Player 2 to be opposite genders (one Male, one Female).",
+          })
+        }
+      }
+    }
+
+    return null
+  }
+
+  const genderError = getGenderValidationError()
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -140,6 +205,11 @@ export function RegisterConfirmDialog({
           defaultValue: "Please select a partner",
         })
       )
+      return
+    }
+
+    if (genderError) {
+      toast.error(genderError)
       return
     }
 
@@ -164,6 +234,13 @@ export function RegisterConfirmDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+          {genderError && (
+            <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50/80 p-3 text-xs font-medium text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
+              <AlertCircle className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400" />
+              <span>{genderError}</span>
+            </div>
+          )}
+
           {/* Main Grid for Players Info */}
           <div className="space-y-4">
             {/* Player 1 Details */}
@@ -226,7 +303,7 @@ export function RegisterConfirmDialog({
                     })}
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="mt-2 space-y-4">
                     <Select
                       value={selectedFriendId}
                       onValueChange={handleFriendSelect}
@@ -311,7 +388,9 @@ export function RegisterConfirmDialog({
             </Button>
             <Button
               type="submit"
-              disabled={isRegistering || (isDoubles && !partnerProfile)}
+              disabled={
+                isRegistering || (isDoubles && !partnerProfile) || !!genderError
+              }
               className="bg-emerald-600 font-bold text-white hover:bg-emerald-700"
             >
               {isRegistering ? (

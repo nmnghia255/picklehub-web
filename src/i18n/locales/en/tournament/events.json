@@ -181,6 +181,11 @@
     "partnerRequiredNotice": "Please select a partner to complete registration.",
     "confirmAndRegister": "Confirm & Register",
     "selectPartnerError": "Please select a partner",
+    "menDoublesUserError": "Men's Doubles requires Player 1 (you) to be Male.",
+    "menDoublesPartnerError": "Men's Doubles requires Player 2 (partner) to be Male.",
+    "womenDoublesUserError": "Women's Doubles requires Player 1 (you) to be Female.",
+    "womenDoublesPartnerError": "Women's Doubles requires Player 2 (partner) to be Female.",
+    "mixedDoublesOppositeGenderError": "Mixed Doubles requires Player 1 and Player 2 to be opposite genders (one Male, one Female).",
     "standing": {
       "loading": "Loading standings...",
       "noData": "No standing data available yet.",
