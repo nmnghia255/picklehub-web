@@ -24,7 +24,11 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useCoachCourtBookings } from "@/features/coach/hooks/use-coach-court-bookings"
+import {
+  type CourtBookingCourtSelection,
+  type CourtBookingSelection,
+  useCoachCourtBookings,
+} from "@/features/coach/hooks/use-coach-court-bookings"
 
 export type CourtLinkedLocationMode = "free-text" | "court"
 const EMPTY_COURTS: {
@@ -43,6 +47,10 @@ interface CourtBookingLocationFieldsProps {
   onCourtIdChange: (value: string) => void
   locationDescription: string
   onLocationDescriptionChange: (value: string) => void
+  onSelectedCourtSlotChange?: (selection: {
+    booking: CourtBookingSelection
+    court: CourtBookingCourtSelection
+  }) => void
   disabled?: boolean
 }
 
@@ -89,6 +97,7 @@ export function CourtBookingLocationFields({
   onCourtIdChange,
   locationDescription,
   onLocationDescriptionChange,
+  onSelectedCourtSlotChange,
   disabled = false,
 }: CourtBookingLocationFieldsProps) {
   const { t, i18n } = useTranslation("common")
@@ -107,6 +116,9 @@ export function CourtBookingLocationFields({
   )
 
   const selectedCourts = selectedBooking?.bookingItems ?? EMPTY_COURTS
+  const selectedCourtSlot =
+    selectedCourts.find((court) => court.courtId === courtId) ??
+    (selectedCourts.length === 1 ? selectedCourts[0] : null)
 
   useEffect(() => {
     if (mode === "free-text") {
@@ -137,6 +149,14 @@ export function CourtBookingLocationFields({
     selectedBooking,
     selectedCourts,
   ])
+
+  useEffect(() => {
+    if (mode !== "court" || !selectedBooking || !selectedCourtSlot) return
+    onSelectedCourtSlotChange?.({
+      booking: selectedBooking,
+      court: selectedCourtSlot,
+    })
+  }, [mode, onSelectedCourtSlotChange, selectedBooking, selectedCourtSlot])
 
   const handleModeChange = (nextMode: CourtLinkedLocationMode) => {
     if (nextMode === "free-text") {

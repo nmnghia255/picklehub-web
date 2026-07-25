@@ -29,7 +29,7 @@ import {
   XCircle,
 } from "lucide-react"
 import { useParams } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
@@ -74,6 +74,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { useSession } from "@/features/auth/hooks/use-session"
 import { CoachMediaService } from "@/features/coach/api/media-service"
 import { CourtBookingLocationFields } from "@/features/coach/components/court-booking-location-fields"
+import type {
+  CourtBookingCourtSelection,
+  CourtBookingSelection,
+} from "@/features/coach/hooks/use-coach-court-bookings"
 import {
   useAddScheduleSlot,
   useCancelClass,
@@ -164,6 +168,22 @@ function getEnrollmentStatusLabel(
     CANCELLED: t("coach.students.learnerDetail.enrollmentCancelled"),
     COMPLETED: t("coach.students.learnerDetail.enrollmentCompleted"),
   } as Record<EnrollmentStatus, string>
+}
+
+function parseBookingDate(date: string) {
+  const [year, month, day] = date.slice(0, 10).split("-").map(Number)
+  if (!year || !month || !day) return null
+  return new Date(year, month - 1, day)
+}
+
+function getCourtSlotDurationMinutes(slot: CourtBookingCourtSelection) {
+  const toMinutes = (time: string) => {
+    const [hours, minutes] = time.split(":").map(Number)
+    return hours * 60 + minutes
+  }
+  const start = toMinutes(slot.startTime)
+  const end = toMinutes(slot.endTime)
+  return end > start ? end - start : end + 24 * 60 - start
 }
 
 function LoadingSkeleton() {
@@ -271,11 +291,48 @@ export default function CoachClassDetailPage() {
   const [scheduleCalendarMonth, setScheduleCalendarMonth] = useState(() =>
     startOfMonth(new Date())
   )
+  const handleScheduleCourtSlotChange = useCallback(
+    ({
+      booking,
+      court,
+    }: {
+      booking: CourtBookingSelection
+      court: CourtBookingCourtSelection
+    }) => {
+      const bookingDate = parseBookingDate(booking.date)
+      if (bookingDate) {
+        setScheduleDate((current) =>
+          current && isSameDay(current, bookingDate) ? current : bookingDate
+        )
+        setScheduleCalendarMonth((current) =>
+          isSameMonth(current, bookingDate)
+            ? current
+            : startOfMonth(bookingDate)
+        )
+      }
+      setScheduleTime((current) =>
+        current === court.startTime ? current : court.startTime
+      )
+      const durationMinutes = getCourtSlotDurationMinutes(court)
+      if (durationMinutes > 0) {
+        setScheduleDuration((current) =>
+          current === durationMinutes ? current : durationMinutes
+        )
+      }
+    },
+    [
+      setScheduleCalendarMonth,
+      setScheduleDate,
+      setScheduleDuration,
+      setScheduleTime,
+    ]
+  )
 
   const timeSlots = useMemo(() => {
     const slots: string[] = []
     for (let h = 6; h <= 22; h++) {
       slots.push(`${String(h).padStart(2, "0")}:00`)
+      if (h < 22) slots.push(`${String(h).padStart(2, "0")}:30`)
     }
     return slots
   }, [])
@@ -1703,6 +1760,7 @@ export default function CoachClassDetailPage() {
                   onCourtIdChange={setScheduleCourtId}
                   locationDescription={scheduleLocationDescription}
                   onLocationDescriptionChange={setScheduleLocationDescription}
+                  onSelectedCourtSlotChange={handleScheduleCourtSlotChange}
                   disabled={addScheduleSlot.isPending}
                 />
 
