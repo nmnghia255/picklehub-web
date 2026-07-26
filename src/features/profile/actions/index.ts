@@ -65,6 +65,7 @@ export async function updateAvatarAction(
     const payload: UpdateMyProfilePayload = {
       fullName: currentProfile.fullName,
       avatarUrl: parsed.data.avatarUrl,
+      address: currentProfile.address ?? null,
       bio: currentProfile.bio ?? null,
       gender: currentProfile.gender ?? null,
       selfRating: currentProfile.selfRating,
@@ -91,6 +92,11 @@ export async function updateAvatarAction(
 
 const updateProfileInformationSchema = z.object({
   name: z.string().trim().min(1, "Vui lòng nhập tên hiển thị"),
+  address: z.preprocess((value) => {
+    if (typeof value !== "string") return value
+    const trimmed = value.trim()
+    return trimmed.length > 0 ? trimmed : null
+  }, z.string().max(255).nullable()),
   bio: z.preprocess((value) => {
     if (typeof value !== "string") return value
     const trimmed = value.trim()
@@ -129,6 +135,7 @@ export async function updateProfileInformationAction(
 ): Promise<UpdateProfileState> {
   const parsed = updateProfileInformationSchema.safeParse({
     name: formData.get("name"),
+    address: formData.get("address"),
     bio: formData.get("bio"),
     gender: formData.get("gender"),
     selfRating: formData.get("selfRating"),
@@ -144,6 +151,7 @@ export async function updateProfileInformationAction(
     const payload: UpdateMyProfilePayload = {
       fullName: parsed.data.name,
       avatarUrl: currentProfile.avatarUrl ?? null,
+      address: parsed.data.address,
       bio: parsed.data.bio,
       gender: parsed.data.gender,
       ...(typeof parsed.data.selfRating === "number"

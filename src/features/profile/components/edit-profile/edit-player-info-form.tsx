@@ -16,6 +16,7 @@ import { useProfileTranslation } from "@/i18n/use-profile-translation"
 type EditPlayerInfoValues = {
   name?: string | null
   avatarUrl?: string | null
+  address?: string | null
   bio?: string | null
   gender?: "MALE" | "FEMALE" | "OTHER" | null
   selfRating?: number | null
@@ -39,33 +40,33 @@ const SELF_RATING_OPTIONS = [
 ] as const
 
 function getInitialSelfRatingValue(value?: number | null): string {
-  if (typeof value !== "number") {
+  if (typeof value !== "number" || Number.isNaN(value)) {
     return ""
-  }
-
-  // Legacy values may be stored as 1..13 indexes.
-  if (
-    Number.isInteger(value) &&
-    value >= 1 &&
-    value <= SELF_RATING_OPTIONS.length
-  ) {
-    return SELF_RATING_OPTIONS[value - 1]
   }
 
   if (value >= 5) {
     return "5.0+"
   }
 
-  const directMatch = SELF_RATING_OPTIONS.find(
-    (option) => option === value.toString()
-  )
-  if (directMatch) {
-    return directMatch
+  const strVal = value.toString()
+  if ((SELF_RATING_OPTIONS as readonly string[]).includes(strVal)) {
+    return strVal
   }
 
-  const rounded = value.toFixed(2).replace(/\.00$/, ".0").replace(/0$/, "")
-  const roundedMatch = SELF_RATING_OPTIONS.find((option) => option === rounded)
-  return roundedMatch ?? ""
+  const fixed1 = value.toFixed(1)
+  if ((SELF_RATING_OPTIONS as readonly string[]).includes(fixed1)) {
+    return fixed1
+  }
+
+  const fixed2 = value.toFixed(2)
+  if ((SELF_RATING_OPTIONS as readonly string[]).includes(fixed2)) {
+    return fixed2
+  }
+
+  const closest = SELF_RATING_OPTIONS.find(
+    (opt) => Math.abs(parseFloat(opt) - value) < 0.125
+  )
+  return closest ?? ""
 }
 
 function getTranslatedMessage(
@@ -155,6 +156,16 @@ export function EditPlayerInfoForm({
             </NativeSelect>
           </Field>
         </div>
+
+        <Field>
+          <FieldLabel htmlFor="address">{t("edit.address")}</FieldLabel>
+          <Input
+            id="address"
+            name="address"
+            placeholder={t("edit.addressPlaceholder")}
+            defaultValue={initialValues?.address ?? ""}
+          />
+        </Field>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Field>

@@ -25,6 +25,7 @@ export function EditProfilePlayerInfoCard({ user }: { user: User | null }) {
           initialValues={{
             name: user?.fullName,
             avatarUrl: user?.avatarUrl,
+            address: user?.address,
             bio: user?.bio,
             gender: user?.gender,
             selfRating: user?.selfRating,

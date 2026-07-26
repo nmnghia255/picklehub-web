@@ -17,6 +17,7 @@ export interface UpdateMyProfilePayload {
   gender: "MALE" | "FEMALE" | "OTHER" | null
   selfRating?: number
   preferredHand: "RIGHT" | "LEFT" | "AMBIDEXTROUS" | null
+  address?: string | null
 }
 
 function unwrapApiResponse<T>(payload: ApiResponse<T> | T): T {

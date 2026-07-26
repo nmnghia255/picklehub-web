@@ -97,6 +97,12 @@ export function RightPanel({
             </dd>
           </div>
           <div className="flex items-center justify-between gap-4 rounded-lg bg-muted/30 px-3 py-2">
+            <dt className="text-muted-foreground">{t("address")}</dt>
+            <dd className="font-medium text-foreground">
+              {user?.address || t("addressUnspecified")}
+            </dd>
+          </div>
+          <div className="flex items-center justify-between gap-4 rounded-lg bg-muted/30 px-3 py-2">
             <dt className="text-muted-foreground">{t("selfRating")}</dt>
             <dd className="font-medium text-foreground">{selfRatingLabel}</dd>
           </div>

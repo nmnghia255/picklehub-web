@@ -28,8 +28,12 @@ export interface UpdateProfileRequest {
   avatarUrl?: string | null
   bio?: string | null
   gender?: "MALE" | "FEMALE" | "OTHER" | null
+  selfRating: number
   phoneNumber: string
   preferredHand?: "RIGHT" | "LEFT" | "AMBIDEXTROUS" | null
   address: string
-  name: string
+  city: string
+  district: string
+  latitude: number
+  longitude: number
 }
