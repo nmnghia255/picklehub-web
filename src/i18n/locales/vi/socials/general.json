@@ -1,5 +1,9 @@
 {
-    "courts": { "court1": "Sân 1", "court2": "Sân 2", "court3": "Sân 3" },
+    "courts": {
+        "court1": "Sân 1",
+        "court2": "Sân 2",
+        "court3": "Sân 3"
+    },
     "common": {
         "na": "Không áp dụng",
         "level": "Cấp độ",
@@ -8,7 +12,7 @@
         "unknownPlayer": "Người chơi không rõ",
         "unknownTeam": "Đội không rõ",
         "guest": "Khách",
-        "host": "Chủ nhà",
+        "host": "Người tổ chức",
         "openMenu": "Mở menu",
         "beforeEvent": "trước sự kiện",
         "hours_one": "{{count}} giờ",
@@ -78,8 +82,8 @@
         "spotsRemaining_one": "Còn {{count}} chỗ",
         "spotsRemaining_other": "Còn {{count}} chỗ",
         "hostedBy": "Được tổ chức bởi",
-        "hostRoleHostAndPlay": "Chủ nhà & thi đấu",
-        "hostRoleHostOnly": "Chỉ chủ nhà",
+        "hostRoleHostAndPlay": "Người tổ chức & tham gia",
+        "hostRoleHostOnly": "Người tổ chức",
         "settings": "Cài đặt",
         "autoApprove": "Tự động duyệt",
         "autoApproveEnabled": "Đã bật",

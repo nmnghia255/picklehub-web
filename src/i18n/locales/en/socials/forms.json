@@ -35,6 +35,8 @@
     "paymentQrPreview": "Payment QR preview",
     "paymentQrRemove": "Remove payment QR",
     "paymentQrInvalidFile": "Please choose a valid image file.",
+    "paymentQrInvalidFormat": "Only PNG and JPEG (JPG) image formats are allowed.",
+    "paymentQrFileTooLarge": "File size must be under 5MB.",
     "paymentQrUploadFailed": "Could not upload the payment QR image.",
     "paymentCode": "Payment Code",
     "paymentInstructions": "Payment Instructions",

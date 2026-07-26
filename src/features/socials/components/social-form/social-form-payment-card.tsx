@@ -45,6 +45,9 @@ export function SocialFormPaymentCard({
     return cleanVal ? Number(cleanVal) : null
   }
 
+  const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/jpg"]
+  const MAX_FILE_SIZE = 5 * 1024 * 1024
+
   const handlePaymentQrChange = async (
     event: ChangeEvent<HTMLInputElement>
   ) => {
@@ -54,9 +57,23 @@ export function SocialFormPaymentCard({
 
     if (!file) return
 
-    if (!file.type.startsWith("image/")) {
+    const fileType = file.type.toLowerCase()
+    const isPngOrJpeg =
+      ALLOWED_IMAGE_TYPES.includes(fileType) ||
+      file.name.toLowerCase().endsWith(".png") ||
+      file.name.toLowerCase().endsWith(".jpeg") ||
+      file.name.toLowerCase().endsWith(".jpg")
+
+    if (!isPngOrJpeg) {
       setPaymentQrFileName("")
-      setPaymentQrError(t("form.paymentQrInvalidFile"))
+      setPaymentQrError(t("form.paymentQrInvalidFormat"))
+      event.target.value = ""
+      return
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setPaymentQrFileName("")
+      setPaymentQrError(t("form.paymentQrFileTooLarge"))
       event.target.value = ""
       return
     }
@@ -163,7 +180,7 @@ export function SocialFormPaymentCard({
                 <Input
                   ref={paymentQrInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/png,image/jpeg,image/jpg"
                   className="sr-only"
                   onChange={(event) => void handlePaymentQrChange(event)}
                   disabled={isUploadingPaymentQr}

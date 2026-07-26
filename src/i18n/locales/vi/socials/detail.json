@@ -41,7 +41,7 @@
         "tab": "Quản lý chi phí",
         "badges": {
             "courtBookingOnly": "Chỉ sân đã đặt",
-            "hostFinancialView": "Góc nhìn tài chính của chủ nhà"
+            "hostFinancialView": "Góc nhìn tài chính của người tổ chức"
         },
         "title": "Quản lý chi phí",
         "subtitle": "Xem lại chi phí đặt sân, tính phần chia cho người tham gia, theo dõi thanh toán và giữ sự kiện luôn gọn gàng về tài chính.",
@@ -72,7 +72,7 @@
             "collectedAmount": "Số tiền đã thu",
             "collectedAmountDescription": "Các khoản thanh toán đã nhận từ người tham gia",
             "outstandingAmount": "Số tiền còn lại",
-            "outstandingAmountDescription": "Số dư còn lại mà chủ nhà có thể theo dõi"
+            "outstandingAmountDescription": "Số dư còn lại mà nguòi tổ chức có thể theo dõi"
         },
         "courtBookings": {
             "title": "Chi phí đặt sân",
@@ -92,7 +92,7 @@
         },
         "breakdown": {
             "title": "Phân tích chi phí",
-            "description": "Chủ nhà có thể thấy rõ khoản phí mỗi người được tính như thế nào.",
+            "description": "Người tổ chức có thể thấy rõ khoản phí mỗi người được tính như thế nào.",
             "totalExpense": "Tổng chi phí",
             "totalExpenseDescription": "Tổng của tất cả các buổi đặt sân.",
             "split": "Chia đều",
