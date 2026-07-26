@@ -133,7 +133,7 @@ export function SocialFormScheduleCard({
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {dateValue ? (
-                    format(dateValue, "PPP", { locale: dateLocale })
+                    format(dateValue, "dd/MM/yyyy", { locale: dateLocale })
                   ) : (
                     <span>{t("form.pickDate")}</span>
                   )}

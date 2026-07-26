@@ -159,7 +159,7 @@ export function PaymentInformationCard({
   return (
     <>
       <Card className="overflow-hidden border pb-0 shadow-xs">
-        <CardHeader className="flex flex-row items-center justify-between border-b bg-linear-to-r via-teal-500/5 to-transparent dark:via-teal-950/20 dark:to-transparent">
+        <CardHeader className="bg-linear-to-rto-transparent flex flex-row items-center justify-between border-b dark:via-teal-950/20 dark:to-transparent">
           <div className="flex items-center gap-3">
             <div className="flex size-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
               <Wallet className="size-5" />
@@ -190,7 +190,7 @@ export function PaymentInformationCard({
 
         <CardContent className="space-y-5 p-6">
           {!hasPaymentInfo ? (
-            <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-emerald-500/30 bg-emerald-500/5 p-8 text-center dark:bg-emerald-950/20">
+            <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-emerald-500/30 p-8 text-center dark:bg-emerald-950/20">
               <div className="mb-3 flex size-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
                 <Wallet className="size-6" />
               </div>

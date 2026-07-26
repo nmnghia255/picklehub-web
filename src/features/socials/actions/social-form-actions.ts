@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { SocialService } from "@/features/socials/api/social-service"
 
 import type { CreateSocialRequest, UpdateSocialRequest } from "../types/social"
+import { publishSocial } from "./social"
 
 export async function createSocialAction(data: CreateSocialRequest) {
   const result = await SocialService.createSocial(data)
@@ -30,7 +31,7 @@ export async function deleteSocialAction(id: string) {
 }
 
 export async function publishSocialAction(id: string) {
-  const result = await SocialService.publishSocial(id)
+  const result = await publishSocial(id)
   revalidatePath("/socials")
   revalidatePath(`/socials/${id}`)
   return result
