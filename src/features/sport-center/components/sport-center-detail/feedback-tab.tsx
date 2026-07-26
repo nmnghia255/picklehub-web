@@ -40,11 +40,11 @@ export function FeedbackTab({ reviews, centerId }: FeedbackTabProps) {
                 <div className="mb-1 flex items-center justify-between">
                   <p className="font-medium">
                     {t("detail.feedback.user", {
-                      id: entry.userId.slice(0, 8),
+                      id: entry.userName,
                     })}
                   </p>
                   <p className="flex items-center gap-1 text-sm">
-                    <Star className="size-4 fill-current" />
+                    <Star className="size-4 fill-yellow-500 text-yellow-500" />
                     {entry.rating.toFixed(1)}
                   </p>
                 </div>

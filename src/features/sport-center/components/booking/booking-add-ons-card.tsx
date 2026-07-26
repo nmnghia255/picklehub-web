@@ -97,6 +97,9 @@ export function BookingServicesCard() {
                     >
                       <div>
                         <p className="text-sm font-medium">{product.name}</p>
+                        <p className="mt-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                          {formatCurrencyVnd(product.price)}
+                        </p>
                         {product.description && (
                           <p className="mt-1 text-xs text-muted-foreground">
                             {product.description}

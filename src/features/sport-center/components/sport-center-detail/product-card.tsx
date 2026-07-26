@@ -16,6 +16,21 @@ export function ProductCard({ item }: ProductCardProps) {
   const { t } = useSportCenterTranslation()
   const isOutOfStock = !item.isActive || item.stock <= 0
 
+  const getProductTypeLabel = (type: string) => {
+    switch (type) {
+      case "BEVERAGE":
+        return t("detail.service.beverage")
+      case "CLOTHING":
+        return t("detail.service.clothing")
+      case "EQUIPMENT":
+        return t("detail.service.equipmentProduct")
+      case "CONSUMABLE":
+        return t("detail.service.consumable")
+      default:
+        return type
+    }
+  }
+
   return (
     <Card className="group w-full overflow-hidden border-border/70 bg-background py-0 text-foreground shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg">
       <CardContent className="flex h-full flex-col p-0">
@@ -53,9 +68,7 @@ export function ProductCard({ item }: ProductCardProps) {
               variant="secondary"
               className="bg-background/90 text-foreground"
             >
-              {item.type === "BEVERAGE"
-                ? t("detail.service.beverage")
-                : item.type}
+              {getProductTypeLabel(item.type)}
             </Badge>
           </div>
         </div>
@@ -75,7 +88,7 @@ export function ProductCard({ item }: ProductCardProps) {
               <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
                 {t("detail.service.sellingPrice")}
               </p>
-              <p className="text-xl font-semibold text-foreground">
+              <p className="text-lg font-semibold text-foreground">
                 {formatCurrencyVnd(item.price)}
               </p>
             </div>

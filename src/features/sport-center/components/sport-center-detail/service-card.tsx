@@ -75,7 +75,7 @@ export function ServiceCard({ item }: ServiceCardProps) {
               <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
                 {t("detail.service.servicePrice")}
               </p>
-              <p className="text-xl font-semibold text-foreground">
+              <p className="text-lg font-semibold text-foreground">
                 {formatCurrencyVnd(item.price)}
               </p>
             </div>

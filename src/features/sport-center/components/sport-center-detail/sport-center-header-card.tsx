@@ -110,7 +110,9 @@ export function SportCenterHeaderCard({
               disabled={isPending}
               onClick={handleFavoriteToggle}
             >
-              <Heart className={isFavourite ? "fill-current" : ""} />
+              <Heart
+                className={isFavourite ? "fill-red-500 text-red-500" : ""}
+              />
               {isPending
                 ? t("detail.header.updating")
                 : isFavourite

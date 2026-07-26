@@ -76,6 +76,9 @@
       "outOfStock": "Out of stock",
       "inStock": "In stock",
       "beverage": "Beverages",
+      "clothing": "Clothing",
+      "equipmentProduct": "Equipment",
+      "consumable": "Consumables",
       "defaultProductDesc": "Additional products for the court and players.",
       "sellingPrice": "Selling price",
       "stock": "Stock"

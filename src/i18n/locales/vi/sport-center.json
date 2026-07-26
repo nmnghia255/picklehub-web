@@ -75,13 +75,16 @@
             "outOfStock": "Hết hàng",
             "inStock": "Còn hàng",
             "beverage": "Đồ uống",
+            "clothing": "Trang phục",
+            "equipmentProduct": "Thiết bị",
+            "consumable": "Tiêu hao",
             "defaultProductDesc": "Sản phẩm bổ sung cho sân và người chơi.",
             "sellingPrice": "Giá bán",
             "stock": "Tồn kho"
         },
         "feedback": {
             "title": "Đánh giá",
-            "user": "Người dùng {{id}}",
+            "user": "{{id}}",
             "noReviews": "Chưa có đánh giá nào.",
             "errorEmptyComment": "Vui lòng nhập trải nghiệm của bạn.",
             "errorSubmit": "Không thể gửi đánh giá.",
