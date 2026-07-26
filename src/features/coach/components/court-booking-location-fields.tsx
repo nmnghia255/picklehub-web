@@ -53,6 +53,10 @@ interface CourtBookingLocationFieldsProps {
   onBookingItemSelectionChange?: (
     item: CourtBookingCourtSelection | null
   ) => void
+  onSelectedCourtSlotChange?: (selection: {
+    booking: CourtBookingSelection
+    court: CourtBookingCourtSelection
+  }) => void
   disabled?: boolean
 }
 
@@ -102,6 +106,7 @@ export function CourtBookingLocationFields({
   dateRange,
   onBookingSelectionChange,
   onBookingItemSelectionChange,
+  onSelectedCourtSlotChange,
   disabled = false,
 }: CourtBookingLocationFieldsProps) {
   const { t, i18n } = useTranslation("common")
@@ -243,6 +248,14 @@ export function CourtBookingLocationFields({
     selectedCourtSlot,
     selectedSlotKey,
   ])
+
+  useEffect(() => {
+    if (mode !== "court" || !selectedBooking || !selectedCourtSlot) return
+    onSelectedCourtSlotChange?.({
+      booking: selectedBooking,
+      court: selectedCourtSlot,
+    })
+  }, [mode, onSelectedCourtSlotChange, selectedBooking, selectedCourtSlot])
 
   const handleModeChange = (nextMode: CourtLinkedLocationMode) => {
     if (nextMode === "free-text") {

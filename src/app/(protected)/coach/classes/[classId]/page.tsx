@@ -29,7 +29,7 @@ import {
   XCircle,
 } from "lucide-react"
 import { useParams } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
@@ -186,6 +186,16 @@ function getEnrollmentStatusLabel(
   } as Record<EnrollmentStatus, string>
 }
 
+function getCourtSlotDurationMinutes(slot: CourtBookingCourtSelection) {
+  const toMinutes = (time: string) => {
+    const [hours, minutes] = time.split(":").map(Number)
+    return hours * 60 + minutes
+  }
+  const start = toMinutes(slot.startTime)
+  const end = toMinutes(slot.endTime)
+  return end > start ? end - start : end + 24 * 60 - start
+}
+
 function LoadingSkeleton() {
   return (
     <PageContainer variant="wide" className="space-y-6">
@@ -295,11 +305,51 @@ export default function CoachClassDetailPage() {
   const [scheduleCalendarMonth, setScheduleCalendarMonth] = useState(() =>
     startOfMonth(new Date())
   )
+  const handleScheduleCourtSlotChange = useCallback(
+    ({
+      booking,
+      court,
+    }: {
+      booking: CourtBookingSelectionData
+      court: CourtBookingCourtSelection
+    }) => {
+      const bookingDateKey = getBookingDateKey(booking.date)
+      const bookingDate = bookingDateKey
+        ? dateKeyToLocalDate(bookingDateKey)
+        : null
+      if (bookingDate) {
+        setScheduleDate((current) =>
+          current && isSameDay(current, bookingDate) ? current : bookingDate
+        )
+        setScheduleCalendarMonth((current) =>
+          isSameMonth(current, bookingDate)
+            ? current
+            : startOfMonth(bookingDate)
+        )
+      }
+      setScheduleTime((current) =>
+        current === court.startTime ? current : court.startTime
+      )
+      const durationMinutes = getCourtSlotDurationMinutes(court)
+      if (durationMinutes > 0) {
+        setScheduleDuration((current) =>
+          current === durationMinutes ? current : durationMinutes
+        )
+      }
+    },
+    [
+      setScheduleCalendarMonth,
+      setScheduleDate,
+      setScheduleDuration,
+      setScheduleTime,
+    ]
+  )
 
   const timeSlots = useMemo(() => {
     const slots: string[] = []
     for (let h = 6; h <= 22; h++) {
       slots.push(`${String(h).padStart(2, "0")}:00`)
+      if (h < 22) slots.push(`${String(h).padStart(2, "0")}:30`)
     }
     return slots
   }, [])
@@ -648,9 +698,8 @@ export default function CoachClassDetailPage() {
             (item) => item.courtId === scheduleCourtId
           ) ?? scheduleBookingSelection?.bookingItems[0])
     const effectiveStartTime = bookingItem?.startTime ?? scheduleTime
-    const effectiveEndTime = bookingItem?.endTime
-    const durationMinutes = effectiveEndTime
-      ? getTimeMinutes(effectiveEndTime) - getTimeMinutes(effectiveStartTime)
+    const durationMinutes = bookingItem
+      ? getCourtSlotDurationMinutes(bookingItem)
       : scheduleDuration
     if (!Number.isFinite(durationMinutes) || durationMinutes <= 0) {
       toast.error(t("coach.courtBookingSelector.invalidBookingTime"))
@@ -1828,6 +1877,7 @@ export default function CoachClassDetailPage() {
                   onBookingItemSelectionChange={
                     handleScheduleBookingItemSelection
                   }
+                  onSelectedCourtSlotChange={handleScheduleCourtSlotChange}
                   disabled={addScheduleSlot.isPending}
                 />
 

@@ -56,6 +56,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useSession } from "@/features/auth/hooks/use-session"
 import { CourtBookingLocationFields } from "@/features/coach/components/court-booking-location-fields"
 import {
+  type CourtBookingCourtSelection,
+  type CourtBookingSelection,
+  getBookingDateKey,
+} from "@/features/coach/hooks/use-coach-court-bookings"
+import {
   useCoachOpenClasses,
   useCoachPublicProfile,
   useCoachReviews,
@@ -135,6 +140,20 @@ function formatScheduleDate(value: string, locale: string) {
     month: "numeric",
     year: "numeric",
   })
+}
+
+function formatBookingInputDate(date: string) {
+  return date.slice(0, 10)
+}
+
+function getCourtSlotDurationMinutes(slot: CourtBookingCourtSelection) {
+  const toMinutes = (time: string) => {
+    const [hours, minutes] = time.split(":").map(Number)
+    return hours * 60 + minutes
+  }
+  const start = toMinutes(slot.startTime)
+  const end = toMinutes(slot.endTime)
+  return end > start ? end - start : end + 24 * 60 - start
 }
 
 function formatScheduleTime(value: string, locale: string) {
@@ -1882,6 +1901,50 @@ function CoachDiscoveryDetailInner({
     [router, searchParams]
   )
 
+  const handleBookingSelectionChange = useCallback(
+    (booking: CourtBookingSelection | null) => {
+      if (!booking) {
+        setBookingDate("")
+        setBookingTime("")
+        setBookingDuration(60)
+        return
+      }
+
+      setBookingDate(getBookingDateKey(booking.date) ?? "")
+      const firstCourtSlot = booking.bookingItems[0]
+      if (!firstCourtSlot) return
+
+      setBookingTime(firstCourtSlot.startTime)
+      setBookingDuration(getCourtSlotDurationMinutes(firstCourtSlot))
+    },
+    [setBookingDate, setBookingDuration, setBookingTime]
+  )
+
+  const handleBookingCourtSlotChange = useCallback(
+    ({
+      booking,
+      court,
+    }: {
+      booking: CourtBookingSelection
+      court: CourtBookingCourtSelection
+    }) => {
+      setBookingDate((current) => {
+        const nextDate = formatBookingInputDate(booking.date)
+        return current === nextDate ? current : nextDate
+      })
+      setBookingTime((current) =>
+        current === court.startTime ? current : court.startTime
+      )
+      const durationMinutes = getCourtSlotDurationMinutes(court)
+      if (durationMinutes > 0) {
+        setBookingDuration((current) =>
+          current === durationMinutes ? current : durationMinutes
+        )
+      }
+    },
+    [setBookingDate, setBookingDuration, setBookingTime]
+  )
+
   const handleCreateBooking = async () => {
     if (!bookingDate || !bookingTime) {
       toast.error(t("coach.discovery.bookingDateRequired"))
@@ -2043,6 +2106,8 @@ function CoachDiscoveryDetailInner({
               onCourtIdChange={setBookingCourtId}
               locationDescription={bookingLocationDescription}
               onLocationDescriptionChange={setBookingLocationDescription}
+              onBookingSelectionChange={handleBookingSelectionChange}
+              onSelectedCourtSlotChange={handleBookingCourtSlotChange}
               disabled={createBooking.isPending}
             />
 
