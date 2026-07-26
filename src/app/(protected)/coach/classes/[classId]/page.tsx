@@ -78,6 +78,7 @@ import {
   type CourtBookingCourtSelection,
   type CourtBookingSelection as CourtBookingSelectionData,
   getBookingDateKey,
+  getBookingDateTimeIso,
 } from "@/features/coach/hooks/use-coach-court-bookings"
 import {
   useAddScheduleSlot,
@@ -134,11 +135,6 @@ function dateKeyToLocalDate(dateKey: string) {
 function dateKeyToDayNumber(dateKey: string) {
   const [year, month, day] = dateKey.split("-").map(Number)
   return Date.UTC(year, month - 1, day)
-}
-
-function getTimeMinutes(time: string) {
-  const [hours, minutes] = time.split(":").map(Number)
-  return hours * 60 + minutes
 }
 
 function getClassStatusLabel(
@@ -617,7 +613,7 @@ export default function CoachClassDetailPage() {
     booking: CourtBookingSelectionData | null
   ) => {
     setScheduleBookingSelection(booking)
-    setScheduleBookingItemSelection(booking?.bookingItems[0] ?? null)
+    setScheduleBookingItemSelection(null)
     if (!booking) {
       setScheduleDate(null)
       setScheduleTime("09:00")
@@ -626,17 +622,11 @@ export default function CoachClassDetailPage() {
     }
 
     const bookingDateKey = getBookingDateKey(booking.date)
-    const bookingItem =
-      booking.bookingItems.find((item) => item.courtId === scheduleCourtId) ??
-      booking.bookingItems[0]
-    if (!bookingDateKey || !bookingItem) return
+    if (!bookingDateKey) return
 
     setScheduleDate(dateKeyToLocalDate(bookingDateKey))
-    setScheduleTime(bookingItem.startTime)
-    setScheduleDuration(
-      getTimeMinutes(bookingItem.endTime) -
-        getTimeMinutes(bookingItem.startTime)
-    )
+    setScheduleTime("")
+    setScheduleDuration(60)
     setScheduleCalendarMonth(startOfMonth(dateKeyToLocalDate(bookingDateKey)))
   }
 
@@ -644,13 +634,14 @@ export default function CoachClassDetailPage() {
     bookingItem: CourtBookingCourtSelection | null
   ) => {
     setScheduleBookingItemSelection(bookingItem)
-    if (!bookingItem) return
+    if (!bookingItem) {
+      setScheduleTime("09:00")
+      setScheduleDuration(60)
+      return
+    }
 
     setScheduleTime(bookingItem.startTime)
-    setScheduleDuration(
-      getTimeMinutes(bookingItem.endTime) -
-        getTimeMinutes(bookingItem.startTime)
-    )
+    setScheduleDuration(getCourtSlotDurationMinutes(bookingItem))
   }
 
   const handleAddSchedule = () => {
@@ -661,11 +652,20 @@ export default function CoachClassDetailPage() {
       (!scheduleBookingSelection ||
         scheduleBookingSelection.status !== "CONFIRMED" ||
         scheduleBookingSelection.id !== scheduleCourtBookingId ||
+        !scheduleBookingItemSelection ||
+        scheduleBookingItemSelection.courtId !== scheduleCourtId ||
         !scheduleBookingSelection.bookingItems.some(
-          (item) => item.courtId === scheduleCourtId
+          (item) =>
+            item.courtId === scheduleBookingItemSelection.courtId &&
+            item.startTime === scheduleBookingItemSelection.startTime &&
+            item.endTime === scheduleBookingItemSelection.endTime
         ))
     ) {
-      toast.error(t("coach.courtBookingSelector.bookingRequired"))
+      toast.error(
+        scheduleBookingSelection && scheduleCourtBookingId
+          ? t("coach.courtBookingSelector.slotRequired")
+          : t("coach.courtBookingSelector.bookingRequired")
+      )
       return
     }
 
@@ -691,12 +691,7 @@ export default function CoachClassDetailPage() {
       return
     }
 
-    const bookingItem =
-      scheduleBookingItemSelection?.courtId === scheduleCourtId
-        ? scheduleBookingItemSelection
-        : (scheduleBookingSelection?.bookingItems.find(
-            (item) => item.courtId === scheduleCourtId
-          ) ?? scheduleBookingSelection?.bookingItems[0])
+    const bookingItem = isLinkedBooking ? scheduleBookingItemSelection : null
     const effectiveStartTime = bookingItem?.startTime ?? scheduleTime
     const durationMinutes = bookingItem
       ? getCourtSlotDurationMinutes(bookingItem)
@@ -706,9 +701,14 @@ export default function CoachClassDetailPage() {
       return
     }
 
-    const scheduledAt = dateKeyToLocalDate(selectedDateKey)
-    const [hours, minutes] = effectiveStartTime.split(":").map(Number)
-    scheduledAt.setHours(hours, minutes, 0, 0)
+    const scheduledAt = getBookingDateTimeIso(
+      selectedDateKey,
+      effectiveStartTime
+    )
+    if (!scheduledAt) {
+      toast.error(t("coach.courtBookingSelector.invalidBookingTime"))
+      return
+    }
 
     if (scheduleLocationMode === "court" && !scheduleCourtBookingId) {
       toast.error(t("coach.courtBookingSelector.bookingRequired"))
@@ -729,7 +729,7 @@ export default function CoachClassDetailPage() {
     }
 
     const baseDto = {
-      scheduledAt: scheduledAt.toISOString(),
+      scheduledAt,
       durationMinutes,
       topic: scheduleTopic || undefined,
       note: scheduleNote || undefined,
@@ -2074,7 +2074,8 @@ export default function CoachClassDetailPage() {
                     (scheduleLocationMode === "court"
                       ? !scheduleCourtBookingId ||
                         !scheduleCourtId ||
-                        !scheduleBookingSelection
+                        !scheduleBookingSelection ||
+                        !scheduleBookingItemSelection
                       : !scheduleDate ||
                         !scheduleTime ||
                         !scheduleLocationDescription.trim())

@@ -59,6 +59,7 @@ import {
   type CourtBookingCourtSelection,
   type CourtBookingSelection,
   getBookingDateKey,
+  getBookingDateTimeIso,
 } from "@/features/coach/hooks/use-coach-court-bookings"
 import {
   useCoachOpenClasses,
@@ -1885,6 +1886,10 @@ function CoachDiscoveryDetailInner({
   >("free-text")
   const [bookingCourtBookingId, setBookingCourtBookingId] = useState("")
   const [bookingCourtId, setBookingCourtId] = useState("")
+  const [bookingCourtSelection, setBookingCourtSelection] =
+    useState<CourtBookingSelection | null>(null)
+  const [bookingCourtSlot, setBookingCourtSlot] =
+    useState<CourtBookingCourtSelection | null>(null)
   const [bookingLocationDescription, setBookingLocationDescription] =
     useState("")
 
@@ -1903,6 +1908,8 @@ function CoachDiscoveryDetailInner({
 
   const handleBookingSelectionChange = useCallback(
     (booking: CourtBookingSelection | null) => {
+      setBookingCourtSelection(booking)
+      setBookingCourtSlot(null)
       if (!booking) {
         setBookingDate("")
         setBookingTime("")
@@ -1911,11 +1918,8 @@ function CoachDiscoveryDetailInner({
       }
 
       setBookingDate(getBookingDateKey(booking.date) ?? "")
-      const firstCourtSlot = booking.bookingItems[0]
-      if (!firstCourtSlot) return
-
-      setBookingTime(firstCourtSlot.startTime)
-      setBookingDuration(getCourtSlotDurationMinutes(firstCourtSlot))
+      setBookingTime("")
+      setBookingDuration(60)
     },
     [setBookingDate, setBookingDuration, setBookingTime]
   )
@@ -1928,6 +1932,8 @@ function CoachDiscoveryDetailInner({
       booking: CourtBookingSelection
       court: CourtBookingCourtSelection
     }) => {
+      setBookingCourtSelection(booking)
+      setBookingCourtSlot(court)
       setBookingDate((current) => {
         const nextDate = formatBookingInputDate(booking.date)
         return current === nextDate ? current : nextDate
@@ -1946,11 +1952,6 @@ function CoachDiscoveryDetailInner({
   )
 
   const handleCreateBooking = async () => {
-    if (!bookingDate || !bookingTime) {
-      toast.error(t("coach.discovery.bookingDateRequired"))
-      return
-    }
-
     if (bookingLocationMode === "court" && !bookingCourtBookingId) {
       toast.error(t("coach.courtBookingSelector.bookingRequired"))
       return
@@ -1962,6 +1963,19 @@ function CoachDiscoveryDetailInner({
     }
 
     if (
+      bookingLocationMode === "court" &&
+      (!bookingCourtSelection || !bookingCourtSlot)
+    ) {
+      toast.error(t("coach.courtBookingSelector.slotRequired"))
+      return
+    }
+
+    if (!bookingDate || !bookingTime) {
+      toast.error(t("coach.discovery.bookingDateRequired"))
+      return
+    }
+
+    if (
       bookingLocationMode === "free-text" &&
       !bookingLocationDescription.trim()
     ) {
@@ -1969,20 +1983,38 @@ function CoachDiscoveryDetailInner({
       return
     }
 
-    const sessionAt = new Date(`${bookingDate}T${bookingTime}:00`).toISOString()
+    const effectiveDate =
+      bookingLocationMode === "court" && bookingCourtSelection
+        ? getBookingDateKey(bookingCourtSelection.date)
+        : bookingDate
+    const effectiveTime =
+      bookingLocationMode === "court" && bookingCourtSlot
+        ? bookingCourtSlot.startTime
+        : bookingTime
+    const effectiveDuration =
+      bookingLocationMode === "court" && bookingCourtSlot
+        ? getCourtSlotDurationMinutes(bookingCourtSlot)
+        : bookingDuration
+    const sessionAt = effectiveDate
+      ? getBookingDateTimeIso(effectiveDate, effectiveTime)
+      : null
+    if (!sessionAt || effectiveDuration <= 0) {
+      toast.error(t("coach.courtBookingSelector.invalidBookingTime"))
+      return
+    }
     try {
       const dto =
         bookingLocationMode === "court"
           ? {
               sessionAt,
-              durationMinutes: bookingDuration,
+              durationMinutes: effectiveDuration,
               learnerNote: bookingNote || undefined,
               courtBookingId: bookingCourtBookingId || undefined,
               courtId: bookingCourtId || undefined,
             }
           : {
               sessionAt,
-              durationMinutes: bookingDuration,
+              durationMinutes: effectiveDuration,
               learnerNote: bookingNote || undefined,
               locationDescription: bookingLocationDescription || undefined,
             }
@@ -1999,6 +2031,8 @@ function CoachDiscoveryDetailInner({
       setBookingLocationMode("free-text")
       setBookingCourtBookingId("")
       setBookingCourtId("")
+      setBookingCourtSelection(null)
+      setBookingCourtSlot(null)
       setBookingLocationDescription("")
     } catch {
       toast.error(t("coach.discovery.bookingError"))
@@ -2159,7 +2193,9 @@ function CoachDiscoveryDetailInner({
                 !bookingDate ||
                 !bookingTime ||
                 (bookingLocationMode === "court"
-                  ? !bookingCourtBookingId || !bookingCourtId
+                  ? !bookingCourtBookingId ||
+                    !bookingCourtId ||
+                    !bookingCourtSlot
                   : !bookingLocationDescription.trim())
               }
             >

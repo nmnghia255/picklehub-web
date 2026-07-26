@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import { CoachClient } from "../api/coach-client"
 
 export interface CourtBookingCourtSelection {
+  bookingItemId?: string
   courtId: string
   courtName: string
   startTime: string
@@ -61,6 +62,24 @@ export function getBookingDateKey(value: string): string | null {
     .join("-")
 }
 
+export function getBookingDateTimeIso(
+  dateKey: string,
+  time: string
+): string | null {
+  const normalizedDateKey = getBookingDateKey(dateKey)
+  const timeMatch = /^(\d{2}):(\d{2})$/.exec(time.trim())
+  if (!normalizedDateKey || !timeMatch) return null
+
+  const hours = Number(timeMatch[1])
+  const minutes = Number(timeMatch[2])
+  if (hours > 23 || minutes > 59) return null
+
+  const [year, month, day] = normalizedDateKey.split("-").map(Number)
+  const localDate = new Date(year, month - 1, day)
+  localDate.setHours(hours, minutes, 0, 0)
+  return localDate.toISOString()
+}
+
 function isBookingInDateRange(
   booking: CourtBookingSelection,
   dateRange?: CourtBookingDateRange
@@ -96,7 +115,15 @@ function normalizeBookingItems(booking: Record<string, unknown>) {
         return []
       }
       seenSlotKeys.add(slotKey)
-      return [{ courtId, courtName, startTime, endTime }]
+      return [
+        {
+          bookingItemId: toStringValue(item.id) || undefined,
+          courtId,
+          courtName,
+          startTime,
+          endTime,
+        },
+      ]
     })
 
   if (Array.isArray(booking.bookingItems)) {
@@ -141,8 +168,14 @@ function compareBookingSelections(
   left: CourtBookingSelection,
   right: CourtBookingSelection
 ) {
-  const leftTime = `${left.date} ${left.bookingItems[0]?.startTime ?? ""}`
-  const rightTime = `${right.date} ${right.bookingItems[0]?.startTime ?? ""}`
+  const getEarliestStartTime = (booking: CourtBookingSelection) =>
+    booking.bookingItems.reduce(
+      (earliest, item) =>
+        !earliest || item.startTime < earliest ? item.startTime : earliest,
+      ""
+    )
+  const leftTime = `${left.date} ${getEarliestStartTime(left)}`
+  const rightTime = `${right.date} ${getEarliestStartTime(right)}`
   return leftTime.localeCompare(rightTime)
 }
 

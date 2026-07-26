@@ -1155,6 +1155,7 @@
       "courtSelectHint": "Lịch đặt sân này có nhiều sân. Hãy chọn sân cần liên kết.",
       "slotLabel": "Khung giờ",
       "slotPlaceholder": "Chọn khung giờ",
+      "slotRequired": "Vui lòng chọn khung giờ.",
       "manualLocationLabel": "Mô tả địa điểm",
       "manualLocationPlaceholder": "Nhập mô tả địa điểm thủ công",
       "manualLocationHint": "Dùng khi không liên kết với lịch đặt sân.",

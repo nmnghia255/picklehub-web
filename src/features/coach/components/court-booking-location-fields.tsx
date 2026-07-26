@@ -152,10 +152,9 @@ export function CourtBookingLocationFields({
     [courtId, selectedCourts]
   )
   const getSlotKey = (item: CourtBookingCourtSelection) =>
-    `${item.courtId}|${item.startTime}|${item.endTime}`
+    `${courtBookingId}|${item.courtId}|${item.startTime}|${item.endTime}`
   const selectedCourtSlot =
     selectedCourtSlots.find((item) => getSlotKey(item) === selectedSlotKey) ??
-    selectedCourtSlots[0] ??
     null
 
   const getBookingLabel = (booking: CourtBookingSelection) => {
@@ -179,20 +178,17 @@ export function CourtBookingLocationFields({
 
   const handleBookingChange = (value: string) => {
     const nextBooking = bookings.find((booking) => booking.id === value) ?? null
-    const firstItem = nextBooking?.bookingItems[0] ?? null
-    setSelectedSlotKey(firstItem ? getSlotKey(firstItem) : "")
+    setSelectedSlotKey("")
     onCourtBookingIdChange(value)
     onCourtIdChange("")
     onBookingSelectionChange?.(nextBooking)
-    onBookingItemSelectionChange?.(firstItem)
+    onBookingItemSelectionChange?.(null)
   }
 
   const handleCourtChange = (value: string) => {
-    const firstItem =
-      selectedCourts.find((item) => item.courtId === value) ?? null
-    setSelectedSlotKey(firstItem ? getSlotKey(firstItem) : "")
+    setSelectedSlotKey("")
     onCourtIdChange(value)
-    onBookingItemSelectionChange?.(firstItem)
+    onBookingItemSelectionChange?.(null)
   }
 
   const handleSlotChange = (value: string) => {

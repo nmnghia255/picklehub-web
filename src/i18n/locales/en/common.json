@@ -2510,6 +2510,7 @@
       "courtSelectHint": "This booking contains multiple courts. Select the court to link.",
       "slotLabel": "Time slot",
       "slotPlaceholder": "Select a time slot",
+      "slotRequired": "Please select a time slot.",
       "manualLocationLabel": "Location description",
       "manualLocationPlaceholder": "Enter a free-text location",
       "manualLocationHint": "Use this when you are not linking a court booking.",
