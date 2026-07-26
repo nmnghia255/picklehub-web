@@ -389,6 +389,16 @@
       "rebook": "Đặt người chơi mới",
       "cancelConfirmTitle": "Xác nhận hủy đặt sân",
       "cancelConfirmDescription": "Bạn có chắc chắn muốn hủy lượt đặt sân này không?"
+    },
+    "slot": {
+      "selected": "Đang chọn",
+      "available": "Còn trống",
+      "status": {
+        "confirmed": "Đã đặt",
+        "pending": "Chờ xác nhận",
+        "cancelled": "Đã hủy",
+        "completed": "Hoàn thành"
+      }
     }
   },
   "revenue": {

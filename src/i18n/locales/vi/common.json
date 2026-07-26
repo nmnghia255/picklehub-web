@@ -491,7 +491,7 @@
   },
   "home": {
     "welcome": {
-      "title": "Xin chào, {{name}}! 👋",
+      "title": "Xin chào, {{name}}!",
       "description": "Đây là bảng điều khiển của bạn, nơi bạn có thể quản lý nhóm và bạn bè."
     },
     "groups": {

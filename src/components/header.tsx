@@ -42,7 +42,7 @@ export interface HeaderProps {
 export function Header({ user }: HeaderProps) {
   const { t } = useTranslation("common")
   const queryClient = useQueryClient()
-  const { theme, setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -52,6 +52,8 @@ export function Header({ user }: HeaderProps) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true)
   }, [])
+
+  const isDark = mounted && resolvedTheme === "dark"
 
   const handleLogout = async () => {
     setIsLoading(true)
@@ -301,18 +303,10 @@ export function Header({ user }: HeaderProps) {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          title={
-            theme === "dark"
-              ? t("header.switchToLight")
-              : t("header.switchToDark")
-          }
+          onClick={() => setTheme(isDark ? "light" : "dark")}
+          title={isDark ? t("header.switchToLight") : t("header.switchToDark")}
         >
-          {theme === "dark" ? (
-            <Sun className="size-4" />
-          ) : (
-            <Moon className="size-4" />
-          )}
+          {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
         </Button>
       ) : (
         <div className="h-10 w-10" />

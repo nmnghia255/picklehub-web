@@ -3,7 +3,7 @@
 import type { ImgHTMLAttributes } from "react"
 
 const DEFAULT_IMAGE =
-  "https://images.unsplash.com/photo-1611224923853-80b023f02d71?auto=format&fit=crop&w=240&q=80"
+  "https://cdn.mos.cms.futurecdn.net/Spgo5rGoUCJC4ThbZx8fAh-1920-80.jpg"
 
 type FallbackImageProps = Omit<
   ImgHTMLAttributes<HTMLImageElement>,

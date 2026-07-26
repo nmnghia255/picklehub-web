@@ -42,7 +42,22 @@ export default function SocialJoinDialog({
   if (open !== prevOpen) {
     setPrevOpen(open)
     if (open && sessions?.length) {
-      setSelectedSessionIds([])
+      if (sessions.length === 1) {
+        const firstSession = sessions[0]
+        const isFull =
+          firstSession.maxSlot != null &&
+          (firstSession.joinedCount ?? 0) >= firstSession.maxSlot
+        const isClosed =
+          firstSession.status !== "ACTIVE" &&
+          firstSession.status !== "PUBLISHED"
+        if (!isFull && !isClosed) {
+          setSelectedSessionIds([firstSession.id])
+        } else {
+          setSelectedSessionIds([])
+        }
+      } else {
+        setSelectedSessionIds([])
+      }
     }
   }
 
@@ -67,54 +82,82 @@ export default function SocialJoinDialog({
             <div className="text-sm font-medium">
               {t("dialogs.selectSessions")}
             </div>
-            <div className="max-h-[300px] space-y-2 overflow-y-auto pr-1">
-              {sessions.map((session) => (
-                <div
-                  key={session.id}
-                  className="flex items-start space-x-3 rounded-md border bg-background p-3 transition-colors hover:bg-muted/30"
-                >
-                  <Checkbox
-                    id={session.id}
-                    checked={selectedSessionIds.includes(session.id)}
-                    onCheckedChange={(checked) => {
-                      if (checked === true) {
-                        setSelectedSessionIds([
-                          ...selectedSessionIds,
-                          session.id,
-                        ])
-                      } else {
-                        setSelectedSessionIds(
-                          selectedSessionIds.filter((id) => id !== session.id)
-                        )
-                      }
-                    }}
-                  />
-                  <div className="grid flex-1 gap-1.5 leading-none">
-                    <div className="flex items-center justify-between gap-2">
-                      <label
-                        htmlFor={session.id}
-                        className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        {session.title || t("common.playSession")}
-                      </label>
-                      {session.sessionFee != null && (
-                        <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-500">
-                          {formatCurrencyVnd(session.sessionFee)}
-                        </span>
-                      )}
+            <div className="max-h-75 space-y-2 overflow-y-auto pr-1">
+              {sessions.map((session) => {
+                const isFull =
+                  session.maxSlot != null &&
+                  (session.joinedCount ?? 0) >= session.maxSlot
+                const isClosed =
+                  session.status !== "ACTIVE" && session.status !== "PUBLISHED"
+                const isDisabled = isFull || isClosed
+                const isChecked = selectedSessionIds.includes(session.id)
+
+                const toggleSelection = () => {
+                  if (isDisabled) return
+                  if (isChecked) {
+                    setSelectedSessionIds(
+                      selectedSessionIds.filter((id) => id !== session.id)
+                    )
+                  } else {
+                    setSelectedSessionIds([...selectedSessionIds, session.id])
+                  }
+                }
+
+                return (
+                  <div
+                    key={session.id}
+                    onClick={toggleSelection}
+                    className={`flex items-start space-x-3 rounded-md border bg-background p-3 transition-colors ${
+                      isDisabled
+                        ? "cursor-not-allowed opacity-60"
+                        : "cursor-pointer hover:bg-muted/30"
+                    }`}
+                  >
+                    <Checkbox
+                      id={session.id}
+                      checked={isChecked}
+                      disabled={isDisabled}
+                      onCheckedChange={() => toggleSelection()}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <div className="grid flex-1 gap-1.5 leading-none">
+                      <div className="flex items-center justify-between gap-2">
+                        <label
+                          htmlFor={session.id}
+                          className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            toggleSelection()
+                          }}
+                        >
+                          {session.title || t("common.playSession")}
+                        </label>
+                        <div className="flex items-center gap-2">
+                          {isFull && (
+                            <span className="text-xs font-medium text-destructive">
+                              {t("sidebar.full")}
+                            </span>
+                          )}
+                          {session.sessionFee != null && (
+                            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-500">
+                              {formatCurrencyVnd(session.sessionFee)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {format(new Date(session.startTime), "PPp")} -{" "}
+                        {format(new Date(session.endTime), "p")}
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      {format(new Date(session.startTime), "PPp")} -{" "}
-                      {format(new Date(session.endTime), "p")}
-                    </p>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         )}
 
-        <div className="rounded-xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
+        <div className="rounded-xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900 dark:border-sky-900/50 dark:bg-sky-950/30 dark:text-sky-200">
           {autoApproveJoinRequests
             ? t("dialogs.autoApproved")
             : t("dialogs.manualApproval")}

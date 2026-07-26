@@ -5,6 +5,8 @@ import type { PlaySession } from "@/features/socials/types/play-session"
 interface SocialDetailState {
   joinDialogOpen: boolean
   setJoinDialogOpen: (open: boolean) => void
+  leaveDialogOpen: boolean
+  setLeaveDialogOpen: (open: boolean) => void
   playSessionModalOpen: boolean
   setPlaySessionModalOpen: (open: boolean) => void
   selectedSession: PlaySession | null
@@ -17,6 +19,8 @@ interface SocialDetailState {
 export const useSocialDetailStore = create<SocialDetailState>((set) => ({
   joinDialogOpen: false,
   setJoinDialogOpen: (open: boolean) => set({ joinDialogOpen: open }),
+  leaveDialogOpen: false,
+  setLeaveDialogOpen: (open: boolean) => set({ leaveDialogOpen: open }),
   playSessionModalOpen: false,
   setPlaySessionModalOpen: (open: boolean) =>
     set({ playSessionModalOpen: open }),
@@ -27,6 +31,7 @@ export const useSocialDetailStore = create<SocialDetailState>((set) => ({
   reset: () =>
     set({
       joinDialogOpen: false,
+      leaveDialogOpen: false,
       playSessionModalOpen: false,
       selectedSession: null,
       tabValue: "0",

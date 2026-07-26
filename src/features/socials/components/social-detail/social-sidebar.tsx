@@ -52,6 +52,7 @@ export default function SocialSidebar({
   const { t: tCommon } = useTranslation("common")
   const router = useRouter()
   const setJoinDialogOpen = useSocialDetailStore((s) => s.setJoinDialogOpen)
+  const setLeaveDialogOpen = useSocialDetailStore((s) => s.setLeaveDialogOpen)
   const [isPublishing, setIsPublishing] = React.useState(false)
   const [isCompleting, setIsCompleting] = React.useState(false)
   const [publishDialogOpen, setPublishDialogOpen] = React.useState(false)
@@ -218,6 +219,17 @@ export default function SocialSidebar({
               {isCompleting
                 ? t("sidebar.completing")
                 : t("sidebar.completeSocial")}
+            </Button>
+          )}
+
+          {isParticipant && !social.isHost && (
+            <Button
+              className="w-full"
+              size="lg"
+              variant="destructive"
+              onClick={() => setLeaveDialogOpen(true)}
+            >
+              {t("sidebar.leave")}
             </Button>
           )}
 

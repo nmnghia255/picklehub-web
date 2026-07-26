@@ -187,13 +187,16 @@ export default function PlaySessionDetail({
   const handleLeave = async () => {
     if (!socialId || !sessionId || !canLeave) return
     toast.promise(
-      leavePlaySessionAction(socialId, sessionId).then(() => {
+      leavePlaySessionAction(socialId, sessionId).then((res) => {
+        if (!res.success) {
+          throw new Error(res.error || t("sessions.leaveError"))
+        }
         router.refresh()
       }),
       {
         loading: t("sessions.leaving"),
         success: t("sessions.leaveSuccess"),
-        error: (err: Error) => t("sessions.leaveError") || err.message,
+        error: (err: Error) => err.message || t("sessions.leaveError"),
       }
     )
   }

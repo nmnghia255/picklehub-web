@@ -98,7 +98,7 @@ export function TimeSlot({
             {getStatusLabel()}
           </span>
           {noteText ? (
-            <span className="line-clamp-2 max-w-full text-left text-[11px] leading-tight font-normal break-words text-muted-foreground/90 italic">
+            <span className="line-clamp-2 max-w-full text-left text-[11px] leading-tight font-normal wrap-break-word text-muted-foreground/90 italic">
               {noteText}
             </span>
           ) : null}

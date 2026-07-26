@@ -46,7 +46,9 @@ export function DashboardGroups({
     return (
       <Card className="p-12">
         <div className="flex flex-col items-center gap-3 text-center">
-          <Users2 className="size-12 text-muted-foreground/50" />
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 ring-1 ring-emerald-500/20 dark:bg-emerald-500/20 dark:text-emerald-400">
+            <Users2 className="size-7" />
+          </div>
           <div>
             <p className="font-semibold">{t("dashboard.groups.emptyTitle")}</p>
             <p className="text-sm text-muted-foreground">
@@ -68,13 +70,17 @@ export function DashboardGroups({
       {groups.map((group) => (
         <Card
           key={group.id}
-          className="p-4 transition-shadow hover:shadow-md md:p-6"
+          className="p-4 transition-all duration-200 hover:shadow-md md:p-6"
         >
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <Link
               href={`/groups/${group.id}`}
-              className="flex-1 transition-opacity hover:opacity-75"
+              className="flex flex-1 items-start gap-4 transition-opacity hover:opacity-85"
             >
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 ring-1 ring-emerald-500/20 dark:bg-emerald-500/20 dark:text-emerald-400">
+                <Users2 className="size-5" />
+              </div>
+
               <div className="flex flex-col gap-1">
                 <h3 className="text-lg font-semibold">{group.name}</h3>
                 {group.description && (
@@ -82,14 +88,14 @@ export function DashboardGroups({
                     {group.description}
                   </p>
                 )}
-                <div className="flex items-center gap-3 pt-2 text-xs text-muted-foreground">
-                  <span className="inline-flex items-center gap-1">
-                    <Users2 className="size-3" />
+                <div className="flex items-center gap-3 pt-1 text-xs text-muted-foreground">
+                  <span className="inline-flex items-center gap-1.5 font-medium text-emerald-600 dark:text-emerald-400">
+                    <Users2 className="size-3.5" />
                     {t("dashboard.groups.members", {
                       count: group.memberCount,
                     })}
                   </span>
-                  <span className="inline-block rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+                  <span className="inline-block rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
                     {t(
                       group.role === "OWNER"
                         ? "dashboard.groups.role.owner"

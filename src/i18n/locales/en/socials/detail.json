@@ -286,10 +286,20 @@
       "copyAccountNumber": "Copy account number",
       "description": "Share the payment code and QR code with participants.",
       "edit": "Edit payment information",
+      "noPaymentInfo": "Please connect to Host to get payment method",
       "paymentNote": "Payment note",
       "qrDescription": "A preview that is easy to scan for participant payments.",
       "qrPreviewLabel": "Payment QR code",
-      "title": "Payment information"
+      "title": "Payment information",
+      "editTitle": "Edit Payment Information",
+      "editDescription": "Update bank account details, QR code, and payment instructions for this event.",
+      "successUpdate": "Payment information updated successfully",
+      "errorUpdate": "Failed to update payment information",
+      "cancel": "Cancel",
+      "save": "Save Changes",
+      "saving": "Saving...",
+      "uploadQr": "Upload QR Code",
+      "removeQr": "Remove QR Code"
     },
     "progress": {
       "description": "Collected {{count}}% of the current court booking cost.",

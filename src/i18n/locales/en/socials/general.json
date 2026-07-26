@@ -99,6 +99,7 @@
     "publishing": "Publishing...",
     "noData": "No social details available.",
     "join": "Join Social",
+    "leave": "Leave Social",
     "completeError": "Failed to complete social",
     "publishError": "Failed to publish social",
     "publishSocial": "Publish Event",

@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useRef } from "react"
 
 import { Pagination } from "@/components/common/pagination"
+import { FallbackImage } from "@/components/fallback-image"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -315,7 +316,7 @@ export function TournamentList({
                   className="cursor-pointer gap-2 overflow-hidden border py-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-zinc-800"
                 >
                   <div className="relative aspect-video overflow-hidden bg-gray-200 dark:bg-zinc-800">
-                    <img
+                    <FallbackImage
                       src={tournament.banner || undefined}
                       alt={tournament.name}
                       className="h-full w-full object-cover"

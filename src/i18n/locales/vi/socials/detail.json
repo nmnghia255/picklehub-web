@@ -217,10 +217,20 @@
             "qrPreviewLabel": "Mã QR thanh toán",
             "qrDescription": "Bản xem trước thân thiện với việc quét cho quy trình thanh toán của người tham gia.",
             "collectionProgress": "Tiến độ thu tiền",
-            "edit": "Chỉnh sửa thông tin thanh toán",
+            "edit": "Cập nhật",
+            "noPaymentInfo": "Vui lòng liên hệ Host để nhận phương thức thanh toán",
             "copied": "Đã sao chép",
             "copyAccountNumber": "Sao chép số tài khoản",
-            "accountName": "Tên tài khoản"
+            "accountName": "Tên tài khoản",
+            "editTitle": "Chỉnh sửa thông tin thanh toán",
+            "editDescription": "Cập nhật tài khoản ngân hàng, mã QR và hướng dẫn thanh toán cho sự kiện này.",
+            "successUpdate": "Cập nhật thông tin thanh toán thành công",
+            "errorUpdate": "Cập nhật thông tin thanh toán thất bại",
+            "cancel": "Hủy",
+            "save": "Lưu thay đổi",
+            "saving": "Đang lưu...",
+            "uploadQr": "Tải lên mã QR",
+            "removeQr": "Xóa mã QR"
         },
         "timeline": {
             "title": "Dòng thời gian tài chính",

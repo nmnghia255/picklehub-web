@@ -12,7 +12,7 @@ import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { getPaymentStatusTone } from "@/utils/expense-utils"
 
 import type { PlaySession } from "../../../types/play-session"
-import type { SocialDetail, SocialParticipant } from "../../../types/social"
+import type { SocialDetail } from "../../../types/social"
 import { DisplayPaymentProofCard } from "./display-payment-proof-card"
 import { JoinedSessionsSection } from "./joined-sessions-section"
 import { PaymentInformationCard } from "./payment-information-card"
@@ -114,7 +114,7 @@ export default function SocialPaymentTab({
           sessions={actualJoinedSessions}
           totalFee={totalFee}
         />
-        <PaymentInformationCard social={social} showEditAction={false} />
+        <PaymentInformationCard social={social} showEditAction={isHost} />
         {!isHost &&
           (social?.myParticipantInfo?.paymentStatus === "PAID" &&
           social?.myParticipantInfo?.paymentUrl ? (

@@ -22,22 +22,24 @@ export function DashboardStats({
       label: t("dashboard.stats.groups"),
       value: groupsCount,
       icon: Users,
-      color: "text-blue-500",
-      bgColor: "bg-blue-50 dark:bg-blue-950",
+      color: "text-emerald-600 dark:text-emerald-400",
+      bgColor:
+        "bg-emerald-500/10 dark:bg-emerald-500/20 ring-1 ring-emerald-500/20",
     },
     {
       label: t("dashboard.stats.members"),
       value: membersCount,
       icon: Users2,
-      color: "text-green-500",
-      bgColor: "bg-green-50 dark:bg-green-950",
+      color: "text-indigo-600 dark:text-indigo-400",
+      bgColor:
+        "bg-indigo-500/10 dark:bg-indigo-500/20 ring-1 ring-indigo-500/20",
     },
     {
       label: t("dashboard.stats.pendingInvites"),
       value: pendingInvitesCount,
       icon: MessageSquare,
-      color: "text-orange-500",
-      bgColor: "bg-orange-50 dark:bg-orange-950",
+      color: "text-amber-600 dark:text-amber-400",
+      bgColor: "bg-amber-500/10 dark:bg-amber-500/20 ring-1 ring-amber-500/20",
     },
   ]
 
@@ -46,16 +48,21 @@ export function DashboardStats({
       {stats.map((stat) => {
         const Icon = stat.icon
         return (
-          <Card key={stat.label} className="p-6">
+          <Card
+            key={stat.label}
+            className="p-6 transition-all duration-200 hover:shadow-md"
+          >
             <div className="flex items-center justify-between">
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1">
                 <p className="text-sm font-medium text-muted-foreground">
                   {stat.label}
                 </p>
-                <p className="text-2xl font-bold">{stat.value}</p>
+                <p className="text-3xl font-bold tracking-tight">
+                  {stat.value}
+                </p>
               </div>
               <div
-                className={`flex size-12 items-center justify-center rounded-lg ${stat.bgColor}`}
+                className={`flex size-12 items-center justify-center rounded-xl shadow-xs transition-transform duration-200 hover:scale-105 ${stat.bgColor}`}
               >
                 <Icon className={`size-6 ${stat.color}`} />
               </div>

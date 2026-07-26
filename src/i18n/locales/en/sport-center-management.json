@@ -393,6 +393,16 @@
       "rebook": "Book new player",
       "cancelConfirmTitle": "Confirm cancellation",
       "cancelConfirmDescription": "Are you sure you want to cancel this court booking?"
+    },
+    "slot": {
+      "selected": "Selected",
+      "available": "Available",
+      "status": {
+        "confirmed": "Booked",
+        "pending": "Pending confirmation",
+        "cancelled": "Cancelled",
+        "completed": "Completed"
+      }
     }
   },
   "revenue": {

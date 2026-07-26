@@ -8,6 +8,7 @@ import { toast } from "sonner"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { joinPlaySessionAction } from "@/features/socials/actions/join-play-session"
+import { leavePlaySessionAction } from "@/features/socials/actions/leave-play-session"
 import { PlaySessionForm } from "@/features/socials/components/play-session/play-session-form"
 import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
 import type { PlaySession } from "@/features/socials/types/play-session"
@@ -28,6 +29,7 @@ import SocialPaymentTab from "./payment-tab/social-payment-tab"
 import SocialHeader from "./social-header"
 import SocialHero from "./social-hero"
 import SocialJoinDialog from "./social-join-dialog"
+import SocialLeaveDialog from "./social-leave-dialog"
 import SocialSidebar from "./social-sidebar"
 import SocialStatisticsTab from "./statistics-tab/social-statistics-tab"
 
@@ -48,6 +50,9 @@ export default function SocialDetail({
   const joinDialogOpen = useSocialDetailStore((s) => s.joinDialogOpen)
   const setJoinDialogOpen = useSocialDetailStore((s) => s.setJoinDialogOpen)
 
+  const leaveDialogOpen = useSocialDetailStore((s) => s.leaveDialogOpen)
+  const setLeaveDialogOpen = useSocialDetailStore((s) => s.setLeaveDialogOpen)
+
   const playSessionModalOpen = useSocialDetailStore(
     (s) => s.playSessionModalOpen
   )
@@ -61,6 +66,7 @@ export default function SocialDetail({
   const setTabValue = useSocialDetailStore((s) => s.setTabValue)
 
   const [isJoining, setIsJoining] = React.useState(false)
+  const [isLeaving, setIsLeaving] = React.useState(false)
 
   const handleConfirmJoin = async (selectedSessionIds: string[]) => {
     if (!initialSocial || selectedSessionIds.length === 0) return
@@ -86,6 +92,33 @@ export default function SocialDetail({
       router.refresh()
     } else {
       toast.error(lastError || t("dialogs.joinError"), { id: toastId })
+    }
+  }
+
+  const handleConfirmLeave = async (selectedSessionIds: string[]) => {
+    if (!initialSocial || selectedSessionIds.length === 0) return
+    setIsLeaving(true)
+    const toastId = toast.loading(t("dialogs.leaving"))
+    let successCount = 0
+    let lastError = ""
+
+    for (const sessionId of selectedSessionIds) {
+      const result = await leavePlaySessionAction(initialSocial.id, sessionId)
+      if (result.success) {
+        successCount++
+      } else {
+        lastError = result.error || t("dialogs.leaveError")
+      }
+    }
+
+    setIsLeaving(false)
+    setLeaveDialogOpen(false)
+
+    if (successCount > 0) {
+      toast.success(t("dialogs.leaveSuccess"), { id: toastId })
+      router.refresh()
+    } else {
+      toast.error(lastError || t("dialogs.leaveError"), { id: toastId })
     }
   }
 
@@ -132,7 +165,7 @@ export default function SocialDetail({
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      <SocialHero isPrivate={Boolean(social.isPrivate)} />
+      {/* <SocialHero isPrivate={Boolean(social.isPrivate)} /> */}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-6">
@@ -265,6 +298,16 @@ export default function SocialDetail({
         sessions={sessions}
         onConfirm={handleConfirmJoin}
         isJoining={isJoining}
+      />
+
+      <SocialLeaveDialog
+        open={leaveDialogOpen}
+        onOpenChange={setLeaveDialogOpen}
+        title={social.title}
+        sessions={sessions}
+        joinedSessionIds={social.myParticipantInfo?.joinedSessionIds}
+        onConfirm={handleConfirmLeave}
+        isLeaving={isLeaving}
       />
     </div>
   )

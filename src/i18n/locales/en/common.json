@@ -523,7 +523,7 @@
   },
   "home": {
     "welcome": {
-      "title": "Welcome, {{name}}! 👋",
+      "title": "Welcome, {{name}}!",
       "description": "This is your home dashboard, where you can manage groups and friends."
     },
     "groups": {
@@ -680,7 +680,7 @@
     },
     "home": {
       "welcome": {
-        "title": "Welcome, {{name}}! 👋",
+        "title": "Welcome, {{name}}!",
         "description": "This is your home dashboard, where you can manage groups and friends."
       },
       "groups": {
@@ -1410,7 +1410,15 @@
       },
       "schedule": {
         "errorTitle": "Cannot load schedule",
-        "weekDays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        "weekDays": [
+          "Mon",
+          "Tue",
+          "Wed",
+          "Thu",
+          "Fri",
+          "Sat",
+          "Sun"
+        ],
         "learnerCount": "{{count}} learners",
         "noLocation": "No location",
         "emptyDay": "Empty",
