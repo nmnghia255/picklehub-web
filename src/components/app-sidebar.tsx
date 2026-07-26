@@ -1,7 +1,9 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
 import {
+  Activity,
   Award,
   BellRing,
   BookOpen,
@@ -102,9 +104,10 @@ function SidebarLogo() {
   const isCollapsed = state === "collapsed"
 
   return (
-    <div
+    <Link
+      href="/home"
       className={cn(
-        "flex items-center gap-2.5 transition-all duration-200",
+        "flex cursor-pointer items-center gap-2.5 transition-all duration-200",
         isCollapsed ? "justify-center py-3" : "px-3 py-4"
       )}
     >
@@ -127,15 +130,53 @@ function SidebarLogo() {
           PickleHub
         </div>
       )}
-    </div>
+    </Link>
   )
 }
+
+const adminSidebarItems = [
+  {
+    titleKey: "aiMonitoring",
+    label: "AI Monitoring",
+    href: "/admin/ai/monitoring",
+    icon: Activity,
+  },
+  {
+    titleKey: "aiKnowledge",
+    label: "AI Knowledge",
+    href: "/admin/ai/knowledge",
+    icon: BookOpen,
+  },
+  {
+    titleKey: "userManagement",
+    label: "Users Management",
+    href: "/admin/users",
+    icon: Users,
+  },
+  {
+    titleKey: "coachCertifications",
+    label: "Coach Certifications",
+    href: "/admin/coaches/certifications",
+    icon: Award,
+  },
+]
 
 export function AppSidebar() {
   const pathname = usePathname()
   const { t } = useTranslation("common")
   const notifications = useAtomValue(notificationFeedAtom)
   const { data: subscriptions = [] } = useMySubscriptions()
+
+  const { data: userProfile } = useQuery({
+    queryKey: ["user", "me"],
+    queryFn: async () => {
+      const res = await fetch("/api/users/me")
+      if (!res.ok) return null
+      return res.json()
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+
   const hasSportCenterManagerPlan = subscriptions.some(
     (sub) => sub.status === "ACTIVE" && sub.plan.type === "SPORT_CENTER_MANAGER"
   )
@@ -149,7 +190,28 @@ export function AppSidebar() {
     (notification) => notification.unread
   ).length
 
-  const allHrefs = sidebarItems.map((item) => item.href)
+  const isAdminRoute = pathname.startsWith("/admin")
+  const isAdminUser = isAdminRoute || userProfile?.role === "ADMIN"
+
+  const itemsToRender = isAdminRoute
+    ? adminSidebarItems
+    : [
+        ...sidebarItems,
+        {
+          titleKey: "aiMonitoring",
+          label: "AI Monitoring",
+          href: "/admin/ai/monitoring",
+          icon: Activity,
+        },
+        {
+          titleKey: "userManagement",
+          label: "Users Management",
+          href: "/admin/users",
+          icon: Users,
+        },
+      ]
+
+  const allHrefs = itemsToRender.map((item) => item.href)
 
   return (
     <Sidebar collapsible="icon">
@@ -161,8 +223,9 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {sidebarItems
+              {itemsToRender
                 .filter((item) => {
+                  if (isAdminUser) return true
                   if (item.href === "/tournament-management") {
                     return hasTournamentOrganizerPlan
                   }
@@ -175,12 +238,16 @@ export function AppSidebar() {
                   return true
                 })
                 .map((item) => {
+                  const label =
+                    "label" in item && item.label
+                      ? item.label
+                      : t(`sidebar.${item.titleKey}`, item.titleKey)
                   return (
                     <SidebarMenuItem key={item.href}>
                       <SidebarMenuButton
                         asChild
                         isActive={isActivePath(pathname, item.href, allHrefs)}
-                        tooltip={t(`sidebar.${item.titleKey}`)}
+                        tooltip={label}
                         className="h-10 rounded-xl px-3 text-slate-700 transition-all duration-200 group-data-[collapsible=icon]:justify-center! group-data-[collapsible=icon]:p-0! hover:bg-slate-100 data-[active=true]:bg-emerald-600! data-[active=true]:text-white! data-[active=true]:shadow-xs data-[active=true]:hover:bg-emerald-700! data-[active=true]:hover:text-white! dark:text-zinc-300 dark:hover:bg-zinc-900"
                       >
                         <Link
@@ -194,7 +261,7 @@ export function AppSidebar() {
                             )}
                           </span>
                           <span className="flex-1 truncate group-data-[collapsible=icon]:hidden">
-                            {t(`sidebar.${item.titleKey}`)}
+                            {label}
                           </span>
                           {item.href === "/feed" && unreadCount > 0 && (
                             <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-slate-100 px-1 text-[10px] font-medium text-slate-600 group-data-[collapsible=icon]:hidden dark:bg-zinc-800 dark:text-zinc-400">
