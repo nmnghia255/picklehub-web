@@ -64,6 +64,7 @@
     "addPlaySessionsHint": "Add play sessions to organize your social into specific time slots and courts.",
     "createSuccess": "Social created successfully!",
     "updateSuccess": "Social updated successfully!",
+    "prefilledFromLastSettings": "Form pre-filled with your last social settings.",
     "submitError": "Failed to save social",
     "deleteError": "Failed to delete social",
     "save": "Save Social",

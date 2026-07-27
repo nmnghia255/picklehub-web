@@ -1,7 +1,7 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Calculator, Loader2 } from "lucide-react"
+import { AlertCircle, Calculator, Loader2 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -64,7 +64,7 @@ export function PricingCalculatorDialog({
     return () => clearTimeout(timeout)
   }, [packageOverride, sessionOverrides])
 
-  const { data, isLoading, isFetching } = useQuery({
+  const { data, isLoading, isFetching, isError, error } = useQuery({
     queryKey: [
       "suggestedPricing",
       socialId,
@@ -84,6 +84,7 @@ export function PricingCalculatorDialog({
         ),
       }),
     enabled: open && !!socialId,
+    retry: false,
   })
 
   const currentPackagePrice =
@@ -204,6 +205,16 @@ export function PricingCalculatorDialog({
           {isLoading && !data ? (
             <div className="flex min-h-[420px] items-center justify-center">
               <Loader2 className="size-8 animate-spin text-primary" />
+            </div>
+          ) : isError ? (
+            <div className="flex min-h-[280px] flex-col items-center justify-center gap-3 text-center text-muted-foreground">
+              <AlertCircle className="size-10 text-amber-500" />
+              <p className="text-sm font-medium">
+                {t("expenses.pricing.noSessionsError")}
+              </p>
+              <p className="max-w-xs text-xs">
+                {t("expenses.pricing.noSessionsErrorHint")}
+              </p>
             </div>
           ) : data ? (
             <div className="min-h-[420px] space-y-6">
@@ -343,9 +354,17 @@ export function PricingCalculatorDialog({
                   <TableBody>
                     {data.sessions.map((session) => (
                       <TableRow key={session.id}>
-                        <TableCell className="font-medium">
-                          {session.title ||
-                            t("expenses.pricing.sessionFallback")}
+                        <TableCell className="max-w-[160px] font-medium">
+                          <span
+                            className="block truncate"
+                            title={
+                              session.title ||
+                              t("expenses.pricing.sessionFallback")
+                            }
+                          >
+                            {session.title ||
+                              t("expenses.pricing.sessionFallback")}
+                          </span>
                         </TableCell>
                         <TableCell>
                           {formatCurrencyVnd(session.bookingCost)}

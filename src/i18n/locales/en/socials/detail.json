@@ -221,6 +221,8 @@
       "fullPackagePrice": "Full Package Price",
       "warningBelowBreakEven": "Warning: Package price is below break-even!",
       "sessionFallback": "Session",
+      "noSessionsError": "No play sessions found",
+      "noSessionsErrorHint": "Please add at least one play session before using the pricing calculator.",
       "currency": "VND",
       "cancel": "Cancel",
       "applyPricing": "Apply Pricing",

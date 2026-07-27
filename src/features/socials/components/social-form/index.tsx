@@ -12,6 +12,7 @@ import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import {
   createSocialAction,
   deleteSocialAction,
+  getMyLastSettingsAction,
   updateSocialAction,
 } from "../../actions/social-form-actions"
 import type {
@@ -108,6 +109,55 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
       setFormData(mapSocialToFormData(social))
     })
   }, [social])
+
+  // Pre-fill form with last social settings when creating a new social
+  useEffect(() => {
+    if (isEditMode) return
+
+    getMyLastSettingsAction().then((settings) => {
+      if (!settings) return
+
+      startTransition(() => {
+        setFormData((prev) => ({
+          ...prev,
+          // Payment info
+          ...(settings.paymentInfo
+            ? {
+                paymentBankName: settings.paymentInfo.paymentBankName ?? "",
+                paymentAccountName:
+                  settings.paymentInfo.paymentAccountName ?? "",
+                paymentAccountNumber:
+                  settings.paymentInfo.paymentAccountNumber ?? "",
+                paymentQrUrl: settings.paymentInfo.paymentQrUrl ?? "",
+                paymentNote: settings.paymentInfo.paymentNote ?? "",
+              }
+            : {}),
+          // Policies
+          ...(settings.policies
+            ? {
+                genderPolicy: settings.policies
+                  .genderPolicy as typeof prev.genderPolicy,
+                ageGroup: settings.policies.ageGroup as typeof prev.ageGroup,
+                minimumLevel: settings.policies.minimumLevel,
+                maximumLevel: settings.policies.maximumLevel,
+                submitDupr: settings.policies.submitDupr,
+                isFree: settings.policies.isFree,
+                autoApproveJoinRequests:
+                  settings.policies.autoApproveJoinRequests,
+                hostRole: settings.policies.hostRole,
+                cancellationFreezeHours:
+                  settings.policies.cancellationFreezeHours,
+              }
+            : {}),
+        }))
+      })
+
+      toast.info(t("form.prefilledFromLastSettings"), {
+        duration: 3000,
+      })
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleSubmit = async () => {
     if (!formData.title?.trim()) {

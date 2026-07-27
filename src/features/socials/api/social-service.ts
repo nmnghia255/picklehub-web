@@ -237,4 +237,42 @@ export const SocialService = {
     )
     return unwrapApiResponse(response.data)
   },
+
+  getMyLastSettings: async function (): Promise<{
+    paymentInfo: {
+      paymentBankName: string | null
+      paymentAccountName: string | null
+      paymentAccountNumber: string | null
+      paymentQrUrl: string | null
+      paymentNote: string | null
+    } | null
+    policies: {
+      genderPolicy: string
+      ageGroup: string
+      format: string
+      minimumLevel: number
+      maximumLevel: number
+      submitDupr: boolean
+      isFree: boolean
+      autoApproveJoinRequests: boolean
+      hostRole: string
+      cancellationFreezeHours: number | null
+    } | null
+    defaultVenue: {
+      centerId: string
+      centerName: string
+      location: string
+      maxSlot: number
+      numberOfCourts: number
+      sessionFee: number
+    } | null
+  } | null> {
+    try {
+      const axios = await getAuthenticatedAxios()
+      const response = await axios.get("/api/events/socials/my-last-settings")
+      return response.data
+    } catch {
+      return null
+    }
+  },
 }

@@ -36,3 +36,7 @@ export async function publishSocialAction(id: string) {
   revalidatePath(`/socials/${id}`)
   return result
 }
+
+export async function getMyLastSettingsAction() {
+  return SocialService.getMyLastSettings()
+}
