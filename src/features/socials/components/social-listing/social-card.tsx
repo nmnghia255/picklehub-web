@@ -70,7 +70,7 @@ export default function SocialCard({ social, onClick }: SocialCardProps) {
       </CardHeader>
 
       <CardContent className="flex-1 pt-0 pb-6">
-        <p className="mb-4 line-clamp-1 text-sm/relaxed text-muted-foreground">
+        <p className="mb-4 line-clamp-2 text-sm/relaxed break-words whitespace-pre-wrap text-muted-foreground">
           {social.note}
         </p>
 

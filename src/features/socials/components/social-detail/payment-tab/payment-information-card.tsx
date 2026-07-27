@@ -290,7 +290,7 @@ export function PaymentInformationCard({
                     <FileText className="size-4" />
                     {t("expenses.paymentInfo.paymentNote")}
                   </div>
-                  <p className="mt-2 text-sm leading-relaxed font-medium whitespace-pre-line text-foreground">
+                  <p className="mt-2 text-sm leading-relaxed font-medium break-words whitespace-pre-wrap text-foreground">
                     {paymentNote}
                   </p>
                 </div>

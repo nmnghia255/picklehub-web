@@ -122,6 +122,10 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
       toast.error(t("form.validation.startTimeRequired"))
       return
     }
+    if (!isEditMode && new Date(formData.startTime) <= new Date()) {
+      toast.error(t("form.validationStartTimeFuture"))
+      return
+    }
     if (!formData.endTime) {
       toast.error(t("form.validation.endTimeRequired"))
       return
@@ -141,6 +145,15 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
         toast.error(t("form.validationPackageFee"))
         return
       }
+      if (
+        formData.packageFee != null &&
+        formData.totalExpense != null &&
+        formData.totalExpense > 0 &&
+        formData.packageFee > formData.totalExpense
+      ) {
+        toast.error(t("form.validationPackageFeeExceedsTotal"))
+        return
+      }
       if (!formData.paymentBankName?.trim()) {
         toast.error(t("form.validationPaymentBankNameRequired"))
         return
@@ -151,6 +164,10 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
       }
       if (!formData.paymentAccountName?.trim()) {
         toast.error(t("form.validationPaymentAccountNameRequired"))
+        return
+      }
+      if (!formData.paymentQrUrl?.trim()) {
+        toast.error(t("form.validationPaymentQrUrlRequired"))
         return
       }
     }

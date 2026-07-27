@@ -22,7 +22,7 @@ import {
   Users,
 } from "lucide-react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -74,7 +74,21 @@ const sidebarItems: SidebarItem[] = [
   },
 ]
 
-function isActivePath(pathname: string, href: string, allHrefs: string[]) {
+function isActivePath(
+  pathname: string,
+  href: string,
+  allHrefs: string[],
+  searchParams?: URLSearchParams | null
+) {
+  const fromMe = searchParams?.get("from") === "me"
+
+  if (pathname.startsWith("/socials/") && pathname !== "/socials/me") {
+    if (fromMe) {
+      if (href === "/socials/me") return true
+      if (href === "/socials") return false
+    }
+  }
+
   if (pathname !== href && !pathname.startsWith(`${href}/`)) {
     return false
   }
@@ -163,6 +177,7 @@ const adminSidebarItems = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const { t } = useTranslation("common")
   const notifications = useAtomValue(notificationFeedAtom)
   const { data: subscriptions = [] } = useMySubscriptions()
@@ -170,9 +185,20 @@ export function AppSidebar() {
   const { data: userProfile } = useQuery({
     queryKey: ["user", "me"],
     queryFn: async () => {
+      try {
+        const authRes = await fetch("/api/proxy/auth/me")
+        if (authRes.ok) {
+          const authData = await authRes.json()
+          const profile = authData?.data ?? authData
+          if (profile?.role) return profile
+        }
+      } catch {
+        // Fallback to /api/users/me if auth/me fails
+      }
       const res = await fetch("/api/users/me")
       if (!res.ok) return null
-      return res.json()
+      const data = await res.json()
+      return data?.data ?? data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -191,24 +217,29 @@ export function AppSidebar() {
   ).length
 
   const isAdminRoute = pathname.startsWith("/admin")
-  const isAdminUser = isAdminRoute || userProfile?.role === "ADMIN"
+  const isAdminRole = userProfile?.role === "ADMIN"
+  const isAdminUser = isAdminRoute || isAdminRole
 
   const itemsToRender = isAdminRoute
     ? adminSidebarItems
     : [
         ...sidebarItems,
-        {
-          titleKey: "aiMonitoring",
-          label: "AI Monitoring",
-          href: "/admin/ai/monitoring",
-          icon: Activity,
-        },
-        {
-          titleKey: "userManagement",
-          label: "Users Management",
-          href: "/admin/users",
-          icon: Users,
-        },
+        ...(isAdminRole
+          ? [
+              {
+                titleKey: "aiMonitoring",
+                label: "AI Monitoring",
+                href: "/admin/ai/monitoring",
+                icon: Activity,
+              },
+              {
+                titleKey: "userManagement",
+                label: "Users Management",
+                href: "/admin/users",
+                icon: Users,
+              },
+            ]
+          : []),
       ]
 
   const allHrefs = itemsToRender.map((item) => item.href)
@@ -246,7 +277,12 @@ export function AppSidebar() {
                     <SidebarMenuItem key={item.href}>
                       <SidebarMenuButton
                         asChild
-                        isActive={isActivePath(pathname, item.href, allHrefs)}
+                        isActive={isActivePath(
+                          pathname,
+                          item.href,
+                          allHrefs,
+                          searchParams
+                        )}
                         tooltip={label}
                         className="h-10 rounded-xl px-3 text-slate-700 transition-all duration-200 group-data-[collapsible=icon]:justify-center! group-data-[collapsible=icon]:p-0! hover:bg-slate-100 data-[active=true]:bg-emerald-600! data-[active=true]:text-white! data-[active=true]:shadow-xs data-[active=true]:hover:bg-emerald-700! data-[active=true]:hover:text-white! dark:text-zinc-300 dark:hover:bg-zinc-900"
                       >

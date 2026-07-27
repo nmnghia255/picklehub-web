@@ -75,11 +75,25 @@ export function VerifyPaymentDialog({
       onOpenChange(false)
     },
     onError: (error) => {
-      toast.error(error.message || t("expenses.verifyPaymentDialog.error"))
+      const msg = error instanceof Error ? error.message : String(error)
+      if (
+        msg.includes("409") ||
+        msg.toLowerCase().includes("conflict") ||
+        msg.toLowerCase().includes("already")
+      ) {
+        toast.info("Giao dịch thanh toán này đã được xác nhận trước đó.")
+        queryClient.invalidateQueries({
+          queryKey: ["socialParticipants", socialId],
+        })
+        queryClient.invalidateQueries({
+          queryKey: ["financeSummary", socialId],
+        })
+        onOpenChange(false)
+        return
+      }
+      toast.error(msg || t("expenses.verifyPaymentDialog.error"))
     },
   })
-
-  console.log("receiptUrl", receiptUrl)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -91,6 +105,12 @@ export function VerifyPaymentDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 pt-4">
+          {!paymentId && (
+            <div className="rounded-md bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-300">
+              Không tìm thấy mã giao dịch thanh toán cần xác minh hoặc giao dịch
+              đã được xử lý.
+            </div>
+          )}
           {receiptUrl ? (
             <div className="flex justify-center">
               <img
@@ -129,14 +149,14 @@ export function VerifyPaymentDialog({
           <Button
             variant="outline"
             onClick={() => mutate("REJECTED")}
-            disabled={isPending}
+            disabled={isPending || !paymentId}
             className="text-destructive hover:bg-destructive/10 hover:text-destructive"
           >
             {t("expenses.verifyPaymentDialog.reject")}
           </Button>
           <Button
             onClick={() => mutate("CONFIRMED")}
-            disabled={isPending || !amountPaid}
+            disabled={isPending || !amountPaid || !paymentId}
           >
             {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
             {t("expenses.verifyPaymentDialog.confirm")}

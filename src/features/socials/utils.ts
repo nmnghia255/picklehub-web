@@ -1,15 +1,7 @@
 import type { PlaySession } from "./types/play-session"
 import type { ListSocial as Social } from "./types/social"
 
-const ACTIVE_PARTICIPANT_STATUSES = [
-  "PENDING",
-  "APPROVED",
-  "CONFIRMED",
-  "JOINED",
-  "ACTIVE",
-  "WAITLISTED",
-  "ON_HOLD",
-] as const
+const ACTIVE_PARTICIPANT_STATUSES = ["CONFIRMED", "WAITLISTED"] as const
 
 function toSafeCount(value: number | null | undefined) {
   return typeof value === "number" && Number.isFinite(value) ? value : 0
@@ -22,21 +14,11 @@ export function isActiveSocialParticipantStatus(status?: string | null) {
 }
 
 export function isConfirmedLikeSocialParticipantStatus(status?: string | null) {
-  return (
-    status === "APPROVED" ||
-    status === "CONFIRMED" ||
-    status === "JOINED" ||
-    status === "ACTIVE"
-  )
+  return status === "CONFIRMED"
 }
 
 export function isInactiveSocialParticipantStatus(status?: string | null) {
-  return (
-    status === "REJECTED" ||
-    status === "CANCELLED" ||
-    status === "CANCELED" ||
-    status === "LEFT"
-  )
+  return status === "CANCELLED" || status === "CANCELED"
 }
 
 export function isCancelledSocialStatus(status?: string | null) {
@@ -165,24 +147,16 @@ export const getParticipantStatusLabel = (
   status: string,
   t: (key: string) => string
 ) => {
-  switch (status) {
-    case "APPROVED":
+  switch (status?.toUpperCase()) {
     case "CONFIRMED":
-    case "JOINED":
-    case "ACTIVE":
-      return t("participantStatus.confirmed")
+      return t("participantStatus.confirmed") || "Đã xác nhận"
+    case "WAITLISTED":
+      return t("participantStatus.waitlisted") || "Chờ duyệt"
     case "CANCELLED":
     case "CANCELED":
-    case "LEFT":
-      return t("participantStatus.cancelled")
-    case "REJECTED":
-      return t("participantStatus.rejected")
-    case "WAITLISTED":
-      return t("participantStatus.waitlisted")
-    case "ON_HOLD":
-      return t("participantStatus.onHold")
+      return t("participantStatus.cancelled") || "Đã hủy"
     default:
-      return t("participantStatus.pending")
+      return status || ""
   }
 }
 
@@ -260,21 +234,66 @@ export const getGenderPolicyLabel = (
   }
 }
 
+export function getEffectiveAmountDue(participant: {
+  amountDue: number
+  totalFee: number
+  amountPaid?: number
+  amountRefunded?: number
+  amountOverpaid?: number
+}) {
+  if (participant.amountDue > 0) {
+    return participant.amountDue
+  }
+  if (
+    typeof participant.amountOverpaid === "number" &&
+    participant.amountOverpaid > 0
+  ) {
+    return -participant.amountOverpaid
+  }
+  const paid = participant.amountPaid ?? 0
+  const refunded = participant.amountRefunded ?? 0
+  const netPaid = paid - refunded
+  return participant.totalFee - netPaid
+}
+
+export const getTransactionStatusLabel = (
+  status: string,
+  t: (key: string) => string
+) => {
+  switch (status?.toUpperCase()) {
+    case "PENDING_REVIEW":
+    case "PENDING":
+      return t("expenses.tracking.pendingReview") || "Chờ duyệt"
+    case "CONFIRMED":
+    case "APPROVED":
+      return t("expenses.tracking.confirmed") || "Đã xác nhận"
+    case "REJECTED":
+      return t("expenses.tracking.rejected") || "Từ chối"
+    default:
+      return status || ""
+  }
+}
+
 export const getPaymentStatusLabel = (
   status: string,
   t: (key: string) => string
 ) => {
   switch (status?.toUpperCase()) {
     case "PAID":
+    case "OVERPAID":
       return t("expenses.tracking.paid")
     case "UNPAID":
-      return t("expenses.tracking.unpaid")
     case "PARTIALLY_PAID":
-      return t("expenses.tracking.partiallyPaid")
-    case "OVERPAID":
-      return t("expenses.tracking.overpaid")
+      return t("expenses.tracking.unpaid")
     case "REFUNDED":
       return t("expenses.tracking.refunded")
+    case "PENDING_REVIEW":
+    case "PENDING":
+      return t("expenses.tracking.pendingReview") || "Chờ duyệt"
+    case "CONFIRMED":
+      return t("expenses.tracking.confirmed") || "Đã xác nhận"
+    case "REJECTED":
+      return t("expenses.tracking.rejected") || "Từ chối"
     default:
       return status || ""
   }

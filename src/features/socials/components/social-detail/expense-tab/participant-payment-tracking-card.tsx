@@ -1,5 +1,6 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query"
 import { Check, HandCoins, MoreHorizontal, Search, Undo } from "lucide-react"
 import React, { useState } from "react"
 
@@ -36,7 +37,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { getPaymentStatusLabel } from "@/features/socials/utils"
+import { listSocialParticipantsAction } from "@/features/socials/actions/social-participant-actions"
+import {
+  getEffectiveAmountDue,
+  getPaymentStatusLabel,
+} from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd, getPaymentStatusTone } from "@/utils/expense-utils"
 
@@ -71,19 +76,33 @@ export function ParticipantPaymentTrackingCard({
   const [selectedParticipant, setSelectedParticipant] =
     useState<SocialParticipant | null>(null)
 
-  const participants = initialParticipants
+  const { data: participants = initialParticipants } = useQuery({
+    queryKey: ["socialParticipants", socialId],
+    queryFn: () => listSocialParticipantsAction(socialId),
+    initialData: initialParticipants,
+    enabled: !!socialId,
+  })
 
   const filteredParticipants = React.useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase()
 
     return participants.filter((row) => {
+      // Only include confirmed members in payment tracking
+      if (row.status !== "CONFIRMED") return false
+
       const name = row.user.name || ""
       const matchesSearch =
         !normalizedSearch ||
         name.toLowerCase().includes(normalizedSearch) ||
         row.id.toLowerCase().includes(normalizedSearch)
       const matchesFilter =
-        paymentFilter === "all" || row.paymentStatus === paymentFilter
+        paymentFilter === "all" ||
+        (paymentFilter === "PAID"
+          ? row.paymentStatus === "PAID" || row.paymentStatus === "OVERPAID"
+          : paymentFilter === "UNPAID"
+            ? row.paymentStatus === "UNPAID" ||
+              row.paymentStatus === "PARTIALLY_PAID"
+            : row.paymentStatus === paymentFilter)
 
       return matchesSearch && matchesFilter
     })
@@ -104,8 +123,13 @@ export function ParticipantPaymentTrackingCard({
     setRefundOpen(true)
   }
 
-  // Get the latest payment for verification if any
-  const latestPayment = selectedParticipant?.payments?.[0]
+  // Get the latest pending transaction for verification if any
+  const latestPayment =
+    selectedParticipant?.payments?.find(
+      (p) =>
+        (p.status as string) === "PENDING_REVIEW" ||
+        (p.status as string) === "PENDING"
+    ) || selectedParticipant?.payments?.[0]
 
   return (
     <>
@@ -154,12 +178,6 @@ export function ParticipantPaymentTrackingCard({
                 <SelectItem value="UNPAID">
                   {getPaymentStatusLabel("UNPAID", t)}
                 </SelectItem>
-                <SelectItem value="PARTIALLY_PAID">
-                  {getPaymentStatusLabel("PARTIALLY_PAID", t)}
-                </SelectItem>
-                <SelectItem value="OVERPAID">
-                  {getPaymentStatusLabel("OVERPAID", t)}
-                </SelectItem>
                 <SelectItem value="REFUNDED">
                   {getPaymentStatusLabel("REFUNDED", t)}
                 </SelectItem>
@@ -192,87 +210,105 @@ export function ParticipantPaymentTrackingCard({
               </TableHeader>
               <TableBody>
                 {filteredParticipants.length ? (
-                  filteredParticipants.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      className="cursor-pointer transition-colors hover:bg-muted/50"
-                      onClick={() => {
-                        setSelectedParticipant(row)
-                        setDetailDialogOpen(true)
-                      }}
-                    >
-                      <TableCell className="px-6 py-4 font-medium">
-                        {row.user.name || t("common.unknownUser")}
-                      </TableCell>
-                      <TableCell className="px-6 py-4 text-muted-foreground">
-                        {formatCurrencyVnd(row.totalFee)}
-                      </TableCell>
-                      <TableCell className="px-6 py-4 font-medium text-destructive">
-                        {row.amountDue > 0 ? (
-                          formatCurrencyVnd(row.amountDue)
-                        ) : row.amountDue < 0 ? (
-                          <span className="text-emerald-600">
-                            {t("expenses.tracking.creditPrefix")}
-                            {formatCurrencyVnd(Math.abs(row.amountDue))}
-                          </span>
-                        ) : (
-                          "0"
-                        )}
-                      </TableCell>
-                      <TableCell className="px-6 py-4">
-                        <div className="flex items-center justify-center gap-2">
-                          <Badge
-                            className={getPaymentStatusTone(row.paymentStatus)}
-                          >
-                            {getPaymentStatusLabel(row.paymentStatus, t)}
-                          </Badge>
-                        </div>
-                      </TableCell>
-                      <TableCell
-                        className="px-6 py-4 text-right"
-                        onClick={(e) => e.stopPropagation()}
+                  filteredParticipants.map((row) => {
+                    const effectiveDue = getEffectiveAmountDue(row)
+                    const isPaidRow =
+                      row.paymentStatus === "PAID" ||
+                      row.paymentStatus === "OVERPAID"
+                    const hasActions = !isPaidRow || effectiveDue < 0
+
+                    return (
+                      <TableRow
+                        key={row.id}
+                        className="cursor-pointer transition-colors hover:bg-muted/50"
+                        onClick={() => {
+                          setSelectedParticipant(row)
+                          setDetailDialogOpen(true)
+                        }}
                       >
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              className="size-8 p-0"
-                              disabled={isCompleted}
+                        <TableCell className="px-6 py-4 font-medium">
+                          {row.user.name || t("common.unknownUser")}
+                        </TableCell>
+                        <TableCell className="px-6 py-4 text-muted-foreground">
+                          {formatCurrencyVnd(row.totalFee)}
+                        </TableCell>
+                        <TableCell className="px-6 py-4 font-medium text-destructive">
+                          {effectiveDue > 0 ? (
+                            formatCurrencyVnd(effectiveDue)
+                          ) : effectiveDue < 0 ? (
+                            <span className="text-emerald-600">
+                              {t("expenses.tracking.creditPrefix")}
+                              {formatCurrencyVnd(Math.abs(effectiveDue))}
+                            </span>
+                          ) : (
+                            "0"
+                          )}
+                        </TableCell>
+                        <TableCell className="px-6 py-4">
+                          <div className="flex items-center justify-center gap-2">
+                            <Badge
+                              className={getPaymentStatusTone(
+                                row.paymentStatus
+                              )}
                             >
-                              <span className="sr-only">
-                                {t("common.openMenu")}
-                              </span>
-                              <MoreHorizontal className="size-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>
-                              {t("expenses.tracking.actions.actions")}
-                            </DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => openVerifyPayment(row)}
-                            >
-                              <Check className="mr-2 size-4" />
-                              {t("expenses.tracking.actions.verifyReceipt")}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => openRecordPayment(row)}
-                            >
-                              <HandCoins className="mr-2 size-4" />
-                              {t("expenses.tracking.actions.recordCash")}
-                            </DropdownMenuItem>
-                            {row.amountDue < 0 && (
-                              <DropdownMenuItem onClick={() => openRefund(row)}>
-                                <Undo className="mr-2 size-4" />
-                                {t("expenses.tracking.actions.issueRefund")}
-                              </DropdownMenuItem>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                              {getPaymentStatusLabel(row.paymentStatus, t)}
+                            </Badge>
+                          </div>
+                        </TableCell>
+                        <TableCell
+                          className="px-6 py-4 text-right"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                className="size-8 p-0"
+                                disabled={isCompleted || !hasActions}
+                              >
+                                <span className="sr-only">
+                                  {t("common.openMenu")}
+                                </span>
+                                <MoreHorizontal className="size-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>
+                                {t("expenses.tracking.actions.actions")}
+                              </DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              {!isPaidRow && (
+                                <>
+                                  <DropdownMenuItem
+                                    onClick={() => openVerifyPayment(row)}
+                                  >
+                                    <Check className="mr-2 size-4" />
+                                    {t(
+                                      "expenses.tracking.actions.verifyReceipt"
+                                    )}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => openRecordPayment(row)}
+                                  >
+                                    <HandCoins className="mr-2 size-4" />
+                                    {t("expenses.tracking.actions.recordCash")}
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                              {effectiveDue < 0 && (
+                                <DropdownMenuItem
+                                  onClick={() => openRefund(row)}
+                                >
+                                  <Undo className="mr-2 size-4" />
+                                  {t("expenses.tracking.actions.issueRefund")}
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })
                 ) : (
                   <TableRow>
                     <TableCell colSpan={5} className="px-6 py-12 text-center">
@@ -299,8 +335,8 @@ export function ParticipantPaymentTrackingCard({
             open={recordPaymentOpen}
             onOpenChange={setRecordPaymentOpen}
             defaultAmount={
-              selectedParticipant.amountDue > 0
-                ? selectedParticipant.amountDue
+              getEffectiveAmountDue(selectedParticipant) > 0
+                ? getEffectiveAmountDue(selectedParticipant)
                 : 0
             }
           />
@@ -309,14 +345,16 @@ export function ParticipantPaymentTrackingCard({
             participantId={selectedParticipant.id}
             paymentId={latestPayment?.id || ""}
             receiptUrl={latestPayment?.receiptUrl}
-            amountDue={selectedParticipant.amountDue}
+            amountDue={Math.max(0, getEffectiveAmountDue(selectedParticipant))}
             open={verifyPaymentOpen}
             onOpenChange={setVerifyPaymentOpen}
           />
           <RefundDialog
             socialId={socialId}
             participantId={selectedParticipant.id}
-            maxRefundAmount={Math.abs(selectedParticipant.amountDue)}
+            maxRefundAmount={Math.abs(
+              getEffectiveAmountDue(selectedParticipant)
+            )}
             open={refundOpen}
             onOpenChange={setRefundOpen}
           />

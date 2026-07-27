@@ -13,7 +13,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { getPaymentStatusLabel } from "@/features/socials/utils"
+import {
+  getEffectiveAmountDue,
+  getPaymentStatusLabel,
+} from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { cn } from "@/lib/utils"
 import { formatCurrencyVnd, getPaymentStatusTone } from "@/utils/expense-utils"
@@ -42,6 +45,7 @@ export function ParticipantDetailDialog({
     {}
   )
 
+  const effectiveDue = getEffectiveAmountDue(participant)
   const isPaid =
     participant.paymentStatus === "PAID" ||
     participant.paymentStatus === "OVERPAID"
@@ -95,7 +99,7 @@ export function ParticipantDetailDialog({
               </span>
               <span className="mt-1 block font-semibold text-emerald-600">
                 {formatCurrencyVnd(
-                  Math.max(0, participant.totalFee - participant.amountDue)
+                  Math.max(0, participant.totalFee - effectiveDue)
                 )}
               </span>
             </div>
@@ -106,19 +110,19 @@ export function ParticipantDetailDialog({
               <span
                 className={cn(
                   "mt-1 block font-semibold",
-                  participant.amountDue > 0
+                  effectiveDue > 0
                     ? "text-destructive"
-                    : participant.amountDue < 0
+                    : effectiveDue < 0
                       ? "text-emerald-600"
                       : ""
                 )}
               >
-                {participant.amountDue > 0 ? (
-                  formatCurrencyVnd(participant.amountDue)
-                ) : participant.amountDue < 0 ? (
+                {effectiveDue > 0 ? (
+                  formatCurrencyVnd(effectiveDue)
+                ) : effectiveDue < 0 ? (
                   <span>
                     {t("expenses.tracking.creditPrefix")}
-                    {formatCurrencyVnd(Math.abs(participant.amountDue))}
+                    {formatCurrencyVnd(Math.abs(effectiveDue))}
                   </span>
                 ) : (
                   "0"
@@ -257,7 +261,7 @@ export function ParticipantDetailDialog({
               </Button>
             </>
           )}
-          {participant.amountDue < 0 && (
+          {effectiveDue < 0 && (
             <Button
               variant="outline"
               onClick={onRefund}

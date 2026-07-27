@@ -81,13 +81,15 @@ export default function SocialExpenseTab({
       ? totalCourtBookingsCost + totalExtraExpensesCost
       : summary.totalExpense
 
-  const collectionProgress =
+  const rawProgress =
     calculatedTotalExpense > 0
-      ? Math.min(
-          100,
-          Math.round((summary.collectedAmount / calculatedTotalExpense) * 100)
-        )
-      : summary.collectionProgress
+      ? (summary.collectedAmount / calculatedTotalExpense) * 100
+      : summary.collectionProgress || 0
+
+  const collectionProgress = Math.min(
+    100,
+    Math.round((rawProgress + Number.EPSILON) * 100) / 100
+  )
 
   const confirmedParticipantsCount =
     initialParticipants.length > 0

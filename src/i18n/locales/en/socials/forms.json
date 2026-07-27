@@ -90,9 +90,12 @@
     "upgradeAccount": "Upgrade Account",
     "validationMinMaxLevel": "Minimum skill level cannot be greater than maximum skill level",
     "validationPackageFee": "Invalid package fee",
+    "validationPackageFeeExceedsTotal": "Package fee cannot exceed total session cost",
+    "validationStartTimeFuture": "Start time must be in the future",
     "validationPaymentBankNameRequired": "Please enter the bank name",
     "validationPaymentAccountNumberRequired": "Please enter the account number",
     "validationPaymentAccountNameRequired": "Please enter the account name",
+    "validationPaymentQrUrlRequired": "Please upload payment QR code",
     "validation": {
       "titleRequired": "Please enter the social title",
       "noteRequired": "Please enter the social description",

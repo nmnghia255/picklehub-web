@@ -562,7 +562,7 @@ export function PaymentTab({
                 </CardHeader>
                 <CardContent className="pt-6">
                   {tournament.paymentNote ? (
-                    <div className="prose prose-emerald max-w-none leading-relaxed whitespace-pre-line text-gray-700">
+                    <div className="prose prose-emerald max-w-none leading-relaxed break-words whitespace-pre-wrap text-gray-700">
                       {tournament.paymentNote}
                     </div>
                   ) : (

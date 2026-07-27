@@ -90,9 +90,12 @@
         "upgradeAccount": "Nâng cấp tài khoản",
         "validationMinMaxLevel": "Trình độ tối thiểu không thể lớn hơn trình độ tối đa",
         "validationPackageFee": "Phí tham gia không hợp lệ",
+        "validationPackageFeeExceedsTotal": "Phí trọn gói không được vượt quá tổng chi phí phiên chơi",
+        "validationStartTimeFuture": "Thời gian bắt đầu phải ở trong tương lai",
         "validationPaymentBankNameRequired": "Vui lòng nhập tên ngân hàng",
         "validationPaymentAccountNumberRequired": "Vui lòng nhập số tài khoản",
         "validationPaymentAccountNameRequired": "Vui lòng nhập tên chủ tài khoản",
+        "validationPaymentQrUrlRequired": "Vui lòng tải lên Mã QR thanh toán",
         "validation": {
             "titleRequired": "Vui lòng nhập tiêu đề",
             "noteRequired": "Vui lòng nhập mô tả",

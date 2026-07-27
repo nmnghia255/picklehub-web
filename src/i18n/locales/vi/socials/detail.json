@@ -118,6 +118,9 @@
             "partiallyPaid": "Thanh toán một phần",
             "overpaid": "Trả dư",
             "refunded": "Đã hoàn tiền",
+            "confirmed": "Đã xác nhận",
+            "pendingReview": "Chờ duyệt",
+            "rejected": "Từ chối",
             "headers": {
                 "participant": "Người tham gia",
                 "status": "Trạng thái",
@@ -129,6 +132,8 @@
             },
             "participantStatus": {
                 "pending": "Chờ duyệt",
+                "onHold": "Chờ duyệt",
+                "waitlisted": "Danh sách chờ",
                 "confirmed": "Đã xác nhận",
                 "cancelled": "Đã hủy",
                 "rejected": "Bị từ chối"
@@ -296,8 +301,12 @@
             "manualExpenses": "Chi phí bổ sung",
             "totalCost": "Tổng chi phí",
             "breakEvenPackage": "Hòa vốn (gói)",
-            "suggestedPrices": "Giá đề xuất",
+            "suggestedPrices": "Giá đề xuất tổng phiên",
+            "suggestedPackagePrice": "Giá gói đề xuất",
             "estProfitPackage": "Lợi nhuận ước tính (gói)",
+            "estProfitSessions": "Lợi nhuận ước tính (phiên)",
+            "simulatedPackageRevenue": "Doanh thu ước tính (gói)",
+            "simulatedSessionsRevenue": "Doanh thu ước tính (phiên)",
             "fullPackagePrice": "Giá trọn gói",
             "warningBelowBreakEven": "Cảnh báo: Giá gói thấp hơn mức hòa vốn!",
             "sessionFallback": "Phiên",
