@@ -49,31 +49,17 @@ export default function SocialPaymentTab({
       }
     }
 
-    if (paymentStatus === "PAID") {
+    if (paymentStatus === "PAID" || paymentStatus === "OVERPAID") {
       return {
         text: t("payment.statusPaid"),
         tone: getPaymentStatusTone("PAID"),
       }
     }
 
-    if (paymentStatus === "PARTIALLY_PAID") {
-      return {
-        text: getPaymentStatusLabel("PARTIALLY_PAID", t),
-        tone: getPaymentStatusTone("PARTIALLY_PAID"),
-      }
-    }
-
-    if (paymentStatus === "UNPAID") {
+    if (paymentStatus === "UNPAID" || paymentStatus === "PARTIALLY_PAID") {
       return {
         text: t("payment.statusUnpaid"),
         tone: getPaymentStatusTone("UNPAID"),
-      }
-    }
-
-    if (paymentStatus === "OVERPAID") {
-      return {
-        text: getPaymentStatusLabel("OVERPAID", t),
-        tone: getPaymentStatusTone("OVERPAID"),
       }
     }
 

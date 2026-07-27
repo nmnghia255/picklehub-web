@@ -11,17 +11,7 @@ export type SocialStatus =
   | "CANCELLED"
   | "DRAFT"
 export type HostRole = "HOST_AND_PLAY" | "HOST_ONLY" | "PLAY_ONLY"
-export type SocialParticipantStatus =
-  | "PENDING"
-  | "APPROVED"
-  | "CONFIRMED"
-  | "JOINED"
-  | "ACTIVE"
-  | "WAITLISTED"
-  | "ON_HOLD"
-  | "REJECTED"
-  | "CANCELLED"
-  | "LEFT"
+export type SocialParticipantStatus = "CONFIRMED" | "WAITLISTED" | "CANCELLED"
 
 export type TransactionType = "PAYMENT" | "REFUND"
 

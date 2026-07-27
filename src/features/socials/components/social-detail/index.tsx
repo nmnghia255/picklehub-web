@@ -223,6 +223,7 @@ export default function SocialDetail({
               <SocialParticipantsTab
                 participants={socialParticipants}
                 isEditable={isEditable}
+                isHost={isHost}
                 socialId={social.id}
                 status={social.status}
               />

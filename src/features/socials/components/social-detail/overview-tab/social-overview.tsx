@@ -41,7 +41,7 @@ export default function SocialOverview({
           <h2 className="text-lg font-semibold">
             {t("detail.aboutThisSocial")}
           </h2>
-          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+          <p className="mt-3 text-sm leading-6 break-words whitespace-pre-wrap text-muted-foreground">
             {social.note}
           </p>
         </div>

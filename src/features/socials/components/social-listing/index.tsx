@@ -121,7 +121,10 @@ export default function SocialListing({
 
   const handleCardClick = (social: Social) => {
     setSelectedSocial(social)
-    router.push(`/socials/${social.id}`)
+    const targetUrl = isMySocials
+      ? `/socials/${social.id}?from=me`
+      : `/socials/${social.id}`
+    router.push(targetUrl)
   }
 
   const handlePageChange = (newPage: number) => {
