@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
 import { toast } from "sonner"
 
+import { PaymentSelector } from "@/components/common/payment-selector"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -240,6 +241,17 @@ export function PaymentTab({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
+              <PaymentSelector
+                onSelectProfile={(selected) => {
+                  setBankName(selected.paymentBankName)
+                  setAccountName(selected.paymentAccountName)
+                  setAccountNumber(selected.paymentAccountNumber)
+                  if (selected.paymentQrUrl) {
+                    setQrUrl(selected.paymentQrUrl)
+                  }
+                }}
+              />
+
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {/* Form Input Side */}
                 <div className="space-y-4">

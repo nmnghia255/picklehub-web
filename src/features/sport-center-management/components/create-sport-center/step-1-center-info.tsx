@@ -6,6 +6,7 @@ import {
   Sparkles,
 } from "lucide-react"
 
+import { PaymentSelector } from "@/components/common/payment-selector"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -258,6 +259,20 @@ export function Step1CenterInfo({
             })}
           </span>
         </div>
+        <PaymentSelector
+          onSelectProfile={(selected) => {
+            setCenterDraft((current) => ({
+              ...current,
+              paymentBankName: selected.paymentBankName,
+              paymentAccountName:
+                selected.paymentAccountName.toLocaleUpperCase(),
+              paymentAccountNumber: selected.paymentAccountNumber,
+              ...(selected.paymentQrUrl
+                ? { paymentQrUrl: selected.paymentQrUrl }
+                : {}),
+            }))
+          }}
+        />
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-1.5">
             <Label htmlFor="payment-account-name">

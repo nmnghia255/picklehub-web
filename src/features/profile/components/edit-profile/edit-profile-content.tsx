@@ -9,20 +9,23 @@ import { Button } from "@/components/ui/button"
 import type { LinkedProvider } from "@/features/auth/types"
 import { EditProfileAccountCard } from "@/features/profile/components/edit-profile/edit-profile-account-card"
 import { EditProfileAccountSettingsCard } from "@/features/profile/components/edit-profile/edit-profile-account-settings-card"
+import { EditProfilePaymentCard } from "@/features/profile/components/edit-profile/edit-profile-payment-card"
 import { EditProfilePlayerInfoCard } from "@/features/profile/components/edit-profile/edit-profile-player-info-card"
 import { useProfileEditStore } from "@/features/profile/store/profile-edit-store"
-import type { User } from "@/features/profile/types"
+import type { PaymentProfile, User } from "@/features/profile/types"
 import { useProfileTranslation } from "@/i18n/use-profile-translation"
 
 interface EditProfileContentProps {
   initialUser: User | null
   initialLinkedProviders: LinkedProvider[]
+  initialPaymentProfiles?: PaymentProfile[]
   sessionEmail: string
 }
 
 export function EditProfileContent({
   initialUser,
   initialLinkedProviders,
+  initialPaymentProfiles = [],
   sessionEmail,
 }: EditProfileContentProps) {
   const { t } = useProfileTranslation()
@@ -74,8 +77,11 @@ export function EditProfileContent({
           <EditProfileAccountSettingsCard />
         </div>
 
-        <div className="lg:col-span-2">
+        <div className="space-y-6 lg:col-span-2">
           <EditProfilePlayerInfoCard user={profileUser} />
+          <EditProfilePaymentCard
+            initialPaymentProfiles={initialPaymentProfiles}
+          />
         </div>
       </div>
     </PageContainer>

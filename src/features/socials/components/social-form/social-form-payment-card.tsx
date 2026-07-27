@@ -9,6 +9,7 @@ import {
   useState,
 } from "react"
 
+import { PaymentSelector } from "@/components/common/payment-selector"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -115,6 +116,21 @@ export function SocialFormPaymentCard({
     <Card className="p-0">
       <CardContent className="space-y-5 p-6">
         <h2 className="text-lg font-semibold">{t("form.paymentSetup")}</h2>
+
+        <PaymentSelector
+          onSelectProfile={(selected) => {
+            setFormData((prev) => ({
+              ...prev,
+              paymentBankName: selected.paymentBankName,
+              paymentAccountName: selected.paymentAccountName,
+              paymentAccountNumber: selected.paymentAccountNumber,
+              ...(selected.paymentQrUrl
+                ? { paymentQrUrl: selected.paymentQrUrl }
+                : {}),
+            }))
+          }}
+        />
+
         <div className="space-y-4">
           <Field label={t("form.paymentQr")}>
             <div className="grid gap-3 rounded-md border border-dashed border-input p-4">

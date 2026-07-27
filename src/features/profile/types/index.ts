@@ -37,3 +37,21 @@ export interface UpdateProfileRequest {
   latitude: number
   longitude: number
 }
+
+export interface PaymentProfileRequest {
+  paymentAccountName: string
+  paymentAccountNumber: string
+  paymentBankName: string
+  paymentQrUrl: string
+}
+
+export interface PaymentProfile {
+  id: string
+  userId: string
+  paymentAccountName: string
+  paymentAccountNumber: string
+  paymentBankName: string
+  paymentQrUrl: string
+  createdAt: string
+  updatedAt: string
+}

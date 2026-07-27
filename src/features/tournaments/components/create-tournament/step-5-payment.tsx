@@ -14,6 +14,7 @@ import Image from "next/image"
 import { useState } from "react"
 import { toast } from "sonner"
 
+import { PaymentSelector } from "@/components/common/payment-selector"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -79,6 +80,17 @@ export function Step5Payment() {
           })}
         </p>
       </div>
+
+      <PaymentSelector
+        onSelectProfile={(selected) => {
+          setFormValue("paymentBankName", selected.paymentBankName)
+          setFormValue("paymentAccountName", selected.paymentAccountName)
+          setFormValue("paymentAccountNumber", selected.paymentAccountNumber)
+          if (selected.paymentQrUrl) {
+            setFormValue("paymentQrUrl", selected.paymentQrUrl)
+          }
+        }}
+      />
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Left Column: Bank Details Stack */}

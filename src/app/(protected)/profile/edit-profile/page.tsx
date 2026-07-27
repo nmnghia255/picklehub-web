@@ -1,12 +1,13 @@
 export const dynamic = "force-dynamic"
 
 import type { LinkedProvider } from "@/features/auth/types"
+import { PaymentProfileService } from "@/features/profile/api/payment-profile-service"
 import {
   getMyLinkedProviders,
   getMyProfile,
 } from "@/features/profile/api/profile-service"
 import { EditProfileContent } from "@/features/profile/components/edit-profile/edit-profile-content"
-import type { User } from "@/features/profile/types"
+import type { PaymentProfile, User } from "@/features/profile/types"
 import { getSession } from "@/lib/session"
 
 export default async function ProfilePage() {
@@ -16,10 +17,14 @@ export default async function ProfilePage() {
 
   let user: User | null = null
   let linkedProviders: LinkedProvider[] = []
-  const [profileResult, providersResult] = await Promise.allSettled([
-    getMyProfile(),
-    getMyLinkedProviders(),
-  ])
+  let paymentProfiles: PaymentProfile[] = []
+
+  const [profileResult, providersResult, paymentProfilesResult] =
+    await Promise.allSettled([
+      getMyProfile(),
+      getMyLinkedProviders(),
+      PaymentProfileService.getPaymentProfile(),
+    ])
 
   if (profileResult.status === "fulfilled") {
     user = profileResult.value
@@ -29,12 +34,19 @@ export default async function ProfilePage() {
     linkedProviders = providersResult.value
   }
 
-  console.log("Fetched user profile:", user?.selfRating)
+  if (
+    paymentProfilesResult.status === "fulfilled" &&
+    paymentProfilesResult.value
+  ) {
+    const val = paymentProfilesResult.value
+    paymentProfiles = Array.isArray(val) ? val : [val]
+  }
 
   return (
     <EditProfileContent
       initialUser={user}
       initialLinkedProviders={linkedProviders}
+      initialPaymentProfiles={paymentProfiles}
       sessionEmail={sessionUser.email}
     />
   )
