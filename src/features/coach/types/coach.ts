@@ -105,10 +105,10 @@ export interface UpdateCoachProfileDto {
 
 export interface CreateCertificationDto {
   name: string
-  issuingOrganization?: string
-  issuedAt?: string
-  expiresAt?: string
-  documentUrl?: string
+  issuingOrganization: string
+  issuedAt: string
+  expiresAt?: string | null
+  documentUrl: string
 }
 
 export interface CoachScheduleParticipant {

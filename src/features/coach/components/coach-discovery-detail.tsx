@@ -76,6 +76,7 @@ import type {
   LearnerScheduleItem,
   VerificationStatus,
 } from "@/features/coach/types/coach"
+import { formatCertificationDate } from "@/features/coach/utils/format-certification-date"
 import { LearnerCoachRecommendationDialog } from "@/features/learner/components/learner-coach-recommendation-dialog"
 import {
   useCreateBooking,
@@ -292,15 +293,15 @@ function OverviewTab({ coach }: { coach: CoachProfile }) {
                     )}
                     <p className="text-xs text-muted-foreground">
                       {t("coach.discovery.issuedDate", {
-                        date: new Date(cert.issuedAt).toLocaleDateString(
-                          locale
-                        ),
+                        date:
+                          formatCertificationDate(cert.issuedAt, locale) ??
+                          t("coach.profile.noDate"),
                       })}
                       {cert.expiresAt &&
                         t("coach.discovery.expiresDate", {
-                          date: new Date(cert.expiresAt).toLocaleDateString(
-                            locale
-                          ),
+                          date:
+                            formatCertificationDate(cert.expiresAt, locale) ??
+                            t("coach.profile.noDate"),
                         })}
                     </p>
                   </div>

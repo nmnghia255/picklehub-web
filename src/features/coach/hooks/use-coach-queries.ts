@@ -181,7 +181,14 @@ export function useAddCertification() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: CoachClient.addCertification,
-    onSuccess: () => {
+    onSuccess: (certification) => {
+      queryClient.setQueryData(
+        coachQueryKeys.certifications(),
+        (current: CoachTypes.Certification[] | undefined) =>
+          current?.some((item) => item.id === certification.id)
+            ? current
+            : [...(current ?? []), certification]
+      )
       queryClient.invalidateQueries({
         queryKey: coachQueryKeys.certifications(),
       })
@@ -194,7 +201,12 @@ export function useDeleteCertification() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: CoachClient.deleteCertification,
-    onSuccess: () => {
+    onSuccess: (_response, certId) => {
+      queryClient.setQueryData(
+        coachQueryKeys.certifications(),
+        (current: CoachTypes.Certification[] | undefined) =>
+          current?.filter((certification) => certification.id !== certId) ?? []
+      )
       queryClient.invalidateQueries({
         queryKey: coachQueryKeys.certifications(),
       })

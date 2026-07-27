@@ -8,7 +8,6 @@ import {
   Edit3,
   FileText,
   Globe2,
-  ImageIcon,
   MapPin,
   Plus,
   Save,
@@ -16,6 +15,7 @@ import {
   Star,
   Trash2,
   Users,
+  X,
 } from "lucide-react"
 import {
   type ChangeEvent,
@@ -27,6 +27,7 @@ import {
   useState,
 } from "react"
 import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -48,6 +49,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
 import { useSession } from "@/features/auth/hooks/use-session"
 import { CoachMediaService } from "@/features/coach/api/media-service"
+import { formatCertificationDate } from "@/features/coach/utils/format-certification-date"
 
 import {
   useAddCertification,
@@ -199,11 +201,13 @@ export function CoachProfileForm() {
   const [certName, setCertName] = useState("")
   const [certOrg, setCertOrg] = useState("")
   const [certIssuedAt, setCertIssuedAt] = useState("")
-  const [certFileUrl, setCertFileUrl] = useState("")
-  const [certPreviewUrl, setCertPreviewUrl] = useState("")
+  const [certExpiresAt, setCertExpiresAt] = useState("")
+  const [certDocumentUrl, setCertDocumentUrl] = useState("")
   const [certFileName, setCertFileName] = useState("")
+  const [certFileSize, setCertFileSize] = useState(0)
   const [certUploading, setCertUploading] = useState(false)
   const [certUploadError, setCertUploadError] = useState("")
+  const [certDeleteId, setCertDeleteId] = useState<string | null>(null)
   const avatarInputRef = useRef<HTMLInputElement>(null)
   const certInputRef = useRef<HTMLInputElement>(null)
 
@@ -214,14 +218,6 @@ export function CoachProfileForm() {
       }
     }
   }, [avatarPreviewUrl])
-
-  useEffect(() => {
-    return () => {
-      if (certPreviewUrl.startsWith("blob:")) {
-        URL.revokeObjectURL(certPreviewUrl)
-      }
-    }
-  }, [certPreviewUrl])
 
   const certifications = useMemo(() => certs ?? [], [certs])
   const skillOptions = getSkillOptions(t)
@@ -337,10 +333,11 @@ export function CoachProfileForm() {
   const openCreateCertificationDialog = () => {
     setCertName("")
     setCertOrg("")
-    setCertIssuedAt(new Date().toISOString().slice(0, 10))
-    setCertFileUrl("")
-    setCertPreviewUrl("")
+    setCertIssuedAt("")
+    setCertExpiresAt("")
+    setCertDocumentUrl("")
     setCertFileName("")
+    setCertFileSize(0)
     setCertUploadError("")
     setCertDialogOpen(true)
   }
@@ -353,51 +350,96 @@ export function CoachProfileForm() {
     if (!file) return
 
     setCertUploadError("")
-    if (!file.type.startsWith("image/")) {
+    setCertDocumentUrl("")
+    const hasPdfExtension = file.name.toLowerCase().endsWith(".pdf")
+    if (file.type !== "application/pdf" || !hasPdfExtension) {
       setCertUploadError(t("coach.profile.invalidCertificationFile"))
       return
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setCertUploadError(t("coach.profile.imageTooLarge"))
+    if (file.size === 0) {
+      setCertUploadError(t("coach.profile.emptyCertificationFile"))
+      return
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setCertUploadError(t("coach.profile.certificationFileTooLarge"))
       return
     }
 
-    const localPreviewUrl = URL.createObjectURL(file)
-    setCertPreviewUrl(localPreviewUrl)
     setCertFileName(file.name)
+    setCertFileSize(file.size)
     setCertUploading(true)
-    CoachMediaService.uploadImage(file)
-      .then((uploadedUrl) => {
-        setCertFileUrl(uploadedUrl)
-        setCertPreviewUrl(uploadedUrl)
-      })
+    CoachMediaService.uploadDocument(file)
+      .then((uploadedUrl) => setCertDocumentUrl(uploadedUrl))
       .catch(() => {
-        setCertUploadError(t("coach.profile.uploadError"))
+        setCertUploadError(t("coach.profile.certificationUploadError"))
+        setCertDocumentUrl("")
       })
       .finally(() => setCertUploading(false))
+  }
+
+  const removeCertificationFile = () => {
+    setCertDocumentUrl("")
+    setCertFileName("")
+    setCertFileSize(0)
+    setCertUploadError("")
+    if (certInputRef.current) certInputRef.current.value = ""
   }
 
   const handleCertificationSave = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const name = certName.trim()
     const org = certOrg.trim()
-    if (!name) return
-    if (certUploading || (certFileName && !certFileUrl)) {
-      setCertUploadError(t("coach.profile.uploadPending"))
+    const issuedAt = certIssuedAt.trim()
+    const expiresAt = certExpiresAt.trim()
+    const documentUrl = certDocumentUrl.trim()
+    if (!name || !org || !issuedAt || !documentUrl) {
+      toast.error(
+        certUploading
+          ? t("coach.profile.uploadPending")
+          : t("coach.profile.certificationRequired")
+      )
       return
     }
-
-    addCert.mutate({
-      name,
-      issuingOrganization: org || undefined,
-      issuedAt: certIssuedAt || undefined,
-      documentUrl: certFileUrl || undefined,
-    })
-    setCertDialogOpen(false)
+    try {
+      const parsedUrl = new URL(documentUrl)
+      if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+        throw new Error("Unsupported URL protocol")
+      }
+    } catch {
+      toast.error(t("coach.profile.invalidDocumentUrl"))
+      return
+    }
+    if (expiresAt && expiresAt < issuedAt) {
+      toast.error(t("coach.profile.expiryBeforeIssue"))
+      return
+    }
+    addCert.mutate(
+      {
+        name,
+        issuingOrganization: org,
+        issuedAt,
+        expiresAt: expiresAt || null,
+        documentUrl,
+      },
+      {
+        onSuccess: () => {
+          setCertDialogOpen(false)
+          toast.success(t("coach.profile.certAdded"))
+        },
+        onError: () => toast.error(t("coach.profile.certificationAddError")),
+      }
+    )
   }
 
-  const handleCertificationDelete = (certId: string) => {
-    deleteCert.mutate(certId)
+  const handleCertificationDelete = () => {
+    if (!certDeleteId) return
+    deleteCert.mutate(certDeleteId, {
+      onSuccess: () => {
+        setCertDeleteId(null)
+        toast.success(t("coach.profile.certDeleted"))
+      },
+      onError: () => toast.error(t("coach.profile.certificationDeleteError")),
+    })
   }
 
   if (profileLoading || certsLoading) {
@@ -700,11 +742,25 @@ export function CoachProfileForm() {
                           </span>
                           <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1">
                             <CalendarDays className="size-4" />
-                            {certification.issuedAt
-                              ? new Date(
-                                  certification.issuedAt
-                                ).toLocaleDateString(locale)
-                              : t("coach.profile.noDate")}
+                            <span>
+                              {t("coach.profile.certDateLabel")}:{" "}
+                              {formatCertificationDate(
+                                certification.issuedAt,
+                                locale
+                              ) ?? t("coach.profile.noDate")}
+                            </span>
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1">
+                            <CalendarDays className="size-4" />
+                            <span>
+                              {t("coach.profile.certExpiryLabel")}:{" "}
+                              {certification.expiresAt
+                                ? (formatCertificationDate(
+                                    certification.expiresAt,
+                                    locale
+                                  ) ?? t("coach.profile.noDate"))
+                                : t("coach.profile.noExpiry")}
+                            </span>
                           </span>
                         </div>
 
@@ -726,10 +782,10 @@ export function CoachProfileForm() {
                           type="button"
                           variant="outline"
                           className="rounded-full text-destructive hover:text-destructive"
-                          onClick={() =>
-                            handleCertificationDelete(certification.id)
+                          onClick={() => setCertDeleteId(certification.id)}
+                          disabled={
+                            deleteCert.isPending || Boolean(certDeleteId)
                           }
-                          disabled={deleteCert.isPending}
                         >
                           <Trash2 className="size-4" />
                           {t("coach.profile.delete")}
@@ -878,9 +934,10 @@ export function CoachProfileForm() {
             setCertName("")
             setCertOrg("")
             setCertIssuedAt("")
-            setCertFileUrl("")
-            setCertPreviewUrl("")
+            setCertExpiresAt("")
+            setCertDocumentUrl("")
             setCertFileName("")
+            setCertFileSize(0)
             setCertUploadError("")
             if (certInputRef.current) certInputRef.current.value = ""
           }
@@ -928,8 +985,23 @@ export function CoachProfileForm() {
                 <Input
                   id="certIssuedAt"
                   type="date"
+                  lang="en-GB"
                   value={certIssuedAt}
                   onChange={(e) => setCertIssuedAt(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="certExpiresAt">
+                  {t("coach.profile.certExpiryLabel")}
+                </Label>
+                <Input
+                  id="certExpiresAt"
+                  type="date"
+                  lang="en-GB"
+                  min={certIssuedAt || undefined}
+                  value={certExpiresAt}
+                  onChange={(e) => setCertExpiresAt(e.target.value)}
                 />
               </div>
 
@@ -941,24 +1013,50 @@ export function CoachProfileForm() {
                   id="certFile"
                   ref={certInputRef}
                   type="file"
-                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  accept="application/pdf,.pdf"
                   onChange={handleCertificationFileChange}
                   disabled={certUploading}
                 />
-                <div className="flex items-center gap-2 rounded-2xl border border-dashed px-3 py-2 text-sm text-muted-foreground">
-                  <ImageIcon className="size-4" />
-                  <span>
+                <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-dashed px-3 py-2 text-sm text-muted-foreground">
+                  <FileText className="size-4" />
+                  <span className="min-w-0 flex-1 truncate">
                     {certUploading
-                      ? t("coach.profile.uploading")
+                      ? t("coach.profile.certificationUploading")
                       : certFileName || t("coach.profile.noFileSelected")}
                   </span>
+                  {certFileName ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={removeCertificationFile}
+                      disabled={certUploading}
+                      aria-label={t("coach.profile.removeFile")}
+                    >
+                      <X className="size-4" />
+                    </Button>
+                  ) : null}
                 </div>
-                {certPreviewUrl ? (
-                  <img
-                    src={certPreviewUrl}
-                    alt={t("coach.profile.certPreviewAlt")}
-                    className="h-32 w-32 rounded-xl border object-cover"
-                  />
+                {certFileName && !certUploading ? (
+                  <p className="text-xs text-muted-foreground">
+                    {certFileSize > 0
+                      ? `${(certFileSize / (1024 * 1024)).toFixed(2)} MB`
+                      : t("coach.profile.uploadFailed")}
+                  </p>
+                ) : null}
+                <p className="text-xs text-muted-foreground">
+                  {t("coach.profile.pdfOnlyHint")}
+                </p>
+                {certDocumentUrl.trim() ? (
+                  <a
+                    href={certDocumentUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline"
+                  >
+                    <FileText className="size-4" />
+                    {t("coach.profile.viewDocument")}
+                  </a>
                 ) : null}
                 {certUploadError ? (
                   <p className="text-xs text-destructive">{certUploadError}</p>
@@ -980,7 +1078,9 @@ export function CoachProfileForm() {
                   addCert.isPending ||
                   certUploading ||
                   !certName.trim() ||
-                  Boolean(certFileName && !certFileUrl)
+                  !certOrg.trim() ||
+                  !certIssuedAt ||
+                  !certDocumentUrl.trim()
                 }
               >
                 <Save className="size-4" />
@@ -993,6 +1093,42 @@ export function CoachProfileForm() {
         </DialogContent>
       </Dialog>
 
+      <Dialog
+        open={Boolean(certDeleteId)}
+        onOpenChange={(open) => {
+          if (!open && !deleteCert.isPending) setCertDeleteId(null)
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("coach.profile.confirmDeleteTitle")}</DialogTitle>
+            <DialogDescription>
+              {t("coach.profile.confirmDeleteDescription")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setCertDeleteId(null)}
+              disabled={deleteCert.isPending}
+            >
+              {t("coach.profile.cancelButton")}
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleCertificationDelete}
+              disabled={deleteCert.isPending}
+            >
+              {deleteCert.isPending
+                ? t("coach.profile.deleting")
+                : t("coach.profile.delete")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {updateProfile.isSuccess && (
         <p className="text-sm font-medium text-green-600">
           {t("coach.profile.updated")}
@@ -1002,18 +1138,6 @@ export function CoachProfileForm() {
       {publishProfile.isSuccess && (
         <p className="text-sm font-medium text-green-600">
           {t("coach.profile.published")}
-        </p>
-      )}
-
-      {addCert.isSuccess && (
-        <p className="text-sm font-medium text-green-600">
-          {t("coach.profile.certAdded")}
-        </p>
-      )}
-
-      {deleteCert.isSuccess && (
-        <p className="text-sm font-medium text-green-600">
-          {t("coach.profile.certDeleted")}
         </p>
       )}
     </div>
