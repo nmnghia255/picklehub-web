@@ -81,7 +81,7 @@ function getOpponentLabel(
 
   if (opponentTeam.length === 1) {
     const opponentName = getMemberName(opponentTeam[0])
-    return opponentName ? t("unknownUser", { id: opponentName }) : t("unknown")
+    return opponentName || t("unknown")
   }
 
   return t("teamSize", { count: opponentTeam.length })

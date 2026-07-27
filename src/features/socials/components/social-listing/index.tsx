@@ -115,7 +115,20 @@ export default function SocialListing({
     }
   }
 
-  const socials: Social[] = initialSocials
+  const hasExplicitStatusFilter =
+    Boolean(searchParams.get("status")) ||
+    Boolean(filters.status) ||
+    searchParams.get("tab") === "history" ||
+    filters.tab === "history"
+
+  const socials: Social[] = initialSocials.filter((social) => {
+    if (hasExplicitStatusFilter) return true
+    return (
+      social.status !== "CANCELLED" &&
+      social.status !== "CANCELED" &&
+      social.status !== "COMPLETED"
+    )
+  })
 
   const hasNoResults = socials.length === 0
 

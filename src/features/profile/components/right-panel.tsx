@@ -96,9 +96,11 @@ export function RightPanel({
               {preferredHandLabel}
             </dd>
           </div>
-          <div className="flex items-center justify-between gap-4 rounded-lg bg-muted/30 px-3 py-2">
-            <dt className="text-muted-foreground">{t("address")}</dt>
-            <dd className="font-medium text-foreground">
+          <div className="flex items-start justify-between gap-4 rounded-lg bg-muted/30 px-3 py-2">
+            <dt className="shrink-0 whitespace-nowrap text-muted-foreground">
+              {t("address")}
+            </dt>
+            <dd className="text-right font-medium text-balance break-words text-foreground">
               {user?.address || t("addressUnspecified")}
             </dd>
           </div>

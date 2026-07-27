@@ -310,6 +310,8 @@
             "fullPackagePrice": "Giá trọn gói",
             "warningBelowBreakEven": "Cảnh báo: Giá gói thấp hơn mức hòa vốn!",
             "sessionFallback": "Phiên",
+            "noSessionsError": "Chưa có phiên chơi nào",
+            "noSessionsErrorHint": "Vui lòng thêm ít nhất một phiên chơi trước khi sử dụng công cụ tính giá.",
             "currency": "VND",
             "cancel": "Hủy",
             "applyPricing": "Áp dụng giá",

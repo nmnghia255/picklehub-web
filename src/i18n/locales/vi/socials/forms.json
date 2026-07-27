@@ -74,6 +74,7 @@
         "addPlaySessionsHint": "Thêm các phiên chơi để sắp xếp theo từng khung giờ và sân.",
         "createSuccess": "Tạo thành công!",
         "updateSuccess": "Cập nhật thành công!",
+        "prefilledFromLastSettings": "Đã điền sẵn thông tin từ buổi chơi trước của bạn.",
         "submitError": "Không thể lưu",
         "deleteError": "Không thể xóa",
         "paymentNote": "Ghi chú thanh toán",
