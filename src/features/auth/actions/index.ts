@@ -204,7 +204,12 @@ export async function loginAction(
     return { error: "auth.errors.generic" }
   }
 
-  redirect("/")
+  const redirectTo =
+    (formData.get("redirectTo") as string) ||
+    (formData.get("redirect") as string) ||
+    "/"
+
+  redirect(redirectTo)
 }
 
 // ============================================

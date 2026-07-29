@@ -1,6 +1,7 @@
 {
   "brand": "PickleHub",
   "cancel": "Hủy",
+  "close": "Đóng",
   "settings": {
     "title": "Cài đặt",
     "description": "Điều chỉnh ngôn ngữ, giao diện và đăng xuất khỏi thiết bị này.",

@@ -21,8 +21,11 @@ export async function commitMatchBatchesAction(
   socialId: string,
   sessionId: string,
   payload: CommitMatchRequest[]
-): Promise<CommitMatchBatchResponse> {
-  return await MatchService.commitMatchBatches(socialId, sessionId, payload)
+) {
+  return await MatchService.commitRound(socialId, sessionId, {
+    scheduledAt: new Date().toISOString(),
+    matches: payload,
+  })
 }
 
 export async function listPlaySessionMatchesAction(

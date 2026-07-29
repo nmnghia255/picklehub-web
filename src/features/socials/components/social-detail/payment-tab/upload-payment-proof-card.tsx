@@ -15,19 +15,18 @@ import {
 } from "@/components/ui/card"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import { submitPaymentAction } from "../../../actions/payment-actions"
+import { submitReceiptAction } from "../../../actions/payment-actions"
 import { MediaService } from "../../../api/media-service"
-import type { PaymentSubmitRequest } from "../../../types/payment"
 
 interface UploadPaymentProofCardProps {
   socialId?: string
-  amount: number
+  amount?: number
   isDisabled?: boolean
 }
 
 export function UploadPaymentProofCard({
   socialId,
-  amount,
+  amount = 0,
   isDisabled = false,
 }: UploadPaymentProofCardProps) {
   const { t } = useSocialsTranslation()
@@ -57,17 +56,19 @@ export function UploadPaymentProofCard({
     setIsUploading(true)
     try {
       const url = await MediaService.uploadImage(file)
-      const paymentSubmitRequest: PaymentSubmitRequest = {
-        amount,
-        receiptUrl: url,
-      }
-      await submitPaymentAction(socialId, paymentSubmitRequest)
+      await submitReceiptAction(socialId, url)
       setIsSuccess(true)
       setFile(null)
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl)
         setPreviewUrl(null)
       }
+      toast.success(
+        t(
+          "payment.uploadSuccessTitle",
+          "Đã tải biên lai! Đang chờ Host xác nhận."
+        )
+      )
       router.refresh()
     } catch (error) {
       toast.error(

@@ -33,22 +33,6 @@ export async function suggestMatches(
   }
 }
 
-export async function confirmSuggestedMatchesAction(
-  socialId: string,
-  playSessionId: string,
-  payload: CommitMatchRequest[]
-) {
-  try {
-    return await MatchService.commitMatchBatches(
-      socialId,
-      playSessionId,
-      payload
-    )
-  } catch (error: unknown) {
-    throw new Error(extractErrorMessage(error, "Failed to confirm matches"))
-  }
-}
-
 export async function confirmMatchResultAction(
   matchId: string,
   payload: {
@@ -58,7 +42,13 @@ export async function confirmMatchResultAction(
     sets: number[][]
   }
 ) {
-  return await MatchService.confirmMatchResult(matchId, payload)
+  try {
+    return await MatchService.confirmMatchResult(matchId, payload)
+  } catch (error: unknown) {
+    throw new Error(
+      extractErrorMessage(error, "Failed to confirm match result")
+    )
+  }
 }
 
 export async function startMatchAction(matchId: string) {

@@ -1,6 +1,20 @@
 "use server"
 
+import { revalidatePath } from "next/cache"
+
 import { SocialService } from "@/features/socials/api/social-service"
+
+export async function updateSocialBookingsAction(
+  socialId: string,
+  bookingIds: string[]
+) {
+  if (!bookingIds || bookingIds.length === 0) {
+    throw new Error("Sự kiện Social phải chứa ít nhất 1 booking sân.")
+  }
+  const result = await SocialService.updateSocial(socialId, { bookingIds })
+  revalidatePath(`/socials/${socialId}`)
+  return result
+}
 
 export async function publishSocial(social: string) {
   const socialDetail = await SocialService.getSocial(social)

@@ -4,6 +4,7 @@ type NotificationClickSupport = {
   messageId?: unknown
   groupId?: unknown
   socialId?: unknown
+  invitationId?: unknown
   tournamentId?: unknown
   bookingId?: unknown
   coachProfileId?: unknown
@@ -81,7 +82,14 @@ export function deriveNotificationActionHref(metadata: unknown) {
   }
 
   if (type === "group" && groupId) return `/groups/${groupId}`
-  if (type === "social" && socialId) return `/socials/${socialId}`
+  if (type === "social" && socialId) {
+    const invitationId = getString(onClickSupport.invitationId)
+    const params = new URLSearchParams()
+    if (invitationId) params.set("invitationId", invitationId)
+    return params.size > 0
+      ? `/socials/${socialId}?${params.toString()}`
+      : `/socials/${socialId}`
+  }
   if (type === "tournament" && tournamentId)
     return `/tournaments/${tournamentId}`
   if (type === "booking" && bookingId) return `/bookings/${bookingId}`
@@ -103,7 +111,14 @@ export function deriveNotificationActionHref(metadata: unknown) {
   }
 
   if (groupId) return `/groups/${groupId}`
-  if (socialId) return `/socials/${socialId}`
+  if (socialId) {
+    const invitationId = getString(onClickSupport.invitationId)
+    const params = new URLSearchParams()
+    if (invitationId) params.set("invitationId", invitationId)
+    return params.size > 0
+      ? `/socials/${socialId}?${params.toString()}`
+      : `/socials/${socialId}`
+  }
   if (tournamentId) return `/tournaments/${tournamentId}`
   if (bookingId) return `/bookings/${bookingId}`
   if (coachId) return `/coaches/${coachId}`

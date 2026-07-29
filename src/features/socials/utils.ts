@@ -1,6 +1,90 @@
 import type { PlaySession } from "./types/play-session"
 import type { ListSocial as Social } from "./types/social"
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null
+}
+
+function toStringValue(value: unknown, fallback?: string): string | undefined {
+  if (typeof value === "string" && value.trim()) {
+    return value
+  }
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value)
+  }
+  return fallback
+}
+
+export interface NormalizedBookingItem {
+  id?: string
+  courtId?: string
+  courtName?: string
+  startTime?: string
+  endTime?: string
+}
+
+export function normalizeBookingItems(
+  booking: unknown
+): NormalizedBookingItem[] {
+  if (!isRecord(booking)) return []
+
+  const rawItems = Array.isArray(booking.bookingItems)
+    ? booking.bookingItems
+    : Array.isArray(booking.items)
+      ? booking.items
+      : []
+
+  return rawItems.flatMap((item) => {
+    if (!isRecord(item)) return []
+
+    const court = isRecord(item.court) ? item.court : null
+    const courtName = toStringValue(court?.name, toStringValue(item.courtName))
+    const startTime = toStringValue(item.startTime)
+    const endTime = toStringValue(item.endTime)
+
+    if (!startTime && !endTime) return []
+
+    return [
+      {
+        id: toStringValue(item.id),
+        courtId: toStringValue(item.courtId, toStringValue(court?.id)),
+        courtName,
+        startTime,
+        endTime,
+      },
+    ]
+  })
+}
+
+export function getBookingTimeString(booking: unknown): string {
+  const items = normalizeBookingItems(booking)
+  return items
+    .map((item) => `${item.startTime ?? ""}-${item.endTime ?? ""}`)
+    .filter((value) => value !== "-")
+    .join(", ")
+}
+
+export function getBookingTimeRange(booking: unknown): {
+  startTime: string
+  endTime: string
+} {
+  const items = normalizeBookingItems(booking).filter(
+    (item) => item.startTime && item.endTime
+  )
+  if (!items.length) {
+    return { startTime: "", endTime: "" }
+  }
+  const sorted = [...items].sort((left, right) =>
+    (left.startTime ?? "").localeCompare(right.startTime ?? "")
+  )
+  const first = sorted[0]
+  const last = sorted[sorted.length - 1]
+  return {
+    startTime: first.startTime ?? "",
+    endTime: last.endTime ?? first.endTime ?? "",
+  }
+}
+
 const ACTIVE_PARTICIPANT_STATUSES = ["CONFIRMED", "WAITLISTED"] as const
 
 function toSafeCount(value: number | null | undefined) {
@@ -87,17 +171,23 @@ export function isFullPlaySession(
 }
 
 export function getPlaySessionJoinedCount(
-  joinedCount: number | null | undefined
+  joinedCount: number | null | undefined,
+  participants?: Array<{ status?: string | null }> | null
 ) {
+  if (Array.isArray(participants) && participants.length > 0) {
+    return participants.filter((p) => isActiveSocialParticipantStatus(p.status))
+      .length
+  }
   return toSafeCount(joinedCount)
 }
 
 export function getPlaySessionCapacityText(
   joinedCount: number | null | undefined,
   maxSlot: number | null | undefined,
-  unlimitedLabel: string
+  unlimitedLabel: string,
+  participants?: Array<{ status?: string | null }> | null
 ) {
-  const safeJoinedCount = toSafeCount(joinedCount)
+  const safeJoinedCount = getPlaySessionJoinedCount(joinedCount, participants)
   return maxSlot == null
     ? `${safeJoinedCount} / ${unlimitedLabel}`
     : `${safeJoinedCount} / ${maxSlot}`

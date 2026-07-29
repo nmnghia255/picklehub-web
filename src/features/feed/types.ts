@@ -23,4 +23,6 @@ export interface FeedNotification {
   status?: FeedNotificationStatus
   tags: string[]
   actionHref?: string
+  /** Raw metadata from backend — used to extract invitationId for Accept/Decline */
+  metadata?: unknown
 }

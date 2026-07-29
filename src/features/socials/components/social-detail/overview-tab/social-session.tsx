@@ -70,10 +70,11 @@ export default function SocialSessions({
             <div className="space-y-4">
               {sessions.map((session) => {
                 const joinedCount = getPlaySessionJoinedCount(
-                  session.joinedCount
+                  session.joinedCount,
+                  session.participants
                 )
                 const hasSlots = hasAvailablePlaySessionSlots(
-                  session.joinedCount,
+                  joinedCount,
                   session.maxSlot
                 )
                 const progressValue =
@@ -139,7 +140,8 @@ export default function SocialSessions({
                             {getPlaySessionCapacityText(
                               session.joinedCount,
                               session.maxSlot,
-                              t("playSessionOverview.unlimited")
+                              t("playSessionOverview.unlimited"),
+                              session.participants
                             )}
                           </span>
                         </div>

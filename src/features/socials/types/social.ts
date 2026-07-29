@@ -13,8 +13,6 @@ export type SocialStatus =
 export type HostRole = "HOST_AND_PLAY" | "HOST_ONLY" | "PLAY_ONLY"
 export type SocialParticipantStatus = "CONFIRMED" | "WAITLISTED" | "CANCELLED"
 
-export type TransactionType = "PAYMENT" | "REFUND"
-
 export interface CreateSocialRequest {
   title: string
   note: string
@@ -35,6 +33,7 @@ export interface CreateSocialRequest {
   paymentAccountName: string | null
   paymentQrUrl: string | null
   paymentNote: string | null
+  bookingIds: string[]
 }
 
 export interface CreateSocialResponse {
@@ -89,12 +88,14 @@ export interface UpdateSocialRequest {
   paymentNote?: string | null
   status?: SocialStatus
   packageFee?: number | null
+  bookingIds?: string[]
 }
 
 export type SocialFormData = CreateSocialRequest & {
   packageFee?: number | null
   totalExpense?: number
   status?: SocialStatus
+  bookingIds: string[]
 }
 
 export interface User {
@@ -167,12 +168,39 @@ export interface ParticipantInfo {
   paymentUrl: string | null
 }
 
+export interface CourtScheduleItem {
+  courtId: string
+  courtName: string
+  startTime: string
+  endTime: string
+}
+
+export interface SocialBookingItem {
+  id: string
+  centerId?: string
+  centerName?: string
+  location?: string
+  courtName: string
+  startTime: string
+  endTime: string
+  price?: number
+  status?: string
+}
+
 export interface SocialDetail {
   id: string
   title: string
   note: string
   startTime: string
   endTime: string
+  bookingIds?: string[]
+  centerId?: string | null
+  centerName?: string | null
+  location?: string | null
+  numberOfCourts?: number
+  courtNames?: string | null
+  courtSchedule?: CourtScheduleItem[]
+  bookings?: SocialBookingItem[]
   totalBookingCost: number
   packageFee: number | null
   totalExpense: number
@@ -215,7 +243,7 @@ export interface Payment {
   amount: number
   receiptUrl: string | null
   status: PaymentStatus
-  transactionType: TransactionType
+  transactionType?: string
   createdById: string
   verifiedById: string
   createdAt: string
@@ -236,7 +264,7 @@ export interface SocialParticipant {
   joinedAt: string
   isHost: boolean
   user: User
-  payments?: Payment[]
+  receiptUrls?: string[]
 }
 
 export interface DuplicateSessionRequest {
@@ -250,4 +278,60 @@ export interface LeaveSocialResponse {
   socialId: string
   userId: string
   promotedUserId: string
+}
+
+// ──────────────────────────────────────────────
+// Social Invitation System
+// ──────────────────────────────────────────────
+
+export type SocialInvitationStatus =
+  | "PENDING"
+  | "ACCEPTED"
+  | "DECLINED"
+  | "EXPIRED"
+  | "CANCELLED"
+
+export interface SocialInvitation {
+  id: string
+  socialId: string
+  inviterId: string
+  inviteeId?: string | null
+  inviteCode?: string | null
+  status: SocialInvitationStatus
+  expiresAt?: string | null
+  createdAt: string
+  updatedAt: string
+  invitee?: {
+    id: string
+    fullName: string
+    avatarUrl?: string
+  } | null
+}
+
+export interface InvitationLinkData {
+  inviteCode: string
+  /** Relative path, e.g. /socials/:id?inviteCode=soc_xyz */
+  shareUrl: string
+}
+
+export interface InviteCodePreview {
+  id: string
+  socialId: string
+  inviteCode: string
+  status: SocialInvitationStatus
+  social?: {
+    id: string
+    title: string
+    startTime?: string
+    endTime?: string
+    format: string
+    joinedCount: number
+    hasAvailableSlots: boolean
+  } | null
+}
+
+export interface CreateInvitationResult {
+  createdCount: number
+  skippedCount: number
+  totalRequested: number
 }

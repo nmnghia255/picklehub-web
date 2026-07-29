@@ -20,6 +20,7 @@ import { isActiveSocialParticipantStatus } from "@/features/socials/utils"
 import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
+import SocialBookingTab from "./booking-tab/social-booking-tab"
 import SocialExpenseTab from "./expense-tab/social-expense-tab"
 import SocialFeedbackTab from "./feedback-tab/social-feedback-tab"
 import SocialOverview from "./overview-tab/social-overview"
@@ -28,6 +29,8 @@ import SocialParticipantsTab from "./participants-tab/social-participants-tab"
 import SocialPaymentTab from "./payment-tab/social-payment-tab"
 import SocialHeader from "./social-header"
 import SocialHero from "./social-hero"
+import SocialInviteConfirmDialog from "./social-invite-confirm-dialog"
+import SocialInviteDialog from "./social-invite-dialog"
 import SocialJoinDialog from "./social-join-dialog"
 import SocialLeaveDialog from "./social-leave-dialog"
 import SocialSidebar from "./social-sidebar"
@@ -37,12 +40,16 @@ interface SocialDetailProps {
   initialSocial: SocialDetail | null
   initialParticipants: SocialParticipant[]
   initialPlaySessions: PlaySession[]
+  inviteCode?: string | null
+  invitationId?: string | null
 }
 
 export default function SocialDetail({
   initialSocial,
   initialParticipants,
   initialPlaySessions,
+  inviteCode,
+  invitationId,
 }: SocialDetailProps) {
   const router = useRouter()
   const { t } = useSocialsTranslation()
@@ -52,6 +59,9 @@ export default function SocialDetail({
 
   const leaveDialogOpen = useSocialDetailStore((s) => s.leaveDialogOpen)
   const setLeaveDialogOpen = useSocialDetailStore((s) => s.setLeaveDialogOpen)
+
+  const inviteDialogOpen = useSocialDetailStore((s) => s.inviteDialogOpen)
+  const setInviteDialogOpen = useSocialDetailStore((s) => s.setInviteDialogOpen)
 
   const playSessionModalOpen = useSocialDetailStore(
     (s) => s.playSessionModalOpen
@@ -198,6 +208,9 @@ export default function SocialDetail({
               {(isParticipant || isHost) && social.status === "COMPLETED" && (
                 <TabsTrigger value="5">{t("feedback.tab")}</TabsTrigger>
               )}
+              {isHost && (
+                <TabsTrigger value="6">{t("booking.tab")}</TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="0" className="space-y-4">
@@ -255,6 +268,12 @@ export default function SocialDetail({
                 <SocialFeedbackTab socialId={social.id} isHost={isHost} />
               </TabsContent>
             )}
+
+            {isHost && (
+              <TabsContent value="6" className="space-y-4">
+                <SocialBookingTab social={social} isEditable={isEditable} />
+              </TabsContent>
+            )}
           </Tabs>
         </div>
 
@@ -278,6 +297,8 @@ export default function SocialDetail({
           <PlaySessionForm
             socialId={social.id}
             session={selectedSession}
+            socialStartTime={social.startTime}
+            socialEndTime={social.endTime}
             showCard={false}
             onCancel={() => {
               setPlaySessionModalOpen(false)
@@ -309,6 +330,23 @@ export default function SocialDetail({
         joinedSessionIds={social.myParticipantInfo?.joinedSessionIds}
         onConfirm={handleConfirmLeave}
         isLeaving={isLeaving}
+      />
+
+      {/* Invite dialog — only rendered for host */}
+      {social.isHost && (
+        <SocialInviteDialog
+          open={inviteDialogOpen}
+          onOpenChange={setInviteDialogOpen}
+          socialId={social.id}
+        />
+      )}
+
+      {/* Confirm dialog — auto-opens when ?inviteCode= or ?invitationId= is in URL */}
+      <SocialInviteConfirmDialog
+        inviteCode={inviteCode}
+        invitationId={invitationId}
+        socialId={social.id}
+        initialSocial={social}
       />
     </div>
   )

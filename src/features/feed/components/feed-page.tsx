@@ -18,6 +18,7 @@ import Link from "next/link"
 import { useState } from "react"
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -33,6 +34,10 @@ import {
   fetchMyNotifications,
   markUserNotificationsRead,
 } from "@/features/notifications/actions/user-notifications"
+import {
+  acceptDirectInvitationAction,
+  declineDirectInvitationAction,
+} from "@/features/socials/actions/invitation-actions"
 import { cn } from "@/lib/utils"
 
 import { notificationFeedAtom } from "../store/feed-store"
@@ -478,6 +483,15 @@ export function FeedPage() {
     )
   }
 
+  /** Lấy invitationId từ metadata của notification */
+  function extractInvitationId(metadata: unknown): string | null {
+    if (!metadata || typeof metadata !== "object") return null
+    const onClickSupport = (metadata as Record<string, unknown>).onClickSupport
+    if (!onClickSupport || typeof onClickSupport !== "object") return null
+    const id = (onClickSupport as Record<string, unknown>).invitationId
+    return typeof id === "string" && id.trim() ? id.trim() : null
+  }
+
   const handleResolveInvitation = (
     id: string,
     status: FeedNotificationStatus
@@ -489,6 +503,43 @@ export function FeedPage() {
           : notification
       )
     )
+  }
+
+  const handleAcceptInvitation = async (notificationId: string) => {
+    const notification = notifications.find((n) => n.id === notificationId)
+    const invitationId = extractInvitationId(notification?.metadata)
+
+    // Optimistic update
+    handleResolveInvitation(notificationId, "accepted")
+
+    try {
+      if (invitationId) {
+        await acceptDirectInvitationAction(invitationId)
+      }
+      toast.success(t("feed.actions.acceptSuccess", "Đã chấp nhận lời mời!"))
+    } catch {
+      // Rollback
+      handleResolveInvitation(notificationId, "pending")
+      toast.error(t("feed.actions.acceptError", "Không thể chấp nhận lời mời."))
+    }
+  }
+
+  const handleDeclineInvitation = async (notificationId: string) => {
+    const notification = notifications.find((n) => n.id === notificationId)
+    const invitationId = extractInvitationId(notification?.metadata)
+
+    // Optimistic update
+    handleResolveInvitation(notificationId, "declined")
+
+    try {
+      if (invitationId) {
+        await declineDirectInvitationAction(invitationId)
+      }
+    } catch {
+      // Rollback
+      handleResolveInvitation(notificationId, "pending")
+      toast.error(t("feed.actions.declineError", "Không thể từ chối lời mời."))
+    }
   }
 
   return (
@@ -638,12 +689,8 @@ export function FeedPage() {
                           key={notification.id}
                           notification={notification}
                           t={t}
-                          onAccept={(id) =>
-                            handleResolveInvitation(id, "accepted")
-                          }
-                          onDecline={(id) =>
-                            handleResolveInvitation(id, "declined")
-                          }
+                          onAccept={handleAcceptInvitation}
+                          onDecline={handleDeclineInvitation}
                           onMarkRead={handleMarkRead}
                           onDelete={handleDeleteNotification}
                         />

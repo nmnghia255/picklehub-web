@@ -1,7 +1,9 @@
 "use client"
 
-import { Check, HandCoins, Undo } from "lucide-react"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { CheckCircle2, ImageOff, Loader2, XCircle } from "lucide-react"
 import React, { useState } from "react"
+import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -13,6 +15,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { verifyPaymentAction } from "@/features/socials/actions/payment-actions"
 import {
   getEffectiveAmountDue,
   getPaymentStatusLabel,
@@ -21,40 +26,62 @@ import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { cn } from "@/lib/utils"
 import { formatCurrencyVnd, getPaymentStatusTone } from "@/utils/expense-utils"
 
+import type { VerifyPaymentAction } from "../../../types/payment"
 import type { SocialParticipant } from "../../../types/social"
 
 interface ParticipantDetailDialogProps {
+  socialId: string
   open: boolean
   onOpenChange: (open: boolean) => void
   participant: SocialParticipant
-  onVerify: () => void
-  onRecordCash: () => void
-  onRefund: () => void
 }
 
 export function ParticipantDetailDialog({
+  socialId,
   open,
   onOpenChange,
   participant,
-  onVerify,
-  onRecordCash,
-  onRefund,
 }: ParticipantDetailDialogProps) {
   const { t } = useSocialsTranslation()
-  const [failedImageIds, setFailedImageIds] = useState<Record<string, boolean>>(
-    {}
-  )
+  const queryClient = useQueryClient()
+  const [note, setNote] = useState("")
+  const [failedUrls, setFailedUrls] = useState<Set<string>>(new Set())
 
   const effectiveDue = getEffectiveAmountDue(participant)
-  const isPaid =
-    participant.paymentStatus === "PAID" ||
-    participant.paymentStatus === "OVERPAID"
+  const isPendingReview = participant.paymentStatus === "PENDING_REVIEW"
 
-  const payments = participant.payments ?? []
+  // ảnh mới nhất trước (reverse của mảng gốc)
+  const receiptUrls = [...(participant.receiptUrls ?? [])].reverse()
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (action: VerifyPaymentAction | "REJECTED") => {
+      if (action === "REJECTED") {
+        return verifyPaymentAction(socialId, participant.id, "PAID", "REJECTED")
+      }
+      return verifyPaymentAction(socialId, participant.id, action, note)
+    },
+    onSuccess: (_, action) => {
+      toast.success(
+        action === "REJECTED"
+          ? t("expenses.verifyPaymentDialog.rejectSuccess")
+          : t("expenses.verifyPaymentDialog.success")
+      )
+      queryClient.invalidateQueries({
+        queryKey: ["socialParticipants", socialId],
+      })
+      queryClient.invalidateQueries({ queryKey: ["financeSummary", socialId] })
+      onOpenChange(false)
+      setNote("")
+    },
+    onError: (error) => {
+      const msg = error instanceof Error ? error.message : String(error)
+      toast.error(msg)
+    },
+  })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-135">
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl font-bold">
             {participant.user.name || t("expenses.tracking.unknownUser")}
@@ -69,9 +96,9 @@ export function ParticipantDetailDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-2">
-          {/* Details summary */}
-          <div className="grid grid-cols-2 gap-4 rounded-lg border bg-muted/20 p-4 text-sm">
+        <div className="space-y-5 py-2">
+          {/* Tóm tắt số tiền */}
+          <div className="grid grid-cols-2 gap-3 rounded-lg border bg-muted/20 p-4 text-sm">
             <div>
               <span className="block text-xs font-medium text-muted-foreground">
                 {t("expenses.tracking.headers.status")}
@@ -98,9 +125,7 @@ export function ParticipantDetailDialog({
                 {t("expenses.tracking.headers.amountPaid")}
               </span>
               <span className="mt-1 block font-semibold text-emerald-600">
-                {formatCurrencyVnd(
-                  Math.max(0, participant.totalFee - effectiveDue)
-                )}
+                {formatCurrencyVnd(participant.amountPaid)}
               </span>
             </div>
             <div>
@@ -110,166 +135,129 @@ export function ParticipantDetailDialog({
               <span
                 className={cn(
                   "mt-1 block font-semibold",
-                  effectiveDue > 0
-                    ? "text-destructive"
-                    : effectiveDue < 0
-                      ? "text-emerald-600"
-                      : ""
+                  effectiveDue > 0 ? "text-destructive" : ""
                 )}
               >
-                {effectiveDue > 0 ? (
-                  formatCurrencyVnd(effectiveDue)
-                ) : effectiveDue < 0 ? (
-                  <span>
-                    {t("expenses.tracking.creditPrefix")}
-                    {formatCurrencyVnd(Math.abs(effectiveDue))}
-                  </span>
-                ) : (
-                  "0"
-                )}
+                {effectiveDue > 0 ? formatCurrencyVnd(effectiveDue) : "0"}
               </span>
             </div>
           </div>
 
-          {/* Payment History List */}
+          {/* Ảnh minh chứng thanh toán */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-foreground">
                 {t("expenses.tracking.paymentHistory")}
               </h3>
               <span className="text-xs text-muted-foreground">
-                {t("expenses.tracking.results_other").replace(
-                  "{{count}}",
-                  String(payments.length)
-                )}
+                {receiptUrls.length} {receiptUrls.length === 1 ? "ảnh" : "ảnh"}
               </span>
             </div>
 
-            {payments.length === 0 ? (
-              <div className="flex h-24 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+            {receiptUrls.length === 0 ? (
+              <div className="flex h-24 flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-sm text-muted-foreground">
                 {t("expenses.tracking.noPaymentHistory")}
               </div>
             ) : (
               <div className="space-y-3">
-                {payments.map((payment, index) => {
-                  const paymentKey = payment.id || `payment-${index}`
-                  const isRefund = payment.transactionType === "REFUND"
-                  const formattedDate = payment.createdAt
-                    ? new Date(payment.createdAt).toLocaleDateString("vi-VN", {
-                        year: "numeric",
-                        month: "2-digit",
-                        day: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : null
-
-                  return (
-                    <div
-                      key={paymentKey}
-                      className="space-y-2 rounded-lg border bg-card p-3 text-sm shadow-xs"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Badge
-                            variant={isRefund ? "destructive" : "secondary"}
-                            className="text-xs"
-                          >
-                            {isRefund
-                              ? t("expenses.tracking.transactionRefund")
-                              : t("expenses.tracking.transactionPayment")}
-                          </Badge>
-                          <Badge
-                            className={cn(
-                              "text-[11px]",
-                              getPaymentStatusTone(payment.status)
-                            )}
-                          >
-                            {getPaymentStatusLabel(payment.status, t)}
-                          </Badge>
-                        </div>
-                        <span
-                          className={cn(
-                            "font-semibold",
-                            isRefund ? "text-destructive" : "text-emerald-600"
-                          )}
-                        >
-                          {isRefund ? "-" : "+"}
-                          {formatCurrencyVnd(payment.amount)}
-                        </span>
+                {receiptUrls.map((url, index) => (
+                  <div
+                    key={`${url}-${index}`}
+                    className="overflow-hidden rounded-lg border bg-muted/30"
+                  >
+                    {failedUrls.has(url) ? (
+                      <div className="flex h-24 items-center justify-center gap-2 text-xs text-muted-foreground">
+                        <ImageOff className="size-4" />
+                        {t("expenses.verifyPaymentDialog.imageLoadFailed")}
                       </div>
-
-                      {formattedDate && (
-                        <div className="text-xs text-muted-foreground">
-                          {formattedDate}
+                    ) : (
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group relative block"
+                      >
+                        <img
+                          src={url}
+                          alt={`${t("expenses.tracking.paymentProof")} ${receiptUrls.length - index}`}
+                          className="max-h-72 w-full object-contain transition-transform group-hover:scale-[1.01]"
+                          onError={() =>
+                            setFailedUrls((prev) => new Set(prev).add(url))
+                          }
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                          <span className="rounded-md bg-background/90 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm">
+                            {t("expenses.tracking.viewFullImage")}
+                          </span>
                         </div>
-                      )}
-
-                      {payment.receiptUrl && !failedImageIds[paymentKey] && (
-                        <div className="mt-2 overflow-hidden rounded-md border bg-muted/30 p-1.5">
-                          <a
-                            href={payment.receiptUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group relative block aspect-video w-full overflow-hidden rounded-md border bg-black/5"
-                          >
-                            <img
-                              src={payment.receiptUrl}
-                              alt={t("expenses.tracking.paymentProof")}
-                              className="h-full w-full object-contain transition-transform group-hover:scale-[1.02]"
-                              onError={() =>
-                                setFailedImageIds((prev) => ({
-                                  ...prev,
-                                  [paymentKey]: true,
-                                }))
-                              }
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                              <span className="rounded-md bg-background/90 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm">
-                                {t("expenses.tracking.viewFullImage")}
-                              </span>
-                            </div>
-                          </a>
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
+                      </a>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>
+
+          {/* Ghi chú xác nhận — chỉ khi PENDING_REVIEW */}
+          {isPendingReview && (
+            <div className="grid gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+              <Label
+                htmlFor="detailVerifyNote"
+                className="text-xs text-muted-foreground"
+              >
+                {t("expenses.verifyPaymentDialog.noteLabel")}
+              </Label>
+              <Input
+                id="detailVerifyNote"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder={t("expenses.verifyPaymentDialog.notePlaceholder")}
+                className="h-8 text-sm"
+              />
+            </div>
+          )}
         </div>
 
         <DialogFooter className="flex flex-row flex-wrap justify-end gap-2">
-          {!isPaid && (
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isPending}
+            className="flex-1 sm:flex-initial"
+          >
+            {t("common.close", "Đóng")}
+          </Button>
+
+          {/* Từ chối + Xác nhận — chỉ khi PENDING_REVIEW */}
+          {isPendingReview && (
             <>
               <Button
                 variant="outline"
-                onClick={onVerify}
-                className="flex-1 sm:flex-initial"
+                onClick={() => mutate("REJECTED")}
+                disabled={isPending}
+                className="flex-1 text-destructive hover:bg-destructive/10 hover:text-destructive sm:flex-initial"
               >
-                <Check className="mr-2 size-4" />
-                {t("expenses.tracking.actions.verifyReceipt")}
+                {isPending ? (
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                ) : (
+                  <XCircle className="mr-2 size-4" />
+                )}
+                {t("expenses.verifyPaymentDialog.reject", "Từ chối")}
               </Button>
+
               <Button
-                variant="outline"
-                onClick={onRecordCash}
-                className="flex-1 sm:flex-initial"
+                onClick={() => mutate("PAID")}
+                disabled={isPending}
+                className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 sm:flex-initial"
               >
-                <HandCoins className="mr-2 size-4" />
-                {t("expenses.tracking.actions.recordCash")}
+                {isPending ? (
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="mr-2 size-4" />
+                )}
+                {t("expenses.verifyPaymentDialog.paidAction", "Xác nhận")}
               </Button>
             </>
-          )}
-          {effectiveDue < 0 && (
-            <Button
-              variant="outline"
-              onClick={onRefund}
-              className="flex-1 text-destructive hover:bg-destructive/10 sm:flex-initial"
-            >
-              <Undo className="mr-2 size-4" />
-              {t("expenses.tracking.actions.issueRefund")}
-            </Button>
           )}
         </DialogFooter>
       </DialogContent>

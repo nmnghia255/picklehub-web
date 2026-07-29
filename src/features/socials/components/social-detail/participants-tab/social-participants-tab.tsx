@@ -1,7 +1,7 @@
 "use client"
 
 import { format } from "date-fns"
-import { Check, UserMinus, UserX } from "lucide-react"
+import { Check, UserMinus, UserPlus, UserX } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -18,6 +18,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import useSocialDetailStore from "@/features/socials/stores/social-detail-store"
 import { isConfirmedLikeSocialParticipantStatus } from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
@@ -43,6 +44,7 @@ export default function SocialParticipantsTab({
 }) {
   const { t } = useSocialsTranslation()
   const router = useRouter()
+  const setInviteDialogOpen = useSocialDetailStore((s) => s.setInviteDialogOpen)
   const [loadingAction, setLoadingAction] = useState<{
     id: string
     action: "approve" | "kick"
@@ -181,61 +183,40 @@ export default function SocialParticipantsTab({
   return (
     <Card className="sticky top-16 h-fit p-0">
       <CardContent className="space-y-6 p-6">
-        <Tabs defaultValue="confirmed" className="w-full space-y-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="confirmed">
-              {t("detail.participants")} ({confirmedParticipants.length})
-            </TabsTrigger>
-            <TabsTrigger value="waiting" className="gap-1.5">
-              Danh sách chờ
-              {waitingParticipants.length > 0 && (
-                <span className="rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
-                  {waitingParticipants.length}
-                </span>
-              )}
-            </TabsTrigger>
-          </TabsList>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h3 className="text-base font-bold text-foreground">
+            {t("detail.participants")} ({confirmedParticipants.length})
+          </h3>
 
-          <TabsContent value="confirmed" className="space-y-3 pt-2">
-            {confirmedParticipants.length === 0 ? (
-              <Empty className="my-6 border-dashed">
-                <EmptyHeader>
-                  <EmptyMedia variant="icon">
-                    <UserX className="size-6 text-muted-foreground" />
-                  </EmptyMedia>
-                  <EmptyTitle>{t("detail.noParticipants")}</EmptyTitle>
-                  <EmptyDescription>
-                    {t("detail.noParticipantsDescription")}
-                  </EmptyDescription>
-                </EmptyHeader>
-              </Empty>
-            ) : (
-              <div className="space-y-3">
-                {confirmedParticipants.map(renderParticipantRow)}
-              </div>
-            )}
-          </TabsContent>
+          {isHost && (
+            <Button
+              size="sm"
+              onClick={() => setInviteDialogOpen(true)}
+              className="gap-2 self-start sm:self-auto"
+            >
+              <UserPlus className="size-4" />
+              {t("invitation.openDialog")}
+            </Button>
+          )}
+        </div>
 
-          <TabsContent value="waiting" className="space-y-3 pt-2">
-            {waitingParticipants.length === 0 ? (
-              <Empty className="my-6 border-dashed">
-                <EmptyHeader>
-                  <EmptyMedia variant="icon">
-                    <UserX className="size-6 text-muted-foreground" />
-                  </EmptyMedia>
-                  <EmptyTitle>Không có ai trong danh sách chờ</EmptyTitle>
-                  <EmptyDescription>
-                    Hiện tại chưa có người chơi nào cần duyệt.
-                  </EmptyDescription>
-                </EmptyHeader>
-              </Empty>
-            ) : (
-              <div className="space-y-3">
-                {waitingParticipants.map(renderParticipantRow)}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+        {confirmedParticipants.length === 0 ? (
+          <Empty className="my-6 border-dashed">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <UserX className="size-6 text-muted-foreground" />
+              </EmptyMedia>
+              <EmptyTitle>{t("detail.noParticipants")}</EmptyTitle>
+              <EmptyDescription>
+                {t("detail.noParticipantsDescription")}
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        ) : (
+          <div className="space-y-3">
+            {confirmedParticipants.map(renderParticipantRow)}
+          </div>
+        )}
       </CardContent>
     </Card>
   )

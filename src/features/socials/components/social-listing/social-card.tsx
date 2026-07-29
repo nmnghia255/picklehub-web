@@ -108,7 +108,8 @@ export default function SocialCard({ social, onClick }: SocialCardProps) {
           <div className="flex items-center gap-2">
             <Users className="size-4 text-emerald-500 dark:text-emerald-400" />
             <span>
-              {social.joinedCount} {t("listing.participants")}
+              {social.joinedCount ?? social._count?.participants ?? 0}{" "}
+              {t("listing.participants")}
             </span>
           </div>
         </div>

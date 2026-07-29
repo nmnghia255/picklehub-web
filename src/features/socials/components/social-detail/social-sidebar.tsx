@@ -1,5 +1,6 @@
 "use client"
 
+import { Users } from "lucide-react"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -53,6 +54,7 @@ export default function SocialSidebar({
   const router = useRouter()
   const setJoinDialogOpen = useSocialDetailStore((s) => s.setJoinDialogOpen)
   const setLeaveDialogOpen = useSocialDetailStore((s) => s.setLeaveDialogOpen)
+  const setInviteDialogOpen = useSocialDetailStore((s) => s.setInviteDialogOpen)
   const [isPublishing, setIsPublishing] = React.useState(false)
   const [isCompleting, setIsCompleting] = React.useState(false)
   const [publishDialogOpen, setPublishDialogOpen] = React.useState(false)
@@ -195,6 +197,17 @@ export default function SocialSidebar({
               />
             </div>
           </div>
+
+          {social.isHost && social.status === "PUBLISHED" && (
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => setInviteDialogOpen(true)}
+            >
+              <Users className="mr-2 size-4" />
+              {t("invitation.openDialog")}
+            </Button>
+          )}
 
           {isEditable && social.status == "DRAFT" && (
             <Button

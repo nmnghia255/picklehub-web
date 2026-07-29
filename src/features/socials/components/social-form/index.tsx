@@ -21,6 +21,7 @@ import type {
   SocialFormData,
 } from "../../types/social"
 import { SocialFormBasicInformationCard } from "./social-form-basic-information-card"
+import { SocialFormBookingCard } from "./social-form-booking-card"
 import { SocialFormHeader } from "./social-form-header"
 import { SocialFormParticipationRulesCard } from "./social-form-participation-rules-card"
 import { SocialFormPaymentCard } from "./social-form-payment-card"
@@ -48,6 +49,7 @@ function createInitialFormData(): CreateSocialRequest {
     paymentAccountName: "",
     paymentNote: "",
     isFree: false,
+    bookingIds: [],
   }
 }
 
@@ -75,6 +77,7 @@ function mapSocialToFormData(social: SocialDetail): SocialFormData {
     isFree: social.isFree,
     totalExpense: social.totalExpense,
     status: social.status,
+    bookingIds: social.bookingIds || [],
   }
 }
 
@@ -166,6 +169,15 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
     }
     if (!formData.note?.trim()) {
       toast.error(t("form.validation.noteRequired"))
+      return
+    }
+    if (!formData.bookingIds || formData.bookingIds.length === 0) {
+      toast.error(
+        t(
+          "sessionForm.validation.bookingRequired",
+          "Vui lòng chọn ít nhất 1 sân"
+        )
+      )
       return
     }
     if (!formData.startTime) {
@@ -337,6 +349,10 @@ export function SocialForm({ initialData, socialId }: SocialFormProps = {}) {
             formData={formData}
             setFormData={setFormData}
             isEditMode={isEditMode}
+          />
+          <SocialFormBookingCard
+            formData={formData}
+            setFormData={setFormData}
           />
           <SocialFormParticipationRulesCard
             formData={formData}

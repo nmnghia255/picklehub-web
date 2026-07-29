@@ -21,10 +21,14 @@ export default function MatchCard({
   match,
   isHost,
   completed,
+  isRoundStarted = true,
+  onResultSuccess,
 }: {
   match: PlaySessionCardMatch
   isHost: boolean
   completed?: boolean
+  isRoundStarted?: boolean
+  onResultSuccess?: () => void
 }) {
   const { t } = useSocialsTranslation()
   const router = useRouter()
@@ -50,10 +54,10 @@ export default function MatchCard({
   const currentUserId = session?.user?.id
   const isPlayer = !!(
     currentUserId &&
-    (match.team1.player1?.id === currentUserId ||
-      match.team1.player2?.id === currentUserId ||
-      match.team2.player1?.id === currentUserId ||
-      match.team2.player2?.id === currentUserId)
+    (match.team1?.player1?.id === currentUserId ||
+      match.team1?.player2?.id === currentUserId ||
+      match.team2?.player1?.id === currentUserId ||
+      match.team2?.player2?.id === currentUserId)
   )
   const isReferee = !!(currentUserId && match.refereeId === currentUserId)
   const canUpdateResult = isPlayer || isReferee || isHost
@@ -101,32 +105,37 @@ export default function MatchCard({
     >
       <CardContent className="space-y-4 p-5">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge
-              variant="outline"
-              className={
-                isCompleted
-                  ? "border-emerald-600/30 bg-emerald-50/50 text-emerald-600 dark:bg-emerald-950/20"
-                  : isInProgress
-                    ? "border-orange-500/30 bg-orange-50/50 text-orange-500 dark:bg-orange-950/20"
-                    : "border-slate-950/20 bg-slate-100 text-slate-950 dark:border-slate-50/20 dark:bg-slate-900/50 dark:text-slate-50"
-              }
-            >
-              {match.courtName ||
-                t("matches.court", { number: match.courtNumber ?? 0 })}
-            </Badge>
+          <div className="flex flex-wrap items-center gap-2.5">
+            {match.matchLabel && (
+              <span className="text-base font-extrabold tracking-wide text-foreground uppercase">
+                {match.matchLabel}
+              </span>
+            )}
+            {match.matchLabel &&
+              (isCompleted || isInProgress || isScheduled) && (
+                <span className="font-semibold text-muted-foreground">—</span>
+              )}
             {isCompleted && (
-              <Badge className="border-transparent bg-emerald-600 px-2 py-0.5 text-[10px] font-semibold text-white hover:bg-emerald-600">
+              <Badge
+                variant="outline"
+                className="border-emerald-500/30 bg-emerald-50/50 text-[10px] font-semibold text-emerald-600 dark:border-emerald-400/30 dark:bg-emerald-950/20"
+              >
                 {t("matches.completed")}
               </Badge>
             )}
             {isInProgress && (
-              <Badge className="border-transparent bg-orange-500 px-2 py-0.5 text-[10px] font-semibold text-white hover:bg-orange-500">
+              <Badge
+                variant="outline"
+                className="border-amber-500/30 bg-amber-50/50 text-[10px] font-semibold text-amber-600 dark:border-amber-400/30 dark:bg-amber-950/20"
+              >
                 {t("labels.inProgress")}
               </Badge>
             )}
             {isScheduled && (
-              <Badge className="border-transparent bg-slate-800 px-2 py-0.5 text-[10px] font-semibold text-white hover:bg-slate-900 dark:bg-slate-50 dark:text-slate-950">
+              <Badge
+                variant="outline"
+                className="border-sky-500/30 bg-sky-50/50 text-[10px] font-semibold text-sky-600 dark:border-sky-400/30 dark:bg-sky-950/20"
+              >
                 {t("matches.scheduled")}
               </Badge>
             )}
@@ -160,41 +169,34 @@ export default function MatchCard({
         </div>
 
         {(match.startTime ||
+          match.courtName ||
           (canUpdateResult && (isScheduled || isInProgress))) && (
-          <div className="flex items-center justify-between gap-4">
-            {match.startTime ? (
-              <p className="text-sm text-muted-foreground">{getTimingText()}</p>
-            ) : (
-              <div />
-            )}
+          <div className="flex items-center justify-between gap-4 border-t pt-3">
+            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              {(match.courtName || match.courtNumber) && (
+                <Badge
+                  variant="outline"
+                  className="border-slate-300 bg-slate-100 font-semibold text-slate-800 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-200"
+                >
+                  {match.courtName ||
+                    t("matches.court", { number: match.courtNumber ?? 0 })}
+                </Badge>
+              )}
+              {match.startTime && <span>{getTimingText()}</span>}
+            </div>
 
-            {canUpdateResult && (
+            {canUpdateResult && isRoundStarted && (
               <div className="flex items-center gap-2">
-                {isScheduled && (
-                  <Button
-                    size="sm"
-                    onClick={handleStartMatch}
-                    disabled={isStarting}
-                    className="gap-1.5"
-                  >
-                    {isStarting ? (
-                      <Loader2 className="size-3.5 animate-spin" />
-                    ) : (
-                      <Play className="size-3.5 fill-current" />
-                    )}
-                    {t("matches.startMatch")}
-                  </Button>
-                )}
-                {isInProgress && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsResultDialogOpen(true)}
-                    disabled={isStarting}
-                  >
-                    {t("matches.fillResult")}
-                  </Button>
-                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsResultDialogOpen(true)}
+                  disabled={isStarting}
+                >
+                  {isCompleted
+                    ? t("matches.updateResult", "Cập Nhật Tỷ Số")
+                    : t("matches.fillResult", "Nhập Tỷ Số")}
+                </Button>
               </div>
             )}
           </div>
@@ -206,7 +208,10 @@ export default function MatchCard({
             match={match}
             open={isResultDialogOpen}
             onOpenChange={setIsResultDialogOpen}
-            onSuccess={() => router.refresh()}
+            onSuccess={() => {
+              if (onResultSuccess) onResultSuccess()
+              router.refresh()
+            }}
           />
         )}
       </CardContent>

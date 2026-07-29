@@ -2,12 +2,16 @@ import { getAuthenticatedAxios } from "@/lib/server-api"
 
 import type { Feedback } from "../types/feedback"
 import type {
+  CreateInvitationResult,
   CreateSocialResponse,
   DuplicateSessionRequest,
+  InvitationLinkData,
+  InviteCodePreview,
   LeaveSocialResponse,
   ListSocial,
   ListSocialRequest,
   SocialDetail,
+  SocialInvitation,
   SocialParticipant,
   UpdateSocialRequest,
 } from "../types/social"
@@ -166,10 +170,16 @@ export const SocialService = {
     const searchParams = new URLSearchParams()
     if (status) searchParams.set("status", status)
 
-    const response = await axios.get<ApiResponse<SocialParticipant[]>>(
-      `/api/events/socials/${socialId}/participants?${searchParams.toString()}`
-    )
-    return unwrapApiResponse(response.data)
+    try {
+      const response = await axios.get<ApiResponse<SocialParticipant[]>>(
+        `/api/events/socials/${socialId}/participants`,
+        { params: searchParams }
+      )
+      return unwrapApiResponse(response.data) ?? []
+    } catch (error) {
+      console.error("Error fetching social participants:", error)
+      return []
+    }
   },
 
   leaveSocial: async function (socialId: string): Promise<LeaveSocialResponse> {
@@ -274,5 +284,141 @@ export const SocialService = {
     } catch {
       return null
     }
+  },
+
+  // ──────────────────────────────────────────────
+  // Invitation System
+  // ──────────────────────────────────────────────
+
+  /**
+   * API 1: Host gửi lời mời trực tiếp cho danh sách bạn bè
+   * POST /api/events/socials/:socialId/invitations
+   */
+  sendDirectInvitations: async function (
+    socialId: string,
+    invitedUserIds: string[]
+  ): Promise<CreateInvitationResult> {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.post<ApiResponse<CreateInvitationResult>>(
+      `/api/events/socials/${socialId}/invitations`,
+      { invitedUserIds }
+    )
+    return unwrapApiResponse(response.data)
+  },
+
+  /**
+   * API 2: Host lấy link chia sẻ công khai
+   * GET /api/events/socials/:socialId/invitations/link
+   */
+  getShareLink: async function (socialId: string): Promise<InvitationLinkData> {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.get<ApiResponse<InvitationLinkData>>(
+      `/api/events/socials/${socialId}/invitations/link`
+    )
+    return unwrapApiResponse(response.data)
+  },
+
+  /**
+   * API 3: Xem trước thông tin lời mời từ link chia sẻ (Public, dùng auth axios
+   * vì trang social/:id đã nằm trong (protected) route group)
+   * GET /api/events/socials/invitations/code/:inviteCode
+   */
+  previewInviteCode: async function (
+    inviteCode: string
+  ): Promise<InviteCodePreview> {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.get<ApiResponse<InviteCodePreview>>(
+      `/api/events/socials/invitations/code/${inviteCode}`
+    )
+    return unwrapApiResponse(response.data)
+  },
+
+  /**
+   * API 4: Đồng ý tham gia từ link chia sẻ
+   * POST /api/events/socials/invitations/code/:inviteCode/accept
+   */
+  acceptByInviteCode: async function (
+    inviteCode: string
+  ): Promise<{
+    inviteCode: string
+    socialId: string
+    participant: { id: string; status: string }
+  }> {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.post(
+      `/api/events/socials/invitations/code/${inviteCode}/accept`
+    )
+    return unwrapApiResponse(response.data)
+  },
+
+  /**
+   * API 5: Chấp nhận lời mời trực tiếp
+   * POST /api/events/socials/invitations/:invitationId/accept
+   */
+  acceptDirectInvitation: async function (
+    invitationId: string
+  ): Promise<{
+    invitationId: string
+    socialId: string
+    participant: { id: string; status: string }
+  }> {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.post(
+      `/api/events/socials/invitations/${invitationId}/accept`
+    )
+    return unwrapApiResponse(response.data)
+  },
+
+  /**
+   * API 6: Từ chối lời mời trực tiếp
+   * POST /api/events/socials/invitations/:invitationId/decline
+   */
+  declineDirectInvitation: async function (
+    invitationId: string
+  ): Promise<{ invitationId: string; status: string }> {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.post(
+      `/api/events/socials/invitations/${invitationId}/decline`
+    )
+    return unwrapApiResponse(response.data)
+  },
+
+  /**
+   * API 7: Host xem danh sách lời mời đã gửi
+   * GET /api/events/socials/:socialId/invitations
+   */
+  listSentInvitations: async function (
+    socialId: string,
+    status?: string
+  ): Promise<SocialInvitation[]> {
+    const axios = await getAuthenticatedAxios()
+    const searchParams = new URLSearchParams()
+    if (status) searchParams.set("status", status)
+
+    try {
+      const response = await axios.get<ApiResponse<SocialInvitation[]>>(
+        `/api/events/socials/${socialId}/invitations`,
+        { params: searchParams }
+      )
+      return unwrapApiResponse(response.data) ?? []
+    } catch (error) {
+      console.error("Error fetching sent invitations:", error)
+      return []
+    }
+  },
+
+  /**
+   * API 8: Host hủy lời mời
+   * DELETE /api/events/socials/:socialId/invitations/:invitationId
+   */
+  cancelInvitation: async function (
+    socialId: string,
+    invitationId: string
+  ): Promise<{ invitationId: string; status: string }> {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.delete(
+      `/api/events/socials/${socialId}/invitations/${invitationId}`
+    )
+    return unwrapApiResponse(response.data)
   },
 }

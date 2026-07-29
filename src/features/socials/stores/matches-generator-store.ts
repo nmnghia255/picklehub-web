@@ -15,6 +15,7 @@ export interface MatchesGeneratorState {
   courts: number
   hours: number
   players: Player[]
+  waitingParticipants: Player[]
   matches: Match[]
   scheduleTimes: string[]
   history: HistoryEntry[]
@@ -26,6 +27,7 @@ interface MatchesGeneratorActions {
   setCourts: (courts: number) => void
   setHours: (hours: number) => void
   setPlayers: (players: Player[]) => void
+  setWaitingParticipants: (players: Player[]) => void
   setScheduleTimes: (scheduleTimes: string[]) => void
 
   // Match Management
@@ -33,7 +35,14 @@ interface MatchesGeneratorActions {
   updateMatch: (match: Match) => void
   removePlayerFromMatch: (matchId: string, playerId: string) => void
   addPlayerToMatch: (matchId: string, playerId: string) => void
+  movePlayerToBench: (matchId: string, playerId: string) => void
+  movePlayerFromBenchToMatch: (
+    playerId: string,
+    matchId: string,
+    targetPlayerId?: string | null
+  ) => boolean
   changeMatchType: (matchId: string, matchType: "SINGLES" | "DOUBLES") => void
+  removeMatch: (matchId: string) => void
   swapPlayers: (
     fromMatchId: string,
     toMatchId: string,
@@ -55,6 +64,7 @@ const initialState: MatchesGeneratorState = {
   courts: 2,
   hours: 2,
   players: [],
+  waitingParticipants: [],
   matches: [],
   scheduleTimes: [],
   history: [],
@@ -118,6 +128,11 @@ export const useMatchesGeneratorStore = create<
       updateStateWithHistory({ players })
     },
 
+    setWaitingParticipants: (waitingParticipants: Player[]) => {
+      set(() => ({ waitingParticipants }))
+      updateStateWithHistory({ waitingParticipants })
+    },
+
     setScheduleTimes: (scheduleTimes: string[]) => {
       set(() => ({ scheduleTimes }))
       updateStateWithHistory({ scheduleTimes })
@@ -151,6 +166,97 @@ export const useMatchesGeneratorStore = create<
             : m
         ),
       })
+    },
+
+    movePlayerToBench: (matchId: string, playerId: string) => {
+      const { matches, players, waitingParticipants } = get()
+      const match = matches.find((m) => m.id === matchId)
+      if (!match) return
+
+      const playerToMove =
+        match.players.find((p) => p?.id === playerId) ||
+        players.find((p) => p.id === playerId)
+
+      if (!playerToMove) return
+
+      const updatedMatches = matches.map((m) =>
+        m.id === matchId
+          ? {
+              ...m,
+              players: m.players.map((p) => (p?.id === playerId ? null : p)),
+            }
+          : m
+      )
+
+      const updatedBench = waitingParticipants.some((p) => p.id === playerId)
+        ? waitingParticipants
+        : [...waitingParticipants, playerToMove]
+
+      updateStateWithHistory({
+        matches: updatedMatches,
+        waitingParticipants: updatedBench,
+      })
+    },
+
+    movePlayerFromBenchToMatch: (
+      playerId: string,
+      matchId: string,
+      targetPlayerId?: string | null
+    ): boolean => {
+      const { matches, waitingParticipants, players } = get()
+      const match = matches.find((m) => m.id === matchId)
+      if (!match) return false
+
+      const benchPlayer =
+        waitingParticipants.find((p) => p.id === playerId) ||
+        players.find((p) => p.id === playerId)
+      if (!benchPlayer) return false
+
+      const targetPlayer = targetPlayerId
+        ? match.players.find((p) => p?.id === targetPlayerId)
+        : null
+
+      // Remove benchPlayer from waitingParticipants, add targetPlayer to waitingParticipants (if swapped)
+      let newBench = waitingParticipants.filter((p) => p.id !== playerId)
+      if (targetPlayer) {
+        newBench = [...newBench, targetPlayer]
+      }
+
+      // Update match slots
+      const newMatches = matches.map((m) => {
+        if (m.id !== matchId) return m
+        const maxPlayers = m.matchType === "DOUBLES" ? 4 : 2
+        const newPlayers = [...m.players]
+
+        if (targetPlayerId) {
+          const targetIndex = newPlayers.findIndex(
+            (p) => p?.id === targetPlayerId
+          )
+          if (targetIndex !== -1) {
+            newPlayers[targetIndex] = benchPlayer
+          } else {
+            newPlayers.push(benchPlayer)
+          }
+        } else {
+          const nullIndex = newPlayers.findIndex((p) => p === null)
+          if (nullIndex !== -1) {
+            newPlayers[nullIndex] = benchPlayer
+          } else {
+            newPlayers.push(benchPlayer)
+          }
+        }
+
+        return {
+          ...m,
+          players: newPlayers.slice(0, maxPlayers),
+        }
+      })
+
+      updateStateWithHistory({
+        matches: newMatches,
+        waitingParticipants: newBench,
+      })
+      return true
     },
 
     addPlayerToMatch: (matchId: string, playerId: string) => {
@@ -197,12 +303,41 @@ export const useMatchesGeneratorStore = create<
       })
     },
 
+    removeMatch: (matchId: string) => {
+      const { matches, waitingParticipants } = get()
+      const targetMatch = matches.find((m) => m.id === matchId)
+      if (!targetMatch) return
+
+      const activePlayers = targetMatch.players.filter(isPlayer)
+      const existingBenchIds = new Set(waitingParticipants.map((p) => p.id))
+      const playersToBench = activePlayers.filter(
+        (p) => !existingBenchIds.has(p.id)
+      )
+
+      updateStateWithHistory({
+        matches: matches.filter((m) => m.id !== matchId),
+        waitingParticipants: [...waitingParticipants, ...playersToBench],
+      })
+    },
+
     swapPlayers: (
       fromMatchId: string,
       toMatchId: string,
       fromPlayerId: string,
       toPlayerId: string | null
     ): boolean => {
+      if (fromMatchId === "bench") {
+        return get().movePlayerFromBenchToMatch(
+          fromPlayerId,
+          toMatchId,
+          toPlayerId
+        )
+      }
+      if (toMatchId === "bench") {
+        get().movePlayerToBench(fromMatchId, fromPlayerId)
+        return true
+      }
+
       const currentMatches = get().matches
       const fromIndex = currentMatches.findIndex((m) => m.id === fromMatchId)
       const toIndex = currentMatches.findIndex((m) => m.id === toMatchId)

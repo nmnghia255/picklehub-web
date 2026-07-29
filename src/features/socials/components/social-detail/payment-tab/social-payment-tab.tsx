@@ -40,39 +40,25 @@ export default function SocialPaymentTab({
   const getBadgeContent = () => {
     if (!social?.myParticipantInfo) return null
 
-    const { paymentStatus, paymentUrl } = social.myParticipantInfo
+    const { paymentStatus } = social.myParticipantInfo
 
-    if (paymentStatus === "UNPAID" && paymentUrl) {
+    if (paymentStatus === "PENDING_REVIEW") {
       return {
-        text: t("payment.statusPaidButNotConfirmed"),
+        text: "🟡 Đang chờ Host xác nhận",
+        tone: "bg-amber-500/10 text-amber-700 border-amber-500/30 dark:text-amber-300",
+      }
+    }
+
+    if (paymentStatus === "PAID") {
+      return {
+        text: "🟢 Đã thanh toán đầy đủ",
         tone: getPaymentStatusTone("PAID"),
-      }
-    }
-
-    if (paymentStatus === "PAID" || paymentStatus === "OVERPAID") {
-      return {
-        text: t("payment.statusPaid"),
-        tone: getPaymentStatusTone("PAID"),
-      }
-    }
-
-    if (paymentStatus === "UNPAID" || paymentStatus === "PARTIALLY_PAID") {
-      return {
-        text: t("payment.statusUnpaid"),
-        tone: getPaymentStatusTone("UNPAID"),
-      }
-    }
-
-    if (paymentStatus === "REFUNDED") {
-      return {
-        text: getPaymentStatusLabel("REFUNDED", t),
-        tone: getPaymentStatusTone("REFUNDED"),
       }
     }
 
     return {
-      text: getPaymentStatusLabel(paymentStatus, t),
-      tone: getPaymentStatusTone(paymentStatus),
+      text: "🔴 Chưa thanh toán",
+      tone: getPaymentStatusTone("UNPAID"),
     }
   }
   const isHost = social?.isHost

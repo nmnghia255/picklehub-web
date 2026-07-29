@@ -42,12 +42,13 @@ import type {
   PlaySession,
   PlaySessionRequest,
 } from "@/features/socials/types/play-session"
-import { getMyBookingsAction } from "@/features/sport-center/actions/get-my-bookings"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 interface PlaySessionFormProps {
   socialId: string
   session?: PlaySession | null
+  socialStartTime?: string
+  socialEndTime?: string
   showCard?: boolean
   onCancel?: () => void
   onSuccess?: () => void
@@ -56,9 +57,18 @@ interface PlaySessionFormProps {
 const getFormSchema = (t: TFunction) =>
   z.object({
     title: z.string().min(1, t("sessionForm.validation.titleRequired")),
-    bookingIds: z
-      .array(z.string())
-      .min(1, t("sessionForm.validation.bookingRequired")),
+    startTime: z
+      .string()
+      .min(
+        1,
+        t("sessionForm.validation.startTimeRequired", "Start time is required")
+      ),
+    endTime: z
+      .string()
+      .min(
+        1,
+        t("sessionForm.validation.endTimeRequired", "End time is required")
+      ),
     sessionFee: z.coerce
       .number()
       .min(0, t("sessionForm.validation.feeInvalid")),
@@ -69,7 +79,8 @@ const getFormSchema = (t: TFunction) =>
 
 type FormData = {
   title: string
-  bookingIds: string[]
+  startTime: string
+  endTime: string
   sessionFee: number
   maxSlot: number
 }
@@ -77,6 +88,8 @@ type FormData = {
 export function PlaySessionForm({
   socialId,
   session,
+  socialStartTime,
+  socialEndTime,
   showCard = true,
   onCancel,
   onSuccess,
@@ -86,44 +99,26 @@ export function PlaySessionForm({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const { data: bookingsResponse } = useQuery({
-    queryKey: ["my-bookings", "CONFIRMED"],
-    queryFn: () =>
-      getMyBookingsAction({
-        status: "CONFIRMED",
-        startDate: format(new Date(), "yyyy-MM-dd"),
-        limit: 200,
-        offset: 0,
-      }),
-  })
-  const bookings = bookingsResponse?.data || []
-
-  const availableBookings = bookings.filter(
-    (b) =>
-      b.playSessionId === null || (session && b.playSessionId === session.id)
-  )
-
-  const bookingOptions = availableBookings.map((b) => {
-    const items = b.bookingItems?.length ? b.bookingItems : b.items || []
-    const timeString = items
-      .map((i) => `${i.startTime}-${i.endTime}`)
-      .join(", ")
-    return {
-      value: b.id,
-      label: `${b.center?.name || t("sessionForm.defaultCourt")} - ${new Date(b.date).toLocaleDateString(i18n.language === "vi" ? "vi-VN" : "en-US")}`,
-      description: t("sessionForm.timeLabel", {
-        time: timeString || t("common.na"),
-      }),
-    }
-  })
-
   const formSchema = getFormSchema(t)
+
+  const initialStart = session?.startTime
+    ? format(new Date(session.startTime), "HH:mm")
+    : socialStartTime
+      ? format(new Date(socialStartTime), "HH:mm")
+      : ""
+
+  const initialEnd = session?.endTime
+    ? format(new Date(session.endTime), "HH:mm")
+    : socialEndTime
+      ? format(new Date(socialEndTime), "HH:mm")
+      : ""
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: session?.title || "",
-      bookingIds: session?.bookingIds || [],
+      startTime: initialStart,
+      endTime: initialEnd,
       sessionFee: session?.sessionFee || 0,
       maxSlot: session?.maxSlot || 10,
     },
@@ -133,19 +128,27 @@ export function PlaySessionForm({
     if (session) {
       form.reset({
         title: session.title,
-        bookingIds: session.bookingIds,
+        startTime: session.startTime
+          ? format(new Date(session.startTime), "HH:mm")
+          : "",
+        endTime: session.endTime
+          ? format(new Date(session.endTime), "HH:mm")
+          : "",
         sessionFee: session.sessionFee || 0,
         maxSlot: session.maxSlot || 10,
       })
     } else {
       form.reset({
         title: "",
-        bookingIds: [],
+        startTime: socialStartTime
+          ? format(new Date(socialStartTime), "HH:mm")
+          : "",
+        endTime: socialEndTime ? format(new Date(socialEndTime), "HH:mm") : "",
         sessionFee: 0,
         maxSlot: 10,
       })
     }
-  }, [session, form])
+  }, [session, socialStartTime, socialEndTime, form])
 
   // Debug logging for form validation errors
   const errors = form.formState.errors
@@ -161,6 +164,19 @@ export function PlaySessionForm({
     : t("sessionForm.createTitle")
   const buttonText = isEditing ? t("form.update") : t("sessionForm.createTitle")
 
+  const getIsoStringForTime = (timeStr: string) => {
+    if (timeStr.includes("T")) {
+      return new Date(timeStr).toISOString()
+    }
+    const baseDate = session?.startTime
+      ? new Date(session.startTime)
+      : socialStartTime
+        ? new Date(socialStartTime)
+        : new Date()
+    const datePart = format(baseDate, "yyyy-MM-dd")
+    return new Date(`${datePart}T${timeStr}:00`).toISOString()
+  }
+
   const onSubmit = async (data: FormData) => {
     setIsLoading(true)
     setError(null)
@@ -168,7 +184,8 @@ export function PlaySessionForm({
     try {
       const createInput: PlaySessionRequest = {
         title: data.title,
-        bookingIds: data.bookingIds,
+        startTime: getIsoStringForTime(data.startTime),
+        endTime: getIsoStringForTime(data.endTime),
         sessionFee: data.sessionFee,
         maxSlot: data.maxSlot,
       }
@@ -180,11 +197,20 @@ export function PlaySessionForm({
           updatePayload.title = data.title
         }
 
-        const bookingIdsChanged =
-          data.bookingIds.length !== session.bookingIds.length ||
-          !data.bookingIds.every((id) => session.bookingIds.includes(id))
-        if (bookingIdsChanged) {
-          updatePayload.bookingIds = data.bookingIds
+        const newStartIso = getIsoStringForTime(data.startTime)
+        if (
+          !session.startTime ||
+          newStartIso !== new Date(session.startTime).toISOString()
+        ) {
+          updatePayload.startTime = newStartIso
+        }
+
+        const newEndIso = getIsoStringForTime(data.endTime)
+        if (
+          !session.endTime ||
+          newEndIso !== new Date(session.endTime).toISOString()
+        ) {
+          updatePayload.endTime = newEndIso
         }
 
         if (data.sessionFee !== session.sessionFee) {
@@ -304,25 +330,38 @@ export function PlaySessionForm({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="bookingIds"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("sessionForm.bookingLabel")}</FormLabel>
-                  <FormControl>
-                    <MultiSelect
-                      options={bookingOptions}
-                      selected={field.value}
-                      onSelectionChange={field.onChange}
-                      placeholder={t("sessionForm.bookingPlaceholder")}
-                      emptyMessage={t("sessionForm.noBookingsAvailable")}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="startTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("sessionForm.startTimeLabel", "Bắt đầu")}
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="time" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="endTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("sessionForm.endTimeLabel", "Kết thúc")}
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="time" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="grid grid-cols-2 gap-6">
               <FormField

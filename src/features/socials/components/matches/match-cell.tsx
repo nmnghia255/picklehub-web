@@ -26,13 +26,15 @@ interface Player {
 
 interface MatchCellProps {
   match: Match | null
-  courtLabel: string
+  matchLabel: string
+  courtName?: string
   status: "complete" | "incomplete" | "empty"
   allPlayers: Player[]
   sessionPlayerIds: string[]
   onPlayerRemove: (matchId: string, playerId: string) => void
   onPlayerAdd: (matchId: string, playerId: string) => void
   onMatchTypeChange: (matchId: string, matchType: "SINGLES" | "DOUBLES") => void
+  onDeleteMatch?: (matchId: string) => void
   onPlayerSwap: (
     fromMatchId: string,
     toMatchId: string,
@@ -46,19 +48,22 @@ interface MatchCellProps {
 
 export function MatchCell({
   match,
-  courtLabel,
+  matchLabel,
+  courtName,
   status,
   allPlayers,
   sessionPlayerIds,
   onPlayerRemove,
   onPlayerAdd,
   onMatchTypeChange,
+  onDeleteMatch,
   onPlayerSwap,
   onDragStart,
   onDragEnd,
   draggedPlayer,
 }: MatchCellProps) {
   const { t } = useSocialsTranslation()
+  const [isOver, setIsOver] = useState(false)
   const [selectedEmptySlot, setSelectedEmptySlot] = useState<{
     side: "left" | "right"
     index: number
@@ -154,8 +159,9 @@ export function MatchCell({
         className={`flex min-h-64 w-full flex-col overflow-hidden border p-3 transition-all hover:shadow-md ${statusStyle.cardColor}`}
       >
         <MatchCellHeader
-          courtLabel={courtLabel}
-          matchId={courtLabel}
+          matchLabel={matchLabel}
+          courtName={courtName}
+          matchId={matchLabel}
           matchTypeLabel={t("matches.type.match")}
           statusText={statusTexts.empty}
           statusBadgeColor={statusStyle.badgeColor}
@@ -176,12 +182,32 @@ export function MatchCell({
     )
   }
 
+  const isMatchDropTarget = Boolean(
+    draggedPlayer && draggedPlayer.matchId !== match.id
+  )
+
   return (
     <Card
-      className={`group flex h-full w-full min-w-0 flex-col overflow-hidden border p-4 transition-all hover:shadow-md ${statusStyle.cardColor}`}
-      onDragOver={(e) => e.preventDefault()}
+      className={`group flex h-full w-full min-w-0 flex-col overflow-hidden border p-4 transition-all duration-200 hover:shadow-md ${
+        isOver && isMatchDropTarget
+          ? "scale-[1.01] border-2 border-dashed border-emerald-500 bg-emerald-500/10 shadow-lg"
+          : statusStyle.cardColor
+      }`}
+      onDragOver={(e) => {
+        e.preventDefault()
+        if (isMatchDropTarget && !isOver) setIsOver(true)
+      }}
+      onDragEnter={(e) => {
+        e.preventDefault()
+        if (isMatchDropTarget) setIsOver(true)
+      }}
+      onDragLeave={(e) => {
+        e.preventDefault()
+        setIsOver(false)
+      }}
       onDrop={(e) => {
         e.preventDefault()
+        setIsOver(false)
         if (!draggedPlayer) return
         if (draggedPlayer.matchId === match.id) return
 
@@ -197,7 +223,8 @@ export function MatchCell({
       }}
     >
       <MatchCellHeader
-        courtLabel={courtLabel}
+        matchLabel={matchLabel}
+        courtName={courtName}
         matchId={match.id}
         matchTypeLabel={
           match.matchType === "SINGLES"
@@ -207,6 +234,7 @@ export function MatchCell({
         statusText={statusTexts[status]}
         statusBadgeColor={statusStyle.badgeColor}
         onMatchTypeChange={onMatchTypeChange}
+        onDeleteMatch={onDeleteMatch}
       />
 
       {/* Slot Container */}

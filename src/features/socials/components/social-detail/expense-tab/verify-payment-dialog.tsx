@@ -1,7 +1,7 @@
 "use client"
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
+import { CheckCircle2, Gift, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -17,15 +17,15 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { verifyPaymentAction } from "@/features/socials/actions/payment-actions"
-import type { TransactionStatus } from "@/features/socials/types/payment"
+import type { VerifyPaymentAction } from "@/features/socials/types/payment"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 interface VerifyPaymentDialogProps {
   socialId: string
   participantId: string
-  paymentId: string
+  participantName?: string
   receiptUrl?: string | null
-  amountDue: number
+  amountDue?: number
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -33,133 +33,154 @@ interface VerifyPaymentDialogProps {
 export function VerifyPaymentDialog({
   socialId,
   participantId,
-  paymentId,
+  participantName,
   receiptUrl,
-  amountDue,
+  amountDue = 0,
   open,
   onOpenChange,
 }: VerifyPaymentDialogProps) {
   const { t } = useSocialsTranslation()
   const queryClient = useQueryClient()
-  const [amountPaid, setAmountPaid] = useState(String(amountDue))
-
-  const formatDisplayValue = (val: string) => {
-    if (!val) return ""
-    const num = Number(val)
-    if (isNaN(num)) return ""
-    return new Intl.NumberFormat("vi-VN").format(num)
-  }
-
-  const handleAmountChange = (val: string) => {
-    const rawVal = val.replace(/\D/g, "")
-    setAmountPaid(rawVal)
-  }
+  const [note, setNote] = useState("")
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (status: TransactionStatus) =>
-      verifyPaymentAction(
-        socialId,
-        participantId,
-        paymentId,
-        status,
-        Number(amountPaid)
-      ),
+    mutationFn: (action: VerifyPaymentAction | "REJECTED") => {
+      if (action === "REJECTED") {
+        // If rejected, call verify payment or reject
+        return verifyPaymentAction(socialId, participantId, "PAID", "REJECTED")
+      }
+      return verifyPaymentAction(socialId, participantId, action, note)
+    },
     onSuccess: () => {
       toast.success(
-        t("expenses.verifyPaymentDialog.success") || "Payment verified"
+        t("expenses.verifyPaymentDialog.success") || "Xác nhận thành công!"
       )
       queryClient.invalidateQueries({
         queryKey: ["socialParticipants", socialId],
       })
       queryClient.invalidateQueries({ queryKey: ["financeSummary", socialId] })
       onOpenChange(false)
+      setNote("")
     },
     onError: (error) => {
       const msg = error instanceof Error ? error.message : String(error)
-      if (
-        msg.includes("409") ||
-        msg.toLowerCase().includes("conflict") ||
-        msg.toLowerCase().includes("already")
-      ) {
-        toast.info("Giao dịch thanh toán này đã được xác nhận trước đó.")
-        queryClient.invalidateQueries({
-          queryKey: ["socialParticipants", socialId],
-        })
-        queryClient.invalidateQueries({
-          queryKey: ["financeSummary", socialId],
-        })
-        onOpenChange(false)
-        return
-      }
       toast.error(msg || t("expenses.verifyPaymentDialog.error"))
     },
   })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-125">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t("expenses.verifyPaymentDialog.title")}</DialogTitle>
-          <DialogDescription>
-            {t("expenses.verifyPaymentDialog.description")}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 pt-4">
-          {!paymentId && (
-            <div className="rounded-md bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-300">
-              Không tìm thấy mã giao dịch thanh toán cần xác minh hoặc giao dịch
-              đã được xử lý.
-            </div>
+          <DialogTitle className="flex items-center gap-2">
+            <CheckCircle2 className="size-5 text-emerald-500" />
+            {t("expenses.verifyPaymentDialog.title", "Xác nhận thanh toán")}
+          </DialogTitle>
+          {participantName && (
+            <DialogDescription>
+              {t("expenses.verifyPaymentDialog.memberLabel", {
+                name: participantName,
+              })}
+            </DialogDescription>
           )}
+        </DialogHeader>
+
+        <div className="grid gap-4 pt-2">
+          {/* Hiển thị ảnh bill nếu người chơi đã upload */}
           {receiptUrl ? (
-            <div className="flex justify-center">
-              <img
-                src={receiptUrl}
-                alt={t("expenses.tracking.paymentProof")}
-                className="max-h-64 rounded-md border object-contain"
-              />
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">
+                {t("expenses.verifyPaymentDialog.receiptLabel")}
+              </Label>
+              <div className="flex justify-center rounded-xl border bg-muted/30 p-2">
+                <img
+                  src={receiptUrl}
+                  alt={t("expenses.tracking.paymentProof")}
+                  className="max-h-64 rounded-lg object-contain"
+                />
+              </div>
             </div>
           ) : (
-            <div className="flex h-32 items-center justify-center rounded-md border border-dashed bg-muted text-sm text-muted-foreground">
+            <div className="rounded-xl border border-dashed bg-muted/30 p-4 text-center text-xs text-muted-foreground">
               {t("expenses.verifyPaymentDialog.noReceipt")}
             </div>
           )}
-          <div className="grid gap-2">
-            <Label htmlFor="amountPaid">
-              {t("expenses.verifyPaymentDialog.amountLabel")}
-            </Label>
-            <Input
-              id="amountPaid"
-              type="text"
-              inputMode="numeric"
-              value={formatDisplayValue(amountPaid)}
-              onChange={(e) => handleAmountChange(e.target.value)}
-              placeholder={t("expenses.verifyPaymentDialog.amountPlaceholder")}
-            />
-          </div>
+
+          {amountDue > 0 && (
+            <div className="flex items-center justify-between rounded-xl border bg-card p-3 text-sm">
+              <span className="text-muted-foreground">
+                {t("expenses.verifyPaymentDialog.amountDueLabel")}
+              </span>
+              <span className="font-semibold text-destructive">
+                {amountDue.toLocaleString("vi-VN")} đ
+              </span>
+            </div>
+          )}
+
+          {/* Ghi chú — chỉ hiện khi có bill để xác nhận */}
+          {receiptUrl && (
+            <div className="grid gap-1.5">
+              <Label htmlFor="verifyNote" className="text-xs">
+                {t("expenses.verifyPaymentDialog.noteLabel")}
+              </Label>
+              <Input
+                id="verifyNote"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder={t("expenses.verifyPaymentDialog.notePlaceholder")}
+              />
+            </div>
+          )}
         </div>
-        <DialogFooter className="gap-2">
+
+        <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-end">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isPending}
           >
-            {t("expenses.verifyPaymentDialog.cancel")}
+            {t("common.cancel", "Hủy")}
           </Button>
+
+          {/* Nếu có bill: Nút Từ Chối bill kém chất lượng / sai số tiền */}
+          {receiptUrl ? (
+            <Button
+              variant="outline"
+              onClick={() => mutate("REJECTED")}
+              disabled={isPending}
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+            >
+              {t("expenses.verifyPaymentDialog.reject", "Từ chối")}
+            </Button>
+          ) : (
+            /* Nếu không có bill: Nút Miễn Phí (WAIVE) */
+            <Button
+              variant="outline"
+              onClick={() => mutate("WAIVE")}
+              disabled={isPending}
+              className="border-amber-500/40 text-amber-600 hover:bg-amber-500/10 hover:text-amber-700 dark:text-amber-400"
+            >
+              {isPending ? (
+                <Loader2 className="mr-1.5 size-4 animate-spin" />
+              ) : (
+                <Gift className="mr-1.5 size-4" />
+              )}
+              {t("expenses.verifyPaymentDialog.waiveAction")}
+            </Button>
+          )}
+
+          {/* Action chính: Duyệt Thu Tiền (PAID) */}
           <Button
-            variant="outline"
-            onClick={() => mutate("REJECTED")}
-            disabled={isPending || !paymentId}
-            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+            onClick={() => mutate("PAID")}
+            disabled={isPending}
+            className="bg-emerald-600 text-white hover:bg-emerald-700"
           >
-            {t("expenses.verifyPaymentDialog.reject")}
-          </Button>
-          <Button
-            onClick={() => mutate("CONFIRMED")}
-            disabled={isPending || !amountPaid || !paymentId}
-          >
-            {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-            {t("expenses.verifyPaymentDialog.confirm")}
+            {isPending ? (
+              <Loader2 className="mr-1.5 size-4 animate-spin" />
+            ) : (
+              <CheckCircle2 className="mr-1.5 size-4" />
+            )}
+            {t("expenses.verifyPaymentDialog.paidAction")}
           </Button>
         </DialogFooter>
       </DialogContent>

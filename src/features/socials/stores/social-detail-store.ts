@@ -13,6 +13,8 @@ interface SocialDetailState {
   setSelectedSession: (s: PlaySession | null) => void
   tabValue: string
   setTabValue: (v: string) => void
+  inviteDialogOpen: boolean
+  setInviteDialogOpen: (open: boolean) => void
   reset: () => void
 }
 
@@ -28,6 +30,8 @@ export const useSocialDetailStore = create<SocialDetailState>((set) => ({
   setSelectedSession: (s: PlaySession | null) => set({ selectedSession: s }),
   tabValue: "0",
   setTabValue: (v: string) => set({ tabValue: v }),
+  inviteDialogOpen: false,
+  setInviteDialogOpen: (open: boolean) => set({ inviteDialogOpen: open }),
   reset: () =>
     set({
       joinDialogOpen: false,
@@ -35,6 +39,7 @@ export const useSocialDetailStore = create<SocialDetailState>((set) => ({
       playSessionModalOpen: false,
       selectedSession: null,
       tabValue: "0",
+      inviteDialogOpen: false,
     }),
 }))
 

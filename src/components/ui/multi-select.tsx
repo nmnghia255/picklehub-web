@@ -33,6 +33,7 @@ interface MultiSelectProps {
   onSelectionChange: (selected: string[]) => void
   placeholder?: string
   emptyMessage?: string
+  disabled?: boolean
 }
 
 export function MultiSelect({
@@ -41,6 +42,7 @@ export function MultiSelect({
   onSelectionChange,
   placeholder,
   emptyMessage,
+  disabled = false,
 }: MultiSelectProps) {
   const { t } = useTranslation("common")
   const resolvedPlaceholder = placeholder ?? t("multiSelect.placeholder")
@@ -71,6 +73,7 @@ export function MultiSelect({
           role="combobox"
           aria-expanded={open}
           className="w-full justify-between"
+          disabled={disabled}
         >
           {selected.length === 0 ? (
             <span className="text-muted-foreground">{resolvedPlaceholder}</span>
@@ -92,7 +95,7 @@ export function MultiSelect({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[var(--radix-popover-trigger-width)] p-0"
+        className="w-(--radix-popover-trigger-width) p-0"
         align="start"
       >
         <Command>

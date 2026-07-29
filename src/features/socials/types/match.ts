@@ -1,26 +1,41 @@
 export type Gender = "MALE" | "FEMALE"
 export type MatchType = "SINGLES" | "DOUBLES"
 
-export interface SuggestedMatchRequest {
-  singlesCount: number
-  doublesCount: number
-  roundDurationMins: number
-  excludeParticipantIds: string[]
+export interface DuprProfile {
+  duprId: string
+  rating: number
+  singlesRating?: number
+  doublesRating?: number
+  lastSyncedAt?: string
 }
 
-export interface UserSummary {
-  id: string
+export interface UserProfileMetadata {
   fullName: string
-  avatarUrl: string | null
-  gender: Gender
-  selfRating: number
+  avatarUrl?: string | null
+  gender?: Gender
+  selfRating?: number
+  dupr?: DuprProfile | null
+  matchesPlayed: number
 }
 
 export interface MatchParticipant {
   participantId: string
   userId: string
-  user: UserSummary
+  user: UserProfileMetadata
 }
+
+export type PlayerSlot = MatchParticipant
+
+export interface SuggestedMatchRequest {
+  courtIds: string[]
+  matchType?: "SINGLES" | "DOUBLES"
+  roundDurationMins?: number
+  scheduledAt?: string
+  selectedParticipantIds?: string[]
+  excludeParticipantIds?: string[]
+}
+
+export type SuggestBatchDto = SuggestedMatchRequest
 
 export interface SuggestedMatch {
   courtNumber: number
@@ -43,6 +58,7 @@ export interface AvailableCourt {
 
 export interface SuggestedRound {
   roundIndex: number
+  roundNumber?: number
   scheduledAt: string
   availableCourts: AvailableCourt[]
   matches: SuggestedMatch[]
@@ -50,7 +66,7 @@ export interface SuggestedRound {
 }
 
 export interface SuggestedMatchBatchResponse {
-  sessionStartTime: string
+  sessionStartTime?: string
   rounds: SuggestedRound[]
 }
 
@@ -58,10 +74,14 @@ export interface CommitMatchRequest {
   courtId: string
   scheduledAt: string
   matchType: MatchType
-  category: string
+  category?: string
   teamA: string[]
   teamB: string[]
-  refereeId: string | null
+  refereeId?: string | null
+}
+
+export interface CommitBatchDto {
+  matches: CommitMatchRequest[]
 }
 
 export interface TeamPlayer {
@@ -86,11 +106,56 @@ export interface CommitMatchBatchResponse {
   matches: CreatedMatch[]
 }
 
+export interface CommitRoundDto {
+  scheduledAt?: string
+  matches: CommitMatchRequest[]
+}
+
+export interface PlaySessionRound {
+  id: string
+  roundNumber: number
+  status: "DRAFT" | "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED"
+  scheduledAt: string
+  startedAt?: string | null
+  completedAt?: string | null
+  courtIds?: string[]
+  createdMatchesCount?: number
+  matches?: PlaySessionMatch[]
+  waitingParticipants?: MatchParticipant[]
+}
+
+export interface LeaderboardEntry {
+  userId: string
+  fullName: string
+  matchesPlayed: number
+  wins: number
+  losses: number
+  winRate: number
+}
+
+export interface CompleteSessionSummary {
+  totalRounds: number
+  totalMatches: number
+  completedMatches: number
+  cancelledMatches: number
+  reportedDuprMatches: number
+}
+
+export interface CompletePlaySessionResponse {
+  id: string
+  status: string
+  completedAt: string
+  summary: CompleteSessionSummary
+  leaderboard: LeaderboardEntry[]
+}
+
 export interface Player {
   id: string
   name: string
   skillLevel?: number
   avatarUrl?: string | null
+  matchesPlayed?: number
+  duprRating?: number | null
 }
 
 export interface Match {
@@ -184,6 +249,7 @@ export interface PlaySessionCardMatch {
   playSessionId: string | null
   courtNumber?: number
   courtName?: string
+  matchLabel?: string
   status: string
   startTime?: string | null
   endTime?: string | null

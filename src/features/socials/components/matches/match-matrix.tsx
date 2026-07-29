@@ -14,18 +14,22 @@ import {
 } from "@/components/ui/collapsible"
 import { Skeleton } from "@/components/ui/skeleton"
 import { MatchCell } from "@/features/socials/components/matches/match-cell"
+import { RestingBenchSection } from "@/features/socials/components/matches/resting-bench-section"
 import type { Match, Player } from "@/features/socials/types/match"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 const isPlayer = (player: Player | null): player is Player => player !== null
 
-interface MatchMatrix {
+interface MatchMatrixProps {
   courts: number
   matches: Match[]
   allPlayers: Player[]
+  availableCourts?: Array<{ id: string; name: string }>
+  waitingParticipants?: Player[]
   onPlayerRemove: (matchId: string, playerId: string) => void
   onPlayerAdd: (matchId: string, playerId: string) => void
   onMatchTypeChange: (matchId: string, matchType: "SINGLES" | "DOUBLES") => void
+  onDeleteMatch?: (matchId: string) => void
   onPlayerSwap: (
     fromMatchId: string,
     toMatchId: string,
@@ -40,26 +44,21 @@ export function MatchMatrix({
   courts,
   matches,
   allPlayers,
+  availableCourts = [],
+  waitingParticipants = [],
   onPlayerRemove,
   onPlayerAdd,
   onMatchTypeChange,
+  onDeleteMatch,
   onPlayerSwap,
   isLoading = false,
   scheduleTimes,
-}: MatchMatrix) {
+}: MatchMatrixProps) {
   const { t } = useSocialsTranslation()
   const [draggedPlayer, setDraggedPlayer] = useState<{
     matchId: string
     playerId: string
   } | null>(null)
-
-  const getMatch = (
-    courtIndex: number,
-    sessionIndex: number
-  ): Match | undefined => {
-    const roundMatches = matches.filter((m) => m.sessionIndex === sessionIndex)
-    return roundMatches[courtIndex]
-  }
 
   const getMatchStatus = (
     match: Match
@@ -96,7 +95,7 @@ export function MatchMatrix({
         </h2>
 
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-xs">
+          <Badge variant="outline" className="text-xs font-semibold">
             {t("matches.matrix.count", { count: matches.length })}
           </Badge>
         </div>
@@ -122,9 +121,14 @@ export function MatchMatrix({
                 m.players.filter(isPlayer).map((p) => p.id)
               )
             )
-            const waitlist = allPlayers.filter(
+            const unassignedWaitlist = allPlayers.filter(
               (p) => !assignedPlayerIds.has(p.id)
             )
+            const benchList =
+              waitingParticipants.length > 0
+                ? waitingParticipants
+                : unassignedWaitlist
+
             const boardStatus = getBoardStatus(sessionMatches)
             const boardStatusLabel = t(
               `matches.matrix.boardStatus.${boardStatus}`
@@ -148,7 +152,7 @@ export function MatchMatrix({
                       })}
                     </h3>
                     {formattedTime && (
-                      <div className="flex items-center gap-1 rounded-md bg-background px-2 py-0.5 text-sm font-medium text-muted-foreground shadow-sm ring-1 ring-border/50">
+                      <div className="flex items-center gap-1 rounded-md bg-background px-2 py-0.5 text-sm font-medium text-muted-foreground shadow-xs ring-1 ring-border/50">
                         <Clock3 className="h-3 w-3" />
                         <span>{formattedTime}</span>
                       </div>
@@ -180,34 +184,42 @@ export function MatchMatrix({
                   </div>
                 </div>
 
-                <CollapsibleContent className="space-y-4 overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
+                <CollapsibleContent className="space-y-6 overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
+                  {/* Matches Grid: Displays Match 1, Match 2, Match 3... */}
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-1 lg:grid-cols-2">
-                    {Array.from({ length: courts }).map((_, courtIndex) => {
-                      const match = getMatch(courtIndex, sessionIndex)
-                      const status = match ? getMatchStatus(match) : "empty"
+                    {sessionMatches.map((match, matchIdx) => {
+                      const status = getMatchStatus(match)
+                      const courtObj = availableCourts.find(
+                        (c) => c.id === match.courtId
+                      )
+                      const courtName =
+                        courtObj?.name ||
+                        (match.courtId
+                          ? `Sân ${match.courtId.slice(0, 6)}`
+                          : "")
+                      const matchLabel = `Trận ${matchIdx + 1}`
+
                       const sessionPlayerIds = sessionMatches.flatMap((m) =>
                         m.players.filter(isPlayer).map((p) => p.id)
                       )
 
                       return (
                         <MatchCell
-                          key={`court-${sessionIndex}-${courtIndex}`}
-                          courtLabel={t("matches.court", {
-                            number: courtIndex + 1,
-                          })}
-                          match={match ?? null}
+                          key={match.id}
+                          matchLabel={matchLabel}
+                          courtName={courtName}
+                          match={match}
                           status={status}
                           allPlayers={allPlayers}
                           sessionPlayerIds={sessionPlayerIds}
                           onPlayerRemove={onPlayerRemove}
                           onPlayerAdd={onPlayerAdd}
                           onMatchTypeChange={onMatchTypeChange}
+                          onDeleteMatch={onDeleteMatch}
                           onPlayerSwap={onPlayerSwap}
                           onDragStart={(playerId: string) =>
                             setDraggedPlayer({
-                              matchId:
-                                match?.id ??
-                                `court-${sessionIndex}-${courtIndex}`,
+                              matchId: match.id,
                               playerId,
                             })
                           }
@@ -218,25 +230,21 @@ export function MatchMatrix({
                     })}
                   </div>
 
-                  {waitlist.length > 0 ? (
-                    <Card className="border-amber-200 bg-amber-50 p-4 transition-shadow hover:shadow-sm dark:border-amber-900/50 dark:bg-amber-500/10">
-                      <div className="text-md">
-                        <p className="font-medium text-amber-800 dark:text-amber-300">
-                          {t("matches.matrix.waitlist")}
-                        </p>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {waitlist.map((p) => (
-                            <Card
-                              key={p.id}
-                              className="border-amber-200/60 bg-amber-100/50 px-3 py-1 text-xs font-medium text-amber-900 dark:border-amber-800/60 dark:bg-amber-500/20 dark:text-amber-200"
-                            >
-                              {p.name}
-                            </Card>
-                          ))}
-                        </div>
-                      </div>
-                    </Card>
-                  ) : null}
+                  {/* Resting Bench Section at the bottom of the session */}
+                  <RestingBenchSection
+                    waitingParticipants={benchList}
+                    draggedPlayer={draggedPlayer}
+                    onDragStart={(playerId: string) =>
+                      setDraggedPlayer({
+                        matchId: "bench",
+                        playerId,
+                      })
+                    }
+                    onDragEnd={() => setDraggedPlayer(null)}
+                    onPlayerDrop={(fromMatchId: string, playerId: string) => {
+                      onPlayerSwap(fromMatchId, "bench", playerId, null)
+                    }}
+                  />
                 </CollapsibleContent>
               </Collapsible>
             )

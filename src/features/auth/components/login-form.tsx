@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { startTransition, useActionState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -25,6 +26,9 @@ import { GoogleAuthButton } from "./google-auth-button"
 
 export function LoginForm({ className }: { className?: string }) {
   const { t } = useTranslation("common")
+  const searchParams = useSearchParams()
+  const redirectTarget =
+    searchParams.get("redirect") || searchParams.get("returnUrl") || ""
   const [state, formAction, isPending] = useActionState(loginAction, {})
 
   const form = useForm<LoginFormData>({
@@ -39,6 +43,9 @@ export function LoginForm({ className }: { className?: string }) {
     const fd = new FormData()
     fd.set("email", data.email)
     fd.set("password", data.password)
+    if (redirectTarget) {
+      fd.set("redirect", redirectTarget)
+    }
     startTransition(() => formAction(fd))
   })
 

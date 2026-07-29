@@ -1,38 +1,50 @@
 "use server"
 
+import { revalidatePath } from "next/cache"
+
 import { PaymentService } from "../api/payment-service"
-import type { TransactionStatus } from "../types/payment"
-import type { PaymentSubmitRequest } from "../types/payment"
+import type {
+  PaymentSubmitRequest,
+  VerifyPaymentAction,
+} from "../types/payment"
+
+export async function submitReceiptAction(
+  socialId: string,
+  receiptUrl: string
+) {
+  const result = await PaymentService.submitReceipt(socialId, receiptUrl)
+  revalidatePath(`/socials/${socialId}`)
+  return result
+}
 
 export async function submitPaymentAction(
   socialId: string,
   paymentSubmitRequest: PaymentSubmitRequest
 ) {
-  return PaymentService.submitPayment(socialId, paymentSubmitRequest)
+  const result = await PaymentService.submitPayment(
+    socialId,
+    paymentSubmitRequest
+  )
+  revalidatePath(`/socials/${socialId}`)
+  return result
 }
 
 export async function verifyPaymentAction(
   socialId: string,
   participantId: string,
-  paymentId: string,
-  status: TransactionStatus,
-  amountPaid: number
+  actionOrPaymentId: VerifyPaymentAction | string,
+  noteOrStatus?: string,
+  amountPaid?: number
 ) {
-  return PaymentService.verifyPayment(
+  const result = await PaymentService.verifyPayment(
     socialId,
     participantId,
-    paymentId,
-    status,
+    actionOrPaymentId,
+    noteOrStatus,
     amountPaid
   )
-}
-
-export async function refundPaymentAction(
-  socialId: string,
-  participantId: string,
-  amount: number
-) {
-  return PaymentService.refundPayment(socialId, participantId, amount)
+  revalidatePath(`/socials/${socialId}`)
+  return result
 }
 
 export async function recordPaymentAction(
@@ -41,10 +53,12 @@ export async function recordPaymentAction(
   amount: number,
   receiptUrl?: string
 ) {
-  return PaymentService.recordPayment(
+  const result = await PaymentService.recordPayment(
     socialId,
     participantId,
     amount,
     receiptUrl
   )
+  revalidatePath(`/socials/${socialId}`)
+  return result
 }

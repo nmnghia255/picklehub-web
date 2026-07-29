@@ -14,6 +14,8 @@ interface Player {
   name: string
   skillLevel?: number
   avatarUrl?: string | null
+  matchesPlayed?: number
+  duprRating?: number | null
 }
 
 interface PlayerCardProps {
@@ -26,7 +28,10 @@ interface PlayerCardProps {
   onDragEnd: () => void
   onDrop?: (e: React.DragEvent<HTMLDivElement>) => void
   onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void
+  onDragEnter?: (e: React.DragEvent<HTMLDivElement>) => void
+  onDragLeave?: (e: React.DragEvent<HTMLDivElement>) => void
   isDragging: boolean
+  isSwapTarget?: boolean
 }
 
 export function PlayerCard({
@@ -39,8 +44,15 @@ export function PlayerCard({
   onDragEnd,
   onDrop,
   onDragOver,
+  onDragEnter,
+  onDragLeave,
   isDragging,
+  isSwapTarget = false,
 }: PlayerCardProps) {
+  const ratingDisplay = player.duprRating
+    ? `DUPR ${player.duprRating}`
+    : skillLevelLabel
+
   return (
     <Card
       draggable
@@ -48,9 +60,14 @@ export function PlayerCard({
       onDragEnd={onDragEnd}
       onDrop={onDrop}
       onDragOver={onDragOver}
+      onDragEnter={onDragEnter}
+      onDragLeave={onDragLeave}
       className={cn(
-        "group relative flex w-full cursor-move flex-row items-center gap-3 border-border/70 bg-card p-3 transition-all hover:-translate-y-0.5 hover:shadow-md",
-        isDragging && "scale-[1.02] opacity-60 shadow-lg ring-2 ring-primary/40"
+        "group relative flex w-full cursor-move flex-row items-center gap-3 border-border/70 bg-card p-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md",
+        isDragging &&
+          "scale-[1.02] opacity-60 shadow-lg ring-2 ring-primary/40",
+        isSwapTarget &&
+          "scale-[1.01] border-2 border-dashed border-sky-500 bg-sky-500/10 shadow-md ring-2 ring-sky-500/40"
       )}
     >
       {/* Left content */}
@@ -71,18 +88,25 @@ export function PlayerCard({
             {player.name}
           </p>
 
-          {skillLevelLabel && (
-            <Badge
-              variant="outline"
-              className={cn(
-                "mt-1 inline-flex h-auto items-center gap-1 rounded-full px-2 py-0.5 text-[10px]",
-                skillLevelColor
-              )}
-            >
-              <Star className="h-3 w-3" />
-              {skillLevelLabel}
-            </Badge>
-          )}
+          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+            {ratingDisplay && (
+              <Badge
+                variant="outline"
+                className={cn(
+                  "inline-flex h-auto items-center gap-1 rounded-full px-2 py-0.5 text-[10px]",
+                  skillLevelColor
+                )}
+              >
+                <Star className="h-3 w-3" />
+                {ratingDisplay}
+              </Badge>
+            )}
+            {typeof player.matchesPlayed === "number" && (
+              <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                {player.matchesPlayed} trận
+              </span>
+            )}
+          </div>
         </div>
       </div>
 

@@ -49,7 +49,8 @@ export function proxy(request: NextRequest) {
   // Redirect unauthenticated users to login for protected routes
   if (!hasAccessToken) {
     const loginUrl = new URL("/login", request.url)
-    loginUrl.searchParams.set("redirect", pathname)
+    const fullTarget = request.nextUrl.pathname + request.nextUrl.search
+    loginUrl.searchParams.set("redirect", fullTarget)
     return NextResponse.redirect(loginUrl)
   }
 

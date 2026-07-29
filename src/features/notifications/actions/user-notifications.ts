@@ -40,13 +40,33 @@ export async function fetchMyNotifications(): Promise<FeedNotification[]> {
 
     const mapped: FeedNotification[] = items.map(
       (it: Record<string, unknown>) => {
-        const metadata = it["metadata"]
-        const rawType = String(it["type"] ?? it["category"] ?? "")
-        const type: FeedNotificationType = (
-          ["invitation", "session", "group", "system"] as const
-        ).includes(rawType as FeedNotificationType)
-          ? (rawType as FeedNotificationType)
-          : "system"
+        const metadata = (it["metadata"] ?? {}) as Record<string, unknown>
+        const onClickSupport = (metadata["onClickSupport"] ?? {}) as Record<
+          string,
+          unknown
+        >
+        const rawType = String(it["type"] ?? it["category"] ?? "").toLowerCase()
+
+        const isSocialInvite =
+          rawType === "social_invitation" ||
+          rawType === "invitation" ||
+          metadata["type"] === "SOCIAL_INVITATION" ||
+          Boolean(metadata["invitationId"]) ||
+          Boolean(onClickSupport["invitationId"])
+
+        const type: FeedNotificationType = isSocialInvite
+          ? "invitation"
+          : (["session", "group", "system"] as const).includes(
+                rawType as "session" | "group" | "system"
+              )
+            ? (rawType as FeedNotificationType)
+            : "system"
+
+        const status = isSocialInvite
+          ? String(
+              it["status"] ?? metadata["status"] ?? "pending"
+            ).toLowerCase()
+          : (it["status"] as string | undefined)
 
         const section = (() => {
           const created = new Date(
@@ -91,11 +111,12 @@ export async function fetchMyNotifications(): Promise<FeedNotification[]> {
             it["read"] === false ||
             it["isRead"] === false ||
             it["unread"] === true,
-          status: (it["status"] ?? undefined) as undefined | string,
+          status,
           tags: Array.isArray(it["tags"]) ? (it["tags"] as string[]) : [],
           actionHref: (it["actionHref"] ??
             it["url"] ??
             deriveNotificationActionHref(metadata)) as string | undefined,
+          metadata,
         }
       }
     )

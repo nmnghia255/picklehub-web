@@ -6,6 +6,12 @@ export type PlaySessionStatus =
   | "IN_PROGRESS "
   | "CANCELLED"
 
+export interface PlaySessionCourt {
+  id: string
+  name: string
+  centerName?: string | null
+}
+
 export interface PlaySession {
   id: string
   title: string
@@ -28,13 +34,17 @@ export interface PlaySession {
   creatorId: string
   createdAt: string
   updatedAt: string
+  courts?: PlaySessionCourt[]
+  participants?: PlaySessionParticipant[]
 }
 
 export interface PlaySessionRequest {
   title: string
-  bookingIds: string[]
+  startTime: string
+  endTime: string
   sessionFee: number
   maxSlot: number
+  bookingIds?: string[]
 }
 
 export interface ParticipantPayment {
@@ -43,7 +53,7 @@ export interface ParticipantPayment {
   amount: number
   receiptUrl: string | null
   status: TransactionStatus
-  transactionType: string
+  transactionType?: string
   createdById: string
   verifiedById: string
   createdAt: string

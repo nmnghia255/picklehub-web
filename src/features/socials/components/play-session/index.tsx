@@ -51,10 +51,19 @@ export default function PlaySessionDetail({
 
   const socialId = params.socialId as string | undefined
   const sessionId = params.playSessionId as string | undefined
-  const session = initialSession
   const participants = initialParticipants.filter((p) =>
     isActiveSocialParticipantStatus(p.status)
   )
+  const session = useMemo(() => {
+    if (!initialSession) return null
+    return {
+      ...initialSession,
+      joinedCount:
+        participants.length > 0
+          ? participants.length
+          : (initialSession.joinedCount ?? 0),
+    }
+  }, [initialSession, participants.length])
   const currentUserId = sessionData?.user?.id
   const isParticipant = participants.some(
     (p) =>
@@ -135,6 +144,14 @@ export default function PlaySessionDetail({
         sets: m.sets,
         winner: m.winner,
         refereeId: m.refereeId,
+        roundNumber:
+          (m as unknown as { roundNumber?: number }).roundNumber ||
+          ((m as unknown as { roundIndex?: number }).roundIndex !== undefined
+            ? (m as unknown as { roundIndex: number }).roundIndex + 1
+            : (m as unknown as { sessionIndex?: number }).sessionIndex !==
+                undefined
+              ? (m as unknown as { sessionIndex: number }).sessionIndex + 1
+              : 1),
       }
     })
   }, [initialMatches, participants, t])
@@ -159,14 +176,6 @@ export default function PlaySessionDetail({
     new Date(session.startTime)
   )
 
-  const completedMatches = matches.filter(
-    (m) => !!m.winner || (m.sets && m.sets.length > 0)
-  )
-  const inProgressMatches = matches.filter((m) => m.status === "LIVE")
-  const scheduledMatches = matches.filter(
-    (m) => !m.winner && (!m.sets || m.sets.length === 0) && !m.startedAt
-  )
-
   const handleJoin = async () => {
     if (!socialId || !sessionId || !canJoin) return
     const toastId = toast.loading(t("sessions.joining"))
@@ -178,9 +187,6 @@ export default function PlaySessionDetail({
       return
     }
 
-    // Prefer the backend's specific reason (e.g. the DUPR rating-restriction
-    // rejection) over the generic fallback, per the `message || t(fallback)`
-    // convention used across this feature.
     toast.error(result.error || t("sessions.joinError"), { id: toastId })
   }
 
@@ -268,12 +274,10 @@ export default function PlaySessionDetail({
 
                 {tabValue === "2" && (
                   <PlaySessionMatches
+                    socialId={socialId}
+                    sessionId={sessionId}
                     isHost={isHost}
-                    matches={{
-                      inProgress: inProgressMatches,
-                      scheduled: scheduledMatches,
-                      completed: completedMatches,
-                    }}
+                    matches={matches}
                     onCreateMatch={() =>
                       router.push(
                         `/socials/${socialId}/play-session/${sessionId}/create-matches`

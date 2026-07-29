@@ -1,3 +1,5 @@
+"use server"
+
 import { getIronSession } from "iron-session"
 import { cookies } from "next/headers"
 
@@ -16,7 +18,7 @@ export interface SessionData {
   accessTokenExpiresAt?: number
 }
 
-export const sessionOptions = {
+const sessionOptions = {
   cookieName: "picklehub-session",
   password: process.env.SESSION_SECRET as string,
   cookieOptions: {
@@ -30,7 +32,6 @@ export const sessionOptions = {
 }
 
 export async function getSession() {
-  "use server"
   const cookieStore = await cookies()
   return getIronSession<SessionData>(cookieStore, sessionOptions)
 }
