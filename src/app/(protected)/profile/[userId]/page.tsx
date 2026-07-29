@@ -108,12 +108,7 @@ export default async function OtherProfilePage({ params }: PageProps) {
               currentUserId={user?.id ?? ""}
             />
 
-            <GroupCard groups={memberGroups} />
-
-            <ProfileSubscriptions
-              subscriptions={subscriptions}
-              isOwnProfile={isOwnProfile}
-            />
+            <GroupCard groups={memberGroups} isOwnProfile={isOwnProfile} />
           </div>
 
           <RightPanel user={user} />

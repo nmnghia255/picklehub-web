@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
+import { useTournamentDashboardStore } from "../../stores/tournament-dashboard-store"
 import { useGroupStageStore } from "../../stores/use-group-stage-store"
 import type { TournamentEvent } from "../../types/tournament-event"
 import { GroupConfigCard } from "./group-config-card"
@@ -48,10 +49,16 @@ export function GroupManagement({
   const fetchData = useGroupStageStore((s) => s.fetchData)
   const reset = useGroupStageStore((s) => s.reset)
 
-  // Sync tournament ID with the store
+  // Sync tournament ID and events with stores
   useEffect(() => {
     setTournamentId(tournamentId)
-  }, [tournamentId, setTournamentId])
+    if (events.length > 0) {
+      const currentEvents = useTournamentDashboardStore.getState().events
+      if (!currentEvents || currentEvents.length === 0) {
+        useTournamentDashboardStore.setState({ events })
+      }
+    }
+  }, [tournamentId, events, setTournamentId])
 
   // Set default event selection
   useEffect(() => {
@@ -134,7 +141,7 @@ export function GroupManagement({
               <label className="text-xs font-semibold tracking-wider text-gray-500 uppercase">
                 {t("seeding.selectEvent")}
               </label>
-              <div className="w-full sm:w-[280px]">
+              <div className="w-full sm:w-70">
                 <Select
                   value={selectedEventId}
                   onValueChange={setSelectedEventId}
@@ -163,7 +170,7 @@ export function GroupManagement({
           <>
             {isEditable && (
               <div className="grid gap-6 md:grid-cols-3">
-                <GroupConfigCard />
+                <GroupConfigCard events={events} />
                 <GroupDrawCard />
                 <GroupProgressionCard />
               </div>

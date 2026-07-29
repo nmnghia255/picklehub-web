@@ -18,6 +18,7 @@ interface TimelineGridProps {
   previewMatches?: TournamentSchedule[]
   bookings: TournamentBooking[]
   isPreviewMode?: boolean
+  selectedCenterId?: string
   onUnschedule: (fixtureId: string) => void
   onUnschedulePreview?: (matchId: string) => void
   onUnassignReferee: (fixtureId: string) => void
@@ -42,6 +43,7 @@ export function TimelineGrid({
   previewMatches = [],
   bookings,
   isPreviewMode = false,
+  selectedCenterId,
   onUnschedule,
   onUnassignReferee,
   onAssignRefereeClick,
@@ -112,7 +114,7 @@ export function TimelineGrid({
   }
 
   if (courtsList.length === 0) {
-    return <NoCourtsView />
+    return <NoCourtsView selectedCenterId={selectedCenterId} />
   }
 
   return (

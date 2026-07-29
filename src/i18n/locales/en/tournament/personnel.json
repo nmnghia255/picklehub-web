@@ -125,6 +125,34 @@
       "noAssignments": "This referee has no matches assigned yet.",
       "bulkAssignSuccess": "Successfully assigned {{count}} matches to {{name}}!",
       "bulkAssignPartial": "Assigned {{success}} matches. Failed to assign {{fail}} matches."
+    },
+    "autoAssign": {
+      "btn": "Auto Schedule",
+      "title": "Auto Schedule Referees",
+      "description": "Round-robin workload balancing while ensuring no referee manages two matches simultaneously.",
+      "warningTitle": "Not enough referees to cover all matches!",
+      "availableReferees": "Available referees:",
+      "minRequired": "Min. required:",
+      "refereesUnit": "{{count}} referees",
+      "peakSlotHeader": "Peak time slot: {{slot}}",
+      "peakSlotDesc": "There are {{count}} simultaneous matches in this slot, but only {{available}} referees.",
+      "unassignableNote": "There are {{count}} matches that cannot be assigned due to schedule conflicts. You can add more referees to the roster or apply assignment for the {{assigned}} scheduled matches.",
+      "successTitle": "Optimized schedule calculated successfully!",
+      "successDesc": "All {{assignedCount}} matches have been evenly balanced across {{refereeCount}} referees without any time overlap.",
+      "workloadTableTitle": "Referee Workload Balance Table",
+      "table": {
+        "referee": "Referee",
+        "initial": "Previous",
+        "new": "Added",
+        "total": "Total"
+      },
+      "emptyRoster": "No referees in roster.",
+      "cancelBtn": "Cancel",
+      "confirmBtn": "Confirm Assignments ({{count}} matches)",
+      "applying": "Applying...",
+      "successToast": "Successfully auto-assigned {{count}} matches to referees!",
+      "partialToast": "Assigned {{success}} matches. {{fail}} matches encountered errors.",
+      "errorToast": "An unexpected error occurred while applying auto-scheduling."
     }
   },
   "referee": {

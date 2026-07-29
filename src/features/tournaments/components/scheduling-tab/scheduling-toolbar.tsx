@@ -99,7 +99,10 @@ export function SchedulingToolbar({
         {/* Sport Center Select */}
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4 text-gray-400" />
-          <Select value={selectedCenterId} onValueChange={setSelectedCenterId}>
+          <Select
+            value={selectedCenterId || undefined}
+            onValueChange={setSelectedCenterId}
+          >
             <SelectTrigger className="w-60 bg-white">
               <SelectValue
                 placeholder={t("scheduling.toolbar.centers.placeholder", {
@@ -267,7 +270,7 @@ export function SchedulingToolbar({
             })}
           </Button>
 
-          <Button
+          {/* <Button
             variant="outline"
             size="icon"
             className="h-9 w-9 border-emerald-600 text-emerald-700 hover:bg-emerald-50"
@@ -277,7 +280,7 @@ export function SchedulingToolbar({
             })}
           >
             <RefreshCw className="h-4 w-4" />
-          </Button>
+          </Button> */}
         </div>
       </div>
     </div>

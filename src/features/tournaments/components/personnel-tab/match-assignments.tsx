@@ -14,6 +14,7 @@ import { usePersonnelStore } from "../../stores/use-personnel-store"
 import type { TournamentSchedule } from "../../types/schedule"
 import type { TournamentEvent } from "../../types/tournament-event"
 import { AssignedMatchesTab } from "./assigned-matches-tab"
+import { AutoAssignRefereesDialog } from "./auto-assign-dialog"
 import { RefereeList } from "./referee-list"
 import { RefereeProfileCard } from "./referee-profile-card"
 import { UnassignedMatchesTab } from "./unassigned-matches-tab"
@@ -50,6 +51,7 @@ export function MatchAssignments({
     new Set()
   )
   const [isAssigningBulk, setIsAssigningBulk] = useState(false)
+  const [isAutoAssignOpen, setIsAutoAssignOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<string>("unassigned")
   const [scheduleMap, setScheduleMap] = useState<
     Record<string, TournamentSchedule>
@@ -504,6 +506,7 @@ export function MatchAssignments({
               formatMatchTime={formatMatchTime}
               renderTeamDetails={renderTeamDetails}
               isEditable={isEditable}
+              onOpenAutoAssign={() => setIsAutoAssignOpen(true)}
             />
           </TabsContent>
 
@@ -523,6 +526,16 @@ export function MatchAssignments({
             />
           </TabsContent>
         </Tabs>
+
+        {/* Auto Assign Referees Dialog */}
+        <AutoAssignRefereesDialog
+          open={isAutoAssignOpen}
+          onOpenChange={setIsAutoAssignOpen}
+          referees={referees}
+          allMatches={matches}
+          scheduleMap={scheduleMap}
+          isEditable={isEditable}
+        />
       </div>
     </div>
   )

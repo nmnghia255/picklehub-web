@@ -172,7 +172,7 @@ export function Step5Payment() {
               defaultValue: "QR Code Image (optional)",
             })}
           </Label>
-          <div className="flex min-h-[220px] flex-1 flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50/50 p-6 text-center transition-all hover:border-emerald-400">
+          <div className="flex min-h-55 flex-1 flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50/50 p-6 text-center transition-all hover:border-emerald-400">
             {formValues.paymentQrUrl ? (
               <div className="relative h-40 w-40 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
                 <Image
@@ -243,7 +243,7 @@ export function Step5Payment() {
           })}
           value={formValues.paymentNote}
           onChange={(e) => setFormValue("paymentNote", e.target.value)}
-          className="mt-1 min-h-[100px]"
+          className="mt-1 min-h-25"
         />
       </div>
     </div>

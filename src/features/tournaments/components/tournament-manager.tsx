@@ -11,6 +11,7 @@ import {
   Heart,
   LayoutDashboard,
   ListOrdered,
+  Loader2,
   MoreHorizontal,
   Shield,
   ShieldAlert,
@@ -207,7 +208,8 @@ export function TournamentManager({
     (tab) => !displayTabs.includes(tab)
   )
 
-  const { data: subscriptions } = useMySubscriptions()
+  const { data: subscriptions, isLoading: isLoadingSubscriptions } =
+    useMySubscriptions()
   const hasTournamentOrganizerPlan = Boolean(
     subscriptions?.some(
       (sub) =>
@@ -215,6 +217,14 @@ export function TournamentManager({
     )
   )
   const isEditable = isHost && hasTournamentOrganizerPlan
+
+  if (isLoadingSubscriptions) {
+    return (
+      <div className="flex flex-1 items-center justify-center p-16">
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+      </div>
+    )
+  }
 
   if (!hasTournamentOrganizerPlan) {
     return (

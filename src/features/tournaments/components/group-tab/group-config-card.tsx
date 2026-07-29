@@ -2,6 +2,7 @@
 
 import { Loader2, Save } from "lucide-react"
 import { useEffect } from "react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -17,16 +18,26 @@ import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
 
 import { useTournamentDashboardStore } from "../../stores/tournament-dashboard-store"
 import { useGroupStageStore } from "../../stores/use-group-stage-store"
+import type { TournamentEvent } from "../../types/tournament-event"
 
-export function GroupConfigCard() {
+interface GroupConfigCardProps {
+  events?: TournamentEvent[]
+}
+
+export function GroupConfigCard({
+  events: eventsProp,
+}: GroupConfigCardProps = {}) {
   const { t } = useTournamentTranslation()
 
-  const events = useTournamentDashboardStore((s) => s.events)
+  const storeEvents = useTournamentDashboardStore((s) => s.events)
+  const events = eventsProp && eventsProp.length > 0 ? eventsProp : storeEvents
   const selectedEventId = useGroupStageStore((s) => s.selectedEventId)
   const selectedEvent = events?.find((e) => e.id.toString() === selectedEventId)
 
   const numGroups = useGroupStageStore((s) => s.numGroups)
   const totalAdvance = useGroupStageStore((s) => s.totalAdvance)
+  const seedsList = useGroupStageStore((s) => s.seedsList)
+  const groups = useGroupStageStore((s) => s.groups)
   const isSavingConfig = useGroupStageStore((s) => s.isSavingConfig)
 
   const setNumGroups = useGroupStageStore((s) => s.setNumGroups)
@@ -37,6 +48,28 @@ export function GroupConfigCard() {
     selectedEvent &&
     typeof selectedEvent.numGroups === "number" &&
     selectedEvent.numGroups > 0
+
+  const safeSeeds = Array.isArray(seedsList) ? seedsList : []
+  const totalTeamsFromGroups = Array.isArray(groups)
+    ? groups.reduce((acc, g) => acc + (g.memberships?.length || 0), 0)
+    : 0
+  const totalTeams =
+    totalTeamsFromGroups > 0
+      ? totalTeamsFromGroups
+      : safeSeeds.length > 0
+        ? safeSeeds.length
+        : Math.max(
+            selectedEvent?.capacity ?? 0,
+            selectedEvent?.participants ?? 0
+          )
+
+  const isNumGroupsTooSmall = numGroups < 2
+  const isNumGroupsTooLarge = totalTeams > 0 && numGroups >= totalTeams
+  const isNumGroupsInvalid = isNumGroupsTooSmall || isNumGroupsTooLarge
+
+  const isTotalAdvanceTooLarge = totalTeams > 0 && totalAdvance >= totalTeams
+  const isTotalAdvanceTooSmall = totalAdvance < numGroups
+  const isTotalAdvanceInvalid = isTotalAdvanceTooLarge || isTotalAdvanceTooSmall
 
   // Synchronize store values when selectedEvent changes
   useEffect(() => {
@@ -54,13 +87,103 @@ export function GroupConfigCard() {
         }
       } else {
         // Reset to default values for unconfigured events
-        setNumGroups(4)
-        setTotalAdvance(8)
+        const defaultTotal = Math.max(
+          selectedEvent?.capacity ?? 0,
+          selectedEvent?.participants ?? 0
+        )
+        const defaultNumGroups =
+          defaultTotal > 0
+            ? Math.min(4, Math.max(2, Math.floor(defaultTotal / 2)))
+            : 4
+        setNumGroups(defaultNumGroups)
+        setTotalAdvance(
+          defaultTotal > 0
+            ? Math.min(8, Math.max(defaultNumGroups, defaultTotal - 1))
+            : 8
+        )
       }
     }
   }, [selectedEvent, setNumGroups, setTotalAdvance])
 
+  const handleNumGroupsChange = (val: number) => {
+    if (isNaN(val)) return
+    const maxVal = totalTeams > 0 ? totalTeams - 1 : Infinity
+    const clampedVal = Math.min(val, maxVal)
+    setNumGroups(clampedVal)
+    if (totalAdvance < clampedVal) {
+      setTotalAdvance(clampedVal)
+    }
+  }
+
+  const handleNumGroupsBlur = () => {
+    const minVal = 2
+    const maxVal = totalTeams > 0 ? totalTeams - 1 : Infinity
+    if (numGroups < minVal) {
+      setNumGroups(minVal)
+      if (totalAdvance < minVal) {
+        setTotalAdvance(minVal)
+      }
+    } else if (numGroups > maxVal) {
+      setNumGroups(maxVal)
+    }
+  }
+
+  const handleTotalAdvanceChange = (val: number) => {
+    if (isNaN(val)) return
+    const maxVal = totalTeams > 0 ? totalTeams - 1 : Infinity
+    const clampedVal = Math.min(val, maxVal)
+    setTotalAdvance(clampedVal)
+  }
+
+  const handleTotalAdvanceBlur = () => {
+    const minVal = numGroups
+    const maxVal = totalTeams > 0 ? totalTeams - 1 : Infinity
+    if (totalAdvance < minVal) {
+      setTotalAdvance(minVal)
+    } else if (totalAdvance > maxVal) {
+      setTotalAdvance(maxVal)
+    }
+  }
+
   const handleSave = () => {
+    if (isNumGroupsTooSmall) {
+      toast.error(
+        t("groupStage.minGroupsError", {
+          defaultValue: "Number of groups must be at least 2.",
+        })
+      )
+      return
+    }
+    if (isNumGroupsTooLarge) {
+      toast.error(
+        t("groupStage.maxGroupsError", {
+          defaultValue:
+            "Number of groups must be smaller than total teams ({{total}}).",
+          total: totalTeams,
+        })
+      )
+      return
+    }
+    if (isTotalAdvanceTooLarge) {
+      toast.error(
+        t("groupStage.maxAdvanceError", {
+          defaultValue:
+            "Number of advancing teams must be smaller than total teams ({{total}}).",
+          total: totalTeams,
+        })
+      )
+      return
+    }
+    if (isTotalAdvanceTooSmall) {
+      toast.error(
+        t("groupStage.minAdvanceError", {
+          defaultValue:
+            "Number of advancing teams must be at least the number of groups ({{numGroups}}).",
+          numGroups,
+        })
+      )
+      return
+    }
     void saveConfig(t)
   }
 
@@ -91,12 +214,29 @@ export function GroupConfigCard() {
             <Input
               id="num-groups"
               type="number"
-              min={1}
+              min={2}
+              max={totalTeams > 0 ? totalTeams - 1 : undefined}
               value={numGroups}
-              onChange={(e) => setNumGroups(Number(e.target.value))}
+              onChange={(e) => handleNumGroupsChange(Number(e.target.value))}
+              onBlur={handleNumGroupsBlur}
               disabled={isSavingConfig || hasGroupConfig}
               className="border-gray-200 bg-white disabled:cursor-not-allowed disabled:opacity-75"
             />
+            {isNumGroupsTooSmall && (
+              <p className="text-xs text-red-500">
+                {t("groupStage.minGroupsError", {
+                  defaultValue: "Number of groups must be at least 2.",
+                })}
+              </p>
+            )}
+            {isNumGroupsTooLarge && (
+              <p className="text-xs text-red-500">
+                {t("groupStage.maxGroupsError", {
+                  defaultValue: `Number of groups must be smaller than total teams (${totalTeams}).`,
+                  total: totalTeams,
+                })}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -111,18 +251,41 @@ export function GroupConfigCard() {
             <Input
               id="total-advance"
               type="number"
-              min={1}
+              min={numGroups}
+              max={totalTeams > 0 ? totalTeams - 1 : undefined}
               value={totalAdvance}
-              onChange={(e) => setTotalAdvance(Number(e.target.value))}
+              onChange={(e) => handleTotalAdvanceChange(Number(e.target.value))}
+              onBlur={handleTotalAdvanceBlur}
               disabled={isSavingConfig || hasGroupConfig}
               className="border-gray-200 bg-white disabled:cursor-not-allowed disabled:opacity-75"
             />
+            {isTotalAdvanceTooLarge && (
+              <p className="text-xs text-red-500">
+                {t("groupStage.maxAdvanceError", {
+                  defaultValue: `Number of advancing teams must be smaller than total teams (${totalTeams}).`,
+                  total: totalTeams,
+                })}
+              </p>
+            )}
+            {isTotalAdvanceTooSmall && (
+              <p className="text-xs text-red-500">
+                {t("groupStage.minAdvanceError", {
+                  defaultValue: `Number of advancing teams must be at least the number of groups (${numGroups}).`,
+                  numGroups,
+                })}
+              </p>
+            )}
           </div>
         </div>
 
         <Button
           onClick={handleSave}
-          disabled={isSavingConfig || hasGroupConfig}
+          disabled={
+            isSavingConfig ||
+            hasGroupConfig ||
+            isNumGroupsInvalid ||
+            isTotalAdvanceInvalid
+          }
           className="mt-6 w-full bg-emerald-600 text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-75"
         >
           {isSavingConfig ? (

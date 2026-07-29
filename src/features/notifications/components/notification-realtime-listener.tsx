@@ -3,6 +3,7 @@
 import { useSetAtom } from "jotai"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
+import { useTranslation } from "react-i18next"
 import { io } from "socket.io-client"
 import { toast } from "sonner"
 
@@ -62,6 +63,7 @@ function mapRealtimeNotification(
 }
 
 export function NotificationRealtimeListener() {
+  const { t } = useTranslation("common")
   const session = useSession()
   const router = useRouter()
   const setNotifications = useSetAtom(notificationFeedAtom)
@@ -97,7 +99,7 @@ export function NotificationRealtimeListener() {
         toast(notification.title, {
           description: notification.description,
           action: {
-            label: "View",
+            label: t("notifications.view", "Xem"),
             onClick: () => router.push(notification.actionHref ?? "/feed"),
           },
         })

@@ -284,9 +284,13 @@ export const useSchedulingStore = create<SchedulingState>((set, get) => ({
               : []
       }
 
-      // If selectedCenterId is not set, default to first center
-      if (!newCenterId && loadedCenters.length > 0) {
-        newCenterId = loadedCenters[0].centerId
+      // Validate existing selectedCenterId against loaded centers (do NOT auto-select if empty)
+      if (
+        newCenterId &&
+        loadedCenters.length > 0 &&
+        !loadedCenters.some((c) => c.centerId === newCenterId)
+      ) {
+        newCenterId = ""
       }
 
       let loadedBookings: TournamentBooking[] = []

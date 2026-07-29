@@ -406,32 +406,55 @@ export function Scheduling({
     return { earliestTime: minStart, latestTime: maxEnd }
   }, [bookings, selectedDate])
 
-  // Keep a ref of selectedDate so we can read the current value inside the
-  // effect without making selectedDate a dependency (which would cause an
-  // infinite loop because the effect itself calls setSelectedDate).
-  const selectedDateRef = useRef(selectedDate)
-  useEffect(() => {
-    selectedDateRef.current = selectedDate
-  }, [selectedDate])
+  // Track previous tournamentId to detect tournament changes
+  const prevTournamentIdRef = useRef<number | null>(null)
 
   // Initialize store configuration and trigger load
   useEffect(() => {
+    // If tournament changed, reset center, date, event selections for new tournament
+    if (
+      prevTournamentIdRef.current !== null &&
+      prevTournamentIdRef.current !== tournamentId
+    ) {
+      useSchedulingStore.setState({
+        selectedCenterId: "",
+        selectedDate: "",
+        selectedEventId: "all",
+      })
+    }
+    prevTournamentIdRef.current = tournamentId
+
     setTournamentId(tournamentId)
     setEvents(events)
+
     const computedDates = getDatesRange(
       tournament.startDate,
       tournament.endDate
     )
+
+    const currentState = useSchedulingStore.getState()
+
+    // Auto-select date (first date) if no date selected yet or if selected date is invalid
     if (
       computedDates.length > 0 &&
-      !computedDates.includes(selectedDateRef.current)
+      (!currentState.selectedDate ||
+        !computedDates.includes(currentState.selectedDate))
     ) {
       setSelectedDate(computedDates[0])
     }
+
+    // Auto-select event ("all") if no event selected yet
+    if (!currentState.selectedEventId) {
+      setSelectedEventId("all")
+    }
+
     loadSchedule()
 
     return () => {
-      reset()
+      // Close transient dialogs on unmount, but preserve tab selections (selectedCenterId, selectedDate, selectedEventId)
+      setShowAutoSchedule(false)
+      setShowAssignReferee(false)
+      setShowManualSchedule(false)
     }
   }, [
     tournamentId,
@@ -441,8 +464,11 @@ export function Scheduling({
     setTournamentId,
     setEvents,
     setSelectedDate,
+    setSelectedEventId,
+    setShowAutoSchedule,
+    setShowAssignReferee,
+    setShowManualSchedule,
     loadSchedule,
-    reset,
   ])
 
   const handleUnschedule = async (fixtureId: string) => {
@@ -669,6 +695,7 @@ export function Scheduling({
           }
           bookings={bookings}
           isPreviewMode={viewMode === "preview"}
+          selectedCenterId={selectedCenterId}
           onUnschedule={handleUnschedule}
           onUnassignReferee={handleUnassignReferee}
           onAssignRefereeClick={(match) => {

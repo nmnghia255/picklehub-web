@@ -1,4 +1,4 @@
-import { AlertCircle, Loader2, Search, UserPlus2 } from "lucide-react"
+import { AlertCircle, Loader2, Search, Sparkles, UserPlus2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -43,6 +43,7 @@ interface UnassignedMatchesTabProps {
     isTeam1: boolean
   ) => React.ReactNode
   isEditable: boolean
+  onOpenAutoAssign?: () => void
 }
 
 export function UnassignedMatchesTab({
@@ -63,6 +64,7 @@ export function UnassignedMatchesTab({
   formatMatchTime,
   renderTeamDetails,
   isEditable,
+  onOpenAutoAssign,
 }: UnassignedMatchesTabProps) {
   const { t } = useTournamentTranslation()
 
@@ -140,35 +142,53 @@ export function UnassignedMatchesTab({
                 ({filteredUnassignedMatches.length})
               </label>
             </div>
-            <Button
-              size="sm"
-              className="bg-emerald-600 text-xs font-semibold text-white hover:bg-emerald-700"
-              disabled={
-                selectedMatchIds.size === 0 || isAssigningBulk || !isEditable
-              }
-              onClick={() => void handleBulkAssign()}
-            >
-              {isAssigningBulk ? (
-                <>
-                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                  {t("personnel.assignments.assigning", {
-                    defaultValue: "Assigning...",
+            <div className="flex items-center gap-2">
+              {onOpenAutoAssign && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-emerald-300 bg-white text-xs font-semibold text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+                  disabled={
+                    !isEditable || filteredUnassignedMatches.length === 0
+                  }
+                  onClick={onOpenAutoAssign}
+                >
+                  {/* <Sparkles className="mr-1.5 h-3.5 w-3.5 text-emerald-600" /> */}
+                  {t("personnel.autoAssign.btn", {
+                    defaultValue: "Tự động xếp lịch",
                   })}
-                </>
-              ) : (
-                <>
-                  <UserPlus2 className="mr-1.5 h-3.5 w-3.5" />
-                  {t("personnel.assignments.assignBulkBtn", {
-                    defaultValue: "Assign Selected ({{count}})",
-                    count: selectedMatchIds.size,
-                  })}
-                </>
+                </Button>
               )}
-            </Button>
+              <Button
+                size="sm"
+                className="bg-emerald-600 text-xs font-semibold text-white hover:bg-emerald-700"
+                disabled={
+                  selectedMatchIds.size === 0 || isAssigningBulk || !isEditable
+                }
+                onClick={() => void handleBulkAssign()}
+              >
+                {isAssigningBulk ? (
+                  <>
+                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                    {t("personnel.assignments.assigning", {
+                      defaultValue: "Assigning...",
+                    })}
+                  </>
+                ) : (
+                  <>
+                    <UserPlus2 className="mr-1.5 h-3.5 w-3.5" />
+                    {t("personnel.assignments.assignBulkBtn", {
+                      defaultValue: "Assign Selected ({{count}})",
+                      count: selectedMatchIds.size,
+                    })}
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
 
           {/* Unassigned Matches List */}
-          <div className="max-h-[500px] space-y-3 overflow-y-auto pr-1">
+          <div className="max-h-125 space-y-3 overflow-y-auto pr-1">
             {filteredUnassignedMatches.map((match) => (
               <MatchItemCard
                 key={match.id}

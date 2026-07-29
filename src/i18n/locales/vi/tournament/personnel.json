@@ -125,6 +125,34 @@
       "noAssignments": "Trọng tài này chưa được phân công trận nào.",
       "bulkAssignSuccess": "Đã phân công thành công {{count}} trận cho {{name}}!",
       "bulkAssignPartial": "Đã phân công {{success}} trận. Không thể phân công {{fail}} trận."
+    },
+    "autoAssign": {
+      "btn": "Tự động xếp lịch",
+      "title": "Tự động xếp lịch trọng tài",
+      "description": "Phân công vòng tròn cân bằng khối lượng công việc và đảm bảo không có trọng tài nào bắt 2 trận cùng thời điểm.",
+      "warningTitle": "Không đủ trọng tài để quản lý tất cả trận đấu!",
+      "availableReferees": "Số trọng tài hiện có:",
+      "minRequired": "Cần tối thiểu:",
+      "refereesUnit": "{{count}} trọng tài",
+      "peakSlotHeader": "Khung giờ cao điểm: {{slot}}",
+      "peakSlotDesc": "Có {{count}} trận đấu diễn ra đồng thời trong khung giờ này, nhưng chỉ có {{available}} trọng tài.",
+      "unassignableNote": "Có {{count}} trận đấu chưa thể phân công do trùng lịch trọng tài. Bạn có thể thêm trọng tài vào danh sách tuyển chọn hoặc áp dụng phân công cho {{assigned}} trận đấu đã xếp được.",
+      "successTitle": "Đã tính toán phân công tối ưu thành công!",
+      "successDesc": "Tất cả {{assignedCount}} trận đấu đã được phân bổ đều cho {{refereeCount}} trọng tài mà không có bất kỳ xung đột thời gian nào.",
+      "workloadTableTitle": "Bảng cân bằng số trận đấu của trọng tài",
+      "table": {
+        "referee": "Trọng tài",
+        "initial": "Đã xếp trước",
+        "new": "Thêm mới",
+        "total": "Tổng trận"
+      },
+      "emptyRoster": "Chưa có trọng tài nào trong danh sách.",
+      "cancelBtn": "Hủy",
+      "confirmBtn": "Xác nhận phân công ({{count}} trận)",
+      "applying": "Đang áp dụng...",
+      "successToast": "Đã phân công tự động thành công {{count}} trận đấu cho các trọng tài!",
+      "partialToast": "Đã phân công {{success}} trận đấu. Có {{fail}} trận gặp lỗi.",
+      "errorToast": "Đã xảy ra lỗi ngoài dự kiến khi áp dụng xếp lịch tự động."
     }
   },
   "referee": {

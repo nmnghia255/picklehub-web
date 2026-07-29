@@ -1,10 +1,10 @@
-"use client"
-
 import { Users } from "lucide-react"
+import Link from "next/link"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useTournamentTranslation } from "@/i18n/use-tournament-translation"
+import { cn } from "@/lib/utils"
 
 import type { Player } from "../../../types/player"
 
@@ -45,36 +45,55 @@ export function ParticipantsTab({
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {participants.map((participant, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-3 rounded-lg border border-gray-100 bg-white p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-100 hover:shadow-sm"
-              >
-                <Avatar className="h-10 w-10 border border-emerald-100">
-                  <AvatarFallback className="bg-emerald-50 font-bold text-emerald-700">
-                    {participant.avatar ||
-                      participant.name.substring(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-bold text-gray-900">
-                    {participant.name}
-                  </div>
-                  <div className="mt-0.5 flex items-center gap-1 text-xs font-semibold text-gray-500">
-                    <span>{t("public.participantsList.rating")}</span>
-                    <span className="font-bold text-emerald-600">
-                      {participant.rating}
-                    </span>
-                    {participant.event && !hideEvent && (
-                      <>
-                        <span className="text-gray-300">•</span>
-                        <span className="truncate">{participant.event}</span>
-                      </>
-                    )}
+            {participants.map((participant, index) => {
+              const playerId = participant.id ?? participant.userId
+              const profileHref = playerId ? `/profile/${playerId}` : undefined
+
+              const cardContent = (
+                <div
+                  className={cn(
+                    "group flex items-center gap-3 rounded-lg border border-gray-100 bg-white p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-sm",
+                    profileHref && "cursor-pointer hover:bg-emerald-50/20"
+                  )}
+                >
+                  <Avatar className="h-10 w-10 border border-emerald-100 transition-transform group-hover:scale-105">
+                    <AvatarFallback className="bg-emerald-50 font-bold text-emerald-700">
+                      {participant.avatar ||
+                        participant.name.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-bold text-gray-900 transition-colors group-hover:text-emerald-600">
+                      {participant.name}
+                    </div>
+                    <div className="mt-0.5 flex items-center gap-1 text-xs font-semibold text-gray-500">
+                      <span>{t("public.participantsList.rating")}</span>
+                      <span className="font-bold text-emerald-600">
+                        {participant.rating}
+                      </span>
+                      {participant.event && !hideEvent && (
+                        <>
+                          <span className="text-gray-300">•</span>
+                          <span className="truncate">{participant.event}</span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+
+              return profileHref ? (
+                <Link
+                  key={participant.id || index}
+                  href={profileHref}
+                  className="block"
+                >
+                  {cardContent}
+                </Link>
+              ) : (
+                <div key={index}>{cardContent}</div>
+              )
+            })}
           </div>
         )}
       </CardContent>

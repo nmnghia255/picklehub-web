@@ -58,6 +58,8 @@ export default async function TournamentDetailPage(props: {
         const list: Player[] = []
         if (reg.player) {
           list.push({
+            id: reg.player.id || reg.player.userId,
+            userId: reg.player.userId || reg.player.id,
             name: reg.player.name,
             rating: reg.player.rating || 0.0,
             avatar:
@@ -68,6 +70,8 @@ export default async function TournamentDetailPage(props: {
         }
         if (reg.partner) {
           list.push({
+            id: reg.partner.id || reg.partner.userId,
+            userId: reg.partner.userId || reg.partner.id,
             name: reg.partner.name,
             rating: reg.partner.rating || 0.0,
             avatar:

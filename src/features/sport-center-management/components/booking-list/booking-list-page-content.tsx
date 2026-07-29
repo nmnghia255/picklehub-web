@@ -14,7 +14,10 @@ import {
   BookingListResults,
 } from "@/features/sport-center-management/components/booking-list"
 import type { BookingCreatedAtFilter } from "@/features/sport-center-management/components/booking-list/booking-list.utils"
-import { sortBookingsByNewest } from "@/features/sport-center-management/components/booking-list/booking-list.utils"
+import {
+  matchesCreatedAtFilter,
+  sortBookingsByNewest,
+} from "@/features/sport-center-management/components/booking-list/booking-list.utils"
 import { useBookingListStore } from "@/features/sport-center-management/stores/booking-list-store"
 import { useCourtScheduleStore } from "@/features/sport-center-management/stores/court-schedule-store"
 import type { Booking } from "@/features/sport-center-management/types/booking"
@@ -73,13 +76,15 @@ export function BookingListPageContent({
       setLoadError(null)
 
       const offset = (currentPage - 1) * PAGE_SIZE
+      const statusParam = statusFilter === "all" ? "" : statusFilter
+      const dateParam = createdAtFilter === "all" ? "" : createdAtFilter
 
       try {
         const response = await listBookingListAction(
           centerId,
+          statusParam,
           "",
-          "",
-          "",
+          dateParam,
           offset,
           PAGE_SIZE
         )
@@ -111,6 +116,8 @@ export function BookingListPageContent({
   }, [
     centerId,
     currentPage,
+    createdAtFilter,
+    statusFilter,
     refreshKey,
     setBookings,
     setIsLoadingBookings,
@@ -123,10 +130,22 @@ export function BookingListPageContent({
     [centerId, sportCenters]
   )
 
-  const activeBookings = useMemo(
-    () => (centerId ? sortBookingsByNewest(bookings) : []),
-    [bookings, centerId]
-  )
+  const activeBookings = useMemo(() => {
+    if (!centerId) return []
+    let list = bookings
+
+    if (statusFilter !== "all") {
+      list = list.filter((booking) => booking.status === statusFilter)
+    }
+
+    if (createdAtFilter !== "all") {
+      list = list.filter((booking) =>
+        matchesCreatedAtFilter(booking, createdAtFilter)
+      )
+    }
+
+    return sortBookingsByNewest(list)
+  }, [bookings, centerId, createdAtFilter, statusFilter])
 
   const paginationView = useMemo(() => {
     const pageSize = pagination?.limit ?? PAGE_SIZE

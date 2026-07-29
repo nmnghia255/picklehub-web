@@ -55,8 +55,7 @@ export function BookingFilters({
   onResetFilters,
 }: BookingFiltersProps) {
   const { t } = useSportCenterManagementTranslation()
-  const createdAtInputId = "booking-created-at-filter"
-  const [open, setOpen] = useState(false)
+  const [datePopoverOpen, setDatePopoverOpen] = useState(false)
   const selectedDate =
     createdAtFilter === "all" ? undefined : new Date(createdAtFilter)
   const bookingStatusOptions: Array<{
@@ -83,22 +82,25 @@ export function BookingFilters({
           <p className="text-xs font-medium text-muted-foreground">
             {t("bookingList.filters.createdAtLabel")}
           </p>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild className="w-full">
-              <Button variant="outline" className="flex items-center gap-2">
-                <CalendarDays className="h-4 w-4 text-muted-foreground" />
-
-                <span className="text-sm">
-                  {createdAtFilter === "all"
-                    ? t("bookingList.filters.datePlaceholder")
-                    : formatBookingDate(createdAtFilter)}
-                </span>
-
-                <ChevronDown className="h-4 w-4" />
+          <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-between gap-2"
+              >
+                <div className="flex items-center gap-2">
+                  <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">
+                    {createdAtFilter === "all"
+                      ? t("bookingList.filters.datePlaceholder")
+                      : formatBookingDate(createdAtFilter)}
+                  </span>
+                </div>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
               </Button>
-            </DropdownMenuTrigger>
+            </PopoverTrigger>
 
-            <DropdownMenuContent className="p-2">
+            <PopoverContent align="start" className="w-auto p-2">
               <Calendar
                 mode="single"
                 selected={selectedDate}
@@ -113,6 +115,7 @@ export function BookingFilters({
                     `${year}-${month}-${day}` as BookingCreatedAtFilter
 
                   onCreatedAtFilterChange(key)
+                  setDatePopoverOpen(false)
                 }}
               />
 
@@ -120,13 +123,16 @@ export function BookingFilters({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => onCreatedAtFilterChange("all")}
+                  onClick={() => {
+                    onCreatedAtFilterChange("all")
+                    setDatePopoverOpen(false)
+                  }}
                 >
                   {t("bookingList.filters.reset")}
                 </Button>
               </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </PopoverContent>
+          </Popover>
         </div>
 
         {/* Sport center filter */}
@@ -143,34 +149,24 @@ export function BookingFilters({
             {t("bookingList.filters.statusLabel")}
           </p>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
-                <span>
-                  {statusFilter === "all"
-                    ? t("bookingList.filters.allStatuses")
-                    : t(
-                        BOOKING_STATUS_LABEL_KEYS[statusFilter] ?? statusFilter
-                      )}
-                </span>
+          <Select
+            value={statusFilter}
+            onValueChange={(value) =>
+              onStatusFilterChange(value as "all" | BookingStatus)
+            }
+          >
+            <SelectTrigger className="w-45 bg-background">
+              <SelectValue placeholder={t("bookingList.filters.allStatuses")} />
+            </SelectTrigger>
 
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent className="w-56">
+            <SelectContent>
               {bookingStatusOptions.map((option) => (
-                <DropdownMenuItem
-                  key={option.value}
-                  onClick={() =>
-                    onStatusFilterChange(option.value as "all" | BookingStatus)
-                  }
-                >
+                <SelectItem key={option.value} value={option.value}>
                   {option.label}
-                </DropdownMenuItem>
+                </SelectItem>
               ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Reset button */}

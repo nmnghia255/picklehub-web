@@ -9,6 +9,7 @@ import { useProfileTranslation } from "@/i18n/use-profile-translation"
 
 interface GroupCardProps {
   groups: Group[]
+  isOwnProfile?: boolean
 }
 
 function getGroupInitials(name: string) {
@@ -20,18 +21,23 @@ function getGroupInitials(name: string) {
     .join("")
 }
 
-export function GroupCard({ groups }: GroupCardProps) {
+export function GroupCard({ groups, isOwnProfile = true }: GroupCardProps) {
   const { t } = useProfileTranslation()
+
+  const cardTitle = isOwnProfile ? t("yourGroups") : t("groups", "Nhóm")
+  const emptyText = isOwnProfile
+    ? t("noGroups")
+    : t("noGroupsUser", "Người dùng chưa tham gia nhóm nào.")
 
   return (
     <Card className="rounded-2xl">
       <CardHeader>
-        <CardTitle>{t("yourGroups")}</CardTitle>
+        <CardTitle>{cardTitle}</CardTitle>
       </CardHeader>
 
       <CardContent>
         {groups.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("noGroups")}</p>
+          <p className="text-sm text-muted-foreground">{emptyText}</p>
         ) : (
           <ul className="space-y-2">
             {groups.map((group) => (

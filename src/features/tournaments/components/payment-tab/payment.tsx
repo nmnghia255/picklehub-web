@@ -330,7 +330,7 @@ export function PaymentTab({
                       defaultValue: "QR Code Image (optional)",
                     })}
                   </Label>
-                  <div className="flex min-h-[220px] flex-1 flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50/50 p-6 text-center transition-all hover:border-emerald-400">
+                  <div className="flex min-h-55 flex-1 flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50/50 p-6 text-center transition-all hover:border-emerald-400">
                     {qrUrl ? (
                       <div className="relative h-40 w-40 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
                         <Image
@@ -406,7 +406,7 @@ export function PaymentTab({
                   })}
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
-                  className="min-h-[100px] border-gray-300 focus-visible:ring-emerald-500"
+                  className="min-h-25 border-gray-300 focus-visible:ring-emerald-500"
                 />
               </div>
 
@@ -423,7 +423,7 @@ export function PaymentTab({
                 <Button
                   onClick={handleSave}
                   disabled={isPending || isUploading}
-                  className="min-w-[120px] bg-emerald-600 font-medium text-white hover:bg-emerald-700"
+                  className="min-w-30 bg-emerald-600 font-medium text-white hover:bg-emerald-700"
                 >
                   {isPending ? (
                     <>
@@ -574,7 +574,7 @@ export function PaymentTab({
                 </CardHeader>
                 <CardContent className="pt-6">
                   {tournament.paymentNote ? (
-                    <div className="prose prose-emerald max-w-none leading-relaxed break-words whitespace-pre-wrap text-gray-700">
+                    <div className="prose prose-emerald max-w-none leading-relaxed wrap-break-word whitespace-pre-wrap text-gray-700">
                       {tournament.paymentNote}
                     </div>
                   ) : (

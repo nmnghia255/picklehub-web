@@ -135,8 +135,76 @@ export const useGroupStageStore = create<GroupStageState>((set, get) => ({
   },
 
   saveConfig: async (t) => {
-    const { tournamentId, selectedEventId, numGroups, totalAdvance } = get()
+    const {
+      tournamentId,
+      selectedEventId,
+      numGroups,
+      totalAdvance,
+      groups,
+      seedsList,
+    } = get()
     if (!tournamentId || !selectedEventId) return
+
+    if (numGroups < 2) {
+      toast.error(
+        t("groupStage.minGroupsError", {
+          defaultValue: "Number of groups must be at least 2.",
+        })
+      )
+      return
+    }
+
+    const dashboardStore = useTournamentDashboardStore.getState()
+    const selectedEvent = dashboardStore.events?.find(
+      (e) => e.id.toString() === selectedEventId
+    )
+
+    const safeSeeds = Array.isArray(seedsList) ? seedsList : []
+    const totalTeamsFromGroups = Array.isArray(groups)
+      ? groups.reduce((acc, g) => acc + (g.memberships?.length || 0), 0)
+      : 0
+    const totalTeams =
+      totalTeamsFromGroups > 0
+        ? totalTeamsFromGroups
+        : safeSeeds.length > 0
+          ? safeSeeds.length
+          : Math.max(
+              selectedEvent?.capacity ?? 0,
+              selectedEvent?.participants ?? 0
+            )
+
+    if (totalTeams > 0 && numGroups >= totalTeams) {
+      toast.error(
+        t("groupStage.maxGroupsError", {
+          defaultValue:
+            "Number of groups must be smaller than total teams ({{total}}).",
+          total: totalTeams,
+        })
+      )
+      return
+    }
+
+    if (totalTeams > 0 && totalAdvance >= totalTeams) {
+      toast.error(
+        t("groupStage.maxAdvanceError", {
+          defaultValue:
+            "Number of advancing teams must be smaller than total teams ({{total}}).",
+          total: totalTeams,
+        })
+      )
+      return
+    }
+
+    if (totalAdvance < numGroups) {
+      toast.error(
+        t("groupStage.minAdvanceError", {
+          defaultValue:
+            "Number of advancing teams must be at least the number of groups ({{numGroups}}).",
+          numGroups,
+        })
+      )
+      return
+    }
 
     set({ isSavingConfig: true })
     try {
@@ -157,7 +225,6 @@ export const useGroupStageStore = create<GroupStageState>((set, get) => ({
         )
 
         // Sync new group config to dashboard events list to disable config inputs & save button immediately
-        const dashboardStore = useTournamentDashboardStore.getState()
         if (dashboardStore.events) {
           const updatedEvents = dashboardStore.events.map((e) =>
             e.id.toString() === selectedEventId
@@ -268,8 +335,39 @@ export const useGroupStageStore = create<GroupStageState>((set, get) => ({
   },
 
   advanceTeams: async (t) => {
-    const { tournamentId, selectedEventId, totalAdvance } = get()
+    const { tournamentId, selectedEventId, totalAdvance, groups, seedsList } =
+      get()
     if (!tournamentId || !selectedEventId) return
+
+    const dashboardStore = useTournamentDashboardStore.getState()
+    const selectedEvent = dashboardStore.events?.find(
+      (e) => e.id.toString() === selectedEventId
+    )
+
+    const safeSeeds = Array.isArray(seedsList) ? seedsList : []
+    const totalTeamsFromGroups = Array.isArray(groups)
+      ? groups.reduce((acc, g) => acc + (g.memberships?.length || 0), 0)
+      : 0
+    const totalTeams =
+      totalTeamsFromGroups > 0
+        ? totalTeamsFromGroups
+        : safeSeeds.length > 0
+          ? safeSeeds.length
+          : Math.max(
+              selectedEvent?.capacity ?? 0,
+              selectedEvent?.participants ?? 0
+            )
+
+    if (totalTeams > 0 && totalAdvance >= totalTeams) {
+      toast.error(
+        t("groupStage.maxAdvanceError", {
+          defaultValue:
+            "Number of advancing teams must be smaller than total teams ({{total}}).",
+          total: totalTeams,
+        })
+      )
+      return
+    }
 
     set({ isAdvancing: true })
     try {
