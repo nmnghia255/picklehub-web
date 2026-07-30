@@ -89,22 +89,21 @@ export default function SocialBookingTab({
     }
   }, [bookingIdsKey, bookingIds])
 
-  // Derive unique courts list and actual court count strictly from real fetched booking items
+  // Derive unique courts list from the booking summaries returned by section 2
   const uniqueCourts = useMemo(() => {
-    const map = new Map<string, string>()
-    fetchedBookings.forEach((b) => {
-      if (b.items && b.items.length > 0) {
-        b.items.forEach((item) => {
-          const key = item.courtId || item.courtName
-          if (key && !map.has(key)) {
-            map.set(key, item.courtName)
-          }
-        })
-      } else if (b.courtName) {
-        map.set(b.courtName, b.courtName)
-      }
+    const uniqueCourtNames = new Set<string>()
+
+    fetchedBookings.forEach((booking) => {
+      if (!booking.courtName) return
+
+      booking.courtName
+        .split(",")
+        .map((name) => name.trim())
+        .filter(Boolean)
+        .forEach((name) => uniqueCourtNames.add(name))
     })
-    return Array.from(map.values())
+
+    return Array.from(uniqueCourtNames)
   }, [fetchedBookings])
 
   const actualCourtCount =

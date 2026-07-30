@@ -787,9 +787,13 @@ function ExpenseForm({
             <div className="max-h-80 space-y-3 overflow-y-auto rounded-md border bg-muted/5 p-3">
               {resolvedMembers.map((member) => {
                 const isSelected = !!selectedMap[member.userId]
-                const personal = Number(feeMap[member.userId] || 0)
+                const personal = Number(
+                  (feeMap[member.userId] || "0").replace(/\D/g, "")
+                )
                 const gCount = Number(guestCountMap[member.userId] || 0)
-                const gUnitPrice = Number(guestUnitPriceMap[member.userId] || 0)
+                const gUnitPrice = Number(
+                  (guestUnitPriceMap[member.userId] || "0").replace(/\D/g, "")
+                )
                 const memberTotal = personal + gCount * gUnitPrice
 
                 return (

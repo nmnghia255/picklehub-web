@@ -278,6 +278,7 @@ export default function PlaySessionDetail({
                     socialId={socialId}
                     sessionId={sessionId}
                     isHost={isHost}
+                    sessionStatus={session.status}
                     matches={matches}
                     onCreateMatch={() =>
                       router.push(

@@ -35,6 +35,36 @@ type MatchItem = PlaySessionCardMatch & {
   roundNumber?: number
 }
 
+export function isPlaySessionStarted({
+  sessionStatus,
+  rounds,
+  matches,
+}: {
+  sessionStatus?: string | null
+  rounds: PlaySessionRound[]
+  matches: MatchItem[]
+}) {
+  if (sessionStatus === "IN_PROGRESS" || sessionStatus === "COMPLETED") {
+    return true
+  }
+
+  if (
+    rounds.some(
+      (round) => round.status === "IN_PROGRESS" || round.status === "COMPLETED"
+    )
+  ) {
+    return true
+  }
+
+  return matches.some(
+    (match) =>
+      match.status === "LIVE" ||
+      match.status === "IN_PROGRESS" ||
+      !!match.startedAt ||
+      match.status === "CONFIRMED"
+  )
+}
+
 function normalizeMatchItem(
   rawMatch: unknown,
   matchIndexInRound?: number,
@@ -247,12 +277,14 @@ export default function PlaySessionMatches({
   socialId,
   sessionId,
   isHost,
+  sessionStatus,
   matches = [],
   onCreateMatch,
 }: {
   socialId?: string
   sessionId?: string
   isHost: boolean
+  sessionStatus?: string | null
   matches: MatchItem[]
   onCreateMatch: () => void
 }) {
@@ -267,23 +299,12 @@ export default function PlaySessionMatches({
   const [isStartingSession, setIsStartingSession] = useState(false)
 
   const sessionStarted = useMemo(() => {
-    if (
-      rounds.some(
-        (round) =>
-          round.status === "IN_PROGRESS" || round.status === "COMPLETED"
-      )
-    ) {
-      return true
-    }
-
-    return matches.some(
-      (match) =>
-        match.status === "LIVE" ||
-        match.status === "IN_PROGRESS" ||
-        !!match.startedAt ||
-        match.status === "CONFIRMED"
-    )
-  }, [matches, rounds])
+    return isPlaySessionStarted({
+      sessionStatus,
+      rounds,
+      matches,
+    })
+  }, [matches, rounds, sessionStatus])
 
   const [executingRoundId, setExecutingRoundId] = useState<string | null>(null)
 
