@@ -35,6 +35,8 @@ import type {
 } from "@/features/socials/types/social"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
+import { isSocialStarted } from "../../utils"
+
 interface SocialInviteConfirmDialogProps {
   /** inviteCode từ query param ?inviteCode= */
   inviteCode?: string | null
@@ -62,6 +64,10 @@ export default function SocialInviteConfirmDialog({
   const [preview, setPreview] = useState<InviteCodePreview | null>(null)
   const [isAccepting, setIsAccepting] = useState(false)
 
+  const social = preview?.social || initialSocial
+  const isExpiredInvite = social ? isSocialStarted(social) : false
+  const activeDialogState = isExpiredInvite ? "expired" : dialogState
+
   // ── Open dialog and fetch preview when inviteCode or invitationId is present ──
   useEffect(() => {
     if (invitationId || !inviteCode) return
@@ -85,7 +91,7 @@ export default function SocialInviteConfirmDialog({
         setDialogState("valid")
       })
       .catch(() => {
-        if (isMounted) setDialogState("invalid")
+        if (isMounted) setDialogState("error")
       })
 
     return () => {
@@ -147,16 +153,14 @@ export default function SocialInviteConfirmDialog({
 
   if (!inviteCode && !invitationId) return null
 
-  const social = preview?.social || initialSocial
-
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {dialogState === "loading" ? (
+            {activeDialogState === "loading" ? (
               <Loader2 className="size-5 animate-spin text-primary" />
-            ) : dialogState === "valid" ? (
+            ) : activeDialogState === "valid" ? (
               <CheckCircle2 className="size-5 text-emerald-500" />
             ) : (
               <AlertCircle className="size-5 text-amber-500" />
@@ -164,7 +168,7 @@ export default function SocialInviteConfirmDialog({
             {t("invitation.confirmTitle")}
           </DialogTitle>
 
-          {dialogState !== "loading" && social && (
+          {activeDialogState !== "loading" && social && (
             <DialogDescription>
               {t("invitation.confirmDescription", { title: social.title })}
             </DialogDescription>
@@ -172,14 +176,14 @@ export default function SocialInviteConfirmDialog({
         </DialogHeader>
 
         {/* ── Loading ── */}
-        {dialogState === "loading" && (
+        {activeDialogState === "loading" && (
           <div className="flex justify-center py-6 text-sm text-muted-foreground">
             {t("invitation.loadingPreview")}
           </div>
         )}
 
         {/* ── Valid: show event info ── */}
-        {dialogState === "valid" && social && (
+        {activeDialogState === "valid" && social && (
           <div className="space-y-3 rounded-xl border bg-muted/40 p-4">
             <div className="flex items-center gap-2 text-sm">
               <Users className="size-4 shrink-0 text-muted-foreground" />
@@ -224,14 +228,14 @@ export default function SocialInviteConfirmDialog({
         )}
 
         {/* ── Expired / Cancelled ── */}
-        {dialogState === "expired" && (
+        {activeDialogState === "expired" && (
           <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
             {t("invitation.confirmExpired")}
           </div>
         )}
 
         {/* ── Session full ── */}
-        {dialogState === "full" && social && (
+        {activeDialogState === "full" && social && (
           <div className="space-y-2">
             <div className="rounded-xl border bg-muted/40 p-4 text-sm">
               <p className="font-medium">{social.title}</p>
@@ -243,7 +247,7 @@ export default function SocialInviteConfirmDialog({
         )}
 
         {/* ── Error ── */}
-        {dialogState === "error" && (
+        {activeDialogState === "error" && (
           <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
             {t("invitation.previewError")}
           </div>
@@ -258,7 +262,7 @@ export default function SocialInviteConfirmDialog({
             {t("invitation.declineButton")}
           </Button>
 
-          {dialogState === "valid" && (
+          {activeDialogState === "valid" && (
             <Button
               onClick={handleAccept}
               disabled={isAccepting}

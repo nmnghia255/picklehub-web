@@ -81,7 +81,9 @@ export function deriveNotificationActionHref(metadata: unknown) {
     return `/chat?${params.toString()}`
   }
 
-  if (type === "group" && groupId) return `/groups/${groupId}`
+  if (type === "group" && groupId) {
+    return `/groups/${groupId}`
+  }
   if (type === "social" && socialId) {
     const invitationId = getString(onClickSupport.invitationId)
     const params = new URLSearchParams()
@@ -110,7 +112,14 @@ export function deriveNotificationActionHref(metadata: unknown) {
     return `/chat?${params.toString()}`
   }
 
-  if (groupId) return `/groups/${groupId}`
+  if (groupId) {
+    const invitationId = getString(onClickSupport.invitationId)
+    const params = new URLSearchParams()
+    if (invitationId) params.set("invitationId", invitationId)
+    return params.size > 0
+      ? `/groups/${groupId}?${params.toString()}`
+      : `/groups/${groupId}`
+  }
   if (socialId) {
     const invitationId = getString(onClickSupport.invitationId)
     const params = new URLSearchParams()

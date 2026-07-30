@@ -80,6 +80,7 @@ export default function SocialInviteDialog({
               (inv) => inv.status === "PENDING" || inv.status === "ACCEPTED"
             )
             .map((inv) => inv.inviteeId)
+            .filter((id): id is string => Boolean(id))
         )
         setInvitedIds(alreadyInvited)
       })

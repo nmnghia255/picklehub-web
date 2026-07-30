@@ -1,5 +1,6 @@
 "use client"
 
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import {
   ArrowRight,
@@ -15,8 +16,7 @@ import {
   XCircle,
 } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
-import { useEffect } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
@@ -30,14 +30,16 @@ import type {
   FeedNotificationStatus,
   FeedNotificationType,
 } from "@/features/feed/types"
+import { getMyGroupsAction } from "@/features/groups/actions/group-actions"
+import {
+  acceptGroupInvitationAction,
+  acceptInvitationAction,
+} from "@/features/groups/actions/invitation-actions"
 import {
   fetchMyNotifications,
   markUserNotificationsRead,
 } from "@/features/notifications/actions/user-notifications"
-import {
-  acceptDirectInvitationAction,
-  declineDirectInvitationAction,
-} from "@/features/socials/actions/invitation-actions"
+import { acceptDirectInvitationAction } from "@/features/socials/actions/invitation-actions"
 import { cn } from "@/lib/utils"
 
 import { notificationFeedAtom } from "../store/feed-store"
@@ -190,6 +192,7 @@ function FeedNotificationCard({
   onDecline,
   onMarkRead,
   onDelete,
+  myGroupIds,
 }: {
   notification: FeedNotification
   t: (key: string, options?: Record<string, unknown>) => string
@@ -197,13 +200,24 @@ function FeedNotificationCard({
   onDecline: (id: string) => void
   onMarkRead: (id: string) => void
   onDelete: (id: string) => void
+  myGroupIds?: Set<string>
 }) {
   const typeMeta = feedTypeMeta[notification.type]
+  const onClickSupport = (
+    notification.metadata as Record<string, unknown> | undefined
+  )?.onClickSupport as Record<string, unknown> | undefined
+  const groupId = onClickSupport?.groupId as string | undefined
+
+  const isMemberOfGroup = Boolean(groupId && myGroupIds?.has(groupId))
   const isPendingInvitation =
-    notification.type === "invitation" && notification.status === "pending"
+    !isMemberOfGroup &&
+    notification.type === "invitation" &&
+    notification.status === "pending"
+
   const typeLabel = getNotificationTypeLabel(notification.type, t)
-  const statusLabel =
-    notification.status === "accepted"
+  const statusLabel = isMemberOfGroup
+    ? t("feed.statuses.accepted", { defaultValue: "Đã chấp nhận" })
+    : notification.status === "accepted"
       ? t("feed.statuses.accepted")
       : notification.status === "declined"
         ? t("feed.statuses.declined")
@@ -276,6 +290,15 @@ function FeedNotificationCard({
                 <Button
                   size="sm"
                   variant="outline"
+                  disabled={
+                    (
+                      (
+                        notification.metadata as
+                          | Record<string, unknown>
+                          | undefined
+                      )?.onClickSupport as Record<string, unknown> | undefined
+                    )?.type === "group"
+                  }
                   onClick={() => onDecline(notification.id)}
                   className="sm:flex-none"
                 >
@@ -384,9 +407,21 @@ function StatCard({
 
 export function FeedPage() {
   const { t } = useTranslation("common")
+  const queryClient = useQueryClient()
   const [activeFilter, setActiveFilter] = useState<FeedFilter>("all")
   const [notifications, setNotifications] = useAtom(notificationFeedAtom)
   const filterOptions = getFeedFilterOptions(t)
+
+  const { data: myGroups = [] } = useQuery({
+    queryKey: ["my-groups"],
+    queryFn: getMyGroupsAction,
+    staleTime: 30_000,
+  })
+
+  const myGroupIds = useMemo(
+    () => new Set(myGroups.map((g) => g.id)),
+    [myGroups]
+  )
 
   useEffect(() => {
     let mounted = true
@@ -507,39 +542,47 @@ export function FeedPage() {
 
   const handleAcceptInvitation = async (notificationId: string) => {
     const notification = notifications.find((n) => n.id === notificationId)
+    const onClickSupport = (
+      notification?.metadata as Record<string, unknown> | undefined
+    )?.onClickSupport as Record<string, unknown> | undefined
+    const token = (onClickSupport?.token as string | undefined)?.trim()
     const invitationId = extractInvitationId(notification?.metadata)
+    const targetType = onClickSupport?.type
+    const groupId = onClickSupport?.groupId as string | undefined
 
     // Optimistic update
     handleResolveInvitation(notificationId, "accepted")
 
     try {
-      if (invitationId) {
+      if (token) {
+        const result = await acceptInvitationAction(token)
+        if (result.error) throw new Error(result.error)
+      } else if (targetType === "group" && groupId && invitationId) {
+        const result = await acceptGroupInvitationAction(groupId, invitationId)
+        if (result.error) throw new Error(result.error)
+      } else if (invitationId) {
         await acceptDirectInvitationAction(invitationId)
       }
-      toast.success(t("feed.actions.acceptSuccess", "Đã chấp nhận lời mời!"))
-    } catch {
+      void queryClient.invalidateQueries({ queryKey: ["my-groups"] })
+      toast.success(
+        t("feed.actions.acceptSuccess", {
+          defaultValue: "Đã chấp nhận lời mời!",
+        })
+      )
+    } catch (err: unknown) {
       // Rollback
       handleResolveInvitation(notificationId, "pending")
-      toast.error(t("feed.actions.acceptError", "Không thể chấp nhận lời mời."))
+      const msg =
+        err instanceof Error
+          ? err.message
+          : t("feed.actions.acceptError", "Không thể chấp nhận lời mời.")
+      toast.error(t(msg, { defaultValue: msg }))
     }
   }
 
-  const handleDeclineInvitation = async (notificationId: string) => {
-    const notification = notifications.find((n) => n.id === notificationId)
-    const invitationId = extractInvitationId(notification?.metadata)
-
-    // Optimistic update
+  const handleDeclineInvitation = (notificationId: string) => {
     handleResolveInvitation(notificationId, "declined")
-
-    try {
-      if (invitationId) {
-        await declineDirectInvitationAction(invitationId)
-      }
-    } catch {
-      // Rollback
-      handleResolveInvitation(notificationId, "pending")
-      toast.error(t("feed.actions.declineError", "Không thể từ chối lời mời."))
-    }
+    toast.success(t("feed.actions.declineSuccess", "Đã từ chối lời mời."))
   }
 
   return (
@@ -693,6 +736,7 @@ export function FeedPage() {
                           onDecline={handleDeclineInvitation}
                           onMarkRead={handleMarkRead}
                           onDelete={handleDeleteNotification}
+                          myGroupIds={myGroupIds}
                         />
                       ))}
                     </div>

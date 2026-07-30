@@ -288,9 +288,7 @@ export async function testKnowledgeSearch(
 
 // --- 3. User & Role Management ---
 
-export async function getUsersList(
-  params: UserListParams = {}
-): Promise<{
+export async function getUsersList(params: UserListParams = {}): Promise<{
   data: AdminUser[]
   meta?: { total: number; page: number; limit: number; totalPages: number }
 }> {
@@ -339,9 +337,11 @@ export async function updateUser(
   payload: UpdateUserPayload
 ): Promise<AdminUser> {
   const axios = await getAdminAxios()
+  // Clean up payload fields that the backend strictly forbids
+  const { email, dupr, ...cleanPayload } = payload
   const response = await axios.patch<ApiResponseWrapper<AdminUser> | AdminUser>(
     `/api/users/admin/update/${id}`,
-    payload
+    cleanPayload
   )
   return unwrap(response.data)
 }

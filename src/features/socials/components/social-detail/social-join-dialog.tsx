@@ -17,6 +17,8 @@ import type { PlaySession } from "@/features/socials/types/play-session"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
 
+import { isSessionExpired } from "../../utils"
+
 export default function SocialJoinDialog({
   open,
   onOpenChange,
@@ -48,8 +50,9 @@ export default function SocialJoinDialog({
           firstSession.maxSlot != null &&
           (firstSession.joinedCount ?? 0) >= firstSession.maxSlot
         const isClosed =
-          firstSession.status !== "ACTIVE" &&
-          firstSession.status !== "PUBLISHED"
+          (firstSession.status !== "ACTIVE" &&
+            firstSession.status !== "PUBLISHED") ||
+          isSessionExpired(firstSession)
         if (!isFull && !isClosed) {
           setSelectedSessionIds([firstSession.id])
         } else {
@@ -88,7 +91,9 @@ export default function SocialJoinDialog({
                   session.maxSlot != null &&
                   (session.joinedCount ?? 0) >= session.maxSlot
                 const isClosed =
-                  session.status !== "ACTIVE" && session.status !== "PUBLISHED"
+                  (session.status !== "ACTIVE" &&
+                    session.status !== "PUBLISHED") ||
+                  isSessionExpired(session)
                 const isDisabled = isFull || isClosed
                 const isChecked = selectedSessionIds.includes(session.id)
 

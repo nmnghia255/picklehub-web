@@ -193,8 +193,10 @@ export function getPlaySessionCapacityText(
     : `${safeJoinedCount} / ${maxSlot}`
 }
 
-export function getStatusClasses(status: string) {
-  switch (status) {
+export function getStatusClasses(status: string, isExpired?: boolean) {
+  const activeStatus =
+    status === "PUBLISHED" && isExpired ? "COMPLETED" : status
+  switch (activeStatus) {
     case "PUBLISHED":
       return "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:border-emerald-400/30 dark:bg-emerald-400/15 dark:text-emerald-400"
     case "COMPLETED":
@@ -207,7 +209,14 @@ export function getStatusClasses(status: string) {
   }
 }
 
-export const getStatusLabel = (status: string, t: (key: string) => string) => {
+export const getStatusLabel = (
+  status: string,
+  t: (key: string) => string,
+  isExpired?: boolean
+) => {
+  if (status === "PUBLISHED" && isExpired) {
+    return t("labels.ended") || t("labels.completed") || "Ended"
+  }
   switch (status) {
     case "PUBLISHED":
       return t("labels.published")
@@ -387,4 +396,25 @@ export const getPaymentStatusLabel = (
     default:
       return status || ""
   }
+}
+
+export function isSocialStarted(
+  social?: { startTime?: string | Date | null } | null
+): boolean {
+  if (!social?.startTime) return false
+  return new Date() >= new Date(social.startTime)
+}
+
+export function isSocialExpired(
+  social?: { endTime?: string | Date | null } | null
+): boolean {
+  if (!social?.endTime) return false
+  return new Date() >= new Date(social.endTime)
+}
+
+export function isSessionExpired(
+  session?: { endTime?: string | Date | null } | null
+): boolean {
+  if (!session?.endTime) return false
+  return new Date() >= new Date(session.endTime)
 }

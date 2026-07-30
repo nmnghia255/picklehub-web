@@ -1,6 +1,7 @@
 "use client"
 
 import { differenceInHours } from "date-fns"
+import { AlertCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { toast } from "sonner"
@@ -16,7 +17,10 @@ import type {
   SocialDetail,
   SocialParticipant,
 } from "@/features/socials/types/social"
-import { isActiveSocialParticipantStatus } from "@/features/socials/utils"
+import {
+  isActiveSocialParticipantStatus,
+  isSocialExpired,
+} from "@/features/socials/utils"
 import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
@@ -177,6 +181,18 @@ export default function SocialDetail({
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
       {/* <SocialHero isPrivate={Boolean(social.isPrivate)} /> */}
 
+      {social.status === "PUBLISHED" && isSocialExpired(social) && (
+        <div className="flex items-center gap-3 rounded-xl border border-amber-500/20 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-950/20 dark:text-amber-300">
+          <AlertCircle className="size-5 shrink-0 text-amber-600 dark:text-amber-400" />
+          <span>
+            {t(
+              "detail.endedBanner",
+              "This social has ended. New registrations and invitations are no longer available."
+            )}
+          </span>
+        </div>
+      )}
+
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-6">
           <SocialHeader
@@ -186,6 +202,7 @@ export default function SocialDetail({
             isHost={isHost}
             isEditable={isEditable}
             isParticipant={isParticipant}
+            isExpired={isSocialExpired(social)}
             onBack={() => router.back()}
             onEdit={() => router.push(`/socials/${social.id}/edit`)}
           />

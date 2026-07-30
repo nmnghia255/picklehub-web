@@ -190,6 +190,7 @@ function getQueryErrorMessage(error: unknown, fallback: string) {
 export function GroupFinanceSection({
   groupId,
   members,
+  currentUserId,
   currentUserRole,
   groupStatus,
 }: {
@@ -403,7 +404,7 @@ export function GroupFinanceSection({
                   </span>
                 }
                 className=""
-                valueClassName="text-emerald-600 dark:text-emerald-400"
+                valueClassName="text-orange-400 dark:text-orange-400"
               />
               <SummaryCard
                 title={t("finance.totalCollected", "Tổng đã thu")}
@@ -413,7 +414,7 @@ export function GroupFinanceSection({
                 valueClassName="text-emerald-600 dark:text-emerald-400"
               />
               <SummaryCard
-                title={t("finance.debtOutstanding", "Còn nợ")}
+                title={t("finance.debtOutstanding", "Còn phải thu")}
                 value={formatCurrency(summary.outstandingAmount)}
                 description={`${t("finance.expectedRevenuePrefix", "Kỳ vọng thu: ")}${formatCurrency(summary.totalExpectedRevenue)}`}
                 className=""
@@ -1227,36 +1228,46 @@ export function GroupFinanceSection({
 
           <TabsContent value="credits" className="mt-4">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {creditBalancesQuery.data?.data?.map((entry) => (
-                <Card
-                  key={entry.userId}
-                  className="flex items-center gap-4 p-4"
-                >
-                  <Avatar>
-                    <AvatarImage src={entry.user?.avatarUrl || ""} />
-                    <AvatarFallback>
-                      {getInitials(entry.user?.name || "TV")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{entry.user?.name}</p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {entry.user?.email}
-                    </p>
-                  </div>
-                  <Badge variant="secondary">
-                    {formatCurrency(entry.creditBalance)}
-                  </Badge>
-                </Card>
-              ))}
-              {!creditBalancesQuery.data?.data?.length && (
-                <div className="col-span-full py-10 text-center text-muted-foreground">
-                  {t(
-                    "finance.noCredits",
-                    "Không có thành viên nào có số dư tín dụng."
-                  )}
-                </div>
-              )}
+              {(() => {
+                const list = creditBalancesQuery.data?.data ?? []
+                const filteredList = canManage
+                  ? list
+                  : list.filter((entry) => entry.userId === currentUserId)
+
+                if (filteredList.length === 0) {
+                  return (
+                    <div className="col-span-full py-10 text-center text-muted-foreground">
+                      {t(
+                        "finance.noCredits",
+                        "Không có thành viên nào có số dư tín dụng."
+                      )}
+                    </div>
+                  )
+                }
+
+                return filteredList.map((entry) => (
+                  <Card
+                    key={entry.userId}
+                    className="flex items-center gap-4 p-4"
+                  >
+                    <Avatar>
+                      <AvatarImage src={entry.user?.avatarUrl || ""} />
+                      <AvatarFallback>
+                        {getInitials(entry.user?.name || "TV")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">{entry.user?.name}</p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {entry.user?.email}
+                      </p>
+                    </div>
+                    <Badge variant="secondary">
+                      {formatCurrency(entry.creditBalance)}
+                    </Badge>
+                  </Card>
+                ))
+              })()}
             </div>
           </TabsContent>
         </Tabs>

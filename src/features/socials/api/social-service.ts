@@ -337,9 +337,7 @@ export const SocialService = {
    * API 4: Đồng ý tham gia từ link chia sẻ
    * POST /api/events/socials/invitations/code/:inviteCode/accept
    */
-  acceptByInviteCode: async function (
-    inviteCode: string
-  ): Promise<{
+  acceptByInviteCode: async function (inviteCode: string): Promise<{
     inviteCode: string
     socialId: string
     participant: { id: string; status: string }
@@ -355,9 +353,7 @@ export const SocialService = {
    * API 5: Chấp nhận lời mời trực tiếp
    * POST /api/events/socials/invitations/:invitationId/accept
    */
-  acceptDirectInvitation: async function (
-    invitationId: string
-  ): Promise<{
+  acceptDirectInvitation: async function (invitationId: string): Promise<{
     invitationId: string
     socialId: string
     participant: { id: string; status: string }

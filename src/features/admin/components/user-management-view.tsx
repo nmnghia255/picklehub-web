@@ -522,10 +522,8 @@ export function UserManagementView() {
                     id="editEmail"
                     type="email"
                     value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                    readOnly={modalMode === "VIEW"}
+                    readOnly
+                    className="cursor-not-allowed bg-muted text-muted-foreground"
                   />
                 </div>
               </div>
@@ -679,13 +677,8 @@ export function UserManagementView() {
                     type="number"
                     step="0.1"
                     value={formData.dupr ?? ""}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        dupr: e.target.value ? Number(e.target.value) : null,
-                      })
-                    }
-                    readOnly={modalMode === "VIEW"}
+                    readOnly
+                    className="cursor-not-allowed bg-muted text-muted-foreground"
                   />
                 </div>
 

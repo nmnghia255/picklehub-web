@@ -192,3 +192,18 @@ export {
   listGroupCourtBookingsClient,
   unlinkGroupCourtBookingClient,
 } from "./group-court-bookings-client"
+
+export interface GroupFeedItem {
+  id: string
+  groupId: string
+  title: string
+  message: string
+  metadata?: Record<string, unknown> | null
+  createdAt: string
+}
+
+export async function getGroupFeedNotificationsClient(
+  groupId: string
+): Promise<GroupFeedItem[]> {
+  return fetchGroupJson<GroupFeedItem[]>(`/api/groups/${groupId}/feed`)
+}

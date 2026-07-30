@@ -62,13 +62,15 @@ function formatBookingTime(timeStr?: string): string {
   return timeStr
 }
 
+const EMPTY_BOOKINGS: CourtBookingAvailableItem[] = []
+
 export default function SelectBookingDialog({
   open,
   onOpenChange,
   socialId,
   centerId,
   currentBookingIds,
-  availableBookings = [],
+  availableBookings = EMPTY_BOOKINGS,
 }: SelectBookingDialogProps) {
   const { t } = useSocialsTranslation()
   const [selectedIds, setSelectedIds] = useState<Set<string>>(
@@ -92,6 +94,8 @@ export default function SelectBookingDialog({
           const fetched = filtered.map((bItem: unknown) => {
             const booking = bItem as Record<string, unknown> & {
               id?: string
+              totalAmount?: number
+              price?: number
               center?: { name?: string; address?: string }
               court?: { centerName?: string; name?: string }
               centerName?: string
@@ -116,7 +120,7 @@ export default function SelectBookingDialog({
               location: booking.location || booking.center?.address,
               startTime: timeRange.startTime,
               endTime: timeRange.endTime,
-              price: booking.totalAmount || booking.price,
+              price: booking.totalAmount ?? booking.price,
             }
           })
           setAvailableList((prevList) => {
@@ -137,7 +141,7 @@ export default function SelectBookingDialog({
     return () => {
       isMounted = false
     }
-  }, [open, centerId, currentBookingIds, availableBookings])
+  }, [open, centerId])
 
   const toggleBooking = (id: string) => {
     setSelectedIds((prev) => {

@@ -22,7 +22,8 @@
     "approveError": "Failed to approve participant",
     "noSkillLevelLimit": "No skill level limit",
     "kick": "Remove participant",
-    "approve": "Approve"
+    "approve": "Approve",
+    "endedBanner": "This social has ended. New registrations and invitations are no longer available."
   },
   "playSessionOverview": {
     "minutes": "Minutes",

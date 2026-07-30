@@ -1,5 +1,6 @@
 "use client"
 
+import type { TFunction } from "i18next"
 import {
   Activity,
   CheckCircle2,
@@ -15,6 +16,7 @@ import { toast } from "sonner"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { startPlaySession } from "@/features/socials/actions/play-session"
 import {
   finishRoundAction,
   listRoundsAction,
@@ -22,13 +24,14 @@ import {
 } from "@/features/socials/actions/round-actions"
 import type {
   MatchParticipant,
+  PlaySessionCardMatch,
   PlaySessionRound,
 } from "@/features/socials/types/match"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import MatchCard from "./match-card"
 
-type MatchItem = Parameters<typeof MatchCard>[0]["match"] & {
+type MatchItem = PlaySessionCardMatch & {
   roundNumber?: number
 }
 
@@ -36,14 +39,20 @@ function normalizeMatchItem(
   rawMatch: unknown,
   matchIndexInRound?: number,
   waitingParticipants?: MatchParticipant[],
-  tFn?: (key: string, options?: unknown) => string
+  tFn?: TFunction<"socials">
 ): MatchItem {
   if (!rawMatch || typeof rawMatch !== "object") return rawMatch as MatchItem
   const matchObj = rawMatch as Record<string, unknown>
 
   const pMap = new Map<
     string,
-    { fullName: string; avatarUrl: string | null; gender?: string }
+    {
+      fullName: string
+      avatarUrl: string | null
+      gender?: string
+      selfRating?: number | null
+      duprRating?: number | null
+    }
   >()
   if (Array.isArray(waitingParticipants)) {
     waitingParticipants.forEach((wp: unknown) => {
@@ -53,8 +62,25 @@ function normalizeMatchItem(
           name?: string
           avatarUrl?: string
           gender?: string
+          selfRating?: number | null
+          dupr?: {
+            rating?: number | null
+          } | null
         }
+        selfRating?: number | null
+        duprRating?: number | null
+        dupr?: {
+          rating?: number | null
+        } | null
       }
+      const duprRating =
+        (pItem.duprRating as number | null) ??
+        (pItem.user?.dupr?.rating as number | null) ??
+        ((pItem.dupr as { rating?: number | null } | null)?.rating as
+          | number
+          | null) ??
+        null
+
       const info = {
         fullName:
           pItem.user?.fullName ||
@@ -64,6 +90,9 @@ function normalizeMatchItem(
           "Player",
         avatarUrl: pItem.user?.avatarUrl || (pItem.avatarUrl as string) || null,
         gender: pItem.user?.gender || (pItem.gender as string),
+        selfRating:
+          (pItem.selfRating as number | null) ?? pItem.user?.selfRating ?? null,
+        duprRating,
       }
       if (pItem.participantId) pMap.set(pItem.participantId as string, info)
       if (pItem.userId) pMap.set(pItem.userId as string, info)
@@ -91,13 +120,35 @@ function normalizeMatchItem(
         name?: string
         avatarUrl?: string
         gender?: string
+        selfRating?: number | null
+        dupr?: {
+          rating?: number | null
+        } | null
       }
+      selfRating?: number | null
+      duprRating?: number | null
+      dupr?: {
+        rating?: number | null
+      } | null
     }
     const pId = (playerObj.id ||
       playerObj.participantId ||
       playerObj.userId ||
       "") as string
     const found = pMap.get(pId)
+    const selfRating =
+      (playerObj.selfRating as number | null) ??
+      playerObj.user?.selfRating ??
+      found?.selfRating ??
+      null
+    const duprRating =
+      (playerObj.duprRating as number | null) ??
+      (playerObj.user?.dupr?.rating as number | null) ??
+      ((playerObj.dupr as { rating?: number | null } | null)?.rating as
+        | number
+        | null) ??
+      found?.duprRating ??
+      null
 
     return {
       id: pId,
@@ -108,21 +159,33 @@ function normalizeMatchItem(
         playerObj.user?.name ||
         found?.fullName ||
         "Player",
+      avatar:
+        (playerObj.avatar as string) ||
+        (playerObj.avatarUrl as string) ||
+        playerObj.user?.avatarUrl ||
+        found?.avatarUrl ||
+        null,
       avatarUrl:
         (playerObj.avatarUrl as string) ||
+        (playerObj.avatar as string) ||
         playerObj.user?.avatarUrl ||
         found?.avatarUrl ||
         null,
       gender:
         (playerObj.gender as string) || playerObj.user?.gender || found?.gender,
+      selfRating,
+      duprRating,
     }
   }
 
   const team1Players = rawTeamA.map(parsePlayerObj).filter(Boolean)
   const team2Players = rawTeamB.map(parsePlayerObj).filter(Boolean)
 
+  const court = matchObj.court as { name?: string } | undefined
+
   const resolvedCourtName =
-    (matchObj.courtName as string) ||
+    court?.name ??
+    (matchObj.courtName as string) ??
     (matchObj.courtNumber ? `Sân ${matchObj.courtNumber}` : "Sân thi đấu")
 
   const matchLabel =
@@ -135,32 +198,47 @@ function normalizeMatchItem(
 
   if (matchObj.team1 || matchObj.team2) {
     return {
-      ...(matchObj as MatchItem),
+      ...(matchObj as unknown as MatchItem),
       matchLabel: (matchObj.matchLabel as string) || matchLabel,
       courtName: (matchObj.courtName as string) || resolvedCourtName,
     }
   }
+
+  const startTime = ((matchObj.startedAt as string | null) ||
+    (matchObj.startTime as string | null) ||
+    (matchObj.scheduledAt as string | null) ||
+    null) as string | null
+
+  const endTime = ((matchObj.finishedAt as string | null) ||
+    (matchObj.completedAt as string | null) ||
+    (matchObj.endTime as string | null) ||
+    null) as string | null
 
   return {
     id: (matchObj.id as string) || `match-${Math.random()}`,
     roundNumber: matchObj.roundNumber as number | undefined,
     matchLabel,
     courtName: resolvedCourtName,
-    completedAt: rawMatch.completedAt,
-    refereeId: rawMatch.refereeId || null,
-    winner: rawMatch.winner,
+    status: (matchObj.status as string) || undefined,
+    startTime,
+    endTime,
+    startedAt: (matchObj.startedAt as string) || null,
+    scheduledAt: (matchObj.scheduledAt as string) || null,
+    completedAt: (matchObj.completedAt as string) || null,
+    refereeId: (matchObj.refereeId as string) || null,
+    winner: matchObj.winner,
     score:
-      rawMatch.score ||
-      (rawMatch.scoreA !== undefined && rawMatch.scoreB !== undefined
-        ? { team1Score: rawMatch.scoreA, team2Score: rawMatch.scoreB }
+      matchObj.score ||
+      (matchObj.scoreA !== undefined && matchObj.scoreB !== undefined
+        ? { team1Score: matchObj.scoreA, team2Score: matchObj.scoreB }
         : undefined),
     team1: {
-      player1: parsePlayerObj(rawTeamA[0]),
-      player2: parsePlayerObj(rawTeamA[1]),
+      player1: team1Players[0],
+      player2: team1Players[1],
     },
     team2: {
-      player1: parsePlayerObj(rawTeamB[0]),
-      player2: parsePlayerObj(rawTeamB[1]),
+      player1: team2Players[0],
+      player2: team2Players[1],
     },
   } as unknown as MatchItem
 }
@@ -182,9 +260,33 @@ export default function PlaySessionMatches({
   const router = useRouter()
 
   const [rounds, setRounds] = useState<PlaySessionRound[]>([])
+
   const [isLoadingRounds, setIsLoadingRounds] = useState(() =>
     Boolean(socialId && sessionId)
   )
+  const [isStartingSession, setIsStartingSession] = useState(false)
+
+  const sessionStarted = useMemo(() => {
+    if (
+      rounds.some(
+        (round) =>
+          round.status === "IN_PROGRESS" || round.status === "COMPLETED"
+      )
+    ) {
+      return true
+    }
+
+    return matches.some(
+      (match) =>
+        match.status === "LIVE" ||
+        match.status === "IN_PROGRESS" ||
+        !!match.startedAt ||
+        match.status === "CONFIRMED"
+    )
+  }, [matches, rounds])
+
+  const [executingRoundId, setExecutingRoundId] = useState<string | null>(null)
+
   const fetchRounds = React.useCallback(async () => {
     if (!socialId || !sessionId) return
     const data = await listRoundsAction(socialId, sessionId)
@@ -238,6 +340,22 @@ export default function PlaySessionMatches({
     }
   }
 
+  const handleStartSession = async () => {
+    if (!socialId || !sessionId) return
+
+    setIsStartingSession(true)
+    try {
+      await startPlaySession(socialId, sessionId)
+      toast.success(t("sessions.startSuccess"))
+      await fetchRounds()
+      router.refresh()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t("common.actionFailed"))
+    } finally {
+      setIsStartingSession(false)
+    }
+  }
+
   // Filter out empty rounds that do not have any matches or waiting participants
   const validRounds = useMemo(() => {
     const rawRounds: PlaySessionRound[] =
@@ -283,14 +401,33 @@ export default function PlaySessionMatches({
           {t("matches.title")}
         </h3>
         {isHost && (
-          <Button
-            size="sm"
-            onClick={onCreateMatch}
-            className="gap-2 bg-emerald-600 font-semibold text-white shadow-xs hover:bg-emerald-700"
-          >
-            <Plus className="size-4" />
-            {t("matches.createMatch")}
-          </Button>
+          <div className="flex items-center gap-2">
+            {!sessionStarted && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleStartSession}
+                disabled={isStartingSession || isLoadingRounds}
+                className="gap-2"
+              >
+                {isStartingSession ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Play className="size-4" />
+                )}
+                {t("sessions.startSession")}
+              </Button>
+            )}
+            <Button
+              size="sm"
+              onClick={onCreateMatch}
+              disabled={!sessionStarted}
+              className="gap-2 bg-emerald-600 font-semibold text-white shadow-xs hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Plus className="size-4" />
+              {t("matches.createMatch")}
+            </Button>
+          </div>
         )}
       </div>
 

@@ -244,6 +244,17 @@ export interface ListPlaySessionMatchesResponse {
   }
 }
 
+export interface PlaySessionCardPlayer {
+  id: string
+  name: string
+  avatar?: string | null
+  avatarUrl?: string | null
+  fullName?: string | null
+  selfRating?: number | null
+  duprRating?: number | null
+  gender?: string | null
+}
+
 export interface PlaySessionCardMatch {
   id: string
   playSessionId: string | null
@@ -256,12 +267,12 @@ export interface PlaySessionCardMatch {
   startedAt?: string | null
   scheduledAt?: string | null
   team1: {
-    player1: { id: string; name: string; avatar?: string | null } | null
-    player2?: { id: string; name: string; avatar?: string | null } | null
+    player1: PlaySessionCardPlayer | null
+    player2?: PlaySessionCardPlayer | null
   }
   team2: {
-    player1: { id: string; name: string; avatar?: string | null } | null
-    player2?: { id: string; name: string; avatar?: string | null } | null
+    player1: PlaySessionCardPlayer | null
+    player2?: PlaySessionCardPlayer | null
   }
   score?: {
     team1Score: number

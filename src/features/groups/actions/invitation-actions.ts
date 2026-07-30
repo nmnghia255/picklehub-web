@@ -143,22 +143,90 @@ export async function acceptInvitationAction(
   token: string
 ): Promise<AcceptInvitationActionState> {
   try {
+    const session = await getSession()
+    const headers: Record<string, string> = {}
+    if (session?.accessToken) {
+      headers["Authorization"] = `Bearer ${session.accessToken}`
+    }
+
     const response = await axios.post(
-      `${API_BASE_URL}/api/invitations/${token}/accept`
+      `${API_BASE_URL}/api/invitations/${token}/accept`,
+      {},
+      { headers }
     )
     const { accessToken, refreshToken, isNewUser, user, group, expiresIn } =
-      response.data as AcceptInvitationResponse & { expiresIn?: number }
-    const session = await getSession()
-    session.user = { id: user.id, email: user.email }
-    session.accessToken = accessToken
-    session.refreshToken = refreshToken
-    session.accessTokenExpiresAt = Date.now() + (expiresIn ?? 900) * 1000
-    await session.save()
-    return { success: true, isNewUser, groupId: group.id }
+      (response.data ?? {}) as Partial<AcceptInvitationResponse> & {
+        expiresIn?: number
+      }
+
+    if (accessToken && refreshToken && user) {
+      session.user = { id: user.id, email: user.email }
+      session.accessToken = accessToken
+      session.refreshToken = refreshToken
+      session.accessTokenExpiresAt = Date.now() + (expiresIn ?? 900) * 1000
+      await session.save()
+    }
+
+    return { success: true, isNewUser, groupId: group?.id ?? "" }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
         error: error.response?.data?.message || "errors.acceptInvitationFailed",
+      }
+    }
+    return { error: "errors.defaultError" }
+  }
+}
+
+export async function acceptGroupInvitationAction(
+  groupId: string,
+  invitationId: string
+) {
+  try {
+    const session = await getSession()
+    const response = await axios.post(
+      `${API_BASE_URL}/api/invitations/${invitationId}/accept`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+      }
+    )
+    revalidatePath(`/groups/${groupId}`)
+    return { success: true, data: response.data }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        error: error.response?.data?.message || "errors.acceptInvitationFailed",
+      }
+    }
+    return { error: "errors.defaultError" }
+  }
+}
+
+export async function declineGroupInvitationAction(
+  groupId: string,
+  invitationId: string
+) {
+  try {
+    const session = await getSession()
+    const response = await axios.post(
+      `${API_BASE_URL}/api/invitations/${invitationId}/decline`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+      }
+    )
+    revalidatePath("/notifications")
+    return { success: true, data: response.data }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        error:
+          error.response?.data?.message || "errors.declineInvitationFailed",
       }
     }
     return { error: "errors.defaultError" }

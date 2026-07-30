@@ -1,16 +1,14 @@
 "use client"
 
-import { differenceInMinutes, format } from "date-fns"
-import { Loader2, Play, Trophy } from "lucide-react"
+import { format } from "date-fns"
+import { Trophy } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useSession } from "@/features/auth/hooks/use-session"
-import { startMatchAction } from "@/features/socials/actions/suggested-matches"
 import type { PlaySessionCardMatch } from "@/features/socials/types/match"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
@@ -33,23 +31,7 @@ export default function MatchCard({
   const { t } = useSocialsTranslation()
   const router = useRouter()
   const [isResultDialogOpen, setIsResultDialogOpen] = useState(false)
-  const [isStarting, setIsStarting] = useState(false)
   const session = useSession()
-
-  const handleStartMatch = async () => {
-    setIsStarting(true)
-    try {
-      await startMatchAction(match.id)
-      toast.success(t("matches.startSuccess"))
-      router.refresh()
-    } catch (error) {
-      console.error("Error starting match:", error)
-      const message = error instanceof Error ? error.message : ""
-      toast.error(message || t("matches.startError"))
-    } finally {
-      setIsStarting(false)
-    }
-  }
 
   const currentUserId = session?.user?.id
   const isPlayer = !!(
@@ -62,6 +44,7 @@ export default function MatchCard({
   const isReferee = !!(currentUserId && match.refereeId === currentUserId)
   const canUpdateResult = isPlayer || isReferee || isHost
 
+  const isConfirmed = match.status === "CONFIRMED"
   const isCompleted =
     !!completed || !!match.winner || !!(match.sets && match.sets.length > 0)
   const isInProgress =
@@ -72,26 +55,18 @@ export default function MatchCard({
   const isScheduled = !isCompleted && !isInProgress
 
   const getTimingText = () => {
-    if (isCompleted && match.startTime && match.endTime) {
-      const start = format(new Date(match.startTime), "h:mm a")
-      const end = format(new Date(match.endTime), "h:mm a")
-      const mins = differenceInMinutes(
-        new Date(match.endTime),
-        new Date(match.startTime)
-      )
-      return `${start} - ${end} • ${t("matches.minutes", { count: mins })}`
-    }
+    const startTimeValue =
+      match.startTime || match.startedAt || match.scheduledAt
 
-    if (match.startTime) {
-      const timeStr = format(new Date(match.startTime), "h:mm a")
-      if (isInProgress) {
-        return t("matches.startedAt", { time: timeStr })
-      }
-      return t("matches.scheduledFor", { time: timeStr })
-    }
+    if (!startTimeValue) return ""
 
-    return ""
+    const start = format(new Date(startTimeValue), "HH:mm")
+    return `${t("matches.startedAt", { time: start })}`
   }
+
+  const hasTiming = Boolean(
+    match.startTime || match.startedAt || match.scheduledAt
+  )
 
   return (
     <Card
@@ -168,7 +143,7 @@ export default function MatchCard({
           </div>
         </div>
 
-        {(match.startTime ||
+        {(hasTiming ||
           match.courtName ||
           (canUpdateResult && (isScheduled || isInProgress))) && (
           <div className="flex items-center justify-between gap-4 border-t pt-3">
@@ -185,13 +160,12 @@ export default function MatchCard({
               {match.startTime && <span>{getTimingText()}</span>}
             </div>
 
-            {canUpdateResult && isRoundStarted && (
+            {canUpdateResult && isRoundStarted && !isConfirmed && (
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setIsResultDialogOpen(true)}
-                  disabled={isStarting}
                 >
                   {isCompleted
                     ? t("matches.updateResult", "Cập Nhật Tỷ Số")

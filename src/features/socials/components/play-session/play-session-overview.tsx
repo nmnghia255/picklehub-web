@@ -32,6 +32,7 @@ import {
   isFullPlaySession,
   isInProgressPlaySessionStatus,
   isOpenPlaySessionStatus,
+  isSessionExpired,
 } from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 import { formatCurrencyVnd } from "@/utils/expense-utils"
@@ -137,12 +138,13 @@ export default function PlaySessionOverview({
     (p) =>
       p.userId === currentUserId && isActiveSocialParticipantStatus(p.status)
   )
-  const canJoin = canJoinPlaySession(
-    session.status,
-    session.joinedCount,
-    session.maxSlot,
-    isParticipant
-  )
+  const canJoin =
+    canJoinPlaySession(
+      session.status,
+      session.joinedCount,
+      session.maxSlot,
+      isParticipant
+    ) && !isSessionExpired(session)
   const canLeave = canLeavePlaySession(session.status, isParticipant)
   const isFull = isFullPlaySession(
     session.status,

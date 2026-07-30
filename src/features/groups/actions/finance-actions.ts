@@ -124,8 +124,8 @@ export async function createExpenseAction(
     const totalAmount = Number(
       formData.get("totalAmount")?.toString().trim() ?? "0"
     )
-    if (isNaN(totalAmount) || totalAmount <= 0) {
-      return { error: "errors.invalidTotalAmount" }
+    if (isNaN(totalAmount) || totalAmount < 1000) {
+      return { error: "errors.invalidTotalAmountMin" }
     }
 
     const expenseDate = formData.get("expenseDate")?.toString().trim()
@@ -186,6 +186,12 @@ export async function updateExpenseAction(
     const description = formData.get("description")?.toString().trim()
     const totalAmountRaw = formData.get("totalAmount")?.toString().trim()
     const totalAmount = totalAmountRaw ? Number(totalAmountRaw) : undefined
+    if (
+      totalAmount !== undefined &&
+      (isNaN(totalAmount) || totalAmount < 1000)
+    ) {
+      return { error: "errors.invalidTotalAmountMin" }
+    }
     const expenseDate = formData.get("expenseDate")?.toString().trim()
 
     const allocationsRaw = formData.get("allocations")?.toString() || ""

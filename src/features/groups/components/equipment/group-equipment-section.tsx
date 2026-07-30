@@ -148,6 +148,12 @@ function formatCurrency(value?: number | null) {
   return formatCurrencyVnd(value)
 }
 
+function formatVndString(val: string) {
+  const digits = val.replace(/\D/g, "")
+  if (!digits) return ""
+  return new Intl.NumberFormat("vi-VN").format(Number(digits))
+}
+
 function formatDate(value?: string | null) {
   if (!value) return "-"
   const date = new Date(value)
@@ -205,7 +211,9 @@ function EquipmentFormDialog({
   const [description, setDescription] = useState(editingItem?.description ?? "")
   const [quantity, setQuantity] = useState(String(editingItem?.quantity ?? ""))
   const [purchaseCost, setPurchaseCost] = useState(
-    String(editingItem?.purchaseCost ?? "")
+    editingItem?.purchaseCost
+      ? formatVndString(editingItem.purchaseCost.toString())
+      : ""
   )
   const [purchasedAt, setPurchasedAt] = useState(
     getLocalDateString(editingItem?.purchasedAt)
@@ -297,11 +305,11 @@ function EquipmentFormDialog({
         )
       }
 
-      const cost = Number(purchaseCost)
-      if (!purchaseCost || !Number.isFinite(cost) || cost < 0) {
+      const cost = Number(purchaseCost.replace(/\D/g, ""))
+      if (!purchaseCost || !Number.isFinite(cost) || cost < 1000) {
         newErrors.purchaseCost = t(
-          "equipment.errors.purchaseCostInvalid",
-          "Chi phí mua không hợp lệ"
+          "equipment.errors.purchaseCostMin",
+          "Chi phí mua phải từ 1.000 VNĐ trở lên"
         )
       }
     }
@@ -329,7 +337,7 @@ function EquipmentFormDialog({
       const payload: CreateEquipmentInput = {
         name: name.trim(),
         quantity: Number(quantity),
-        purchaseCost: Number(purchaseCost),
+        purchaseCost: Number(purchaseCost.replace(/\D/g, "")),
       }
       if (description) payload.description = description
       if (purchasedAt) payload.purchasedAt = purchasedAt
@@ -379,7 +387,9 @@ function EquipmentFormDialog({
                     setQuantity(String(template.defaultQuantity))
                   }
                   if (template.defaultCost) {
-                    setPurchaseCost(String(template.defaultCost))
+                    setPurchaseCost(
+                      formatVndString(String(template.defaultCost))
+                    )
                   }
                   if (template.defaultCondition) {
                     setCondition(template.defaultCondition)
@@ -454,14 +464,15 @@ function EquipmentFormDialog({
                       <span className="text-destructive">*</span>
                     </label>
                     <input
-                      type="number"
+                      type="text"
                       className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
                       value={purchaseCost}
-                      onChange={(e) => setPurchaseCost(e.target.value)}
-                      min={0}
+                      onChange={(e) =>
+                        setPurchaseCost(formatVndString(e.target.value))
+                      }
                       placeholder={t(
                         "equipment.purchaseCostPlaceholder",
-                        "VD: 180000"
+                        "VD: 180.000"
                       )}
                     />
                     {errors.purchaseCost && (
@@ -834,7 +845,13 @@ function LogUsageDialog({
                 className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
                 value={usedAt}
                 onChange={(e) => setUsedAt(e.target.value)}
-                max={new Date().toISOString().split("T")[0]}
+                max={(() => {
+                  const d = new Date()
+                  const year = d.getFullYear()
+                  const month = String(d.getMonth() + 1).padStart(2, "0")
+                  const day = String(d.getDate()).padStart(2, "0")
+                  return `${year}-${month}-${day}`
+                })()}
               />
             </div>
           </div>
@@ -1784,11 +1801,11 @@ function FavoriteFormDialog({
     }
 
     if (purchaseCost) {
-      const cost = Number(purchaseCost)
-      if (Number.isNaN(cost) || cost < 0) {
+      const cost = Number(purchaseCost.replace(/\D/g, ""))
+      if (Number.isNaN(cost) || cost < 1000) {
         newErrors.purchaseCost = t(
-          "equipment.errors.purchaseCostInvalid",
-          "Chi phí không hợp lệ"
+          "equipment.errors.purchaseCostMin",
+          "Chi phí mua phải từ 1.000 VNĐ trở lên"
         )
       }
     }
@@ -1804,7 +1821,9 @@ function FavoriteFormDialog({
     updateMutation.mutate({
       name: name.trim(),
       defaultQuantity: quantity ? Number(quantity) : undefined,
-      defaultCost: purchaseCost ? Number(purchaseCost) : undefined,
+      defaultCost: purchaseCost
+        ? Number(purchaseCost.replace(/\D/g, ""))
+        : undefined,
       defaultCondition:
         condition as UpdateEquipmentFavoriteInput["defaultCondition"],
     })
@@ -1870,11 +1889,12 @@ function FavoriteFormDialog({
                   {t("equipment.defaultCost", "Chi phí mặc định")}
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
                   value={purchaseCost}
-                  onChange={(e) => setPurchaseCost(e.target.value)}
-                  min={0}
+                  onChange={(e) =>
+                    setPurchaseCost(formatVndString(e.target.value))
+                  }
                 />
                 {errors.purchaseCost && (
                   <p className="text-xs text-destructive">

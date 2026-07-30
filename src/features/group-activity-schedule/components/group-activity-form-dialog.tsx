@@ -77,6 +77,7 @@ const formatBookingDate = (dateStr?: string) => {
 
 const formatBookingDateForInput = (dateStr?: string) => {
   if (!dateStr) return ""
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr
   try {
     const date = new Date(dateStr)
     if (isNaN(date.getTime())) return dateStr
@@ -86,11 +87,25 @@ const formatBookingDateForInput = (dateStr?: string) => {
   }
 }
 
+const TIME_OPTIONS_24H = Array.from({ length: 48 }, (_, i) => {
+  const hours = String(Math.floor(i / 2)).padStart(2, "0")
+  const minutes = i % 2 === 0 ? "00" : "30"
+  return `${hours}:${minutes}`
+})
+
+const getTimeOptions = (currentTime?: string) => {
+  if (currentTime && !TIME_OPTIONS_24H.includes(currentTime)) {
+    return [...TIME_OPTIONS_24H, currentTime].sort()
+  }
+  return TIME_OPTIONS_24H
+}
+
 interface GroupActivityFormDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   editingEvent: GroupActivity | null
   activeGroupId: string
+  initialDate?: string | null
   onCreate: (payload: CreateGroupActivityDto) => void
   onUpdate: (activityId: string, payload: UpdateGroupActivityDto) => void
   isSubmitting?: boolean
@@ -100,8 +115,8 @@ const defaultValues: EventFormValues = {
   title: "",
   activityType: "PRACTICE",
   date: new Date().toISOString().split("T")[0],
-  startTime: "19:00",
-  endTime: "21:00",
+  startTime: "18:00",
+  endTime: "20:00",
   location: "",
   description: "",
   status: "SCHEDULED",
@@ -113,6 +128,7 @@ export function GroupActivityFormDialog({
   onOpenChange,
   editingEvent,
   activeGroupId,
+  initialDate,
   onCreate,
   onUpdate,
   isSubmitting = false,
@@ -187,8 +203,13 @@ export function GroupActivityFormDialog({
       }
     }
 
-    return defaultValues
-  }, [editingEvent])
+    return {
+      ...defaultValues,
+      date: initialDate || defaultValues.date,
+      startTime: "18:00",
+      endTime: "20:00",
+    }
+  }, [editingEvent, initialDate])
 
   const dialogTitle = useMemo(
     () =>
@@ -267,6 +288,23 @@ function GroupActivityFormFields({
     Partial<Record<keyof EventFormValues, string>>
   >({})
 
+  const filteredCourtBookings = useMemo(() => {
+    if (!values.date) return courtBookings
+
+    return courtBookings.filter((b) => {
+      if (
+        values.courtBookingId &&
+        (b.id === values.courtBookingId ||
+          b.bookingId === values.courtBookingId)
+      ) {
+        return true
+      }
+
+      const bookingDateStr = formatBookingDateForInput(b.date || b.startTime)
+      return bookingDateStr === values.date
+    })
+  }, [courtBookings, values.date, values.courtBookingId])
+
   const handleChange = <K extends keyof EventFormValues>(
     key: K,
     value: EventFormValues[K]
@@ -315,6 +353,30 @@ function GroupActivityFormFields({
         "activitySchedule.formValidationTimeOrder",
         "Giờ kết thúc phải sau giờ bắt đầu"
       )
+    }
+
+    if (values.date && values.startTime) {
+      const { startAt } = buildEventDateRange(
+        values.date,
+        values.startTime,
+        values.endTime
+      )
+      const startTimeMs = new Date(startAt).getTime()
+
+      let isTimeUnchanged = false
+      if (editingEvent) {
+        const origStart = new Date(editingEvent.startAt).getTime()
+        if (Math.abs(startTimeMs - origStart) < 1000) {
+          isTimeUnchanged = true
+        }
+      }
+
+      if (!isTimeUnchanged && startTimeMs <= Date.now()) {
+        nextErrors.startTime = t(
+          "activitySchedule.formValidationStartTimeFuture",
+          "Thời gian bắt đầu hoạt động phải nằm trong tương lai"
+        )
+      }
     }
 
     if (!values.location.trim()) {
@@ -492,13 +554,18 @@ function GroupActivityFormFields({
                 />
               </SelectTrigger>
               <SelectContent>
-                {courtBookings.length === 0 ? (
+                {filteredCourtBookings.length === 0 ? (
                   <SelectItem
                     value="none"
                     disabled
                     className="text-xs text-muted-foreground"
                   >
-                    {t("activitySchedule.formLinkBookingEmpty")}
+                    {values.date
+                      ? t(
+                          "activitySchedule.formLinkBookingEmptyForDate",
+                          "Không có lịch đặt sân nhóm nào trong ngày đã chọn"
+                        )
+                      : t("activitySchedule.formLinkBookingEmpty")}
                   </SelectItem>
                 ) : (
                   <>
@@ -508,7 +575,7 @@ function GroupActivityFormFields({
                         "Không liên kết"
                       )}
                     </SelectItem>
-                    {courtBookings.map((b) => (
+                    {filteredCourtBookings.map((b) => (
                       <SelectItem key={b.id} value={b.id} className="text-xs">
                         {b.centerName} - {formatBookingDate(b.date)} (
                         {formatBookingTime(b.startTime)} -{" "}
@@ -540,13 +607,21 @@ function GroupActivityFormFields({
               {t("activitySchedule.formStartTime")}{" "}
               <span className="text-rose-500">*</span>
             </FieldLabel>
-            <Input
-              type="time"
+            <Select
               value={values.startTime}
-              onChange={(event) =>
-                handleChange("startTime", event.target.value)
-              }
-            />
+              onValueChange={(val) => handleChange("startTime", val)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="--:--" />
+              </SelectTrigger>
+              <SelectContent className="max-h-60 overflow-y-auto">
+                {getTimeOptions(values.startTime).map((time) => (
+                  <SelectItem key={time} value={time}>
+                    {time}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FieldError>{errors.startTime}</FieldError>
           </Field>
           <Field>
@@ -554,11 +629,21 @@ function GroupActivityFormFields({
               {t("activitySchedule.formEndTime")}{" "}
               <span className="text-rose-500">*</span>
             </FieldLabel>
-            <Input
-              type="time"
+            <Select
               value={values.endTime}
-              onChange={(event) => handleChange("endTime", event.target.value)}
-            />
+              onValueChange={(val) => handleChange("endTime", val)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="--:--" />
+              </SelectTrigger>
+              <SelectContent className="max-h-60 overflow-y-auto">
+                {getTimeOptions(values.endTime).map((time) => (
+                  <SelectItem key={time} value={time}>
+                    {time}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FieldError>{errors.endTime}</FieldError>
           </Field>
         </div>

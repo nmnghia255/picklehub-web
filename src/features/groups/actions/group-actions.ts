@@ -7,16 +7,25 @@ import { uploadFinanceReceiptFile } from "@/features/groups/api/finance-service"
 import {
   archiveGroup,
   createGroup,
+  getMyGroups,
   restoreGroup,
   updateGroup,
 } from "@/features/groups/api/groups-service"
 
 import { addGroupSchema } from "../schemas"
-import type { UpdateGroupInput } from "../types"
+import type { Group, UpdateGroupInput } from "../types"
 
 export interface GroupActionState {
   error?: string
   success?: boolean
+}
+
+export async function getMyGroupsAction(): Promise<Group[]> {
+  try {
+    return await getMyGroups()
+  } catch {
+    return []
+  }
 }
 
 export async function addGroupAction(

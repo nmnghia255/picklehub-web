@@ -22,7 +22,8 @@
         "approveSuccess": "Đã duyệt người tham gia",
         "approveError": "Lỗi khi duyệt người tham gia",
         "kick": "Đá người tham gia",
-        "approve": "Duyệt"
+        "approve": "Duyệt",
+        "endedBanner": "Buổi giao lưu này đã kết thúc. Đăng ký mới và gửi lời mời hiện không còn khả dụng."
     },
     "playSessionOverview": {
         "minutes": "Phút",

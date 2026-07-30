@@ -83,6 +83,7 @@ export default function SocialBookingTab({
       .finally(() => {
         if (isMounted) setIsLoadingBookings(false)
       })
+
     return () => {
       isMounted = false
     }

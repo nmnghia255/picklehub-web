@@ -31,6 +31,7 @@ interface SocialHeaderProps {
   isHost: boolean
   isEditable: boolean
   isParticipant?: boolean
+  isExpired?: boolean
   onBack: () => void
   onEdit: () => void
 }
@@ -42,6 +43,7 @@ export default function SocialHeader({
   isHost,
   isEditable,
   isParticipant,
+  isExpired,
   onBack,
   onEdit,
 }: SocialHeaderProps) {
@@ -54,8 +56,11 @@ export default function SocialHeader({
           <div className="space-y-3">
             <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
             <div className="flex flex-wrap gap-2">
-              <Badge className={getStatusClasses(status)} variant="outline">
-                {getStatusLabel(status, t)}
+              <Badge
+                className={getStatusClasses(status, isExpired)}
+                variant="outline"
+              >
+                {getStatusLabel(status, t, isExpired)}
               </Badge>
               <Badge variant="outline" className="gap-1">
                 {getFormatIcon(format)}

@@ -38,6 +38,7 @@
     "draft": "Draft",
     "scheduled": "Scheduled",
     "inProgress": "In progress",
+    "ended": "Ended",
     "mixed": "Mixed",
     "menOnly": "Men Only",
     "womenOnly": "Women Only",

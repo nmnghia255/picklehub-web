@@ -100,6 +100,12 @@ function formatCurrency(value?: string | number | null) {
   return formatCurrencyVnd(numericValue)
 }
 
+function formatVndString(val: string) {
+  const digits = val.replace(/\D/g, "")
+  if (!digits) return ""
+  return new Intl.NumberFormat("vi-VN").format(Number(digits))
+}
+
 function getInitials(name: string) {
   const words = name.trim().split(/\s+/).filter(Boolean)
   if (!words.length) return "TV"
@@ -296,6 +302,7 @@ function TransactionForm({
     createTransactionAction.bind(null, groupId),
     {}
   )
+  const [txAmount, setTxAmount] = useState("")
 
   useToastState(
     state,
@@ -311,7 +318,18 @@ function TransactionForm({
             <FieldLabel htmlFor="tx-amount">
               {t("finance.paymentAmount", "Số tiền thanh toán")}
             </FieldLabel>
-            <Input id="tx-amount" name="amount" type="number" required />
+            <Input
+              id="tx-amount"
+              type="text"
+              value={txAmount}
+              onChange={(e) => setTxAmount(formatVndString(e.target.value))}
+              required
+            />
+            <input
+              type="hidden"
+              name="amount"
+              value={txAmount.replace(/\D/g, "")}
+            />
           </Field>
           <Field>
             <FieldLabel htmlFor="tx-receipt-file">
@@ -395,7 +413,7 @@ function ExpenseForm({
     Record<string, string>
   >({})
   const [totalAmount, setTotalAmount] = useState<string>(
-    expense?.totalAmount?.toString() ?? ""
+    expense?.totalAmount ? formatVndString(expense.totalAmount.toString()) : ""
   )
   const [selectedActivityId, setSelectedActivityId] = useState(
     expense?.activityId || ""
@@ -486,13 +504,13 @@ function ExpenseForm({
         expense.allocations.forEach((a) => {
           newSelected[a.userId] = true
           const personal = a.requiredFee - (a.guestFee ?? 0)
-          newFees[a.userId] = personal.toString()
+          newFees[a.userId] = formatVndString(personal.toString())
           newGuestCounts[a.userId] = (a.guestCount ?? 0).toString()
           const gUnitPrice =
             a.guestCount && a.guestCount > 0 && a.guestFee
               ? Math.floor(a.guestFee / a.guestCount)
               : 0
-          newGuestUnitPrices[a.userId] = gUnitPrice.toString()
+          newGuestUnitPrices[a.userId] = formatVndString(gUnitPrice.toString())
         })
         setSelectedMap(newSelected)
         setFeeMap(newFees)
@@ -568,9 +586,11 @@ function ExpenseForm({
       resolvedMembers
         .filter((m) => selectedMap[m.userId])
         .map((m) => {
-          const personal = Number(feeMap[m.userId] || 0)
+          const personal = Number((feeMap[m.userId] || "0").replace(/\D/g, ""))
           const gCount = Number(guestCountMap[m.userId] || 0)
-          const gUnitPrice = Number(guestUnitPriceMap[m.userId] || 0)
+          const gUnitPrice = Number(
+            (guestUnitPriceMap[m.userId] || "0").replace(/\D/g, "")
+          )
           const totalGuestFee = gCount * gUnitPrice
 
           return {
@@ -587,7 +607,7 @@ function ExpenseForm({
     () => allocations.reduce((sum, a) => sum + a.requiredFee, 0),
     [allocations]
   )
-  const totalAmountNum = Number(totalAmount)
+  const totalAmountNum = Number(totalAmount.replace(/\D/g, ""))
 
   return (
     <form action={formAction}>
@@ -695,12 +715,26 @@ function ExpenseForm({
               </FieldLabel>
               <Input
                 id="expense-amount"
-                name="totalAmount"
-                type="number"
+                type="text"
                 value={totalAmount}
-                onChange={(e) => setTotalAmount(e.target.value)}
+                onChange={(e) =>
+                  setTotalAmount(formatVndString(e.target.value))
+                }
                 required
               />
+              <input
+                type="hidden"
+                name="totalAmount"
+                value={totalAmount.replace(/\D/g, "")}
+              />
+              {totalAmountNum > 0 && totalAmountNum < 1000 && (
+                <p className="mt-1 text-xs text-rose-500">
+                  {t(
+                    "errors.invalidTotalAmountMin",
+                    "Tổng số tiền phải từ 1.000 VNĐ trở lên."
+                  )}
+                </p>
+              )}
             </Field>
             <Field>
               <FieldLabel>{t("finance.expenseDate", "Ngày chi")}</FieldLabel>
@@ -837,14 +871,16 @@ function ExpenseForm({
                               {t("finance.memberFee", "Phí thành viên")}
                             </span>
                             <Input
-                              type="number"
+                              type="text"
                               placeholder="0"
                               className="h-8 bg-background text-xs"
                               value={feeMap[member.userId] ?? ""}
                               onChange={(e) =>
                                 setFeeMap((prev) => ({
                                   ...prev,
-                                  [member.userId]: e.target.value,
+                                  [member.userId]: formatVndString(
+                                    e.target.value
+                                  ),
                                 }))
                               }
                             />
@@ -880,14 +916,16 @@ function ExpenseForm({
                                 {t("finance.feePerGuest", "Phí mỗi khách")}
                               </span>
                               <Input
-                                type="number"
+                                type="text"
                                 placeholder="0"
                                 className="h-8 bg-background text-xs"
                                 value={guestUnitPriceMap[member.userId] ?? ""}
                                 onChange={(e) =>
                                   setGuestUnitPriceMap((prev) => ({
                                     ...prev,
-                                    [member.userId]: e.target.value,
+                                    [member.userId]: formatVndString(
+                                      e.target.value
+                                    ),
                                   }))
                                 }
                               />
@@ -1002,13 +1040,15 @@ function ExpenseForm({
                       }
 
                       selectedMembers.forEach((m, idx) => {
-                        newFees[m.userId] = (
-                          equalShare + (idx === 0 ? remainder : 0)
-                        ).toString()
+                        newFees[m.userId] = formatVndString(
+                          (equalShare + (idx === 0 ? remainder : 0)).toString()
+                        )
 
                         const gCount = Number(guestCountMap[m.userId] || 0)
                         if (gCount > 0) {
-                          newGuestUnitPrices[m.userId] = equalShare.toString()
+                          newGuestUnitPrices[m.userId] = formatVndString(
+                            equalShare.toString()
+                          )
                         } else {
                           newGuestUnitPrices[m.userId] = "0"
                         }
@@ -1049,7 +1089,7 @@ function ExpenseForm({
         <Button
           type="submit"
           disabled={
-            isPending || totalAmountNum <= 0 || allocations.length === 0
+            isPending || totalAmountNum < 1000 || allocations.length === 0
           }
           variant="orangeCard"
         >

@@ -846,34 +846,63 @@ export function GroupActivityDetailDrawer({
                   {/* 2. Walk-in Guest request action for attending member */}
                   {currentUserId && !isAbsent && (
                     <div className="pt-1">
-                      <Button
-                        onClick={() => {
-                          const currentVal =
-                            myAttendance?.pendingGuestCount ??
-                            myAttendance?.guestCount ??
-                            1
-                          setGuestCountInput(
-                            String(currentVal > 0 ? currentVal : 1)
+                      {(() => {
+                        const buttonEl = (
+                          <Button
+                            onClick={() => {
+                              const currentVal =
+                                myAttendance?.pendingGuestCount ??
+                                myAttendance?.guestCount ??
+                                1
+                              setGuestCountInput(
+                                String(currentVal > 0 ? currentVal : 1)
+                              )
+                              setIsGuestDialogOpen(true)
+                            }}
+                            disabled={
+                              readOnly ||
+                              !canToggleAbsence ||
+                              registerGuestsMutation.isPending
+                            }
+                            className="flex h-9 w-full items-center justify-center gap-2 bg-[#6B46C1] text-xs font-semibold text-white shadow-sm transition-all hover:bg-[#553C9A]"
+                          >
+                            {registerGuestsMutation.isPending && (
+                              <Loader2 className="mr-1.5 size-3 animate-spin text-white" />
+                            )}
+                            {myAttendance &&
+                            (myAttendance.guestCount > 0 ||
+                              (myAttendance.pendingGuestCount &&
+                                myAttendance.pendingGuestCount > 0))
+                              ? t("activitySchedule.btnRegisterGuestsUpdate", {
+                                  count:
+                                    myAttendance.pendingGuestCount ??
+                                    myAttendance.guestCount,
+                                })
+                              : `+ ${t("activitySchedule.btnRegisterGuests")}`}
+                          </Button>
+                        )
+
+                        if (!readOnly && !canToggleAbsence) {
+                          return (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="w-full cursor-not-allowed">
+                                    {buttonEl}
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>
+                                    {t("activitySchedule.pastDeadlineNotice")}
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           )
-                          setIsGuestDialogOpen(true)
-                        }}
-                        disabled={readOnly || registerGuestsMutation.isPending}
-                        className="flex h-9 w-full items-center justify-center gap-2 bg-[#6B46C1] text-xs font-semibold text-white shadow-sm transition-all hover:bg-[#553C9A]"
-                      >
-                        {registerGuestsMutation.isPending && (
-                          <Loader2 className="mr-1.5 size-3 animate-spin text-white" />
-                        )}
-                        {myAttendance &&
-                        (myAttendance.guestCount > 0 ||
-                          (myAttendance.pendingGuestCount &&
-                            myAttendance.pendingGuestCount > 0))
-                          ? t("activitySchedule.btnRegisterGuestsUpdate", {
-                              count:
-                                myAttendance.pendingGuestCount ??
-                                myAttendance.guestCount,
-                            })
-                          : `+ ${t("activitySchedule.btnRegisterGuests")}`}
-                      </Button>
+                        }
+
+                        return buttonEl
+                      })()}
 
                       {myAttendance &&
                         (myAttendance.guestCount > 0 ||

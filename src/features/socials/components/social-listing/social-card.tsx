@@ -10,7 +10,11 @@ import type { ListSocial as Social } from "@/features/socials/types/social"
 import { TOURNAMENT_THEME } from "@/features/tournaments/styles/theme"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
-import { getGenderPolicyLabel, getStatusClasses } from "../../utils"
+import {
+  getGenderPolicyLabel,
+  getStatusClasses,
+  isSocialExpired,
+} from "../../utils"
 
 interface SocialCardProps {
   social: Social
@@ -63,8 +67,13 @@ export default function SocialCard({ social, onClick }: SocialCardProps) {
           >
             {social.title}
           </h2>
-          <Badge className={getStatusClasses(social.status)} variant="outline">
-            {t(`labels.${social.status.toLowerCase()}`)}
+          <Badge
+            className={getStatusClasses(social.status, isSocialExpired(social))}
+            variant="outline"
+          >
+            {isSocialExpired(social) && social.status === "PUBLISHED"
+              ? t("labels.ended") || t("labels.completed") || "Ended"
+              : t(`labels.${social.status.toLowerCase()}`)}
           </Badge>
         </div>
       </CardHeader>

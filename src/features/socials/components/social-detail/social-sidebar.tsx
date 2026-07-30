@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { OpenChatButton } from "@/features/chat/components/open-chat-button"
+import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
 import {
@@ -29,7 +30,11 @@ import {
 } from "../../actions/social-form-actions"
 import useSocialDetailStore from "../../stores/social-detail-store"
 import type { SocialDetail, User as Host } from "../../types/social"
-import { isConfirmedLikeSocialParticipantStatus } from "../../utils"
+import {
+  isConfirmedLikeSocialParticipantStatus,
+  isSocialExpired,
+  isSocialStarted,
+} from "../../utils"
 
 function SettingRow({ label, value }: { label: string; value: string }) {
   return (
@@ -58,6 +63,15 @@ export default function SocialSidebar({
   const [isPublishing, setIsPublishing] = React.useState(false)
   const [isCompleting, setIsCompleting] = React.useState(false)
   const [publishDialogOpen, setPublishDialogOpen] = React.useState(false)
+
+  const { data: subscriptions } = useMySubscriptions()
+  const hasSocialHostPlan = Boolean(
+    subscriptions?.some(
+      (sub) => sub.status === "ACTIVE" && sub.plan.type === "SOCIAL_HOST"
+    )
+  )
+  const canCompleteSocial =
+    Boolean(social.isHost) && hasSocialHostPlan && social.status === "PUBLISHED"
 
   const handleComplete = async () => {
     setIsCompleting(true)
@@ -198,16 +212,18 @@ export default function SocialSidebar({
             </div>
           </div>
 
-          {social.isHost && social.status === "PUBLISHED" && (
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => setInviteDialogOpen(true)}
-            >
-              <Users className="mr-2 size-4" />
-              {t("invitation.openDialog")}
-            </Button>
-          )}
+          {social.isHost &&
+            social.status === "PUBLISHED" &&
+            !isSocialStarted(social) && (
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => setInviteDialogOpen(true)}
+              >
+                <Users className="mr-2 size-4" />
+                {t("invitation.openDialog")}
+              </Button>
+            )}
 
           {isEditable && social.status == "DRAFT" && (
             <Button
@@ -222,7 +238,7 @@ export default function SocialSidebar({
             </Button>
           )}
 
-          {isEditable && social.status === "PUBLISHED" && (
+          {canCompleteSocial && (
             <Button
               className="w-full bg-emerald-600 text-white hover:bg-emerald-700"
               size="lg"
@@ -249,6 +265,7 @@ export default function SocialSidebar({
           {!isParticipant &&
             !social.isHost &&
             social.status === "PUBLISHED" &&
+            !isSocialExpired(social) &&
             (social.hasAvailableSlots ? (
               <Button
                 className="w-full bg-emerald-600 text-white hover:bg-emerald-700"

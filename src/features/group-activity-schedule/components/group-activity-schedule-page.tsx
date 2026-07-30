@@ -739,6 +739,7 @@ export function GroupActivitySchedulePage({
         onOpenChange={setFormOpen}
         editingEvent={editingEvent}
         activeGroupId={groupId}
+        initialDate={format(selectedDate, "yyyy-MM-dd")}
         onCreate={handleCreateEvent}
         onUpdate={handleUpdateEvent}
         isSubmitting={createMutation.isPending || updateMutation.isPending}

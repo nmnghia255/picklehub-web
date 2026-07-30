@@ -21,6 +21,7 @@ import {
 } from "@/features/socials/stores/social-filter-store"
 import { useSocialsStore } from "@/features/socials/stores/social-listing-store"
 import type { ListSocial as Social } from "@/features/socials/types/social"
+import { isSocialExpired } from "@/features/socials/utils"
 import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { TOURNAMENT_THEME } from "@/features/tournaments/styles/theme"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
@@ -126,7 +127,8 @@ export default function SocialListing({
     return (
       social.status !== "CANCELLED" &&
       social.status !== "CANCELED" &&
-      social.status !== "COMPLETED"
+      social.status !== "COMPLETED" &&
+      !isSocialExpired(social)
     )
   })
 

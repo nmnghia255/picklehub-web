@@ -1,25 +1,32 @@
-"use client"
+import { useQuery } from "@tanstack/react-query"
 
-import { useAtomValue } from "jotai"
-import { useMemo } from "react"
+import { getGroupFeedNotificationsClient } from "@/features/groups/api/groups-client"
+import { useGroupsTranslation } from "@/i18n/use-groups-translation"
 
 import type { GroupFeedNotificationItem } from "../components/group-feed-notifications"
-import { groupFeedNotificationsAtom } from "../store/group-feed-store"
 
 export function useGroupFeedNotifications(groupId: string) {
-  const notifications = useAtomValue(groupFeedNotificationsAtom)
+  const { t } = useGroupsTranslation()
 
-  const filteredNotifications = useMemo(() => {
-    return notifications.filter((notification) => {
-      if (!notification.groupId) return true
-      return notification.groupId === groupId
-    })
-  }, [groupId, notifications])
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ["group-feed-notifications", groupId],
+    queryFn: () => getGroupFeedNotificationsClient(groupId),
+    enabled: !!groupId,
+  })
+
+  const mappedNotifications = (data ?? []).map((n) => ({
+    id: n.id,
+    groupId: n.groupId,
+    title: n.title,
+    message: n.message,
+    sentAt: n.createdAt,
+    senderName: t("roleOwner", "Trưởng nhóm"),
+  }))
 
   return {
-    notifications: filteredNotifications as GroupFeedNotificationItem[],
-    isLoading: false,
-    error: null,
-    refresh: () => undefined,
+    notifications: mappedNotifications as GroupFeedNotificationItem[],
+    isLoading,
+    error,
+    refresh: refetch,
   }
 }

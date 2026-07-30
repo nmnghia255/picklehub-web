@@ -24,6 +24,7 @@ import {
   canJoinPlaySession,
   canLeavePlaySession,
   isActiveSocialParticipantStatus,
+  isSessionExpired,
 } from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
@@ -75,7 +76,7 @@ export default function PlaySessionDetail({
         session.joinedCount,
         session.maxSlot,
         isParticipant
-      )
+      ) && !isSessionExpired(session)
     : false
   const canLeave = session
     ? canLeavePlaySession(session.status, isParticipant)
