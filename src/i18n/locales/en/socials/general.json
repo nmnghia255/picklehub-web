@@ -29,7 +29,8 @@
     "proceed": "Proceed",
     "currency": "VND",
     "validationError": "Please check the errors below:",
-    "playSession": "Play session"
+    "playSession": "Play session",
+    "saving": "saving"
   },
   "labels": {
     "published": "Published",

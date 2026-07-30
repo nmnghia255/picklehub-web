@@ -49,9 +49,31 @@ export function SocialFormBookingCard({
 
   const bookings = bookingsResponse?.data || []
 
+  const socialDate = useMemo(() => {
+    if (!formData.startTime || isNaN(new Date(formData.startTime).getTime()))
+      return null
+    const d = new Date(formData.startTime)
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+  }, [formData.startTime])
+
   const availableBookings = useMemo(() => {
-    return bookings.filter((b) => b.status === "CONFIRMED" && b.centerId)
-  }, [bookings])
+    return bookings.filter((b) => {
+      if (b.status !== "CONFIRMED" && !b.centerId) return false
+      if (b.linkedId && !formData.bookingIds?.includes(b.id)) return false
+
+      if (socialDate && !formData.bookingIds?.includes(b.id)) {
+        const bDate = new Date(b.date)
+        const bDay = new Date(
+          bDate.getFullYear(),
+          bDate.getMonth(),
+          bDate.getDate()
+        )
+        if (bDay.getTime() !== socialDate.getTime()) return false
+      }
+
+      return true
+    })
+  }, [bookings, formData.bookingIds, socialDate])
 
   const centers = useMemo(() => {
     const map = new Map<string, { id: string; name: string; address: string }>()
@@ -68,12 +90,25 @@ export function SocialFormBookingCard({
     return Array.from(map.values())
   }, [availableBookings, t])
 
-  const filteredBookings = useMemo(() => {
-    if (!selectedCenterId) return []
-    return availableBookings.filter(
-      (booking) => booking.centerId === selectedCenterId
+  const derivedCenterId = useMemo(() => {
+    if (!formData.bookingIds?.length || !availableBookings.length)
+      return undefined
+    const selectedBooking = availableBookings.find((booking) =>
+      formData.bookingIds.includes(booking.id)
     )
-  }, [availableBookings, selectedCenterId])
+    return selectedBooking?.centerId
+  }, [availableBookings, formData.bookingIds])
+
+  const effectiveSelectedCenterId = useMemo(() => {
+    return selectedCenterId || derivedCenterId
+  }, [selectedCenterId, derivedCenterId])
+
+  const filteredBookings = useMemo(() => {
+    if (!effectiveSelectedCenterId) return []
+    return availableBookings.filter(
+      (booking) => booking.centerId === effectiveSelectedCenterId
+    )
+  }, [availableBookings, effectiveSelectedCenterId])
 
   const bookingOptions = useMemo(() => {
     return filteredBookings.map((b) => {
@@ -87,17 +122,6 @@ export function SocialFormBookingCard({
       }
     })
   }, [filteredBookings, getBookingTimeString, i18n.language, t])
-
-  const derivedCenterId = useMemo(() => {
-    if (!formData.bookingIds?.length || !availableBookings.length)
-      return undefined
-    const selectedBooking = availableBookings.find((booking) =>
-      formData.bookingIds.includes(booking.id)
-    )
-    return selectedBooking?.centerId
-  }, [availableBookings, formData.bookingIds])
-
-  const effectiveSelectedCenterId = selectedCenterId || derivedCenterId
 
   const handleCenterChange = (centerId: string) => {
     setSelectedCenterId(centerId)
@@ -161,13 +185,14 @@ export function SocialFormBookingCard({
                 ))}
               </SelectContent>
             </Select>
-            {selectedCenterId ? (
+            {effectiveSelectedCenterId ? (
               <div className="space-y-2">
                 <Label>{t("sessionForm.addressLabel", "Địa chỉ")}</Label>
                 <Input
                   value={
-                    centers.find((center) => center.id === selectedCenterId)
-                      ?.address || ""
+                    centers.find(
+                      (center) => center.id === effectiveSelectedCenterId
+                    )?.address || ""
                   }
                   readOnly
                   className="h-8"
@@ -188,7 +213,7 @@ export function SocialFormBookingCard({
                 }))
               }}
               placeholder={
-                selectedCenterId
+                effectiveSelectedCenterId
                   ? t("sessionForm.bookingPlaceholder", "Chọn sân")
                   : t(
                       "sessionForm.centerFirstPlaceholder",
@@ -198,7 +223,7 @@ export function SocialFormBookingCard({
               emptyMessage={
                 isLoading
                   ? t("common.loading", "Đang tải...")
-                  : !selectedCenterId
+                  : !effectiveSelectedCenterId
                     ? t(
                         "sessionForm.centerFirstPlaceholder",
                         "Vui lòng chọn trung tâm trước"
@@ -208,7 +233,7 @@ export function SocialFormBookingCard({
                         "Không có sân nào phù hợp"
                       )
               }
-              disabled={!selectedCenterId}
+              disabled={!effectiveSelectedCenterId}
             />
           </div>
         </div>

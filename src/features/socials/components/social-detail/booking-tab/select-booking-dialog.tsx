@@ -90,7 +90,14 @@ export default function SelectBookingDialog({
         .then((res) => {
           if (!isMounted) return
           const rawList = res?.data || []
-          const filtered = rawList.filter((b) => b.status === "CONFIRMED")
+          const filtered = rawList
+            .filter((b) => b.status === "CONFIRMED")
+            .filter(
+              (b) =>
+                !b.linkedId ||
+                b.linkedId === socialId ||
+                currentBookingIds.includes(b.id)
+            )
           const fetched = filtered.map((bItem: unknown) => {
             const booking = bItem as Record<string, unknown> & {
               id?: string

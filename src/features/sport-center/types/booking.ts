@@ -140,6 +140,9 @@ export interface BookingResponse {
 
   playSessionId: string | null
 
+  linkedType: "SOCIAL" | null
+  linkedId: string | null
+
   paymentProofUrl: string | null
   paymentProofUploadedAt: string | null
 

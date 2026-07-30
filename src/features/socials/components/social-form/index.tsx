@@ -28,6 +28,13 @@ import { SocialFormPaymentCard } from "./social-form-payment-card"
 import { SocialFormScheduleCard } from "./social-form-schedule-card"
 import { SocialFormSidebar } from "./social-form-sidebar"
 
+function toLocalInputValue(dateStr: string): string {
+  const d = new Date(dateStr)
+  const offset = d.getTimezoneOffset()
+  const local = new Date(d.getTime() - offset * 60 * 1000)
+  return local.toISOString().slice(0, 16)
+}
+
 function createInitialFormData(): CreateSocialRequest {
   return {
     title: "",
@@ -57,8 +64,8 @@ function mapSocialToFormData(social: SocialDetail): SocialFormData {
   return {
     title: social.title,
     note: social.note,
-    startTime: new Date(social.startTime).toISOString().slice(0, 16),
-    endTime: new Date(social.endTime).toISOString().slice(0, 16),
+    startTime: toLocalInputValue(social.startTime),
+    endTime: toLocalInputValue(social.endTime),
     format: social.format,
     submitDupr: social.submitDupr,
     minimumLevel: social.minimumLevel,

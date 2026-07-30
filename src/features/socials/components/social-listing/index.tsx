@@ -21,7 +21,6 @@ import {
 } from "@/features/socials/stores/social-filter-store"
 import { useSocialsStore } from "@/features/socials/stores/social-listing-store"
 import type { ListSocial as Social } from "@/features/socials/types/social"
-import { isSocialExpired } from "@/features/socials/utils"
 import { useMySubscriptions } from "@/features/subscriptions/hooks/use-my-subscriptions"
 import { TOURNAMENT_THEME } from "@/features/tournaments/styles/theme"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
@@ -116,21 +115,7 @@ export default function SocialListing({
     }
   }
 
-  const hasExplicitStatusFilter =
-    Boolean(searchParams.get("status")) ||
-    Boolean(filters.status) ||
-    searchParams.get("tab") === "history" ||
-    filters.tab === "history"
-
-  const socials: Social[] = initialSocials.filter((social) => {
-    if (hasExplicitStatusFilter) return true
-    return (
-      social.status !== "CANCELLED" &&
-      social.status !== "CANCELED" &&
-      social.status !== "COMPLETED" &&
-      !isSocialExpired(social)
-    )
-  })
+  const socials: Social[] = initialSocials
 
   const hasNoResults = socials.length === 0
 

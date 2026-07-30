@@ -13,10 +13,13 @@ export default async function Page(props: {
   const limit = searchParams?.limit
     ? parseInt(searchParams.limit as string, 10)
     : 9
-  const tab = searchParams?.tab ? (searchParams.tab as string) : null
+  const tab = searchParams?.tab ? (searchParams.tab as string) : "upcoming"
   const role = searchParams?.role ? (searchParams.role as string) : null
   const status = searchParams?.status ? (searchParams.status as string) : null
   const search = searchParams?.search ? (searchParams.search as string) : null
+
+  // status
+  const effectiveStatus = status ?? null
 
   let socials = [] as ListSocial[]
   let pagination = {
@@ -32,7 +35,7 @@ export default async function Page(props: {
       role,
       page,
       limit,
-      status,
+      effectiveStatus,
       search
     )
     socials = result.data

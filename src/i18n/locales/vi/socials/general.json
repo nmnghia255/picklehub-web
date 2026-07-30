@@ -29,7 +29,8 @@
         "proceed": "Tiếp tục",
         "currency": "VND",
         "validationError": "Vui lòng kiểm tra các lỗi bên dưới:",
-        "playSession": "Phiên chơi"
+        "playSession": "Phiên chơi",
+        "saving": "Đang lưu..."
     },
     "labels": {
         "published": "Đã đăng",

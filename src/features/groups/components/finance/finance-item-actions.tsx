@@ -303,6 +303,7 @@ function TransactionForm({
     {}
   )
   const [txAmount, setTxAmount] = useState("")
+  const txAmountNum = Number(txAmount.replace(/\D/g, ""))
 
   useToastState(
     state,
@@ -330,6 +331,14 @@ function TransactionForm({
               name="amount"
               value={txAmount.replace(/\D/g, "")}
             />
+            {txAmountNum > 0 && txAmountNum < 1000 && (
+              <p className="mt-1 text-xs text-rose-500">
+                {t(
+                  "errors.invalidTotalAmountMin",
+                  "Tổng số tiền phải từ 1.000 VNĐ trở lên."
+                )}
+              </p>
+            )}
           </Field>
           <Field>
             <FieldLabel htmlFor="tx-receipt-file">

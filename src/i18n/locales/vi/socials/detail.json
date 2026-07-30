@@ -701,16 +701,16 @@
         "courtsCountDisplay": "{{count}} sân{{names}}",
         "totalCost": "Tổng chi phí đặt sân",
         "linkedBookingsTitle": "Danh sách booking liên kết",
-        "manageBookings": "Đổi Booking",
+        "manageBookings": "Đổi lịch đặt sân",
         "scheduleTitle": "Lịch trình sử dụng sân",
-        "noLinkedBookings": "Chưa có booking sân nào được liên kết.",
+        "noLinkedBookings": "Chưa có lịch đặt sân nào được liên kết.",
         "noAvailableBookings": "Không tìm thấy booking cá nhân khả dụng nào.",
         "minBookingError": "Sự kiện Social phải chứa ít nhất 1 booking sân.",
-        "updateSuccess": "Đã cập nhật danh sách booking sân thành công!",
-        "updateError": "Không thể cập nhật booking sân.",
-        "removeSuccess": "Đã gỡ booking sân.",
-        "selectDialogDesc": "Chọn các booking sân khả dụng của bạn để gán cho sự kiện Social này.",
-        "selectedCount": "Đã chọn: {{count}} booking",
-        "saveBookings": "Lưu Booking"
+        "updateSuccess": "Đã cập nhật danh sách lịch đặt sân thành công!",
+        "updateError": "Không thể cập nhật lịch đặt sân.",
+        "removeSuccess": "Đã gỡ lịch đặt sân.",
+        "selectDialogDesc": "Chọn các lịch đặt sân khả dụng của bạn để gán cho sự kiện Social này.",
+        "selectedCount": "Đã chọn: {{count}} lịch đặt sân",
+        "saveBookings": "Lưu"
     }
 }
