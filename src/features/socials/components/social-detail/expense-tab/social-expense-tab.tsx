@@ -113,7 +113,7 @@ export default function SocialExpenseTab({
                 </CardDescription>
               </div>
             </div>
-
+            {/* 
             <div className="flex flex-col flex-wrap gap-2 sm:flex-row">
               <Button
                 variant="outline"
@@ -125,7 +125,7 @@ export default function SocialExpenseTab({
                 <Calculator className="size-4" />
                 {t("expenses.actions.setPricing")}
               </Button>
-            </div>
+            </div> */}
           </div>
         </CardHeader>
 

@@ -1,10 +1,14 @@
 "use client"
 
 import { format } from "date-fns"
-import { Clock, UserCheck, UserX } from "lucide-react"
+import { Check, Clock, UserCheck, UserX } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { toast } from "sonner"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
   Empty,
@@ -14,6 +18,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { approveSessionParticipantAction } from "@/features/socials/actions/approve-play-session"
 import { isConfirmedLikeSocialParticipantStatus } from "@/features/socials/utils"
 import { useSocialsTranslation } from "@/i18n/use-socials-translation"
 
@@ -22,10 +27,20 @@ import { getParticipantStatusLabel } from "../../utils"
 
 export default function PlaySessionParticipants({
   participants = [],
+  socialId,
+  sessionId,
+  isHost,
+  isEditable,
 }: {
   participants: Array<PlaySessionParticipant>
+  socialId?: string
+  sessionId?: string
+  isHost?: boolean
+  isEditable?: boolean
 }) {
   const { t } = useSocialsTranslation()
+  const router = useRouter()
+  const [approvingId, setApprovingId] = useState<string | null>(null)
 
   const confirmedParticipants = (participants || []).filter(
     (p) =>
@@ -37,6 +52,24 @@ export default function PlaySessionParticipants({
   const waitingParticipants = (participants || []).filter(
     (p) => p.status === "WAITLISTED"
   )
+
+  const canApprove = Boolean((isHost || isEditable) && socialId && sessionId)
+
+  const handleApprove = async (participantId: string) => {
+    if (!socialId || !sessionId) return
+    setApprovingId(participantId)
+    try {
+      await approveSessionParticipantAction(socialId, sessionId, participantId)
+      toast.success(t("detail.approveSuccess"))
+      router.refresh()
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : t("detail.approveError")
+      )
+    } finally {
+      setApprovingId(null)
+    }
+  }
 
   const renderParticipantRow = (participant: PlaySessionParticipant) => {
     const name = participant.isHost
@@ -79,14 +112,6 @@ export default function PlaySessionParticipants({
                 >
                   {getParticipantStatusLabel(participant.status, t)}
                 </Badge>
-                {participant.status === "WAITLISTED" && (
-                  <Badge
-                    variant="outline"
-                    className="border-amber-500/40 text-amber-700 dark:text-amber-300"
-                  >
-                    Phí 0 VNĐ
-                  </Badge>
-                )}
                 {participant.skillLevel && (
                   <Badge variant="outline">
                     {t("common.level")} {participant.skillLevel}
@@ -95,16 +120,39 @@ export default function PlaySessionParticipants({
               </div>
             </div>
           </div>
-          {participant.joinedAt && (
-            <p
-              className="text-xs text-muted-foreground"
-              suppressHydrationWarning
-            >
-              {t("detail.joinedOn", {
-                date: format(new Date(participant.joinedAt), "dd/MM"),
-              })}
-            </p>
-          )}
+
+          <div className="flex flex-row items-end gap-2">
+            {participant.joinedAt && (
+              <p
+                className="text-xs text-muted-foreground"
+                suppressHydrationWarning
+              >
+                {t("detail.joinedOn", {
+                  date: format(new Date(participant.joinedAt), "dd/MM"),
+                })}
+              </p>
+            )}
+            {canApprove &&
+              participant.status === "WAITLISTED" &&
+              !participant.isHost && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-700"
+                  disabled={approvingId === participant.id}
+                  onClick={() => handleApprove(participant.id)}
+                >
+                  {approvingId === participant.id ? (
+                    t("common.loading")
+                  ) : (
+                    <>
+                      <Check className="mr-1.5 size-3.5" />
+                      {t("detail.approve")}
+                    </>
+                  )}
+                </Button>
+              )}
+          </div>
         </CardContent>
       </Card>
     )
@@ -124,7 +172,7 @@ export default function PlaySessionParticipants({
 
           <TabsTrigger value="waiting" className="gap-1.5">
             <Clock className="size-4 text-amber-600" />
-            <span>Danh sách chờ</span>
+            <span>{t("detail.waitingList")}</span>
             {waitingParticipants.length > 0 ? (
               <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-bold text-amber-700 dark:text-amber-300">
                 {waitingParticipants.length}
@@ -162,10 +210,9 @@ export default function PlaySessionParticipants({
                 <EmptyMedia variant="icon">
                   <UserX className="size-6 text-muted-foreground" />
                 </EmptyMedia>
-                <EmptyTitle>Không có ai trong hàng chờ ca này</EmptyTitle>
+                <EmptyTitle>{t("detail.noWaitingList")}</EmptyTitle>
                 <EmptyDescription>
-                  Các VĐV đăng ký sau khi hết slot hoặc hết deadline sẽ được
-                  chuyển vào hàng chờ.
+                  {t("detail.noWaitingListDescription")}
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>

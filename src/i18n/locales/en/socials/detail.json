@@ -23,7 +23,10 @@
     "noSkillLevelLimit": "No skill level limit",
     "kick": "Remove participant",
     "approve": "Approve",
-    "endedBanner": "This social has ended. New registrations and invitations are no longer available."
+    "endedBanner": "This social has ended. New registrations and invitations are no longer available.",
+    "waitingList": "Waiting List",
+    "noWaitingList": "No one is on the waitlist for this session",
+    "noWaitingListDescription": "Players who register after all slots are filled or after the deadline will be placed on the waitlist."
   },
   "playSessionOverview": {
     "minutes": "Minutes",

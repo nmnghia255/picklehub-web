@@ -270,7 +270,12 @@ export default function PlaySessionDetail({
                 )}
 
                 {tabValue === "1" && (
-                  <PlaySessionParticipants participants={participants} />
+                  <PlaySessionParticipants
+                    participants={initialParticipants}
+                    socialId={socialId}
+                    sessionId={sessionId}
+                    isHost={isHost}
+                  />
                 )}
 
                 {tabValue === "2" && (

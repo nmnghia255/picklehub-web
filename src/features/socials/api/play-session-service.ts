@@ -146,4 +146,16 @@ export const PlaySessionService = {
     )
     return unwrapApiResponse(response.data)
   },
+
+  approveSessionParticipant: async function (
+    socialId: string,
+    sessionId: string,
+    participantId: string
+  ): Promise<PlaySessionParticipant> {
+    const axios = await getAuthenticatedAxios()
+    const response = await axios.patch<ApiResponse<PlaySessionParticipant>>(
+      `/api/events/socials/${socialId}/play-sessions/${sessionId}/participants/${participantId}/approve`
+    )
+    return unwrapApiResponse(response.data)
+  },
 }

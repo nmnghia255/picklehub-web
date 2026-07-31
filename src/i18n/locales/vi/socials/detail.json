@@ -23,7 +23,10 @@
         "approveError": "Lỗi khi duyệt người tham gia",
         "kick": "Đá người tham gia",
         "approve": "Duyệt",
-        "endedBanner": "Buổi giao lưu này đã kết thúc. Đăng ký mới và gửi lời mời hiện không còn khả dụng."
+        "endedBanner": "Buổi giao lưu này đã kết thúc. Đăng ký mới và gửi lời mời hiện không còn khả dụng.",
+        "waitingList": "Danh sách chờ",
+        "noWaitingList": "Không có ai trong hàng chờ ca này",
+        "noWaitingListDescription": "Các VĐV đăng ký sau khi hết slot hoặc hết deadline sẽ được chuyển vào hàng chờ."
     },
     "playSessionOverview": {
         "minutes": "Phút",
